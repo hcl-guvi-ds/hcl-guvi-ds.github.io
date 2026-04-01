@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CV Interview Prep</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a16;color:#e2e8f0;font-family:'Segoe UI',sans-serif;min-height:100vh}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#1a1a2e}::-webkit-scrollbar-thumb{background:#667eea;border-radius:3px}
+#nav{background:linear-gradient(90deg,#1a1a2e,#16213e);border-bottom:1px solid #2d3748;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:100}
+#nav .logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px}
+#back-btn{background:#2d3748;border:none;color:#e2e8f0;padding:6px 12px;border-radius:7px;cursor:pointer;font-size:12px;display:none}
+.nav-btns{display:flex;gap:8px}
+.nav-btn{background:#2d3748;border:none;color:#e2e8f0;padding:6px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.nav-btn.active{background:linear-gradient(90deg,#667eea,#764ba2)}
+#progress-bar{width:80px;height:5px;background:#2d3748;border-radius:3px;overflow:hidden}
+#progress-fill{height:100%;background:linear-gradient(90deg,#667eea,#764ba2);transition:width .4s;width:0%}
+.view{display:none;padding:20px;max-width:900px;margin:0 auto}
+.view.active{display:block}
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-top:16px}
+.topic-card{background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #2d3748;border-radius:12px;padding:16px;cursor:pointer;transition:all .2s}
+.topic-card:hover{transform:translateY(-3px);border-color:#667eea}
+.topic-card.done{border-color:#2d5a2d;background:linear-gradient(135deg,#1a2a1a,#162316)}
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:8px;margin-top:6px;margin-right:4px}
+.badge.time{background:#1e2050;color:#667eea}
+.badge.quiz{background:#1a2a1a;color:#48bb78}
+.badge.anim{background:#1e1a2a;color:#9f7aea}
+.section-tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.stab{background:#2d3748;border:none;color:#e2e8f0;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.stab.active{background:linear-gradient(90deg,#667eea,#764ba2)}
+.stab-content{display:none}.stab-content.active{display:block}
+.demo-box{background:#1a1a2e;border:1px solid #2d3748;border-radius:12px;padding:20px;margin-bottom:16px}
+.demo-title{font-size:12px;font-weight:700;color:#667eea;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.demo-hint{font-size:11px;color:#718096;margin-bottom:12px}
+.quiz-q{font-size:14px;font-weight:600;color:#e2e8f0;margin-bottom:12px}
+.quiz-opt{padding:10px 14px;border-radius:8px;border:1px solid #2d3748;background:#1a1a2e;color:#e2e8f0;font-size:13px;cursor:pointer;margin-bottom:8px;width:100%;text-align:left;transition:all .2s}
+.quiz-opt:hover{border-color:#667eea}
+.quiz-opt.correct{background:#1a2a1a;border-color:#48bb78;color:#68d391}
+.quiz-opt.wrong{background:#2a1a1a;border-color:#e53e3e;color:#fc8181}
+.quiz-exp{font-size:12px;color:#a0aec0;font-style:italic;margin-top:8px;padding:8px;background:#12121f;border-radius:6px}
+.quiz-next{margin-top:10px;background:linear-gradient(90deg,#667eea,#764ba2);border:none;color:white;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700}
+.quiz-score{text-align:center;padding:20px}
+.msg{max-width:80%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;margin-bottom:8px}
+.msg.user{background:linear-gradient(135deg,#667eea,#764ba2);align-self:flex-end;border-radius:16px 16px 4px 16px;margin-left:auto}
+.msg.ai{background:#1a1a2e;border:1px solid #2d3748;align-self:flex-start;border-radius:16px 16px 16px 4px}
+.chat-wrap{display:flex;flex-direction:column}
+.chat-box{height:300px;overflow-y:auto;display:flex;flex-direction:column;margin-bottom:12px;padding-right:4px}
+.chat-input-row{display:flex;gap:8px}
+.chat-input-row input{flex:1;background:#1a1a2e;border:1px solid #2d3748;border-radius:10px;padding:10px 14px;color:#e2e8f0;font-size:13px;outline:none}
+.chat-send{background:linear-gradient(90deg,#667eea,#764ba2);border:none;color:white;padding:10px 18px;border-radius:10px;cursor:pointer;font-weight:700;font-size:13px}
+.chat-starters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chat-starter{background:#1a1a2e;border:1px solid #2d3748;color:#a0aec0;padding:6px 12px;border-radius:14px;cursor:pointer;font-size:11px}
+.typing-dots{display:flex;gap:5px;padding:10px 14px;background:#1a1a2e;border:1px solid #2d3748;border-radius:16px 16px 16px 4px;width:fit-content;margin-bottom:8px}
+.dot{width:6px;height:6px;border-radius:50%;background:#667eea;animation:bounce .9s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.slider-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.slider-row label{width:100px;font-size:12px;color:#a0aec0}
+input[type=range]{flex:1;accent-color:#667eea}
+.slider-val{width:40px;font-size:12px;color:#e2e8f0;text-align:right}
+.mark-done-btn{background:#2d3748;border:none;color:#e2e8f0;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;float:right}
+.mark-done-btn.done{background:#2d5a2d}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card2{background:#1a1a2e;border:2px solid var(--c,#2d3748);border-radius:10px;padding:14px}
+</style>
+</head>
+<body>
+
+<div id="nav">
+  <div style="display:flex;align-items:center;gap:10px">
+    <button id="back-btn" onclick="goHome()">← Back</button>
+    <div class="logo"><span>👁️</span><div><div>CV Interview Prep</div><div style="font-size:10px;color:#718096;font-weight:400">2-Hour Beginner Revision</div><div style="font-size:10px;color:#9f7aea;font-weight:500;margin-top:2px">Created by Vinodhini</div></div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:6px">
+      <div id="progress-bar"><div id="progress-fill"></div></div>
+      <span id="progress-text" style="font-size:11px;color:#a0aec0">0/10</span>
+    </div>
+    <div class="nav-btns">
+      <button class="nav-btn active" onclick="showView('home')">📋 Topics</button>
+      <button class="nav-btn" onclick="showView('chat')">💬 AI Tutor</button>
+    </div>
+  </div>
+</div>
+
+<div id="home-view" class="view active">
+  <h2 style="font-size:18px;font-weight:700;margin-bottom:4px">Your 2-Hour Revision Plan 🚀</h2>
+  <p style="color:#718096;font-size:13px">Click any topic to explore it with interactive animations</p>
+  <div class="topic-grid" id="topic-grid"></div>
+</div>
+
+<div id="section-view" class="view">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+    <div>
+      <div id="sec-emoji" style="font-size:28px;margin-bottom:4px"></div>
+      <h2 id="sec-title" style="font-size:18px;font-weight:700"></h2>
+      <p id="sec-desc" style="color:#718096;font-size:13px;margin-top:4px"></p>
+    </div>
+    <button class="mark-done-btn" id="mark-done-btn" onclick="toggleDone()">Mark Done</button>
+  </div>
+  <div class="section-tabs">
+    <button class="stab active" onclick="switchTab(0)">🎮 Interactive</button>
+    <button class="stab" onclick="switchTab(1)">✍️ Quiz</button>
+    <button class="stab" onclick="switchTab(2)">💬 Ask AI</button>
+  </div>
+  <div id="stab-interactive" class="stab-content active"></div>
+  <div id="stab-quiz" class="stab-content"></div>
+  <div id="stab-chat" class="stab-content">
+    <div class="demo-box">
+      <div class="demo-title">AI Tutor — Ask about this topic</div>
+      <div class="chat-starters" id="sec-starters"></div>
+      <div class="chat-wrap">
+        <div id="sec-chat-box" class="chat-box"></div>
+        <div class="chat-input-row">
+          <input id="sec-chat-input" placeholder="Ask anything about this topic..."/>
+          <button class="chat-send" onclick="secSend()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="chat-view" class="view">
+  <h2 style="font-size:18px;font-weight:700;margin-bottom:4px">💬 AI Tutor</h2>
+  <p style="color:#718096;font-size:13px;margin-bottom:16px">Ask me anything about Computer Vision</p>
+  <div class="demo-box">
+    <div class="chat-starters">
+      <button class="chat-starter" onclick="globalSend('What is a CNN?')">What is a CNN?</button>
+      <button class="chat-starter" onclick="globalSend('Explain IoU simply')">Explain IoU</button>
+      <button class="chat-starter" onclick="globalSend('YOLO vs R-CNN difference?')">YOLO vs R-CNN?</button>
+      <button class="chat-starter" onclick="globalSend('What is convolution?')">What is convolution?</button>
+      <button class="chat-starter" onclick="globalSend('Why do CNNs work for images?')">Why CNNs for images?</button>
+      <button class="chat-starter" onclick="globalSend('What is mAP in object detection?')">What is mAP?</button>
+    </div>
+    <div class="chat-wrap">
+      <div id="chat-box" class="chat-box"></div>
+      <div class="chat-input-row">
+        <input id="chat-input" placeholder="Ask about any CV concept..." onkeydown="if(event.key==='Enter')globalSend()"/>
+        <button class="chat-send" onclick="globalSend()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var completed = {};
+var currentSection = null;
+var globalMsgs = [];
+var secMsgs = {};
+
+// ── CURRICULUM ────────────────────────────────────────────────────────────────
+var curriculum = [
+  {id:1,emoji:"🧠",time:"10 min",title:"Intro to Computer Vision",
+   desc:"What CV is, where it's used, and how it differs from image processing.",
+   starters:["What is Computer Vision?","CV vs Deep Learning?","What is the CV pipeline?"],
+   quiz:[
+    {q:"What does Computer Vision enable machines to do?",opts:["Hear sound","Understand images","Read code","Translate text"],c:1,exp:"CV enables machines to interpret and understand visual data like images and video."},
+    {q:"Which is NOT a CV application?",opts:["Face recognition","Self-driving cars","Spell checking","Medical imaging"],c:2,exp:"Spell checking is NLP (text-based), not Computer Vision."}
+   ]},
+  {id:2,emoji:"🖼️",time:"20 min",title:"Image Processing Fundamentals",
+   desc:"Pixels, RGB, convolution kernels — the foundation of all CV systems.",
+   starters:["What is convolution?","Why apply filters?","Gaussian vs Mean filter?"],
+   quiz:[
+    {q:"What is a pixel?",opts:["A filter type","Smallest unit of a digital image","A kernel","A neural network"],c:1,exp:"A pixel (picture element) is the smallest unit of a digital image."},
+    {q:"What does a convolution kernel do?",opts:["Stores image data","Slides over image extracting features","Converts RGB to grayscale","Resizes image"],c:1,exp:"A kernel slides over the image computing a dot product at each position."},
+    {q:"RGB image has how many channels?",opts:["1","2","3","4"],c:2,exp:"RGB = Red, Green, Blue — 3 channels."}
+   ]},
+  {id:3,emoji:"🔍",time:"25 min",title:"Classical CV Techniques",
+   desc:"Edge detection, Harris corners, SIFT, SURF, ORB — classical feature methods.",
+   starters:["What is Canny edge detection?","Why was SIFT popular?","What is Harris corner?"],
+   quiz:[
+    {q:"Edge detection finds?",opts:["Color regions","Sharp intensity changes","Image center","Noise"],c:1,exp:"Edges are locations where pixel intensity changes sharply — usually object boundaries."},
+    {q:"Difference between feature detector and descriptor?",opts:["Same thing","Detector finds location; descriptor encodes appearance","Descriptor finds location","Neither used in CV"],c:1,exp:"Detector finds WHERE keypoints are; descriptor encodes WHAT they look like for matching."}
+   ]},
+  {id:4,emoji:"📐",time:"15 min",title:"Image Transformations",
+   desc:"Translation, rotation, scaling, affine transforms, and Hough Transform.",
+   starters:["What is affine transform?","Hough transform explained","When to use image rotation?"],
+   quiz:[
+    {q:"Affine Transform preserves?",opts:["Angles only","Parallel lines","Distances only","Colors"],c:1,exp:"Affine transforms preserve parallel lines — includes translation, rotation, scaling, shear."},
+    {q:"Hough Transform is used for?",opts:["Edge detection","Detecting geometric shapes like lines/circles","Image classification","Compression"],c:1,exp:"Hough Transform detects geometric shapes (lines, circles) even when partially occluded."}
+   ]},
+  {id:5,emoji:"🤖",time:"25 min",title:"Deep Learning for CV",
+   desc:"Why CNNs replaced classical CV — convolutions, pooling, feature maps, architectures.",
+   starters:["CNN vs ANN?","What is a feature map?","Explain ResNet skip connections"],
+   quiz:[
+    {q:"Why do CNNs work well for images?",opts:["They are faster","Preserve spatial structure + shared weights","Use more layers","Need less data"],c:1,exp:"CNNs use local receptive fields and shared weights, preserving spatial relationships in images."},
+    {q:"What does Pooling do?",opts:["Adds features","Reduces spatial dimensions","Applies activation","Connects to output"],c:1,exp:"Pooling downsamples feature maps, reducing computation and adding spatial invariance."},
+    {q:"What problem does ResNet solve?",opts:["Speed","Vanishing gradient in deep networks","Memory","Augmentation"],c:1,exp:"ResNet uses skip connections so gradients flow better, enabling very deep networks."}
+   ]},
+  {id:6,emoji:"📦",time:"15 min",title:"Object Detection",
+   desc:"Bounding boxes, IoU, NMS, YOLO, R-CNN — detecting objects in images.",
+   starters:["What is a bounding box?","Explain NMS step by step","One-stage vs two-stage detectors?"],
+   quiz:[
+    {q:"What is IoU?",opts:["A loss function","Intersection over Union of two boxes","A CNN type","Number of objects"],c:1,exp:"IoU = Area of Overlap / Area of Union. Measures how well a predicted box matches ground truth."},
+    {q:"What does NMS do?",opts:["Data augmentation","Removes duplicate bounding boxes","A pooling type","Activation function"],c:1,exp:"NMS removes redundant detections, keeping highest confidence box and suppressing overlapping ones."},
+    {q:"YOLO vs R-CNN key difference?",opts:["YOLO uses two stages","R-CNN is faster","YOLO detects in one pass; R-CNN proposes regions first","They are the same"],c:2,exp:"YOLO does everything in one forward pass (real-time); R-CNN first proposes regions then classifies."}
+   ]},
+  {id:7,emoji:"✂️",time:"7 min",title:"Image Segmentation",
+   desc:"Semantic vs instance segmentation, U-Net, Mask R-CNN and where they are used.",
+   starters:["What is semantic segmentation?","What is U-Net?","Segmentation in medical imaging?"],
+   quiz:[
+    {q:"Semantic vs Instance segmentation?",opts:["No difference","Semantic labels pixels by class; instance separates individual objects","Instance is faster","Semantic is for medical only"],c:1,exp:"Semantic seg classifies each pixel; instance seg also distinguishes between separate objects of the same class."}
+   ]},
+  {id:8,emoji:"📊",time:"5 min",title:"Evaluation Metrics",
+   desc:"Accuracy, Precision, Recall, IoU, mAP — how we measure model performance.",
+   starters:["Precision vs Recall trade-off?","What is mAP?","Explain confusion matrix"],
+   quiz:[
+    {q:"Why use mAP for object detection?",opts:["Faster to compute","Accounts for localization + classification across classes","Simpler","Accuracy is used"],c:1,exp:"mAP considers precision at different recall levels and averages across classes — more informative than accuracy."},
+    {q:"High Precision means?",opts:["We found all positives","Few false alarms — predicted positives are mostly correct","High recall","Fast inference"],c:1,exp:"Precision = TP/(TP+FP). High precision means when we predict positive, we are usually right."}
+   ]},
+  {id:9,emoji:"📚",time:"3 min",title:"Important Libraries",
+   desc:"OpenCV, PIL, scikit-image, PyTorch, TensorFlow — know when to use each.",
+   starters:["OpenCV vs PIL?","When to use PyTorch vs TensorFlow?","What can OpenCV do?"],
+   quiz:[
+    {q:"Best library for real-time camera processing?",opts:["PIL","scikit-image","OpenCV","Matplotlib"],c:2,exp:"OpenCV is optimized for real-time CV and has excellent camera/video support."}
+   ]},
+  {id:10,emoji:"⚡",time:"5 min",title:"Rapid Fire Revision",
+   desc:"Final quiz across all topics — simulate real interview questions!",
+   starters:["Quiz me on object detection","Explain the full CV pipeline","What should I memorize?"],
+   quiz:[
+    {q:"What is convolution?",opts:["Multiply images","Slide kernel over image computing dot products","Divide image into patches","Rotate image"],c:1,exp:"Convolution slides a kernel over the image, computing weighted sums to produce a feature map."},
+    {q:"Classification vs Detection?",opts:["Same thing","Classification labels whole image; detection also locates with bounding boxes","Detection only uses DL","Classification is faster always"],c:1,exp:"Classification answers 'Is there a cat?' Detection answers 'Where is the cat?' with a bounding box."},
+    {q:"IoU threshold for correct detection?",opts:["0.1","0.3","0.5","0.9"],c:2,exp:"IoU > 0.5 is the standard threshold used in benchmarks like PASCAL VOC."},
+    {q:"What is feature extraction?",opts:["Remove noise","Transform raw pixels into meaningful representations","Resize images","Convert to grayscale"],c:1,exp:"Feature extraction converts raw pixels into compact, meaningful representations used for recognition."}
+   ]}
+];
+
+// ── RENDER HOME ───────────────────────────────────────────────────────────────
+function renderHome() {
+  var grid = document.getElementById('topic-grid');
+  var html = '';
+  for (var i = 0; i < curriculum.length; i++) {
+    var s = curriculum[i];
+    var isDone = completed[s.id] ? ' done' : '';
+    html += '<div class="topic-card' + isDone + '" onclick="openSection(' + s.id + ')">';
+    html += '<div style="font-size:24px;margin-bottom:8px">' + s.emoji + '</div>';
+    html += '<h3 style="font-size:13px;font-weight:700;margin-bottom:4px">' + s.id + '. ' + s.title + '</h3>';
+    html += '<p style="font-size:11px;color:#718096;line-height:1.4">' + s.desc + '</p>';
+    html += '<div style="margin-top:8px">';
+    html += '<span class="badge time">' + s.time + '</span>';
+    html += '<span class="badge quiz">✍️ ' + s.quiz.length + ' Qs</span>';
+    html += '<span class="badge anim">🎮 Interactive</span>';
+    if (completed[s.id]) html += ' ✅';
+    html += '</div></div>';
+  }
+  grid.innerHTML = html;
+  updateProgress();
+}
+
+function updateProgress() {
+  var n = 0;
+  for (var k in completed) { if (completed[k]) n++; }
+  document.getElementById('progress-fill').style.width = (n / curriculum.length * 100) + '%';
+  document.getElementById('progress-text').textContent = n + '/' + curriculum.length;
+}
+
+function openSection(id) {
+  currentSection = null;
+  for (var i = 0; i < curriculum.length; i++) {
+    if (curriculum[i].id === id) { currentSection = curriculum[i]; break; }
+  }
+  if (!currentSection) return;
+  document.getElementById('sec-emoji').textContent = currentSection.emoji;
+  document.getElementById('sec-title').textContent = currentSection.title;
+  document.getElementById('sec-desc').textContent = currentSection.desc;
+  var btn = document.getElementById('mark-done-btn');
+  btn.textContent = completed[id] ? '✅ Done' : 'Mark Done';
+  btn.className = 'mark-done-btn' + (completed[id] ? ' done' : '');
+  // starters
+  var sh = '';
+  for (var j = 0; j < currentSection.starters.length; j++) {
+    var q = currentSection.starters[j];
+    sh += '<button class="chat-starter" onclick="secSendText(\'' + q.replace(/'/g,"&#39;") + '\')">' + q + '</button>';
+  }
+  document.getElementById('sec-starters').innerHTML = sh;
+  document.getElementById('stab-interactive').innerHTML = buildInteractive(currentSection);
+  renderQuiz(currentSection.quiz, 'stab-quiz');
+  document.getElementById('sec-chat-box').innerHTML = '';
+  switchTab(0);
+  showView('section');
+  document.getElementById('back-btn').style.display = 'block';
+  setTimeout(function() { initAnimations(currentSection.id); }, 50);
+}
+
+function toggleDone() {
+  var id = currentSection.id;
+  completed[id] = !completed[id];
+  var btn = document.getElementById('mark-done-btn');
+  btn.textContent = completed[id] ? '✅ Done' : 'Mark Done';
+  btn.className = 'mark-done-btn' + (completed[id] ? ' done' : '');
+  updateProgress();
+}
+
+function switchTab(idx) {
+  var stabs = document.querySelectorAll('.stab');
+  var contents = document.querySelectorAll('.stab-content');
+  for (var i = 0; i < stabs.length; i++) {
+    stabs[i].classList.toggle('active', i === idx);
+    contents[i].classList.toggle('active', i === idx);
+  }
+}
+
+function goHome() {
+  showView('home');
+  renderHome();
+  document.getElementById('back-btn').style.display = 'none';
+}
+
+function showView(name) {
+  var views = document.querySelectorAll('.view');
+  for (var i = 0; i < views.length; i++) views[i].classList.remove('active');
+  document.getElementById(name + '-view').classList.add('active');
+  var navBtns = document.querySelectorAll('.nav-btn');
+  navBtns[0].classList.toggle('active', name === 'home');
+  navBtns[1].classList.toggle('active', name === 'chat');
+  if (name !== 'section') document.getElementById('back-btn').style.display = 'none';
+}
+
+// ── BUILD INTERACTIVE ─────────────────────────────────────────────────────────
+function buildInteractive(s) {
+  switch(s.id) {
+    case 1:  return buildIntro();
+    case 2:  return buildImgProcessing();
+    case 3:  return buildClassicalCV();
+    case 4:  return buildTransforms();
+    case 5:  return buildCNN();
+    case 6:  return buildObjectDetection();
+    case 7:  return buildSegmentation();
+    case 8:  return buildMetrics();
+    case 9:  return buildLibraries();
+    case 10: return '<div class="demo-box" style="text-align:center;padding:30px"><div style="font-size:48px;margin-bottom:12px">⚡</div><p style="color:#a0aec0;margin-bottom:16px">This section is all quiz! Switch to the Quiz tab.</p><button class="quiz-next" onclick="switchTab(1)">Start Rapid Fire Quiz →</button></div>';
+    default: return '<p style="color:#718096">Demo coming soon.</p>';
+  }
+}
+
+// ── SECTION 1: INTRO ─────────────────────────────────────────────────────────
+function buildIntro() {
+  var apps = [
+    {icon:"😊",title:"Face Recognition",color:"#667eea",fact:"Your phone uses ~68 facial landmarks to verify identity in milliseconds!"},
+    {icon:"🚗",title:"Self-Driving Cars",color:"#ed8936",fact:"Cars process 30+ camera frames per second detecting pedestrians, lanes and signs simultaneously."},
+    {icon:"🏥",title:"Medical Imaging",color:"#e53e3e",fact:"CNNs detect diabetic retinopathy from eye scans with 90%+ accuracy — matching doctors!"},
+    {icon:"📄",title:"OCR",color:"#48bb78",fact:"Optical Character Recognition converts text in images to editable text. Used in Google Translate camera mode!"},
+    {icon:"🏭",title:"Quality Control",color:"#9f7aea",fact:"Factories use CV to inspect thousands of products per minute for defects invisible to the human eye."},
+    {icon:"🌿",title:"Agriculture",color:"#68d391",fact:"Drones with CV detect crop diseases early, scanning fields 10x faster than manual inspection."}
+  ];
+  var html = '<div class="demo-box">';
+  html += '<div class="demo-title">🌍 Real-World CV Applications — Click each!</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px">';
+  for (var i = 0; i < apps.length; i++) {
+    var a = apps[i];
+    var fact = a.fact.replace(/'/g, "&#39;");
+    html += '<div onclick="showFact(this,\'' + fact + '\')" style="background:#1a1a2e;border:2px solid ' + a.color + ';border-radius:10px;padding:14px;cursor:pointer;text-align:center;transition:transform .2s" onmouseover="this.style.transform=\'translateY(-3px)\'" onmouseout="this.style.transform=\'translateY(0)\'">';
+    html += '<div style="font-size:26px;margin-bottom:6px">' + a.icon + '</div>';
+    html += '<div style="font-size:12px;font-weight:700;color:' + a.color + '">' + a.title + '</div>';
+    html += '</div>';
+  }
+  html += '</div>';
+  html += '<div id="fact-box" style="display:none;margin-top:12px;background:#1e2050;border:1px solid #667eea;border-radius:8px;padding:12px;font-size:13px;color:#e2e8f0;line-height:1.5"></div>';
+  html += '</div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">🔄 The CV Pipeline — Animated</div>';
+  html += '<div style="display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;margin-top:8px">';
+  var steps = ["📸 Image","⚙️ Processing","🔍 Features","🤖 Model","🎯 Prediction"];
+  var colors = ["#4299e1","#9f7aea","#ed8936","#e53e3e","#48bb78"];
+  for (var pi = 0; pi < steps.length; pi++) {
+    html += '<div style="display:flex;align-items:center;gap:4px">';
+    html += '<div class="pipeline-step" style="background:#1a1a2e;border:2px solid #2d3748;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:700;opacity:.4;transition:all .5s;text-align:center" data-color="' + colors[pi] + '">' + steps[pi] + '</div>';
+    if (pi < steps.length - 1) html += '<div style="color:#4a5568;font-size:18px">→</div>';
+    html += '</div>';
+  }
+  html += '</div>';
+  html += '<div style="text-align:center;margin-top:12px"><button class="quiz-next" onclick="animatePipeline()">▶ Animate Pipeline</button></div>';
+  html += '</div>';
+  return html;
+}
+
+function showFact(el, fact) {
+  var fb = document.getElementById('fact-box');
+  fb.style.display = 'block';
+  fb.textContent = '💡 ' + fact;
+}
+
+function animatePipeline() {
+  var steps = document.querySelectorAll('.pipeline-step');
+  for (var i = 0; i < steps.length; i++) {
+    steps[i].style.opacity = '.4';
+    steps[i].style.borderColor = '#2d3748';
+    steps[i].style.background = '#1a1a2e';
+  }
+  (function animate(idx) {
+    if (idx >= steps.length) return;
+    var s = steps[idx];
+    var col = s.getAttribute('data-color');
+    s.style.opacity = '1';
+    s.style.borderColor = col;
+    s.style.background = col + '22';
+    s.style.transform = 'scale(1.1)';
+    setTimeout(function() { s.style.transform = 'scale(1)'; }, 300);
+    setTimeout(function() { animate(idx + 1); }, 500);
+  })(0);
+}
+
+// ── SECTION 2: IMAGE PROCESSING ───────────────────────────────────────────────
+function buildImgProcessing() {
+  var html = '<div class="demo-box">';
+  html += '<div class="demo-title">🎨 What is a Pixel? — Hover to explore</div>';
+  html += '<p class="demo-hint">A digital image is a grid of colored squares. Hover over any pixel!</p>';
+  html += '<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">';
+  html += '<div id="pixel-grid" style="display:inline-grid;grid-template-columns:repeat(10,1fr);gap:2px;border:2px solid #4a5568;border-radius:6px;padding:4px;background:#1a1a2e"></div>';
+  html += '<div id="pixel-info" style="background:#1e2050;border:1px solid #667eea;border-radius:8px;padding:14px;min-width:160px;font-size:12px;color:#a0aec0">Hover a pixel to inspect it</div>';
+  html += '</div></div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">🔴 RGB Color Mixer</div>';
+  html += '<p class="demo-hint">Each pixel stores 3 numbers (0-255) for Red, Green, Blue.</p>';
+  html += '<div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">';
+  html += '<div id="rgb-swatch" style="width:100px;height:100px;border-radius:50%;background:rgb(100,149,237);border:3px solid #4a5568;transition:background .1s;box-shadow:0 0 30px rgba(100,149,237,.6)"></div>';
+  html += '<div style="flex:1;min-width:200px">';
+  html += '<div class="slider-row"><label style="color:#e53e3e">R (Red)</label><input type="range" min="0" max="255" value="100" id="r-slider" oninput="updateRGB()"/><span class="slider-val" id="r-val">100</span></div>';
+  html += '<div class="slider-row"><label style="color:#48bb78">G (Green)</label><input type="range" min="0" max="255" value="149" id="g-slider" oninput="updateRGB()"/><span class="slider-val" id="g-val">149</span></div>';
+  html += '<div class="slider-row"><label style="color:#4299e1">B (Blue)</label><input type="range" min="0" max="255" value="237" id="b-slider" oninput="updateRGB()"/><span class="slider-val" id="b-val">237</span></div>';
+  html += '<div style="font-size:12px;color:#718096;margin-top:8px" id="rgb-text">rgb(100, 149, 237)</div>';
+  html += '</div></div></div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">🌀 Convolution — Step-by-Step</div>';
+  html += '<p class="demo-hint">A kernel slides over the image. At each position it multiplies values and sums them up.</p>';
+  html += '<canvas id="conv-canvas" width="520" height="200" style="width:100%;max-width:520px;background:#12121f;border-radius:8px"></canvas>';
+  html += '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">';
+  html += '<button class="quiz-next" onclick="stepConv(-1)">← Prev</button>';
+  html += '<button class="quiz-next" onclick="stepConv(1)">Next →</button>';
+  html += '<button class="quiz-next" style="background:#2d3748" onclick="autoConv()">▶ Auto Play</button>';
+  html += '<span id="conv-step-label" style="font-size:12px;color:#a0aec0;align-self:center">Step 1 / 9</span>';
+  html += '</div></div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">🔵 Image Filters — Click to Apply</div>';
+  html += '<p class="demo-hint">Different kernels produce different effects on an image.</p>';
+  html += '<canvas id="filter-canvas" width="400" height="120" style="width:100%;max-width:400px;background:#12121f;border-radius:8px"></canvas>';
+  html += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">';
+  html += '<button class="quiz-next" style="background:#2d3748" onclick="applyFilterDemo(\'original\')">Original</button>';
+  html += '<button class="quiz-next" style="background:#9f7aea" onclick="applyFilterDemo(\'blur\')">Gaussian Blur</button>';
+  html += '<button class="quiz-next" style="background:#e53e3e" onclick="applyFilterDemo(\'sharpen\')">Sharpen</button>';
+  html += '<button class="quiz-next" style="background:#ed8936" onclick="applyFilterDemo(\'edge\')">Edge Detect</button>';
+  html += '</div>';
+  html += '<div id="filter-label" style="font-size:12px;color:#a0aec0;margin-top:8px">Showing: Original</div>';
+  html += '</div>';
+  return html;
+}
+
+// ── SECTION 3: CLASSICAL CV ──────────────────────────────────────────────────
+function buildClassicalCV() {
+  var html = '<div class="demo-box">';
+  html += '<div class="demo-title">✏️ Edge Detection — Draw & Detect</div>';
+  html += '<p class="demo-hint">Draw on the left canvas, then click Detect Edges!</p>';
+  html += '<div style="display:flex;gap:12px;flex-wrap:wrap">';
+  html += '<canvas id="draw-canvas" width="260" height="200" style="background:#fff;border-radius:8px;cursor:crosshair;border:2px solid #4a5568"></canvas>';
+  html += '<div><div style="font-size:11px;color:#718096;margin-bottom:6px">Edge Result:</div><canvas id="edge-canvas" width="260" height="200" style="background:#000;border-radius:8px;border:2px solid #9f7aea"></canvas></div>';
+  html += '</div>';
+  html += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">';
+  html += '<button class="quiz-next" onclick="detectEdges()">🔍 Detect Edges</button>';
+  html += '<button class="quiz-next" style="background:#2d3748" onclick="clearDraw()">🗑 Clear</button>';
+  html += '<button class="quiz-next" style="background:#ed8936" onclick="drawSampleShape()">Draw Sample</button>';
+  html += '</div></div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">📍 Feature Detectors — SIFT vs ORB</div>';
+  html += '<div class="grid2">';
+  var dets = [
+    {name:"SIFT",color:"#9f7aea",pros:["Scale invariant","Rotation invariant","Very accurate","Used in panoramas"],cons:["Slow","Was patented"]},
+    {name:"ORB",color:"#48bb78",pros:["Very fast","Free & open source","Real-time capable","Based on FAST+BRIEF"],cons:["Less accurate","Not fully scale invariant"]}
+  ];
+  for (var d = 0; d < dets.length; d++) {
+    var det = dets[d];
+    html += '<div style="background:#1a1a2e;border:2px solid ' + det.color + ';border-radius:10px;padding:14px">';
+    html += '<div style="color:' + det.color + ';font-weight:700;font-size:15px;margin-bottom:8px">' + det.name + '</div>';
+    for (var p = 0; p < det.pros.length; p++) html += '<div style="font-size:11px;color:#68d391;margin-bottom:3px">✓ ' + det.pros[p] + '</div>';
+    for (var c = 0; c < det.cons.length; c++) html += '<div style="font-size:11px;color:#fc8181;margin-bottom:3px">✗ ' + det.cons[c] + '</div>';
+    html += '</div>';
+  }
+  html += '</div></div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">🎯 Harris Corner Detection — Animated</div>';
+  html += '<p class="demo-hint">Corners are where edges meet in two directions.</p>';
+  html += '<canvas id="corner-canvas" width="300" height="200" style="background:#1a1a2e;border-radius:8px;border:1px solid #4a5568"></canvas>';
+  html += '<div style="margin-top:10px"><button class="quiz-next" onclick="animateCorners()">▶ Detect Corners</button></div>';
+  html += '</div>';
+  return html;
+}
+
+// ── SECTION 4: TRANSFORMS ────────────────────────────────────────────────────
+function buildTransforms() {
+  var html = '<div class="demo-box">';
+  html += '<div class="demo-title">🔄 Geometric Transforms — Interactive</div>';
+  html += '<p class="demo-hint">Drag sliders to apply transforms in real time!</p>';
+  html += '<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">';
+  html += '<canvas id="transform-canvas" width="280" height="220" style="background:#12121f;border-radius:8px;border:1px solid #4a5568"></canvas>';
+  html += '<div style="flex:1;min-width:200px">';
+  html += '<div class="slider-row"><label style="color:#4299e1">↔ Translate X</label><input type="range" min="-80" max="80" value="0" id="tx-s" oninput="drawTransform()"/><span class="slider-val" id="tx-v">0</span></div>';
+  html += '<div class="slider-row"><label style="color:#4299e1">↕ Translate Y</label><input type="range" min="-60" max="60" value="0" id="ty-s" oninput="drawTransform()"/><span class="slider-val" id="ty-v">0</span></div>';
+  html += '<div class="slider-row"><label style="color:#9f7aea">↻ Rotate (°)</label><input type="range" min="-180" max="180" value="0" id="rot-s" oninput="drawTransform()"/><span class="slider-val" id="rot-v">0°</span></div>';
+  html += '<div class="slider-row"><label style="color:#48bb78">⤢ Scale</label><input type="range" min="0.2" max="2.5" step="0.05" value="1" id="sc-s" oninput="drawTransform()"/><span class="slider-val" id="sc-v">1.0</span></div>';
+  html += '<button class="quiz-next" style="margin-top:10px" onclick="resetTransforms()">Reset</button>';
+  html += '</div></div></div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">〰️ Hough Transform — Line Detection</div>';
+  html += '<p class="demo-hint">Click to add points, then detect the line through them!</p>';
+  html += '<canvas id="hough-canvas" width="300" height="200" style="background:#12121f;border-radius:8px;border:1px solid #4a5568;cursor:crosshair"></canvas>';
+  html += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">';
+  html += '<button class="quiz-next" onclick="detectHoughLines()">🔍 Detect Lines</button>';
+  html += '<button class="quiz-next" style="background:#2d3748" onclick="clearHough()">Clear</button>';
+  html += '<button class="quiz-next" style="background:#ed8936" onclick="addNoisyLine()">Add Noisy Line</button>';
+  html += '</div>';
+  html += '<div id="hough-info" style="font-size:12px;color:#a0aec0;margin-top:8px">Click to add points or use Add Noisy Line</div>';
+  html += '</div>';
+  return html;
+}
+
+// ── SECTION 5: CNN ───────────────────────────────────────────────────────────
+function buildCNN() {
+  var html = '<div class="demo-box">';
+  html += '<div class="demo-title">🏗️ CNN Architecture — Click Each Layer!</div>';
+  html += '<p class="demo-hint">Click any layer block to learn what it does.</p>';
+  html += '<canvas id="cnn-canvas" width="560" height="180" style="width:100%;max-width:560px;background:#12121f;border-radius:8px;cursor:pointer" onclick="handleCNNClick(event)"></canvas>';
+  html += '<div id="cnn-info" style="margin-top:12px;background:#1a1a2e;border:1px solid #2d3748;border-radius:8px;padding:12px;font-size:13px;color:#a0aec0;min-height:44px">Click a layer above to learn what it does →</div>';
+  html += '</div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">🔵 CNN vs ANN</div>';
+  html += '<div class="grid2">';
+  var comps = [
+    {name:"ANN",color:"#e53e3e",pts:["Flattens image — loses spatial info","Every pixel connects to every neuron","Millions of parameters","Breaks if image is shifted","Poor for images"]},
+    {name:"CNN",color:"#48bb78",pts:["Processes local patches — keeps spatial info","Shared weights across image","Far fewer parameters","Translation invariant!","Excellent for images"]}
+  ];
+  for (var ci = 0; ci < comps.length; ci++) {
+    var comp = comps[ci];
+    html += '<div style="background:#1a1a2e;border:2px solid ' + comp.color + ';border-radius:10px;padding:14px">';
+    html += '<div style="color:' + comp.color + ';font-weight:700;font-size:14px;margin-bottom:8px">' + comp.name + '</div>';
+    for (var pi2 = 0; pi2 < comp.pts.length; pi2++) html += '<div style="font-size:11px;color:#e2e8f0;margin-bottom:5px">• ' + comp.pts[pi2] + '</div>';
+    html += '</div>';
+  }
+  html += '</div></div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">📈 Popular Architectures — Click to learn</div>';
+  html += '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:12px">';
+  var archs = [
+    {name:"LeNet",year:"1998",color:"#4299e1",note:"First CNN! Used for handwriting recognition."},
+    {name:"AlexNet",year:"2012",color:"#9f7aea",note:"Won ImageNet by a huge margin. Started the DL boom."},
+    {name:"VGG",year:"2014",color:"#ed8936",note:"Very deep with simple 3x3 kernels. Easy to understand."},
+    {name:"ResNet",year:"2015",color:"#48bb78",note:"Skip connections let you train 100+ layer networks!"}
+  ];
+  for (var ai = 0; ai < archs.length; ai++) {
+    var arch = archs[ai];
+    html += '<div style="text-align:center;flex:1;min-width:80px;cursor:pointer" onclick="toggleArchNote(this)">';
+    html += '<div style="background:' + arch.color + ';color:#0f0f1a;font-weight:700;font-size:11px;padding:4px 10px;border-radius:12px;display:inline-block">' + arch.name + '</div>';
+    html += '<div style="font-size:10px;color:#718096;margin-top:4px">' + arch.year + '</div>';
+    html += '<div class="arch-note" style="display:none;font-size:10px;color:#a0aec0;margin-top:4px;background:#1a1a2e;border-radius:6px;padding:6px">' + arch.note + '</div>';
+    html += '</div>';
+  }
+  html += '</div><div style="font-size:11px;color:#718096;text-align:center;margin-top:8px">Click each to learn more</div>';
+  html += '</div>';
+  return html;
+}
+
+function toggleArchNote(el) {
+  var note = el.querySelector('.arch-note');
+  note.style.display = note.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── SECTION 6: OBJECT DETECTION ──────────────────────────────────────────────
+function buildObjectDetection() {
+  var html = '<div class="demo-box">';
+  html += '<div class="demo-title">📦 Draw Bounding Boxes — Try It!</div>';
+  html += '<p class="demo-hint">Select a class, then click and drag on the canvas to draw boxes!</p>';
+  html += '<canvas id="bbox-canvas" width="500" height="260" style="width:100%;max-width:500px;background:#1a1a2e;border-radius:8px;border:2px solid #4a5568;cursor:crosshair"></canvas>';
+  html += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">';
+  html += '<button class="quiz-next" style="background:#4299e1" onclick="setBboxClass(\'person\')">👤 Person</button>';
+  html += '<button class="quiz-next" style="background:#e53e3e" onclick="setBboxClass(\'car\')">🚗 Car</button>';
+  html += '<button class="quiz-next" style="background:#48bb78" onclick="setBboxClass(\'dog\')">🐕 Dog</button>';
+  html += '<button class="quiz-next" style="background:#2d3748" onclick="clearBboxes()">🗑 Clear</button>';
+  html += '</div>';
+  html += '<div id="bbox-info" style="font-size:12px;color:#a0aec0;margin-top:6px">Select a class then drag to draw a box.</div>';
+  html += '</div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">📐 IoU — Intersection over Union</div>';
+  html += '<p class="demo-hint">Drag the slider to see how box overlap affects IoU score.</p>';
+  html += '<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center">';
+  html += '<canvas id="iou-canvas" width="260" height="200" style="background:#12121f;border-radius:8px;border:1px solid #4a5568"></canvas>';
+  html += '<div style="flex:1;min-width:180px">';
+  html += '<div class="slider-row"><label style="color:#4299e1">Overlap</label><input type="range" min="0" max="100" value="40" id="iou-slider" oninput="updateIoU()"/><span class="slider-val" id="iou-val">40</span></div>';
+  html += '<div style="margin-top:12px;text-align:center">';
+  html += '<div style="font-size:13px;color:#a0aec0;margin-bottom:6px">IoU Score:</div>';
+  html += '<div id="iou-score" style="font-size:36px;font-weight:700;color:#48bb78">-</div>';
+  html += '<div id="iou-verdict" style="font-size:13px;margin-top:6px"></div>';
+  html += '</div>';
+  html += '<div style="margin-top:12px;font-size:11px;color:#718096;line-height:1.8">';
+  html += '<div>🔵 Blue = Ground Truth</div><div>🔴 Red = Prediction</div><div>🟡 Yellow = Intersection</div>';
+  html += '</div></div></div>';
+  html += '<div style="margin-top:10px;background:#1e2050;border-radius:8px;padding:10px;font-size:12px;color:#a0aec0">';
+  html += '📐 <b style="color:#e2e8f0">Formula:</b> IoU = Intersection Area ÷ Union Area &nbsp;|&nbsp; <b style="color:#48bb78">IoU &gt; 0.5</b> = Correct detection ✅';
+  html += '</div></div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">🗑️ Non-Max Suppression (NMS) — Animated</div>';
+  html += '<p class="demo-hint">Models predict multiple boxes per object. NMS removes duplicates keeping the best one.</p>';
+  html += '<canvas id="nms-canvas" width="400" height="220" style="width:100%;max-width:400px;background:#12121f;border-radius:8px;border:1px solid #4a5568"></canvas>';
+  html += '<div style="display:flex;gap:8px;margin-top:10px">';
+  html += '<button class="quiz-next" onclick="animateNMS()">▶ Run NMS</button>';
+  html += '<button class="quiz-next" style="background:#2d3748" onclick="resetNMS()">Reset</button>';
+  html += '</div>';
+  html += '<div id="nms-info" style="font-size:12px;color:#a0aec0;margin-top:8px">Click Run NMS to see duplicate boxes removed</div>';
+  html += '</div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">📋 Bounding Box Format — How We Feed Data to the Model</div>';
+  html += '<p class="demo-hint">Click any object to see how its bounding box is represented in data!</p>';
+  html += '<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">';
+  html += '<div style="position:relative;flex:0 0 auto">';
+  html += '<canvas id="bbox-format-canvas" width="300" height="200" style="background:#1e2a3a;border-radius:8px;border:2px solid #4a5568;cursor:pointer"></canvas>';
+  html += '</div>';
+  html += '<div style="flex:1;min-width:200px">';
+  html += '<div id="bbox-format-info" style="background:#12121f;border:1px solid #2d3748;border-radius:8px;padding:12px;font-size:12px;color:#a0aec0;min-height:120px">';
+  html += '<div style="color:#667eea;font-weight:700;margin-bottom:8px">Click an object →</div>';
+  html += '<div>Each bounding box is represented as a set of coordinates telling the model exactly WHERE in the image the object is.</div></div>';
+  html += '<div style="margin-top:10px;background:#1e2050;border-radius:8px;padding:10px;font-size:11px;color:#a0aec0">';
+  html += '<div style="color:#e2e8f0;font-weight:700;margin-bottom:6px">📐 Two common formats:</div>';
+  html += '<div style="margin-bottom:4px"><span style="color:#4299e1;font-family:monospace">[x_min, y_min, x_max, y_max]</span> — PASCAL VOC</div>';
+  html += '<div><span style="color:#48bb78;font-family:monospace">[cx, cy, width, height]</span> — YOLO (normalized 0–1)</div>';
+  html += '</div>';
+  html += '</div></div></div>';
+
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">😊 Face Detection — Landmarks & Bounding Box</div>';
+  html += '<p class="demo-hint">Click "Detect Faces" to see how a face detector outputs boxes AND key landmarks!</p>';
+  html += '<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">';
+  html += '<canvas id="face-canvas" width="320" height="240" style="background:#1e1a2a;border-radius:8px;border:2px solid #4a5568"></canvas>';
+  html += '<div style="flex:1;min-width:160px">';
+  html += '<div style="display:flex;flex-direction:column;gap:8px">';
+  html += '<button class="quiz-next" onclick="runFaceDetection()">😊 Detect Faces</button>';
+  html += '<button class="quiz-next" style="background:#9f7aea" onclick="toggleLandmarks()">👁 Toggle Landmarks</button>';
+  html += '<button class="quiz-next" style="background:#2d3748" onclick="resetFaceCanvas()">Reset</button>';
+  html += '</div>';
+  html += '<div id="face-output" style="margin-top:10px;background:#12121f;border:1px solid #2d3748;border-radius:8px;padding:10px;font-size:11px;color:#a0aec0;font-family:monospace;min-height:80px;white-space:pre-line">Click Detect Faces...</div>';
+  html += '</div></div></div>';
+
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">😮 Emotion Detection — Classification on Detected Face</div>';
+  html += '<p class="demo-hint">Emotion detection is a 2-step pipeline: first detect face → then classify emotion. Click each face!</p>';
+  html += '<canvas id="emotion-canvas" width="480" height="200" style="width:100%;max-width:480px;background:#1a1a2e;border-radius:8px;border:2px solid #4a5568;cursor:pointer" onclick="handleEmotionClick(event)"></canvas>';
+  html += '<div id="emotion-pipeline" style="margin-top:10px;background:#12121f;border:1px solid #2d3748;border-radius:8px;padding:12px;font-size:12px;color:#a0aec0">';
+  html += '<div style="color:#667eea;font-weight:700;margin-bottom:6px">Pipeline: Click a face above to detect its emotion</div>';
+  html += '<div>Step 1: Face detector finds bounding box → Step 2: Emotion CNN classifies the cropped face patch</div>';
+  html += '</div></div>';
+
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">⚡ YOLO vs R-CNN</div>';
+  html += '<div class="grid2">';
+  var models = [
+    {name:"R-CNN (Two-Stage)",color:"#9f7aea",steps:["1️⃣ Propose ~2000 regions","2️⃣ Classify each region","✅ Very accurate","❌ ~47 seconds/image"]},
+    {name:"YOLO (One-Stage)",color:"#ed8936",steps:["1️⃣ Divide image into grid","2️⃣ Predict all boxes at once","✅ Real-time speed","✅ 45+ frames/second"]}
+  ];
+  for (var mi = 0; mi < models.length; mi++) {
+    var m = models[mi];
+    html += '<div style="background:#1a1a2e;border:2px solid ' + m.color + ';border-radius:10px;padding:14px">';
+    html += '<div style="color:' + m.color + ';font-weight:700;font-size:13px;margin-bottom:8px">' + m.name + '</div>';
+    for (var si = 0; si < m.steps.length; si++) html += '<div style="font-size:11px;color:#e2e8f0;margin-bottom:5px">' + m.steps[si] + '</div>';
+    html += '</div>';
+  }
+  html += '</div></div>';
+  return html;
+}
+
+// ── SECTION 7: SEGMENTATION ──────────────────────────────────────────────────
+function buildSegmentation() {
+  var html = '<div class="demo-box">';
+  html += '<div class="demo-title">🖌️ How Segmentation Works — Pixel-Level Prediction</div>';
+  html += '<p class="demo-hint">Segmentation outputs a mask — every pixel gets a class label. Click a mode to see it!</p>';
+  html += '<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start">';
+  html += '<div style="text-align:center">';
+  html += '<canvas id="seg-input-canvas" width="200" height="160" style="background:#1e2a3a;border-radius:8px;border:1px solid #4a5568"></canvas>';
+  html += '<div style="font-size:10px;color:#718096;margin-top:4px">Input Image</div>';
+  html += '</div>';
+  html += '<div style="display:flex;flex-direction:column;justify-content:center;gap:8px;padding-top:40px">';
+  html += '<button class="quiz-next" onclick="runSegDemo(\'semantic\')">🎨 Semantic</button>';
+  html += '<button class="quiz-next" style="background:#9f7aea" onclick="runSegDemo(\'instance\')">🔢 Instance</button>';
+  html += '<button class="quiz-next" style="background:#ed8936" onclick="runSegDemo(\'binary\')">⬛ Binary Mask</button>';
+  html += '<button class="quiz-next" style="background:#2d3748" onclick="runSegDemo(\'original\')">🔄 Reset</button>';
+  html += '</div>';
+  html += '<div style="text-align:center">';
+  html += '<canvas id="seg-output-canvas" width="200" height="160" style="background:#1a1a2e;border-radius:8px;border:1px solid #4a5568"></canvas>';
+  html += '<div id="seg-output-label" style="font-size:10px;color:#718096;margin-top:4px">Output Mask</div>';
+  html += '</div>';
+  html += '</div>';
+  html += '<div id="seg-class-legend" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"></div>';
+  html += '</div>';
+
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">📊 Detection vs Segmentation — What\'s the Difference?</div>';
+  html += '<div class="grid2">';
+  html += '<div style="background:#1a1a2e;border:2px solid #4299e1;border-radius:10px;padding:14px">';
+  html += '<div style="color:#4299e1;font-weight:700;font-size:13px;margin-bottom:8px">🟦 Object Detection</div>';
+  html += '<canvas id="det-compare-canvas" width="180" height="120" style="background:#1e2a3a;border-radius:6px;width:100%;max-width:180px"></canvas>';
+  html += '<div style="font-size:11px;color:#a0aec0;margin-top:8px">Output: <b style="color:#e2e8f0">[x, y, w, h, class, score]</b><br/>Coarse — rectangular box only</div>';
+  html += '</div>';
+  html += '<div style="background:#1a1a2e;border:2px solid #9f7aea;border-radius:10px;padding:14px">';
+  html += '<div style="color:#9f7aea;font-weight:700;font-size:13px;margin-bottom:8px">🔷 Instance Segmentation</div>';
+  html += '<canvas id="seg-compare-canvas" width="180" height="120" style="background:#1e2a3a;border-radius:6px;width:100%;max-width:180px"></canvas>';
+  html += '<div style="font-size:11px;color:#a0aec0;margin-top:8px">Output: <b style="color:#e2e8f0">pixel mask per object</b><br/>Fine-grained — exact boundary shape</div>';
+  html += '</div></div></div>';
+
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">🎭 Mask R-CNN Pipeline — Animated</div>';
+  html += '<p class="demo-hint">Mask R-CNN adds a mask prediction branch on top of Faster R-CNN. Click Run to see each stage!</p>';
+  html += '<canvas id="maskrcnn-canvas" width="500" height="180" style="width:100%;max-width:500px;background:#12121f;border-radius:8px;border:1px solid #4a5568"></canvas>';
+  html += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">';
+  html += '<button class="quiz-next" onclick="animateMaskRCNN()">▶ Run Pipeline</button>';
+  html += '<button class="quiz-next" style="background:#2d3748" onclick="resetMaskRCNN()">Reset</button>';
+  html += '</div>';
+  html += '<div id="maskrcnn-info" style="font-size:12px;color:#a0aec0;margin-top:8px">Click Run Pipeline to see the Mask R-CNN stages</div>';
+  html += '</div>';
+
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">🎨 Semantic vs Instance Segmentation</div>';
+  html += '<p class="demo-hint">Click the buttons to switch between modes!</p>';
+  html += '<canvas id="seg-canvas" width="400" height="220" style="width:100%;max-width:400px;background:#12121f;border-radius:8px;border:1px solid #4a5568"></canvas>';
+  html += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">';
+  html += '<button class="quiz-next" style="background:#2d3748" onclick="drawSegScene(\'original\')">Original</button>';
+  html += '<button class="quiz-next" style="background:#4299e1" onclick="drawSegScene(\'semantic\')">Semantic</button>';
+  html += '<button class="quiz-next" style="background:#9f7aea" onclick="drawSegScene(\'instance\')">Instance</button>';
+  html += '</div>';
+  html += '<div id="seg-info" style="font-size:12px;color:#a0aec0;margin-top:8px">Click a mode above</div>';
+  html += '</div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">🏗️ U-Net Architecture</div>';
+  html += '<canvas id="unet-canvas" width="500" height="200" style="width:100%;max-width:500px;background:#12121f;border-radius:8px"></canvas>';
+  html += '<div style="margin-top:8px;font-size:12px;color:#a0aec0">U-Net compresses (encoder) then expands (decoder) with skip connections — great for medical imaging!</div>';
+  html += '</div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">🏥 Applications</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px">';
+  var apps2 = [
+    {icon:"🩺",title:"Tumor Detection",text:"Segment tumors in MRI/CT scans pixel-by-pixel"},
+    {icon:"🚘",title:"Autonomous Driving",text:"Label every pixel as road, car, pedestrian, sky"},
+    {icon:"🛰️",title:"Satellite Imagery",text:"Map buildings, forests, water from aerial photos"},
+    {icon:"🔬",title:"Cell Counting",text:"Count and measure individual cells in microscopy"}
+  ];
+  for (var ai2 = 0; ai2 < apps2.length; ai2++) {
+    var app = apps2[ai2];
+    html += '<div style="background:#1a1a2e;border:1px solid #2d3748;border-radius:10px;padding:12px">';
+    html += '<div style="font-size:24px;margin-bottom:6px">' + app.icon + '</div>';
+    html += '<div style="font-size:12px;font-weight:700;color:#e2e8f0;margin-bottom:4px">' + app.title + '</div>';
+    html += '<div style="font-size:11px;color:#718096;line-height:1.4">' + app.text + '</div>';
+    html += '</div>';
+  }
+  html += '</div></div>';
+  return html;
+}
+
+// ── SECTION 8: METRICS ───────────────────────────────────────────────────────
+function buildMetrics() {
+  var html = '<div class="demo-box">';
+  html += '<div class="demo-title">🎯 Precision & Recall — Live Confusion Matrix</div>';
+  html += '<p class="demo-hint">Drag sliders to see how TP, FP, FN affect your metrics.</p>';
+  html += '<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">';
+  html += '<canvas id="cm-canvas" width="220" height="180" style="background:#12121f;border-radius:8px;border:1px solid #4a5568"></canvas>';
+  html += '<div style="flex:1;min-width:200px">';
+  html += '<div class="slider-row"><label style="color:#48bb78;font-size:11px">True Positives (TP)</label><input type="range" min="0" max="100" value="60" id="tp-s" oninput="updateMetrics()"/><span class="slider-val" id="tp-v">60</span></div>';
+  html += '<div class="slider-row"><label style="color:#e53e3e;font-size:11px">False Positives (FP)</label><input type="range" min="0" max="100" value="20" id="fp-s" oninput="updateMetrics()"/><span class="slider-val" id="fp-v">20</span></div>';
+  html += '<div class="slider-row"><label style="color:#ed8936;font-size:11px">False Negatives (FN)</label><input type="range" min="0" max="100" value="15" id="fn-s" oninput="updateMetrics()"/><span class="slider-val" id="fn-v">15</span></div>';
+  html += '<div id="metrics-display" style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>';
+  html += '</div></div></div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">📊 Precision-Recall Curve</div>';
+  html += '<canvas id="pr-canvas" width="400" height="200" style="width:100%;max-width:400px;background:#12121f;border-radius:8px;border:1px solid #4a5568"></canvas>';
+  html += '<div style="font-size:12px;color:#718096;margin-top:8px">Area under the P-R curve = Average Precision (AP). mAP averages this across all classes.</div>';
+  html += '</div>';
+  html += '<div class="demo-box">';
+  html += '<div class="demo-title">📐 mAP — Mean Average Precision</div>';
+  html += '<canvas id="map-canvas" width="500" height="200" style="width:100%;max-width:500px;background:#12121f;border-radius:8px"></canvas>';
+  html += '<div style="margin-top:10px">';
+  html += '<div class="slider-row"><label style="color:#667eea">IoU Threshold</label><input type="range" min="0" max="100" value="50" id="map-thresh" oninput="updateMAP()"/><span class="slider-val" id="map-thresh-v">0.50</span></div>';
+  html += '</div>';
+  html += '<div style="font-size:12px;color:#a0aec0;margin-top:8px;background:#1e2050;padding:10px;border-radius:8px">Higher IoU threshold = stricter evaluation = lower mAP. COCO uses IoU 0.5:0.95 averaged.</div>';
+  html += '</div>';
+  return html;
+}
+
+// ── SECTION 9: LIBRARIES ─────────────────────────────────────────────────────
+function buildLibraries() {
+  var libs = [
+    {name:"OpenCV",icon:"👁️",color:"#4299e1",use:"Real-time processing, camera feeds, classical CV",ex:"cv2.imread(), cv2.Canny(), cv2.VideoCapture()",best:"Fast prototyping, production CV pipelines"},
+    {name:"PIL / Pillow",icon:"🖼️",color:"#9f7aea",use:"Basic image loading, format conversion, simple transforms",ex:"Image.open(), img.resize(), img.crop()",best:"Preprocessing images before feeding to DL models"},
+    {name:"scikit-image",icon:"🔬",color:"#48bb78",use:"Scientific image processing, morphology, measurements",ex:"skimage.filters.gaussian(), skimage.measure",best:"Research and analysis on image data"},
+    {name:"PyTorch",icon:"🔥",color:"#e53e3e",use:"Training deep learning models — CNNs, ViTs, etc.",ex:"torch.nn.Conv2d, torchvision.models.resnet50()",best:"Research + production ML (dominant in 2024)"},
+    {name:"TensorFlow/Keras",icon:"⚡",color:"#ed8936",use:"Production deep learning, mobile deployment via TFLite",ex:"tf.keras.layers.Conv2D, model.fit()",best:"Industry + mobile/edge deployment"}
+  ];
+  var html = '<div class="demo-box"><div class="demo-title">📚 CV Libraries — When to Use What</div><div style="display:grid;gap:12px">';
+  for (var li = 0; li < libs.length; li++) {
+    var l = libs[li];
+    html += '<div style="background:#1a1a2e;border:2px solid ' + l.color + ';border-radius:10px;padding:14px;display:grid;grid-template-columns:40px 1fr;gap:12px;align-items:start">';
+    html += '<div style="font-size:26px">' + l.icon + '</div>';
+    html += '<div>';
+    html += '<div style="color:' + l.color + ';font-weight:700;font-size:14px;margin-bottom:6px">' + l.name + '</div>';
+    html += '<div style="font-size:11px;color:#a0aec0;margin-bottom:4px"><b style="color:#e2e8f0">Use for:</b> ' + l.use + '</div>';
+    html += '<div style="font-size:11px;color:#667eea;margin-bottom:4px;font-family:monospace;background:#0f0f1a;padding:3px 6px;border-radius:4px">' + l.ex + '</div>';
+    html += '<div style="font-size:11px;color:#68d391"><b>Best for:</b> ' + l.best + '</div>';
+    html += '</div></div>';
+  }
+  html += '</div></div>';
+  return html;
+}
+
+// ── ANIMATION INITIALIZERS ────────────────────────────────────────────────────
+function initAnimations(id) {
+  if (id === 2) { initPixelGrid(); convStep = 0; drawConvStep(); applyFilterDemo('original'); }
+  if (id === 3) { initDrawCanvas(); drawCornerScene(false); }
+  if (id === 4) { drawTransform(); initHoughCanvas(); }
+  if (id === 5) { drawCNN(); }
+  if (id === 6) { initBboxCanvas(); updateIoU(); resetNMS(); initBboxFormatCanvas(); initFaceCanvas(); initEmotionCanvas(); }
+  if (id === 7) { drawSegScene('original'); drawUNet(); initSegDemoCanvases(); initDetCompare(); resetMaskRCNN(); }
+  if (id === 8) { updateMetrics(); drawPRCurve(); updateMAP(); }
+}
+
+// ── PIXEL GRID ────────────────────────────────────────────────────────────────
+function initPixelGrid() {
+  var grid = document.getElementById('pixel-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  for (var i = 0; i < 100; i++) {
+    var r = Math.floor(Math.random() * 200 + 30);
+    var g = Math.floor(Math.random() * 200 + 30);
+    var b = Math.floor(Math.random() * 200 + 30);
+    (function(idx, pr, pg, pb) {
+      var d = document.createElement('div');
+      d.style.cssText = 'width:22px;height:22px;background:rgb(' + pr + ',' + pg + ',' + pb + ');border-radius:2px;cursor:pointer;transition:transform .15s';
+      d.addEventListener('mouseover', function() {
+        d.style.transform = 'scale(1.4)';
+        document.getElementById('pixel-info').innerHTML =
+          '<div style="color:#667eea;font-weight:700;margin-bottom:8px">Pixel #' + idx + '</div>' +
+          '<div style="font-size:11px;line-height:1.8">' +
+          '<div>R: <b style="color:#e53e3e">' + pr + '</b></div>' +
+          '<div>G: <b style="color:#48bb78">' + pg + '</b></div>' +
+          '<div>B: <b style="color:#4299e1">' + pb + '</b></div>' +
+          '<div style="margin-top:6px">Color preview:</div>' +
+          '<div style="width:40px;height:40px;background:rgb(' + pr + ',' + pg + ',' + pb + ');border-radius:6px;margin-top:4px;border:2px solid #4a5568"></div>' +
+          '</div>';
+      });
+      d.addEventListener('mouseout', function() { d.style.transform = 'scale(1)'; });
+      grid.appendChild(d);
+    })(i, r, g, b);
+  }
+}
+
+// ── RGB MIXER ─────────────────────────────────────────────────────────────────
+function updateRGB() {
+  var r = document.getElementById('r-slider').value;
+  var g = document.getElementById('g-slider').value;
+  var b = document.getElementById('b-slider').value;
+  document.getElementById('r-val').textContent = r;
+  document.getElementById('g-val').textContent = g;
+  document.getElementById('b-val').textContent = b;
+  var sw = document.getElementById('rgb-swatch');
+  sw.style.background = 'rgb(' + r + ',' + g + ',' + b + ')';
+  sw.style.boxShadow = '0 0 30px rgba(' + r + ',' + g + ',' + b + ',.6)';
+  document.getElementById('rgb-text').textContent = 'rgb(' + r + ', ' + g + ', ' + b + ')';
+}
+
+// ── CONVOLUTION ───────────────────────────────────────────────────────────────
+var convStep = 0;
+var convImg = [[80,90,100,110,80],[70,200,210,200,70],[65,205,215,205,65],[70,190,200,190,70],[80,85,95,85,80]];
+var convKernel = [[-1,-1,-1],[-1,8,-1],[-1,-1,-1]];
+
+function drawConvStep() {
+  var c = document.getElementById('conv-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,520,200);
+  var r = Math.floor(convStep / 3), co = convStep % 3;
+  var sz = 32, ox = 10, oy = 20;
+  ctx.font = '11px Segoe UI'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#a0aec0'; ctx.fillText('Input (5x5)', ox + 2.5*sz, 14);
+  for (var i = 0; i < 5; i++) {
+    for (var j = 0; j < 5; j++) {
+      var inPatch = (i >= r && i <= r+2 && j >= co && j <= co+2);
+      ctx.fillStyle = inPatch ? '#553c9a' : '#1e2050';
+      ctx.fillRect(ox + j*sz, oy + i*sz, sz-2, sz-2);
+      ctx.fillStyle = inPatch ? '#fff' : '#a0aec0';
+      ctx.fillText(convImg[i][j], ox + j*sz + (sz-2)/2, oy + i*sz + (sz-2)/2 + 4);
+    }
+  }
+  var kox = 210;
+  ctx.fillStyle = '#a0aec0'; ctx.fillText('Kernel (3x3)', kox + 1.5*sz, 14);
+  for (var ki = 0; ki < 3; ki++) {
+    for (var kj = 0; kj < 3; kj++) {
+      ctx.fillStyle = '#1e2050'; ctx.strokeStyle = '#667eea'; ctx.lineWidth = 1;
+      ctx.fillRect(kox + kj*sz, oy + ki*sz, sz-2, sz-2);
+      ctx.strokeRect(kox + kj*sz, oy + ki*sz, sz-2, sz-2);
+      ctx.fillStyle = convKernel[ki][kj] < 0 ? '#fc8181' : '#68d391';
+      ctx.fillText(convKernel[ki][kj], kox + kj*sz + (sz-2)/2, oy + ki*sz + (sz-2)/2 + 4);
+    }
+  }
+  var res = 0;
+  for (var ri = 0; ri < 3; ri++) for (var rj = 0; rj < 3; rj++) res += convImg[r+ri][co+rj] * convKernel[ri][rj];
+  var rox = 390;
+  ctx.fillStyle = '#a0aec0'; ctx.fillText('Result', rox + sz*0.75, 14);
+  ctx.fillStyle = '#1a2a1a'; ctx.strokeStyle = '#48bb78'; ctx.lineWidth = 2;
+  ctx.fillRect(rox, oy + sz, sz*1.5, sz*1.5);
+  ctx.strokeRect(rox, oy + sz, sz*1.5, sz*1.5);
+  ctx.fillStyle = '#68d391'; ctx.font = 'bold 16px Segoe UI';
+  ctx.fillText(res, rox + sz*0.75, oy + sz + sz*0.75 + 5);
+  ctx.strokeStyle = '#4a5568'; ctx.lineWidth = 1;
+  ctx.font = '14px Segoe UI'; ctx.fillStyle = '#4a5568';
+  ctx.fillText('x', kox - 14, oy + 85);
+  ctx.fillText('=', rox - 14, oy + 85);
+  document.getElementById('conv-step-label').textContent = 'Step ' + (convStep+1) + ' / 9  — Position (' + r + ',' + co + ')';
+}
+function stepConv(d) { convStep = Math.max(0, Math.min(8, convStep + d)); drawConvStep(); }
+function autoConv() {
+  var s = 0;
+  var iv = setInterval(function() { convStep = s; drawConvStep(); s++; if (s > 8) clearInterval(iv); }, 600);
+}
+
+// ── FILTER DEMO ───────────────────────────────────────────────────────────────
+function applyFilterDemo(mode) {
+  var c = document.getElementById('filter-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,400,120);
+  var labels = {original:'Original',blur:'Gaussian Blur',sharpen:'Sharpened',edge:'Edge Detected'};
+  document.getElementById('filter-label').textContent = 'Showing: ' + labels[mode];
+  var cols = 13, rows = 4, sw = 28, sh = 26;
+  for (var row = 0; row < rows; row++) {
+    for (var col = 0; col < cols; col++) {
+      var base = ((row*3 + col*7)*17 + row*col*11) % 80 + 80;
+      var val = base;
+      if (mode === 'blur') val = base * 0.7 + 30;
+      else if (mode === 'sharpen') val = Math.min(255, base + (row===1 && col>4 && col<8 ? 80 : 0));
+      else if (mode === 'edge') { val = Math.abs(((row*col)%10 - 5)*30); if (row===1 || col===5 || col===8) val = Math.min(255, val+150); }
+      if (mode === 'edge') ctx.fillStyle = 'rgb(' + val + ',' + val + ',' + val + ')';
+      else ctx.fillStyle = 'rgb(' + Math.floor(val*0.8) + ',' + Math.floor(val*0.7) + ',' + val + ')';
+      ctx.fillRect(col*sw+1, row*sh+8, sw-2, sh-2);
+    }
+  }
+  ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(0,0,400,20);
+  ctx.fillStyle = '#a0aec0'; ctx.font = '10px Segoe UI'; ctx.textAlign = 'left';
+  ctx.fillText(labels[mode], 6, 13);
+}
+
+// ── DRAW & EDGE ───────────────────────────────────────────────────────────────
+var isDrawing = false;
+function initDrawCanvas() {
+  var c = document.getElementById('draw-canvas'); if (!c) return;
+  var ctx = c.getContext('2d');
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+  ctx.fillStyle = '#fff'; ctx.fillRect(0,0,260,200);
+  c.addEventListener('mousedown', function(e) { isDrawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
+  c.addEventListener('mousemove', function(e) { if (!isDrawing) return; ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); });
+  c.addEventListener('mouseup', function() { isDrawing = false; });
+  c.addEventListener('touchstart', function(e) {
+    e.preventDefault(); isDrawing = true;
+    var t = e.touches[0], r = c.getBoundingClientRect();
+    ctx.beginPath(); ctx.moveTo(t.clientX - r.left, t.clientY - r.top);
+  }, {passive:false});
+  c.addEventListener('touchmove', function(e) {
+    e.preventDefault(); if (!isDrawing) return;
+    var t = e.touches[0], r = c.getBoundingClientRect();
+    ctx.lineTo(t.clientX - r.left, t.clientY - r.top); ctx.stroke();
+  }, {passive:false});
+  c.addEventListener('touchend', function() { isDrawing = false; });
+}
+function clearDraw() {
+  var c = document.getElementById('draw-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0,0,260,200);
+  var ec = document.getElementById('edge-canvas'); if (!ec) return;
+  ec.getContext('2d').clearRect(0,0,260,200);
+}
+function drawSampleShape() {
+  var c = document.getElementById('draw-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0,0,260,200);
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.arc(80,100,50,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.rect(150,50,80,100); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(140,160); ctx.lineTo(200,80); ctx.lineTo(240,160); ctx.closePath(); ctx.stroke();
+}
+function detectEdges() {
+  var src = document.getElementById('draw-canvas'); if (!src) return;
+  var dst = document.getElementById('edge-canvas'); if (!dst) return;
+  var sctx = src.getContext('2d'), dctx = dst.getContext('2d');
+  var d = sctx.getImageData(0,0,260,200);
+  var out = dctx.createImageData(260,200);
+  var gray = new Uint8ClampedArray(260*200);
+  for (var i = 0; i < gray.length; i++) gray[i] = 0.299*d.data[i*4] + 0.587*d.data[i*4+1] + 0.114*d.data[i*4+2];
+  var sx = [-1,0,1,-2,0,2,-1,0,1], sy = [-1,-2,-1,0,0,0,1,2,1];
+  for (var y = 1; y < 199; y++) {
+    for (var x = 1; x < 259; x++) {
+      var gx = 0, gy2 = 0;
+      for (var ky = 0; ky < 3; ky++) for (var kx = 0; kx < 3; kx++) {
+        var idx2 = (y+ky-1)*260+(x+kx-1);
+        gx += gray[idx2]*sx[ky*3+kx]; gy2 += gray[idx2]*sy[ky*3+kx];
+      }
+      var mag = Math.min(255, Math.sqrt(gx*gx + gy2*gy2));
+      var edge = mag > 40 ? 255 : 0;
+      var ii = (y*260+x)*4;
+      out.data[ii] = out.data[ii+1] = out.data[ii+2] = edge; out.data[ii+3] = 255;
+    }
+  }
+  dctx.putImageData(out, 0, 0);
+}
+
+// ── CORNERS ───────────────────────────────────────────────────────────────────
+function drawCornerScene(showCorners) {
+  var c = document.getElementById('corner-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,300,200);
+  ctx.strokeStyle = '#4a5568'; ctx.lineWidth = 2;
+  ctx.strokeRect(30,30,100,100);
+  ctx.beginPath(); ctx.moveTo(180,50); ctx.lineTo(260,50); ctx.lineTo(220,140); ctx.closePath(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(150,155,28,0,Math.PI*2); ctx.stroke();
+  if (showCorners) {
+    var pts = [[30,30],[130,30],[30,130],[130,130],[180,50],[260,50],[220,140]];
+    for (var pi3 = 0; pi3 < pts.length; pi3++) {
+      var x = pts[pi3][0], y = pts[pi3][1];
+      ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2);
+      ctx.fillStyle = 'rgba(255,100,100,.3)'; ctx.fill();
+      ctx.strokeStyle = '#e53e3e'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#e53e3e'; ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill();
+    }
+    ctx.fillStyle = '#a0aec0'; ctx.font = '11px Segoe UI'; ctx.textAlign = 'left';
+    ctx.fillText('Found ' + pts.length + ' corners!', 10, 192);
+  }
+}
+function animateCorners() {
+  drawCornerScene(false);
+  var pts = [[30,30],[130,30],[30,130],[130,130],[180,50],[260,50],[220,140]];
+  var found = 0;
+  var c = document.getElementById('corner-canvas'); if (!c) return;
+  var ctx = c.getContext('2d');
+  var iv = setInterval(function() {
+    if (found >= pts.length) { clearInterval(iv); return; }
+    var x = pts[found][0], y = pts[found][1];
+    ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2);
+    ctx.fillStyle = 'rgba(255,100,100,.3)'; ctx.fill();
+    ctx.strokeStyle = '#e53e3e'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = '#e53e3e'; ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill();
+    found++;
+  }, 300);
+}
+
+// ── TRANSFORMS ───────────────────────────────────────────────────────────────
+function drawTransform() {
+  var c = document.getElementById('transform-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,280,220);
+  var tx = +document.getElementById('tx-s').value;
+  var ty = +document.getElementById('ty-s').value;
+  var rot = +document.getElementById('rot-s').value * Math.PI / 180;
+  var sc = +document.getElementById('sc-s').value;
+  document.getElementById('tx-v').textContent = Math.round(tx);
+  document.getElementById('ty-v').textContent = Math.round(ty);
+  document.getElementById('rot-v').textContent = Math.round(+document.getElementById('rot-s').value) + '°';
+  document.getElementById('sc-v').textContent = sc.toFixed(1);
+  ctx.save();
+  ctx.translate(140+tx, 110+ty); ctx.rotate(rot); ctx.scale(sc, sc);
+  ctx.fillStyle = 'rgba(102,126,234,.5)'; ctx.strokeStyle = '#667eea'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(-50,-38,100,76,6); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#e2e8f0'; ctx.font = 'bold 14px Segoe UI'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('CV', 0, 0);
+  ctx.restore();
+  ctx.beginPath(); ctx.arc(140,110,4,0,Math.PI*2); ctx.fillStyle = '#4a5568'; ctx.fill();
+}
+function resetTransforms() {
+  document.getElementById('tx-s').value = 0;
+  document.getElementById('ty-s').value = 0;
+  document.getElementById('rot-s').value = 0;
+  document.getElementById('sc-s').value = 1;
+  drawTransform();
+}
+
+// ── HOUGH ─────────────────────────────────────────────────────────────────────
+var houghPts = [];
+function initHoughCanvas() {
+  var c = document.getElementById('hough-canvas'); if (!c) return;
+  c.addEventListener('click', function(e) {
+    houghPts.push({x: e.offsetX, y: e.offsetY});
+    drawHough([]);
+  });
+}
+function drawHough(lines) {
+  var c = document.getElementById('hough-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,300,200);
+  for (var i = 0; i < houghPts.length; i++) {
+    ctx.beginPath(); ctx.arc(houghPts[i].x, houghPts[i].y, 5,0,Math.PI*2);
+    ctx.fillStyle = '#667eea'; ctx.fill();
+  }
+  for (var li2 = 0; li2 < lines.length; li2++) {
+    var l = lines[li2];
+    ctx.beginPath(); ctx.moveTo(l[0],l[1]); ctx.lineTo(l[2],l[3]);
+    ctx.strokeStyle = '#e53e3e'; ctx.lineWidth = 2; ctx.stroke();
+  }
+}
+function clearHough() { houghPts = []; drawHough([]); document.getElementById('hough-info').textContent = 'Canvas cleared.'; }
+function addNoisyLine() {
+  var y = 50 + Math.random() * 120;
+  for (var x = 20; x < 280; x += 15 + Math.random()*20) houghPts.push({x: x, y: y + Math.random()*20 - 10});
+  drawHough([]);
+}
+function detectHoughLines() {
+  if (houghPts.length < 3) { document.getElementById('hough-info').textContent = 'Add at least 3 points first!'; return; }
+  var avgY = 0;
+  for (var i = 0; i < houghPts.length; i++) avgY += houghPts[i].y;
+  avgY /= houghPts.length;
+  drawHough([[10, avgY, 290, avgY]]);
+  document.getElementById('hough-info').textContent = 'Detected 1 line from ' + houghPts.length + ' points using Hough voting!';
+}
+
+// ── CNN ───────────────────────────────────────────────────────────────────────
+var cnnLayers = [
+  {label:"Input\n28x28",    color:"#4299e1",info:"Raw image pixels. A 28x28 grayscale image = 784 numbers fed into the network."},
+  {label:"Conv\n+ ReLU",   color:"#9f7aea",info:"Learnable filters detect edges, curves, textures. ReLU sets negatives to 0 (non-linearity)."},
+  {label:"Pooling\n14x14", color:"#ed8936",info:"Max Pooling reduces size by taking the max in each 2x2 block. Halves dimensions."},
+  {label:"Conv\n+ ReLU",   color:"#9f7aea",info:"Second conv layer learns higher-level features like shapes and object parts."},
+  {label:"Pooling\n7x7",   color:"#ed8936",info:"Another pooling step — further reduces spatial dimensions to 7x7."},
+  {label:"Flatten",        color:"#e53e3e",info:"Convert 2D feature maps to a 1D vector — ready for fully connected layers."},
+  {label:"FC Layer",       color:"#4299e1",info:"Fully Connected: every neuron connects to all inputs. Learns feature combinations."},
+  {label:"Output\nSoftmax",color:"#48bb78",info:"One probability per class. Highest = prediction! e.g. 'cat: 92%, dog: 5%'"}
+];
+function drawCNN() {
+  var c = document.getElementById('cnn-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'), W = 560, H = 180, n = cnnLayers.length;
+  var bw = W/n - 6, bh = 58;
+  ctx.clearRect(0,0,W,H);
+  for (var i = 0; i < n; i++) {
+    var l = cnnLayers[i];
+    var x = i*(W/n)+3, y = (H-bh)/2;
+    ctx.fillStyle = l.color + '33'; ctx.strokeStyle = l.color; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(x,y,bw,bh,5); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = l.color; ctx.font = 'bold 9px Segoe UI'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    var lines = l.label.split('\n');
+    for (var li3 = 0; li3 < lines.length; li3++) ctx.fillText(lines[li3], x+bw/2, y+bh/2+(li3-0.5)*12);
+    if (i < n-1) { ctx.strokeStyle = '#4a5568'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x+bw+1,H/2); ctx.lineTo(x+bw+5,H/2); ctx.stroke(); }
+  }
+}
+function handleCNNClick(e) {
+  var c = document.getElementById('cnn-canvas'); if (!c) return;
+  var rect = c.getBoundingClientRect(), n = cnnLayers.length;
+  var x = (e.clientX - rect.left) * (c.width / rect.width);
+  var idx = Math.floor(x / (c.width / n));
+  if (idx >= 0 && idx < n) {
+    var l = cnnLayers[idx];
+    document.getElementById('cnn-info').innerHTML = '<b style="color:' + l.color + '">' + l.label.replace('\n',' ') + '</b> — ' + l.info;
+  }
+}
+
+// ── BOUNDING BOXES ────────────────────────────────────────────────────────────
+var bboxClass = 'person';
+var bboxes = [];
+var bboxDrawing = false;
+var bboxStart = {x:0,y:0};
+var bboxColors = {person:'#4299e1',car:'#e53e3e',dog:'#48bb78'};
+
+function setBboxClass(cls) {
+  bboxClass = cls;
+  document.getElementById('bbox-info').textContent = 'Drawing: ' + cls + '. Drag on canvas!';
+}
+function initBboxCanvas() {
+  var c = document.getElementById('bbox-canvas'); if (!c) return;
+  drawBboxScene(null);
+  c.addEventListener('mousedown', function(e) {
+    bboxDrawing = true;
+    var r = c.getBoundingClientRect();
+    bboxStart = {x:(e.clientX-r.left)*(c.width/r.width), y:(e.clientY-r.top)*(c.height/r.height)};
+  });
+  c.addEventListener('mousemove', function(e) {
+    if (!bboxDrawing) return;
+    var r = c.getBoundingClientRect();
+    var cx = (e.clientX-r.left)*(c.width/r.width), cy = (e.clientY-r.top)*(c.height/r.height);
+    drawBboxScene({x:bboxStart.x, y:bboxStart.y, w:cx-bboxStart.x, h:cy-bboxStart.y, cls:bboxClass});
+  });
+  c.addEventListener('mouseup', function(e) {
+    if (!bboxDrawing) return; bboxDrawing = false;
+    var r = c.getBoundingClientRect();
+    var cx = (e.clientX-r.left)*(c.width/r.width), cy = (e.clientY-r.top)*(c.height/r.height);
+    var w = cx-bboxStart.x, h = cy-bboxStart.y;
+    if (Math.abs(w) > 10 && Math.abs(h) > 10) {
+      bboxes.push({x:bboxStart.x, y:bboxStart.y, w:w, h:h, cls:bboxClass});
+      document.getElementById('bbox-info').textContent = bboxes.length + ' box(es). Last: [' + Math.round(bboxStart.x) + ',' + Math.round(bboxStart.y) + ',' + Math.round(w) + ',' + Math.round(h) + ']';
+    }
+    drawBboxScene(null);
+  });
+}
+function drawBboxScene(live) {
+  var c = document.getElementById('bbox-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,500,260);
+  ctx.fillStyle = '#1e2a3a'; ctx.fillRect(0,0,500,260);
+  ctx.fillStyle = '#243040'; ctx.fillRect(0,110,500,80);
+  ctx.fillStyle = '#2d3e50'; ctx.fillRect(0,185,500,75);
+  var objs = [[60,70,80,120,'#5a4a3a'],[200,90,90,100,'#4a3a2a'],[360,80,80,110,'#5a4a3a']];
+  for (var oi = 0; oi < objs.length; oi++) {
+    ctx.fillStyle = objs[oi][4]; ctx.fillRect(objs[oi][0],objs[oi][1],objs[oi][2],objs[oi][3]);
+  }
+  ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(0,0,500,18);
+  ctx.fillStyle = '#4a5568'; ctx.font = '10px Segoe UI'; ctx.textAlign = 'center';
+  ctx.fillText('Draw boxes around the objects!', 250, 12);
+  for (var bi = 0; bi < bboxes.length; bi++) drawBox(ctx, bboxes[bi], false);
+  if (live) drawBox(ctx, live, true);
+}
+function drawBox(ctx, b, dashed) {
+  var col = bboxColors[b.cls] || '#fff';
+  ctx.setLineDash(dashed ? [5,3] : []);
+  ctx.strokeStyle = col; ctx.lineWidth = 2;
+  ctx.strokeRect(b.x, b.y, b.w, b.h);
+  ctx.setLineDash([]);
+  if (!dashed) {
+    var label = b.cls;
+    ctx.font = 'bold 11px Segoe UI'; ctx.textAlign = 'left';
+    var tw = ctx.measureText(label).width;
+    ctx.fillStyle = col; ctx.fillRect(b.x, b.y-18, tw+10, 18);
+    ctx.fillStyle = '#0f0f1a'; ctx.fillText(label, b.x+4, b.y-5);
+  }
+}
+function clearBboxes() { bboxes = []; drawBboxScene(null); }
+
+// ── IoU ───────────────────────────────────────────────────────────────────────
+function updateIoU() {
+  var v = +document.getElementById('iou-slider').value;
+  document.getElementById('iou-val').textContent = v;
+  var c = document.getElementById('iou-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,260,200);
+  var shift = 80 - v*0.7;
+  var ax=20, ay=20, aw=130, ah=130;
+  var bx=ax+shift, by=ay+shift*0.5, bw=aw, bh=ah;
+  var ix=Math.max(ax,bx), iy=Math.max(ay,by), iw=Math.min(ax+aw,bx+bw)-ix, ih=Math.min(ay+ah,by+bh)-iy;
+  var inter = Math.max(0,iw)*Math.max(0,ih);
+  var union = aw*ah + bw*bh - inter;
+  var iou = union > 0 ? inter/union : 0;
+  ctx.fillStyle = 'rgba(66,153,225,.25)'; ctx.fillRect(ax,ay,aw,ah);
+  ctx.strokeStyle = '#4299e1'; ctx.lineWidth = 2; ctx.strokeRect(ax,ay,aw,ah);
+  ctx.fillStyle = 'rgba(229,62,62,.25)'; ctx.fillRect(bx,by,bw,bh);
+  ctx.strokeStyle = '#e53e3e'; ctx.lineWidth = 2; ctx.strokeRect(bx,by,bw,bh);
+  if (iw > 0 && ih > 0) { ctx.fillStyle = 'rgba(236,201,75,.5)'; ctx.fillRect(ix,iy,iw,ih); }
+  ctx.fillStyle = '#a0aec0'; ctx.font = '10px Segoe UI'; ctx.textAlign = 'left';
+  ctx.fillText('GT', ax+4, ay+14); ctx.fillText('Pred', bx+4, by+14);
+  document.getElementById('iou-score').textContent = iou.toFixed(2);
+  document.getElementById('iou-score').style.color = iou >= 0.5 ? '#48bb78' : '#e53e3e';
+  document.getElementById('iou-verdict').textContent = iou >= 0.5 ? '✅ Good Detection' : '❌ Poor Detection (IoU < 0.5)';
+}
+
+// ── NMS ───────────────────────────────────────────────────────────────────────
+var nmsBoxes = [
+  {x:50,y:40,w:160,h:140,conf:.92,alive:true},
+  {x:70,y:55,w:150,h:130,conf:.88,alive:true},
+  {x:55,y:45,w:155,h:135,conf:.75,alive:true},
+  {x:220,y:50,w:140,h:130,conf:.85,alive:true},
+  {x:235,y:60,w:130,h:120,conf:.72,alive:true}
+];
+function resetNMS() {
+  for (var i = 0; i < nmsBoxes.length; i++) nmsBoxes[i].alive = true;
+  drawNMS();
+  document.getElementById('nms-info').textContent = 'Click Run NMS to remove duplicate boxes';
+}
+function drawNMS() {
+  var c = document.getElementById('nms-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,400,220);
+  ctx.fillStyle = '#1e2a3a'; ctx.fillRect(0,0,400,220);
+  ctx.fillStyle = '#2a3a4a'; ctx.fillRect(30,30,170,160); ctx.fillRect(220,30,160,160);
+  ctx.fillStyle = '#4a5568'; ctx.font = '10px Segoe UI'; ctx.textAlign = 'center';
+  ctx.fillText('Object 1',115,205); ctx.fillText('Object 2',300,205);
+  for (var i = 0; i < nmsBoxes.length; i++) {
+    var b = nmsBoxes[i];
+    ctx.setLineDash(b.alive ? [] : [4,3]);
+    ctx.strokeStyle = !b.alive ? '#e53e3e44' : b.conf > 0.89 ? '#48bb78' : '#ed8936';
+    ctx.lineWidth = 2; ctx.strokeRect(b.x,b.y,b.w,b.h);
+    ctx.setLineDash([]);
+    if (b.alive) {
+      ctx.fillStyle = b.conf > 0.89 ? '#48bb78' : '#ed8936';
+      ctx.font = '10px Segoe UI'; ctx.textAlign = 'left';
+      ctx.fillText(b.conf.toFixed(2), b.x+4, b.y+12);
+    }
+  }
+}
+function animateNMS() {
+  var suppress = [1,2,4];
+  var i = 0;
+  var iv = setInterval(function() {
+    if (i >= suppress.length) { clearInterval(iv); document.getElementById('nms-info').textContent = 'NMS done! Kept 2 best boxes (green). Removed 3 duplicates.'; return; }
+    nmsBoxes[suppress[i]].alive = false;
+    drawNMS();
+    document.getElementById('nms-info').textContent = 'Suppressing box with conf=' + nmsBoxes[suppress[i]].conf + ' (overlaps best box too much)';
+    i++;
+  }, 800);
+}
+
+// ── SEGMENTATION ─────────────────────────────────────────────────────────────
+function drawSegScene(mode) {
+  var c = document.getElementById('seg-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,400,220);
+  var infos = {
+    original:'Original scene — no labels applied',
+    semantic:'Semantic: all cars = same blue, all people = same red (class only, no individual IDs)',
+    instance:'Instance: each individual object gets its own unique colour'
+  };
+  document.getElementById('seg-info').textContent = infos[mode];
+  var semColors = {car:'rgba(66,153,225,.75)',person:'rgba(229,62,62,.75)',road:'rgba(90,90,90,.8)',sky:'rgba(66,153,225,.3)'};
+  var instCols = ['rgba(255,100,100,.75)','rgba(100,255,100,.75)','rgba(255,200,50,.75)','rgba(200,50,255,.75)','rgba(50,200,255,.75)','rgba(255,150,50,.75)'];
+  var instIdx = 0;
+  // sky
+  ctx.fillStyle = mode==='original'?'#1a3a5a': mode==='semantic'?semColors.sky:instCols[instIdx++];
+  ctx.fillRect(0,0,400,90);
+  // road
+  ctx.fillStyle = mode==='original'?'#3a3a3a': mode==='semantic'?semColors.road:instCols[instIdx++];
+  ctx.fillRect(0,165,400,55);
+  // cars
+  var cars = [[20,100,120,70],[160,110,110,65]];
+  for (var ci2 = 0; ci2 < cars.length; ci2++) {
+    var car = cars[ci2];
+    ctx.fillStyle = mode==='original'?'#4a5568': mode==='semantic'?semColors.car:instCols[instIdx++];
+    ctx.fillRect(car[0],car[1],car[2],car[3]);
+    if (mode==='original') { ctx.fillStyle='#2d3748'; ctx.fillRect(car[0]+10,car[1]+10,car[2]-20,car[3]/2-5); }
+  }
+  // people
+  var people = [[290,60,40,120],[340,70,35,110]];
+  for (var pi4 = 0; pi4 < people.length; pi4++) {
+    var person = people[pi4];
+    ctx.fillStyle = mode==='original'?'#a0aec0': mode==='semantic'?semColors.person:instCols[instIdx % instCols.length]; instIdx++;
+    ctx.beginPath(); ctx.arc(person[0]+person[2]/2, person[1]+14, 12,0,Math.PI*2); ctx.fill();
+    ctx.fillRect(person[0]+5, person[1]+26, person[2]-10, person[3]-26);
+  }
+  ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(0,0,400,18);
+  ctx.fillStyle = '#fff'; ctx.font = '10px Segoe UI'; ctx.textAlign = 'center';
+  ctx.fillText(mode.toUpperCase(), 200, 12);
+}
+
+function drawUNet() {
+  var c = document.getElementById('unet-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,500,200);
+  var enc = [{x:10,w:60,h:160,label:'Input'},{x:80,w:50,h:130,label:'Conv1'},{x:140,w:40,h:100,label:'Conv2'},{x:190,w:30,h:70,label:'Bottleneck'}];
+  var dec = [{x:230,w:40,h:100,label:'Up1'},{x:280,w:50,h:130,label:'Up2'},{x:340,w:60,h:160,label:'Output'}];
+  var cy = 100;
+  var all = enc.concat(dec);
+  for (var i = 0; i < all.length; i++) {
+    var l = all[i];
+    var col = i < 4 ? '#667eea' : '#48bb78';
+    ctx.fillStyle = col+'33'; ctx.strokeStyle = col; ctx.lineWidth = 2;
+    ctx.fillRect(l.x, cy-l.h/2, l.w, l.h); ctx.strokeRect(l.x, cy-l.h/2, l.w, l.h);
+    ctx.fillStyle = col; ctx.font = '9px Segoe UI'; ctx.textAlign = 'center';
+    ctx.fillText(l.label, l.x+l.w/2, cy+l.h/2+12);
+  }
+  var skipPairs = [[enc[1],dec[1]],[enc[2],dec[0]]];
+  ctx.strokeStyle = '#ed8936'; ctx.lineWidth = 1; ctx.setLineDash([4,3]);
+  for (var si2 = 0; si2 < skipPairs.length; si2++) {
+    var e2 = skipPairs[si2][0], d2 = skipPairs[si2][1];
+    ctx.beginPath(); ctx.moveTo(e2.x+e2.w/2, cy-e2.h/2); ctx.lineTo(d2.x+d2.w/2, cy-d2.h/2); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#a0aec0'; ctx.font = '10px Segoe UI'; ctx.textAlign = 'center';
+  ctx.fillText('Encoder (compress)', 110, 16);
+  ctx.fillText('Decoder (expand)', 305, 16);
+  ctx.fillStyle = '#ed8936'; ctx.fillText('Skip Connections (orange dashes)', 250, 188);
+}
+
+// ── METRICS ───────────────────────────────────────────────────────────────────
+function updateMetrics() {
+  var tp = +document.getElementById('tp-s').value;
+  var fp = +document.getElementById('fp-s').value;
+  var fn = +document.getElementById('fn-s').value;
+  document.getElementById('tp-v').textContent = tp;
+  document.getElementById('fp-v').textContent = fp;
+  document.getElementById('fn-v').textContent = fn;
+  var prec = tp/(tp+fp) || 0, rec = tp/(tp+fn) || 0, f1 = 2*prec*rec/(prec+rec) || 0;
+  var acc = tp/(tp+fp+fn) || 0;
+  var mets = [
+    {label:'Precision',val:prec,color:'#4299e1',def:'TP/(TP+FP)'},
+    {label:'Recall',val:rec,color:'#48bb78',def:'TP/(TP+FN)'},
+    {label:'F1 Score',val:f1,color:'#9f7aea',def:'2×P×R/(P+R)'},
+    {label:'Accuracy',val:acc,color:'#ed8936',def:'TP/(TP+FP+FN)'}
+  ];
+  var html = '';
+  for (var i = 0; i < mets.length; i++) {
+    var m = mets[i];
+    html += '<div style="background:#1a1a2e;border:1px solid ' + m.color + ';border-radius:8px;padding:8px;text-align:center">';
+    html += '<div style="color:' + m.color + ';font-size:10px;font-weight:700">' + m.label + '</div>';
+    html += '<div style="font-size:20px;font-weight:700;color:#e2e8f0">' + (m.val*100).toFixed(0) + '%</div>';
+    html += '<div style="font-size:9px;color:#718096;font-family:monospace">' + m.def + '</div>';
+    html += '</div>';
+  }
+  document.getElementById('metrics-display').innerHTML = html;
+  drawCM(tp, fp, fn);
+}
+function drawCM(tp, fp, fn) {
+  var c = document.getElementById('cm-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); var tn = Math.max(0, 100-tp-fp-fn);
+  ctx.clearRect(0,0,220,180);
+  var cells = [
+    {v:tp,label:'TP',color:'#48bb78',x:72,y:35},
+    {v:fp,label:'FP',color:'#e53e3e',x:167,y:35},
+    {v:fn,label:'FN',color:'#ed8936',x:72,y:110},
+    {v:tn,label:'TN',color:'#4299e1',x:167,y:110}
+  ];
+  for (var i = 0; i < cells.length; i++) {
+    var cl = cells[i];
+    ctx.fillStyle = cl.color+'44'; ctx.fillRect(cl.x-47,cl.y,88,65);
+    ctx.strokeStyle = cl.color; ctx.lineWidth = 1.5; ctx.strokeRect(cl.x-47,cl.y,88,65);
+    ctx.fillStyle = cl.color; ctx.font = 'bold 11px Segoe UI'; ctx.textAlign = 'center';
+    ctx.fillText(cl.label, cl.x, cl.y+18);
+    ctx.fillStyle = '#e2e8f0'; ctx.font = 'bold 20px Segoe UI';
+    ctx.fillText(cl.v, cl.x, cl.y+48);
+  }
+  ctx.fillStyle = '#718096'; ctx.font = '9px Segoe UI'; ctx.textAlign = 'center';
+  ctx.fillText('Pred Pos', 72, 26); ctx.fillText('Pred Neg', 167, 26);
+  ctx.save(); ctx.translate(10,110); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Actual Pos / Neg', 0,0); ctx.restore();
+}
+function drawPRCurve() {
+  var c = document.getElementById('pr-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,400,200);
+  ctx.fillStyle = '#1e2050'; ctx.fillRect(40,10,340,160);
+  ctx.strokeStyle = '#4a5568'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(40,10); ctx.lineTo(40,170); ctx.lineTo(380,170); ctx.stroke();
+  ctx.fillStyle = '#718096'; ctx.font = '10px Segoe UI'; ctx.textAlign = 'center';
+  ctx.fillText('Recall →', 210, 190);
+  ctx.save(); ctx.translate(14,100); ctx.rotate(-Math.PI/2); ctx.fillText('Precision →', 0,0); ctx.restore();
+  var pts = [[0,1],[0.1,.97],[0.2,.95],[0.35,.88],[0.5,.82],[0.65,.70],[0.75,.58],[0.85,.42],[0.92,.30],[1,.1]];
+  ctx.strokeStyle = '#667eea'; ctx.lineWidth = 2; ctx.beginPath();
+  for (var i = 0; i < pts.length; i++) {
+    var px = 40+pts[i][0]*340, py = 170-pts[i][1]*160;
+    i === 0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(102,126,234,.2)'; ctx.beginPath();
+  for (var j = 0; j < pts.length; j++) {
+    var qx = 40+pts[j][0]*340, qy = 170-pts[j][1]*160;
+    j === 0 ? ctx.moveTo(qx,qy) : ctx.lineTo(qx,qy);
+  }
+  ctx.lineTo(380,170); ctx.lineTo(40,170); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#667eea'; ctx.font = 'bold 11px Segoe UI'; ctx.textAlign = 'left';
+  ctx.fillText('AP ≈ 0.72', 48, 28);
+  for (var k = 0; k <= 10; k += 2) {
+    ctx.fillStyle = '#4a5568'; ctx.font = '9px Segoe UI'; ctx.textAlign = 'center';
+    ctx.fillText((k/10).toFixed(1), 40+k*34, 180);
+  }
+}
+function updateMAP() {
+  var v = +document.getElementById('map-thresh').value;
+  document.getElementById('map-thresh-v').textContent = (v/100).toFixed(2);
+  var c = document.getElementById('map-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,500,200);
+  var classes = ['Person','Car','Dog','Cat','Bike'];
+  var aps = [0.82,0.74,0.69,0.78,0.65];
+  var factor = v < 50 ? 1 : v < 70 ? 0.9 : v < 85 ? 0.75 : 0.55;
+  var scaled = [], mAP = 0;
+  for (var i = 0; i < aps.length; i++) { scaled.push(Math.max(0,aps[i]*factor)); mAP += scaled[i]; }
+  mAP /= aps.length;
+  ctx.fillStyle = '#a0aec0'; ctx.font = '11px Segoe UI'; ctx.textAlign = 'center';
+  ctx.fillText('mAP @ IoU=' + (v/100).toFixed(2) + ':  ' + (mAP*100).toFixed(1) + '%', 250, 16);
+  var barCols = ['#4299e1','#e53e3e','#48bb78','#9f7aea','#ed8936'];
+  for (var j = 0; j < scaled.length; j++) {
+    var bx = 30+j*88, bw2 = 72, bh = scaled[j]*(150-25);
+    ctx.fillStyle = barCols[j]+'44'; ctx.fillRect(bx,160-bh,bw2,bh);
+    ctx.strokeStyle = barCols[j]; ctx.lineWidth = 1.5; ctx.strokeRect(bx,160-bh,bw2,bh);
+    ctx.fillStyle = barCols[j]; ctx.font = '10px Segoe UI'; ctx.textAlign = 'center';
+    ctx.fillText(classes[j], bx+bw2/2, 176);
+    ctx.fillText((scaled[j]*100).toFixed(0)+'%', bx+bw2/2, 160-bh-4);
+  }
+  ctx.strokeStyle = '#667eea'; ctx.lineWidth = 1; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(20,160-mAP*(150-25)); ctx.lineTo(480,160-mAP*(150-25)); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+// ── BBOX FORMAT DEMO ────────────────────────────────────────────────────────
+var bboxFormatObjs = [
+  {x:30,y:40,w:80,h:100,cls:'Person',emoji:'🧍',color:'#4299e1',cx:70,cy:90},
+  {x:150,y:60,w:90,h:80,cls:'Car',emoji:'🚗',color:'#e53e3e',cx:195,cy:100},
+  {x:310,y:50,w:70,h:90,cls:'Dog',emoji:'🐕',color:'#48bb78',cx:345,cy:95}
+];
+var bboxFormatSelected = -1;
+
+function initBboxFormatCanvas() {
+  var c = document.getElementById('bbox-format-canvas'); if (!c) return;
+  drawBboxFormatScene(-1);
+  c.addEventListener('click', function(e) {
+    var r = c.getBoundingClientRect();
+    var mx = (e.clientX - r.left) * (c.width / r.width);
+    var my = (e.clientY - r.top) * (c.height / r.height);
+    for (var i = 0; i < bboxFormatObjs.length; i++) {
+      var o = bboxFormatObjs[i];
+      if (mx >= o.x && mx <= o.x+o.w && my >= o.y && my <= o.y+o.h) {
+        bboxFormatSelected = i; drawBboxFormatScene(i); showBboxFormatInfo(i); return;
+      }
+    }
+    bboxFormatSelected = -1; drawBboxFormatScene(-1);
+    document.getElementById('bbox-format-info').innerHTML = '<div style="color:#667eea;font-weight:700;margin-bottom:8px">Click an object →</div><div>Each bounding box is represented as a set of coordinates telling the model exactly WHERE in the image the object is.</div>';
+  });
+}
+function drawBboxFormatScene(sel) {
+  var c = document.getElementById('bbox-format-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,300,200);
+  ctx.fillStyle = '#1e2a3a'; ctx.fillRect(0,0,300,200);
+  ctx.fillStyle = '#243040'; ctx.fillRect(0,130,300,70);
+  ctx.fillStyle = '#2d3e50'; ctx.fillRect(0,160,300,40);
+  ctx.fillStyle = '#7a8a60'; ctx.fillRect(0,155,300,5);
+  for (var i = 0; i < bboxFormatObjs.length; i++) {
+    var o = bboxFormatObjs[i];
+    var active = (sel === i);
+    ctx.strokeStyle = active ? o.color : o.color + '99';
+    ctx.lineWidth = active ? 3 : 1.5;
+    ctx.setLineDash([]);
+    ctx.strokeRect(o.x, o.y, o.w, o.h);
+    if (active) {
+      ctx.fillStyle = o.color + '22'; ctx.fillRect(o.x, o.y, o.w, o.h);
+      var lbl = o.cls;
+      ctx.font = 'bold 11px Segoe UI'; ctx.textAlign = 'left';
+      var tw = ctx.measureText(lbl).width;
+      ctx.fillStyle = o.color; ctx.fillRect(o.x, o.y-18, tw+10, 18);
+      ctx.fillStyle = '#0f0f1a'; ctx.fillText(lbl, o.x+4, o.y-5);
+      ctx.fillStyle = o.color; ctx.font = '18px Segoe UI'; ctx.textAlign = 'center';
+      ctx.fillText(o.emoji, o.cx, o.cy + 10);
+    } else {
+      ctx.fillStyle = o.color + '66'; ctx.font = '18px Segoe UI'; ctx.textAlign = 'center';
+      ctx.fillText(o.emoji, o.cx, o.cy + 10);
+    }
+  }
+  ctx.fillStyle = '#4a5568'; ctx.font = '9px Segoe UI'; ctx.textAlign = 'center';
+  ctx.fillText('Click an object to see its bounding box data', 150, 192);
+}
+function showBboxFormatInfo(i) {
+  var o = bboxFormatObjs[i];
+  var xmin = o.x, ymin = o.y, xmax = o.x + o.w, ymax = o.y + o.h;
+  var cxN = ((o.x + o.w/2) / 300).toFixed(3);
+  var cyN = ((o.y + o.h/2) / 200).toFixed(3);
+  var wN = (o.w / 300).toFixed(3);
+  var hN = (o.h / 200).toFixed(3);
+  var html = '<div style="color:' + o.color + ';font-weight:700;font-size:12px;margin-bottom:8px">' + o.emoji + ' ' + o.cls + ' Detected!</div>';
+  html += '<div style="margin-bottom:8px"><div style="color:#4299e1;font-size:10px;font-weight:700;margin-bottom:3px">PASCAL VOC format:</div>';
+  html += '<div style="font-family:monospace;font-size:11px;background:#0f0f1a;padding:6px;border-radius:4px;color:#68d391">';
+  html += '[' + xmin + ', ' + ymin + ', ' + xmax + ', ' + ymax + ']<br/>';
+  html += '<span style="color:#718096">// [x_min, y_min, x_max, y_max]</span></div></div>';
+  html += '<div><div style="color:#48bb78;font-size:10px;font-weight:700;margin-bottom:3px">YOLO format (normalized):</div>';
+  html += '<div style="font-family:monospace;font-size:11px;background:#0f0f1a;padding:6px;border-radius:4px;color:#fbd38d">';
+  html += '[' + cxN + ', ' + cyN + ', ' + wN + ', ' + hN + ']<br/>';
+  html += '<span style="color:#718096">// [cx, cy, width, height] (0–1)</span></div></div>';
+  document.getElementById('bbox-format-info').innerHTML = html;
+}
+
+// ── FACE DETECTION ────────────────────────────────────────────────────────────
+var faceDetected = false;
+var showFaceLandmarks = true;
+var facePeople = [
+  {x:40, y:30, w:90, h:110, label:'Face 1', conf:0.98,
+   landmarks:{left_eye:[75,65], right_eye:[105,65], nose:[90,85], left_mouth:[72,105], right_mouth:[108,105]}},
+  {x:180, y:45, w:80, h:100, label:'Face 2', conf:0.95,
+   landmarks:{left_eye:[204,78], right_eye:[232,78], nose:[218,95], left_mouth:[200,115], right_mouth:[236,115]}},
+  {x:310, y:35, w:85, h:105, label:'Face 3', conf:0.91,
+   landmarks:{left_eye:[335,68], right_eye:[363,68], nose:[349,88], left_mouth:[330,110], right_mouth:[366,110]}}
+];
+function initFaceCanvas() {
+  var c = document.getElementById('face-canvas'); if (!c) return;
+  drawFaceScene(false, false);
+}
+function drawFaceScene(detected, landmarks) {
+  var c = document.getElementById('face-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,320,240);
+  ctx.fillStyle = '#1e1a2a'; ctx.fillRect(0,0,320,240);
+  ctx.fillStyle = '#2a2040'; ctx.fillRect(0,180,320,60);
+  ctx.fillStyle = '#352d50'; ctx.fillRect(0,200,320,40);
+  var bodyColors = ['#5a4070','#403060','#4a3565'];
+  for (var i = 0; i < facePeople.length; i++) {
+    var p = facePeople[i];
+    ctx.fillStyle = bodyColors[i];
+    ctx.beginPath(); ctx.arc(p.x + p.w/2, p.y + p.h + 30, p.w * 0.45, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#c49060';
+    ctx.beginPath(); ctx.arc(p.x + p.w/2, p.y + p.h/2, p.w * 0.38, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#2a1a0a';
+    ctx.beginPath(); ctx.arc(p.x + p.w/2, p.y + p.h*0.2, p.w * 0.40, 0, Math.PI); ctx.fill();
+    if (detected) {
+      ctx.strokeStyle = '#48bb78'; ctx.lineWidth = 2; ctx.setLineDash([]);
+      ctx.strokeRect(p.x, p.y, p.w, p.h);
+      ctx.font = 'bold 10px Segoe UI'; ctx.textAlign = 'left';
+      var lw = ctx.measureText(p.label + ' ' + (p.conf*100).toFixed(0) + '%').width;
+      ctx.fillStyle = '#48bb78'; ctx.fillRect(p.x, p.y-16, lw+8, 16);
+      ctx.fillStyle = '#0a0a16'; ctx.fillText(p.label + ' ' + (p.conf*100).toFixed(0) + '%', p.x+4, p.y-4);
+      if (landmarks && showFaceLandmarks) {
+        var lmNames = Object.keys(p.landmarks);
+        var lmColors = {left_eye:'#4299e1', right_eye:'#4299e1', nose:'#f6ad55', left_mouth:'#fc8181', right_mouth:'#fc8181'};
+        for (var j = 0; j < lmNames.length; j++) {
+          var pt = p.landmarks[lmNames[j]];
+          ctx.beginPath(); ctx.arc(pt[0], pt[1], 3, 0, Math.PI*2);
+          ctx.fillStyle = lmColors[lmNames[j]] || '#fff'; ctx.fill();
+        }
+        ctx.strokeStyle = '#4299e1'; ctx.lineWidth = 1;
+        var le = p.landmarks.left_eye, re = p.landmarks.right_eye;
+        ctx.beginPath(); ctx.moveTo(le[0], le[1]); ctx.lineTo(re[0], re[1]); ctx.stroke();
+        ctx.strokeStyle = '#f6ad55';
+        var ns = p.landmarks.nose, lm = p.landmarks.left_mouth, rm = p.landmarks.right_mouth;
+        ctx.beginPath(); ctx.moveTo(lm[0], lm[1]); ctx.lineTo(ns[0], ns[1]); ctx.lineTo(rm[0], rm[1]); ctx.stroke();
+      }
+    }
+  }
+  ctx.fillStyle = '#4a5568'; ctx.font = '9px Segoe UI'; ctx.textAlign = 'center';
+  ctx.fillText(detected ? (landmarks && showFaceLandmarks ? '3 faces + 5 landmarks each' : '3 faces detected') : 'Raw camera frame — no detection yet', 160, 232);
+}
+function runFaceDetection() {
+  faceDetected = true; showFaceLandmarks = true;
+  drawFaceScene(true, true);
+  var out = '';
+  for (var i = 0; i < facePeople.length; i++) {
+    var p = facePeople[i];
+    out += 'Face ' + (i+1) + ': conf=' + p.conf + '\n';
+    out += '  bbox=[' + p.x + ',' + p.y + ',' + (p.x+p.w) + ',' + (p.y+p.h) + ']\n';
+    out += '  eyes=(' + p.landmarks.left_eye + '),(' + p.landmarks.right_eye + ')\n';
+    out += '  nose=(' + p.landmarks.nose + ')\n';
+    if (i < facePeople.length-1) out += '\n';
+  }
+  document.getElementById('face-output').textContent = out;
+}
+function toggleLandmarks() {
+  if (!faceDetected) { runFaceDetection(); return; }
+  showFaceLandmarks = !showFaceLandmarks;
+  drawFaceScene(true, showFaceLandmarks);
+  document.getElementById('face-output').textContent = showFaceLandmarks ? 'Landmarks ON — 5 points per face: left eye, right eye, nose, left mouth, right mouth' : 'Landmarks OFF — showing bounding boxes only';
+}
+function resetFaceCanvas() { faceDetected = false; showFaceLandmarks = false; drawFaceScene(false, false); document.getElementById('face-output').textContent = 'Click Detect Faces...'; }
+
+// ── EMOTION DETECTION ─────────────────────────────────────────────────────────
+var emotionFaces = [
+  {x:30,  y:30, r:40, emotion:'😊 Happy',    conf:0.94, color:'#48bb78', bars:[0.94,0.02,0.01,0.01,0.01,0.01]},
+  {x:155, y:30, r:40, emotion:'😢 Sad',      conf:0.88, color:'#4299e1', bars:[0.03,0.88,0.04,0.02,0.01,0.02]},
+  {x:280, y:30, r:40, emotion:'😠 Angry',    conf:0.91, color:'#e53e3e', bars:[0.02,0.03,0.91,0.01,0.02,0.01]},
+  {x:400, y:30, r:40, emotion:'😮 Surprised',conf:0.79, color:'#ed8936', bars:[0.05,0.04,0.03,0.79,0.05,0.04]}
+];
+var emotionSelected = -1;
+var emotionLabels = ['Happy','Sad','Angry','Surprised','Neutral','Fear'];
+
+function initEmotionCanvas() {
+  drawEmotionScene(-1);
+}
+function drawEmotionScene(sel) {
+  var c = document.getElementById('emotion-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,480,200);
+  ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0,0,480,200);
+  var faceColors = ['#c49060','#a07840','#b48050','#c89870'];
+  for (var i = 0; i < emotionFaces.length; i++) {
+    var f = emotionFaces[i]; var active = (sel === i);
+    ctx.fillStyle = faceColors[i];
+    ctx.beginPath(); ctx.arc(f.x + f.r, f.y + f.r, f.r, 0, Math.PI*2); ctx.fill();
+    var eyes = [[f.x + f.r*0.55, f.y + f.r*0.75], [f.x + f.r*1.45, f.y + f.r*0.75]];
+    ctx.fillStyle = '#2a1a0a';
+    for (var j = 0; j < eyes.length; j++) {
+      ctx.beginPath(); ctx.arc(eyes[j][0], eyes[j][1], 5, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.strokeStyle = active ? f.color : '#4a5568';
+    ctx.lineWidth = active ? 3 : 1.5;
+    ctx.strokeRect(f.x, f.y, f.r*2, f.r*2 + 10);
+    if (active) {
+      ctx.font = 'bold 11px Segoe UI'; ctx.textAlign = 'center';
+      var lw = ctx.measureText(f.emotion).width;
+      ctx.fillStyle = f.color; ctx.fillRect(f.x, f.y - 18, lw + 8, 18);
+      ctx.fillStyle = '#0a0a16'; ctx.fillText(f.emotion, f.x + 4 + lw/2, f.y - 5);
+    }
+    ctx.fillStyle = '#718096'; ctx.font = '9px Segoe UI'; ctx.textAlign = 'center';
+    ctx.fillText('Face ' + (i+1), f.x + f.r, f.y + f.r*2 + 20);
+  }
+  ctx.fillStyle = '#4a5568'; ctx.font = '9px Segoe UI'; ctx.textAlign = 'center';
+  ctx.fillText('Click a face to run emotion classification', 240, 192);
+}
+function handleEmotionClick(e) {
+  var c = document.getElementById('emotion-canvas'); if (!c) return;
+  var r = c.getBoundingClientRect();
+  var mx = (e.clientX - r.left) * (c.width / r.width);
+  var my = (e.clientY - r.top) * (c.height / r.height);
+  for (var i = 0; i < emotionFaces.length; i++) {
+    var f = emotionFaces[i];
+    var dx = mx - (f.x + f.r), dy = my - (f.y + f.r);
+    if (Math.sqrt(dx*dx + dy*dy) <= f.r * 1.2) {
+      emotionSelected = i; drawEmotionScene(i); showEmotionResult(i); return;
+    }
+  }
+}
+function showEmotionResult(i) {
+  var f = emotionFaces[i];
+  var html = '<div style="color:' + f.color + ';font-weight:700;font-size:13px;margin-bottom:8px">Face ' + (i+1) + ' → ' + f.emotion + ' (' + (f.conf*100).toFixed(0) + '% confidence)</div>';
+  html += '<div style="font-size:11px;color:#a0aec0;margin-bottom:8px">2-step pipeline: <b style="color:#e2e8f0">① Face Detector</b> → bounding box → crop → <b style="color:#e2e8f0">② Emotion CNN</b> → class probs</div>';
+  html += '<div style="display:flex;flex-direction:column;gap:4px">';
+  for (var j = 0; j < emotionLabels.length; j++) {
+    var pct = (f.bars[j] * 100).toFixed(1);
+    var col = (j === f.bars.indexOf(Math.max.apply(null, f.bars))) ? f.color : '#4a5568';
+    html += '<div style="display:flex;align-items:center;gap:8px">';
+    html += '<span style="font-size:11px;color:#a0aec0;width:70px">' + emotionLabels[j] + '</span>';
+    html += '<div style="flex:1;background:#1a1a2e;border-radius:4px;height:14px;overflow:hidden">';
+    html += '<div style="width:' + pct + '%;height:100%;background:' + col + ';border-radius:4px;transition:width .5s"></div>';
+    html += '</div><span style="font-size:10px;color:#e2e8f0;width:36px;text-align:right">' + pct + '%</span>';
+    html += '</div>';
+  }
+  html += '</div>';
+  document.getElementById('emotion-pipeline').innerHTML = html;
+}
+
+// ── SEGMENTATION DEMO ─────────────────────────────────────────────────────────
+function initSegDemoCanvases() {
+  var inp = document.getElementById('seg-input-canvas'); if (!inp) return;
+  var ctx = inp.getContext('2d'); ctx.clearRect(0,0,200,160);
+  ctx.fillStyle = '#1e2a3a'; ctx.fillRect(0,0,200,160);
+  ctx.fillStyle = '#243040'; ctx.fillRect(0,100,200,60);
+  ctx.fillStyle = '#2d3e50'; ctx.fillRect(0,130,200,30);
+  ctx.fillStyle = '#7a8a60'; ctx.fillRect(0,128,200,5);
+  ctx.fillStyle = '#5a4a3a'; ctx.fillRect(20,55,40,70); ctx.fillRect(85,65,45,60); ctx.fillRect(145,50,38,75);
+  ctx.fillStyle = '#c49060'; ctx.beginPath(); ctx.arc(40,45,15,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(107,55,14,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(164,42,13,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#4a5568'; ctx.font = '9px Segoe UI'; ctx.textAlign='center'; ctx.fillText('Input Scene',100,154);
+  var out = document.getElementById('seg-output-canvas'); if (!out) return;
+  var octx = out.getContext('2d'); octx.clearRect(0,0,200,160);
+  octx.fillStyle = '#1a1a2e'; octx.fillRect(0,0,200,160);
+  octx.fillStyle = '#4a5568'; octx.font = '11px Segoe UI'; octx.textAlign='center';
+  octx.fillText('Choose a mode →', 100, 85);
+}
+
+function runSegDemo(mode) {
+  var out = document.getElementById('seg-output-canvas'); if (!out) return;
+  var ctx = out.getContext('2d'); ctx.clearRect(0,0,200,160);
+  var legend = document.getElementById('seg-class-legend');
+  if (mode === 'original') {
+    ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0,0,200,160);
+    ctx.fillStyle = '#4a5568'; ctx.font = '11px Segoe UI'; ctx.textAlign='center'; ctx.fillText('Choose a mode →', 100, 85);
+    document.getElementById('seg-output-label').textContent = 'Output Mask';
+    legend.innerHTML = ''; return;
+  }
+  if (mode === 'binary') {
+    ctx.fillStyle = '#0a0a16'; ctx.fillRect(0,0,200,160);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(20,55,40,70); ctx.fillRect(85,65,45,60); ctx.fillRect(145,50,38,75);
+    ctx.beginPath(); ctx.arc(40,45,15,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(107,55,14,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(164,42,13,0,Math.PI*2); ctx.fill();
+    document.getElementById('seg-output-label').textContent = 'Binary Mask (foreground=white)';
+    legend.innerHTML = '<span style="font-size:11px;color:#fff;background:#1a1a2e;padding:3px 8px;border-radius:6px">⬜ Foreground (people)</span><span style="font-size:11px;color:#4a5568;background:#0a0a16;padding:3px 8px;border-radius:6px">⬛ Background</span>';
+    return;
+  }
+  var semClass = mode === 'semantic';
+  var instColors = ['#f6ad55','#68d391','#63b3ed'];
+  ctx.fillStyle = '#2d3e50'; ctx.fillRect(0,100,200,60);
+  ctx.fillStyle = semClass ? 'rgba(66,153,225,0.6)' : 'rgba(66,153,225,0.1)'; ctx.fillRect(0,0,200,105);
+  var personColor = semClass ? 'rgba(229,62,62,0.85)' : null;
+  var bodies = [{x:20,y:55,w:40,h:70,cx:40,cy:45,r:15},{x:85,y:65,w:45,h:60,cx:107,cy:55,r:14},{x:145,y:50,w:38,h:75,cx:164,cy:42,r:13}];
+  for (var i = 0; i < bodies.length; i++) {
+    ctx.fillStyle = semClass ? personColor : (instColors[i] + 'cc');
+    ctx.fillRect(bodies[i].x, bodies[i].y, bodies[i].w, bodies[i].h);
+    ctx.beginPath(); ctx.arc(bodies[i].cx, bodies[i].cy, bodies[i].r, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.fillStyle = '#4a5568'; ctx.font = '9px Segoe UI'; ctx.textAlign='center';
+  ctx.fillText(semClass ? 'Semantic Mask' : 'Instance Mask', 100, 154);
+  document.getElementById('seg-output-label').textContent = semClass ? 'Semantic Segmentation' : 'Instance Segmentation';
+  if (semClass) {
+    legend.innerHTML = '<span style="font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(229,62,62,0.3);color:#fc8181">🔴 Person class</span><span style="font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(66,153,225,0.3);color:#63b3ed">🔵 Sky class</span><span style="font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(45,62,80,0.9);color:#a0aec0">⬛ Road class</span>';
+  } else {
+    legend.innerHTML = '<span style="font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(246,173,85,0.3);color:#f6ad55">🟠 Person #1</span><span style="font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(104,211,145,0.3);color:#68d391">🟢 Person #2</span><span style="font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(99,179,237,0.3);color:#63b3ed">🔵 Person #3</span>';
+  }
+}
+
+// ── DET vs SEG COMPARE ───────────────────────────────────────────────────────
+function initDetCompare() {
+  var c1 = document.getElementById('det-compare-canvas');
+  var c2 = document.getElementById('seg-compare-canvas');
+  if (c1) {
+    var ctx = c1.getContext('2d'); ctx.clearRect(0,0,180,120);
+    ctx.fillStyle = '#1e2a3a'; ctx.fillRect(0,0,180,120);
+    ctx.fillStyle = '#5a4a3a'; ctx.fillRect(20,20,55,80); ctx.fillRect(100,30,50,70);
+    ctx.fillStyle = '#c49060';
+    ctx.beginPath(); ctx.arc(47,17,18,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(125,26,16,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#4299e1'; ctx.lineWidth = 2; ctx.setLineDash([]);
+    ctx.strokeRect(15,8,68,96); ctx.strokeRect(96,18,60,85);
+    ctx.fillStyle = '#4299e1'; ctx.font = 'bold 9px Segoe UI'; ctx.textAlign='left';
+    ctx.fillText('person 0.95', 15, 6);
+    ctx.fillText('person 0.88', 96, 16);
+  }
+  if (c2) {
+    var ctx2 = c2.getContext('2d'); ctx2.clearRect(0,0,180,120);
+    ctx2.fillStyle = '#1e2a3a'; ctx2.fillRect(0,0,180,120);
+    ctx2.fillStyle = '#5a4a3a'; ctx2.fillRect(20,20,55,80); ctx2.fillRect(100,30,50,70);
+    ctx2.fillStyle = '#c49060';
+    ctx2.beginPath(); ctx2.arc(47,17,18,0,Math.PI*2); ctx2.fill();
+    ctx2.beginPath(); ctx2.arc(125,26,16,0,Math.PI*2); ctx2.fill();
+    ctx2.fillStyle = 'rgba(246,173,85,0.55)';
+    ctx2.beginPath(); ctx2.ellipse(47, 55, 28, 50, 0, 0, Math.PI*2); ctx2.fill();
+    ctx2.fillStyle = 'rgba(104,211,145,0.55)';
+    ctx2.beginPath(); ctx2.ellipse(125, 60, 25, 44, 0, 0, Math.PI*2); ctx2.fill();
+    ctx2.strokeStyle = '#f6ad55'; ctx2.lineWidth = 1.5;
+    ctx2.beginPath(); ctx2.ellipse(47,55,28,50,0,0,Math.PI*2); ctx2.stroke();
+    ctx2.strokeStyle = '#68d391';
+    ctx2.beginPath(); ctx2.ellipse(125,60,25,44,0,0,Math.PI*2); ctx2.stroke();
+    ctx2.fillStyle = '#f6ad55'; ctx2.font='bold 9px Segoe UI'; ctx2.textAlign='left';
+    ctx2.fillText('person #1', 14, 115);
+    ctx2.fillStyle = '#68d391'; ctx2.fillText('person #2', 96, 115);
+  }
+}
+
+// ── MASK R-CNN ANIMATION ──────────────────────────────────────────────────────
+var maskRCNNStep = 0;
+var maskRCNNTimer = null;
+
+function resetMaskRCNN() {
+  if (maskRCNNTimer) clearInterval(maskRCNNTimer);
+  maskRCNNStep = 0; drawMaskRCNNStage(0);
+  document.getElementById('maskrcnn-info').textContent = 'Click Run Pipeline to see the Mask R-CNN stages';
+}
+
+function animateMaskRCNN() {
+  if (maskRCNNTimer) clearInterval(maskRCNNTimer);
+  maskRCNNStep = 0;
+  maskRCNNTimer = setInterval(function() {
+    maskRCNNStep++;
+    if (maskRCNNStep > 5) { clearInterval(maskRCNNTimer); return; }
+    drawMaskRCNNStage(maskRCNNStep);
+  }, 1000);
+  drawMaskRCNNStage(0);
+}
+
+function drawMaskRCNNStage(step) {
+  var c = document.getElementById('maskrcnn-canvas'); if (!c) return;
+  var ctx = c.getContext('2d'); ctx.clearRect(0,0,500,180);
+  var stages = [
+    {label:'Input\nImage',   color:'#4299e1', desc:'Raw image fed to backbone CNN (ResNet)'},
+    {label:'Backbone\n(ResNet)',color:'#9f7aea', desc:'Extract deep feature maps from image'},
+    {label:'Region\nProposal',color:'#ed8936', desc:'RPN proposes ~300 candidate regions (RoIs)'},
+    {label:'RoI\nAlign',    color:'#e53e3e', desc:'Crop + resize features for each proposal'},
+    {label:'Box\nHead',     color:'#48bb78', desc:'Classify object + refine bounding box'},
+    {label:'Mask\nHead',    color:'#f6ad55', desc:'Predict 28×28 binary mask per detected object'}
+  ];
+  var n = stages.length, bw = 72, bh = 60, gap = 10;
+  var totalW = n*bw + (n-1)*gap, startX = (500 - totalW) / 2;
+  for (var i = 0; i < n; i++) {
+    var s = stages[i];
+    var x = startX + i*(bw+gap), y = 55;
+    var active = (i <= step);
+    ctx.fillStyle = active ? s.color + '33' : '#1a1a2e';
+    ctx.strokeStyle = active ? s.color : '#2d3748';
+    ctx.lineWidth = active ? 2 : 1;
+    ctx.beginPath(); ctx.roundRect(x, y, bw, bh, 5); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = active ? s.color : '#4a5568';
+    ctx.font = 'bold 9px Segoe UI'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    var lines = s.label.split('\n');
+    for (var j = 0; j < lines.length; j++) ctx.fillText(lines[j], x+bw/2, y+bh/2+(j-0.5)*12);
+    if (i < n-1) {
+      ctx.strokeStyle = active ? '#4a5568' : '#2d3748'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x+bw+2, y+bh/2); ctx.lineTo(x+bw+gap-2, y+bh/2); ctx.stroke();
+      if (active) {
+        ctx.fillStyle = '#4a5568'; ctx.beginPath();
+        ctx.moveTo(x+bw+gap-2, y+bh/2-4); ctx.lineTo(x+bw+gap+3, y+bh/2); ctx.lineTo(x+bw+gap-2, y+bh/2+4);
+        ctx.fill();
+      }
+    }
+    if (i <= step) {
+      ctx.fillStyle = s.color; ctx.font = 'bold 9px Segoe UI'; ctx.textAlign='center';
+      ctx.fillText('✓', x+bw/2, y-10);
+    }
+  }
+  var descriptions = ['Feeding image...', 'ResNet extracting features...', 'RPN proposing regions of interest...', 'Aligning features for each RoI...', 'Classifying & localizing objects...', '✅ Masks predicted for each object!'];
+  var infos = document.getElementById('maskrcnn-info'); if (infos) infos.textContent = step < descriptions.length ? descriptions[step] : '';
+}
+
+// ── QUIZ ENGINE ───────────────────────────────────────────────────────────────
+function renderQuiz(questions, containerId) {
+  var el = document.getElementById(containerId);
+  var idx = 0, score = 0, answered = false;
+  function render() {
+    if (idx >= questions.length) {
+      var icon = score === questions.length ? '🏆' : score >= questions.length/2 ? '🎉' : '📚';
+      var msg = score === questions.length ? 'Perfect! Interview-ready 💪' : 'Keep revising — you got this!';
+      el.innerHTML = '<div class="quiz-score"><div style="font-size:48px;margin-bottom:8px">' + icon + '</div>' +
+        '<div style="font-size:20px;font-weight:700">' + score + '/' + questions.length + '</div>' +
+        '<div style="color:#718096;font-size:13px;margin-top:6px">' + msg + '</div>' +
+        '<button class="quiz-next" style="margin-top:12px" id="retry-btn">Try Again</button></div>';
+      document.getElementById('retry-btn').onclick = function() { idx = 0; score = 0; answered = false; render(); };
+      return;
+    }
+    var q = questions[idx];
+    var html = '<div style="font-size:11px;color:#718096;margin-bottom:8px">Q' + (idx+1) + '/' + questions.length + '  •  Score: ' + score + '</div>';
+    html += '<div class="quiz-q">' + q.q + '</div>';
+    for (var oi = 0; oi < q.opts.length; oi++) {
+      html += '<button class="quiz-opt" data-i="' + oi + '">' + String.fromCharCode(65+oi) + '. ' + q.opts[oi] + '</button>';
+    }
+    html += '<div id="q-exp" style="display:none" class="quiz-exp">' + q.exp + '</div>';
+    html += '<div id="q-next" style="display:none"><button class="quiz-next">' + (idx < questions.length-1 ? 'Next Question →' : 'See Results') + '</button></div>';
+    el.innerHTML = html;
+    answered = false;
+    var opts = el.querySelectorAll('.quiz-opt');
+    for (var oi2 = 0; oi2 < opts.length; oi2++) {
+      (function(btn) {
+        btn.addEventListener('click', function() {
+          if (answered) return; answered = true;
+          var chosen = +btn.getAttribute('data-i');
+          if (chosen === q.c) { btn.classList.add('correct'); score++; }
+          else { btn.classList.add('wrong'); opts[q.c].classList.add('correct'); }
+          for (var di = 0; di < opts.length; di++) opts[di].disabled = true;
+          document.getElementById('q-exp').style.display = 'block';
+          document.getElementById('q-next').style.display = 'block';
+          document.getElementById('q-next').querySelector('button').onclick = function() { idx++; render(); };
+        });
+      })(opts[oi2]);
+    }
+  }
+  render();
+}
+
+// ── CHAT ─────────────────────────────────────────────────────────────────────
+var SYS = 'You are a Computer Vision interview tutor for beginners. Be concise (3-5 sentences), clear, encouraging. Use **bold** for key terms. Bullet points when listing. Give model interview answers when asked.';
+
+function addMsg(boxId, content, role) {
+  var box = document.getElementById(boxId);
+  if (!box) return null;
+  var d = document.createElement('div');
+  d.className = 'msg ' + role;
+  d.innerHTML = content;
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+  return d;
+}
+function renderMd(t) {
+  return t.replace(/\*\*(.*?)\*\*/g,'<b>$1</b>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/^[-•] (.+)$/gm,'<li style="margin-left:12px">$1</li>').replace(/\n/g,'<br/>');
+}
+function showTyping(boxId) {
+  var box = document.getElementById(boxId);
+  if (!box) return null;
+  var d = document.createElement('div');
+  d.className = 'typing-dots';
+  d.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+  return d;
+}
+async function callAPI(msgs, context) {
+  var res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,system:SYS+(context?'\nContext: '+context:''),messages:msgs})
+  });
+  var d = await res.json();
+  return d.content ? d.content.map(function(b){return b.text||'';}).join('') : 'Sorry, try again.';
+}
+
+async function globalSend(msg) {
+  var inp = document.getElementById('chat-input');
+  var text = msg || inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  addMsg('chat-box', text, 'user');
+  var typing = showTyping('chat-box');
+  globalMsgs.push({role:'user',content:text});
+  try {
+    var reply = await callAPI(globalMsgs, '');
+    globalMsgs.push({role:'assistant',content:reply});
+    if (typing) typing.outerHTML = '';
+    addMsg('chat-box', renderMd(reply), 'ai');
+  } catch(err) {
+    if (typing) typing.outerHTML = '';
+    addMsg('chat-box', 'Error — check your connection.', 'ai');
+  }
+}
+
+function secSendText(q) { secSend(q); switchTab(2); }
+
+async function secSend(msg) {
+  var inp = document.getElementById('sec-chat-input');
+  var text = msg || inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  if (!secMsgs[currentSection.id]) secMsgs[currentSection.id] = [];
+  var msgs = secMsgs[currentSection.id];
+  addMsg('sec-chat-box', text, 'user');
+  var typing = showTyping('sec-chat-box');
+  msgs.push({role:'user',content:text});
+  var ctx = 'Currently studying: "' + currentSection.title + '". ' + currentSection.desc;
+  try {
+    var reply = await callAPI(msgs, ctx);
+    msgs.push({role:'assistant',content:reply});
+    if (typing) typing.outerHTML = '';
+    addMsg('sec-chat-box', renderMd(reply), 'ai');
+  } catch(err) {
+    if (typing) typing.outerHTML = '';
+    addMsg('sec-chat-box', 'Error — check connection.', 'ai');
+  }
+}
+
+document.getElementById('sec-chat-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') secSend();
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderHome();
+</script>
+
+<!-- Footer -->
+<div style="text-align:center;padding:24px 20px 32px;border-top:1px solid #2d3748;margin-top:40px;background:linear-gradient(180deg,transparent,#0a0a16)">
+  <div style="font-size:13px;color:#667eea;font-weight:700;letter-spacing:0.5px">✨ Created by Vinodhini</div>
+  <div style="font-size:12px;color:#a0aec0;margin-top:4px;font-weight:500">Data Scientist L&amp;D</div>
+  <div style="font-size:12px;color:#718096;margin-top:2px">HCL GUVI</div>
+</div>
+
+</body>
+</html>
