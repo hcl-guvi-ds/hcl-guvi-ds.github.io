@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Python Module 3 — Operators</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Fira+Code:wght@400;500&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN SYSTEM — Warm Noir + Electric Citrus
+═══════════════════════════════════════════ */
+:root {
+  --bg:      #0c0b09;
+  --surface: #141310;
+  --surface2:#1e1c18;
+  --surface3:#272420;
+  --border:  #2e2b24;
+  --accent:  #e8c547;
+  --accent2: #ff6b35;
+  --accent3: #4ecdc4;
+  --accent4: #a78bfa;
+  --text:    #f2ede4;
+  --text2:   #b8b09e;
+  --text3:   #6b6355;
+  --code-bg: #0a0908;
+  --correct: #4ecdc4;
+  --wrong:   #ff4757;
+  --r:       14px;
+  --fh:      'Cabinet Grotesk', sans-serif;
+  --fb:      'Crimson Pro', serif;
+  --fc:      'Fira Code', monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:16px;line-height:1.6;}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* ════════ APP SHELL ════════ */
+#app{
+  width:100vw;height:100vh;
+  display:grid;
+  grid-template-rows:56px 1fr 64px;
+  grid-template-columns:220px 1fr;
+  grid-template-areas:"topbar topbar" "sidebar main" "bottombar bottombar";
+}
+
+/* ── Top Bar ── */
+#topbar{grid-area:topbar;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;z-index:10;}
+.tb-logo{display:flex;align-items:center;gap:8px;font-family:var(--fh);font-weight:900;font-size:1rem;color:var(--accent);letter-spacing:-0.02em;white-space:nowrap;}
+.tb-logo .snake{width:28px;height:28px;background:var(--accent);border-radius:8px;display:grid;place-items:center;font-size:1rem;color:var(--bg);}
+.tb-sep{flex:1;}
+.tb-module-info{font-family:var(--fc);font-size:0.72rem;color:var(--text3);white-space:nowrap;}
+.creator-badge{display:flex;align-items:center;gap:10px;background:rgba(232,197,71,0.06);border:1px solid rgba(232,197,71,0.2);border-radius:10px;padding:7px 14px;white-space:nowrap;}
+.creator-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:900;color:var(--bg);font-family:var(--fh);flex-shrink:0;}
+.creator-info{display:flex;flex-direction:column;gap:1px;}
+.creator-name{font-family:var(--fh);font-size:0.78rem;font-weight:700;color:var(--accent);line-height:1.2;}
+.creator-role{font-family:var(--fc);font-size:0.62rem;color:var(--text3);line-height:1.2;}
+.tb-progress-wrap{width:110px;flex-shrink:0;}
+.tb-progress-label{font-family:var(--fc);font-size:0.68rem;color:var(--text3);margin-bottom:3px;display:flex;justify-content:space-between;}
+.tb-progress-bar{height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;}
+.tb-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+
+/* ── Sidebar ── */
+#sidebar{grid-area:sidebar;background:var(--surface);border-right:1px solid var(--border);padding:20px 0;overflow-y:auto;display:flex;flex-direction:column;}
+.sidebar-section-label{font-family:var(--fc);font-size:0.65rem;color:var(--text3);letter-spacing:0.12em;text-transform:uppercase;padding:0 18px;margin-bottom:8px;margin-top:20px;}
+.sidebar-section-label:first-child{margin-top:0;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;font-family:var(--fh);font-size:0.82rem;font-weight:500;color:var(--text2);border-left:3px solid transparent;transition:all .15s;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:rgba(232,197,71,0.08);border-left-color:var(--accent);color:var(--accent);}
+.nav-item.completed .nav-check{opacity:1;color:var(--correct);}
+.nav-check{margin-left:auto;opacity:0;font-size:0.8rem;transition:opacity .3s;}
+.nav-icon{font-size:1rem;min-width:20px;text-align:center;}
+.sidebar-credit{padding:16px 14px 12px;border-top:1px solid var(--border);margin-top:auto;}
+.sidebar-credit-inner{background:rgba(232,197,71,0.05);border:1px solid rgba(232,197,71,0.15);border-radius:10px;padding:12px 14px;}
+.sc-label{font-family:var(--fc);font-size:0.6rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;}
+.sc-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:1rem;font-weight:900;color:var(--bg);margin-bottom:8px;box-shadow:0 4px 12px rgba(232,197,71,0.3);}
+.sc-name{font-family:var(--fh);font-size:0.88rem;font-weight:800;color:var(--accent);margin-bottom:2px;}
+.sc-title{font-family:var(--fc);font-size:0.7rem;color:var(--text2);margin-bottom:2px;}
+.sc-org{display:inline-flex;align-items:center;gap:4px;font-family:var(--fc);font-size:0.65rem;color:var(--text3);background:var(--surface3);border:1px solid var(--border);padding:2px 8px;border-radius:50px;margin-top:6px;}
+
+/* ── Main ── */
+#main{grid-area:main;overflow:hidden;position:relative;}
+.page{position:absolute;inset:0;overflow-y:auto;padding:40px 48px;opacity:0;transform:translateX(40px);transition:opacity .35s ease,transform .35s ease;pointer-events:none;}
+.page.active{opacity:1;transform:translateX(0);pointer-events:all;}
+.page.exit-left{opacity:0;transform:translateX(-40px);}
+
+/* ── Bottom Bar ── */
+#bottombar{grid-area:bottombar;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:12px;}
+.bb-btn{display:flex;align-items:center;gap:7px;padding:10px 22px;border-radius:10px;font-family:var(--fh);font-size:0.85rem;font-weight:700;cursor:pointer;transition:all .15s;border:none;}
+.bb-btn.prev{background:var(--surface2);border:1px solid var(--border);color:var(--text);}
+.bb-btn.prev:hover{border-color:var(--text3);}
+.bb-btn.next{background:var(--accent);color:var(--bg);margin-left:auto;}
+.bb-btn.next:hover{opacity:.88;transform:translateY(-1px);}
+.bb-btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important;}
+.bb-page-indicator{font-family:var(--fc);font-size:0.75rem;color:var(--text3);flex:1;text-align:center;}
+.bb-dots{display:flex;gap:6px;align-items:center;}
+.bb-dot{width:6px;height:6px;border-radius:50%;background:var(--surface3);cursor:pointer;transition:all .2s;}
+.bb-dot.active{background:var(--accent);width:18px;border-radius:3px;}
+.bb-dot.done{background:var(--correct);}
+
+/* ════════ TYPOGRAPHY ════════ */
+h1{font-family:var(--fh);font-size:clamp(1.8rem,3vw,2.6rem);font-weight:900;line-height:1.1;letter-spacing:-0.03em;}
+h2{font-family:var(--fh);font-size:clamp(1.3rem,2.5vw,1.8rem);font-weight:800;line-height:1.2;letter-spacing:-0.02em;}
+h3{font-family:var(--fh);font-size:1.1rem;font-weight:700;}
+p{margin-bottom:1em;color:var(--text2);}
+strong{color:var(--text);font-weight:600;}
+code{font-family:var(--fc);font-size:0.85em;background:var(--surface3);border:1px solid var(--border);padding:2px 7px;border-radius:5px;color:var(--accent);}
+
+.page-tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--fc);font-size:0.7rem;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
+.page-tag::before{content:'';display:inline-block;width:20px;height:2px;background:var(--accent);}
+.page-header{margin-bottom:32px;}
+.page-header p{font-size:1.05rem;max-width:600px;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.grid-auto{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;}
+
+.tip{background:rgba(232,197,71,0.07);border:1px solid rgba(232,197,71,0.25);border-radius:10px;padding:14px 18px;font-size:0.9rem;color:var(--accent);margin:16px 0;}
+.tip::before{content:'💡 ';}
+.warn{background:rgba(255,71,87,0.07);border:1px solid rgba(255,71,87,0.25);border-radius:10px;padding:14px 18px;font-size:0.9rem;color:var(--wrong);margin:16px 0;}
+.warn::before{content:'⚠️ ';}
+
+/* ── Code Block ── */
+.code-block{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin:16px 0;}
+.cb-header{background:var(--surface2);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px;}
+.cb-dots{display:flex;gap:5px;}
+.cb-dots span{width:10px;height:10px;border-radius:50%;}
+.cb-dots span:nth-child(1){background:#ff5f57;}.cb-dots span:nth-child(2){background:#ffbd2e;}.cb-dots span:nth-child(3){background:#28ca41;}
+.cb-lang{margin-left:auto;font-family:var(--fc);font-size:0.7rem;color:var(--text3);}
+.cb-body{padding:20px 22px;overflow-x:auto;}
+.cb-body pre{font-family:var(--fc);font-size:0.88rem;line-height:1.9;color:#d4cfca;white-space:pre;}
+.kw{color:#ff6b35;}.fn{color:#e8c547;}.st{color:#4ecdc4;}.cm{color:#4a4540;font-style:italic;}.nm{color:#a78bfa;}.op{color:#f9a8d4;}
+
+.run-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent2);color:white;border:none;border-radius:9px;padding:9px 22px;font-family:var(--fh);font-size:0.85rem;font-weight:700;cursor:pointer;transition:all .15s;}
+.run-btn:hover{opacity:.85;transform:translateY(-1px);}
+.output-box{background:#080706;border:1px solid var(--border);border-radius:10px;padding:16px 18px;font-family:var(--fc);font-size:0.85rem;line-height:1.9;color:var(--accent3);min-height:52px;white-space:pre-wrap;display:none;margin-top:12px;}
+.output-box.show{display:block;animation:fadeIn .3s ease;}
+.out-prompt{color:var(--text3);}
+
+.solution-toggle{background:transparent;border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-family:var(--fc);font-size:0.78rem;padding:7px 16px;cursor:pointer;transition:background .2s;}
+.solution-toggle:hover{background:rgba(232,197,71,0.1);}
+.solution-box{display:none;margin-top:14px;}
+.solution-box.open{display:block;animation:fadeIn .3s ease;}
+
+.exercise-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:16px;}
+.ex-header{padding:14px 20px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.ex-num{font-family:var(--fc);font-size:0.7rem;color:var(--text3);}
+.ex-title{font-family:var(--fh);font-size:0.9rem;font-weight:700;}
+.ex-body{padding:20px;}
+.ex-body p{font-size:0.9rem;color:var(--text2);margin-bottom:12px;}
+
+/* Quiz */
+.quiz-progress{display:flex;gap:6px;margin-bottom:28px;}
+.qp-dot{flex:1;height:4px;background:var(--surface3);border-radius:2px;transition:background .3s;}
+.qp-dot.correct{background:var(--correct);}.qp-dot.wrong{background:var(--wrong);}
+.q-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:28px;min-height:320px;}
+.q-badge{font-family:var(--fc);font-size:0.7rem;color:var(--text3);margin-bottom:10px;}
+.q-text{font-family:var(--fh);font-size:1.1rem;font-weight:700;margin-bottom:24px;line-height:1.4;}
+.q-options{display:flex;flex-direction:column;gap:10px;}
+.q-opt{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:12px 18px;text-align:left;font-family:var(--fb);font-size:0.95rem;color:var(--text);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:12px;}
+.q-opt:hover:not(:disabled){border-color:var(--accent);background:rgba(232,197,71,0.05);transform:translateX(3px);}
+.q-opt-letter{width:26px;height:26px;border-radius:6px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:var(--fc);font-size:0.72rem;color:var(--text3);flex-shrink:0;transition:all .15s;}
+.q-opt.correct{border-color:var(--correct);background:rgba(78,205,196,0.1);color:var(--correct);}
+.q-opt.correct .q-opt-letter{background:var(--correct);color:var(--bg);}
+.q-opt.wrong{border-color:var(--wrong);background:rgba(255,71,87,0.1);color:var(--wrong);}
+.q-opt.wrong .q-opt-letter{background:var(--wrong);color:white;}
+.q-opt:disabled{cursor:default;}
+.q-feedback{margin-top:16px;padding:12px 16px;border-radius:8px;font-family:var(--fc);font-size:0.8rem;display:none;animation:fadeIn .3s ease;}
+.q-feedback.show{display:block;}
+.q-feedback.correct{background:rgba(78,205,196,0.12);color:var(--correct);border:1px solid rgba(78,205,196,0.3);}
+.q-feedback.wrong{background:rgba(255,71,87,0.1);color:var(--wrong);border:1px solid rgba(255,71,87,0.3);}
+.quiz-nav{display:flex;align-items:center;justify-content:space-between;margin-top:20px;}
+.qnav-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 20px;font-family:var(--fh);font-size:0.82rem;font-weight:700;color:var(--text);cursor:pointer;transition:all .15s;}
+.qnav-btn:hover{border-color:var(--text3);}
+.qnav-btn.primary{background:var(--accent);color:var(--bg);border-color:transparent;}
+.qnav-btn:disabled{opacity:.3;cursor:not-allowed;}
+.quiz-result{display:none;text-align:center;padding:40px 20px;animation:fadeIn .5s ease;}
+.quiz-result.show{display:block;}
+.qr-emoji{font-size:4rem;display:block;margin-bottom:16px;animation:bounceIn .6s ease;}
+.qr-score{font-family:var(--fh);font-size:3.5rem;font-weight:900;color:var(--accent);line-height:1;margin-bottom:8px;}
+.qr-sub{color:var(--text2);font-size:1rem;margin-bottom:28px;}
+.qr-breakdown{display:flex;gap:20px;justify-content:center;margin-bottom:28px;}
+.qrb-item{text-align:center;}
+.qrb-val{font-family:var(--fh);font-size:1.6rem;font-weight:900;}
+.qrb-val.c{color:var(--correct);}.qrb-val.w{color:var(--wrong);}
+.qrb-lbl{font-family:var(--fc);font-size:0.7rem;color:var(--text3);}
+.retry-btn{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 28px;font-family:var(--fh);font-size:0.9rem;font-weight:700;color:var(--text);cursor:pointer;transition:all .15s;margin-right:10px;}
+.retry-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* Complete */
+.complete-wrap{text-align:center;max-width:520px;margin:0 auto;padding:20px 0;}
+.complete-icon{width:100px;height:100px;background:rgba(232,197,71,0.1);border:2px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:3rem;margin:0 auto 24px;animation:float 3s ease-in-out infinite;}
+.skills-learnt{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:20px 0 32px;}
+.skill-badge{background:var(--surface2);border:1px solid var(--border);border-radius:50px;padding:6px 16px;font-family:var(--fc);font-size:0.75rem;color:var(--text2);display:flex;align-items:center;gap:6px;animation:bounceIn .5s ease both;}
+.skill-badge .check{color:var(--correct);}
+.cert-btn{background:var(--accent);color:var(--bg);border:none;border-radius:12px;padding:14px 32px;font-family:var(--fh);font-size:1rem;font-weight:900;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:8px;}
+.cert-btn:hover{opacity:.88;transform:translateY(-2px);}
+
+/* ── Animations ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes bounceIn{0%{transform:scale(0)}60%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes confetti-pop{0%{transform:translate(0,0) rotate(0deg);opacity:1}100%{transform:translate(var(--cx),var(--cy)) rotate(var(--cr));opacity:0}}
+@keyframes countUp{from{opacity:0;transform:scale(1.4)}to{opacity:1;transform:scale(1)}}
+@keyframes slideRight{from{width:0}to{width:var(--w)}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(232,197,71,.2)}50%{box-shadow:0 0 22px rgba(232,197,71,.6)}}
+
+.stagger>*{animation:slideUp .4s ease both;}
+.stagger>*:nth-child(1){animation-delay:.05s}.stagger>*:nth-child(2){animation-delay:.12s}
+.stagger>*:nth-child(3){animation-delay:.19s}.stagger>*:nth-child(4){animation-delay:.26s}
+.stagger>*:nth-child(5){animation-delay:.33s}.stagger>*:nth-child(6){animation-delay:.40s}
+.stagger>*:nth-child(7){animation-delay:.47s}.stagger>*:nth-child(8){animation-delay:.54s}
+
+/* ══════════════════════════════
+   PAGE-SPECIFIC STYLES
+══════════════════════════════ */
+
+/* Hero */
+.hero-icon{font-size:5rem;display:block;margin-bottom:16px;animation:float 3s ease-in-out infinite;line-height:1;}
+.hero-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:40px;}
+.chip{background:var(--surface2);border:1px solid var(--border);border-radius:50px;padding:6px 16px;font-family:var(--fc);font-size:0.75rem;color:var(--text2);display:flex;align-items:center;gap:6px;}
+.hero-stats{display:flex;gap:32px;flex-wrap:wrap;}
+.stat .val{font-family:var(--fh);font-size:2rem;font-weight:900;color:var(--accent);line-height:1;}
+.stat .lbl{font-family:var(--fc);font-size:0.7rem;color:var(--text3);}
+
+/* ── Operator Table (PAGE 1) ── */
+.op-category{margin-bottom:28px;}
+.op-category-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.op-cat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.op-cat-title{font-family:var(--fh);font-size:1rem;font-weight:700;}
+.op-table{width:100%;border-collapse:collapse;font-family:var(--fc);font-size:0.82rem;}
+.op-table th{background:var(--surface2);padding:9px 14px;text-align:left;border:1px solid var(--border);color:var(--text2);font-weight:600;}
+.op-table td{padding:9px 14px;border:1px solid var(--border);color:var(--text2);}
+.op-table tr:nth-child(even) td{background:rgba(255,255,255,0.02);}
+.op-table .op-sym{color:var(--accent);font-weight:700;font-size:0.95rem;}
+.op-table .op-ex{color:var(--accent3);}
+.op-table .op-out{color:var(--accent4);}
+.op-table tr:hover td{background:rgba(232,197,71,0.04);}
+
+/* ── Calculator Visualizer (PAGE 2) ── */
+.calc-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin:20px 0;}
+.calc-display{background:var(--code-bg);padding:20px 24px;font-family:var(--fc);min-height:80px;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;}
+.calc-expr{font-size:0.82rem;color:var(--text3);min-height:20px;}
+.calc-result{font-size:2rem;color:var(--accent3);font-weight:500;animation:countUp .25s ease;}
+.calc-keys{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);}
+.calc-key{background:var(--surface2);padding:16px;text-align:center;cursor:pointer;font-family:var(--fh);font-size:0.95rem;font-weight:700;color:var(--text);transition:all .12s;user-select:none;}
+.calc-key:hover{background:var(--surface3);color:var(--accent);}
+.calc-key.op-key{color:var(--accent2);}
+.calc-key.eq-key{background:var(--accent);color:var(--bg);}
+.calc-key.eq-key:hover{opacity:.88;}
+.calc-key.clear{color:var(--wrong);}
+.calc-key:active{transform:scale(.94);}
+
+/* ── Comparison visualizer (PAGE 3) ── */
+.compare-viz{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin:20px 0;}
+.cv-sliders{display:flex;flex-direction:column;gap:16px;margin-bottom:20px;}
+.cv-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.cv-label{font-family:var(--fc);font-size:0.8rem;color:var(--text2);min-width:16px;}
+.cv-input{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:var(--fc);font-size:0.88rem;color:var(--accent3);width:90px;outline:none;transition:border-color .2s;}
+.cv-input:focus{border-color:var(--accent);}
+.cv-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+.cv-result{background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center;}
+.cv-op{font-family:var(--fc);font-size:0.78rem;color:var(--text3);margin-bottom:4px;}
+.cv-val{font-family:var(--fh);font-size:1.1rem;font-weight:800;}
+.cv-val.true{color:var(--correct);}.cv-val.false{color:var(--wrong);}
+
+/* ── Logical truth table (PAGE 4) ── */
+.truth-table{width:100%;border-collapse:collapse;font-family:var(--fc);font-size:0.82rem;margin:16px 0;}
+.truth-table th{background:var(--surface2);padding:10px 14px;text-align:center;border:1px solid var(--border);color:var(--text2);}
+.truth-table td{padding:10px 14px;border:1px solid var(--border);text-align:center;}
+.truth-table .T{color:var(--correct);font-weight:700;}.truth-table .F{color:var(--wrong);font-weight:700;}
+.truth-table .result-col{background:rgba(232,197,71,0.04);}
+.truth-table tr:hover td{background:rgba(232,197,71,0.04);}
+
+/* ── Operator precedence (PAGE 5) ── */
+.prec-list{margin:20px 0;display:flex;flex-direction:column;gap:0;}
+.prec-row{display:flex;align-items:center;gap:14px;padding:12px 18px;border:1px solid var(--border);border-bottom:none;transition:background .15s;}
+.prec-row:first-child{border-radius:var(--r) var(--r) 0 0;}
+.prec-row:last-child{border-bottom:1px solid var(--border);border-radius:0 0 var(--r) var(--r);}
+.prec-row:hover{background:var(--surface2);}
+.prec-rank{font-family:var(--fh);font-size:0.75rem;font-weight:800;color:var(--accent);min-width:28px;text-align:center;}
+.prec-ops{font-family:var(--fc);font-size:0.88rem;color:var(--accent3);flex:1;}
+.prec-name{font-family:var(--fc);font-size:0.75rem;color:var(--text3);}
+.prec-bar-wrap{width:80px;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;}
+.prec-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;animation:slideRight .6s ease both;}
+
+/* ── Shorthand viz (PAGE 5) ── */
+.shorthand-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:16px 0;}
+.sh-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.sh-short{font-family:var(--fc);font-size:0.95rem;color:var(--accent);margin-bottom:4px;}
+.sh-arrow{color:var(--text3);font-size:0.75rem;margin:4px 0;}
+.sh-long{font-family:var(--fc);font-size:0.78rem;color:var(--text2);}
+
+/* ── Modulus visualizer (PAGE 2) ── */
+.mod-viz{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin:16px 0;}
+.mod-viz h4{font-family:var(--fh);margin-bottom:14px;font-size:0.95rem;}
+.mod-controls{display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
+.mod-input{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-family:var(--fc);font-size:0.88rem;color:var(--accent3);width:80px;outline:none;}
+.mod-input:focus{border-color:var(--accent);}
+.mod-label{font-family:var(--fc);font-size:0.85rem;color:var(--text2);}
+.mod-result-wrap{font-family:var(--fc);font-size:0.88rem;color:var(--text2);}
+.mod-highlight{color:var(--accent);font-weight:700;font-size:1.1rem;}
+.mod-visual-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.mod-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fc);font-size:0.72rem;font-weight:700;transition:all .3s;}
+.mod-circle.full{background:rgba(232,197,71,0.2);border:2px solid var(--accent);color:var(--accent);}
+.mod-circle.rem{background:rgba(255,107,53,0.2);border:2px solid var(--accent2);color:var(--accent2);}
+.mod-circle.empty{background:var(--surface3);border:2px solid var(--border);color:var(--text3);}
+
+/* Mobile */
+@media(max-width:640px){
+  #app{grid-template-columns:1fr;grid-template-areas:"topbar" "main" "bottombar";}
+  #sidebar{display:none;}
+  .page{padding:24px 20px;}
+  .grid-2,.grid-3{grid-template-columns:1fr;}
+  .creator-badge{display:none;}
+  .tb-module-info{display:none;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══ TOP BAR ══ -->
+<div id="topbar">
+  <div class="tb-logo"><div class="snake">🐍</div>PyLearn</div>
+  <div class="tb-sep"></div>
+  <div class="tb-module-info">Module 03 · Operators</div>
+  <div class="creator-badge">
+    <div class="creator-avatar">V</div>
+    <div class="creator-info">
+      <div class="creator-name">Vinodhini</div>
+      <div class="creator-role">Data Scientist · HCL GUVI</div>
+    </div>
+  </div>
+  <div class="tb-progress-wrap">
+    <div class="tb-progress-label"><span>Progress</span><span id="tbPct">0%</span></div>
+    <div class="tb-progress-bar"><div class="tb-progress-fill" id="tbFill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<!-- ══ SIDEBAR ══ -->
+<div id="sidebar">
+  <div class="sidebar-section-label">Module 03</div>
+  <div class="nav-item active" data-page="0" onclick="goToPage(0)"><span class="nav-icon">🏠</span>Welcome<span class="nav-check">✓</span></div>
+  <div class="nav-item" data-page="1" onclick="goToPage(1)"><span class="nav-icon">➕</span>Arithmetic Operators<span class="nav-check">✓</span></div>
+  <div class="nav-item" data-page="2" onclick="goToPage(2)"><span class="nav-icon">🧮</span>Live Calculator<span class="nav-check">✓</span></div>
+  <div class="nav-item" data-page="3" onclick="goToPage(3)"><span class="nav-icon">⚖️</span>Comparison Operators<span class="nav-check">✓</span></div>
+  <div class="nav-item" data-page="4" onclick="goToPage(4)"><span class="nav-icon">🔗</span>Logical Operators<span class="nav-check">✓</span></div>
+  <div class="nav-item" data-page="5" onclick="goToPage(5)"><span class="nav-icon">📋</span>Precedence & Shorthand<span class="nav-check">✓</span></div>
+  <div class="sidebar-section-label">Practice</div>
+  <div class="nav-item" data-page="6" onclick="goToPage(6)"><span class="nav-icon">✏️</span>Exercises<span class="nav-check">✓</span></div>
+  <div class="nav-item" data-page="7" onclick="goToPage(7)"><span class="nav-icon">🧠</span>Quiz<span class="nav-check">✓</span></div>
+  <div class="nav-item" data-page="8" onclick="goToPage(8)"><span class="nav-icon">🎉</span>Complete!<span class="nav-check">✓</span></div>
+  <div class="sidebar-credit">
+    <div class="sidebar-credit-inner">
+      <div class="sc-label">Created by</div>
+      <div class="sc-avatar">V</div>
+      <div class="sc-name">Vinodhini</div>
+      <div class="sc-title">Data Scientist</div>
+      <div class="sc-org">🏢 HCL GUVI</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div id="main">
+
+<!-- ░░ PAGE 0 — Welcome ░░ -->
+<div class="page active" id="page-0">
+  <span class="hero-icon">➕</span>
+  <div class="page-tag">Module 03 of 12</div>
+  <h1>Operators<br><span style="color:var(--accent)">in Python</span></h1>
+  <p style="font-size:1.1rem;max-width:540px;margin:16px 0 28px;">Operators are the action words of Python. They tell Python <em>what to do</em> with your data — add, compare, combine, and more. Master them and your programs start thinking!</p>
+  <div class="hero-chips stagger">
+    <div class="chip">📖 6 Lessons</div>
+    <div class="chip">🧮 Live Calculator</div>
+    <div class="chip">⚖️ Comparison Visualizer</div>
+    <div class="chip">✏️ 3 Exercises</div>
+    <div class="chip">🧠 5-Question Quiz</div>
+  </div>
+  <div class="hero-stats stagger">
+    <div class="stat"><div class="val">5</div><div class="lbl">Operator types</div></div>
+    <div class="stat"><div class="val">20+</div><div class="lbl">Operators to learn</div></div>
+    <div class="stat"><div class="val">1</div><div class="lbl">Rule to rule them all</div></div>
+  </div>
+  <div style="margin-top:36px;padding-top:28px;border-top:1px solid var(--border);">
+    <div style="font-family:var(--fc);font-size:0.65rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Course Author</div>
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:1.3rem;font-weight:900;color:var(--bg);box-shadow:0 6px 20px rgba(232,197,71,.35);flex-shrink:0;">V</div>
+      <div>
+        <div style="font-family:var(--fh);font-size:1.1rem;font-weight:800;color:var(--accent);">Vinodhini</div>
+        <div style="font-family:var(--fc);font-size:0.75rem;color:var(--text2);margin-top:2px;">Data Scientist</div>
+        <div style="display:inline-flex;align-items:center;gap:5px;font-family:var(--fc);font-size:0.68rem;color:var(--text3);background:var(--surface2);border:1px solid var(--border);padding:3px 10px;border-radius:50px;margin-top:5px;">🏢 HCL GUVI</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ PAGE 1 — Arithmetic Operators ░░ -->
+<div class="page" id="page-1">
+  <div class="page-header">
+    <div class="page-tag">Lesson 1</div>
+    <h2>Arithmetic Operators</h2>
+    <p>Arithmetic operators perform <strong>mathematical calculations</strong> on numbers. Python supports all the standard operations plus two extra powerful ones.</p>
+  </div>
+
+  <div class="op-category">
+    <table class="op-table">
+      <tr><th>Operator</th><th>Name</th><th>Example</th><th>Result</th><th>Notes</th></tr>
+      <tr><td class="op-sym">+</td><td>Addition</td><td class="op-ex">10 + 3</td><td class="op-out">13</td><td>Also joins strings</td></tr>
+      <tr><td class="op-sym">-</td><td>Subtraction</td><td class="op-ex">10 - 3</td><td class="op-out">7</td><td></td></tr>
+      <tr><td class="op-sym">*</td><td>Multiplication</td><td class="op-ex">10 * 3</td><td class="op-out">30</td><td>Also repeats strings</td></tr>
+      <tr><td class="op-sym">/</td><td>Division</td><td class="op-ex">10 / 3</td><td class="op-out">3.333…</td><td>Always returns float</td></tr>
+      <tr><td class="op-sym">//</td><td>Floor Division</td><td class="op-ex">10 // 3</td><td class="op-out">3</td><td>Divides & rounds down</td></tr>
+      <tr><td class="op-sym">%</td><td>Modulus</td><td class="op-ex">10 % 3</td><td class="op-out">1</td><td>Returns the remainder</td></tr>
+      <tr><td class="op-sym">**</td><td>Exponentiation</td><td class="op-ex">2 ** 8</td><td class="op-out">256</td><td>2 to the power of 8</td></tr>
+    </table>
+  </div>
+
+  <div class="code-block">
+    <div class="cb-header"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">arithmetic.py</span></div>
+    <div class="cb-body"><pre>a, b = <span class="nm">17</span>, <span class="nm">5</span>
+
+<span class="fn">print</span>(a + b)   <span class="cm"># 22  — addition</span>
+<span class="fn">print</span>(a - b)   <span class="cm"># 12  — subtraction</span>
+<span class="fn">print</span>(a * b)   <span class="cm"># 85  — multiplication</span>
+<span class="fn">print</span>(a / b)   <span class="cm"># 3.4 — division (always float)</span>
+<span class="fn">print</span>(a // b)  <span class="cm"># 3   — floor division</span>
+<span class="fn">print</span>(a % b)   <span class="cm"># 2   — modulus (remainder)</span>
+<span class="fn">print</span>(a ** b)  <span class="cm"># 1419857 — 17 to the power of 5</span></pre>
+    </div>
+  </div>
+  <button class="run-btn" onclick="runDemo('out1',['22','12','85','3.4','3','2','1419857'])">▶ Run Demo</button>
+  <div class="output-box" id="out1"></div>
+
+  <div class="tip">The <strong>modulus operator %</strong> is super useful! Use it to check if a number is even (<code>n % 2 == 0</code>), or to keep numbers in a range.</div>
+
+  <!-- Modulus visualizer -->
+  <div class="mod-viz">
+    <h4>🔵 Modulus Visualizer — See the remainder</h4>
+    <div class="mod-controls">
+      <span class="mod-label">Divide</span>
+      <input class="mod-input" id="modA" type="number" value="10" min="0" max="99" oninput="updateMod()"/>
+      <span class="mod-label">by</span>
+      <input class="mod-input" id="modB" type="number" value="3" min="1" max="20" oninput="updateMod()"/>
+    </div>
+    <div class="mod-result-wrap" id="modResult"></div>
+    <div class="mod-visual-row" id="modVisual"></div>
+  </div>
+</div>
+
+<!-- ░░ PAGE 2 — Live Calculator ░░ -->
+<div class="page" id="page-2">
+  <div class="page-header">
+    <div class="page-tag">Interactive Demo</div>
+    <h2>Live Python Calculator</h2>
+    <p>This calculator shows you the <strong>Python expression</strong> as you type — so you can see exactly how Python evaluates your input. Try all the operators!</p>
+  </div>
+
+  <div style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;">
+    <div style="flex:1;min-width:260px;">
+      <div class="calc-wrap">
+        <div class="calc-display">
+          <div class="calc-expr" id="calcExpr"></div>
+          <div class="calc-result" id="calcResult">0</div>
+        </div>
+        <div class="calc-keys">
+          <button class="calc-key clear" onclick="calcClear()">C</button>
+          <button class="calc-key op-key" onclick="calcOp('//')">⌊/⌋</button>
+          <button class="calc-key op-key" onclick="calcOp('%')">%</button>
+          <button class="calc-key op-key" onclick="calcOp('**')">^</button>
+
+          <button class="calc-key" onclick="calcNum(7)">7</button>
+          <button class="calc-key" onclick="calcNum(8)">8</button>
+          <button class="calc-key" onclick="calcNum(9)">9</button>
+          <button class="calc-key op-key" onclick="calcOp('/')">÷</button>
+
+          <button class="calc-key" onclick="calcNum(4)">4</button>
+          <button class="calc-key" onclick="calcNum(5)">5</button>
+          <button class="calc-key" onclick="calcNum(6)">6</button>
+          <button class="calc-key op-key" onclick="calcOp('*')">×</button>
+
+          <button class="calc-key" onclick="calcNum(1)">1</button>
+          <button class="calc-key" onclick="calcNum(2)">2</button>
+          <button class="calc-key" onclick="calcNum(3)">3</button>
+          <button class="calc-key op-key" onclick="calcOp('-')">−</button>
+
+          <button class="calc-key" onclick="calcNum(0)" style="grid-column:span 2">0</button>
+          <button class="calc-key" onclick="calcDot()">.</button>
+          <button class="calc-key op-key" onclick="calcOp('+')">+</button>
+
+          <button class="calc-key eq-key" onclick="calcEquals()" style="grid-column:span 4">=</button>
+        </div>
+      </div>
+      <div style="font-family:var(--fc);font-size:0.72rem;color:var(--text3);text-align:center;margin-top:8px;">⌊/⌋ = floor division &nbsp;|&nbsp; % = modulus &nbsp;|&nbsp; ^ = power (**)</div>
+    </div>
+
+    <div style="flex:1;min-width:240px;">
+      <h3 style="margin-bottom:14px;font-size:0.95rem;">📜 History</h3>
+      <div id="calcHistory" style="display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto;">
+        <div style="font-family:var(--fc);font-size:0.78rem;color:var(--text3);text-align:center;padding:20px;">Calculations will appear here…</div>
+      </div>
+      <h3 style="margin:20px 0 10px;font-size:0.95rem;">🐍 Python equivalent</h3>
+      <div class="code-block" style="margin:0;">
+        <div class="cb-body" style="padding:14px 18px;"><pre id="calcPythonEq" style="font-size:0.82rem;color:var(--text2);">print(0)   <span class="cm" style="color:var(--text3);"># 0</span></pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ PAGE 3 — Comparison Operators ░░ -->
+<div class="page" id="page-3">
+  <div class="page-header">
+    <div class="page-tag">Lesson 2</div>
+    <h2>Comparison Operators</h2>
+    <p>Comparison operators <strong>compare two values</strong> and always return a Boolean — either <code>True</code> or <code>False</code>. They're the backbone of decision-making in Python.</p>
+  </div>
+
+  <table class="op-table" style="margin-bottom:24px;">
+    <tr><th>Operator</th><th>Meaning</th><th>Example</th><th>Result</th></tr>
+    <tr><td class="op-sym">==</td><td>Equal to</td><td class="op-ex">5 == 5</td><td class="op-out">True</td></tr>
+    <tr><td class="op-sym">!=</td><td>Not equal to</td><td class="op-ex">5 != 3</td><td class="op-out">True</td></tr>
+    <tr><td class="op-sym">&gt;</td><td>Greater than</td><td class="op-ex">10 &gt; 3</td><td class="op-out">True</td></tr>
+    <tr><td class="op-sym">&lt;</td><td>Less than</td><td class="op-ex">3 &lt; 10</td><td class="op-out">True</td></tr>
+    <tr><td class="op-sym">&gt;=</td><td>Greater than or equal</td><td class="op-ex">5 &gt;= 5</td><td class="op-out">True</td></tr>
+    <tr><td class="op-sym">&lt;=</td><td>Less than or equal</td><td class="op-ex">4 &lt;= 5</td><td class="op-out">True</td></tr>
+  </table>
+
+  <!-- Interactive comparison visualizer -->
+  <div class="compare-viz">
+    <h3 style="margin-bottom:16px;font-size:0.95rem;">⚖️ Interactive Comparison — change the values and watch results update</h3>
+    <div class="cv-sliders">
+      <div class="cv-row">
+        <span class="cv-label">a =</span>
+        <input class="cv-input" id="cvA" type="number" value="10" oninput="updateComparisons()"/>
+        <span class="cv-label" style="margin-left:16px;">b =</span>
+        <input class="cv-input" id="cvB" type="number" value="5" oninput="updateComparisons()"/>
+      </div>
+    </div>
+    <div class="cv-results" id="cvResults"></div>
+  </div>
+
+  <div class="code-block">
+    <div class="cb-header"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">comparisons.py</span></div>
+    <div class="cb-body"><pre>x = <span class="nm">10</span>
+y = <span class="nm">5</span>
+
+<span class="fn">print</span>(x == y)   <span class="cm"># False — 10 is not equal to 5</span>
+<span class="fn">print</span>(x != y)   <span class="cm"># True  — they ARE different</span>
+<span class="fn">print</span>(x > y)    <span class="cm"># True  — 10 is greater</span>
+<span class="fn">print</span>(x < y)    <span class="cm"># False — 10 is not less than 5</span>
+<span class="fn">print</span>(x >= <span class="nm">10</span>)  <span class="cm"># True  — 10 equals 10</span>
+<span class="fn">print</span>(x <= y)   <span class="cm"># False</span>
+
+<span class="cm"># Compare strings too!</span>
+<span class="fn">print</span>(<span class="st">"apple"</span> == <span class="st">"apple"</span>)  <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="st">"a"</span> < <span class="st">"b"</span>)           <span class="cm"># True (alphabetical)</span></pre>
+    </div>
+  </div>
+  <button class="run-btn" onclick="runDemo('out3',['False','True','True','False','True','False','True','True'])">▶ Run Demo</button>
+  <div class="output-box" id="out3"></div>
+  <div class="warn">Don't confuse <code>==</code> (comparison) with <code>=</code> (assignment)! <code>x = 5</code> stores 5. <code>x == 5</code> checks if x equals 5.</div>
+</div>
+
+<!-- ░░ PAGE 4 — Logical Operators ░░ -->
+<div class="page" id="page-4">
+  <div class="page-header">
+    <div class="page-tag">Lesson 3</div>
+    <h2>Logical Operators</h2>
+    <p>Logical operators combine multiple Boolean expressions. Python has three: <code>and</code>, <code>or</code>, and <code>not</code>. They make complex conditions possible.</p>
+  </div>
+
+  <div class="grid-3 stagger" style="margin-bottom:24px;">
+    <div class="card">
+      <div style="font-size:1.8rem;margin-bottom:10px;">🤝</div>
+      <h3 style="margin-bottom:8px;font-size:0.95rem;">and</h3>
+      <p style="font-size:0.85rem;margin-bottom:8px;">Returns <code>True</code> only if <strong>both</strong> sides are True.</p>
+      <div style="font-family:var(--fc);font-size:0.8rem;color:var(--accent3);">True and True → True<br>True and False → False</div>
+    </div>
+    <div class="card">
+      <div style="font-size:1.8rem;margin-bottom:10px;">🔀</div>
+      <h3 style="margin-bottom:8px;font-size:0.95rem;">or</h3>
+      <p style="font-size:0.85rem;margin-bottom:8px;">Returns <code>True</code> if <strong>at least one</strong> side is True.</p>
+      <div style="font-family:var(--fc);font-size:0.8rem;color:var(--accent3);">True or False → True<br>False or False → False</div>
+    </div>
+    <div class="card">
+      <div style="font-size:1.8rem;margin-bottom:10px;">🔄</div>
+      <h3 style="margin-bottom:8px;font-size:0.95rem;">not</h3>
+      <p style="font-size:0.85rem;margin-bottom:8px;"><strong>Flips</strong> the Boolean — True becomes False and vice versa.</p>
+      <div style="font-family:var(--fc);font-size:0.8rem;color:var(--accent3);">not True → False<br>not False → True</div>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom:14px;font-size:0.95rem;">📊 Complete Truth Tables</h3>
+  <div class="grid-2" style="gap:16px;margin-bottom:20px;">
+    <div>
+      <div style="font-family:var(--fc);font-size:0.72rem;color:var(--text3);margin-bottom:6px;text-align:center;">AND</div>
+      <table class="truth-table">
+        <tr><th>A</th><th>B</th><th class="result-col">A and B</th></tr>
+        <tr><td class="T">True</td><td class="T">True</td><td class="T result-col">True</td></tr>
+        <tr><td class="T">True</td><td class="F">False</td><td class="F result-col">False</td></tr>
+        <tr><td class="F">False</td><td class="T">True</td><td class="F result-col">False</td></tr>
+        <tr><td class="F">False</td><td class="F">False</td><td class="F result-col">False</td></tr>
+      </table>
+    </div>
+    <div>
+      <div style="font-family:var(--fc);font-size:0.72rem;color:var(--text3);margin-bottom:6px;text-align:center;">OR</div>
+      <table class="truth-table">
+        <tr><th>A</th><th>B</th><th class="result-col">A or B</th></tr>
+        <tr><td class="T">True</td><td class="T">True</td><td class="T result-col">True</td></tr>
+        <tr><td class="T">True</td><td class="F">False</td><td class="T result-col">True</td></tr>
+        <tr><td class="F">False</td><td class="T">True</td><td class="T result-col">True</td></tr>
+        <tr><td class="F">False</td><td class="F">False</td><td class="F result-col">False</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="cb-header"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">logical.py</span></div>
+    <div class="cb-body"><pre>age   = <span class="nm">20</span>
+score = <span class="nm">85</span>
+
+<span class="cm"># and — both conditions must be True</span>
+<span class="fn">print</span>(age >= <span class="nm">18</span> <span class="kw">and</span> score >= <span class="nm">80</span>)  <span class="cm"># True</span>
+<span class="fn">print</span>(age >= <span class="nm">18</span> <span class="kw">and</span> score >= <span class="nm">90</span>)  <span class="cm"># False (score is only 85)</span>
+
+<span class="cm"># or — at least one must be True</span>
+<span class="fn">print</span>(age >= <span class="nm">18</span> <span class="kw">or</span> score >= <span class="nm">90</span>)   <span class="cm"># True (age condition passes)</span>
+<span class="fn">print</span>(age < <span class="nm">18</span> <span class="kw">or</span> score < <span class="nm">60</span>)    <span class="cm"># False (both fail)</span>
+
+<span class="cm"># not — flip the result</span>
+<span class="fn">print</span>(<span class="kw">not</span> (age >= <span class="nm">18</span>))            <span class="cm"># False</span>
+<span class="fn">print</span>(<span class="kw">not</span> <span class="kw">False</span>)                  <span class="cm"># True</span></pre>
+    </div>
+  </div>
+  <button class="run-btn" onclick="runDemo('out4',['True','False','True','False','False','True'])">▶ Run Demo</button>
+  <div class="output-box" id="out4"></div>
+  <div class="tip">Think of <code>and</code> as a strict gate (everyone must pass), <code>or</code> as a lenient gate (anyone can pass), and <code>not</code> as a flipper.</div>
+</div>
+
+<!-- ░░ PAGE 5 — Precedence & Shorthand ░░ -->
+<div class="page" id="page-5">
+  <div class="page-header">
+    <div class="page-tag">Lesson 4</div>
+    <h2>Operator Precedence &amp; Shorthand</h2>
+    <p>When multiple operators appear in one expression, Python follows a strict <strong>order of operations</strong> — just like math class. Use parentheses to override.</p>
+  </div>
+
+  <h3 style="margin-bottom:14px;font-size:0.95rem;">📋 Precedence Order (highest → lowest)</h3>
+  <div class="prec-list stagger">
+    <div class="prec-row">
+      <div class="prec-rank">#1</div>
+      <div class="prec-ops">( )</div>
+      <div class="prec-name">Parentheses</div>
+      <div class="prec-bar-wrap"><div class="prec-bar" style="--w:100%;width:100%"></div></div>
+    </div>
+    <div class="prec-row">
+      <div class="prec-rank">#2</div>
+      <div class="prec-ops">**</div>
+      <div class="prec-name">Exponentiation</div>
+      <div class="prec-bar-wrap"><div class="prec-bar" style="--w:86%;width:86%"></div></div>
+    </div>
+    <div class="prec-row">
+      <div class="prec-rank">#3</div>
+      <div class="prec-ops">+x &nbsp; -x &nbsp; ~x</div>
+      <div class="prec-name">Unary plus/minus</div>
+      <div class="prec-bar-wrap"><div class="prec-bar" style="--w:72%;width:72%"></div></div>
+    </div>
+    <div class="prec-row">
+      <div class="prec-rank">#4</div>
+      <div class="prec-ops">* &nbsp; / &nbsp; // &nbsp; %</div>
+      <div class="prec-name">Multiplication & Division</div>
+      <div class="prec-bar-wrap"><div class="prec-bar" style="--w:58%;width:58%"></div></div>
+    </div>
+    <div class="prec-row">
+      <div class="prec-rank">#5</div>
+      <div class="prec-ops">+ &nbsp; -</div>
+      <div class="prec-name">Addition & Subtraction</div>
+      <div class="prec-bar-wrap"><div class="prec-bar" style="--w:44%;width:44%"></div></div>
+    </div>
+    <div class="prec-row">
+      <div class="prec-rank">#6</div>
+      <div class="prec-ops">== &nbsp; != &nbsp; &lt; &nbsp; &gt; &nbsp; &lt;= &nbsp; &gt;=</div>
+      <div class="prec-name">Comparisons</div>
+      <div class="prec-bar-wrap"><div class="prec-bar" style="--w:30%;width:30%"></div></div>
+    </div>
+    <div class="prec-row">
+      <div class="prec-rank">#7</div>
+      <div class="prec-ops">not</div>
+      <div class="prec-name">Logical NOT</div>
+      <div class="prec-bar-wrap"><div class="prec-bar" style="--w:18%;width:18%"></div></div>
+    </div>
+    <div class="prec-row">
+      <div class="prec-rank">#8</div>
+      <div class="prec-ops">and</div>
+      <div class="prec-name">Logical AND</div>
+      <div class="prec-bar-wrap"><div class="prec-bar" style="--w:10%;width:10%"></div></div>
+    </div>
+    <div class="prec-row">
+      <div class="prec-rank">#9</div>
+      <div class="prec-ops">or</div>
+      <div class="prec-name">Logical OR (lowest)</div>
+      <div class="prec-bar-wrap"><div class="prec-bar" style="--w:4%;width:4%"></div></div>
+    </div>
+  </div>
+
+  <div class="code-block" style="margin-top:20px;">
+    <div class="cb-header"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">precedence.py</span></div>
+    <div class="cb-body"><pre><span class="cm"># Without parentheses — follows precedence</span>
+<span class="fn">print</span>(<span class="nm">2</span> + <span class="nm">3</span> * <span class="nm">4</span>)     <span class="cm"># 14  (* before +)</span>
+<span class="fn">print</span>(<span class="nm">2</span> ** <span class="nm">3</span> + <span class="nm">1</span>)   <span class="cm"># 9   (** before +)</span>
+<span class="fn">print</span>(<span class="nm">10</span> / <span class="nm">2</span> + <span class="nm">3</span>)   <span class="cm"># 8.0 (/ before +)</span>
+
+<span class="cm"># With parentheses — override the order!</span>
+<span class="fn">print</span>((<span class="nm">2</span> + <span class="nm">3</span>) * <span class="nm">4</span>)  <span class="cm"># 20  (+ first now)</span>
+<span class="fn">print</span>(<span class="nm">10</span> / (<span class="nm">2</span> + <span class="nm">3</span>)) <span class="cm"># 2.0 (+ first now)</span></pre>
+    </div>
+  </div>
+  <button class="run-btn" onclick="runDemo('out5p',['14','9','8.0','20','2.0'])">▶ Run Demo</button>
+  <div class="output-box" id="out5p"></div>
+
+  <h3 style="margin:28px 0 14px;font-size:0.95rem;">⚡ Augmented Assignment (Shorthand Operators)</h3>
+  <div class="shorthand-grid stagger">
+    <div class="sh-card"><div class="sh-short">x += 5</div><div class="sh-arrow">↓ same as</div><div class="sh-long">x = x + 5</div></div>
+    <div class="sh-card"><div class="sh-short">x -= 3</div><div class="sh-arrow">↓ same as</div><div class="sh-long">x = x - 3</div></div>
+    <div class="sh-card"><div class="sh-short">x *= 2</div><div class="sh-arrow">↓ same as</div><div class="sh-long">x = x * 2</div></div>
+    <div class="sh-card"><div class="sh-short">x /= 4</div><div class="sh-arrow">↓ same as</div><div class="sh-long">x = x / 4</div></div>
+    <div class="sh-card"><div class="sh-short">x //= 3</div><div class="sh-arrow">↓ same as</div><div class="sh-long">x = x // 3</div></div>
+    <div class="sh-card"><div class="sh-short">x %= 7</div><div class="sh-arrow">↓ same as</div><div class="sh-long">x = x % 7</div></div>
+    <div class="sh-card"><div class="sh-short">x **= 2</div><div class="sh-arrow">↓ same as</div><div class="sh-long">x = x ** 2</div></div>
+  </div>
+
+  <div class="code-block" style="margin-top:4px;">
+    <div class="cb-header"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">shorthand.py</span></div>
+    <div class="cb-body"><pre>score = <span class="nm">100</span>
+score -= <span class="nm">10</span>     <span class="cm"># score = 90</span>
+score *= <span class="nm">2</span>      <span class="cm"># score = 180</span>
+score //= <span class="nm">3</span>    <span class="cm"># score = 60</span>
+<span class="fn">print</span>(score)    <span class="cm"># 60</span></pre>
+    </div>
+  </div>
+  <button class="run-btn" onclick="runDemo('out5s',['60'])">▶ Run Demo</button>
+  <div class="output-box" id="out5s"></div>
+</div>
+
+<!-- ░░ PAGE 6 — Exercises ░░ -->
+<div class="page" id="page-6">
+  <div class="page-header">
+    <div class="page-tag">Practice</div>
+    <h2>Hands-On Exercises</h2>
+    <p>Try solving each exercise before peeking at the solution. The more you struggle, the more you learn!</p>
+  </div>
+
+  <div class="exercise-card">
+    <div class="ex-header">
+      <span class="ex-num">Exercise 01</span>
+      <span class="ex-title">Odd or Even Checker</span>
+    </div>
+    <div class="ex-body">
+      <p>Use the <strong>modulus operator</strong> to check if the number <code>47</code> is odd or even. Print <code>"47 is odd"</code> or <code>"47 is even"</code> using an f-string. Then test with <code>100</code>.</p>
+      <div class="tip" style="margin-bottom:12px;">Hint: A number is even if <code>n % 2 == 0</code>. The result of <code>%</code> is the remainder.</div>
+      <button class="solution-toggle" onclick="toggleSol(this)">▼ Show Solution</button>
+      <div class="solution-box">
+        <div class="code-block">
+          <div class="cb-header"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">Python</span></div>
+          <div class="cb-body"><pre>n = <span class="nm">47</span>
+<span class="kw">if</span> n % <span class="nm">2</span> == <span class="nm">0</span>:
+    <span class="fn">print</span>(<span class="st">f"{n} is even"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">f"{n} is odd"</span>)   <span class="cm"># 47 is odd</span>
+
+n = <span class="nm">100</span>
+<span class="fn">print</span>(<span class="st">f"{n} is {'even' if n % 2 == 0 else 'odd'}"</span>)  <span class="cm"># 100 is even</span></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise-card">
+    <div class="ex-header">
+      <span class="ex-num">Exercise 02</span>
+      <span class="ex-title">Voter Eligibility Check</span>
+    </div>
+    <div class="ex-body">
+      <p>A person can vote if they are <strong>18 or older AND a citizen</strong>. Create variables <code>age = 20</code> and <code>is_citizen = True</code>. Use logical operators to print whether the person can vote.</p>
+      <button class="solution-toggle" onclick="toggleSol(this)">▼ Show Solution</button>
+      <div class="solution-box">
+        <div class="code-block">
+          <div class="cb-header"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">Python</span></div>
+          <div class="cb-body"><pre>age = <span class="nm">20</span>
+is_citizen = <span class="kw">True</span>
+
+can_vote = age >= <span class="nm">18</span> <span class="kw">and</span> is_citizen
+<span class="fn">print</span>(<span class="st">f"Can vote: {can_vote}"</span>)        <span class="cm"># Can vote: True</span>
+
+<span class="cm"># Test with a non-citizen</span>
+is_citizen = <span class="kw">False</span>
+can_vote = age >= <span class="nm">18</span> <span class="kw">and</span> is_citizen
+<span class="fn">print</span>(<span class="st">f"Can vote: {can_vote}"</span>)        <span class="cm"># Can vote: False</span></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise-card">
+    <div class="ex-header">
+      <span class="ex-num">Exercise 03</span>
+      <span class="ex-title">Predict the Output</span>
+    </div>
+    <div class="ex-body">
+      <p>Without running the code, predict the output of each line. Then check by running them in Python.</p>
+      <div class="code-block">
+        <div class="cb-header"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">Python</span></div>
+        <div class="cb-body"><pre><span class="fn">print</span>(<span class="nm">3</span> + <span class="nm">4</span> * <span class="nm">2</span>)        <span class="cm"># ?</span>
+<span class="fn">print</span>((<span class="nm">3</span> + <span class="nm">4</span>) * <span class="nm">2</span>)      <span class="cm"># ?</span>
+<span class="fn">print</span>(<span class="nm">2</span> ** <span class="nm">3</span> ** <span class="nm">2</span>)      <span class="cm"># ?  (hint: ** is right-associative)</span>
+<span class="fn">print</span>(<span class="nm">15</span> % <span class="nm">4</span>)           <span class="cm"># ?</span>
+<span class="fn">print</span>(<span class="kw">True</span> <span class="kw">and</span> <span class="kw">False</span> <span class="kw">or</span> <span class="kw">True</span>)  <span class="cm"># ?</span></pre></div>
+      </div>
+      <button class="solution-toggle" onclick="toggleSol(this)">▼ Show Answers</button>
+      <div class="solution-box">
+        <div class="code-block">
+          <div class="cb-header"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">Answers</span></div>
+          <div class="cb-body"><pre><span class="fn">print</span>(<span class="nm">3</span> + <span class="nm">4</span> * <span class="nm">2</span>)        <span class="cm"># 11  (* first: 4*2=8, then 3+8=11)</span>
+<span class="fn">print</span>((<span class="nm">3</span> + <span class="nm">4</span>) * <span class="nm">2</span>)      <span class="cm"># 14  (parens first: 3+4=7, then 7*2=14)</span>
+<span class="fn">print</span>(<span class="nm">2</span> ** <span class="nm">3</span> ** <span class="nm">2</span>)      <span class="cm"># 512 (right to left: 3**2=9, then 2**9=512)</span>
+<span class="fn">print</span>(<span class="nm">15</span> % <span class="nm">4</span>)           <span class="cm"># 3   (15 = 3*4 + 3, remainder=3)</span>
+<span class="fn">print</span>(<span class="kw">True</span> <span class="kw">and</span> <span class="kw">False</span> <span class="kw">or</span> <span class="kw">True</span>)  <span class="cm"># True (and first: False or True = True)</span></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ PAGE 7 — Quiz ░░ -->
+<div class="page" id="page-7">
+  <div class="page-header">
+    <div class="page-tag">Quiz · 5 Questions</div>
+    <h2>Test Your Knowledge</h2>
+    <p>One question at a time. Instant feedback after every answer!</p>
+  </div>
+  <div class="quiz-progress" id="quizProgress">
+    <div class="qp-dot" id="qd0"></div><div class="qp-dot" id="qd1"></div>
+    <div class="qp-dot" id="qd2"></div><div class="qp-dot" id="qd3"></div>
+    <div class="qp-dot" id="qd4"></div>
+  </div>
+  <div id="quizContainer">
+    <div class="q-card" id="qCard"></div>
+    <div class="quiz-nav">
+      <button class="qnav-btn" id="qPrevBtn" onclick="quizNav(-1)" disabled>← Prev</button>
+      <span style="font-family:var(--fc);font-size:0.75rem;color:var(--text3);" id="qCounter">Question 1 of 5</span>
+      <button class="qnav-btn primary" id="qNextBtn" onclick="quizNav(1)" disabled>Next →</button>
+    </div>
+  </div>
+  <div class="quiz-result" id="quizResult">
+    <span class="qr-emoji" id="qrEmoji">🎉</span>
+    <div class="qr-score" id="qrScore">5/5</div>
+    <div class="qr-sub" id="qrSub"></div>
+    <div class="qr-breakdown">
+      <div class="qrb-item"><div class="qrb-val c" id="qrCorrect">5</div><div class="qrb-lbl">Correct</div></div>
+      <div class="qrb-item"><div class="qrb-val w" id="qrWrong">0</div><div class="qrb-lbl">Wrong</div></div>
+    </div>
+    <button class="retry-btn" onclick="resetQuiz()">↩ Retry</button>
+    <button class="bb-btn next" onclick="goToPage(8)" style="display:inline-flex;">Complete Module →</button>
+  </div>
+</div>
+
+<!-- ░░ PAGE 8 — Complete ░░ -->
+<div class="page" id="page-8">
+  <div class="complete-wrap">
+    <div class="complete-icon">➕</div>
+    <div class="page-tag" style="justify-content:center;">Module 03 — Complete</div>
+    <h1 style="margin-bottom:12px;">Operators Mastered! 🎉</h1>
+    <p style="font-size:1.05rem;margin-bottom:24px;">You've completed <strong>Operators</strong>. You can now perform calculations, comparisons, and logical checks — the building blocks of all program logic!</p>
+    <div class="skills-learnt stagger">
+      <div class="skill-badge"><span class="check">✓</span> Arithmetic operators</div>
+      <div class="skill-badge"><span class="check">✓</span> Modulus & floor division</div>
+      <div class="skill-badge"><span class="check">✓</span> Comparison operators</div>
+      <div class="skill-badge"><span class="check">✓</span> Logical: and, or, not</div>
+      <div class="skill-badge"><span class="check">✓</span> Operator precedence</div>
+      <div class="skill-badge"><span class="check">✓</span> Augmented assignment</div>
+    </div>
+    <button class="cert-btn" onclick="celebrate()">🏆 Claim Completion Badge</button>
+    <p style="margin-top:28px;font-size:0.9rem;color:var(--text2);">
+      Next up: <strong>Module 4 — Conditionals</strong> · Use your comparison &amp; logical skills to make decisions in code.
+    </p>
+    <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border);text-align:center;">
+      <div style="font-family:var(--fc);font-size:0.65rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Course created by</div>
+      <div style="display:inline-flex;align-items:center;gap:14px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:1.2rem;font-weight:900;color:var(--bg);box-shadow:0 4px 16px rgba(232,197,71,.35);">V</div>
+        <div style="text-align:left;">
+          <div style="font-family:var(--fh);font-size:1rem;font-weight:800;color:var(--accent);">Vinodhini</div>
+          <div style="font-family:var(--fc);font-size:0.72rem;color:var(--text2);">Data Scientist · HCL GUVI</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- #main -->
+
+<!-- ══ BOTTOM BAR ══ -->
+<div id="bottombar">
+  <button class="bb-btn prev" id="prevBtn" onclick="navigate(-1)" disabled>← Back</button>
+  <div class="bb-dots" id="bbDots"></div>
+  <span class="bb-page-indicator" id="bbIndicator">1 / 9</span>
+  <button class="bb-btn next" id="nextBtn" onclick="navigate(1)">Next →</button>
+</div>
+
+</div><!-- #app -->
+
+<script>
+/* ═══════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════ */
+const TOTAL_PAGES = 9;
+let currentPage = 0;
+let visitedPages = new Set([0]);
+
+function goToPage(n) {
+  if (n < 0 || n >= TOTAL_PAGES) return;
+  const prev = document.getElementById('page-' + currentPage);
+  const next = document.getElementById('page-' + n);
+  if (!next) return;
+  prev.classList.add('exit-left');
+  prev.classList.remove('active');
+  setTimeout(() => prev.classList.remove('exit-left'), 350);
+  next.classList.add('active');
+  currentPage = n;
+  visitedPages.add(n);
+  document.querySelectorAll('.nav-item').forEach(el => {
+    const p = parseInt(el.dataset.page);
+    el.classList.toggle('active', p === n);
+    if (visitedPages.has(p) && p < n) el.classList.add('completed');
+  });
+  updateBottomBar();
+  updateProgress();
+  if (n === 1) updateMod();
+  if (n === 2) calcClear();
+  if (n === 3) updateComparisons();
+  if (n === 7) renderQuizQuestion();
+}
+
+function navigate(dir) { goToPage(currentPage + dir); }
+
+function updateBottomBar() {
+  document.getElementById('prevBtn').disabled = currentPage === 0;
+  const nxt = document.getElementById('nextBtn');
+  nxt.disabled = currentPage === TOTAL_PAGES - 1;
+  nxt.textContent = currentPage === TOTAL_PAGES - 2 ? '🎉 Finish' : 'Next →';
+  document.getElementById('bbIndicator').textContent = `${currentPage + 1} / ${TOTAL_PAGES}`;
+  document.getElementById('bbDots').innerHTML = Array.from({length: TOTAL_PAGES}, (_, i) => {
+    const cls = i === currentPage ? 'bb-dot active' : visitedPages.has(i) ? 'bb-dot done' : 'bb-dot';
+    return `<div class="${cls}" onclick="goToPage(${i})"></div>`;
+  }).join('');
+}
+
+function updateProgress() {
+  const pct = Math.round((visitedPages.size / TOTAL_PAGES) * 100);
+  document.getElementById('tbFill').style.width = pct + '%';
+  document.getElementById('tbPct').textContent = pct + '%';
+}
+
+/* ═══════════════════════════════════════
+   RUN DEMO
+═══════════════════════════════════════ */
+function runDemo(id, lines) {
+  const box = document.getElementById(id);
+  if (!box) return;
+  box.innerHTML = '<span class="out-prompt">$ python3 script.py\n</span>';
+  box.classList.add('show');
+  let i = 0;
+  const tick = () => { if (i < lines.length) { box.innerHTML += lines[i++] + '\n'; setTimeout(tick, 160); } };
+  tick();
+}
+
+/* ═══════════════════════════════════════
+   MODULUS VISUALIZER
+═══════════════════════════════════════ */
+function updateMod() {
+  const a = parseInt(document.getElementById('modA').value) || 0;
+  const b = parseInt(document.getElementById('modB').value) || 1;
+  const quotient = Math.floor(a / b);
+  const remainder = a % b;
+  document.getElementById('modResult').innerHTML =
+    `<span style="color:var(--text2);">${a} ÷ ${b} = ${quotient} remainder </span><span class="mod-highlight">${remainder}</span>
+     <span style="color:var(--text3);font-size:.8rem;margin-left:10px;">&nbsp;→&nbsp; ${a} % ${b} = <strong style="color:var(--accent)">${remainder}</strong></span>`;
+  const row = document.getElementById('modVisual');
+  row.innerHTML = '';
+  for (let i = 0; i < a; i++) {
+    const d = document.createElement('div');
+    d.className = 'mod-circle ' + (i < a - remainder ? 'full' : 'rem');
+    d.textContent = i + 1;
+    row.appendChild(d);
+  }
+}
+
+/* ═══════════════════════════════════════
+   LIVE CALCULATOR
+═══════════════════════════════════════ */
+let calcState = { current: '0', prev: '', op: '', fresh: true };
+
+function calcNum(n) {
+  if (calcState.fresh) { calcState.current = String(n); calcState.fresh = false; }
+  else calcState.current = calcState.current === '0' ? String(n) : calcState.current + n;
+  calcRender();
+}
+
+function calcDot() {
+  if (calcState.fresh) { calcState.current = '0.'; calcState.fresh = false; return; }
+  if (!calcState.current.includes('.')) calcState.current += '.';
+  calcRender();
+}
+
+function calcOp(op) {
+  if (calcState.op && !calcState.fresh) calcEquals(true);
+  calcState.prev = calcState.current;
+  calcState.op = op;
+  calcState.fresh = true;
+  calcRender();
+}
+
+function calcEquals(silent) {
+  if (!calcState.op || !calcState.prev) return;
+  const a = parseFloat(calcState.prev);
+  const b = parseFloat(calcState.current);
+  let result, opDisplay = calcState.op;
+  try {
+    if (calcState.op === '//') result = Math.floor(a / b);
+    else if (calcState.op === '%')  result = a % b;
+    else if (calcState.op === '**') result = Math.pow(a, b);
+    else if (calcState.op === '/') { if (b === 0) throw new Error("division by zero"); result = a / b; }
+    else if (calcState.op === '*')  result = a * b;
+    else if (calcState.op === '+')  result = a + b;
+    else if (calcState.op === '-')  result = a - b;
+    else result = 0;
+  } catch(e) { result = 'Error'; }
+
+  const displayOp = {'/':'÷','*':'×','//':'⌊/⌋'}[calcState.op] || calcState.op;
+  if (!silent) {
+    const hist = document.getElementById('calcHistory');
+    const entry = document.createElement('div');
+    entry.style.cssText = 'background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:var(--fc);font-size:0.82rem;animation:fadeIn .3s ease;';
+    entry.innerHTML = `<div style="color:var(--text3);">${a} ${displayOp} ${b}</div><div style="color:var(--accent3);font-size:1rem;font-weight:700;">${result}</div>`;
+    hist.innerHTML = '';
+    hist.prepend(entry);
+    document.getElementById('calcPythonEq').innerHTML = `<span class="fn">print</span>(${a} ${calcState.op} ${b})  <span class="cm" style="color:var(--text3);"># ${result}</span>`;
+  }
+
+  calcState.current = String(result);
+  calcState.prev = '';
+  calcState.op = '';
+  calcState.fresh = true;
+  calcRender();
+}
+
+function calcClear() {
+  calcState = { current: '0', prev: '', op: '', fresh: true };
+  document.getElementById('calcExpr').textContent = '';
+  calcRender();
+}
+
+function calcRender() {
+  const displayOp = {'/':'÷','*':'×','//':'⌊/⌋'}[calcState.op] || calcState.op;
+  document.getElementById('calcExpr').textContent = calcState.prev ? `${calcState.prev} ${displayOp}` : '';
+  const res = document.getElementById('calcResult');
+  res.style.animation = 'none';
+  void res.offsetWidth;
+  res.style.animation = 'countUp .2s ease';
+  res.textContent = calcState.current;
+}
+
+/* ═══════════════════════════════════════
+   COMPARISON VISUALIZER
+═══════════════════════════════════════ */
+function updateComparisons() {
+  const a = parseFloat(document.getElementById('cvA').value) || 0;
+  const b = parseFloat(document.getElementById('cvB').value) || 0;
+  const ops = [
+    { op: '==', label: `${a} == ${b}`, result: a === b },
+    { op: '!=', label: `${a} != ${b}`, result: a !== b },
+    { op: '>',  label: `${a} > ${b}`,  result: a >   b },
+    { op: '<',  label: `${a} < ${b}`,  result: a <   b },
+    { op: '>=', label: `${a} >= ${b}`, result: a >=  b },
+    { op: '<=', label: `${a} <= ${b}`, result: a <=  b },
+  ];
+  document.getElementById('cvResults').innerHTML = ops.map(o => `
+    <div class="cv-result">
+      <div class="cv-op">${o.label}</div>
+      <div class="cv-val ${o.result ? 'true' : 'false'}">${o.result ? 'True' : 'False'}</div>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════
+   SOLUTION TOGGLE
+═══════════════════════════════════════ */
+function toggleSol(btn) {
+  const box = btn.nextElementSibling;
+  const open = box.classList.toggle('open');
+  btn.textContent = open ? '▲ Hide Solution' : '▼ Show Solution';
+}
+
+/* ═══════════════════════════════════════
+   QUIZ
+═══════════════════════════════════════ */
+const QUESTIONS = [
+  {
+    q: "What is the result of 10 % 3 in Python?",
+    opts: ["3","0","1","3.33"],
+    correct: 2,
+    exp: "✓ % is the modulus operator — it returns the remainder. 10 ÷ 3 = 3 remainder 1, so 10 % 3 = 1."
+  },
+  {
+    q: "What does 2 ** 10 evaluate to?",
+    opts: ["20","100","1024","512"],
+    correct: 2,
+    exp: "✓ ** is exponentiation. 2 ** 10 = 2 × 2 × 2 × … (10 times) = 1024."
+  },
+  {
+    q: "Which operator checks if two values are equal?",
+    opts: ["=","===","==","equals"],
+    correct: 2,
+    exp: "✓ == compares values. A single = is assignment. Python has no === (that's JavaScript)."
+  },
+  {
+    q: "What is the output of: print(True and False or True)?",
+    opts: ["True","False","Error","None"],
+    correct: 0,
+    exp: "✓ Precedence: 'and' runs first → True and False = False. Then False or True = True."
+  },
+  {
+    q: "What does 15 // 4 return?",
+    opts: ["3.75","4","3","0.75"],
+    correct: 2,
+    exp: "✓ // is floor division — divides and rounds DOWN to the nearest integer. 15 / 4 = 3.75, floor = 3."
+  }
+];
+
+let quizState = { currentQ: 0, answers: new Array(QUESTIONS.length).fill(null), finished: false };
+
+function renderQuizQuestion() {
+  if (quizState.finished) return;
+  const q = QUESTIONS[quizState.currentQ];
+  const card = document.getElementById('qCard');
+  const counter = document.getElementById('qCounter');
+  const prevBtn = document.getElementById('qPrevBtn');
+  const nextBtn = document.getElementById('qNextBtn');
+  counter.textContent = `Question ${quizState.currentQ + 1} of ${QUESTIONS.length}`;
+  prevBtn.disabled = quizState.currentQ === 0;
+  const answered = quizState.answers[quizState.currentQ];
+  nextBtn.disabled = answered === null;
+  nextBtn.textContent = quizState.currentQ === QUESTIONS.length - 1 ? 'See Results →' : 'Next →';
+  const letters = 'ABCD';
+  card.innerHTML = `
+    <div class="q-badge">Question ${quizState.currentQ + 1} / ${QUESTIONS.length}</div>
+    <div class="q-text">${q.q}</div>
+    <div class="q-options">
+      ${q.opts.map((opt, i) => {
+        let cls = 'q-opt';
+        if (answered !== null) {
+          if (i === q.correct) cls += ' correct';
+          else if (i === answered && i !== q.correct) cls += ' wrong';
+        }
+        return `<button class="${cls}" onclick="answerQ(${i})" ${answered !== null ? 'disabled' : ''}>
+          <span class="q-opt-letter">${letters[i]}</span>${opt}
+        </button>`;
+      }).join('')}
+    </div>
+    <div class="q-feedback ${answered !== null ? 'show ' + (answered === q.correct ? 'correct' : 'wrong') : ''}">
+      ${answered !== null ? q.exp : ''}
+    </div>`;
+  QUESTIONS.forEach((_, i) => {
+    const d = document.getElementById('qd' + i);
+    if (!d) return;
+    d.className = 'qp-dot';
+    const a = quizState.answers[i];
+    if (a !== null) d.classList.add(a === QUESTIONS[i].correct ? 'correct' : 'wrong');
+  });
+}
+
+function answerQ(chosen) {
+  quizState.answers[quizState.currentQ] = chosen;
+  document.getElementById('qNextBtn').disabled = false;
+  renderQuizQuestion();
+}
+
+function quizNav(dir) {
+  if (dir === 1 && quizState.currentQ === QUESTIONS.length - 1) { showResult(); return; }
+  const n = quizState.currentQ + dir;
+  if (n >= 0 && n < QUESTIONS.length) { quizState.currentQ = n; renderQuizQuestion(); }
+}
+
+function showResult() {
+  quizState.finished = true;
+  document.getElementById('quizContainer').style.display = 'none';
+  const res = document.getElementById('quizResult');
+  res.classList.add('show');
+  const correct = quizState.answers.filter((a, i) => a === QUESTIONS[i].correct).length;
+  const total = QUESTIONS.length;
+  const pct = Math.round((correct / total) * 100);
+  document.getElementById('qrScore').textContent = `${correct}/${total}`;
+  document.getElementById('qrCorrect').textContent = correct;
+  document.getElementById('qrWrong').textContent = total - correct;
+  const emojis = ['😅','🤔','👍','🌟','🎉'];
+  document.getElementById('qrEmoji').textContent = emojis[Math.min(correct, 4)];
+  document.getElementById('qrSub').textContent =
+    pct === 100 ? '🔥 Perfect! You know your operators inside out!' :
+    pct >= 80   ? '⭐ Great work! You have a solid grasp of operators.' :
+    pct >= 60   ? '👍 Good effort! Review precedence and modulus.' :
+                  '📖 Keep at it — re-read the lessons and retry!';
+  if (pct >= 80) setTimeout(launchConfetti, 300);
+}
+
+function resetQuiz() {
+  quizState = { currentQ: 0, answers: new Array(QUESTIONS.length).fill(null), finished: false };
+  document.getElementById('quizResult').classList.remove('show');
+  document.getElementById('quizContainer').style.display = '';
+  QUESTIONS.forEach((_, i) => { const d = document.getElementById('qd' + i); if (d) d.className = 'qp-dot'; });
+  renderQuizQuestion();
+}
+
+/* ═══════════════════════════════════════
+   CONFETTI & CELEBRATE
+═══════════════════════════════════════ */
+function launchConfetti() {
+  const colours = ['#e8c547','#ff6b35','#4ecdc4','#a78bfa','#ff4757'];
+  for (let i = 0; i < 80; i++) {
+    const el = document.createElement('div');
+    const size = 6 + Math.random() * 8;
+    el.style.cssText = `position:fixed;top:50%;left:50%;width:${size}px;height:${size}px;
+      background:${colours[i%colours.length]};border-radius:${Math.random()>.5?'50%':'2px'};
+      pointer-events:none;z-index:9999;
+      --cx:${(Math.random()-.5)*600}px;--cy:${-(200+Math.random()*400)}px;--cr:${Math.random()*720-360}deg;
+      animation:confetti-pop 1.4s ease forwards;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1500);
+  }
+}
+
+function celebrate() {
+  launchConfetti();
+  const btn = event.target.closest('button');
+  btn.textContent = '✓ Badge Claimed!';
+  btn.style.background = 'var(--correct)';
+  btn.disabled = true;
+  localStorage.setItem('module3_complete', 'true');
+}
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+updateBottomBar();
+updateProgress();
+updateMod();
+updateComparisons();
+calcClear();
+</script>
+</body>
+</html>
