@@ -163,6 +163,238 @@
 
 <header>
   <h1>HCL-GUVI</h1>
+  <div style="display:flex; align-items:center; gap:20px;">
+    <nav>Data Science Portal</nav>
+    <img src="logo.png" alt="HCL-GUVI Logo" style="height:40px; object-fit:contain;">
+  </div>
+</header>
+
+<section class="hero">
+  <h2>Learn Data Science Interactively</h2>
+  <p>Explore structured learning paths, real-world projects, and hands-on practice</p>
+
+  <div class="search-box">
+    <input type="text" placeholder="Search topics..." onkeyup="filterCards(this.value)">
+  </div>
+</section>
+
+<section class="grid" id="cardContainer">
+
+  <a href="topics/python.html" class="card">
+    <span>🐍</span>
+    <h3>Python</h3>
+    <p>Core programming fundamentals</p>
+  </a>
+
+  <a href="topics/statistics.html" class="card">
+    <span>📊</span>
+    <h3>Statistics</h3>
+    <p>Probability & distributions</p>
+  </a>
+
+  <a href="topics/ml.html" class="card">
+    <span>🤖</span>
+    <h3>Machine Learning</h3>
+    <p>Models & algorithms</p>
+  </a>
+
+  <a href="topics/dl.html" class="card">
+    <span>🧠</span>
+    <h3>Deep Learning</h3>
+    <p>Neural networks</p>
+  </a>
+
+  <a href="topics/projects.html" class="card">
+    <span>🚀</span>
+    <h3>Projects</h3>
+    <p>Hands-on applications</p>
+  </a>
+
+</section>
+
+<footer>
+  <p>© 2026 HCL-GUVI Data Science Program</p>
+</footer>
+
+<script>
+function filterCards(query) {
+  const cards = document.querySelectorAll('.card');
+  query = query.toLowerCase();
+
+  cards.forEach(card => {
+    const text = card.innerText.toLowerCase();
+    card.style.display = text.includes(query) ? 'block' : 'none';
+  });
+}
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HCL-GUVI Data Science Portal</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --secondary: #7c3aed;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(120deg, #eef2ff, #f8fafc);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 50px;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 100px 20px 60px;
+      animation: fadeIn 1s ease-in;
+    }
+
+    .hero h2 {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.2rem;
+    }
+
+    .search-box {
+      margin-top: 30px;
+    }
+
+    .search-box input {
+      padding: 12px 20px;
+      width: 300px;
+      border-radius: 30px;
+      border: 1px solid #ddd;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 10px rgba(37,99,235,0.2);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+      padding: 50px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 25px;
+      transition: all 0.4s ease;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(120deg, transparent, rgba(37,99,235,0.1), transparent);
+      transform: rotate(25deg);
+      top: -100%;
+      left: -100%;
+      transition: 0.6s;
+    }
+
+    .card:hover::before {
+      top: 100%;
+      left: 100%;
+    }
+
+    .card:hover {
+      transform: translateY(-10px) scale(1.03);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+
+    .card h3 {
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      color: var(--muted);
+    }
+
+    .card span {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 1.5rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      margin-top: 40px;
+      background: rgba(255,255,255,0.7);
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>HCL-GUVI</h1>
   <nav>Data Science Portal</nav>
 </header>
 
