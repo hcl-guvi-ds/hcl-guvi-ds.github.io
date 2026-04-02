@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>HCL-GUVI | Class Starting Soon</title>
+
+<style>
+
+body{
+margin:0;
+font-family:"Segoe UI",system-ui;
+height:100vh;
+overflow:hidden;
+
+background: linear-gradient(120deg,#dbeafe,#e0e7ff,#dcfce7);
+background-size:300% 300%;
+animation:bgMove 12s ease infinite;
+
+color:#1e293b;
+}
+
+@keyframes bgMove{
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+}
+
+/* canvas behind everything */
+
+canvas{
+position:absolute;
+top:0;
+left:0;
+z-index:0;
+}
+
+/* UI layer */
+
+.ui{
+position:relative;
+z-index:5;
+}
+
+/* logo */
+
+.logo{
+position:absolute;
+top:25px;
+right:40px;
+}
+
+.logo img{
+height:40px;
+object-fit:contain;
+}
+
+/* center */
+
+.container{
+height:100vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+text-align:center;
+}
+
+/* badge */
+
+.badge{
+background:rgba(255,255,255,0.6);
+padding:10px 22px;
+border-radius:30px;
+font-size:13px;
+letter-spacing:2px;
+color:#6366f1;
+backdrop-filter:blur(6px);
+margin-bottom:25px;
+}
+
+/* title */
+
+.title{
+font-size:90px;
+font-weight:600;
+letter-spacing:-2px;
+}
+
+/* subtitle */
+
+.subtitle{
+margin-top:20px;
+letter-spacing:6px;
+font-size:16px;
+color:#64748b;
+}
+
+/* quote */
+
+.quote{
+margin-top:40px;
+font-size:22px;
+font-style:italic;
+max-width:700px;
+opacity:0.85;
+}
+
+/* bottom */
+
+.bottom{
+position:absolute;
+bottom:40px;
+width:100%;
+display:flex;
+justify-content:center;
+gap:120px;
+text-align:center;
+}
+
+.block{
+font-size:14px;
+color:#64748b;
+}
+
+.value{
+margin-top:8px;
+font-size:28px;
+color:#1e293b;
+}
+
+/* divider */
+
+.divider{
+position:absolute;
+bottom:120px;
+width:70%;
+height:1px;
+background:rgba(0,0,0,0.1);
+left:15%;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div class="ui">
+
+<div class="logo">
+  <img src="logo.png" alt="GUVI HCL Logo">
+</div>
+
+<div class="container">
+
+<div class="badge">WELCOME TO THE FUTURE OF LEARNING</div>
+
+<div class="title">Class is Starting Soon</div>
+
+<div class="subtitle">YOUR TRANSFORMATION BEGINS IN MOMENTS</div>
+
+<div class="quote" id="quote">
+"Your journey to excellence starts here."
+</div>
+
+</div>
+
+<div class="divider"></div>
+
+<div class="bottom">
+
+<div class="block">
+CURRENT TIME
+<div class="value" id="time"></div>
+</div>
+
+<div class="block">
+STATUS
+<div class="value">Ready to Begin</div>
+</div>
+
+<div class="block">
+NEXT STEP
+<div class="value">Get Inspired</div>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+/* ===== CLOCK ===== */
+
+function updateTime(){
+let now=new Date()
+let h=String(now.getHours()).padStart(2,'0')
+let m=String(now.getMinutes()).padStart(2,'0')
+let s=String(now.getSeconds()).padStart(2,'0')
+document.getElementById("time").innerText=`${h}:${m}:${s}`
+}
+
+setInterval(updateTime,1000)
+updateTime()
+
+/* ===== QUOTES ===== */
+
+const quotes=[
+"Your journey to excellence starts here.",
+"Great learning begins with curiosity.",
+"Small progress leads to big success.",
+"Consistency creates excellence.",
+"Every expert was once a beginner."
+]
+
+let qi=0
+
+setInterval(()=>{
+qi=(qi+1)%quotes.length
+document.getElementById("quote").innerText=`"${quotes[qi]}"`
+},5000)
+
+/* ===== CONSTELLATION ===== */
+
+const canvas=document.getElementById("canvas")
+const ctx=canvas.getContext("2d")
+
+canvas.width=window.innerWidth
+canvas.height=window.innerHeight
+
+let particles=[]
+const count=100
+
+for(let i=0;i<count;i++){
+particles.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+vx:(Math.random()-0.5)*0.3,
+vy:(Math.random()-0.5)*0.3
+})
+}
+
+function drawParticles(){
+
+particles.forEach(p=>{
+ctx.fillStyle="rgba(99,102,241,0.4)"
+
+ctx.beginPath()
+ctx.arc(p.x,p.y,2,0,Math.PI*2)
+ctx.fill()
+})
+
+}
+
+function updateParticles(){
+
+particles.forEach(p=>{
+p.x+=p.vx
+p.y+=p.vy
+
+if(p.x<0||p.x>canvas.width) p.vx*=-1
+if(p.y<0||p.y>canvas.height) p.vy*=-1
+})
+
+}
+
+function connect(){
+
+for(let a=0;a<particles.length;a++){
+
+for(let b=a;b<particles.length;b++){
+
+let dx=particles[a].x-particles[b].x
+let dy=particles[a].y-particles[b].y
+
+let dist=Math.sqrt(dx*dx+dy*dy)
+
+if(dist<120){
+
+ctx.strokeStyle="rgba(99,102,241,"+(1-dist/120)*0.2+")"
+ctx.lineWidth=1
+
+ctx.beginPath()
+ctx.moveTo(particles[a].x,particles[a].y)
+ctx.lineTo(particles[b].x,particles[b].y)
+ctx.stroke()
+
+}
+
+}
+
+}
+
+}
+
+function animate(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height)
+
+updateParticles()
+drawParticles()
+connect()
+
+requestAnimationFrame(animate)
+
+}
+
+animate()
+
+document.body.addEventListener("click", () => {
+if (!document.fullscreenElement) {
+document.documentElement.requestFullscreen();
+}
+});
+
+</script>
+
+</body>
+
+</html>
