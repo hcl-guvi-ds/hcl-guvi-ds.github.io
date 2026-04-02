@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unsupervised Learning Demo - Complete Interactive Guide</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        // Icons as SVG components
+        const Play = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+        const RefreshCw = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>;
+        const Info = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+        const TrendingUp = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>;
+        const GitBranch = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>;
+        const Filter = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>;
+        const Layers = () => <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>;
+        const Target = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+        const Settings = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
+        const BarChart3 = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>;
+        const Lightbulb = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>;
+        
+        const UnsupervisedMLDemo = () => {
+          const [activeAlgo, setActiveAlgo] = useState('kmeans');
+          const [isRunning, setIsRunning] = useState(false);
+          const [beforePoints, setBeforePoints] = useState([]);
+          const [afterPoints, setAfterPoints] = useState([]);
+          const [centroids, setCentroids] = useState([]);
+          const [k, setK] = useState(3);
+          const [eps, setEps] = useState(50);
+          const [minPts, setMinPts] = useState(3);
+          const [contamination, setContamination] = useState(0.1);
+          const [iteration, setIteration] = useState(0);
+          const [hasRun, setHasRun] = useState(false);
+          const [showTutorial, setShowTutorial] = useState(false);
+          const [metrics, setMetrics] = useState({
+            wcss: 0,
+            silhouette: 0,
+            daviesBouldin: 0
+          });
+          const [showClusterCircles, setShowClusterCircles] = useState(true);
+          const [showMetricViz, setShowMetricViz] = useState(false);
+          const [elbowData, setElbowData] = useState([]);
+          const [animationStep, setAnimationStep] = useState(0);
+          const [perplexity, setPerplexity] = useState(30);
+          const [umapNeighbors, setUmapNeighbors] = useState(15);
+          const [showDimensionViz, setShowDimensionViz] = useState(false);
+          const [originalDimensions, setOriginalDimensions] = useState([]);
+          const [hierarchicalMethod, setHierarchicalMethod] = useState('agglomerative');
+          const [showDendrogram, setShowDendrogram] = useState(false);
+          const [dendrogramData, setDendrogramData] = useState([]);
+          const [numTrees, setNumTrees] = useState(5);
+          const [showForestViz, setShowForestViz] = useState(false);
+          const [forestTrees, setForestTrees] = useState([]);
+
+          const algorithms = [
+            { id: 'kmeans', name: 'K-Means', icon: TrendingUp, color: 'bg-blue-500' },
+            { id: 'hierarchical', name: 'Hierarchical', icon: GitBranch, color: 'bg-purple-500' },
+            { id: 'dbscan', name: 'DBSCAN', icon: Filter, color: 'bg-green-500' },
+            { id: 'pca', name: 'PCA', icon: Layers, color: 'bg-orange-500' },
+            { id: 'tsne', name: 't-SNE', icon: Target, color: 'bg-pink-500' },
+            { id: 'umap', name: 'UMAP', icon: Settings, color: 'bg-cyan-500' },
+            { id: 'anomaly', name: 'Anomaly', icon: Target, color: 'bg-red-500' },
+            { id: 'isolation', name: 'Isolation Forest', icon: GitBranch, color: 'bg-rose-600' }
+          ];
+
+          const generateData = () => {
+            const data = [];
+            if (activeAlgo === 'anomaly' || activeAlgo === 'isolation') {
+              for (let i = 0; i < 80; i++) {
+                data.push({
+                  x: 250 + (Math.random() - 0.5) * 200,
+                  y: 200 + (Math.random() - 0.5) * 200,
+                  cluster: 0,
+                  isOutlier: false
+                });
+              }
+              for (let i = 0; i < 10; i++) {
+                data.push({
+                  x: 50 + Math.random() * 500,
+                  y: 50 + Math.random() * 300,
+                  cluster: -1,
+                  isOutlier: false
+                });
+              }
+            } else if (activeAlgo === 'pca' || activeAlgo === 'tsne' || activeAlgo === 'umap') {
+              const dims = [];
+              for (let i = 0; i < 100; i++) {
+                const dim1 = Math.random() * 100;
+                const dim2 = dim1 * 0.7 + Math.random() * 30;
+                const dim3 = dim1 * 0.5 + Math.random() * 20;
+                const dim4 = Math.random() * 80;
+                const dim5 = dim2 * 0.6 + Math.random() * 25;
+                
+                dims.push({
+                  dimensions: [dim1, dim2, dim3, dim4, dim5],
+                  cluster: Math.floor(i / 25)
+                });
+                
+                const x = 100 + dim1 * 4 + (Math.random() - 0.5) * 40;
+                const y = 100 + dim2 * 2 + (Math.random() - 0.5) * 40;
+                data.push({ x, y, cluster: Math.floor(i / 25) });
+              }
+              setOriginalDimensions(dims);
+            } else {
+              const centers = [
+                [150, 150], [400, 150], [300, 300], [150, 300], [400, 300]
+              ];
+              centers.slice(0, k).forEach(() => {
+                const cx = 100 + Math.random() * 400;
+                const cy = 100 + Math.random() * 200;
+                const numPoints = 25;
+                for (let i = 0; i < numPoints; i++) {
+                  data.push({
+                    x: cx + (Math.random() - 0.5) * 100,
+                    y: cy + (Math.random() - 0.5) * 100,
+                    cluster: -1
+                  });
+                }
+              });
+            }
+            setBeforePoints(data);
+            setAfterPoints([]);
+            setCentroids([]);
+            setIteration(0);
+            setHasRun(false);
+            setMetrics({ wcss: 0, silhouette: 0, daviesBouldin: 0 });
+            setShowDimensionViz(false);
+            setShowDendrogram(false);
+            setShowForestViz(false);
+            setDendrogramData([]);
+            setForestTrees([]);
+          };
+
+          useEffect(() => {
+            generateData();
+          }, [activeAlgo, k]);
+
+          const calculateMetrics = (points, cents, skipElbow = false) => {
+            let wcss = 0;
+            const clusterRadii = {};
+            
+            points.forEach(point => {
+              if (point.cluster >= 0 && cents[point.cluster]) {
+                const centroid = cents[point.cluster];
+                const dist = Math.sqrt(Math.pow(point.x - centroid.x, 2) + Math.pow(point.y - centroid.y, 2));
+                wcss += dist * dist;
+                
+                if (!clusterRadii[point.cluster] || dist > clusterRadii[point.cluster]) {
+                  clusterRadii[point.cluster] = dist;
+                }
+              }
+            });
+            
+            cents.forEach((cent, idx) => {
+              cent.radius = clusterRadii[idx] || 50;
+            });
+
+            let silhouetteSum = 0;
+            let validPoints = 0;
+            points.forEach((point, i) => {
+              if (point.cluster < 0) return;
+              
+              const sameCluster = points.filter((p, j) => i !== j && p.cluster === point.cluster);
+              if (sameCluster.length === 0) return;
+              
+              const a = sameCluster.reduce((sum, p) => {
+                return sum + Math.sqrt(Math.pow(p.x - point.x, 2) + Math.pow(p.y - point.y, 2));
+              }, 0) / sameCluster.length;
+
+              const clusters = [...new Set(points.map(p => p.cluster).filter(c => c >= 0 && c !== point.cluster))];
+              if (clusters.length === 0) return;
+              
+              const b = Math.min(...clusters.map(cluster => {
+                const otherCluster = points.filter(p => p.cluster === cluster);
+                return otherCluster.reduce((sum, p) => {
+                  return sum + Math.sqrt(Math.pow(p.x - point.x, 2) + Math.pow(p.y - point.y, 2));
+                }, 0) / otherCluster.length;
+              }));
+
+              silhouetteSum += (b - a) / Math.max(a, b);
+              validPoints++;
+            });
+            const silhouette = validPoints > 0 ? silhouetteSum / validPoints : 0;
+
+            const clusterIds = [...new Set(points.map(p => p.cluster).filter(c => c >= 0))];
+            let dbSum = 0;
+            clusterIds.forEach((ci) => {
+              const clusterI = points.filter(p => p.cluster === ci);
+              const centI = cents[ci];
+              if (!centI || clusterI.length === 0) return;
+              
+              const si = clusterI.reduce((sum, p) => 
+                sum + Math.sqrt(Math.pow(p.x - centI.x, 2) + Math.pow(p.y - centI.y, 2))
+              , 0) / clusterI.length;
+
+              let maxRatio = 0;
+              clusterIds.forEach((cj) => {
+                if (ci === cj) return;
+                const centJ = cents[cj];
+                if (!centJ) return;
+
+                const clusterJ = points.filter(p => p.cluster === cj);
+                const sj = clusterJ.reduce((sum, p) => 
+                  sum + Math.sqrt(Math.pow(p.x - centJ.x, 2) + Math.pow(p.y - centJ.y, 2))
+                , 0) / clusterJ.length;
+
+                const dij = Math.sqrt(Math.pow(centI.x - centJ.x, 2) + Math.pow(centI.y - centJ.y, 2));
+                const ratio = (si + sj) / (dij + 0.0001);
+                maxRatio = Math.max(maxRatio, ratio);
+              });
+              dbSum += maxRatio;
+            });
+            const daviesBouldin = clusterIds.length > 0 ? dbSum / clusterIds.length : 0;
+
+            setMetrics({
+              wcss: wcss.toFixed(2),
+              silhouette: silhouette.toFixed(3),
+              daviesBouldin: daviesBouldin.toFixed(3)
+            });
+            
+            if (!skipElbow && (activeAlgo === 'kmeans' || activeAlgo === 'hierarchical')) {
+              calculateElbowData(points);
+            }
+          };
+
+          const calculateElbowData = (points) => {
+            const elbowResults = [];
+            for (let testK = 2; testK <= 6; testK++) {
+              const testCentroids = [];
+              for (let i = 0; i < testK; i++) {
+                const randomPoint = points[Math.floor(Math.random() * points.length)];
+                testCentroids.push({
+                  x: randomPoint.x + (Math.random() - 0.5) * 50,
+                  y: randomPoint.y + (Math.random() - 0.5) * 50
+                });
+              }
+              
+              for (let iter = 0; iter < 10; iter++) {
+                const testPoints = points.map(point => {
+                  let minDist = Infinity;
+                  let nearestCluster = 0;
+                  
+                  testCentroids.forEach((centroid, idx) => {
+                    const dist = Math.sqrt(
+                      Math.pow(point.x - centroid.x, 2) + 
+                      Math.pow(point.y - centroid.y, 2)
+                    );
+                    if (dist < minDist) {
+                      minDist = dist;
+                      nearestCluster = idx;
+                    }
+                  });
+                  
+                  return { ...point, cluster: nearestCluster };
+                });
+                
+                for (let i = 0; i < testK; i++) {
+                  const clusterPoints = testPoints.filter(p => p.cluster === i);
+                  if (clusterPoints.length > 0) {
+                    testCentroids[i] = {
+                      x: clusterPoints.reduce((sum, p) => sum + p.x, 0) / clusterPoints.length,
+                      y: clusterPoints.reduce((sum, p) => sum + p.y, 0) / clusterPoints.length
+                    };
+                  }
+                }
+              }
+              
+              let testWcss = 0;
+              points.forEach(point => {
+                let minDist = Infinity;
+                testCentroids.forEach(centroid => {
+                  const dist = Math.sqrt(
+                    Math.pow(point.x - centroid.x, 2) + 
+                    Math.pow(point.y - centroid.y, 2)
+                  );
+                  minDist = Math.min(minDist, dist);
+                });
+                testWcss += minDist * minDist;
+              });
+              
+              elbowResults.push({ k: testK, wcss: testWcss });
+            }
+            setElbowData(elbowResults);
+          };
+
+          const runKMeans = () => {
+            setIsRunning(true);
+            setHasRun(true);
+            let iter = 0;
+            
+            const initialCentroids = [];
+            for (let i = 0; i < k; i++) {
+              const randomPoint = beforePoints[Math.floor(Math.random() * beforePoints.length)];
+              initialCentroids.push({
+                x: randomPoint.x + (Math.random() - 0.5) * 50,
+                y: randomPoint.y + (Math.random() - 0.5) * 50,
+                cluster: i
+              });
+            }
+
+            let currentPoints = [...beforePoints];
+            let currentCentroids = [...initialCentroids];
+
+            const interval = setInterval(() => {
+              if (iter >= 8) {
+                clearInterval(interval);
+                setIsRunning(false);
+                calculateMetrics(currentPoints, currentCentroids);
+                setAnimationStep(0);
+                return;
+              }
+
+              setAnimationStep(iter);
+
+              currentPoints = currentPoints.map(point => {
+                let minDist = Infinity;
+                let nearestCluster = 0;
+                
+                currentCentroids.forEach((centroid, idx) => {
+                  const dist = Math.sqrt(
+                    Math.pow(point.x - centroid.x, 2) + 
+                    Math.pow(point.y - centroid.y, 2)
+                  );
+                  if (dist < minDist) {
+                    minDist = dist;
+                    nearestCluster = idx;
+                  }
+                });
+
+                return { ...point, cluster: nearestCluster };
+              });
+
+              currentCentroids = currentCentroids.map((centroid, idx) => {
+                const clusterPoints = currentPoints.filter(p => p.cluster === idx);
+                if (clusterPoints.length === 0) return centroid;
+
+                const avgX = clusterPoints.reduce((sum, p) => sum + p.x, 0) / clusterPoints.length;
+                const avgY = clusterPoints.reduce((sum, p) => sum + p.y, 0) / clusterPoints.length;
+
+                return { x: avgX, y: avgY, cluster: idx };
+              });
+
+              setAfterPoints([...currentPoints]);
+              setCentroids([...currentCentroids]);
+              setIteration(iter + 1);
+              iter++;
+            }, 600);
+          };
+
+          const runHierarchical = () => {
+            setIsRunning(true);
+            setHasRun(true);
+            
+            const mergingSteps = [];
+            
+            if (hierarchicalMethod === 'agglomerative') {
+              let clusters = beforePoints.map((p, i) => ({
+                points: [p],
+                centroid: p,
+                id: i,
+                height: 0
+              }));
+
+              let step = 0;
+              const maxSteps = beforePoints.length - k;
+
+              const interval = setInterval(() => {
+                if (step >= maxSteps) {
+                  clearInterval(interval);
+                  
+                  const finalPoints = [];
+                  const finalCentroids = [];
+                  clusters.forEach((cluster, clusterIdx) => {
+                    const centroid = {
+                      x: cluster.points.reduce((sum, p) => sum + p.x, 0) / cluster.points.length,
+                      y: cluster.points.reduce((sum, p) => sum + p.y, 0) / cluster.points.length,
+                      cluster: clusterIdx
+                    };
+                    finalCentroids.push(centroid);
+                    
+                    cluster.points.forEach(p => {
+                      finalPoints.push({ ...p, cluster: clusterIdx });
+                    });
+                  });
+
+                  setAfterPoints(finalPoints);
+                  setCentroids(finalCentroids);
+                  setIsRunning(false);
+                  calculateMetrics(finalPoints, finalCentroids);
+                  setDendrogramData(mergingSteps);
+                  return;
+                }
+
+                let minDist = Infinity;
+                let mergeI = 0, mergeJ = 1;
+
+                for (let i = 0; i < clusters.length; i++) {
+                  for (let j = i + 1; j < clusters.length; j++) {
+                    const dist = Math.sqrt(
+                      Math.pow(clusters[i].centroid.x - clusters[j].centroid.x, 2) +
+                      Math.pow(clusters[i].centroid.y - clusters[j].centroid.y, 2)
+                    );
+                    if (dist < minDist) {
+                      minDist = dist;
+                      mergeI = i;
+                      mergeJ = j;
+                    }
+                  }
+                }
+
+                const newPoints = [...clusters[mergeI].points, ...clusters[mergeJ].points];
+                const newCentroid = {
+                  x: newPoints.reduce((sum, p) => sum + p.x, 0) / newPoints.length,
+                  y: newPoints.reduce((sum, p) => sum + p.y, 0) / newPoints.length
+                };
+
+                mergingSteps.push({
+                  step: step,
+                  cluster1: clusters[mergeI].id,
+                  cluster2: clusters[mergeJ].id,
+                  height: minDist,
+                  size: newPoints.length
+                });
+
+                clusters = [
+                  ...clusters.slice(0, mergeI),
+                  ...clusters.slice(mergeI + 1, mergeJ),
+                  ...clusters.slice(mergeJ + 1),
+                  { points: newPoints, centroid: newCentroid, id: clusters.length, height: minDist }
+                ];
+
+                const currentPoints = [];
+                clusters.forEach((cluster, clusterIdx) => {
+                  cluster.points.forEach(p => {
+                    currentPoints.push({ ...p, cluster: clusterIdx });
+                  });
+                });
+                setAfterPoints(currentPoints);
+                setIteration(step + 1);
+                step++;
+              }, 300);
+            } else {
+              let clusters = [{
+                points: [...beforePoints],
+                centroid: {
+                  x: beforePoints.reduce((sum, p) => sum + p.x, 0) / beforePoints.length,
+                  y: beforePoints.reduce((sum, p) => sum + p.y, 0) / beforePoints.length
+                },
+                id: 0
+              }];
+
+              let step = 0;
+              const maxSteps = k - 1;
+
+              const interval = setInterval(() => {
+                if (step >= maxSteps) {
+                  clearInterval(interval);
+                  
+                  const finalPoints = [];
+                  const finalCentroids = [];
+                  clusters.forEach((cluster, clusterIdx) => {
+                    const centroid = {
+                      x: cluster.points.reduce((sum, p) => sum + p.x, 0) / cluster.points.length,
+                      y: cluster.points.reduce((sum, p) => sum + p.y, 0) / cluster.points.length,
+                      cluster: clusterIdx
+                    };
+                    finalCentroids.push(centroid);
+                    
+                    cluster.points.forEach(p => {
+                      finalPoints.push({ ...p, cluster: clusterIdx });
+                    });
+                  });
+
+                  setAfterPoints(finalPoints);
+                  setCentroids(finalCentroids);
+                  setIsRunning(false);
+                  calculateMetrics(finalPoints, finalCentroids);
+                  setDendrogramData(mergingSteps);
+                  return;
+                }
+
+                let maxVariance = -1;
+                let splitIdx = 0;
+                
+                clusters.forEach((cluster, idx) => {
+                  if (cluster.points.length < 2) return;
+                  
+                  const variance = cluster.points.reduce((sum, p) => {
+                    return sum + Math.pow(p.x - cluster.centroid.x, 2) + Math.pow(p.y - cluster.centroid.y, 2);
+                  }, 0);
+                  
+                  if (variance > maxVariance) {
+                    maxVariance = variance;
+                    splitIdx = idx;
+                  }
+                });
+
+                const toSplit = clusters[splitIdx].points;
+                const centroid1 = { ...toSplit[0] };
+                const centroid2 = { ...toSplit[Math.floor(toSplit.length / 2)] };
+
+                for (let iter = 0; iter < 5; iter++) {
+                  const group1 = [];
+                  const group2 = [];
+
+                  toSplit.forEach(point => {
+                    const dist1 = Math.sqrt(Math.pow(point.x - centroid1.x, 2) + Math.pow(point.y - centroid1.y, 2));
+                    const dist2 = Math.sqrt(Math.pow(point.x - centroid2.x, 2) + Math.pow(point.y - centroid2.y, 2));
+                    
+                    if (dist1 < dist2) {
+                      group1.push(point);
+                    } else {
+                      group2.push(point);
+                    }
+                  });
+
+                  if (group1.length > 0) {
+                    centroid1.x = group1.reduce((sum, p) => sum + p.x, 0) / group1.length;
+                    centroid1.y = group1.reduce((sum, p) => sum + p.y, 0) / group1.length;
+                  }
+                  if (group2.length > 0) {
+                    centroid2.x = group2.reduce((sum, p) => sum + p.x, 0) / group2.length;
+                    centroid2.y = group2.reduce((sum, p) => sum + p.y, 0) / group2.length;
+                  }
+                }
+
+                const group1 = [];
+                const group2 = [];
+                toSplit.forEach(point => {
+                  const dist1 = Math.sqrt(Math.pow(point.x - centroid1.x, 2) + Math.pow(point.y - centroid1.y, 2));
+                  const dist2 = Math.sqrt(Math.pow(point.x - centroid2.x, 2) + Math.pow(point.y - centroid2.y, 2));
+                  if (dist1 < dist2) group1.push(point); else group2.push(point);
+                });
+
+                mergingSteps.push({
+                  step: step,
+                  type: 'split',
+                  clusterId: clusters[splitIdx].id,
+                  height: Math.sqrt(maxVariance) / 100
+                });
+
+                clusters = [
+                  ...clusters.slice(0, splitIdx),
+                  ...clusters.slice(splitIdx + 1),
+                  { points: group1, centroid: centroid1, id: clusters.length },
+                  { points: group2, centroid: centroid2, id: clusters.length + 1 }
+                ];
+
+                const currentPoints = [];
+                clusters.forEach((cluster, clusterIdx) => {
+                  cluster.points.forEach(p => {
+                    currentPoints.push({ ...p, cluster: clusterIdx });
+                  });
+                });
+                setAfterPoints(currentPoints);
+                setIteration(step + 1);
+                step++;
+              }, 400);
+            }
+          };
+
+          const runDBSCAN = () => {
+            setIsRunning(true);
+            setHasRun(true);
+            setAnimationStep(0);
+
+            const points = beforePoints.map(p => ({ ...p, cluster: -1, visited: false }));
+            let clusterId = 0;
+            let currentStep = 0;
+
+            const getNeighbors = (pointIdx) => {
+              const neighbors = [];
+              const point = points[pointIdx];
+              
+              points.forEach((other, idx) => {
+                if (idx === pointIdx) return;
+                const dist = Math.sqrt(
+                  Math.pow(point.x - other.x, 2) + Math.pow(point.y - other.y, 2)
+                );
+                if (dist <= eps) neighbors.push(idx);
+              });
+              
+              return neighbors;
+            };
+
+            const expandCluster = (pointIdx, neighbors) => {
+              points[pointIdx].cluster = clusterId;
+              
+              for (let i = 0; i < neighbors.length; i++) {
+                const neighborIdx = neighbors[i];
+                
+                if (!points[neighborIdx].visited) {
+                  points[neighborIdx].visited = true;
+                  const neighborNeighbors = getNeighbors(neighborIdx);
+                  
+                  if (neighborNeighbors.length >= minPts) {
+                    neighbors.push(...neighborNeighbors);
+                  }
+                }
+                
+                if (points[neighborIdx].cluster === -1) {
+                  points[neighborIdx].cluster = clusterId;
+                }
+              }
+            };
+
+            const processNextPoint = () => {
+              if (currentStep >= points.length) {
+                const clusterCentroids = [];
+                
+                for (let i = 0; i < clusterId; i++) {
+                  const clusterPoints = points.filter(p => p.cluster === i);
+                  if (clusterPoints.length > 0) {
+                    const centroid = {
+                      x: clusterPoints.reduce((sum, p) => sum + p.x, 0) / clusterPoints.length,
+                      y: clusterPoints.reduce((sum, p) => sum + p.y, 0) / clusterPoints.length,
+                      cluster: i
+                    };
+                    
+                    let maxDist = 0;
+                    clusterPoints.forEach(p => {
+                      const dist = Math.sqrt(Math.pow(p.x - centroid.x, 2) + Math.pow(p.y - centroid.y, 2));
+                      maxDist = Math.max(maxDist, dist);
+                    });
+                    centroid.radius = maxDist;
+                    
+                    clusterCentroids.push(centroid);
+                  }
+                }
+
+                setAfterPoints(points);
+                setCentroids(clusterCentroids);
+                setIsRunning(false);
+                setAnimationStep(0);
+                calculateMetrics(points, clusterCentroids);
+                return;
+              }
+              
+              const point = points[currentStep];
+              if (!point.visited) {
+                point.visited = true;
+                const neighbors = getNeighbors(currentStep);
+                
+                if (neighbors.length >= minPts) {
+                  expandCluster(currentStep, neighbors);
+                  clusterId++;
+                }
+              }
+              
+              setAfterPoints([...points]);
+              setAnimationStep(currentStep);
+              currentStep++;
+              setTimeout(processNextPoint, 100);
+            };
+
+            processNextPoint();
+          };
+
+          const runPCA = () => {
+            setIsRunning(true);
+            setHasRun(true);
+            setAnimationStep(0);
+            setShowDimensionViz(true);
+
+            setTimeout(() => {
+              setAnimationStep(1);
+              
+              setTimeout(() => {
+                const result = originalDimensions.map(item => {
+                  const dims = item.dimensions;
+                  const mean = dims.reduce((a, b) => a + b, 0) / dims.length;
+                  const centered = dims.map(d => d - mean);
+                  
+                  let variance = 0;
+                  centered.forEach(d => variance += d * d);
+                  variance /= centered.length;
+                  
+                  const pc1 = centered[0] * 0.6 + centered[1] * 0.4 + centered[2] * 0.3;
+                  
+                  return {
+                    x: 300 + pc1 * 3,
+                    y: 175,
+                    cluster: item.cluster,
+                    originalDims: dims
+                  };
+                });
+
+                setAfterPoints(result);
+                setCentroids([]);
+                setAnimationStep(2);
+                setIsRunning(false);
+              }, 1200);
+            }, 800);
+          };
+
+          const runAnomaly = () => {
+            setIsRunning(true);
+            setHasRun(true);
+            setAnimationStep(0);
+
+            let step = 0;
+            const animateAnomaly = () => {
+              if (step === 0) {
+                setAnimationStep(1);
+                step++;
+                setTimeout(animateAnomaly, 800);
+                return;
+              }
+              
+              if (step === 1) {
+                const distances = beforePoints.map((point, idx) => {
+                  const otherPoints = beforePoints.filter((_, i) => i !== idx);
+                  const avgDist = otherPoints.reduce((sum, other) => {
+                    return sum + Math.sqrt(
+                      Math.pow(point.x - other.x, 2) + Math.pow(point.y - other.y, 2)
+                    );
+                  }, 0) / otherPoints.length;
+                  return { ...point, distance: avgDist };
+                });
+
+                distances.sort((a, b) => b.distance - a.distance);
+                const threshold = Math.floor(distances.length * contamination);
+
+                const result = distances.map((point, idx) => ({
+                  x: point.x,
+                  y: point.y,
+                  cluster: idx < threshold ? -1 : 0,
+                  isOutlier: idx < threshold
+                }));
+
+                const normalPoints = result.filter(p => !p.isOutlier);
+                let maxDist = 0;
+                const centroid = {
+                  x: normalPoints.reduce((sum, p) => sum + p.x, 0) / normalPoints.length,
+                  y: normalPoints.reduce((sum, p) => sum + p.y, 0) / normalPoints.length,
+                  cluster: 0
+                };
+                
+                normalPoints.forEach(p => {
+                  const dist = Math.sqrt(Math.pow(p.x - centroid.x, 2) + Math.pow(p.y - centroid.y, 2));
+                  maxDist = Math.max(maxDist, dist);
+                });
+                centroid.radius = maxDist;
+
+                setAfterPoints(result);
+                setCentroids([centroid]);
+                setAnimationStep(2);
+                setIsRunning(false);
+              }
+            };
+            
+            animateAnomaly();
+          };
+          
+          const runIsolationForest = () => {
+            setIsRunning(true);
+            setHasRun(true);
+            setAnimationStep(0);
+            setShowForestViz(true);
+
+            const buildIsolationTree = (points, depth = 0, maxDepth = 8) => {
+              if (points.length <= 1 || depth >= maxDepth) {
+                return { type: 'leaf', size: points.length, depth: depth, points: points };
+              }
+
+              const feature = Math.random() < 0.5 ? 'x' : 'y';
+              
+              const values = points.map(p => p[feature]);
+              const min = Math.min(...values);
+              const max = Math.max(...values);
+              
+              const split = min + Math.random() * (max - min);
+              
+              const left = points.filter(p => p[feature] < split);
+              const right = points.filter(p => p[feature] >= split);
+              
+              return {
+                type: 'node',
+                feature: feature,
+                split: split,
+                depth: depth,
+                left: buildIsolationTree(left, depth + 1, maxDepth),
+                right: buildIsolationTree(right, depth + 1, maxDepth)
+              };
+            };
+
+            const getPathLength = (point, tree) => {
+              if (tree.type === 'leaf') {
+                return tree.depth;
+              }
+              
+              if (point[tree.feature] < tree.split) {
+                return getPathLength(point, tree.left);
+              } else {
+                return getPathLength(point, tree.right);
+              }
+            };
+
+            setTimeout(() => {
+              setAnimationStep(1);
+              
+              setTimeout(() => {
+                const trees = [];
+                const sampleSize = Math.floor(beforePoints.length * 0.8);
+                
+                for (let i = 0; i < numTrees; i++) {
+                  const sample = [];
+                  const used = new Set();
+                  while (sample.length < sampleSize) {
+                    const idx = Math.floor(Math.random() * beforePoints.length);
+                    if (!used.has(idx)) {
+                      used.add(idx);
+                      sample.push(beforePoints[idx]);
+                    }
+                  }
+                  
+                  trees.push(buildIsolationTree(sample));
+                }
+                
+                setForestTrees(trees);
+                
+                const scores = beforePoints.map(point => {
+                  const avgPathLength = trees.reduce((sum, tree) => {
+                    return sum + getPathLength(point, tree);
+                  }, 0) / trees.length;
+                  
+                  return { point, score: avgPathLength };
+                });
+                
+                scores.sort((a, b) => a.score - b.score);
+                
+                const threshold = Math.floor(scores.length * contamination);
+                
+                const result = scores.map((item, idx) => ({
+                  x: item.point.x,
+                  y: item.point.y,
+                  cluster: idx < threshold ? -1 : 0,
+                  isOutlier: idx < threshold,
+                  score: item.score
+                }));
+
+                const normalPoints = result.filter(p => !p.isOutlier);
+                const centroid = {
+                  x: normalPoints.reduce((sum, p) => sum + p.x, 0) / normalPoints.length,
+                  y: normalPoints.reduce((sum, p) => sum + p.y, 0) / normalPoints.length,
+                  cluster: 0
+                };
+                
+                let maxDist = 0;
+                normalPoints.forEach(p => {
+                  const dist = Math.sqrt(Math.pow(p.x - centroid.x, 2) + Math.pow(p.y - centroid.y, 2));
+                  maxDist = Math.max(maxDist, dist);
+                });
+                centroid.radius = maxDist;
+
+                setAfterPoints(result);
+                setCentroids([centroid]);
+                setAnimationStep(2);
+                setIsRunning(false);
+              }, 1200);
+            }, 800);
+          };
+          
+          const runTSNE = () => {
+            setIsRunning(true);
+            setHasRun(true);
+            setAnimationStep(0);
+            setShowDimensionViz(true);
+
+            setTimeout(() => {
+              setAnimationStep(1);
+              
+              const iterations = 50;
+              let currentIter = 0;
+              
+              let positions = originalDimensions.map(() => ({
+                x: 300 + (Math.random() - 0.5) * 100,
+                y: 175 + (Math.random() - 0.5) * 100
+              }));
+
+              const computeDistances = (dims) => {
+                const n = dims.length;
+                const distances = Array(n).fill(0).map(() => Array(n).fill(0));
+                
+                for (let i = 0; i < n; i++) {
+                  for (let j = i + 1; j < n; j++) {
+                    let dist = 0;
+                    for (let k = 0; k < dims[i].dimensions.length; k++) {
+                      dist += Math.pow(dims[i].dimensions[k] - dims[j].dimensions[k], 2);
+                    }
+                    distances[i][j] = distances[j][i] = Math.sqrt(dist);
+                  }
+                }
+                return distances;
+              };
+
+              const highDimDist = computeDistances(originalDimensions);
+
+              const animate = () => {
+                if (currentIter >= iterations) {
+                  const result = positions.map((pos, idx) => ({
+                    x: pos.x,
+                    y: pos.y,
+                    cluster: originalDimensions[idx].cluster
+                  }));
+                  
+                  setAfterPoints(result);
+                  setCentroids([]);
+                  setAnimationStep(2);
+                  setIsRunning(false);
+                  return;
+                }
+
+                const n = positions.length;
+                const forces = positions.map(() => ({ x: 0, y: 0 }));
+
+                for (let i = 0; i < n; i++) {
+                  for (let j = 0; j < n; j++) {
+                    if (i === j) continue;
+
+                    const dx = positions[i].x - positions[j].x;
+                    const dy = positions[i].y - positions[j].y;
+                    const lowDimDist = Math.sqrt(dx * dx + dy * dy) + 0.1;
+
+                    const targetDist = highDimDist[i][j] * 0.5;
+                    const diff = targetDist - lowDimDist;
+
+                    const forceMag = diff * 0.1;
+                    forces[i].x += forceMag * (dx / lowDimDist);
+                    forces[i].y += forceMag * (dy / lowDimDist);
+                  }
+                }
+
+                positions = positions.map((pos, idx) => ({
+                  x: Math.max(100, Math.min(500, pos.x + forces[idx].x)),
+                  y: Math.max(75, Math.min(275, pos.y + forces[idx].y))
+                }));
+
+                if (currentIter % 5 === 0) {
+                  const result = positions.map((pos, idx) => ({
+                    x: pos.x,
+                    y: pos.y,
+                    cluster: originalDimensions[idx].cluster
+                  }));
+                  setAfterPoints(result);
+                }
+
+                currentIter++;
+                setAnimationStep(Math.floor((currentIter / iterations) * 100));
+                requestAnimationFrame(animate);
+              };
+
+              setTimeout(() => animate(), 500);
+            }, 800);
+          };
+
+          const runUMAP = () => {
+            setIsRunning(true);
+            setHasRun(true);
+            setAnimationStep(0);
+            setShowDimensionViz(true);
+
+            setTimeout(() => {
+              setAnimationStep(1);
+              
+              const iterations = 40;
+              let currentIter = 0;
+              
+              let positions = originalDimensions.map(() => ({
+                x: 300 + (Math.random() - 0.5) * 80,
+                y: 175 + (Math.random() - 0.5) * 80
+              }));
+
+              const findNeighbors = (idx, dims, n) => {
+                const distances = dims.map((d, i) => {
+                  if (i === idx) return { idx: i, dist: Infinity };
+                  let dist = 0;
+                  for (let k = 0; k < dims[idx].dimensions.length; k++) {
+                    dist += Math.pow(dims[idx].dimensions[k] - d.dimensions[k], 2);
+                  }
+                  return { idx: i, dist: Math.sqrt(dist) };
+                });
+                
+                distances.sort((a, b) => a.dist - b.dist);
+                return distances.slice(0, n).map(d => d.idx);
+              };
+
+              const neighbors = originalDimensions.map((_, idx) => 
+                findNeighbors(idx, originalDimensions, umapNeighbors)
+              );
+
+              const animate = () => {
+                if (currentIter >= iterations) {
+                  const result = positions.map((pos, idx) => ({
+                    x: pos.x,
+                    y: pos.y,
+                    cluster: originalDimensions[idx].cluster
+                  }));
+                  
+                  setAfterPoints(result);
+                  setCentroids([]);
+                  setAnimationStep(2);
+                  setIsRunning(false);
+                  return;
+                }
+
+                const n = positions.length;
+                const forces = positions.map(() => ({ x: 0, y: 0 }));
+
+                for (let i = 0; i < n; i++) {
+                  neighbors[i].forEach(j => {
+                    const dx = positions[j].x - positions[i].x;
+                    const dy = positions[j].y - positions[i].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy) + 0.1;
+
+                    const attractForce = 0.15;
+                    forces[i].x += attractForce * (dx / dist);
+                    forces[i].y += attractForce * (dy / dist);
+                  });
+
+                  for (let j = 0; j < n; j++) {
+                    if (i === j || neighbors[i].includes(j)) continue;
+                    
+                    const dx = positions[j].x - positions[i].x;
+                    const dy = positions[j].y - positions[i].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy) + 0.1;
+
+                    const repelForce = 800 / (dist * dist);
+                    forces[i].x -= repelForce * (dx / dist);
+                    forces[i].y -= repelForce * (dy / dist);
+                  }
+                }
+
+                positions = positions.map((pos, idx) => ({
+                  x: Math.max(100, Math.min(500, pos.x + forces[idx].x)),
+                  y: Math.max(75, Math.min(275, pos.y + forces[idx].y))
+                }));
+
+                if (currentIter % 4 === 0) {
+                  const result = positions.map((pos, idx) => ({
+                    x: pos.x,
+                    y: pos.y,
+                    cluster: originalDimensions[idx].cluster
+                  }));
+                  setAfterPoints(result);
+                }
+
+                currentIter++;
+                setAnimationStep(Math.floor((currentIter / iterations) * 100));
+                requestAnimationFrame(animate);
+              };
+
+              setTimeout(() => animate(), 500);
+            }, 800);
+          };
+
+          const runAlgorithm = () => {
+            switch(activeAlgo) {
+              case 'kmeans': runKMeans(); break;
+              case 'hierarchical': runHierarchical(); break;
+              case 'dbscan': runDBSCAN(); break;
+              case 'pca': runPCA(); break;
+              case 'tsne': runTSNE(); break;
+              case 'umap': runUMAP(); break;
+              case 'anomaly': runAnomaly(); break;
+              case 'isolation': runIsolationForest(); break;
+            }
+          };
+
+          const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899'];
+
+          const getAlgoDescription = () => {
+            const descriptions = {
+              kmeans: {
+                title: 'K-Means Clustering',
+                points: ['Centroid-based', 'Fast & scalable', 'Requires K value', 'Spherical clusters']
+              },
+              hierarchical: {
+                title: 'Hierarchical Clustering',
+                points: ['Tree-based merging', 'No K needed initially', 'Shows hierarchy', 'Slower performance']
+              },
+              dbscan: {
+                title: 'DBSCAN',
+                points: ['Density-based', 'Finds arbitrary shapes', 'Handles noise', 'Epsilon & MinPts']
+              },
+              pca: {
+                title: 'PCA (Dimensionality Reduction)',
+                points: ['Linear transformation', 'Reduces to 1D', 'Preserves variance', 'Fast computation']
+              },
+              tsne: {
+                title: 't-SNE (t-Distributed Stochastic Neighbor Embedding)',
+                points: ['Non-linear reduction', 'Preserves local structure', 'Good for visualization', 'Computationally intensive']
+              },
+              umap: {
+                title: 'UMAP (Uniform Manifold Approximation)',
+                points: ['Manifold learning', 'Preserves global + local', 'Faster than t-SNE', 'Better scalability']
+              },
+              anomaly: {
+                title: 'Anomaly Detection',
+                points: ['Finds outliers', 'Distance-based', 'Contamination rate', 'Unusual patterns']
+              },
+              isolation: {
+                title: 'Isolation Forest',
+                points: ['Tree-based isolation', 'Random partitioning', 'Path length scoring', 'Efficient for high-dim']
+              }
+            };
+            return descriptions[activeAlgo];
+          };
+
+          const algoDesc = getAlgoDescription();
+
+          const renderTreeVisualization = (tree, x, y, width, idx) => {
+            if (!tree) return null;
+            
+            const elements = [];
+            const nodeSize = 4;
+            
+            if (tree.type === 'leaf') {
+              elements.push(
+                <circle
+                  key={`leaf-${x}-${y}`}
+                  cx={x}
+                  cy={y}
+                  r={nodeSize}
+                  fill="#10B981"
+                  stroke="#fff"
+                  strokeWidth="1"
+                />
+              );
+            } else {
+              const leftX = x - width / 4;
+              const rightX = x + width / 4;
+              const childY = y + 25;
+              
+              elements.push(
+                <line
+                  key={`line-left-${x}-${y}`}
+                  x1={x}
+                  y1={y}
+                  x2={leftX}
+                  y2={childY}
+                  stroke="#8B5CF6"
+                  strokeWidth="1.5"
+                  opacity="0.6"
+                />
+              );
+              elements.push(
+                <line
+                  key={`line-right-${x}-${y}`}
+                  x1={x}
+                  y1={y}
+                  x2={rightX}
+                  y2={childY}
+                  stroke="#8B5CF6"
+                  strokeWidth="1.5"
+                  opacity="0.6"
+                />
+              );
+              elements.push(
+                <circle
+                  key={`node-${x}-${y}`}
+                  cx={x}
+                  cy={y}
+                  r={nodeSize}
+                  fill="#3B82F6"
+                  stroke="#fff"
+                  strokeWidth="1"
+                />
+              );
+              
+              if (tree.left) {
+                elements.push(...renderTreeVisualization(tree.left, leftX, childY, width / 2, idx));
+              }
+              if (tree.right) {
+                elements.push(...renderTreeVisualization(tree.right, rightX, childY, width / 2, idx));
+              }
+            }
+            
+            return elements;
+          };
+
+          return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+              <div className="max-w-7xl mx-auto">
+                <div className="text-center mb-6">
+                  <h1 className="text-4xl font-bold text-white mb-2 flex items-center justify-center gap-3">
+                    <Layers />
+                    Unsupervised Learning Demo
+                  </h1>
+                  <p className="text-gray-300">Interactive Before & After Visualization</p>
+                  
+                  <button
+                    onClick={() => setShowTutorial(!showTutorial)}
+                    className="mt-3 flex items-center gap-2 mx-auto px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors"
+                  >
+                    <Lightbulb />
+                    {showTutorial ? 'Hide' : 'Show'} Tutorial
+                  </button>
+                </div>
+
+                {showTutorial && (
+                  <div className="mb-4 bg-yellow-500 rounded-xl p-4 text-white">
+                    <h3 className="font-bold mb-2 flex items-center gap-2">
+                      <Lightbulb />
+                      Quick Start Guide
+                    </h3>
+                    <ol className="space-y-1 text-sm">
+                      <li>1️⃣ Select an algorithm from the buttons below</li>
+                      <li>2️⃣ Adjust parameters (K for clustering, eps for DBSCAN, etc.)</li>
+                      <li>3️⃣ Click "Run Algorithm" to see the magic!</li>
+                      <li>4️⃣ Compare BEFORE and AFTER visualizations</li>
+                      <li>5️⃣ Check metrics to evaluate clustering quality</li>
+                    </ol>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 mb-4">
+                  {algorithms.map(algo => {
+                    const Icon = algo.icon;
+                    return (
+                      <button
+                        key={algo.id}
+                        onClick={() => setActiveAlgo(algo.id)}
+                        disabled={isRunning}
+                        className={`p-3 rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
+                          activeAlgo === algo.id
+                            ? `${algo.color} text-white shadow-2xl scale-105`
+                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                        }`}
+                      >
+                        <Icon />
+                        <span className="text-xs font-semibold block mt-1">{algo.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="grid lg:grid-cols-12 gap-4">
+                  <div className="lg:col-span-3 space-y-4">
+                    <div className="bg-gray-800 rounded-xl p-4">
+                      <h3 className="text-white font-bold mb-3 flex items-center gap-2">
+                        <Settings />
+                        Parameters
+                      </h3>
+                      
+                      {(activeAlgo === 'kmeans' || activeAlgo === 'hierarchical') && (
+                        <div>
+                          <label className="block text-gray-300 text-sm mb-2">Number of Clusters (K)</label>
+                          <input
+                            type="range"
+                            min="2"
+                            max="5"
+                            value={k}
+                            onChange={(e) => setK(parseInt(e.target.value))}
+                            disabled={isRunning}
+                            className="w-full"
+                          />
+                          <div className="text-center mt-2">
+                            <span className="bg-blue-600 text-white px-3 py-1 rounded-lg font-bold">K = {k}</span>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {activeAlgo === 'hierarchical' && (
+                        <div className="mt-4">
+                          <label className="block text-gray-300 text-sm mb-2">Clustering Method</label>
+                          <div className="space-y-2">
+                            <label className="flex items-center gap-2 text-gray-300 text-sm cursor-pointer">
+                              <input
+                                type="radio"
+                                name="hierarchical-method"
+                                value="agglomerative"
+                                checked={hierarchicalMethod === 'agglomerative'}
+                                onChange={(e) => setHierarchicalMethod(e.target.value)}
+                                disabled={isRunning}
+                                className="w-4 h-4"
+                              />
+                              <span>🔼 Agglomerative (Bottom-Up)</span>
+                            </label>
+                            <label className="flex items-center gap-2 text-gray-300 text-sm cursor-pointer">
+                              <input
+                                type="radio"
+                                name="hierarchical-method"
+                                value="divisive"
+                                checked={hierarchicalMethod === 'divisive'}
+                                onChange={(e) => setHierarchicalMethod(e.target.value)}
+                                disabled={isRunning}
+                                className="w-4 h-4"
+                              />
+                              <span>🔽 Divisive (Top-Down)</span>
+                            </label>
+                          </div>
+                          <p className="text-xs text-gray-400 mt-2">
+                            {hierarchicalMethod === 'agglomerative' 
+                              ? '→ Starts with individual points, merges closest pairs'
+                              : '→ Starts with one cluster, recursively splits'}
+                          </p>
+                        </div>
+                      )}
+
+                      {activeAlgo === 'dbscan' && (
+                        <>
+                          <div className="mb-4">
+                            <label className="block text-gray-300 text-sm mb-2">Epsilon (ε): {eps}</label>
+                            <input
+                              type="range"
+                              min="20"
+                              max="100"
+                              value={eps}
+                              onChange={(e) => setEps(parseInt(e.target.value))}
+                              disabled={isRunning}
+                              className="w-full"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-gray-300 text-sm mb-2">Min Points: {minPts}</label>
+                            <input
+                              type="range"
+                              min="2"
+                              max="10"
+                              value={minPts}
+                              onChange={(e) => setMinPts(parseInt(e.target.value))}
+                              disabled={isRunning}
+                              className="w-full"
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {activeAlgo === 'anomaly' && (
+                        <div>
+                          <label className="block text-gray-300 text-sm mb-2">Contamination: {contamination.toFixed(2)}</label>
+                          <input
+                            type="range"
+                            min="0.05"
+                            max="0.3"
+                            step="0.05"
+                            value={contamination}
+                            onChange={(e) => setContamination(parseFloat(e.target.value))}
+                            disabled={isRunning}
+                            className="w-full"
+                          />
+                        </div>
+                      )}
+                      
+                      {activeAlgo === 'isolation' && (
+                        <>
+                          <div className="mb-4">
+                            <label className="block text-gray-300 text-sm mb-2">Number of Trees: {numTrees}</label>
+                            <input
+                              type="range"
+                              min="3"
+                              max="10"
+                              value={numTrees}
+                              onChange={(e) => setNumTrees(parseInt(e.target.value))}
+                              disabled={isRunning}
+                              className="w-full"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">More trees = better accuracy</p>
+                          </div>
+                          <div>
+                            <label className="block text-gray-300 text-sm mb-2">Contamination: {contamination.toFixed(2)}</label>
+                            <input
+                              type="range"
+                              min="0.05"
+                              max="0.3"
+                              step="0.05"
+                              value={contamination}
+                              onChange={(e) => setContamination(parseFloat(e.target.value))}
+                              disabled={isRunning}
+                              className="w-full"
+                            />
+                          </div>
+                        </>
+                      )}
+                      
+                      {activeAlgo === 'tsne' && (
+                        <div>
+                          <label className="block text-gray-300 text-sm mb-2">Perplexity: {perplexity}</label>
+                          <input
+                            type="range"
+                            min="5"
+                            max="50"
+                            value={perplexity}
+                            onChange={(e) => setPerplexity(parseInt(e.target.value))}
+                            disabled={isRunning}
+                            className="w-full"
+                          />
+                          <p className="text-xs text-gray-400 mt-1">Balance local vs global structure</p>
+                        </div>
+                      )}
+                      
+                      {activeAlgo === 'umap' && (
+                        <div>
+                          <label className="block text-gray-300 text-sm mb-2">N Neighbors: {umapNeighbors}</label>
+                          <input
+                            type="range"
+                            min="5"
+                            max="50"
+                            value={umapNeighbors}
+                            onChange={(e) => setUmapNeighbors(parseInt(e.target.value))}
+                            disabled={isRunning}
+                            className="w-full"
+                          />
+                          <p className="text-xs text-gray-400 mt-1">Local neighborhood size</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="bg-gray-800 rounded-xl p-4 space-y-2">
+                      {(activeAlgo === 'kmeans' || activeAlgo === 'hierarchical' || activeAlgo === 'dbscan') && (
+                        <div className="flex items-center gap-2 mb-2">
+                          <input
+                            type="checkbox"
+                            id="showCircles"
+                            checked={showClusterCircles}
+                            onChange={(e) => setShowClusterCircles(e.target.checked)}
+                            className="w-4 h-4"
+                          />
+                          <label htmlFor="showCircles" className="text-gray-300 text-sm">
+                            Show Cluster Boundaries
+                          </label>
+                        </div>
+                      )}
+                      
+                      <button
+                        onClick={runAlgorithm}
+                        disabled={isRunning}
+                        className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-4 py-3 rounded-xl font-bold transition-colors"
+                      >
+                        <Play />
+                        {isRunning ? 'Running...' : 'Run Algorithm'}
+                      </button>
+                      <button
+                        onClick={generateData}
+                        disabled={isRunning}
+                        className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-4 py-2 rounded-xl transition-colors"
+                      >
+                        <RefreshCw />
+                        Generate New Data
+                      </button>
+                      
+                      {hasRun && (activeAlgo === 'kmeans' || activeAlgo === 'hierarchical') && (
+                        <button
+                          onClick={() => setShowMetricViz(!showMetricViz)}
+                          className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl transition-colors"
+                        >
+                          <BarChart3 />
+                          {showMetricViz ? 'Hide' : 'Show'} Elbow Method
+                        </button>
+                      )}
+                      
+                      {hasRun && activeAlgo === 'hierarchical' && dendrogramData.length > 0 && (
+                        <button
+                          onClick={() => setShowDendrogram(!showDendrogram)}
+                          className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl transition-colors"
+                        >
+                          <GitBranch />
+                          {showDendrogram ? 'Hide' : 'Show'} Dendrogram
+                        </button>
+                      )}
+                      
+                      {hasRun && activeAlgo === 'isolation' && forestTrees.length > 0 && (
+                        <button
+                          onClick={() => setShowForestViz(!showForestViz)}
+                          className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl transition-colors"
+                        >
+                          <GitBranch />
+                          {showForestViz ? 'Hide' : 'Show'} Forest Trees
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="bg-gray-800 rounded-xl p-4">
+                      <h3 className="text-white text-sm font-bold mb-2 flex items-center gap-2">
+                        <Info />
+                        {algoDesc.title}
+                      </h3>
+                      <div className="text-gray-300 text-xs space-y-1">
+                        {algoDesc.points.map((point, idx) => (
+                          <p key={idx}>• {point}</p>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-9 space-y-4">
+                    {isRunning && (
+                      <div className="bg-yellow-500 text-white px-4 py-2 rounded-xl text-center font-bold animate-pulse">
+                        ⚡ Algorithm Running... 
+                        {activeAlgo === 'kmeans' && iteration > 0 && ` Iteration: ${iteration}/8`}
+                        {activeAlgo === 'dbscan' && ` Processing point ${animationStep}/${beforePoints.length}`}
+                        {activeAlgo === 'anomaly' && animationStep === 1 && ' Calculating distances...'}
+                        {activeAlgo === 'isolation' && animationStep === 1 && ' Building isolation trees...'}
+                        {(activeAlgo === 'tsne' || activeAlgo === 'umap') && animationStep > 1 && ` Progress: ${animationStep}%`}
+                        {(activeAlgo === 'pca' || activeAlgo === 'tsne' || activeAlgo === 'umap') && animationStep === 1 && ' Computing transformation...'}
+                      </div>
+                    )}
+                    
+                    {showDimensionViz && (activeAlgo === 'pca' || activeAlgo === 'tsne' || activeAlgo === 'umap') && (
+                      <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl p-4">
+                        <h3 className="text-white font-bold mb-3">📊 Dimensionality Reduction Visualization</h3>
+                        <div className="bg-white bg-opacity-10 rounded-lg p-4">
+                          <div className="grid grid-cols-2 gap-4 mb-3">
+                            <div>
+                              <p className="text-indigo-100 text-sm mb-2">Original Dimensions</p>
+                              <div className="bg-white bg-opacity-20 rounded p-2 h-20 flex items-center justify-center">
+                                <div className="flex gap-1">
+                                  {[1,2,3,4,5].map(i => (
+                                    <div key={i} className="w-8 h-16 bg-blue-400 rounded flex items-center justify-center text-white text-xs font-bold">
+                                      D{i}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-indigo-100 text-xs mt-1 text-center">5D Space</p>
+                            </div>
+                            <div>
+                              <p className="text-indigo-100 text-sm mb-2">Reduced Dimensions</p>
+                              <div className="bg-white bg-opacity-20 rounded p-2 h-20 flex items-center justify-center">
+                                {activeAlgo === 'pca' ? (
+                                  <div className="w-12 h-16 bg-green-400 rounded flex items-center justify-center text-white text-xs font-bold">
+                                    PC1
+                                  </div>
+                                ) : (
+                                  <div className="flex gap-1">
+                                    <div className="w-10 h-16 bg-green-400 rounded flex items-center justify-center text-white text-xs font-bold">
+                                      X
+                                    </div>
+                                    <div className="w-10 h-16 bg-green-400 rounded flex items-center justify-center text-white text-xs font-bold">
+                                      Y
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              <p className="text-indigo-100 text-xs mt-1 text-center">
+                                {activeAlgo === 'pca' ? '1D Space' : '2D Space'}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="inline-block bg-yellow-400 text-gray-900 px-4 py-1 rounded-full text-sm font-bold">
+                              {activeAlgo === 'pca' && '→ Linear Projection to 1D'}
+                              {activeAlgo === 'tsne' && '→ Preserving Local Neighborhoods'}
+                              {activeAlgo === 'umap' && '→ Manifold Learning to 2D'}
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-indigo-100 text-xs mt-2">
+                          {activeAlgo === 'pca' && '💡 PCA finds the direction of maximum variance and projects data onto it'}
+                          {activeAlgo === 'tsne' && '💡 t-SNE keeps similar points close together in lower dimensions'}
+                          {activeAlgo === 'umap' && '💡 UMAP preserves both local and global structure of the data'}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {showMetricViz && elbowData.length > 0 && (
+                      <div className="bg-white rounded-xl p-4 shadow-lg">
+                        <h3 className="text-lg font-bold text-gray-800 mb-3">📈 Elbow Method - Finding Optimal K</h3>
+                        <svg width="100%" height="300" viewBox="0 0 600 300" className="border border-gray-200 rounded">
+                          <rect width="600" height="300" fill="#f9fafb" />
+                          
+                          {[0, 1, 2, 3, 4, 5].map(i => (
+                            <line
+                              key={`grid-${i}`}
+                              x1="80"
+                              y1={50 + i * 40}
+                              x2="550"
+                              y2={50 + i * 40}
+                              stroke="#e5e7eb"
+                              strokeWidth="1"
+                            />
+                          ))}
+                          
+                          <line x1="80" y1="250" x2="550" y2="250" stroke="#000" strokeWidth="2" />
+                          <line x1="80" y1="50" x2="80" y2="250" stroke="#000" strokeWidth="2" />
+                          
+                          <text x="300" y="285" textAnchor="middle" fontSize="14" fill="#374151" fontWeight="bold">
+                            Number of Clusters (K)
+                          </text>
+                          <text x="30" y="150" textAnchor="middle" fontSize="14" fill="#374151" fontWeight="bold" transform="rotate(-90 30 150)">
+                            WCSS (Inertia)
+                          </text>
+                          
+                          {elbowData.map((point, idx) => {
+                            if (idx === 0) return null;
+                            const prevPoint = elbowData[idx - 1];
+                            const maxWcss = Math.max(...elbowData.map(d => d.wcss));
+                            
+                            const x1 = 80 + (prevPoint.k - 2) * 94;
+                            const y1 = 250 - (prevPoint.wcss / maxWcss) * 180;
+                            const x2 = 80 + (point.k - 2) * 94;
+                            const y2 = 250 - (point.wcss / maxWcss) * 180;
+                            
+                            return (
+                              <line
+                                key={`line-${idx}`}
+                                x1={x1}
+                                y1={y1}
+                                x2={x2}
+                                y2={y2}
+                                stroke="#3B82F6"
+                                strokeWidth="3"
+                              />
+                            );
+                          })}
+                          
+                          {elbowData.map((point, idx) => {
+                            const maxWcss = Math.max(...elbowData.map(d => d.wcss));
+                            const x = 80 + (point.k - 2) * 94;
+                            const y = 250 - (point.wcss / maxWcss) * 180;
+                            
+                            return (
+                              <g key={`point-${idx}`}>
+                                <circle
+                                  cx={x}
+                                  cy={y}
+                                  r="6"
+                                  fill={point.k === k ? "#EF4444" : "#3B82F6"}
+                                  stroke="#fff"
+                                  strokeWidth="2"
+                                />
+                                <text x={x} y={y - 15} textAnchor="middle" fontSize="11" fill="#374151" fontWeight="bold">
+                                  K={point.k}
+                                </text>
+                                <text x={x} y="270" textAnchor="middle" fontSize="12" fill="#6B7280">
+                                  {point.k}
+                                </text>
+                              </g>
+                            );
+                          })}
+                          
+                          <text x="300" y="30" textAnchor="middle" fontSize="13" fill="#EF4444" fontWeight="bold">
+                            ← Look for the "elbow" where WCSS stops decreasing rapidly
+                          </text>
+                        </svg>
+                        <p className="text-sm text-gray-600 mt-2">
+                          💡 <strong>Tip:</strong> The optimal K is often at the "elbow" point where adding more clusters doesn't significantly reduce WCSS.
+                        </p>
+                      </div>
+                    )}
+                    
+                    {showDendrogram && dendrogramData.length > 0 && activeAlgo === 'hierarchical' && (
+                      <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl p-4 shadow-lg">
+                        <h3 className="text-white font-bold mb-3 flex items-center gap-2">
+                          <GitBranch />
+                          Dendrogram - {hierarchicalMethod === 'agglomerative' ? 'Agglomerative (Bottom-Up)' : 'Divisive (Top-Down)'} Clustering
+                        </h3>
+                        <div className="bg-white rounded-lg p-4">
+                          <svg width="100%" height="400" viewBox="0 0 600 400">
+                            <rect width="600" height="400" fill="#ffffff" />
+                            
+                            <line x1="50" y1="350" x2="550" y2="350" stroke="#000" strokeWidth="2" />
+                            <line x1="50" y1="50" x2="50" y2="350" stroke="#000" strokeWidth="2" />
+                            
+                            <text x="300" y="385" textAnchor="middle" fontSize="12" fill="#374151" fontWeight="bold">
+                              {hierarchicalMethod === 'agglomerative' ? 'Merge Steps →' : 'Split Steps →'}
+                            </text>
+                            <text x="20" y="200" textAnchor="middle" fontSize="12" fill="#374151" fontWeight="bold" transform="rotate(-90 20 200)">
+                              Distance / Height
+                            </text>
+                            
+                            {hierarchicalMethod === 'agglomerative' ? (
+                              <>
+                                {dendrogramData.slice(0, 10).map((merge, idx) => {
+                                  const x = 100 + idx * 45;
+                                  const height = Math.min(merge.height * 2, 280);
+                                  const y = 350 - height;
+                                  
+                                  return (
+                                    <g key={`merge-${idx}`}>
+                                      <line
+                                        x1={x}
+                                        y1={350}
+                                        x2={x}
+                                        y2={y}
+                                        stroke="#8B5CF6"
+                                        strokeWidth="3"
+                                        opacity="0.8"
+                                      />
+                                      <line
+                                        x1={x - 15}
+                                        y1={y}
+                                        x2={x + 15}
+                                        y2={y}
+                                        stroke="#EC4899"
+                                        strokeWidth="3"
+                                      />
+                                      <circle
+                                        cx={x}
+                                        cy={y}
+                                        r="5"
+                                        fill="#3B82F6"
+                                        stroke="#fff"
+                                        strokeWidth="2"
+                                      />
+                                      <text x={x} y="370" textAnchor="middle" fontSize="9" fill="#6B7280">
+                                        M{idx + 1}
+                                      </text>
+                                      <circle
+                                        cx={x}
+                                        cy={y}
+                                        r={Math.sqrt(merge.size) * 1.5}
+                                        fill="#3B82F6"
+                                        opacity="0.2"
+                                      />
+                                    </g>
+                                  );
+                                })}
+                              </>
+                            ) : (
+                              <>
+                                {dendrogramData.slice(0, k - 1).map((split, idx) => {
+                                  const x = 150 + idx * 80;
+                                  const height = 200 - idx * 30;
+                                  const y = 100 + (200 - height);
+                                  
+                                  return (
+                                    <g key={`split-${idx}`}>
+                                      <line
+                                        x1={x}
+                                        y1={70}
+                                        x2={x}
+                                        y2={y}
+                                        stroke="#8B5CF6"
+                                        strokeWidth="3"
+                                        opacity="0.8"
+                                      />
+                                      <line
+                                        x1={x}
+                                        y1={y}
+                                        x2={x - 25}
+                                        y2={y + 35}
+                                        stroke="#EC4899"
+                                        strokeWidth="3"
+                                      />
+                                      <line
+                                        x1={x}
+                                        y1={y}
+                                        x2={x + 25}
+                                        y2={y + 35}
+                                        stroke="#EC4899"
+                                        strokeWidth="3"
+                                      />
+                                      <circle
+                                        cx={x}
+                                        cy={y}
+                                        r="5"
+                                        fill="#EF4444"
+                                        stroke="#fff"
+                                        strokeWidth="2"
+                                      />
+                                      <circle cx={x - 25} cy={y + 35} r="4" fill="#10B981" />
+                                      <circle cx={x + 25} cy={y + 35} r="4" fill="#10B981" />
+                                      <text x={x} y="370" textAnchor="middle" fontSize="9" fill="#6B7280">
+                                        S{idx + 1}
+                                      </text>
+                                    </g>
+                                  );
+                                })}
+                              </>
+                            )}
+                            
+                            <g transform="translate(450, 20)">
+                              <rect x="0" y="0" width="140" height="80" fill="#f3f4f6" stroke="#d1d5db" strokeWidth="1" rx="5" />
+                              <text x="70" y="18" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#374151">
+                                Legend
+                              </text>
+                              {hierarchicalMethod === 'agglomerative' ? (
+                                <>
+                                  <circle cx="15" cy="35" r="5" fill="#3B82F6" />
+                                  <text x="25" y="39" fontSize="10" fill="#374151">Merge Point</text>
+                                  <line x1="10" y1="55" x2="20" y2="55" stroke="#8B5CF6" strokeWidth="2" />
+                                  <text x="25" y="59" fontSize="10" fill="#374151">Hierarchy</text>
+                                </>
+                              ) : (
+                                <>
+                                  <circle cx="15" cy="35" r="5" fill="#EF4444" />
+                                  <text x="25" y="39" fontSize="10" fill="#374151">Split Point</text>
+                                  <circle cx="15" cy="55" r="4" fill="#10B981" />
+                                  <text x="25" y="59" fontSize="10" fill="#374151">New Cluster</text>
+                                </>
+                              )}
+                            </g>
+                          </svg>
+                        </div>
+                        <div className="mt-3 bg-white bg-opacity-10 rounded-lg p-3">
+                          <p className="text-white text-sm">
+                            {hierarchicalMethod === 'agglomerative' ? (
+                              <>
+                                <strong>📊 Agglomerative Clustering:</strong> Each merge (M1, M2...) represents joining two closest clusters.
+                                Height shows merge distance. Larger circles = bigger clusters.
+                              </>
+                            ) : (
+                              <>
+                                <strong>📊 Divisive Clustering:</strong> Each split (S1, S2...) divides one cluster into two.
+                                Starts from one big cluster at top, recursively splits into smaller ones.
+                              </>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {showForestViz && forestTrees.length > 0 && activeAlgo === 'isolation' && (
+                      <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-xl p-4 shadow-lg">
+                        <h3 className="text-white font-bold mb-3 flex items-center gap-2">
+                          <GitBranch />
+                          Isolation Forest - Tree Structures ({numTrees} Trees)
+                        </h3>
+                        <div className="bg-white rounded-lg p-4">
+                          <svg width="100%" height="350" viewBox="0 0 600 350">
+                            <rect width="600" height="350" fill="#ffffff" />
+                            
+                            <text x="300" y="20" textAnchor="middle" fontSize="13" fill="#374151" fontWeight="bold">
+                              Sample Trees (First {Math.min(3, numTrees)} of {numTrees})
+                            </text>
+                            
+                            {forestTrees.slice(0, 3).map((tree, idx) => {
+                              const startX = 100 + idx * 200;
+                              return (
+                                <g key={`tree-${idx}`}>
+                                  <text x={startX} y="45" textAnchor="middle" fontSize="11" fill="#6B7280" fontWeight="bold">
+                                    Tree {idx + 1}
+                                  </text>
+                                  <rect x={startX - 80} y="50" width="160" height="280" fill="#f9fafb" stroke="#e5e7eb" strokeWidth="1" rx="5" />
+                                  {renderTreeVisualization(tree, startX, 70, 140, idx)}
+                                </g>
+                              );
+                            })}
+                            
+                            <g transform="translate(20, 60)">
+                              <rect x="0" y="0" width="70" height="70" fill="#f3f4f6" stroke="#d1d5db" strokeWidth="1" rx="5" />
+                              <text x="35" y="15" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#374151">
+                                Legend
+                              </text>
+                              <circle cx="10" cy="30" r="4" fill="#3B82F6" />
+                              <text x="20" y="34" fontSize="9" fill="#374151">Split Node</text>
+                              <circle cx="10" cy="50" r="4" fill="#10B981" />
+                              <text x="20" y="54" fontSize="9" fill="#374151">Leaf</text>
+                            </g>
+                          </svg>
+                        </div>
+                        <div className="mt-3 bg-white bg-opacity-10 rounded-lg p-3">
+                          <p className="text-white text-sm">
+                            <strong>🌲 How it Works:</strong> Each tree randomly splits the data. Anomalies get isolated quickly (short paths to leaves),
+                            while normal points require more splits. Lower average path length = more anomalous.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="bg-white rounded-xl p-4 shadow-lg">
+                        <h3 className="text-lg font-bold text-gray-800 mb-2">
+                          📊 {(activeAlgo === 'pca' || activeAlgo === 'tsne' || activeAlgo === 'umap') ? 'HIGH-DIMENSIONAL DATA (Simulated 5D)' : 'BEFORE (Raw Data)'}
+                        </h3>
+                        <svg width="100%" height="350" viewBox="0 0 600 350" className="border border-gray-200 rounded">
+                          <rect width="600" height="350" fill="#f9fafb" />
+                          {beforePoints.map((point, idx) => (
+                            <circle
+                              key={idx}
+                              cx={point.x}
+                              cy={point.y}
+                              r="5"
+                              fill={point.cluster >= 0 ? colors[point.cluster % colors.length] : '#9CA3AF'}
+                              stroke="#fff"
+                              strokeWidth="2"
+                              opacity="0.7"
+                            />
+                          ))}
+                        </svg>
+                        {(activeAlgo === 'pca' || activeAlgo === 'tsne' || activeAlgo === 'umap') && (
+                          <p className="text-xs text-gray-600 mt-2">
+                            💡 This 2D visualization represents data that actually exists in 5D space
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="bg-white rounded-xl p-4 shadow-lg">
+                        <h3 className="text-lg font-bold text-gray-800 mb-2">
+                          {hasRun 
+                            ? (activeAlgo === 'pca' ? "✅ REDUCED TO 1D" : activeAlgo === 'tsne' || activeAlgo === 'umap' ? "✅ REDUCED TO 2D" : "✅ AFTER (Clustered)")
+                            : "⏳ Waiting for algorithm..."}
+                        </h3>
+                        <svg width="100%" height="350" viewBox="0 0 600 350" className="border border-gray-200 rounded">
+                          <rect width="600" height="350" fill="#f9fafb" />
+                          
+                          {hasRun && activeAlgo === 'pca' && (
+                            <>
+                              <line x1="100" y1="175" x2="500" y2="175" stroke="#666" strokeWidth="3" />
+                              <text x="300" y="160" textAnchor="middle" fontSize="12" fill="#666" fontWeight="bold">
+                                First Principal Component (PC1) →
+                              </text>
+                            </>
+                          )}
+                          
+                          {hasRun && showClusterCircles && (activeAlgo === 'kmeans' || activeAlgo === 'hierarchical' || activeAlgo === 'dbscan') && centroids.map((centroid, idx) => (
+                            <circle
+                              key={`boundary-${idx}`}
+                              cx={centroid.x}
+                              cy={centroid.y}
+                              r={centroid.radius || 50}
+                              fill="none"
+                              stroke={colors[idx % colors.length]}
+                              strokeWidth="2"
+                              strokeDasharray="5,5"
+                              opacity="0.4"
+                            />
+                          ))}
+                          
+                          {(hasRun ? afterPoints : beforePoints).map((point, idx) => (
+                            <circle
+                              key={idx}
+                              cx={point.x}
+                              cy={point.y}
+                              r={activeAlgo === 'pca' ? "6" : "5"}
+                              fill={hasRun && point.cluster >= 0 ? colors[point.cluster % colors.length] : (hasRun && point.isOutlier ? '#EF4444' : '#9CA3AF')}
+                              stroke="#fff"
+                              strokeWidth="2"
+                              opacity="0.85"
+                            />
+                          ))}
+                          
+                          {hasRun && centroids.map((centroid, idx) => (
+                            <g key={idx}>
+                              <circle
+                                cx={centroid.x}
+                                cy={centroid.y}
+                                r="12"
+                                fill={colors[idx % colors.length]}
+                                stroke="#000"
+                                strokeWidth="3"
+                              />
+                              <text
+                                x={centroid.x}
+                                y={centroid.y + 4}
+                                textAnchor="middle"
+                                fill="white"
+                                fontSize="12"
+                                fontWeight="bold"
+                              >
+                                C{idx + 1}
+                              </text>
+                            </g>
+                          ))}
+                        </svg>
+                        {hasRun && activeAlgo === 'pca' && (
+                          <p className="text-xs text-gray-600 mt-2">
+                            💡 All points now lie on a single axis (1D), preserving maximum variance
+                          </p>
+                        )}
+                        {hasRun && (activeAlgo === 'tsne' || activeAlgo === 'umap') && (
+                          <p className="text-xs text-gray-600 mt-2">
+                            💡 5D data compressed to 2D while preserving structure. Colors show original groups.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {hasRun && activeAlgo !== 'pca' && activeAlgo !== 'tsne' && activeAlgo !== 'umap' && (
+                      <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-4">
+                        <h3 className="text-white font-bold mb-3 flex items-center gap-2">
+                          <BarChart3 />
+                          Clustering Metrics Explained
+                        </h3>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+                          <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                            <p className="text-blue-100 text-xs">WCSS/Inertia</p>
+                            <p className="text-white text-2xl font-bold">{metrics.wcss}</p>
+                            <p className="text-blue-100 text-xs mt-1">↓ Lower = Better</p>
+                          </div>
+                          <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                            <p className="text-blue-100 text-xs">Silhouette</p>
+                            <p className="text-white text-2xl font-bold">{metrics.silhouette}</p>
+                            <p className="text-blue-100 text-xs mt-1">Range: -1 to 1</p>
+                          </div>
+                          <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                            <p className="text-blue-100 text-xs">Davies-Bouldin</p>
+                            <p className="text-white text-2xl font-bold">{metrics.daviesBouldin}</p>
+                            <p className="text-blue-100 text-xs mt-1">↓ Lower = Better</p>
+                          </div>
+                          <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                            <p className="text-blue-100 text-xs">Clusters Found</p>
+                            <p className="text-white text-2xl font-bold">{centroids.length}</p>
+                            <p className="text-blue-100 text-xs mt-1">Total groups</p>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div className="bg-white bg-opacity-10 rounded-lg p-3">
+                            <p className="text-white text-sm font-bold mb-2">📊 WCSS (Inertia)</p>
+                            <div className="space-y-1 text-xs text-blue-100">
+                              <p>• Sum of squared distances</p>
+                              <p>• Points to their centroid</p>
+                              <p>• Measures compactness</p>
+                            </div>
+                            <div className="mt-2 h-16 bg-white bg-opacity-20 rounded flex items-center justify-center">
+                              <svg width="60" height="50" viewBox="0 0 60 50">
+                                <circle cx="30" cy="25" r="3" fill="#fff" />
+                                <circle cx="20" cy="20" r="2" fill="#93c5fd" />
+                                <circle cx="40" cy="30" r="2" fill="#93c5fd" />
+                                <circle cx="25" cy="32" r="2" fill="#93c5fd" />
+                                <line x1="30" y1="25" x2="20" y2="20" stroke="#fff" strokeWidth="1" strokeDasharray="2,2" />
+                                <line x1="30" y1="25" x2="40" y2="30" stroke="#fff" strokeWidth="1" strokeDasharray="2,2" />
+                              </svg>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white bg-opacity-10 rounded-lg p-3">
+                            <p className="text-white text-sm font-bold mb-2">🎯 Silhouette Score</p>
+                            <div className="space-y-1 text-xs text-blue-100">
+                              <p>• Cluster separation quality</p>
+                              <p>• 1.0 = Perfect clustering</p>
+                              <p>• 0 = Overlapping clusters</p>
+                            </div>
+                            <div className="mt-2 h-16 bg-white bg-opacity-20 rounded flex items-center justify-center">
+                              <div className="flex gap-3">
+                                <div className="flex flex-col items-center">
+                                  <div className="w-8 h-8 rounded-full bg-blue-400 flex items-center justify-center text-white text-xs">A</div>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                  <div className="w-8 h-8 rounded-full bg-green-400 flex items-center justify-center text-white text-xs">B</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white bg-opacity-10 rounded-lg p-3">
+                            <p className="text-white text-sm font-bold mb-2">📐 Davies-Bouldin</p>
+                            <div className="space-y-1 text-xs text-blue-100">
+                              <p>• Avg similarity ratio</p>
+                              <p>• Cluster size vs distance</p>
+                              <p>• 0 = Perfect separation</p>
+                            </div>
+                            <div className="mt-2 h-16 bg-white bg-opacity-20 rounded flex items-center justify-center">
+                              <svg width="70" height="50" viewBox="0 0 70 50">
+                                <circle cx="20" cy="25" r="8" fill="#3B82F6" opacity="0.4" />
+                                <circle cx="50" cy="25" r="8" fill="#EF4444" opacity="0.4" />
+                                <line x1="20" y1="25" x2="50" y2="25" stroke="#fff" strokeWidth="2" />
+                                <text x="35" y="22" textAnchor="middle" fontSize="8" fill="#fff">d</text>
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {hasRun && (activeAlgo === 'anomaly' || activeAlgo === 'isolation') && (
+                      <div className="bg-gradient-to-br from-red-600 to-red-700 rounded-xl p-4">
+                        <h3 className="text-white font-bold mb-2">🎯 Anomaly Detection Results</h3>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                            <p className="text-red-100 text-xs">Normal Points</p>
+                            <p className="text-white text-2xl font-bold">
+                              {afterPoints.filter(p => !p.isOutlier).length}
+                            </p>
+                          </div>
+                          <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                            <p className="text-red-100 text-xs">Anomalies Detected</p>
+                            <p className="text-white text-2xl font-bold">
+                              {afterPoints.filter(p => p.isOutlier).length}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="bg-gray-800 rounded-xl p-4">
+                      <h3 className="text-white font-bold mb-2">📚 Understanding the Results</h3>
+                      <div className="text-gray-300 text-sm space-y-2">
+                        {(activeAlgo === 'kmeans' || activeAlgo === 'hierarchical' || activeAlgo === 'dbscan') && (
+                          <>
+                            <p><strong className="text-blue-400">BEFORE:</strong> Raw, unlabeled data points shown in gray.</p>
+                            <p><strong className="text-green-400">AFTER:</strong> Data points colored by their assigned cluster/group.</p>
+                            <p><strong className="text-purple-400">Centroids (C1, C2...):</strong> The center point of each cluster.</p>
+                            <p><strong className="text-yellow-400">Dashed Circles:</strong> Cluster boundaries showing extent of each group.</p>
+                          </>
+                        )}
+                        {activeAlgo === 'pca' && (
+                          <>
+                            <p><strong className="text-blue-400">HIGH-DIM DATA:</strong> Original 5-dimensional data (shown as 2D projection).</p>
+                            <p><strong className="text-green-400">1D REDUCTION:</strong> All points projected onto single axis (PC1).</p>
+                            <p><strong className="text-purple-400">Principal Component:</strong> Direction of maximum variance in the data.</p>
+                            <p><strong className="text-yellow-400">Use Cases:</strong> Data compression, noise reduction, visualization prep.</p>
+                          </>
+                        )}
+                        {activeAlgo === 'tsne' && (
+                          <>
+                            <p><strong className="text-blue-400">HIGH-DIM DATA:</strong> Original 5-dimensional data (shown as 2D).</p>
+                            <p><strong className="text-green-400">2D EMBEDDING:</strong> Non-linear projection preserving local neighborhoods.</p>
+                            <p><strong className="text-purple-400">Perplexity:</strong> Controls balance between local and global structure.</p>
+                            <p><strong className="text-yellow-400">Best For:</strong> Visualization, finding clusters, exploring data structure.</p>
+                          </>
+                        )}
+                        {activeAlgo === 'umap' && (
+                          <>
+                            <p><strong className="text-blue-400">HIGH-DIM DATA:</strong> Original 5-dimensional space (shown as 2D).</p>
+                            <p><strong className="text-green-400">2D MANIFOLD:</strong> Preserves both local and global data structure.</p>
+                            <p><strong className="text-purple-400">N Neighbors:</strong> Size of local neighborhood considered for each point.</p>
+                            <p><strong className="text-yellow-400">Advantages:</strong> Faster than t-SNE, better preserves global structure.</p>
+                          </>
+                        )}
+                        {(activeAlgo === 'anomaly' || activeAlgo === 'isolation') && (
+                          <>
+                            <p><strong className="text-red-400">Red Points:</strong> Detected anomalies/outliers based on isolation or distance.</p>
+                            <p><strong className="text-blue-400">Gray/Blue Points:</strong> Normal data points within expected patterns.</p>
+                            <p><strong className="text-purple-400">Detection Method:</strong> {activeAlgo === 'isolation' ? 'Tree-based path length analysis' : 'Distance-based outlier detection'}.</p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        ReactDOM.render(<UnsupervisedMLDemo />, document.getElementById('root'));
+    </script>
+</body>
+</html>
