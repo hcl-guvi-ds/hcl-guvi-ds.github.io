@@ -102,15 +102,7 @@ async function loadLeaderboard() {
     const workbook = XLSX.read(arrayBuffer, { type: 'array' });
 
     // Find Summary Sheet
-    const summarySheetName = workbook.SheetNames.find(name =>
-      name.toLowerCase().includes("summary")
-    );
-
-    if (!summarySheetName) {
-      throw new Error("Summary sheet not found");
-    }
-
-    const sheet = workbook.Sheets[summarySheetName];
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const json = XLSX.utils.sheet_to_json(sheet);
 
     let leaderboard = json
