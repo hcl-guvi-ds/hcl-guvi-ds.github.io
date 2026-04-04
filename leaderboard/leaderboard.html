@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Batch Leaderboard</title>
+
+  <!-- XLSX Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
@@ -20,35 +22,63 @@
     table {
       margin: auto;
       border-collapse: collapse;
-      width: 60%;
+      width: 70%;
       background: white;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      overflow: hidden;
     }
 
     th, td {
-      padding: 12px;
+      padding: 14px;
       border-bottom: 1px solid #ddd;
     }
 
     th {
-      background: #333;
+      background: #222;
       color: white;
+      font-size: 16px;
     }
 
     tr:hover {
       background: #f1f1f1;
     }
 
-    .gold { background: gold; font-weight: bold; }
-    .silver { background: silver; font-weight: bold; }
-    .bronze { background: #cd7f32; color: white; font-weight: bold; }
+    .gold {
+      background: gold;
+      font-weight: bold;
+    }
+
+    .silver {
+      background: silver;
+      font-weight: bold;
+    }
+
+    .bronze {
+      background: #cd7f32;
+      color: white;
+      font-weight: bold;
+    }
+
+    .loading {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+
+    .error {
+      color: red;
+      margin-top: 20px;
+    }
   </style>
 </head>
+
 <body>
 
 <h1>🏆 Batch Leaderboard</h1>
 
-<table id="leaderboard">
+<div id="status" class="loading">Loading leaderboard...</div>
+
+<table id="leaderboard" style="display:none;">
   <thead>
     <tr>
       <th>Rank</th>
@@ -63,30 +93,54 @@
 async function loadLeaderboard() {
   try {
     const response = await fetch('pseudo_leaderboard.xlsx');
-    const arrayBuffer = await response.arrayBuffer();
 
+    if (!response.ok) {
+      throw new Error("Excel file not found");
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
     const workbook = XLSX.read(arrayBuffer, { type: 'array' });
 
-    let leaderboard = [];
+    // Find Summary Sheet
+    const summarySheetName = workbook.SheetNames.find(name =>
+      name.toLowerCase().includes("summary")
+    );
 
-    workbook.SheetNames.forEach(sheetName => {
-      const sheet = workbook.Sheets[sheetName];
-      const json = XLSX.utils.sheet_to_json(sheet);
+    if (!summarySheetName) {
+      throw new Error("Summary sheet not found");
+    }
 
-      if (json.length > 0 && json[0]["Total Score"] !== undefined) {
-        leaderboard.push({
-          batch: sheetName,
-          score: json[0]["Total Score"]
-        });
+    const sheet = workbook.Sheets[summarySheetName];
+    const json = XLSX.utils.sheet_to_json(sheet);
+
+    let leaderboard = json
+      .map(row => ({
+        batch: String(row["Batch Name"] || "").trim(),
+        score: Number(row["Total Score"])
+      }))
+      .filter(item => item.batch && !isNaN(item.score));
+
+    if (leaderboard.length === 0) {
+      throw new Error("No valid data found in summary sheet");
+    }
+
+    // Sort descending
+    leaderboard.sort((a, b) => {
+      if (b.score === a.score) {
+        return a.batch.localeCompare(b.batch);
       }
+      return b.score - a.score;
     });
-
-    leaderboard.sort((a, b) => b.score - a.score);
 
     renderTable(leaderboard);
 
+    document.getElementById("status").style.display = "none";
+    document.getElementById("leaderboard").style.display = "table";
+
   } catch (error) {
-    console.error("Error loading Excel:", error);
+    console.error(error);
+    document.getElementById("status").innerHTML =
+      "<span class='error'>❌ Failed to load leaderboard</span>";
   }
 }
 
@@ -97,12 +151,13 @@ function renderTable(data) {
   data.forEach((item, index) => {
     const row = document.createElement("tr");
 
+    // Highlight Top 3
     if (index === 0) row.classList.add("gold");
     else if (index === 1) row.classList.add("silver");
     else if (index === 2) row.classList.add("bronze");
 
     row.innerHTML = `
-      <td>${getMedal(index)}</td>
+      <td>${getRank(index)}</td>
       <td>${item.batch}</td>
       <td>${item.score}</td>
     `;
@@ -111,14 +166,14 @@ function renderTable(data) {
   });
 }
 
-function getMedal(index) {
+function getRank(index) {
   if (index === 0) return "🥇 1";
   if (index === 1) return "🥈 2";
   if (index === 2) return "🥉 3";
   return index + 1;
 }
 
-// Auto-run on page load
+// Auto-load on page open
 loadLeaderboard();
 </script>
 
