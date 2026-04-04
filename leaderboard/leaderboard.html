@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Batch Leaderboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    input {
+      margin-bottom: 20px;
+    }
+
+    table {
+      margin: auto;
+      border-collapse: collapse;
+      width: 60%;
+      background: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background: #333;
+      color: white;
+    }
+
+    tr:hover {
+      background: #f1f1f1;
+    }
+
+    .gold {
+      background: gold;
+      font-weight: bold;
+    }
+
+    .silver {
+      background: silver;
+      font-weight: bold;
+    }
+
+    .bronze {
+      background: #cd7f32;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🏆 Batch Leaderboard</h1>
+
+<input type="file" id="upload" />
+
+<table id="leaderboard">
+  <thead>
+    <tr>
+      <th>Rank</th>
+      <th>Batch Name</th>
+      <th>Total Score</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+document.getElementById('upload').addEventListener('change', handleFile, false);
+
+function handleFile(e) {
+  const file = e.target.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(event) {
+    const data = new Uint8Array(event.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+
+    let leaderboard = [];
+
+    workbook.SheetNames.forEach(sheetName => {
+      const sheet = workbook.Sheets[sheetName];
+      const json = XLSX.utils.sheet_to_json(sheet);
+
+      if (json.length > 0 && json[0]["Total Score"] !== undefined) {
+        // Assuming total score is same across rows or taking first row
+        const score = json[0]["Total Score"];
+
+        leaderboard.push({
+          batch: sheetName,
+          score: score
+        });
+      }
+    });
+
+    // Sort descending
+    leaderboard.sort((a, b) => b.score - a.score);
+
+    renderTable(leaderboard);
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+function renderTable(data) {
+  const tbody = document.querySelector("#leaderboard tbody");
+  tbody.innerHTML = "";
+
+  data.forEach((item, index) => {
+    const row = document.createElement("tr");
+
+    // Highlight top 3
+    if (index === 0) row.classList.add("gold");
+    else if (index === 1) row.classList.add("silver");
+    else if (index === 2) row.classList.add("bronze");
+
+    row.innerHTML = `
+      <td>${getMedal(index)}</td>
+      <td>${item.batch}</td>
+      <td>${item.score}</td>
+    `;
+
+    tbody.appendChild(row);
+  });
+}
+
+function getMedal(index) {
+  if (index === 0) return "🥇 1";
+  if (index === 1) return "🥈 2";
+  if (index === 2) return "🥉 3";
+  return index + 1;
+}
+</script>
+
+</body>
+</html>
