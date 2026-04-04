@@ -17,10 +17,6 @@
       margin-bottom: 20px;
     }
 
-    input {
-      margin-bottom: 20px;
-    }
-
     table {
       margin: auto;
       border-collapse: collapse;
@@ -43,28 +39,14 @@
       background: #f1f1f1;
     }
 
-    .gold {
-      background: gold;
-      font-weight: bold;
-    }
-
-    .silver {
-      background: silver;
-      font-weight: bold;
-    }
-
-    .bronze {
-      background: #cd7f32;
-      color: white;
-      font-weight: bold;
-    }
+    .gold { background: gold; font-weight: bold; }
+    .silver { background: silver; font-weight: bold; }
+    .bronze { background: #cd7f32; color: white; font-weight: bold; }
   </style>
 </head>
 <body>
 
 <h1>🏆 Batch Leaderboard</h1>
-
-<input type="file" id="upload" />
 
 <table id="leaderboard">
   <thead>
@@ -78,15 +60,12 @@
 </table>
 
 <script>
-document.getElementById('upload').addEventListener('change', handleFile, false);
+async function loadLeaderboard() {
+  try {
+    const response = await fetch('pseudo_leaderboard.xlsx');
+    const arrayBuffer = await response.arrayBuffer();
 
-function handleFile(e) {
-  const file = e.target.files[0];
-  const reader = new FileReader();
-
-  reader.onload = function(event) {
-    const data = new Uint8Array(event.target.result);
-    const workbook = XLSX.read(data, { type: 'array' });
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
 
     let leaderboard = [];
 
@@ -95,23 +74,20 @@ function handleFile(e) {
       const json = XLSX.utils.sheet_to_json(sheet);
 
       if (json.length > 0 && json[0]["Total Score"] !== undefined) {
-        // Assuming total score is same across rows or taking first row
-        const score = json[0]["Total Score"];
-
         leaderboard.push({
           batch: sheetName,
-          score: score
+          score: json[0]["Total Score"]
         });
       }
     });
 
-    // Sort descending
     leaderboard.sort((a, b) => b.score - a.score);
 
     renderTable(leaderboard);
-  };
 
-  reader.readAsArrayBuffer(file);
+  } catch (error) {
+    console.error("Error loading Excel:", error);
+  }
 }
 
 function renderTable(data) {
@@ -121,7 +97,6 @@ function renderTable(data) {
   data.forEach((item, index) => {
     const row = document.createElement("tr");
 
-    // Highlight top 3
     if (index === 0) row.classList.add("gold");
     else if (index === 1) row.classList.add("silver");
     else if (index === 2) row.classList.add("bronze");
@@ -142,6 +117,9 @@ function getMedal(index) {
   if (index === 2) return "🥉 3";
   return index + 1;
 }
+
+// Auto-run on page load
+loadLeaderboard();
 </script>
 
 </body>
