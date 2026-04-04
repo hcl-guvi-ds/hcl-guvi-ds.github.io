@@ -62,7 +62,7 @@
 <script>
 async function loadLeaderboard() {
   try {
-    const response = await fetch('pseudo_leaderboard.xlsx');
+    const response = await fetch('leaderboard/pseudo_leaderboard.xlsx');
     const arrayBuffer = await response.arrayBuffer();
 
     const workbook = XLSX.read(arrayBuffer, { type: 'array' });
