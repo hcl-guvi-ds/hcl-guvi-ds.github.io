@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Python Module 4 — Conditionals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Fira+Code:wght@400;500&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:       #f5f9f6;
+  --surface:  #ffffff;
+  --s2:       #f0f7f2;
+  --s3:       #e4f2ea;
+  --border:   #c8e4d4;
+  --border2:  #c0d8f0;
+  --green:    #1a8a5a;
+  --green-lt: #e6f7ef;
+  --green-dk: #0f5c3a;
+  --blue:     #1a6eb5;
+  --blue-lt:  #e6f0fb;
+  --blue-dk:  #0d4a7a;
+  --teal:     #0e9e8a;
+  --orange:   #e07c2a;
+  --red:      #dc3545;
+  --yellow:   #f5c842;
+  --text:     #1a2e22;
+  --text2:    #3a5545;
+  --text3:    #7a9e8a;
+  --code-bg:  #1a2d1f;
+  --shadow:   0 2px 16px rgba(26,138,90,0.10);
+  --shadow2:  0 6px 28px rgba(26,138,90,0.16);
+  --r:        14px;
+  --fh: 'Cabinet Grotesk', sans-serif;
+  --fn: 'Nunito', sans-serif;
+  --fc: 'Fira Code', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:var(--fn);font-size:15px;line-height:1.65;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* ════ SHELL ════ */
+#app{width:100vw;height:100vh;display:grid;grid-template-rows:62px 1fr 66px;grid-template-columns:230px 1fr;grid-template-areas:"tb tb" "sb main" "bb bb";}
+
+/* ── Top Bar ── */
+#tb{grid-area:tb;background:var(--surface);border-bottom:2px solid var(--border);display:flex;align-items:center;padding:0 22px;gap:14px;z-index:20;box-shadow:var(--shadow);}
+.logo-wrap{display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0;}
+.logo-box{width:38px;height:38px;border-radius:10px;border:2px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--green-lt);flex-shrink:0;}
+.logo-box img{width:100%;height:100%;object-fit:cover;}
+.logo-box .lf{font-size:1.3rem;display:flex;align-items:center;justify-content:center;width:100%;height:100%;}
+.logo-txt .ln{font-family:var(--fh);font-weight:900;font-size:.98rem;color:var(--green);letter-spacing:-.02em;line-height:1.1;}
+.logo-txt .ls{font-family:var(--fc);font-size:.58rem;color:var(--text3);line-height:1;}
+.tb-div{width:1px;height:30px;background:var(--border);}
+.tb-pill{background:var(--green-lt);border:1px solid var(--border);border-radius:50px;padding:5px 14px;font-family:var(--fc);font-size:.68rem;color:var(--green);white-space:nowrap;}
+.tb-sep{flex:1;}
+.cb{display:flex;align-items:center;gap:9px;background:var(--blue-lt);border:1px solid var(--border2);border-radius:10px;padding:6px 13px;white-space:nowrap;}
+.cb-av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:900;color:white;font-family:var(--fh);flex-shrink:0;}
+.cb-n{font-family:var(--fh);font-size:.76rem;font-weight:700;color:var(--blue);line-height:1.2;}
+.cb-r{font-family:var(--fc);font-size:.59rem;color:var(--text3);}
+.tp-w{width:112px;flex-shrink:0;}
+.tp-l{font-family:var(--fc);font-size:.66rem;color:var(--text3);margin-bottom:3px;display:flex;justify-content:space-between;}
+.tp-b{height:5px;background:var(--s3);border-radius:3px;overflow:hidden;border:1px solid var(--border);}
+.tp-f{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:3px;transition:width .6s ease;}
+
+/* ── Sidebar ── */
+#sb{grid-area:sb;background:var(--surface);border-right:2px solid var(--border);padding:18px 0 12px;overflow-y:auto;display:flex;flex-direction:column;box-shadow:2px 0 10px rgba(26,138,90,0.06);}
+.slbl{font-family:var(--fc);font-size:.62rem;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;padding:0 18px;margin-bottom:5px;margin-top:16px;}
+.slbl:first-child{margin-top:0;}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 18px;cursor:pointer;font-family:var(--fn);font-size:.82rem;font-weight:600;color:var(--text2);border-left:3px solid transparent;transition:all .15s;}
+.ni:hover{background:var(--green-lt);color:var(--green);}
+.ni.active{background:var(--green-lt);border-left-color:var(--green);color:var(--green);font-weight:700;}
+.ni.completed .nc{opacity:1;}
+.nc{margin-left:auto;opacity:0;color:var(--green);font-size:.82rem;}
+.ni-icon{font-size:.95rem;min-width:18px;text-align:center;}
+.sc{padding:14px 12px 8px;border-top:1px solid var(--border);margin-top:auto;}
+.sc-in{background:linear-gradient(135deg,var(--green-lt),var(--blue-lt));border:1px solid var(--border);border-radius:12px;padding:13px;}
+.sc-lbl{font-family:var(--fc);font-size:.58rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px;}
+.sc-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:.95rem;font-weight:900;color:white;margin-bottom:7px;}
+.sc-n{font-family:var(--fh);font-size:.88rem;font-weight:800;color:var(--green);}
+.sc-t{font-family:var(--fc);font-size:.68rem;color:var(--text2);}
+.sc-o{display:inline-flex;align-items:center;gap:3px;font-family:var(--fc);font-size:.63rem;color:var(--blue);background:var(--blue-lt);border:1px solid var(--border2);padding:2px 9px;border-radius:50px;margin-top:5px;}
+
+/* ── Main ── */
+#main{grid-area:main;overflow:hidden;position:relative;}
+.page{position:absolute;inset:0;overflow-y:auto;padding:36px 46px;opacity:0;transform:translateX(40px);transition:opacity .35s ease,transform .35s ease;pointer-events:none;}
+.page.active{opacity:1;transform:translateX(0);pointer-events:all;}
+.page.exit-left{opacity:0;transform:translateX(-40px);}
+
+/* ── Bottom Bar ── */
+#bb{grid-area:bb;background:var(--surface);border-top:2px solid var(--border);display:flex;align-items:center;padding:0 26px;gap:14px;box-shadow:0 -2px 10px rgba(26,138,90,0.06);}
+.bbb{display:flex;align-items:center;gap:7px;padding:10px 22px;border-radius:10px;font-family:var(--fh);font-size:.84rem;font-weight:700;cursor:pointer;transition:all .15s;border:none;}
+.bbb.prev{background:var(--s2);border:2px solid var(--border);color:var(--text2);}
+.bbb.prev:hover{border-color:var(--green);color:var(--green);}
+.bbb.next{background:linear-gradient(135deg,var(--green),var(--blue));color:white;margin-left:auto;box-shadow:0 3px 12px rgba(26,138,90,0.28);}
+.bbb.next:hover{opacity:.9;transform:translateY(-1px);}
+.bbb:disabled{opacity:.3;cursor:not-allowed;transform:none!important;box-shadow:none!important;}
+.bb-ind{font-family:var(--fc);font-size:.73rem;color:var(--text3);flex:1;text-align:center;}
+.bd{display:flex;gap:6px;align-items:center;}
+.bdot{width:7px;height:7px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .2s;}
+.bdot.active{background:var(--green);width:20px;border-radius:4px;}
+.bdot.done{background:var(--blue);}
+
+/* ════ TYPOGRAPHY ════ */
+h1{font-family:var(--fh);font-size:clamp(1.9rem,3vw,2.7rem);font-weight:900;line-height:1.1;letter-spacing:-.03em;color:var(--text);}
+h2{font-family:var(--fh);font-size:clamp(1.3rem,2.5vw,1.85rem);font-weight:800;line-height:1.2;letter-spacing:-.02em;color:var(--text);}
+h3{font-family:var(--fh);font-size:1.05rem;font-weight:700;color:var(--text);}
+p{margin-bottom:.9em;color:var(--text2);}
+strong{color:var(--text);font-weight:700;}
+code{font-family:var(--fc);font-size:.83em;background:var(--green-lt);border:1px solid var(--border);padding:2px 6px;border-radius:5px;color:var(--green-dk);}
+.ptag{display:inline-flex;align-items:center;gap:7px;font-family:var(--fc);font-size:.68rem;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:9px;font-weight:500;}
+.ptag::before{content:'';display:inline-block;width:18px;height:2px;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:1px;}
+.ph{margin-bottom:28px;}
+.ph p{font-size:1rem;max-width:600px;}
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);}
+.cg{background:var(--green-lt);border-color:var(--border);}
+.cb2{background:var(--blue-lt);border-color:var(--border2);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.tip{background:var(--green-lt);border:1.5px solid var(--border);border-left:4px solid var(--green);border-radius:10px;padding:13px 17px;font-size:.88rem;color:var(--green-dk);margin:14px 0;}
+.tip::before{content:'💡 ';}
+.warn{background:#fffbea;border:1.5px solid #f5c842;border-left:4px solid #d4a017;border-radius:10px;padding:13px 17px;font-size:.88rem;color:#7a5500;margin:14px 0;}
+.warn::before{content:'⚠️ ';}
+.info{background:var(--blue-lt);border:1.5px solid var(--border2);border-left:4px solid var(--blue);border-radius:10px;padding:13px 17px;font-size:.88rem;color:var(--blue-dk);margin:14px 0;}
+.info::before{content:'ℹ️ ';}
+
+/* Code block */
+.cb3{background:var(--code-bg);border-radius:var(--r);overflow:hidden;margin:14px 0;box-shadow:0 4px 20px rgba(0,0,0,.18);}
+.cbh{background:#112018;padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.06);}
+.cbd{display:flex;gap:5px;}
+.cbd span{width:10px;height:10px;border-radius:50%;}
+.cbd span:nth-child(1){background:#ff5f57;}.cbd span:nth-child(2){background:#ffbd2e;}.cbd span:nth-child(3){background:#28ca41;}
+.cbl{margin-left:auto;font-family:var(--fc);font-size:.68rem;color:#3a6a3a;background:rgba(26,138,90,.18);padding:2px 8px;border-radius:4px;}
+.cbb{padding:18px 20px;overflow-x:auto;}
+.cbb pre{font-family:var(--fc);font-size:.86rem;line-height:1.9;color:#b8d8c0;white-space:pre;}
+.kw{color:#5bc8f0;}.fn{color:#a8e080;}.st{color:#f5e060;}.cm{color:#3a6040;font-style:italic;}.nm{color:#f0a060;}.bl{color:#ff9060;}
+.rb{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--green),var(--blue));color:white;border:none;border-radius:9px;padding:9px 22px;font-family:var(--fh);font-size:.83rem;font-weight:700;cursor:pointer;transition:all .15s;box-shadow:0 3px 10px rgba(26,138,90,.22);}
+.rb:hover{opacity:.88;transform:translateY(-1px);}
+.ob{background:#f0fff8;border:1.5px solid var(--border);border-radius:9px;padding:14px 17px;font-family:var(--fc);font-size:.83rem;line-height:1.9;color:var(--green-dk);min-height:50px;white-space:pre-wrap;display:none;margin-top:10px;}
+.ob.show{display:block;animation:fadeIn .3s ease;}
+.opr{color:var(--text3);}
+.st2{background:transparent;border:1.5px solid var(--blue);border-radius:8px;color:var(--blue);font-family:var(--fc);font-size:.76rem;padding:7px 15px;cursor:pointer;transition:all .2s;}
+.st2:hover{background:var(--blue-lt);}
+.sb2{display:none;margin-top:13px;}
+.sb2.open{display:block;animation:fadeIn .3s ease;}
+.exc{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow);}
+.exh{padding:13px 18px;background:linear-gradient(135deg,var(--green-lt),var(--blue-lt));border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.exn{font-family:var(--fc);font-size:.68rem;color:var(--text3);}
+.ext{font-family:var(--fh);font-size:.88rem;font-weight:700;color:var(--green-dk);}
+.exb{padding:18px;}
+.exb p{font-size:.88rem;color:var(--text2);margin-bottom:10px;}
+
+/* Quiz */
+.qprog{display:flex;gap:6px;margin-bottom:22px;}
+.qpd{flex:1;height:5px;background:var(--border);border-radius:3px;opacity:.5;transition:all .3s;}
+.qpd.correct{background:var(--green);opacity:1;}.qpd.wrong{background:var(--red);opacity:1;}
+.qcard{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:26px;min-height:290px;box-shadow:var(--shadow);}
+.qbadge{font-family:var(--fc);font-size:.68rem;color:var(--text3);margin-bottom:9px;}
+.qtxt{font-family:var(--fh);font-size:1.08rem;font-weight:700;margin-bottom:20px;line-height:1.4;color:var(--text);}
+.qopts{display:flex;flex-direction:column;gap:9px;}
+.qo{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:11px 16px;text-align:left;font-family:var(--fn);font-size:.93rem;color:var(--text);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:11px;}
+.qo:hover:not(:disabled){border-color:var(--green);background:var(--green-lt);transform:translateX(4px);}
+.qol{width:26px;height:26px;border-radius:7px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-family:var(--fc);font-size:.7rem;color:var(--text3);flex-shrink:0;border:1px solid var(--border);}
+.qo.correct{border-color:var(--green);background:var(--green-lt);color:var(--green-dk);}
+.qo.correct .qol{background:var(--green);color:white;border-color:var(--green);}
+.qo.wrong{border-color:var(--red);background:#fef0f0;color:#8b1a1a;}
+.qo.wrong .qol{background:var(--red);color:white;border-color:var(--red);}
+.qo:disabled{cursor:default;}
+.qfb{margin-top:13px;padding:11px 15px;border-radius:8px;font-family:var(--fc);font-size:.78rem;display:none;}
+.qfb.show{display:block;animation:fadeIn .3s ease;}
+.qfb.correct{background:var(--green-lt);color:var(--green-dk);border:1px solid var(--border);}
+.qfb.wrong{background:#fef0f0;color:#8b1a1a;border:1px solid #f5c0c0;}
+.qnav{display:flex;align-items:center;justify-content:space-between;margin-top:16px;}
+.qnb{background:var(--s2);border:1.5px solid var(--border);border-radius:8px;padding:9px 18px;font-family:var(--fh);font-size:.8rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all .15s;}
+.qnb:hover{border-color:var(--green);color:var(--green);}
+.qnb.pri{background:linear-gradient(135deg,var(--green),var(--blue));color:white;border-color:transparent;box-shadow:0 3px 10px rgba(26,138,90,.22);}
+.qnb:disabled{opacity:.3;cursor:not-allowed;}
+.qres{display:none;text-align:center;padding:36px 16px;}
+.qres.show{display:block;animation:fadeIn .5s ease;}
+.qre{font-size:3.8rem;display:block;margin-bottom:14px;animation:bounceIn .6s ease;}
+.qrs{font-family:var(--fh);font-size:3.4rem;font-weight:900;color:var(--green);line-height:1;margin-bottom:7px;}
+.qrsb{color:var(--text2);font-size:.97rem;margin-bottom:22px;}
+.qrbd{display:flex;gap:22px;justify-content:center;margin-bottom:22px;}
+.qrv{font-family:var(--fh);font-size:1.7rem;font-weight:900;}
+.qrv.c{color:var(--green);}.qrv.w{color:var(--red);}
+.qrl{font-family:var(--fc);font-size:.68rem;color:var(--text3);}
+.rtb{background:var(--s2);border:1.5px solid var(--border);border-radius:10px;padding:10px 26px;font-family:var(--fh);font-size:.88rem;font-weight:700;color:var(--text);cursor:pointer;transition:all .15s;margin-right:9px;}
+.rtb:hover{border-color:var(--green);color:var(--green);}
+
+/* Complete */
+.cw{text-align:center;max-width:520px;margin:0 auto;padding:16px 0;}
+.ci{width:96px;height:96px;background:linear-gradient(135deg,var(--green-lt),var(--blue-lt));border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.8rem;margin:0 auto 22px;animation:float 3s ease-in-out infinite;}
+.sl{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:18px 0 26px;}
+.sbg{background:var(--green-lt);border:1px solid var(--border);border-radius:50px;padding:6px 15px;font-family:var(--fc);font-size:.73rem;color:var(--green-dk);display:flex;align-items:center;gap:5px;animation:bounceIn .5s ease both;}
+.sbg .ck{color:var(--green);font-weight:700;}
+.ctb{background:linear-gradient(135deg,var(--green),var(--blue));color:white;border:none;border-radius:12px;padding:14px 34px;font-family:var(--fh);font-size:.97rem;font-weight:900;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:7px;box-shadow:0 4px 16px rgba(26,138,90,.28);}
+.ctb:hover{opacity:.9;transform:translateY(-2px);}
+.aft{margin-top:26px;padding-top:20px;border-top:1.5px solid var(--border);text-align:center;}
+.afl{font-family:var(--fc);font-size:.61rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:9px;}
+.afi{display:inline-flex;align-items:center;gap:13px;}
+.afa{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:1.1rem;font-weight:900;color:white;box-shadow:0 4px 14px rgba(26,138,90,.25);}
+
+/* ════ ANIMATIONS ════ */
+@keyframes fadeIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes bounceIn{0%{transform:scale(0)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes confetti-pop{0%{transform:translate(0,0)rotate(0);opacity:1}100%{transform:translate(var(--cx),var(--cy))rotate(var(--cr));opacity:0}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(26,138,90,.3)}50%{box-shadow:0 0 0 8px rgba(26,138,90,0)}}
+@keyframes flow{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+@keyframes pathDraw{from{stroke-dashoffset:500}to{stroke-dashoffset:0}}
+@keyframes pop{0%{transform:scale(1)}30%{transform:scale(1.18)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes slideRight{from{width:0}to{width:var(--w)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.stg>*{animation:slideUp .4s ease both;}
+.stg>*:nth-child(1){animation-delay:.05s}.stg>*:nth-child(2){animation-delay:.12s}
+.stg>*:nth-child(3){animation-delay:.19s}.stg>*:nth-child(4){animation-delay:.26s}
+.stg>*:nth-child(5){animation-delay:.33s}.stg>*:nth-child(6){animation-delay:.40s}
+
+/* ════ VISUAL COMPONENTS ════ */
+
+/* Hero */
+.hero-icon{font-size:4.8rem;display:block;margin-bottom:14px;animation:float 3s ease-in-out infinite;line-height:1;}
+.hc{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:28px;}
+.chip{background:var(--surface);border:1.5px solid var(--border);border-radius:50px;padding:5px 14px;font-family:var(--fc);font-size:.72rem;color:var(--text2);display:flex;align-items:center;gap:5px;box-shadow:var(--shadow);}
+.hs{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:28px;}
+.sv .val{font-family:var(--fh);font-size:1.9rem;font-weight:900;color:var(--green);line-height:1;}
+.sv .lbl{font-family:var(--fc);font-size:.68rem;color:var(--text3);}
+.as{display:flex;align-items:center;gap:13px;flex-wrap:wrap;padding-top:22px;border-top:1.5px solid var(--border);}
+.aa-big{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:1.2rem;font-weight:900;color:white;box-shadow:0 4px 14px rgba(26,138,90,.28);flex-shrink:0;}
+.aa-l{font-family:var(--fc);font-size:.61rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;}
+.aa-n{font-family:var(--fh);font-size:1rem;font-weight:800;color:var(--green);}
+.aa-r{font-family:var(--fc);font-size:.71rem;color:var(--text2);}
+.aa-o{display:inline-flex;align-items:center;gap:4px;font-family:var(--fc);font-size:.65rem;color:var(--blue);background:var(--blue-lt);border:1px solid var(--border2);padding:2px 9px;border-radius:50px;margin-top:4px;}
+
+/* ── VISUAL 1: Real-life Decision Path ── */
+.decision-story{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin:18px 0;box-shadow:var(--shadow);}
+.ds-header{background:linear-gradient(135deg,var(--green),var(--blue));padding:14px 20px;color:white;font-family:var(--fh);font-size:.9rem;font-weight:700;}
+.ds-body{padding:20px;display:flex;flex-direction:column;gap:0;}
+.ds-row{display:flex;align-items:stretch;gap:0;}
+.ds-condition{flex:1;background:var(--s2);border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin:5px;}
+.ds-condition .dc-icon{font-size:1.6rem;flex-shrink:0;}
+.ds-condition .dc-text{font-size:.85rem;color:var(--text2);}
+.ds-condition .dc-text strong{color:var(--text);font-family:var(--fh);}
+.ds-arrow{display:flex;align-items:center;justify-content:center;padding:0 8px;font-size:1.2rem;color:var(--text3);animation:pulse 2s infinite;}
+.ds-result{flex:1;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:10px;margin:5px;}
+.ds-result.yes{background:var(--green-lt);border:1.5px solid var(--border);}
+.ds-result.no{background:var(--blue-lt);border:1.5px solid var(--border2);}
+.ds-result .dr-icon{font-size:1.4rem;flex-shrink:0;}
+.ds-result .dr-text{font-size:.84rem;color:var(--green-dk);}
+.ds-result.no .dr-text{color:var(--blue-dk);}
+
+/* ── VISUAL 2: Animated Flowchart ── */
+.flowchart-visual{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:28px;margin:16px 0;box-shadow:var(--shadow);position:relative;}
+.fc-svg-wrap{display:flex;justify-content:center;}
+.fc-svg-wrap svg{overflow:visible;}
+.fc-node-rect{cursor:pointer;transition:all .2s;}
+.fc-node-rect:hover{filter:brightness(1.08);}
+.fc-label{font-family:var(--fh);font-size:13px;font-weight:700;pointer-events:none;}
+.fc-sublabel{font-family:var(--fc);font-size:10px;pointer-events:none;fill:#666;}
+.fc-path{stroke-width:2.5;fill:none;stroke-dasharray:500;animation:pathDraw 1.2s ease both;}
+.fc-path-yes{stroke:var(--green);}
+.fc-path-no{stroke:var(--red);}
+.fc-badge{font-family:var(--fh);font-size:11px;font-weight:800;}
+
+/* ── VISUAL 3: Indentation Ruler ── */
+.indent-ruler{background:var(--code-bg);border-radius:var(--r);overflow:hidden;margin:16px 0;box-shadow:0 4px 20px rgba(0,0,0,.18);}
+.ir-header{background:#112018;padding:8px 16px;font-family:var(--fc);font-size:.7rem;color:#3a6040;display:flex;align-items:center;gap:8px;}
+.ir-line{display:flex;align-items:center;padding:0 0;cursor:pointer;transition:background .2s;border-bottom:1px solid rgba(255,255,255,.03);}
+.ir-line:hover{background:rgba(255,255,255,.04);}
+.ir-ln{font-family:var(--fc);font-size:.72rem;color:#2a4a2a;min-width:32px;text-align:right;padding:8px 10px;user-select:none;}
+.ir-indent{display:flex;align-items:stretch;}
+.ir-block{width:20px;height:32px;border-right:2px solid;display:flex;align-items:center;justify-content:center;}
+.ir-block.g{border-color:rgba(26,138,90,.5);}
+.ir-block.b{border-color:rgba(26,110,181,.5);}
+.ir-block.o{border-color:rgba(224,124,42,.5);}
+.ir-code{padding:8px 6px 8px 4px;font-family:var(--fc);font-size:.83rem;line-height:1;}
+.ir-tooltip{background:var(--yellow);color:#1a1a00;font-family:var(--fn);font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:50px;margin-left:auto;margin-right:12px;opacity:0;transition:opacity .2s;white-space:nowrap;}
+.ir-line:hover .ir-tooltip{opacity:1;}
+
+/* ── VISUAL 4: if/elif/else Pathway Selector ── */
+.pathway-selector{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin:16px 0;box-shadow:var(--shadow);}
+.ps-header{background:linear-gradient(135deg,#1a3a2a,#1a2a4a);padding:14px 20px;color:white;font-family:var(--fh);font-size:.9rem;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+.ps-score-wrap{display:flex;align-items:center;gap:10px;}
+.ps-score-lbl{font-family:var(--fc);font-size:.68rem;color:rgba(255,255,255,.6);}
+.ps-score-input{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 12px;font-family:var(--fc);font-size:.88rem;color:white;width:80px;outline:none;text-align:center;}
+.ps-body{padding:20px;}
+.ps-chain{display:flex;flex-direction:column;gap:0;}
+.ps-block{border-radius:10px;margin-bottom:6px;overflow:hidden;border:1.5px solid var(--border);transition:all .3s;}
+.ps-block-header{padding:10px 16px;display:flex;align-items:center;gap:10px;font-family:var(--fc);font-size:.82rem;cursor:default;}
+.ps-block-header .ps-kw{font-weight:700;font-size:.88rem;}
+.ps-block-header .ps-cond{color:var(--text2);}
+.ps-block-body{padding:8px 16px 12px;font-family:var(--fc);font-size:.8rem;border-top:1px solid var(--border);display:none;}
+.ps-block.active{border-color:var(--green);box-shadow:0 0 0 3px rgba(26,138,90,.15);}
+.ps-block.active .ps-block-header{background:var(--green-lt);}
+.ps-block.active .ps-kw{color:var(--green);}
+.ps-block.active .ps-block-body{display:block;background:var(--green-lt);color:var(--green-dk);}
+.ps-block.skipped{opacity:.5;}
+.ps-block.skipped .ps-block-header{background:var(--s2);}
+.ps-block:not(.active):not(.skipped) .ps-block-header{background:var(--s2);}
+.ps-result{margin-top:14px;padding:14px 18px;border-radius:10px;font-family:var(--fn);font-size:.9rem;font-weight:700;text-align:center;transition:all .3s;}
+.ps-result.show-green{background:var(--green-lt);border:1.5px solid var(--border);color:var(--green-dk);}
+.ps-result.show-blue{background:var(--blue-lt);border:1.5px solid var(--border2);color:var(--blue-dk);}
+.ps-result.show-warn{background:#fffbea;border:1.5px solid var(--yellow);color:#7a5500;}
+.ps-result.show-red{background:#fef0f0;border:1.5px solid #f5c0c0;color:#8b1a1a;}
+
+/* ── VISUAL 5: Boolean Inspector ── */
+.bool-inspector{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin:18px 0;box-shadow:var(--shadow);}
+.bi-header{padding:14px 20px;background:var(--s2);border-bottom:1.5px solid var(--border);font-family:var(--fh);font-size:.88rem;font-weight:700;}
+.bi-body{padding:18px;}
+.bi-expr-input{width:100%;background:var(--s2);border:1.5px solid var(--border);border-radius:9px;padding:10px 14px;font-family:var(--fc);font-size:.9rem;color:var(--text);outline:none;transition:border-color .2s;margin-bottom:12px;}
+.bi-expr-input:focus{border-color:var(--green);}
+.bi-presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.bi-preset{background:var(--s2);border:1.5px solid var(--border);border-radius:50px;padding:5px 14px;font-family:var(--fc);font-size:.73rem;cursor:pointer;color:var(--text2);transition:all .15s;}
+.bi-preset:hover{border-color:var(--green);background:var(--green-lt);color:var(--green-dk);}
+.bi-result{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:10px;transition:all .3s;min-height:60px;}
+.bi-result.true-res{background:var(--green-lt);border:1.5px solid var(--border);}
+.bi-result.false-res{background:#fef0f0;border:1.5px solid #f5c0c0;}
+.bi-result.neutral{background:var(--s2);border:1.5px solid var(--border);}
+.bi-badge{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:1rem;font-weight:900;flex-shrink:0;}
+.bi-badge.t{background:var(--green);color:white;}
+.bi-badge.f{background:var(--red);color:white;}
+.bi-badge.n{background:var(--border);color:var(--text3);}
+.bi-detail{font-family:var(--fc);font-size:.82rem;color:var(--text2);}
+.bi-detail .bd-val{font-size:1.1rem;font-weight:700;margin-bottom:2px;}
+.bi-detail .bd-val.t{color:var(--green);}
+.bi-detail .bd-val.f{color:var(--red);}
+
+/* ── VISUAL 6: Nested Boxes ── */
+.nested-viz{background:var(--code-bg);border-radius:var(--r);padding:22px;margin:16px 0;box-shadow:0 4px 20px rgba(0,0,0,.18);}
+.nv-box{border-radius:10px;padding:14px 16px;margin:8px 0;border:2px solid;}
+.nv-box.outer{border-color:rgba(26,138,90,.6);background:rgba(26,138,90,.08);}
+.nv-box.middle{border-color:rgba(26,110,181,.6);background:rgba(26,110,181,.1);}
+.nv-box.inner{border-color:rgba(224,124,42,.5);background:rgba(224,124,42,.08);}
+.nv-label{font-family:var(--fc);font-size:.72rem;margin-bottom:8px;}
+.nv-label.g{color:#5ae0a0;}.nv-label.b{color:#70b8ff;}.nv-label.o{color:#f0b070;}
+.nv-code{font-family:var(--fc);font-size:.82rem;color:#b8d8c0;line-height:1.8;}
+.nv-code .kw2{color:#5bc8f0;}.nv-code .val{color:#f0a060;}.nv-code .str2{color:#f5e060;}
+
+/* ── VISUAL 7: Ternary Builder ── */
+.ternary-builder{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin:16px 0;box-shadow:var(--shadow);}
+.tb-hdr{padding:14px 20px;background:linear-gradient(135deg,var(--s2),var(--blue-lt));border-bottom:1.5px solid var(--border);font-family:var(--fh);font-size:.88rem;font-weight:700;}
+.tb-body{padding:20px;}
+.tb-parts{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.tb-part-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.tb-part-lbl{font-family:var(--fc);font-size:.63rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;}
+.tb-part-input{background:var(--s2);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--fc);font-size:.83rem;color:var(--text);outline:none;transition:border-color .2s;text-align:center;}
+.tb-part-input:focus{border-color:var(--green);}
+.tb-part-input.wide{width:140px;}
+.tb-part-input.med{width:100px;}
+.tb-part-kw{font-family:var(--fh);font-size:.9rem;font-weight:800;padding:8px 0;margin-top:18px;}
+.tb-part-kw.if-kw{color:var(--green);}
+.tb-part-kw.else-kw{color:var(--blue);}
+.tb-preview{background:var(--code-bg);border-radius:9px;padding:14px 18px;font-family:var(--fc);font-size:.88rem;color:#b8d8c0;margin-bottom:14px;}
+.tb-preview span.highlight{color:#f5e060;}
+.tb-output{padding:12px 16px;border-radius:9px;font-family:var(--fn);font-size:.9rem;font-weight:700;transition:all .3s;min-height:46px;display:flex;align-items:center;}
+.tb-output.g{background:var(--green-lt);border:1.5px solid var(--border);color:var(--green-dk);}
+.tb-output.b{background:var(--blue-lt);border:1.5px solid var(--border2);color:var(--blue-dk);}
+.tb-output.n{background:var(--s2);border:1.5px solid var(--border);color:var(--text3);}
+
+/* ── VISUAL 8: Scenario Cards (click to reveal) ── */
+.scenario-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin:18px 0;}
+.sc-card{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .2s;box-shadow:var(--shadow);}
+.sc-card:hover{transform:translateY(-3px);box-shadow:var(--shadow2);}
+.sc-card-front{padding:18px;text-align:center;}
+.sc-card-front .sc-emoji{font-size:2.2rem;display:block;margin-bottom:8px;}
+.sc-card-front h4{font-family:var(--fh);font-size:.88rem;margin-bottom:5px;}
+.sc-card-front p{font-size:.78rem;color:var(--text3);margin:0;}
+.sc-card-back{padding:14px;background:var(--green-lt);border-top:1.5px solid var(--border);display:none;font-family:var(--fc);font-size:.76rem;line-height:1.7;color:var(--green-dk);}
+.sc-card.revealed .sc-card-back{display:block;animation:fadeIn .3s ease;}
+.sc-card.revealed{border-color:var(--green);}
+.sc-card.revealed .sc-card-front{background:var(--s2);}
+.sc-reveal-hint{text-align:center;font-family:var(--fc);font-size:.68rem;color:var(--text3);margin-top:-6px;margin-bottom:14px;}
+
+/* Mobile */
+@media(max-width:640px){
+  #app{grid-template-columns:1fr;grid-template-areas:"tb" "main" "bb";}
+  #sb{display:none;}
+  .page{padding:22px 18px;}
+  .g2,.g3{grid-template-columns:1fr;}
+  .cb,.tb-pill{display:none;}
+  .ds-row{flex-direction:column;}
+  .tb-parts{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══ TOP BAR ══ -->
+<div id="tb">
+  <a class="logo-wrap" href="#" title="PyLearn">
+    <div class="logo-box">
+      <!-- Replace YOUR_LOGO_URL_HERE with your logo image link -->
+      <img src="YOUR_LOGO_URL_HERE" alt="Logo"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+           style="display:block;"/>
+      <div class="lf" style="display:none;">🐍</div>
+    </div>
+    <div class="logo-txt">
+      <div class="ln">PyLearn</div>
+      <div class="ls">Python for Beginners</div>
+    </div>
+  </a>
+  <div class="tb-div"></div>
+  <div class="tb-pill">Module 04 · Conditionals</div>
+  <div class="tb-sep"></div>
+  <div class="cb">
+    <div class="cb-av">V</div>
+    <div><div class="cb-n">Vinodhini</div><div class="cb-r">Data Scientist · HCL GUVI</div></div>
+  </div>
+  <div class="tp-w">
+    <div class="tp-l"><span>Progress</span><span id="tbPct">0%</span></div>
+    <div class="tp-b"><div class="tp-f" id="tbFill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<!-- ══ SIDEBAR ══ -->
+<div id="sb">
+  <div class="slbl">Module 04</div>
+  <div class="ni active" data-page="0" onclick="gp(0)"><span class="ni-icon">🏠</span>Welcome<span class="nc">✓</span></div>
+  <div class="ni" data-page="1" onclick="gp(1)"><span class="ni-icon">🤔</span>What are Conditionals?<span class="nc">✓</span></div>
+  <div class="ni" data-page="2" onclick="gp(2)"><span class="ni-icon">🔵</span>The if Statement<span class="nc">✓</span></div>
+  <div class="ni" data-page="3" onclick="gp(3)"><span class="ni-icon">🔄</span>if / else<span class="nc">✓</span></div>
+  <div class="ni" data-page="4" onclick="gp(4)"><span class="ni-icon">📊</span>if / elif / else<span class="nc">✓</span></div>
+  <div class="ni" data-page="5" onclick="gp(5)"><span class="ni-icon">🧩</span>Nested &amp; Ternary<span class="nc">✓</span></div>
+  <div class="slbl">Practice</div>
+  <div class="ni" data-page="6" onclick="gp(6)"><span class="ni-icon">✏️</span>Exercises<span class="nc">✓</span></div>
+  <div class="ni" data-page="7" onclick="gp(7)"><span class="ni-icon">🧠</span>Quiz<span class="nc">✓</span></div>
+  <div class="ni" data-page="8" onclick="gp(8)"><span class="ni-icon">🎉</span>Complete!<span class="nc">✓</span></div>
+  <div class="sc">
+    <div class="sc-in">
+      <div class="sc-lbl">Created by</div>
+      <div class="sc-av">V</div>
+      <div class="sc-n">Vinodhini</div>
+      <div class="sc-t">Data Scientist</div>
+      <div class="sc-o">🏢 HCL GUVI</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div id="main">
+
+<!-- ░░ PAGE 0 — Welcome ░░ -->
+<div class="page active" id="page-0">
+  <span class="hero-icon">🔀</span>
+  <div class="ptag">Module 04 of 12</div>
+  <h1>Conditionals<br><span style="color:var(--green)">in Python</span></h1>
+  <p style="font-size:1rem;max-width:540px;margin:14px 0 24px;">Make your programs smart! Conditionals let Python <em>decide</em> — run different code based on what's true or false. This is where programs start thinking.</p>
+  <div class="hc stg">
+    <div class="chip">📖 6 Lessons</div>
+    <div class="chip">🎨 8 Visual Demos</div>
+    <div class="chip">🎮 Try-It-Yourself</div>
+    <div class="chip">✏️ 3 Exercises</div>
+    <div class="chip">🧠 5-Question Quiz</div>
+  </div>
+  <div class="hs stg">
+    <div class="sv"><div class="val">3</div><div class="lbl">Key keywords</div></div>
+    <div class="sv"><div class="val">if</div><div class="lbl">Most used word</div></div>
+    <div class="sv"><div class="val">∞</div><div class="lbl">Decision paths</div></div>
+  </div>
+  <div class="as stg">
+    <div class="aa-big">V</div>
+    <div>
+      <div class="aa-l">Course Author</div>
+      <div class="aa-n">Vinodhini</div>
+      <div class="aa-r">Data Scientist</div>
+      <div class="aa-o">🏢 HCL GUVI</div>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ PAGE 1 — What are Conditionals ░░ -->
+<div class="page" id="page-1">
+  <div class="ph">
+    <div class="ptag">Lesson 1</div>
+    <h2>What are Conditionals?</h2>
+    <p>Every day, we make decisions based on conditions. Python works exactly the same way — it checks a condition and chooses what to do.</p>
+  </div>
+
+  <!-- VISUAL A: Real-life Decision Cards -->
+  <div class="decision-story stg">
+    <div class="ds-header">🌍 Real-Life Decisions → Python Decisions</div>
+    <div class="ds-body">
+      <div class="ds-row">
+        <div class="ds-condition"><div class="dc-icon">🌧️</div><div class="dc-text"><strong>If</strong> it is raining…</div></div>
+        <div class="ds-arrow">→</div>
+        <div class="ds-result yes"><div class="dr-icon">☂️</div><div class="dr-text">Take an umbrella</div></div>
+      </div>
+      <div class="ds-row">
+        <div class="ds-condition"><div class="dc-icon">🔒</div><div class="dc-text"><strong>If</strong> the door is locked…</div></div>
+        <div class="ds-arrow">→</div>
+        <div class="ds-result yes"><div class="dr-icon">🔑</div><div class="dr-text">Use the key</div></div>
+      </div>
+      <div class="ds-row">
+        <div class="ds-condition"><div class="dc-icon">🍕</div><div class="dc-text"><strong>If</strong> you're hungry…</div></div>
+        <div class="ds-arrow">→</div>
+        <div class="ds-result yes"><div class="dr-icon">🍽️</div><div class="dr-text">Eat food</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISUAL B: Animated SVG Flowchart -->
+  <h3 style="margin:22px 0 12px;font-size:.95rem;">🔀 How Python Makes a Decision</h3>
+  <div class="flowchart-visual">
+    <div class="fc-svg-wrap">
+      <svg width="520" height="290" viewBox="0 0 520 290">
+        <!-- Start -->
+        <rect x="170" y="10" width="180" height="44" rx="22" fill="#e6f7ef" stroke="#c8e4d4" stroke-width="2"/>
+        <text x="260" y="37" text-anchor="middle" class="fc-label" fill="#1a8a5a">Program runs</text>
+        <!-- Arrow down -->
+        <line x1="260" y1="54" x2="260" y2="78" stroke="#888" stroke-width="2"/>
+        <polygon points="255,74 265,74 260,82" fill="#888"/>
+        <!-- Diamond -->
+        <polygon points="260,85 370,152 260,218 150,152" fill="#e6f0fb" stroke="#c0d8f0" stroke-width="2"/>
+        <text x="260" y="148" text-anchor="middle" class="fc-label" fill="#1a6eb5">condition</text>
+        <text x="260" y="163" text-anchor="middle" class="fc-sublabel" fill="#4a8ab5">True or False?</text>
+        <!-- YES path left -->
+        <line x1="150" y1="152" x2="60" y2="152" stroke="#1a8a5a" stroke-width="2.5"/>
+        <polygon points="56,147 56,157 48,152" fill="#1a8a5a"/>
+        <text x="102" y="145" text-anchor="middle" class="fc-badge" fill="#1a8a5a" font-size="11">TRUE ✓</text>
+        <rect x="10" y="172" width="96" height="48" rx="10" fill="#e6f7ef" stroke="#c8e4d4" stroke-width="2"/>
+        <text x="58" y="196" text-anchor="middle" class="fc-label" fill="#0f5c3a" font-size="12">Run if</text>
+        <text x="58" y="210" text-anchor="middle" class="fc-sublabel">block</text>
+        <!-- NO path right -->
+        <line x1="370" y1="152" x2="460" y2="152" stroke="#dc3545" stroke-width="2.5"/>
+        <polygon points="456,147 456,157 464,152" fill="#dc3545"/>
+        <text x="416" y="145" text-anchor="middle" class="fc-badge" fill="#dc3545" font-size="11">FALSE ✗</text>
+        <rect x="414" y="172" width="96" height="48" rx="10" fill="#fef0f0" stroke="#f5c0c0" stroke-width="2"/>
+        <text x="462" y="196" text-anchor="middle" class="fc-label" fill="#8b1a1a" font-size="12">Run else</text>
+        <text x="462" y="210" text-anchor="middle" class="fc-sublabel">block</text>
+        <!-- Both join at bottom -->
+        <line x1="58" y1="220" x2="58" y2="260" stroke="#1a8a5a" stroke-width="2"/>
+        <line x1="58" y1="260" x2="260" y2="260" stroke="#888" stroke-width="2"/>
+        <line x1="462" y1="220" x2="462" y2="260" stroke="#dc3545" stroke-width="2"/>
+        <line x1="462" y1="260" x2="260" y2="260" stroke="#888" stroke-width="2"/>
+        <polygon points="255,256 265,256 260,264" fill="#888"/>
+        <rect x="185" y="268" width="150" height="20" rx="10" fill="#f0f7f2" stroke="#c8e4d4" stroke-width="1.5"/>
+        <text x="260" y="282" text-anchor="middle" class="fc-sublabel" fill="#7a9e8a">Program continues…</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- VISUAL C: Click-to-reveal Scenarios -->
+  <h3 style="margin:22px 0 6px;font-size:.95rem;">🃏 Click each card to see the Python code</h3>
+  <div class="sc-reveal-hint">Tap a card to reveal how Python handles it</div>
+  <div class="scenario-grid stg" id="scenarioGrid">
+    <div class="sc-card" onclick="revealScenario(this)">
+      <div class="sc-card-front"><span class="sc-emoji">🎂</span><h4>Age Check</h4><p>Can this person vote?</p></div>
+      <div class="sc-card-back">if age >= 18:<br>&nbsp;&nbsp;print("Can vote!")<br>else:<br>&nbsp;&nbsp;print("Too young")</div>
+    </div>
+    <div class="sc-card" onclick="revealScenario(this)">
+      <div class="sc-card-front"><span class="sc-emoji">🌡️</span><h4>Temperature</h4><p>What clothes to wear?</p></div>
+      <div class="sc-card-back">if temp > 30:<br>&nbsp;&nbsp;print("Wear light")<br>else:<br>&nbsp;&nbsp;print("Wear jacket")</div>
+    </div>
+    <div class="sc-card" onclick="revealScenario(this)">
+      <div class="sc-card-front"><span class="sc-emoji">📊</span><h4>Exam Grade</h4><p>Did the student pass?</p></div>
+      <div class="sc-card-back">if score >= 50:<br>&nbsp;&nbsp;print("Pass ✅")<br>else:<br>&nbsp;&nbsp;print("Fail ❌")</div>
+    </div>
+    <div class="sc-card" onclick="revealScenario(this)">
+      <div class="sc-card-front"><span class="sc-emoji">🔢</span><h4>Odd or Even</h4><p>Is the number even?</p></div>
+      <div class="sc-card-back">if n % 2 == 0:<br>&nbsp;&nbsp;print("Even")<br>else:<br>&nbsp;&nbsp;print("Odd")</div>
+    </div>
+  </div>
+
+  <div class="tip">Conditionals use <strong>Boolean expressions</strong> — things that are either <code>True</code> or <code>False</code>. Like <code>5 &gt; 3</code> (True) or <code>10 == 20</code> (False).</div>
+</div>
+
+<!-- ░░ PAGE 2 — if Statement ░░ -->
+<div class="page" id="page-2">
+  <div class="ph">
+    <div class="ptag">Lesson 2</div>
+    <h2>The <span style="color:var(--green)">if</span> Statement</h2>
+    <p>The most basic conditional — runs a block of code <strong>only if</strong> the condition is True. If False, Python simply skips over it.</p>
+  </div>
+
+  <div class="cb3">
+    <div class="cbh"><div class="cbd"><span></span><span></span><span></span></div><span class="cbl">if_basic.py</span></div>
+    <div class="cbb"><pre>age = <span class="nm">20</span>
+
+<span class="kw">if</span> age >= <span class="nm">18</span>:
+    <span class="fn">print</span>(<span class="st">"You are an adult ✅"</span>)
+
+<span class="cm"># This always runs — outside the if block</span>
+<span class="fn">print</span>(<span class="st">"Program continues..."</span>)</pre></div>
+  </div>
+  <button class="rb" onclick="runDemo('out2',['You are an adult ✅','Program continues...'])">▶ Run Demo</button>
+  <div class="ob" id="out2"></div>
+
+  <!-- VISUAL: Interactive Indentation Ruler -->
+  <h3 style="margin:22px 0 10px;font-size:.95rem;">📏 Visual Indentation Guide — hover each line</h3>
+  <div class="indent-ruler">
+    <div class="ir-header">
+      <span>📏</span> indentation_demo.py — hover a line to see what it means
+    </div>
+    <div class="ir-line">
+      <div class="ir-ln">1</div>
+      <div class="ir-code"><span style="color:#5bc8f0">if</span> <span style="color:#f0a060">score</span> &gt;= <span style="color:#f0a060">60</span>:</div>
+      <div class="ir-tooltip">🟢 if line — no indent, always executed</div>
+    </div>
+    <div class="ir-line">
+      <div class="ir-ln">2</div>
+      <div class="ir-indent"><div class="ir-block g"></div></div>
+      <div class="ir-code"><span style="color:#a8e080">print</span>(<span style="color:#f5e060">"You passed!"</span>)</div>
+      <div class="ir-tooltip">↳ Inside if — 4 spaces. Runs ONLY if condition is True</div>
+    </div>
+    <div class="ir-line">
+      <div class="ir-ln">3</div>
+      <div class="ir-indent"><div class="ir-block g"></div></div>
+      <div class="ir-code"><span style="color:#a8e080">print</span>(<span style="color:#f5e060">"Well done!"</span>)</div>
+      <div class="ir-tooltip">↳ Still inside if block — also runs only if True</div>
+    </div>
+    <div class="ir-line">
+      <div class="ir-ln">4</div>
+      <div class="ir-code"><span style="color:#a8e080">print</span>(<span style="color:#f5e060">"Exam over."</span>)</div>
+      <div class="ir-tooltip">🔵 Back to 0 indent — ALWAYS runs, regardless of condition</div>
+    </div>
+  </div>
+
+  <!-- VISUAL: Boolean Inspector (Try Yourself) -->
+  <h3 style="margin:22px 0 10px;font-size:.95rem;">🔬 Boolean Inspector — Try your own condition!</h3>
+  <div class="bool-inspector">
+    <div class="bi-header">Type any Python-style condition and see if it's True or False</div>
+    <div class="bi-body">
+      <input class="bi-expr-input" id="biInput" type="text" value="20 >= 18"
+             placeholder="e.g. 10 > 5, age == 18, 7 % 2 == 1"
+             oninput="evalBool()" onkeydown="if(event.key==='Enter')evalBool()"/>
+      <div class="bi-presets">
+        <div class="bi-preset" onclick="setBool('20 >= 18')">20 >= 18</div>
+        <div class="bi-preset" onclick="setBool('5 == 10')">5 == 10</div>
+        <div class="bi-preset" onclick="setBool('7 % 2 == 1')">7 % 2 == 1</div>
+        <div class="bi-preset" onclick="setBool('100 > 200')">100 > 200</div>
+        <div class="bi-preset" onclick="setBool('15 != 20')">15 != 20</div>
+        <div class="bi-preset" onclick="setBool('50 >= 50')">50 >= 50</div>
+      </div>
+      <div class="bi-result neutral" id="biResult">
+        <div class="bi-badge n" id="biBadge">?</div>
+        <div class="bi-detail" id="biDetail"><div class="bd-val">Enter a condition above</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn">Indentation is NOT optional! Python uses 4 spaces to know what's inside the <code>if</code> block. Missing indent = <strong>IndentationError</strong>.</div>
+</div>
+
+<!-- ░░ PAGE 3 — if / else ░░ -->
+<div class="page" id="page-3">
+  <div class="ph">
+    <div class="ptag">Lesson 3</div>
+    <h2>if / <span style="color:var(--blue)">else</span></h2>
+    <p>Add an <code>else</code> to handle what happens when the condition is <strong>False</strong>. One path always runs — never both, never neither.</p>
+  </div>
+
+  <div class="cb3">
+    <div class="cbh"><div class="cbd"><span></span><span></span><span></span></div><span class="cbl">if_else.py</span></div>
+    <div class="cbb"><pre>temp = <span class="nm">28</span>
+
+<span class="kw">if</span> temp > <span class="nm">30</span>:
+    <span class="fn">print</span>(<span class="st">"It's hot! 🌞 Wear light clothes."</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"It's pleasant! 🌤️ Enjoy the weather."</span>)</pre></div>
+  </div>
+  <button class="rb" onclick="runDemo('out3',[\"It's pleasant! 🌤️ Enjoy the weather.\"])">▶ Run Demo</button>
+  <div class="ob" id="out3"></div>
+
+  <!-- VISUAL: Interactive Two-Path Switcher -->
+  <h3 style="margin:22px 0 10px;font-size:.95rem;">🎮 Try it — Change the temperature and watch which path runs</h3>
+  <div class="live-tester" style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
+      <div>
+        <div style="font-family:var(--fc);font-size:.66rem;color:var(--text3);margin-bottom:5px;text-transform:uppercase;">Temperature (°C)</div>
+        <input type="number" id="tempVal" value="28" min="-20" max="50"
+               style="background:var(--s2);border:1.5px solid var(--border);border-radius:8px;padding:9px 14px;font-family:var(--fc);font-size:.9rem;color:var(--text);width:110px;outline:none;"
+               oninput="updateTempViz()"/>
+      </div>
+      <input type="range" id="tempSlider" min="-20" max="50" value="28"
+             style="flex:1;min-width:120px;accent-color:var(--green);"
+             oninput="document.getElementById('tempVal').value=this.value;updateTempViz()"/>
+      <div id="tempEmoji" style="font-size:2.5rem;transition:all .3s;">🌤️</div>
+    </div>
+    <!-- Two path blocks -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div id="pathIf" style="flex:1;min-width:180px;border-radius:10px;padding:16px;border:2px solid var(--border);background:var(--s2);transition:all .3s;text-align:center;">
+        <div style="font-family:var(--fc);font-size:.78rem;color:var(--text3);margin-bottom:6px;">if temp &gt; 30:</div>
+        <div style="font-size:1.5rem;margin-bottom:6px;">🌞</div>
+        <div style="font-family:var(--fn);font-size:.85rem;color:var(--text2);">"It's hot! Wear light clothes."</div>
+      </div>
+      <div style="display:flex;align-items:center;font-size:1.2rem;color:var(--text3);">vs</div>
+      <div id="pathElse" style="flex:1;min-width:180px;border-radius:10px;padding:16px;border:2px solid var(--border);background:var(--s2);transition:all .3s;text-align:center;">
+        <div style="font-family:var(--fc);font-size:.78rem;color:var(--text3);margin-bottom:6px;">else:</div>
+        <div style="font-size:1.5rem;margin-bottom:6px;">🌤️</div>
+        <div style="font-family:var(--fn);font-size:.85rem;color:var(--text2);">"It's pleasant! Enjoy the weather."</div>
+      </div>
+    </div>
+    <div id="pathOutput" style="margin-top:14px;padding:12px 16px;border-radius:9px;font-family:var(--fn);font-size:.9rem;font-weight:700;background:var(--s2);border:1.5px solid var(--border);color:var(--text3);transition:all .3s;">
+      Move the slider to see which block runs →
+    </div>
+  </div>
+
+  <div class="g2" style="margin-top:18px;">
+    <div class="card cg">
+      <h4 style="font-family:var(--fh);margin-bottom:8px;color:var(--green-dk);font-size:.9rem;">✅ condition is True</h4>
+      <p style="font-size:.83rem;margin:0;color:var(--green-dk);">The <code>if</code> block runs.<br>The <code>else</code> block is <strong>skipped</strong>.</p>
+    </div>
+    <div class="card cb2">
+      <h4 style="font-family:var(--fh);margin-bottom:8px;color:var(--blue-dk);font-size:.9rem;">❌ condition is False</h4>
+      <p style="font-size:.83rem;margin:0;color:var(--blue-dk);">The <code>if</code> block is <strong>skipped</strong>.<br>The <code>else</code> block runs.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ PAGE 4 — if / elif / else ░░ -->
+<div class="page" id="page-4">
+  <div class="ph">
+    <div class="ptag">Lesson 4</div>
+    <h2>if / <span style="color:var(--green)">elif</span> / else</h2>
+    <p><code>elif</code> = "else if" — check multiple conditions in order. Python finds the <strong>first True one</strong>, runs it, and skips all the rest.</p>
+  </div>
+
+  <!-- VISUAL: Interactive Score → Grade Pathway -->
+  <h3 style="margin-bottom:12px;font-size:.95rem;">🎮 Try it — Type a score to watch which block activates</h3>
+  <div class="pathway-selector">
+    <div class="ps-header">
+      <span>📊 Grade Calculator — watch the chain evaluate</span>
+      <div class="ps-score-wrap">
+        <span class="ps-score-lbl">Score:</span>
+        <input class="ps-score-input" id="psScore" type="number" value="75" min="0" max="100" oninput="updatePathway()"/>
+      </div>
+    </div>
+    <div class="ps-body">
+      <div class="ps-chain" id="psChain">
+        <div class="ps-block" id="psb0">
+          <div class="ps-block-header"><span class="ps-kw">if</span><span class="ps-cond">&nbsp; score &gt;= 90:</span></div>
+          <div class="ps-block-body">✅ This block runs! → print("Grade: A 🏆")</div>
+        </div>
+        <div class="ps-block" id="psb1">
+          <div class="ps-block-header"><span class="ps-kw">elif</span><span class="ps-cond">&nbsp; score &gt;= 80:</span></div>
+          <div class="ps-block-body">✅ This block runs! → print("Grade: B ⭐")</div>
+        </div>
+        <div class="ps-block" id="psb2">
+          <div class="ps-block-header"><span class="ps-kw">elif</span><span class="ps-cond">&nbsp; score &gt;= 70:</span></div>
+          <div class="ps-block-body">✅ This block runs! → print("Grade: C 👍")</div>
+        </div>
+        <div class="ps-block" id="psb3">
+          <div class="ps-block-header"><span class="ps-kw">elif</span><span class="ps-cond">&nbsp; score &gt;= 60:</span></div>
+          <div class="ps-block-body">✅ This block runs! → print("Grade: D 📖")</div>
+        </div>
+        <div class="ps-block" id="psb4">
+          <div class="ps-block-header"><span class="ps-kw">else</span><span class="ps-cond">: &nbsp;(all above failed)</span></div>
+          <div class="ps-block-body">✅ This block runs! → print("Grade: F 📋")</div>
+        </div>
+      </div>
+      <div class="ps-result" id="psResult">Enter a score above to see the result →</div>
+    </div>
+  </div>
+
+  <div class="cb3" style="margin-top:18px;">
+    <div class="cbh"><div class="cbd"><span></span><span></span><span></span></div><span class="cbl">grade_checker.py</span></div>
+    <div class="cbb"><pre>score = <span class="nm">75</span>
+
+<span class="kw">if</span> score >= <span class="nm">90</span>:
+    <span class="fn">print</span>(<span class="st">"Grade: A 🏆"</span>)
+<span class="kw">elif</span> score >= <span class="nm">80</span>:
+    <span class="fn">print</span>(<span class="st">"Grade: B ⭐"</span>)
+<span class="kw">elif</span> score >= <span class="nm">70</span>:
+    <span class="fn">print</span>(<span class="st">"Grade: C 👍"</span>)   <span class="cm"># ← This runs for score=75</span>
+<span class="kw">elif</span> score >= <span class="nm">60</span>:
+    <span class="fn">print</span>(<span class="st">"Grade: D 📖"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"Grade: F 📋"</span>)</pre></div>
+  </div>
+  <button class="rb" onclick="runDemo('out4',['Grade: C 👍'])">▶ Run Demo</button>
+  <div class="ob" id="out4"></div>
+
+  <div class="tip">Python stops at the <strong>first True condition</strong> — even if others would also be True. Try score = 95: only "Grade: A" prints, not B, C, etc.</div>
+</div>
+
+<!-- ░░ PAGE 5 — Nested & Ternary ░░ -->
+<div class="page" id="page-5">
+  <div class="ph">
+    <div class="ptag">Lesson 5</div>
+    <h2>Nested Conditionals &amp; Ternary</h2>
+    <p>Put conditionals <strong>inside</strong> other conditionals for complex decisions. Or use the one-line <strong>ternary operator</strong> for simple cases.</p>
+  </div>
+
+  <h3 style="margin-bottom:12px;font-size:.95rem;">🪆 Nested if — Visualised as Boxes Inside Boxes</h3>
+  <div class="nested-viz stg">
+    <div class="nv-box outer">
+      <div class="nv-label g">OUTER if (age &gt;= 18) — checks first</div>
+      <div class="nv-code">
+        <span class="kw2">if</span> age &gt;= <span class="val">18</span>:
+      </div>
+      <div class="nv-box middle">
+        <div class="nv-label b">INNER if (has_id) — only reached if outer is True</div>
+        <div class="nv-code">
+          <span class="kw2">if</span> has_id:
+        </div>
+        <div class="nv-box inner">
+          <div class="nv-label o">INNERMOST — only reached if both are True</div>
+          <div class="nv-code">
+            <span class="kw2">print</span>(<span class="str2">"Entry granted! ✅"</span>)
+          </div>
+        </div>
+        <div class="nv-code">
+          <span class="kw2">else</span>:<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw2">print</span>(<span class="str2">"No ID — denied ❌"</span>)
+        </div>
+      </div>
+      <div class="nv-code">
+        <span class="kw2">else</span>:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw2">print</span>(<span class="str2">"Under 18 — not allowed"</span>)
+      </div>
+    </div>
+  </div>
+
+  <!-- VISUAL: Nested Try-Yourself -->
+  <h3 style="margin:22px 0 10px;font-size:.95rem;">🎮 Try the Nested Logic Yourself</h3>
+  <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-bottom:20px;">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+      <div>
+        <div style="font-family:var(--fc);font-size:.66rem;color:var(--text3);margin-bottom:5px;">AGE</div>
+        <input type="number" id="nestAge" value="20" min="0" max="100"
+               style="background:var(--s2);border:1.5px solid var(--border);border-radius:8px;padding:9px 14px;font-family:var(--fc);font-size:.9rem;color:var(--text);width:100px;outline:none;"
+               oninput="updateNested()"/>
+      </div>
+      <div>
+        <div style="font-family:var(--fc);font-size:.66rem;color:var(--text3);margin-bottom:5px;">HAS ID?</div>
+        <div style="display:flex;gap:8px;margin-top:2px;">
+          <button id="nestYes" onclick="setNestId(true)"
+                  style="background:var(--green-lt);border:2px solid var(--green);border-radius:8px;padding:9px 18px;font-family:var(--fh);font-size:.82rem;font-weight:700;cursor:pointer;color:var(--green-dk);">
+            ✅ Yes
+          </button>
+          <button id="nestNo" onclick="setNestId(false)"
+                  style="background:var(--s2);border:2px solid var(--border);border-radius:8px;padding:9px 18px;font-family:var(--fh);font-size:.82rem;font-weight:700;cursor:pointer;color:var(--text2);">
+            ❌ No
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="nestedResult" style="padding:14px 18px;border-radius:10px;font-family:var(--fn);font-size:.92rem;font-weight:700;background:var(--s2);border:1.5px solid var(--border);color:var(--text3);transition:all .3s;">
+      Choose age and ID status to see the result
+    </div>
+  </div>
+
+  <!-- VISUAL: Ternary Builder -->
+  <h3 style="margin-bottom:12px;font-size:.95rem;">⚡ Ternary Builder — Build your own one-liner</h3>
+  <div class="ternary-builder">
+    <div class="tb-hdr">🔧 Assemble a ternary expression and see it evaluate</div>
+    <div class="tb-body">
+      <div class="tb-parts" id="ternaryParts">
+        <div class="tb-part-wrap">
+          <div class="tb-part-lbl">Value if TRUE</div>
+          <input class="tb-part-input med" id="tVal1" value="adult" oninput="updateTernary()"/>
+        </div>
+        <div class="tb-part-kw if-kw">if</div>
+        <div class="tb-part-wrap">
+          <div class="tb-part-lbl">Condition</div>
+          <input class="tb-part-input wide" id="tCond" value="age >= 18" oninput="updateTernary()"/>
+        </div>
+        <div class="tb-part-kw else-kw">else</div>
+        <div class="tb-part-wrap">
+          <div class="tb-part-lbl">Value if FALSE</div>
+          <input class="tb-part-input med" id="tVal2" value="minor" oninput="updateTernary()"/>
+        </div>
+      </div>
+      <div style="font-family:var(--fc);font-size:.72rem;color:var(--text3);margin-bottom:8px;">
+        With <code style="font-size:.72rem;">age = 20</code>:
+      </div>
+      <div class="tb-preview" id="tPreview">status = "adult" if age &gt;= 18 else "minor"</div>
+      <div class="tb-output n" id="tOutput">→ result: adult</div>
+    </div>
+  </div>
+
+  <div class="cb3">
+    <div class="cbh"><div class="cbd"><span></span><span></span><span></span></div><span class="cbl">ternary.py</span></div>
+    <div class="cbb"><pre>age = <span class="nm">20</span>
+
+<span class="cm"># Long form</span>
+<span class="kw">if</span> age >= <span class="nm">18</span>: status = <span class="st">"adult"</span>
+<span class="kw">else</span>:        status = <span class="st">"minor"</span>
+
+<span class="cm"># Same thing — ONE line! (ternary)</span>
+status = <span class="st">"adult"</span> <span class="kw">if</span> age >= <span class="nm">18</span> <span class="kw">else</span> <span class="st">"minor"</span>
+<span class="fn">print</span>(status)   <span class="cm"># adult</span>
+<span class="fn">print</span>(<span class="st">"Pass"</span> <span class="kw">if</span> <span class="nm">75</span> >= <span class="nm">60</span> <span class="kw">else</span> <span class="st">"Fail"</span>)  <span class="cm"># Pass</span></pre></div>
+  </div>
+  <button class="rb" onclick="runDemo('out5',['adult','Pass'])">▶ Run Demo</button>
+  <div class="ob" id="out5"></div>
+</div>
+
+<!-- ░░ PAGE 6 — Exercises ░░ -->
+<div class="page" id="page-6">
+  <div class="ph">
+    <div class="ptag">Practice</div>
+    <h2>Hands-On Exercises</h2>
+    <p>Try each exercise yourself before revealing the solution. Struggling is how you actually learn!</p>
+  </div>
+
+  <div class="exc">
+    <div class="exh"><span class="exn">Exercise 01</span><span class="ext">Voting Eligibility</span></div>
+    <div class="exb">
+      <p>Write a program that checks if a person can vote. They must be <strong>18 or older</strong>. Test with age = 17, then age = 21.</p>
+      <div class="tip" style="margin-bottom:10px;">Use an if/else. The condition is <code>age >= 18</code>.</div>
+      <button class="st2" onclick="toggleSol(this)">▼ Show Solution</button>
+      <div class="sb2">
+        <div class="cb3"><div class="cbh"><div class="cbd"><span></span><span></span><span></span></div><span class="cbl">Python</span></div>
+        <div class="cbb"><pre>age = <span class="nm">17</span>
+<span class="kw">if</span> age >= <span class="nm">18</span>:
+    <span class="fn">print</span>(<span class="st">"You can vote! 🗳️"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"Too young to vote."</span>)
+<span class="cm"># Output: Too young to vote.</span></pre></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exc">
+    <div class="exh"><span class="exn">Exercise 02</span><span class="ext">Traffic Light</span></div>
+    <div class="exb">
+      <p>Write a program with <code>if/elif/else</code>. Given <code>light = "green"</code>, print the correct driving instruction for red, yellow, and green lights.</p>
+      <button class="st2" onclick="toggleSol(this)">▼ Show Solution</button>
+      <div class="sb2">
+        <div class="cb3"><div class="cbh"><div class="cbd"><span></span><span></span><span></span></div><span class="cbl">Python</span></div>
+        <div class="cbb"><pre>light = <span class="st">"green"</span>
+<span class="kw">if</span> light == <span class="st">"red"</span>:
+    <span class="fn">print</span>(<span class="st">"🔴 Stop!"</span>)
+<span class="kw">elif</span> light == <span class="st">"yellow"</span>:
+    <span class="fn">print</span>(<span class="st">"🟡 Slow down!"</span>)
+<span class="kw">elif</span> light == <span class="st">"green"</span>:
+    <span class="fn">print</span>(<span class="st">"🟢 Go!"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"❓ Unknown signal"</span>)
+<span class="cm"># Output: 🟢 Go!</span></pre></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exc">
+    <div class="exh"><span class="exn">Exercise 03</span><span class="ext">BMI Category</span></div>
+    <div class="exb">
+      <p>Given <code>bmi = 23.5</code>, classify it: &lt;18.5 = Underweight, 18.5–24.9 = Normal, 25–29.9 = Overweight, 30+ = Obese. Print with an f-string.</p>
+      <button class="st2" onclick="toggleSol(this)">▼ Show Solution</button>
+      <div class="sb2">
+        <div class="cb3"><div class="cbh"><div class="cbd"><span></span><span></span><span></span></div><span class="cbl">Python</span></div>
+        <div class="cbb"><pre>bmi = <span class="nm">23.5</span>
+<span class="kw">if</span> bmi < <span class="nm">18.5</span>:
+    category = <span class="st">"Underweight"</span>
+<span class="kw">elif</span> bmi < <span class="nm">25</span>:
+    category = <span class="st">"Normal weight"</span>
+<span class="kw">elif</span> bmi < <span class="nm">30</span>:
+    category = <span class="st">"Overweight"</span>
+<span class="kw">else</span>:
+    category = <span class="st">"Obese"</span>
+<span class="fn">print</span>(<span class="st">f"BMI {bmi} → {category}"</span>)
+<span class="cm"># Output: BMI 23.5 → Normal weight</span></pre></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ PAGE 7 — Quiz ░░ -->
+<div class="page" id="page-7">
+  <div class="ph">
+    <div class="ptag">Quiz · 5 Questions</div>
+    <h2>Test Your Knowledge</h2>
+    <p>One question at a time. Instant feedback after every answer!</p>
+  </div>
+  <div class="qprog" id="qprog">
+    <div class="qpd" id="qd0"></div><div class="qpd" id="qd1"></div>
+    <div class="qpd" id="qd2"></div><div class="qpd" id="qd3"></div><div class="qpd" id="qd4"></div>
+  </div>
+  <div id="qcont">
+    <div class="qcard" id="qcard"></div>
+    <div class="qnav">
+      <button class="qnb" id="qprev" onclick="qnav(-1)" disabled>← Prev</button>
+      <span style="font-family:var(--fc);font-size:.73rem;color:var(--text3);" id="qctr">Question 1 of 5</span>
+      <button class="qnb pri" id="qnext" onclick="qnav(1)" disabled>Next →</button>
+    </div>
+  </div>
+  <div class="qres" id="qres">
+    <span class="qre" id="qre">🎉</span>
+    <div class="qrs" id="qrs">5/5</div>
+    <div class="qrsb" id="qrsb"></div>
+    <div class="qrbd">
+      <div><div class="qrv c" id="qrc">5</div><div class="qrl">Correct</div></div>
+      <div><div class="qrv w" id="qrw">0</div><div class="qrl">Wrong</div></div>
+    </div>
+    <button class="rtb" onclick="resetQuiz()">↩ Retry</button>
+    <button class="bbb next" onclick="gp(8)" style="display:inline-flex;padding:10px 22px;">Complete Module →</button>
+  </div>
+</div>
+
+<!-- ░░ PAGE 8 — Complete ░░ -->
+<div class="page" id="page-8">
+  <div class="cw">
+    <div class="ci">🔀</div>
+    <div class="ptag" style="justify-content:center;">Module 04 — Complete</div>
+    <h1 style="margin-bottom:12px;">Conditionals Mastered! 🎉</h1>
+    <p style="font-size:1rem;margin-bottom:18px;">You've completed <strong>Conditionals</strong>. Your programs can now make decisions — a huge leap in coding!</p>
+    <div class="sl stg">
+      <div class="sbg"><span class="ck">✓</span>if statement</div>
+      <div class="sbg"><span class="ck">✓</span>if / else</div>
+      <div class="sbg"><span class="ck">✓</span>if / elif / else</div>
+      <div class="sbg"><span class="ck">✓</span>Nested conditionals</div>
+      <div class="sbg"><span class="ck">✓</span>Ternary operator</div>
+      <div class="sbg"><span class="ck">✓</span>Indentation rules</div>
+    </div>
+    <button class="ctb" onclick="celebrate()">🏆 Claim Completion Badge</button>
+    <p style="margin-top:18px;font-size:.88rem;color:var(--text2);">Next: <strong>Module 5 — Loops</strong> · Repeat actions efficiently with for and while.</p>
+    <div class="aft">
+      <div class="afl">Course created by</div>
+      <div class="afi">
+        <div class="afa">V</div>
+        <div style="text-align:left;">
+          <div style="font-family:var(--fh);font-size:.97rem;font-weight:800;color:var(--green);">Vinodhini</div>
+          <div style="font-family:var(--fc);font-size:.7rem;color:var(--text2);">Data Scientist · HCL GUVI</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- #main -->
+
+<!-- ══ BOTTOM BAR ══ -->
+<div id="bb">
+  <button class="bbb prev" id="prevBtn" onclick="nav(-1)" disabled>← Back</button>
+  <div class="bd" id="bbDots"></div>
+  <span class="bb-ind" id="bbInd">1 / 9</span>
+  <button class="bbb next" id="nextBtn" onclick="nav(1)">Next →</button>
+</div>
+
+</div><!-- #app -->
+
+<script>
+/* ════════════════ NAVIGATION ════════════════ */
+const TP = 9;
+let cp = 0, vp = new Set([0]);
+
+function gp(n) {
+  if (n < 0 || n >= TP) return;
+  const prev = document.getElementById('page-' + cp);
+  const next = document.getElementById('page-' + n);
+  if (!next) return;
+  prev.classList.add('exit-left'); prev.classList.remove('active');
+  setTimeout(() => prev.classList.remove('exit-left'), 350);
+  next.classList.add('active');
+  cp = n; vp.add(n);
+  document.querySelectorAll('.ni').forEach(el => {
+    const p = parseInt(el.dataset.page);
+    el.classList.toggle('active', p === n);
+    if (vp.has(p) && p < n) el.classList.add('completed');
+  });
+  ubb(); uprog();
+  if (n === 2) { evalBool(); }
+  if (n === 3) { updateTempViz(); }
+  if (n === 4) { updatePathway(); }
+  if (n === 5) { updateNested(); updateTernary(); }
+  if (n === 7) renderQ();
+}
+
+function nav(d) { gp(cp + d); }
+
+function ubb() {
+  document.getElementById('prevBtn').disabled = cp === 0;
+  const nb = document.getElementById('nextBtn');
+  nb.disabled = cp === TP - 1;
+  nb.textContent = cp === TP - 2 ? '🎉 Finish' : 'Next →';
+  document.getElementById('bbInd').textContent = `${cp + 1} / ${TP}`;
+  document.getElementById('bbDots').innerHTML = Array.from({length: TP}, (_, i) => {
+    const c = i === cp ? 'bdot active' : vp.has(i) ? 'bdot done' : 'bdot';
+    return `<div class="${c}" onclick="gp(${i})"></div>`;
+  }).join('');
+}
+
+function uprog() {
+  const pct = Math.round((vp.size / TP) * 100);
+  document.getElementById('tbFill').style.width = pct + '%';
+  document.getElementById('tbPct').textContent = pct + '%';
+}
+
+/* ════════════════ RUN DEMO ════════════════ */
+function runDemo(id, lines) {
+  const b = document.getElementById(id);
+  if (!b) return;
+  b.innerHTML = '<span class="opr">$ python3 script.py\n</span>';
+  b.classList.add('show');
+  let i = 0;
+  const t = () => { if (i < lines.length) { b.innerHTML += lines[i++] + '\n'; setTimeout(t, 160); } };
+  t();
+}
+
+/* ════════════════ SCENARIO CARDS ════════════════ */
+function revealScenario(card) { card.classList.toggle('revealed'); }
+
+/* ════════════════ BOOLEAN INSPECTOR ════════════════ */
+function setBool(expr) {
+  document.getElementById('biInput').value = expr;
+  evalBool();
+}
+
+function evalBool() {
+  const raw = document.getElementById('biInput').value.trim();
+  const badge = document.getElementById('biBadge');
+  const detail = document.getElementById('biDetail');
+  const res = document.getElementById('biResult');
+  if (!raw) {
+    res.className = 'bi-result neutral';
+    badge.className = 'bi-badge n'; badge.textContent = '?';
+    detail.innerHTML = '<div class="bd-val">Enter a condition above</div>';
+    return;
+  }
+  // Safe evaluation — map Python operators to JS
+  let expr = raw
+    .replace(/==/g, '===').replace(/!=/g, '!==')
+    .replace(/>=/g, '>=').replace(/<=/g, '<=')
+    .replace(/\band\b/g, '&&').replace(/\bor\b/g, '||')
+    .replace(/\bnot\b/g, '!')
+    .replace(/True/g, 'true').replace(/False/g, 'false');
+  try {
+    const result = Function('"use strict"; return (' + expr + ')')();
+    const isBool = typeof result === 'boolean';
+    const isTrue = !!result;
+    res.className = 'bi-result ' + (isTrue ? 'true-res' : 'false-res');
+    badge.className = 'bi-badge ' + (isTrue ? 't' : 'f');
+    badge.textContent = isTrue ? 'T' : 'F';
+    detail.innerHTML = `<div class="bd-val ${isTrue?'t':'f'}">${isTrue ? 'True' : 'False'}</div>
+      <div style="font-size:.75rem;color:var(--text3);">${raw} → ${result}<br>
+      ${isTrue ? '✅ if block RUNS' : '❌ if block SKIPPED'}</div>`;
+  } catch(e) {
+    res.className = 'bi-result neutral';
+    badge.className = 'bi-badge n'; badge.textContent = '?';
+    detail.innerHTML = '<div style="color:#dc3545;font-size:.8rem;">⚠️ Invalid expression</div>';
+  }
+}
+
+/* ════════════════ TEMP VISUALIZER ════════════════ */
+function updateTempViz() {
+  const t = parseInt(document.getElementById('tempVal').value) || 0;
+  document.getElementById('tempSlider').value = t;
+  const isHot = t > 30;
+  const ifBlock  = document.getElementById('pathIf');
+  const elseBlock = document.getElementById('pathElse');
+  const out = document.getElementById('pathOutput');
+  const emoji = document.getElementById('tempEmoji');
+
+  if (isHot) {
+    ifBlock.style.borderColor = 'var(--green)';
+    ifBlock.style.background = 'var(--green-lt)';
+    ifBlock.style.boxShadow = '0 0 0 3px rgba(26,138,90,.15)';
+    elseBlock.style.borderColor = 'var(--border)';
+    elseBlock.style.background = 'var(--s2)';
+    elseBlock.style.boxShadow = 'none';
+    elseBlock.style.opacity = '.45';
+    out.style.background = 'var(--green-lt)';
+    out.style.borderColor = 'var(--border)';
+    out.style.color = 'var(--green-dk)';
+    out.textContent = `✅ if block runs! → "It's hot! 🌞 Wear light clothes."`;
+    emoji.textContent = '🌞';
+  } else {
+    ifBlock.style.borderColor = 'var(--border)';
+    ifBlock.style.background = 'var(--s2)';
+    ifBlock.style.boxShadow = 'none';
+    ifBlock.style.opacity = '.45';
+    elseBlock.style.borderColor = 'var(--blue)';
+    elseBlock.style.background = 'var(--blue-lt)';
+    elseBlock.style.boxShadow = '0 0 0 3px rgba(26,110,181,.15)';
+    elseBlock.style.opacity = '1';
+    out.style.background = 'var(--blue-lt)';
+    out.style.borderColor = 'var(--border2)';
+    out.style.color = 'var(--blue-dk)';
+    out.textContent = `✅ else block runs! → "It's pleasant! 🌤️ Enjoy the weather."`;
+    emoji.textContent = t <= 10 ? '🥶' : t <= 20 ? '😊' : '🌤️';
+  }
+}
+
+/* ════════════════ GRADE PATHWAY ════════════════ */
+function updatePathway() {
+  const score = parseInt(document.getElementById('psScore').value) || 0;
+  const conditions = [score >= 90, score >= 80, score >= 70, score >= 60, true];
+  const labels = ['Grade: A 🏆','Grade: B ⭐','Grade: C 👍','Grade: D 📖','Grade: F 📋'];
+  const colors = ['show-green','show-green','show-green','show-blue','show-red'];
+
+  let activated = -1;
+  for (let i = 0; i < 5; i++) {
+    if (conditions[i] && activated === -1) activated = i;
+  }
+
+  for (let i = 0; i < 5; i++) {
+    const bl = document.getElementById('psb' + i);
+    if (i === activated) {
+      bl.className = 'ps-block active';
+    } else if (i > activated && activated !== -1) {
+      bl.className = 'ps-block skipped';
+    } else {
+      bl.className = 'ps-block skipped';
+    }
+  }
+
+  const res = document.getElementById('psResult');
+  if (score < 0 || score > 100) {
+    res.className = 'ps-result show-red';
+    res.textContent = '⚠️ Score must be between 0 and 100';
+  } else {
+    res.className = 'ps-result ' + colors[activated];
+    res.textContent = `📊 Result for score ${score}: ${labels[activated]}`;
+  }
+}
+
+/* ════════════════ NESTED LOGIC ════════════════ */
+let nestHasId = true;
+function setNestId(v) {
+  nestHasId = v;
+  document.getElementById('nestYes').style.background = v ? 'var(--green-lt)' : 'var(--s2)';
+  document.getElementById('nestYes').style.borderColor = v ? 'var(--green)' : 'var(--border)';
+  document.getElementById('nestNo').style.background = !v ? '#fef0f0' : 'var(--s2)';
+  document.getElementById('nestNo').style.borderColor = !v ? 'var(--red)' : 'var(--border)';
+  updateNested();
+}
+function updateNested() {
+  const age = parseInt(document.getElementById('nestAge').value) || 0;
+  const res = document.getElementById('nestedResult');
+  let msg, bg, bc, col;
+  if (age >= 18) {
+    if (nestHasId) {
+      msg = '✅ Entry granted! (age ≥ 18 AND has ID)';
+      bg = 'var(--green-lt)'; bc = 'var(--border)'; col = 'var(--green-dk)';
+    } else {
+      msg = '❌ No ID — entry denied (age ≥ 18 BUT no ID)';
+      bg = '#fef0f0'; bc = '#f5c0c0'; col = '#8b1a1a';
+    }
+  } else {
+    msg = '🚫 Under 18 — not allowed (regardless of ID)';
+    bg = '#fffbea'; bc = 'var(--yellow)'; col = '#7a5500';
+  }
+  res.style.background = bg; res.style.borderColor = bc; res.style.color = col;
+  res.style.border = '1.5px solid ' + bc;
+  res.textContent = msg;
+}
+
+/* ════════════════ TERNARY BUILDER ════════════════ */
+function updateTernary() {
+  const val1 = document.getElementById('tVal1').value || '?';
+  const cond = document.getElementById('tCond').value || 'condition';
+  const val2 = document.getElementById('tVal2').value || '?';
+  document.getElementById('tPreview').innerHTML =
+    `result = <span class="highlight">"${val1}"</span> if ${cond} else <span class="highlight">"${val2}"</span>`;
+  const out = document.getElementById('tOutput');
+  // Try to evaluate condition with age=20
+  let expr = cond.replace(/==/g,'===').replace(/!=/g,'!==')
+    .replace(/\band\b/g,'&&').replace(/\bor\b/g,'||').replace(/\bnot\b/g,'!');
+  try {
+    const age = 20, score = 75, n = 7; // common variables
+    const r = Function('"use strict";const age=20,score=75,n=7;return (' + expr + ')')();
+    const chosen = r ? val1 : val2;
+    out.className = 'tb-output ' + (r ? 'g' : 'b');
+    out.textContent = `→ With age=20: condition is ${r ? 'True' : 'False'} → result = "${chosen}"`;
+  } catch {
+    out.className = 'tb-output n';
+    out.textContent = '→ result = "' + val1 + '" if condition else "' + val2 + '"';
+  }
+}
+
+/* ════════════════ SOLUTION TOGGLE ════════════════ */
+function toggleSol(btn) {
+  const box = btn.nextElementSibling;
+  const open = box.classList.toggle('open');
+  btn.textContent = open ? '▲ Hide Solution' : '▼ Show Solution';
+}
+
+/* ════════════════ QUIZ ════════════════ */
+const QS = [
+  { q:"What keyword starts a conditional in Python?", opts:["when","check","if","unless"], correct:2,
+    exp:"✓ 'if' starts every conditional. It's followed by a condition and a colon (:)." },
+  { q:"If the condition is False, what happens to the if block?", opts:["Runs anyway","Runs twice","Is skipped","Causes an error"], correct:2,
+    exp:"✓ When the condition is False, Python skips the if block entirely and moves on." },
+  { q:"What does 'elif' stand for?", opts:["else inside if","else if","end loop if","extra if"], correct:1,
+    exp:"✓ elif = 'else if'. It lets you check another condition if the previous one was False." },
+  { q:"What does this return?\n\n'Pass' if 80 >= 60 else 'Fail'", opts:["Fail","Pass","True","Error"], correct:1,
+    exp:"✓ 80 >= 60 is True, so the ternary returns the True value: 'Pass'." },
+  { q:"How many elif blocks can one if statement have?", opts:["Only 1","Only 2","Exactly 3","As many as needed"], correct:3,
+    exp:"✓ You can have as many elif blocks as you need. Only else is limited to one (and is optional)." }
+];
+
+let qs = { cur:0, ans:new Array(QS.length).fill(null), done:false };
+
+function renderQ() {
+  if (qs.done) return;
+  const q = QS[qs.cur], a = qs.ans[qs.cur];
+  document.getElementById('qctr').textContent = `Question ${qs.cur + 1} of ${QS.length}`;
+  document.getElementById('qprev').disabled = qs.cur === 0;
+  const nb = document.getElementById('qnext');
+  nb.disabled = a === null;
+  nb.textContent = qs.cur === QS.length - 1 ? 'See Results →' : 'Next →';
+  document.getElementById('qcard').innerHTML = `
+    <div class="qbadge">Question ${qs.cur + 1} / ${QS.length}</div>
+    <div class="qtxt">${q.q.replace(/\n/g,'<br>')}</div>
+    <div class="qopts">
+      ${'ABCD'.split('').slice(0,q.opts.length).map((l,i)=>{
+        let c='qo';
+        if(a!==null){if(i===q.correct)c+=' correct';else if(i===a&&i!==q.correct)c+=' wrong';}
+        return`<button class="${c}" onclick="ansQ(${i})" ${a!==null?'disabled':''}>
+          <span class="qol">${l}</span>${q.opts[i]}</button>`;
+      }).join('')}
+    </div>
+    <div class="qfb ${a!==null?'show '+(a===q.correct?'correct':'wrong'):''}">
+      ${a!==null?q.exp:''}
+    </div>`;
+  QS.forEach((_,i)=>{
+    const d=document.getElementById('qd'+i);
+    if(!d)return;
+    d.className='qpd';
+    const an=qs.ans[i];
+    if(an!==null)d.classList.add(an===QS[i].correct?'correct':'wrong');
+  });
+}
+
+function ansQ(c) {
+  qs.ans[qs.cur] = c;
+  document.getElementById('qnext').disabled = false;
+  renderQ();
+}
+
+function qnav(d) {
+  if (d===1 && qs.cur===QS.length-1) { showQRes(); return; }
+  const n = qs.cur+d;
+  if (n>=0&&n<QS.length) { qs.cur=n; renderQ(); }
+}
+
+function showQRes() {
+  qs.done = true;
+  document.getElementById('qcont').style.display = 'none';
+  const r = document.getElementById('qres'); r.classList.add('show');
+  const correct = qs.ans.filter((a,i)=>a===QS[i].correct).length;
+  const pct = Math.round((correct/QS.length)*100);
+  document.getElementById('qrs').textContent = `${correct}/${QS.length}`;
+  document.getElementById('qrc').textContent = correct;
+  document.getElementById('qrw').textContent = QS.length-correct;
+  document.getElementById('qre').textContent = ['😅','🤔','👍','🌟','🎉'][Math.min(correct,4)];
+  document.getElementById('qrsb').textContent =
+    pct===100?'🔥 Perfect! Conditionals completely mastered!':
+    pct>=80?'⭐ Great work! You\'ve got the core concepts down.':
+    pct>=60?'👍 Good try! Review the elif and ternary sections.':
+    '📖 Keep at it — go back and try the visual demos!';
+  if(pct>=80)setTimeout(confetti,300);
+}
+
+function resetQuiz() {
+  qs = {cur:0,ans:new Array(QS.length).fill(null),done:false};
+  document.getElementById('qres').classList.remove('show');
+  document.getElementById('qcont').style.display='';
+  QS.forEach((_,i)=>{const d=document.getElementById('qd'+i);if(d)d.className='qpd';});
+  renderQ();
+}
+
+/* ════════════════ CONFETTI ════════════════ */
+function confetti() {
+  const cs=['#1a8a5a','#1a6eb5','#f5c842','#ff6b35','#a78bfa','#ff4757'];
+  for(let i=0;i<80;i++){
+    const el=document.createElement('div');
+    const s=6+Math.random()*8;
+    el.style.cssText=`position:fixed;top:50%;left:50%;width:${s}px;height:${s}px;
+      background:${cs[i%cs.length]};border-radius:${Math.random()>.5?'50%':'2px'};
+      pointer-events:none;z-index:9999;
+      --cx:${(Math.random()-.5)*600}px;--cy:${-(200+Math.random()*400)}px;--cr:${Math.random()*720-360}deg;
+      animation:confetti-pop 1.4s ease forwards;`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),1500);
+  }
+}
+
+function celebrate() {
+  confetti();
+  const btn=event.target.closest('button');
+  btn.textContent='✓ Badge Claimed!';
+  btn.style.background='var(--green)';
+  btn.disabled=true;
+  localStorage.setItem('module4_complete','true');
+}
+
+/* ════════════════ INIT ════════════════ */
+ubb(); uprog();
+setNestId(true);
+setTimeout(()=>{evalBool();updateTempViz();updatePathway();updateNested();updateTernary();},100);
+</script>
+</body>
+</html>
