@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 10 · OOP in Python | HCL-GUVI</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --navy:#0a0f1e;--navy2:#111827;--navy3:#1a2235;
+  --teal:#0d9488;--teal-l:#ccfbf1;--teal-d:#0f766e;
+  --blue:#3b82f6;--blue-l:#dbeafe;--blue-d:#1d4ed8;
+  --indigo:#6366f1;--indigo-l:#e0e7ff;
+  --amber:#f59e0b;--amber-l:#fef3c7;
+  --rose:#f43f5e;--rose-l:#ffe4e6;
+  --green:#10b981;--green-l:#d1fae5;--green-d:#059669;
+  --surface:#ffffff;--surface2:#f8fafc;--surface3:#f1f5f9;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+  --code-bg:#0d1117;--code-surface:#161b22;
+  --radius:14px;--radius-sm:10px;--radius-lg:20px;--radius-xl:28px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.08);
+  --shadow-lg:0 8px 40px rgba(0,0,0,.14);
+  --sidebar-w:252px;--nav-h:66px;
+  --glow-teal:0 0 24px rgba(13,148,136,.25);
+  --glow-blue:0 0 24px rgba(59,130,246,.25);
+}
+
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface2);color:var(--text);overflow-x:hidden;line-height:1.6;}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+
+/* ══ TOP NAV ══ */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:rgba(255,255,255,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:18px;z-index:200;}
+.nav-brand{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.nav-brand-pill{background:linear-gradient(135deg,#0d9488,#3b82f6);color:#fff;font-size:11px;font-weight:800;letter-spacing:.08em;padding:4px 11px;border-radius:20px;text-transform:uppercase;}
+.nav-divider{width:1px;height:28px;background:var(--border);flex-shrink:0;}
+.nav-module-info{display:flex;flex-direction:column;}
+.nav-module-tag{font-size:10px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.07em;}
+.nav-module-name{font-size:13px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
+.nav-progress-area{flex:1;max-width:300px;padding:0 12px;}
+.nav-prog-row{display:flex;justify-content:space-between;margin-bottom:5px;}
+.nav-prog-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
+.nav-prog-pct{font-size:10px;font-weight:700;color:var(--teal);}
+.nav-prog-track{height:5px;background:var(--surface3);border-radius:6px;overflow:hidden;}
+.nav-prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--blue));border-radius:6px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.nav-user{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.nav-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--indigo));display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800;flex-shrink:0;box-shadow:0 0 0 3px var(--teal-l);}
+.nav-user-name{font-size:13px;font-weight:700;color:var(--text);}
+.nav-user-role{font-size:10px;color:var(--text3);font-weight:500;}
+
+/* ══ SIDEBAR ══ */
+.sidebar{position:fixed;top:var(--nav-h);left:0;bottom:0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:18px 10px;z-index:100;}
+.sb-section-title{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:8px 12px 6px;}
+.sb-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;transition:all .22s;margin-bottom:2px;position:relative;overflow:hidden;}
+.sb-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 3px 3px 0;background:var(--teal);transform:scaleY(0);transition:transform .22s;}
+.sb-item:hover{background:var(--surface3);}
+.sb-item.active{background:linear-gradient(135deg,rgba(13,148,136,.08),rgba(59,130,246,.08));color:var(--teal);}
+.sb-item.active::before{transform:scaleY(1);}
+.sb-item.done .sb-icon{background:var(--green-l);}
+.sb-icon{width:30px;height:30px;border-radius:8px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .22s;}
+.sb-item.active .sb-icon{background:linear-gradient(135deg,var(--teal),var(--blue));box-shadow:var(--glow-teal);}
+.sb-label{font-size:12.5px;font-weight:600;color:var(--text2);}
+.sb-item.active .sb-label{color:var(--teal);}
+.sb-check{margin-left:auto;width:16px;height:16px;flex-shrink:0;display:none;}
+.sb-item.done .sb-check{display:block;}
+
+/* ══ MAIN ══ */
+.main{margin-left:var(--sidebar-w);padding-top:var(--nav-h);}
+.page{display:none;padding:36px 44px 60px;max-width:980px;animation:pageIn .38s cubic-bezier(.4,0,.2,1);}
+.page.active{display:block;}
+@keyframes pageIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ TYPOGRAPHY ══ */
+.pg-eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:5px 13px;border-radius:20px;background:var(--teal-l);color:var(--teal-d);margin-bottom:14px;}
+.pg-title{font-size:34px;font-weight:800;letter-spacing:-1px;line-height:1.15;color:var(--text);margin-bottom:10px;}
+.pg-subtitle{font-size:15px;color:var(--text2);line-height:1.7;max-width:620px;}
+h2.section-h{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.4px;margin-bottom:12px;}
+h3{font-size:15px;font-weight:700;color:var(--text);}
+p.body{font-size:14px;color:var(--text2);line-height:1.75;}
+
+/* ══ CARDS ══ */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px 30px;box-shadow:var(--shadow);margin-bottom:22px;transition:box-shadow .25s;}
+.card:hover{box-shadow:var(--shadow-lg);}
+.card-sm{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);}
+.card-accent{border-left:4px solid var(--teal);}
+
+/* ══ CODE BLOCKS ══ */
+.code-wrap{background:var(--code-bg);border-radius:var(--radius);overflow:hidden;margin:16px 0;box-shadow:0 4px 24px rgba(0,0,0,.3);}
+.code-topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;background:var(--code-surface);border-bottom:1px solid rgba(255,255,255,.06);}
+.code-dots{display:flex;gap:7px;align-items:center;}
+.cd{width:12px;height:12px;border-radius:50%;}
+.cd-r{background:#ff5f57;}.cd-y{background:#febc2e;}.cd-g{background:#28c840;}
+.code-filename{font-family:'Fira Code',monospace;font-size:11px;color:#6e7681;}
+.code-body{padding:20px 22px;font-family:'Fira Code',monospace;font-size:12.5px;line-height:1.9;color:#e6edf3;overflow-x:auto;}
+.kw{color:#ff7b72;}.fn{color:#79c0ff;}.cl{color:#ffa657;}.st{color:#a5d6ff;}.cm{color:#8b949e;font-style:italic;}.nm{color:#79c0ff;}.op{color:#ff7b72;}.var{color:#e6edf3;}.prop{color:#7ee787;}.dec{color:#d2a8ff;}
+
+/* ══ OUTPUT ══ */
+.output-wrap{background:#010409;border:1px solid #30363d;border-radius:var(--radius-sm);padding:16px 20px;margin-top:10px;font-family:'Fira Code',monospace;font-size:12.5px;color:#3fb950;line-height:1.9;display:none;animation:fadeIn .3s ease;}
+.output-wrap.show{display:block;}
+.out-label{font-size:10px;font-weight:700;color:#8b949e;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.out-label::before{content:'';width:6px;height:6px;border-radius:50%;background:#3fb950;}
+
+/* ══ BUTTONS ══ */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .22s;letter-spacing:-.2px;}
+.btn-teal{background:linear-gradient(135deg,var(--teal),var(--teal-d));color:#fff;box-shadow:0 2px 12px rgba(13,148,136,.3);}
+.btn-teal:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(13,148,136,.4);}
+.btn-blue{background:linear-gradient(135deg,var(--blue),var(--blue-d));color:#fff;box-shadow:0 2px 12px rgba(59,130,246,.3);}
+.btn-blue:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,.4);}
+.btn-outline{background:transparent;color:var(--teal);border:1.5px solid var(--teal);}
+.btn-outline:hover{background:var(--teal-l);}
+.btn-ghost{background:var(--surface3);color:var(--text2);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--border);color:var(--text);}
+.btn-sm{padding:7px 15px;font-size:12px;}
+.btn-run{background:linear-gradient(135deg,#238636,#2ea043);color:#fff;font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:all .2s;}
+.btn-run:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(46,160,67,.4);}
+
+/* ══ ANALOGY BOX ══ */
+.analogy{background:linear-gradient(135deg,#fffbeb,#fef9c3);border:1px solid #fcd34d;border-radius:var(--radius);padding:18px 22px;display:flex;gap:14px;margin:16px 0;}
+.an-icon{font-size:26px;flex-shrink:0;margin-top:2px;}
+.an-body{font-size:13.5px;color:#78350f;line-height:1.75;}
+.an-body strong{color:#451a03;font-weight:700;}
+
+/* ══ CONCEPT DIAGRAM ══ */
+.oop-diagram{display:flex;flex-direction:column;align-items:center;gap:0;padding:10px 0;}
+.class-box{background:linear-gradient(135deg,rgba(13,148,136,.1),rgba(59,130,246,.1));border:2px solid var(--teal);border-radius:var(--radius);width:320px;overflow:hidden;transition:all .3s;}
+.class-box:hover{transform:scale(1.02);box-shadow:var(--glow-teal);}
+.class-header{background:linear-gradient(135deg,var(--teal),var(--blue));padding:10px 18px;color:#fff;font-size:13px;font-weight:800;letter-spacing:-.2px;display:flex;align-items:center;gap:8px;}
+.class-section{padding:12px 18px;border-top:1px solid rgba(13,148,136,.2);}
+.class-section-label{font-size:9px;font-weight:800;letter-spacing:.1em;color:var(--teal);text-transform:uppercase;margin-bottom:6px;}
+.class-attr{font-family:'Fira Code',monospace;font-size:12px;color:var(--text2);padding:2px 0;}
+.obj-row{display:flex;gap:12px;margin-top:16px;justify-content:center;flex-wrap:wrap;}
+.obj-box{background:var(--surface);border:1.5px solid var(--blue);border-radius:var(--radius-sm);padding:12px 16px;min-width:130px;transition:all .3s;cursor:pointer;}
+.obj-box:hover{transform:translateY(-3px);box-shadow:var(--glow-blue);}
+.obj-label{font-size:9px;font-weight:800;letter-spacing:.09em;color:var(--blue);text-transform:uppercase;margin-bottom:6px;}
+.obj-val{font-family:'Fira Code',monospace;font-size:11.5px;color:var(--text2);}
+.diagram-arrow{width:2px;height:20px;background:var(--teal);margin:2px auto;position:relative;}
+.diagram-arrow::after{content:'▼';position:absolute;bottom:-14px;left:-6px;font-size:12px;color:var(--teal);}
+
+/* ══ INHERITANCE TREE ══ */
+.inh-tree{display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px;}
+.inh-node{padding:10px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer;transition:all .25s;text-align:center;min-width:150px;}
+.inh-node:hover{transform:scale(1.04);}
+.inh-parent{background:linear-gradient(135deg,var(--indigo),var(--blue));color:#fff;box-shadow:0 4px 16px rgba(99,102,241,.3);}
+.inh-child-row{display:flex;gap:16px;}
+.inh-child{background:linear-gradient(135deg,var(--teal),var(--green-d));color:#fff;box-shadow:0 4px 16px rgba(13,148,136,.3);}
+.inh-arrow{text-align:center;font-size:20px;color:var(--text3);}
+.inh-tooltip{background:var(--navy);color:#e6edf3;border-radius:var(--radius-sm);padding:12px 16px;font-size:12px;font-family:'Fira Code',monospace;margin-top:10px;display:none;width:100%;max-width:460px;}
+.inh-tooltip.show{display:block;animation:fadeIn .25s ease;}
+
+/* ══ PILL TABS ══ */
+.pill-tabs{display:flex;gap:6px;background:var(--surface3);border-radius:30px;padding:5px;margin-bottom:22px;width:fit-content;}
+.pill-tab{padding:8px 18px;border-radius:24px;font-size:12.5px;font-weight:700;color:var(--text3);cursor:pointer;transition:all .22s;}
+.pill-tab.active{background:var(--surface);color:var(--teal);box-shadow:var(--shadow);}
+
+/* ══ STEP VIZ ══ */
+.sv-wrap{display:flex;flex-direction:column;gap:6px;}
+.sv-line{display:flex;align-items:flex-start;gap:14px;padding:12px 16px;border-radius:var(--radius-sm);border:1px solid transparent;transition:all .3s;opacity:.5;cursor:default;}
+.sv-line.active{border-color:var(--teal);background:rgba(13,148,136,.05);opacity:1;}
+.sv-line.done{border-color:var(--green);background:rgba(16,185,129,.05);opacity:.85;}
+.sv-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;background:var(--surface3);color:var(--text3);flex-shrink:0;}
+.sv-line.active .sv-num{background:var(--teal);color:#fff;}
+.sv-line.done .sv-num{background:var(--green);color:#fff;}
+.sv-code{font-family:'Fira Code',monospace;font-size:12px;color:var(--text2);flex:1;line-height:1.6;}
+.sv-note{font-size:11px;color:var(--teal);margin-top:3px;display:none;}
+.sv-line.active .sv-note{display:block;}
+
+/* ══ REVEAL CARDS ══ */
+.rc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.rc{border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all .25s;}
+.rc:hover{border-color:var(--teal);transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+.rc-front{padding:22px 16px;background:var(--surface3);text-align:center;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+.rc-front-icon{font-size:28px;}
+.rc-front-label{font-size:13px;font-weight:700;color:var(--text);}
+.rc-back{display:none;padding:16px;background:var(--surface);font-size:12.5px;color:var(--text2);line-height:1.7;}
+.rc.open .rc-front{display:none;}
+.rc.open .rc-back{display:block;}
+
+/* ══ SLIDER VIZ ══ */
+.slv-wrap{display:flex;flex-direction:column;gap:14px;}
+.sl-row{display:flex;align-items:center;gap:12px;}
+.sl-label{font-size:13px;font-weight:600;color:var(--text2);min-width:130px;}
+input[type=range]{flex:1;-webkit-appearance:none;height:6px;border-radius:6px;background:var(--border);outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--blue));border:3px solid #fff;box-shadow:0 2px 8px rgba(13,148,136,.3);cursor:pointer;}
+.sl-val{font-size:13px;font-weight:800;color:var(--teal);min-width:40px;text-align:right;}
+.obj-preview{background:var(--code-bg);border-radius:var(--radius-sm);padding:16px 20px;font-family:'Fira Code',monospace;font-size:12.5px;color:#e6edf3;line-height:1.9;margin-top:8px;}
+
+/* ══ POLY DEMO ══ */
+.poly-shapes{display:flex;gap:16px;flex-wrap:wrap;margin:14px 0;}
+.shape-card{border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 18px;cursor:pointer;transition:all .25s;flex:1;min-width:150px;}
+.shape-card:hover,.shape-card.sel{border-color:var(--teal);background:rgba(13,148,136,.04);}
+.shape-card.sel{box-shadow:0 0 0 3px var(--teal-l);}
+.shape-icon{font-size:32px;margin-bottom:10px;text-align:center;}
+.shape-name{font-size:13px;font-weight:700;color:var(--text);text-align:center;margin-bottom:4px;}
+.shape-formula{font-family:'Fira Code',monospace;font-size:11px;color:var(--text3);text-align:center;}
+.poly-result{background:var(--code-bg);border-radius:var(--radius-sm);padding:14px 18px;font-family:'Fira Code',monospace;font-size:12.5px;color:#3fb950;margin-top:10px;min-height:50px;transition:all .3s;}
+
+/* ══ EXERCISES ══ */
+.ex-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px 28px;margin-bottom:22px;position:relative;overflow:hidden;}
+.ex-card::before{content:'';position:absolute;top:0;left:0;width:5px;height:100%;background:linear-gradient(180deg,var(--teal),var(--blue));}
+.ex-num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff;border-radius:50%;font-size:12px;font-weight:800;margin-bottom:12px;}
+.ex-q{font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.ex-desc{font-size:13.5px;color:var(--text2);line-height:1.75;margin-bottom:18px;}
+.sol-wrap{display:none;margin-top:16px;animation:fadeIn .3s ease;}
+.sol-wrap.show{display:block;}
+.ex-hint{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--amber);background:var(--amber-l);border-radius:20px;padding:4px 11px;margin-bottom:12px;}
+
+/* ══ QUIZ ══ */
+.quiz-prog{display:flex;gap:5px;margin-bottom:28px;}
+.qpd{flex:1;height:5px;border-radius:4px;background:var(--border);transition:all .35s;}
+.qpd.done{background:var(--green);}
+.qpd.active{background:var(--teal);}
+.quiz-q{font-size:19px;font-weight:700;color:var(--text);line-height:1.5;margin-bottom:22px;letter-spacing:-.3px;}
+.quiz-opts{display:flex;flex-direction:column;gap:10px;}
+.qopt{padding:15px 20px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:13.5px;font-weight:500;color:var(--text2);transition:all .22s;display:flex;align-items:center;gap:13px;}
+.qopt:hover:not(.dis){border-color:var(--teal);background:var(--teal-l);color:var(--teal-d);}
+.qopt.correct{border-color:var(--green);background:var(--green-l);color:var(--green-d);}
+.qopt.wrong{border-color:var(--rose);background:var(--rose-l);color:#be123c;}
+.qopt.dis{cursor:default;}
+.qopt-radio{width:19px;height:19px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;transition:all .2s;}
+.qopt.correct .qopt-radio{border-color:var(--green);background:var(--green);}
+.qopt.wrong .qopt-radio{border-color:var(--rose);background:var(--rose);}
+.quiz-fb{border-radius:var(--radius-sm);padding:14px 18px;font-size:13px;font-weight:600;margin-top:16px;display:none;line-height:1.65;}
+.quiz-fb.show{display:flex;gap:10px;}
+.fb-ok{background:var(--green-l);border:1px solid var(--green);color:var(--green-d);}
+.fb-bad{background:var(--rose-l);border:1px solid #fda4af;color:#9f1239;}
+
+/* ══ SCORE ══ */
+.score-ring{width:130px;height:130px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;position:relative;}
+.score-inner{width:96px;height:96px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.score-n{font-size:26px;font-weight:800;color:var(--text);}
+.score-s{font-size:11px;color:var(--text3);}
+
+/* ══ COMPLETION ══ */
+.completion-hero{text-align:center;padding:40px 20px 30px;}
+.comp-trophy{font-size:72px;display:block;animation:trophyBounce 1.2s ease infinite alternate;}
+@keyframes trophyBounce{from{transform:translateY(0) scale(1)}to{transform:translateY(-14px) scale(1.05)}}
+.comp-sparks{display:flex;justify-content:center;gap:20px;font-size:28px;animation:sparkle 2s ease infinite;}
+@keyframes sparkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.9)}}
+.skills-wrap{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:22px 0;}
+.skill-pill{padding:8px 18px;background:var(--teal-l);color:var(--teal-d);border-radius:20px;font-size:12px;font-weight:700;border:1.5px solid rgba(13,148,136,.3);display:flex;align-items:center;gap:5px;}
+.cert-card{background:linear-gradient(135deg,var(--navy),var(--navy3));border-radius:var(--radius-lg);padding:28px;text-align:center;color:#fff;position:relative;overflow:hidden;margin:20px 0;}
+.cert-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(13,148,136,.2),transparent),radial-gradient(ellipse at 70% 50%,rgba(59,130,246,.2),transparent);}
+.cert-title{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:8px;position:relative;}
+.cert-name{font-size:24px;font-weight:800;letter-spacing:-.5px;position:relative;}
+.cert-sub{font-size:13px;color:rgba(255,255,255,.6);margin-top:6px;position:relative;}
+
+/* ══ BOTTOM NAV ══ */
+.bottom-nav{display:flex;justify-content:space-between;align-items:center;padding:24px 0 8px;border-top:1px solid var(--border);margin-top:20px;}
+
+/* ══ WELCOME ══ */
+.welcome-hero{background:linear-gradient(135deg,var(--navy),#1e2a4a);border-radius:var(--radius-xl);padding:44px 48px;color:#fff;margin-bottom:26px;position:relative;overflow:hidden;}
+.welcome-hero::after{content:'class {}';position:absolute;right:44px;bottom:20px;font-family:'Fira Code',monospace;font-size:72px;font-weight:700;color:rgba(255,255,255,.04);pointer-events:none;}
+.wh-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(13,148,136,.2);border:1px solid rgba(13,148,136,.4);color:#5eead4;border-radius:20px;padding:5px 15px;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin-bottom:18px;}
+.wh-title{font-size:40px;font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:14px;}
+.wh-title span{background:linear-gradient(135deg,#5eead4,#93c5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.wh-sub{font-size:15px;opacity:.75;line-height:1.7;max-width:500px;}
+.wh-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:0;}
+.wh-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center;}
+.wh-stat-icon{font-size:22px;margin-bottom:6px;}
+.wh-stat-val{font-size:22px;font-weight:800;color:var(--text);}
+.wh-stat-lbl{font-size:11px;color:var(--text3);margin-top:2px;}
+.pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0;}
+.pillar{border-radius:var(--radius);padding:18px 16px;text-align:center;cursor:pointer;transition:all .25s;border:1.5px solid transparent;}
+.pillar:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+.pillar-icon{font-size:26px;margin-bottom:10px;}
+.pillar-name{font-size:12px;font-weight:700;margin-bottom:4px;}
+.pillar-desc{font-size:11px;opacity:.75;}
+
+/* ══ MISC ══ */
+.tag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.tag-teal{background:var(--teal-l);color:var(--teal-d);}
+.tag-blue{background:var(--blue-l);color:var(--blue-d);}
+.tag-indigo{background:var(--indigo-l);color:#3730a3;}
+.tag-amber{background:var(--amber-l);color:#78350f;}
+.tag-rose{background:var(--rose-l);color:#be123c;}
+.divider{height:1px;background:var(--border);margin:20px 0;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ ENCAP DEMO ══ */
+.enc-demo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0;}
+.enc-panel{background:var(--surface3);border-radius:var(--radius);padding:16px;}
+.enc-panel-title{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
+.enc-field{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface);border-radius:8px;margin-bottom:6px;border:1px solid var(--border);}
+.enc-field-name{font-family:'Fira Code',monospace;font-size:12px;color:var(--text2);}
+.enc-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;}
+
+/* ══ ABSTRACT ══ */
+.abst-flow{display:flex;flex-direction:column;align-items:center;gap:0;}
+.abst-node{border-radius:var(--radius-sm);padding:12px 24px;font-size:13px;font-weight:700;min-width:200px;text-align:center;transition:all .3s;cursor:pointer;}
+.abst-node:hover{transform:scale(1.03);}
+.abst-abstract{background:var(--indigo-l);border:2px dashed var(--indigo);color:#3730a3;}
+.abst-concrete{background:var(--teal-l);border:2px solid var(--teal);color:var(--teal-d);}
+.abst-arrow-wrap{display:flex;gap:60px;}
+.abst-down{width:2px;height:24px;background:var(--text3);margin:2px auto;position:relative;}
+.abst-down::after{content:'▼';position:absolute;bottom:-14px;left:-6px;font-size:12px;color:var(--text3);}
+</style>
+</head>
+<body>
+
+<!-- ════ TOP NAV ════ -->
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-brand-pill">HCL · GUVI</div>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-module-info">
+    <div class="nav-module-tag">Python for Beginners · Module 10</div>
+    <div class="nav-module-name">Object-Oriented Programming in Python</div>
+  </div>
+  <div class="nav-progress-area">
+    <div class="nav-prog-row">
+      <span class="nav-prog-label">Progress</span>
+      <span class="nav-prog-pct" id="prog-pct">0%</span>
+    </div>
+    <div class="nav-prog-track">
+      <div class="nav-prog-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+  </div>
+  <div class="nav-user">
+    <div style="text-align:right;">
+      <div class="nav-user-name">Vinodhini</div>
+      <div class="nav-user-role">Data Scientist · HCL GUVI</div>
+    </div>
+    <div class="nav-avatar">Vi</div>
+  </div>
+</nav>
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sb-section-title">Module 10</div>
+  <div class="sb-item active" onclick="gp(0)" id="sb0"><div class="sb-icon">🏠</div><span class="sb-label">Welcome</span><svg class="sb-check" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#10b981"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+  <div class="sb-item" onclick="gp(1)" id="sb1"><div class="sb-icon">🧱</div><span class="sb-label">Classes &amp; Objects</span><svg class="sb-check" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#10b981"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+  <div class="sb-item" onclick="gp(2)" id="sb2"><div class="sb-icon">🔒</div><span class="sb-label">Encapsulation</span><svg class="sb-check" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#10b981"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+  <div class="sb-item" onclick="gp(3)" id="sb3"><div class="sb-icon">🧬</div><span class="sb-label">Inheritance</span><svg class="sb-check" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#10b981"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+  <div class="sb-item" onclick="gp(4)" id="sb4"><div class="sb-icon">🎭</div><span class="sb-label">Polymorphism</span><svg class="sb-check" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#10b981"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+  <div class="sb-item" onclick="gp(5)" id="sb5"><div class="sb-icon">✏️</div><span class="sb-label">Exercises</span><svg class="sb-check" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#10b981"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+  <div class="sb-item" onclick="gp(6)" id="sb6"><div class="sb-icon">🧠</div><span class="sb-label">Quiz</span><svg class="sb-check" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#10b981"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+  <div class="sb-item" onclick="gp(7)" id="sb7"><div class="sb-icon">🎓</div><span class="sb-label">Completion</span><svg class="sb-check" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#10b981"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<main class="main">
+
+<!-- ═══ PAGE 0: WELCOME ═══ -->
+<div class="page active" id="pg0">
+  <div class="welcome-hero">
+    <div class="wh-badge">📘 Python for Beginners · Module 10</div>
+    <div class="wh-title">Object-Oriented<br><span>Programming</span> in Python</div>
+    <div class="wh-sub">Model the real world in code. Learn to create blueprints (classes), build objects, and harness the four pillars of OOP to write elegant, reusable software.</div>
+  </div>
+  <div class="wh-stats">
+    <div class="wh-stat"><div class="wh-stat-icon">📖</div><div class="wh-stat-val">4</div><div class="wh-stat-lbl">Core Concepts</div></div>
+    <div class="wh-stat"><div class="wh-stat-icon">✏️</div><div class="wh-stat-val">3</div><div class="wh-stat-lbl">Exercises</div></div>
+    <div class="wh-stat"><div class="wh-stat-icon">🧠</div><div class="wh-stat-val">5</div><div class="wh-stat-lbl">Quiz Questions</div></div>
+    <div class="wh-stat"><div class="wh-stat-icon">⏱️</div><div class="wh-stat-val">45</div><div class="wh-stat-lbl">Minutes</div></div>
+  </div>
+  <div style="height:22px;"></div>
+  <div class="card">
+    <h2 class="section-h">The Four Pillars of OOP</h2>
+    <p class="body" style="margin-bottom:18px;">Click a pillar to jump to that concept.</p>
+    <div class="pillars">
+      <div class="pillar" style="background:var(--teal-l);border-color:var(--teal);" onclick="gp(1)"><div class="pillar-icon">🧱</div><div class="pillar-name" style="color:var(--teal-d);">Abstraction</div><div class="pillar-desc" style="color:var(--teal);">Blueprint for objects</div></div>
+      <div class="pillar" style="background:var(--blue-l);border-color:var(--blue);" onclick="gp(2)"><div class="pillar-icon">🔒</div><div class="pillar-name" style="color:var(--blue-d);">Encapsulation</div><div class="pillar-desc" style="color:var(--blue);">Data hiding</div></div>
+      <div class="pillar" style="background:var(--indigo-l);border-color:var(--indigo);" onclick="gp(3)"><div class="pillar-icon">🧬</div><div class="pillar-name" style="color:#3730a3;">Inheritance</div><div class="pillar-desc" style="color:var(--indigo);">Reuse &amp; extend</div></div>
+      <div class="pillar" style="background:#fdf4ff;border-color:#a855f7;" onclick="gp(4)"><div class="pillar-icon">🎭</div><div class="pillar-name" style="color:#6b21a8;">Polymorphism</div><div class="pillar-desc" style="color:#a855f7;">Many forms</div></div>
+    </div>
+  </div>
+  <div class="card" style="background:linear-gradient(135deg,var(--navy),#1e3a5f);color:#fff;border:none;">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="font-size:36px;">🎯</div>
+      <div>
+        <div style="font-size:16px;font-weight:800;margin-bottom:4px;">Why OOP?</div>
+        <div style="font-size:13px;opacity:.75;line-height:1.7;">OOP lets you model real-world entities as code. It makes programs easier to <strong style="color:#5eead4;">organise</strong>, <strong style="color:#93c5fd;">maintain</strong>, and <strong style="color:#c4b5fd;">reuse</strong> — the foundation of professional software development.</div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-nav"><div></div><button class="btn btn-teal" onclick="gp(1)">Start Learning →</button></div>
+</div>
+
+<!-- ═══ PAGE 1: CLASSES & OBJECTS ═══ -->
+<div class="page" id="pg1">
+  <div style="margin-bottom:28px;">
+    <div class="pg-eyebrow">Concept 1 · Classes &amp; Objects</div>
+    <div class="pg-title">Classes &amp; Objects</div>
+    <div class="pg-subtitle">A class is a blueprint; an object is a real thing built from it.</div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-h">What is a Class?</h2>
+    <p class="body">A <strong>class</strong> is a template that defines <em>attributes</em> (data) and <em>methods</em> (behaviour). An <strong>object</strong> is a specific instance created from that class — it has its own unique values for those attributes.</p>
+    <div class="analogy" style="margin-top:16px;">
+      <div class="an-icon">🏠</div>
+      <div class="an-body"><strong>Real-life analogy:</strong> A class is like a <strong>house blueprint</strong>. The blueprint describes the number of rooms, doors, and windows — but it isn't a real house. Every house <em>built</em> from the blueprint is an object — each with its own address, colour, and owner.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-h">Python Syntax</h2>
+    <div class="code-wrap">
+      <div class="code-topbar"><div class="code-dots"><span class="cd cd-r"></span><span class="cd cd-y"></span><span class="cd cd-g"></span></div><span class="code-filename">car.py</span></div>
+      <div class="code-body"><span class="kw">class</span> <span class="cl">Car</span>:
+    <span class="cm"># __init__ is the constructor — called when creating an object</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">brand</span>, <span class="var">speed</span>):
+        <span class="var">self</span>.<span class="prop">brand</span> = <span class="var">brand</span>
+        <span class="var">self</span>.<span class="prop">speed</span> = <span class="var">speed</span>
+
+    <span class="kw">def</span> <span class="fn">describe</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="st">f"</span><span class="var">{self.brand}</span><span class="st"> goes at </span><span class="var">{self.speed}</span><span class="st"> km/h"</span>
+
+<span class="cm"># Creating objects (instances)</span>
+<span class="var">car1</span> = <span class="cl">Car</span>(<span class="st">"Toyota"</span>, <span class="nm">120</span>)
+<span class="var">car2</span> = <span class="cl">Car</span>(<span class="st">"BMW"</span>, <span class="nm">200</span>)
+<span class="fn">print</span>(<span class="var">car1</span>.<span class="fn">describe</span>())
+<span class="fn">print</span>(<span class="var">car2</span>.<span class="fn">describe</span>())</div>
+    </div>
+    <button class="btn-run" onclick="tog('o_co')">▶ Run Demo</button>
+    <div class="output-wrap" id="o_co"><div class="out-label">Output</div>Toyota goes at 120 km/h<br>BMW goes at 200 km/h</div>
+  </div>
+
+  <!-- VISUAL: Class Diagram -->
+  <div class="card">
+    <h2 class="section-h">🗂️ Interactive Class Diagram</h2>
+    <p class="body" style="margin-bottom:16px;">Click on any object to highlight its values from the class blueprint.</p>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <div class="class-box">
+        <div class="class-header">🧱 Class: Car</div>
+        <div class="class-section">
+          <div class="class-section-label">📋 Attributes (self.___)</div>
+          <div class="class-attr">+ brand: str</div>
+          <div class="class-attr">+ speed: int</div>
+        </div>
+        <div class="class-section">
+          <div class="class-section-label">⚙️ Methods</div>
+          <div class="class-attr">+ __init__(brand, speed)</div>
+          <div class="class-attr">+ describe() → str</div>
+        </div>
+      </div>
+      <div class="diagram-arrow"></div>
+      <div class="obj-row">
+        <div class="obj-box" onclick="hlObj(this,'car1')" id="obj-car1">
+          <div class="obj-label">Object: car1</div>
+          <div class="obj-val">brand = "Toyota"</div>
+          <div class="obj-val">speed = 120</div>
+        </div>
+        <div class="obj-box" onclick="hlObj(this,'car2')" id="obj-car2">
+          <div class="obj-label">Object: car2</div>
+          <div class="obj-val">brand = "BMW"</div>
+          <div class="obj-val">speed = 200</div>
+        </div>
+        <div class="obj-box" onclick="hlObj(this,'car3')" id="obj-car3">
+          <div class="obj-label">Object: car3</div>
+          <div class="obj-val">brand = "Tesla"</div>
+          <div class="obj-val">speed = 250</div>
+        </div>
+      </div>
+      <div id="obj-msg" style="font-family:'Fira Code',monospace;font-size:12.5px;color:var(--teal);margin-top:8px;min-height:20px;"></div>
+    </div>
+  </div>
+
+  <!-- VISUAL: Object Builder Slider -->
+  <div class="card">
+    <h2 class="section-h">⚙️ Object Builder</h2>
+    <p class="body" style="margin-bottom:16px;">Adjust the sliders to customise object attributes and see the live Python object representation.</p>
+    <div class="slv-wrap">
+      <div class="sl-row"><span class="sl-label">speed (km/h)</span><input type="range" min="60" max="300" value="120" id="sl-speed" oninput="buildObj()"><span class="sl-val" id="sv-speed">120</span></div>
+      <div class="sl-row"><span class="sl-label">fuel_level (%)</span><input type="range" min="0" max="100" value="75" id="sl-fuel" oninput="buildObj()"><span class="sl-val" id="sv-fuel">75</span></div>
+      <div class="sl-row"><span class="sl-label">passengers</span><input type="range" min="0" max="8" value="2" step="1" id="sl-pass" oninput="buildObj()"><span class="sl-val" id="sv-pass">2</span></div>
+    </div>
+    <div class="obj-preview" id="obj-preview"></div>
+  </div>
+
+  <!-- VISUAL: Step-by-Step -->
+  <div class="card">
+    <h2 class="section-h">🔬 Step-by-Step: Creating an Object</h2>
+    <p class="body" style="margin-bottom:16px;">Click <strong>Step</strong> to walk through object creation one line at a time.</p>
+    <div class="sv-wrap" id="sv-co">
+      <div class="sv-line active" id="sl0"><span class="sv-num">1</span><div><div class="sv-code"><span style="color:#ff7b72;">class</span> <span style="color:#ffa657;">Car</span>:</div><div class="sv-note">Python registers the Car class blueprint in memory</div></div></div>
+      <div class="sv-line" id="sl1"><span class="sv-num">2</span><div><div class="sv-code">&nbsp;&nbsp;<span style="color:#ff7b72;">def</span> <span style="color:#79c0ff;">__init__</span>(self, brand, speed):</div><div class="sv-note">Constructor defined — runs automatically on object creation</div></div></div>
+      <div class="sv-line" id="sl2"><span class="sv-num">3</span><div><div class="sv-code">&nbsp;&nbsp;&nbsp;&nbsp;self.<span style="color:#7ee787;">brand</span> = brand</div><div class="sv-note">Instance attribute 'brand' assigned to the object</div></div></div>
+      <div class="sv-line" id="sl3"><span class="sv-num">4</span><div><div class="sv-code">&nbsp;&nbsp;&nbsp;&nbsp;self.<span style="color:#7ee787;">speed</span> = speed</div><div class="sv-note">Instance attribute 'speed' assigned to the object</div></div></div>
+      <div class="sv-line" id="sl4"><span class="sv-num">5</span><div><div class="sv-code">car1 = <span style="color:#ffa657;">Car</span>(<span style="color:#a5d6ff;">"Toyota"</span>, <span style="color:#79c0ff;">120</span>)</div><div class="sv-note">✅ Object 'car1' created! Memory allocated, __init__ called</div></div></div>
+      <div class="sv-line" id="sl5"><span class="sv-num">6</span><div><div class="sv-code"><span style="color:#79c0ff;">print</span>(car1.describe())</div><div class="sv-note">Output: "Toyota goes at 120 km/h"</div></div></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;align-items:center;">
+      <button class="btn btn-teal btn-sm" onclick="stepCO()">→ Step</button>
+      <button class="btn btn-ghost btn-sm" onclick="resetCO()">↺ Reset</button>
+      <span id="sv-co-msg" style="font-size:13px;font-weight:700;color:var(--green);"></span>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="btn btn-ghost" onclick="gp(0)">← Back</button>
+    <button class="btn btn-teal" onclick="gp(2)">Next: Encapsulation →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 2: ENCAPSULATION ═══ -->
+<div class="page" id="pg2">
+  <div style="margin-bottom:28px;">
+    <div class="pg-eyebrow" style="background:var(--blue-l);color:var(--blue-d);">Concept 2 · Encapsulation</div>
+    <div class="pg-title">Encapsulation</div>
+    <div class="pg-subtitle">Bundle data and methods together — control what the outside world can see.</div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-h">What is Encapsulation?</h2>
+    <p class="body">Encapsulation means keeping an object's internal data <strong>private</strong> and only exposing what's needed through <strong>public methods</strong> (getters/setters). This protects data from accidental modification.</p>
+    <div class="analogy" style="margin-top:16px;">
+      <div class="an-icon">🏧</div>
+      <div class="an-body"><strong>Real-life analogy:</strong> An <strong>ATM machine</strong> is a perfect example. You can interact with your bank balance (view, withdraw), but you cannot directly edit the database. The internal data is hidden — you access it only through controlled methods.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-h">Python Syntax</h2>
+    <div class="code-wrap">
+      <div class="code-topbar"><div class="code-dots"><span class="cd cd-r"></span><span class="cd cd-y"></span><span class="cd cd-g"></span></div><span class="code-filename">bank_account.py</span></div>
+      <div class="code-body"><span class="kw">class</span> <span class="cl">BankAccount</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">owner</span>, <span class="var">balance</span>):
+        <span class="var">self</span>.<span class="prop">owner</span>  = <span class="var">owner</span>        <span class="cm"># public</span>
+        <span class="var">self</span>.<span class="prop">_balance</span> = <span class="var">balance</span>     <span class="cm"># protected (_)</span>
+        <span class="var">self</span>.<span class="prop">__pin</span>  = <span class="nm">1234</span>          <span class="cm"># private (__)</span>
+
+    <span class="kw">def</span> <span class="fn">deposit</span>(<span class="var">self</span>, <span class="var">amount</span>):
+        <span class="var">self</span>.<span class="prop">_balance</span> += <span class="var">amount</span>
+
+    <span class="kw">def</span> <span class="fn">get_balance</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="var">self</span>.<span class="prop">_balance</span>
+
+<span class="var">acc</span> = <span class="cl">BankAccount</span>(<span class="st">"Vinodhini"</span>, <span class="nm">5000</span>)
+<span class="var">acc</span>.<span class="fn">deposit</span>(<span class="nm">1500</span>)
+<span class="fn">print</span>(<span class="var">acc</span>.<span class="fn">get_balance</span>())  <span class="cm"># 6500</span></div>
+    </div>
+    <button class="btn-run" onclick="tog('o_enc')">▶ Run Demo</button>
+    <div class="output-wrap" id="o_enc"><div class="out-label">Output</div>6500</div>
+  </div>
+
+  <!-- VISUAL: Access Modifier Demo -->
+  <div class="card">
+    <h2 class="section-h">🔐 Access Modifiers — Click to Reveal</h2>
+    <div class="rc-grid">
+      <div class="rc" onclick="this.classList.toggle('open')">
+        <div class="rc-front"><div class="rc-front-icon">🟢</div><div class="rc-front-label">Public</div><div style="font-size:11px;color:var(--text3);">No prefix</div></div>
+        <div class="rc-back"><strong>Public attributes/methods</strong> are accessible from anywhere — inside the class, subclasses, or outside.<br><br><code style="font-family:'Fira Code',monospace;font-size:11px;">self.name = "Alice"<br>obj.name  # ✅ works</code></div>
+      </div>
+      <div class="rc" onclick="this.classList.toggle('open')">
+        <div class="rc-front"><div class="rc-front-icon">🟡</div><div class="rc-front-label">Protected</div><div style="font-size:11px;color:var(--text3);">Single underscore _</div></div>
+        <div class="rc-back"><strong>Protected</strong> means "internal use" — accessible but by convention should not be used outside the class or subclasses.<br><br><code style="font-family:'Fira Code',monospace;font-size:11px;">self._balance = 5000<br>obj._balance  # ⚠️ discouraged</code></div>
+      </div>
+      <div class="rc" onclick="this.classList.toggle('open')">
+        <div class="rc-front"><div class="rc-front-icon">🔴</div><div class="rc-front-label">Private</div><div style="font-size:11px;color:var(--text3);">Double underscore __</div></div>
+        <div class="rc-back"><strong>Private</strong> uses name mangling. Truly hidden — you cannot access it directly from outside the class.<br><br><code style="font-family:'Fira Code',monospace;font-size:11px;">self.__pin = 1234<br>obj.__pin  # ❌ AttributeError</code></div>
+      </div>
+    </div>
+    <p style="font-size:11.5px;color:var(--text3);margin-top:10px;">👆 Click any card to reveal details</p>
+  </div>
+
+  <!-- VISUAL: Encapsulation Diagram -->
+  <div class="card">
+    <h2 class="section-h">🛡️ Data Access Control</h2>
+    <div class="enc-demo">
+      <div class="enc-panel">
+        <div class="enc-panel-title" style="color:var(--rose);">❌ Direct Access (Unsafe)</div>
+        <div class="enc-field"><span class="enc-field-name">obj.owner</span><span class="enc-badge" style="background:var(--green-l);color:var(--green-d);">✓ OK</span></div>
+        <div class="enc-field"><span class="enc-field-name">obj._balance</span><span class="enc-badge" style="background:var(--amber-l);color:#78350f;">⚠ Risky</span></div>
+        <div class="enc-field"><span class="enc-field-name">obj.__pin</span><span class="enc-badge" style="background:var(--rose-l);color:#be123c;">✗ Error</span></div>
+      </div>
+      <div class="enc-panel">
+        <div class="enc-panel-title" style="color:var(--green-d);">✅ Method Access (Safe)</div>
+        <div class="enc-field"><span class="enc-field-name">obj.get_balance()</span><span class="enc-badge" style="background:var(--green-l);color:var(--green-d);">✓ OK</span></div>
+        <div class="enc-field"><span class="enc-field-name">obj.deposit(500)</span><span class="enc-badge" style="background:var(--green-l);color:var(--green-d);">✓ OK</span></div>
+        <div class="enc-field"><span class="enc-field-name">obj.verify_pin(n)</span><span class="enc-badge" style="background:var(--green-l);color:var(--green-d);">✓ OK</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISUAL: Balance Simulator -->
+  <div class="card">
+    <h2 class="section-h">💳 Interactive Bank Account Simulator</h2>
+    <p class="body" style="margin-bottom:16px;">Experience encapsulation — interact through safe methods only!</p>
+    <div style="background:linear-gradient(135deg,var(--navy),#1e2a4a);border-radius:var(--radius);padding:22px;color:#fff;margin-bottom:16px;">
+      <div style="font-size:11px;opacity:.6;margin-bottom:4px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Current Balance</div>
+      <div style="font-size:36px;font-weight:800;letter-spacing:-1px;" id="enc-bal">₹ 5,000</div>
+      <div style="font-size:12px;opacity:.5;margin-top:4px;">Owner: Vinodhini · PIN: ••••</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <input type="number" id="enc-amt" placeholder="Enter amount" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;flex:1;min-width:140px;">
+      <button class="btn btn-teal btn-sm" onclick="encDeposit()">+ Deposit</button>
+      <button class="btn btn-ghost btn-sm" onclick="encWithdraw()">− Withdraw</button>
+    </div>
+    <div id="enc-msg" style="margin-top:10px;font-size:13px;font-weight:600;min-height:20px;"></div>
+    <div style="margin-top:12px;font-family:'Fira Code',monospace;font-size:12px;color:var(--text3);background:var(--surface3);border-radius:8px;padding:10px 14px;" id="enc-log">acc.get_balance() → 5000</div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="btn btn-ghost" onclick="gp(1)">← Back</button>
+    <button class="btn btn-teal" onclick="gp(3)">Next: Inheritance →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 3: INHERITANCE ═══ -->
+<div class="page" id="pg3">
+  <div style="margin-bottom:28px;">
+    <div class="pg-eyebrow" style="background:var(--indigo-l);color:#3730a3;">Concept 3 · Inheritance</div>
+    <div class="pg-title">Inheritance</div>
+    <div class="pg-subtitle">Reuse and extend existing classes — the "is-a" relationship in code.</div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-h">What is Inheritance?</h2>
+    <p class="body">Inheritance lets a <strong>child class</strong> inherit attributes and methods from a <strong>parent class</strong>, then add or override them. This promotes code reuse and creates a logical hierarchy.</p>
+    <div class="analogy" style="margin-top:16px;">
+      <div class="an-icon">👨‍👩‍👧</div>
+      <div class="an-body"><strong>Real-life analogy:</strong> A <strong>child inherits</strong> traits from their parents — eye colour, height, last name. But they also have their own unique traits and can override behaviours (e.g., they might cook differently). Child classes work the same way!</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-h">Python Syntax</h2>
+    <div class="code-wrap">
+      <div class="code-topbar"><div class="code-dots"><span class="cd cd-r"></span><span class="cd cd-y"></span><span class="cd cd-g"></span></div><span class="code-filename">animals.py</span></div>
+      <div class="code-body"><span class="kw">class</span> <span class="cl">Animal</span>:                       <span class="cm"># Parent</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">name</span>):
+        <span class="var">self</span>.<span class="prop">name</span> = <span class="var">name</span>
+    <span class="kw">def</span> <span class="fn">speak</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="st">"Some sound"</span>
+
+<span class="kw">class</span> <span class="cl">Dog</span>(<span class="cl">Animal</span>):                 <span class="cm"># Child — inherits Animal</span>
+    <span class="kw">def</span> <span class="fn">speak</span>(<span class="var">self</span>):               <span class="cm"># Override parent method</span>
+        <span class="kw">return</span> <span class="st">f"</span><span class="var">{self.name}</span><span class="st"> says: Woof!"</span>
+
+<span class="kw">class</span> <span class="cl">Cat</span>(<span class="cl">Animal</span>):                 <span class="cm"># Another child class</span>
+    <span class="kw">def</span> <span class="fn">speak</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="st">f"</span><span class="var">{self.name}</span><span class="st"> says: Meow!"</span>
+
+<span class="var">d</span> = <span class="cl">Dog</span>(<span class="st">"Rex"</span>)
+<span class="var">c</span> = <span class="cl">Cat</span>(<span class="st">"Luna"</span>)
+<span class="fn">print</span>(<span class="var">d</span>.<span class="fn">speak</span>(), <span class="var">c</span>.<span class="fn">speak</span>())</div>
+    </div>
+    <button class="btn-run" onclick="tog('o_inh')">▶ Run Demo</button>
+    <div class="output-wrap" id="o_inh"><div class="out-label">Output</div>Rex says: Woof!  Luna says: Meow!</div>
+  </div>
+
+  <!-- VISUAL: Inheritance Tree -->
+  <div class="card">
+    <h2 class="section-h">🌳 Interactive Inheritance Tree</h2>
+    <p class="body" style="margin-bottom:16px;">Click a class to see what it inherits and what it adds.</p>
+    <div class="inh-tree">
+      <div class="inh-node inh-parent" onclick="showInh('animal')">🐾 Animal (Parent)</div>
+      <div class="inh-arrow">↓</div>
+      <div class="inh-child-row">
+        <div class="inh-node inh-child" onclick="showInh('dog')" style="font-size:12px;">🐶 Dog</div>
+        <div class="inh-node inh-child" onclick="showInh('cat')" style="font-size:12px;">🐱 Cat</div>
+        <div class="inh-node inh-child" onclick="showInh('bird')" style="font-size:12px;">🐦 Bird</div>
+      </div>
+      <div class="inh-tooltip" id="inh-tip"></div>
+    </div>
+  </div>
+
+  <!-- VISUAL: super() Demo -->
+  <div class="card">
+    <h2 class="section-h">🔗 Using <code style="font-family:'Fira Code',monospace;font-size:16px;color:var(--teal);">super()</code></h2>
+    <p class="body" style="margin-bottom:14px;"><code style="font-family:'Fira Code',monospace;">super()</code> lets a child class call the parent class's method — useful to extend rather than completely replace behaviour.</p>
+    <div class="code-wrap">
+      <div class="code-topbar"><div class="code-dots"><span class="cd cd-r"></span><span class="cd cd-y"></span><span class="cd cd-g"></span></div><span class="code-filename">super_demo.py</span></div>
+      <div class="code-body"><span class="kw">class</span> <span class="cl">Vehicle</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">brand</span>):
+        <span class="var">self</span>.<span class="prop">brand</span> = <span class="var">brand</span>
+
+<span class="kw">class</span> <span class="cl">ElectricCar</span>(<span class="cl">Vehicle</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">brand</span>, <span class="var">battery_kw</span>):
+        <span class="fn">super</span>().<span class="fn">__init__</span>(<span class="var">brand</span>)  <span class="cm"># Call Vehicle.__init__</span>
+        <span class="var">self</span>.<span class="prop">battery_kw</span> = <span class="var">battery_kw</span>
+
+<span class="var">ev</span> = <span class="cl">ElectricCar</span>(<span class="st">"Tesla"</span>, <span class="nm">100</span>)
+<span class="fn">print</span>(<span class="var">ev</span>.<span class="prop">brand</span>, <span class="var">ev</span>.<span class="prop">battery_kw</span>)</div>
+    </div>
+    <button class="btn-run" onclick="tog('o_super')">▶ Run Demo</button>
+    <div class="output-wrap" id="o_super"><div class="out-label">Output</div>Tesla 100</div>
+  </div>
+
+  <!-- VISUAL: MRO Visualizer (Method Resolution Order) -->
+  <div class="card">
+    <h2 class="section-h">📋 Scenario Cards — Is-A Relationship</h2>
+    <p class="body" style="margin-bottom:16px;">Drag these real-world items to identify which has an inheritance relationship:</p>
+    <div class="rc-grid">
+      <div class="rc" onclick="this.classList.toggle('open')">
+        <div class="rc-front"><div class="rc-front-icon">🚗</div><div class="rc-front-label">Car → Vehicle?</div></div>
+        <div class="rc-back">✅ <strong>Yes — IS-A</strong><br>Car is a Vehicle. Car can inherit from Vehicle, getting attributes like brand, speed, and fuel_type.</div>
+      </div>
+      <div class="rc" onclick="this.classList.toggle('open')">
+        <div class="rc-front"><div class="rc-front-icon">🐟</div><div class="rc-front-label">Fish → Bird?</div></div>
+        <div class="rc-back">❌ <strong>No — NOT IS-A</strong><br>Fish is not a Bird. They are sibling classes — both inherit from Animal, but Fish should NOT inherit from Bird.</div>
+      </div>
+      <div class="rc" onclick="this.classList.toggle('open')">
+        <div class="rc-front"><div class="rc-front-icon">👨‍⚕️</div><div class="rc-front-label">Doctor → Person?</div></div>
+        <div class="rc-back">✅ <strong>Yes — IS-A</strong><br>A Doctor is a Person. Doctor inherits from Person, adding attributes like specialization and licence_no.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="btn btn-ghost" onclick="gp(2)">← Back</button>
+    <button class="btn btn-teal" onclick="gp(4)">Next: Polymorphism →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 4: POLYMORPHISM (ADVANCED) ═══ -->
+<div class="page" id="pg4">
+  <div style="margin-bottom:28px;">
+    <div class="pg-eyebrow" style="background:#fdf4ff;color:#6b21a8;">Advanced Concept · Polymorphism</div>
+    <div class="pg-title">Polymorphism</div>
+    <div class="pg-subtitle">One interface, many forms — the same method behaves differently for different objects.</div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-h">What is Polymorphism?</h2>
+    <p class="body">Polymorphism means "many forms". In Python, the same method name can behave differently depending on the object calling it. This lets you write generic code that works with any compatible object.</p>
+    <div class="analogy" style="margin-top:16px;">
+      <div class="an-icon">🔌</div>
+      <div class="an-body"><strong>Real-life analogy:</strong> A <strong>USB port</strong> is polymorphic. You can plug in a keyboard, mouse, or flash drive — each device is different, but they all connect through the same interface. Your computer says "connect()" and each device responds in its own way.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="pill-tabs" id="poly-tabs">
+      <div class="pill-tab active" onclick="polyTab('override')">Method Overriding</div>
+      <div class="pill-tab" onclick="polyTab('duck')">Duck Typing</div>
+      <div class="pill-tab" onclick="polyTab('abstract')">Abstract Classes</div>
+    </div>
+    <div id="poly-override">
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="cd cd-r"></span><span class="cd cd-y"></span><span class="cd cd-g"></span></div><span class="code-filename">polymorphism.py</span></div>
+        <div class="code-body"><span class="kw">class</span> <span class="cl">Shape</span>:
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var">self</span>): <span class="kw">return</span> <span class="nm">0</span>
+
+<span class="kw">class</span> <span class="cl">Circle</span>(<span class="cl">Shape</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">r</span>): <span class="var">self</span>.<span class="prop">r</span> = <span class="var">r</span>
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var">self</span>): <span class="kw">return</span> <span class="nm">3.14</span> * <span class="var">self</span>.<span class="prop">r</span> ** <span class="nm">2</span>
+
+<span class="kw">class</span> <span class="cl">Rectangle</span>(<span class="cl">Shape</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">w</span>, <span class="var">h</span>): <span class="var">self</span>.<span class="prop">w</span> = <span class="var">w</span>; <span class="var">self</span>.<span class="prop">h</span> = <span class="var">h</span>
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var">self</span>): <span class="kw">return</span> <span class="var">self</span>.<span class="prop">w</span> * <span class="var">self</span>.<span class="prop">h</span>
+
+<span class="kw">for</span> <span class="var">s</span> <span class="kw">in</span> [<span class="cl">Circle</span>(<span class="nm">5</span>), <span class="cl">Rectangle</span>(<span class="nm">4</span>, <span class="nm">6</span>)]:
+    <span class="fn">print</span>(<span class="var">s</span>.<span class="fn">area</span>())   <span class="cm"># same call, different result!</span></div>
+      </div>
+      <button class="btn-run" onclick="tog('o_poly1')">▶ Run Demo</button>
+      <div class="output-wrap" id="o_poly1"><div class="out-label">Output</div>78.5<br>24</div>
+    </div>
+    <div id="poly-duck" style="display:none;">
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="cd cd-r"></span><span class="cd cd-y"></span><span class="cd cd-g"></span></div><span class="code-filename">duck_typing.py</span></div>
+        <div class="code-body"><span class="cm"># Duck typing: "If it quacks like a duck, it IS a duck"</span>
+<span class="kw">class</span> <span class="cl">Dog</span>:
+    <span class="kw">def</span> <span class="fn">sound</span>(<span class="var">self</span>): <span class="kw">return</span> <span class="st">"Woof"</span>
+
+<span class="kw">class</span> <span class="cl">Duck</span>:
+    <span class="kw">def</span> <span class="fn">sound</span>(<span class="var">self</span>): <span class="kw">return</span> <span class="st">"Quack"</span>
+
+<span class="kw">def</span> <span class="fn">make_sound</span>(<span class="var">animal</span>):   <span class="cm"># No type check needed!</span>
+    <span class="fn">print</span>(<span class="var">animal</span>.<span class="fn">sound</span>())
+
+<span class="fn">make_sound</span>(<span class="cl">Dog</span>())  <span class="cm"># Woof</span>
+<span class="fn">make_sound</span>(<span class="cl">Duck</span>()) <span class="cm"># Quack</span></div>
+      </div>
+      <button class="btn-run" onclick="tog('o_duck')">▶ Run Demo</button>
+      <div class="output-wrap" id="o_duck"><div class="out-label">Output</div>Woof<br>Quack</div>
+    </div>
+    <div id="poly-abstract" style="display:none;">
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="cd cd-r"></span><span class="cd cd-y"></span><span class="cd cd-g"></span></div><span class="code-filename">abstract.py</span></div>
+        <div class="code-body"><span class="kw">from</span> abc <span class="kw">import</span> ABC, abstractmethod
+
+<span class="kw">class</span> <span class="cl">Shape</span>(<span class="cl">ABC</span>):        <span class="cm"># Abstract base class</span>
+    <span class="dec">@abstractmethod</span>
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var">self</span>): <span class="kw">pass</span>  <span class="cm"># Must implement in child</span>
+
+<span class="kw">class</span> <span class="cl">Triangle</span>(<span class="cl">Shape</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>,<span class="var">b</span>,<span class="var">h</span>): <span class="var">self</span>.<span class="prop">b</span>=<span class="var">b</span>; <span class="var">self</span>.<span class="prop">h</span>=<span class="var">h</span>
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var">self</span>): <span class="kw">return</span> <span class="nm">0.5</span>*<span class="var">self</span>.<span class="prop">b</span>*<span class="var">self</span>.<span class="prop">h</span>
+
+<span class="var">t</span> = <span class="cl">Triangle</span>(<span class="nm">10</span>,<span class="nm">6</span>)
+<span class="fn">print</span>(<span class="var">t</span>.<span class="fn">area</span>())  <span class="cm"># 30.0</span></div>
+      </div>
+      <button class="btn-run" onclick="tog('o_abst')">▶ Run Demo</button>
+      <div class="output-wrap" id="o_abst"><div class="out-label">Output</div>30.0</div>
+    </div>
+  </div>
+
+  <!-- VISUAL: Shape Area Calculator -->
+  <div class="card">
+    <h2 class="section-h">🎮 Polymorphism Playground</h2>
+    <p class="body" style="margin-bottom:16px;">Select a shape — all call the same <code style="font-family:'Fira Code',monospace;">area()</code> method, each calculates differently!</p>
+    <div class="poly-shapes">
+      <div class="shape-card sel" id="sc-circle" onclick="selShape('circle',this)">
+        <div class="shape-icon">⭕</div>
+        <div class="shape-name">Circle</div>
+        <div class="shape-formula">π × r²</div>
+      </div>
+      <div class="shape-card" id="sc-rect" onclick="selShape('rect',this)">
+        <div class="shape-icon">▬</div>
+        <div class="shape-name">Rectangle</div>
+        <div class="shape-formula">w × h</div>
+      </div>
+      <div class="shape-card" id="sc-tri" onclick="selShape('tri',this)">
+        <div class="shape-icon">🔺</div>
+        <div class="shape-name">Triangle</div>
+        <div class="shape-formula">½ × b × h</div>
+      </div>
+    </div>
+    <div id="poly-inputs" style="display:flex;flex-direction:column;gap:10px;margin:12px 0;"></div>
+    <button class="btn btn-teal btn-sm" onclick="calcArea()">Calculate area()</button>
+    <div class="poly-result" id="poly-result" style="margin-top:10px;color:#3fb950;font-size:12.5px;">Select a shape and enter values ...</div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="btn btn-ghost" onclick="gp(3)">← Back</button>
+    <button class="btn btn-teal" onclick="gp(5)">Next: Exercises →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 5: EXERCISES ═══ -->
+<div class="page" id="pg5">
+  <div style="margin-bottom:28px;">
+    <div class="pg-eyebrow" style="background:#fce7f3;color:#be185d;">✏️ Exercises</div>
+    <div class="pg-title">Coding Challenges</div>
+    <div class="pg-subtitle">Apply what you've learned with these practical OOP exercises.</div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-num">1</div>
+    <div class="ex-q">Build a Student Class</div>
+    <div class="ex-desc">Create a <strong>Student</strong> class with attributes <code style="font-family:'Fira Code',monospace;">name</code>, <code style="font-family:'Fira Code',monospace;">roll_no</code>, and <code style="font-family:'Fira Code',monospace;">marks</code>. Add a method <code style="font-family:'Fira Code',monospace;">grade()</code> that returns "Pass" if marks ≥ 50, else "Fail". Create two student objects and print their grades.</div>
+    <div class="ex-hint">💡 Hint: Use if/else inside the grade() method</div>
+    <button class="btn btn-outline btn-sm" onclick="toggleSol('sol1',this)">👁 Show Solution</button>
+    <div class="sol-wrap" id="sol1">
+      <div class="code-wrap" style="margin-top:12px;">
+        <div class="code-topbar"><div class="code-dots"><span class="cd cd-r"></span><span class="cd cd-y"></span><span class="cd cd-g"></span></div><span class="code-filename">solution_1.py</span></div>
+        <div class="code-body"><span class="kw">class</span> <span class="cl">Student</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">name</span>, <span class="var">roll_no</span>, <span class="var">marks</span>):
+        <span class="var">self</span>.<span class="prop">name</span>    = <span class="var">name</span>
+        <span class="var">self</span>.<span class="prop">roll_no</span> = <span class="var">roll_no</span>
+        <span class="var">self</span>.<span class="prop">marks</span>   = <span class="var">marks</span>
+
+    <span class="kw">def</span> <span class="fn">grade</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="st">"Pass"</span> <span class="kw">if</span> <span class="var">self</span>.<span class="prop">marks</span> >= <span class="nm">50</span> <span class="kw">else</span> <span class="st">"Fail"</span>
+
+<span class="var">s1</span> = <span class="cl">Student</span>(<span class="st">"Vinodhini"</span>, <span class="nm">101</span>, <span class="nm">85</span>)
+<span class="var">s2</span> = <span class="cl">Student</span>(<span class="st">"Arjun"</span>,    <span class="nm">102</span>, <span class="nm">42</span>)
+<span class="fn">print</span>(<span class="var">s1</span>.<span class="prop">name</span>, <span class="st">"-"</span>, <span class="var">s1</span>.<span class="fn">grade</span>())  <span class="cm"># Vinodhini - Pass</span>
+<span class="fn">print</span>(<span class="var">s2</span>.<span class="prop">name</span>, <span class="st">"-"</span>, <span class="var">s2</span>.<span class="fn">grade</span>())  <span class="cm"># Arjun - Fail</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-num">2</div>
+    <div class="ex-q">Encapsulate a Password</div>
+    <div class="ex-desc">Create a <strong>UserAccount</strong> class with a <strong>private</strong> attribute <code style="font-family:'Fira Code',monospace;">__password</code>. Add methods <code style="font-family:'Fira Code',monospace;">set_password(new_pw)</code> and <code style="font-family:'Fira Code',monospace;">check_password(pw)</code> that returns True/False. Never expose the password directly.</div>
+    <div class="ex-hint">💡 Hint: Use double underscore __ for the private attribute</div>
+    <button class="btn btn-outline btn-sm" onclick="toggleSol('sol2',this)">👁 Show Solution</button>
+    <div class="sol-wrap" id="sol2">
+      <div class="code-wrap" style="margin-top:12px;">
+        <div class="code-topbar"><div class="code-dots"><span class="cd cd-r"></span><span class="cd cd-y"></span><span class="cd cd-g"></span></div><span class="code-filename">solution_2.py</span></div>
+        <div class="code-body"><span class="kw">class</span> <span class="cl">UserAccount</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">username</span>, <span class="var">password</span>):
+        <span class="var">self</span>.<span class="prop">username</span>   = <span class="var">username</span>
+        <span class="var">self</span>.<span class="prop">__password</span> = <span class="var">password</span>   <span class="cm"># private!</span>
+
+    <span class="kw">def</span> <span class="fn">set_password</span>(<span class="var">self</span>, <span class="var">new_pw</span>):
+        <span class="var">self</span>.<span class="prop">__password</span> = <span class="var">new_pw</span>
+
+    <span class="kw">def</span> <span class="fn">check_password</span>(<span class="var">self</span>, <span class="var">pw</span>):
+        <span class="kw">return</span> <span class="var">self</span>.<span class="prop">__password</span> == <span class="var">pw</span>
+
+<span class="var">u</span> = <span class="cl">UserAccount</span>(<span class="st">"vinodhini"</span>, <span class="st">"secure123"</span>)
+<span class="fn">print</span>(<span class="var">u</span>.<span class="fn">check_password</span>(<span class="st">"secure123"</span>))  <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="var">u</span>.<span class="fn">check_password</span>(<span class="st">"wrong"</span>))      <span class="cm"># False</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-num">3</div>
+    <div class="ex-q">Inheritance: Employee → Manager</div>
+    <div class="ex-desc">Create an <strong>Employee</strong> class with <code style="font-family:'Fira Code',monospace;">name</code> and <code style="font-family:'Fira Code',monospace;">salary</code>. Then create a <strong>Manager</strong> class that inherits Employee and adds a <code style="font-family:'Fira Code',monospace;">team_size</code> attribute. Override a <code style="font-family:'Fira Code',monospace;">describe()</code> method to include the team size.</div>
+    <div class="ex-hint">💡 Hint: Use super().__init__() to reuse the parent constructor</div>
+    <button class="btn btn-outline btn-sm" onclick="toggleSol('sol3',this)">👁 Show Solution</button>
+    <div class="sol-wrap" id="sol3">
+      <div class="code-wrap" style="margin-top:12px;">
+        <div class="code-topbar"><div class="code-dots"><span class="cd cd-r"></span><span class="cd cd-y"></span><span class="cd cd-g"></span></div><span class="code-filename">solution_3.py</span></div>
+        <div class="code-body"><span class="kw">class</span> <span class="cl">Employee</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">name</span>, <span class="var">salary</span>):
+        <span class="var">self</span>.<span class="prop">name</span>   = <span class="var">name</span>
+        <span class="var">self</span>.<span class="prop">salary</span> = <span class="var">salary</span>
+    <span class="kw">def</span> <span class="fn">describe</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="st">f"</span><span class="var">{self.name}</span><span class="st"> earns ₹</span><span class="var">{self.salary}</span><span class="st">"</span>
+
+<span class="kw">class</span> <span class="cl">Manager</span>(<span class="cl">Employee</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">name</span>, <span class="var">salary</span>, <span class="var">team_size</span>):
+        <span class="fn">super</span>().<span class="fn">__init__</span>(<span class="var">name</span>, <span class="var">salary</span>)
+        <span class="var">self</span>.<span class="prop">team_size</span> = <span class="var">team_size</span>
+    <span class="kw">def</span> <span class="fn">describe</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="kw">super</span>().<span class="fn">describe</span>() + <span class="st">f", leads {self.team_size} people"</span>
+
+<span class="var">m</span> = <span class="cl">Manager</span>(<span class="st">"Vinodhini"</span>, <span class="nm">95000</span>, <span class="nm">12</span>)
+<span class="fn">print</span>(<span class="var">m</span>.<span class="fn">describe</span>())</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="btn btn-ghost" onclick="gp(4)">← Back</button>
+    <button class="btn btn-teal" onclick="gp(6)">Take the Quiz →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 6: QUIZ ═══ -->
+<div class="page" id="pg6">
+  <div style="margin-bottom:28px;">
+    <div class="pg-eyebrow" style="background:var(--indigo-l);color:#3730a3;">🧠 Quiz</div>
+    <div class="pg-title">Test Your Knowledge</div>
+    <div class="pg-subtitle">5 questions on OOP in Python</div>
+  </div>
+  <div class="card" id="quiz-body">
+    <div class="quiz-prog">
+      <div class="qpd active" id="qpd0"></div>
+      <div class="qpd" id="qpd1"></div>
+      <div class="qpd" id="qpd2"></div>
+      <div class="qpd" id="qpd3"></div>
+      <div class="qpd" id="qpd4"></div>
+    </div>
+    <div id="quiz-q-area"></div>
+    <div class="quiz-fb" id="quiz-fb"></div>
+    <div style="margin-top:20px;display:flex;justify-content:flex-end;">
+      <button class="btn btn-teal" id="quiz-next" style="display:none;" onclick="nextQ()">Next →</button>
+    </div>
+  </div>
+  <div class="card" id="quiz-score" style="display:none;text-align:center;padding:44px;">
+    <div class="score-ring" id="score-ring">
+      <div class="score-inner">
+        <div class="score-n" id="score-n">0/5</div>
+        <div class="score-s">Score</div>
+      </div>
+    </div>
+    <h2 class="section-h" id="score-msg"></h2>
+    <p class="body" style="margin:8px 0 24px;" id="score-sub"></p>
+    <div style="display:flex;gap:12px;justify-content:center;">
+      <button class="btn btn-ghost" onclick="restartQ()">↺ Retry Quiz</button>
+      <button class="btn btn-teal" onclick="gp(7)">Finish Module →</button>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <button class="btn btn-ghost" onclick="gp(5)">← Back</button>
+    <div></div>
+  </div>
+</div>
+
+<!-- ═══ PAGE 7: COMPLETION ═══ -->
+<div class="page" id="pg7">
+  <div class="card">
+    <div class="completion-hero">
+      <div class="comp-sparks">✨ 🎊 ✨</div>
+      <div style="height:12px;"></div>
+      <span class="comp-trophy">🏆</span>
+      <h2 style="font-size:30px;font-weight:800;letter-spacing:-1px;margin:18px 0 8px;">Module 10 Complete!</h2>
+      <p style="font-size:15px;color:var(--text2);max-width:480px;margin:0 auto;">Outstanding work, <strong>Vinodhini</strong>! You've mastered Object-Oriented Programming — the backbone of professional Python development.</p>
+      <div style="display:flex;gap:14px;justify-content:center;margin:28px 0 8px;flex-wrap:wrap;">
+        <div style="background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:18px 26px;text-align:center;">
+          <div style="font-size:26px;font-weight:800;color:var(--teal);" id="comp-score">5/5</div>
+          <div style="font-size:11px;color:var(--text3);">Quiz Score</div>
+        </div>
+        <div style="background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:18px 26px;text-align:center;">
+          <div style="font-size:26px;font-weight:800;color:var(--green);">100%</div>
+          <div style="font-size:11px;color:var(--text3);">Completion</div>
+        </div>
+        <div style="background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:18px 26px;text-align:center;">
+          <div style="font-size:26px;font-weight:800;color:var(--indigo);">+75</div>
+          <div style="font-size:11px;color:var(--text3);">XP Earned</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-h">🏅 Skills Earned</h2>
+    <div class="skills-wrap">
+      <div class="skill-pill">✅ Class definition</div>
+      <div class="skill-pill">✅ Object creation</div>
+      <div class="skill-pill">✅ __init__ constructor</div>
+      <div class="skill-pill">✅ Instance attributes</div>
+      <div class="skill-pill">✅ Encapsulation</div>
+      <div class="skill-pill">✅ Access modifiers</div>
+      <div class="skill-pill">✅ Inheritance</div>
+      <div class="skill-pill">✅ super() method</div>
+      <div class="skill-pill">✅ Method overriding</div>
+      <div class="skill-pill">✅ Polymorphism</div>
+      <div class="skill-pill">✅ Abstract classes</div>
+      <div class="skill-pill">✅ Duck typing</div>
+    </div>
+  </div>
+
+  <div class="cert-card">
+    
+    <div class="cert-sub">You have successfully completed Module 10: OOP in Python<br>Python for Beginners · HCL-GUVI ·</div>
+    <div style="margin-top:16px;font-size:28px;position:relative;">🐍 🏆 🐍</div>
+  </div>
+
+  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding-bottom:16px;">
+    <button class="btn btn-ghost" onclick="restartModule()">↺ Restart Module 10</button>
+  
+  </div>
+</div>
+
+</main>
+
+<script>
+// ════════ STATE ════════
+let cur=0, tot=8, done=new Array(8).fill(false);
+let svStep=0, encBal=5000;
+let qIdx=0, qScore=0, qAns=false, curShape='circle';
+
+// ════════ NAV ════════
+function gp(n){
+  document.getElementById('pg'+cur).classList.remove('active');
+  document.getElementById('sb'+cur).classList.remove('active');
+  done[cur]=true;
+  document.getElementById('sb'+cur).classList.add('done');
+  cur=n;
+  document.getElementById('pg'+n).classList.add('active');
+  document.getElementById('sb'+n).classList.remove('done');
+  document.getElementById('sb'+n).classList.add('active');
+  updateProg();
+  window.scrollTo(0,0);
+  if(n===1){buildObj();}
+  if(n===3){/* nothing special */}
+  if(n===4){renderPolyInputs();}
+  if(n===6){renderQ();}
+}
+
+function updateProg(){
+  const d=done.filter(Boolean).length;
+  const p=Math.round(d/(tot-1)*100);
+  document.getElementById('prog-fill').style.width=p+'%';
+  document.getElementById('prog-pct').textContent=p+'%';
+}
+
+// ════════ OUTPUT TOGGLE ════════
+function tog(id){
+  const el=document.getElementById(id);
+  el.classList.toggle('show');
+}
+
+// ════════ PAGE 1: OBJECT BUILDER ════════
+function buildObj(){
+  const sp=document.getElementById('sl-speed').value;
+  const fu=document.getElementById('sl-fuel').value;
+  const pa=document.getElementById('sl-pass').value;
+  document.getElementById('sv-speed').textContent=sp;
+  document.getElementById('sv-fuel').textContent=fu;
+  document.getElementById('sv-pass').textContent=pa;
+  document.getElementById('obj-preview').innerHTML=
+    `<span style="color:#ff7b72;">class</span> <span style="color:#ffa657;">Car</span>:<br>`+
+    `  <span style="color:#8b949e;"># Object state:</span><br>`+
+    `  <span style="color:#7ee787;">speed</span>      = <span style="color:#79c0ff;">${sp}</span>  <span style="color:#8b949e;"># km/h</span><br>`+
+    `  <span style="color:#7ee787;">fuel_level</span> = <span style="color:#79c0ff;">${fu}</span>  <span style="color:#8b949e;"># %</span><br>`+
+    `  <span style="color:#7ee787;">passengers</span> = <span style="color:#79c0ff;">${pa}</span>   <span style="color:#8b949e;"># people</span><br>`+
+    `  <span style="color:#a5d6ff;">status</span>     = <span style="color:#a5d6ff;">"${fu>20?'Ready':'Low fuel!'}"</span>`;
+}
+
+// ════════ CLASS DIAGRAM HIGHLIGHT ════════
+const objData={
+  car1:{brand:'"Toyota"',speed:120,msg:'car1.describe() → "Toyota goes at 120 km/h"'},
+  car2:{brand:'"BMW"',speed:200,msg:'car2.describe() → "BMW goes at 200 km/h"'},
+  car3:{brand:'"Tesla"',speed:250,msg:'car3.describe() → "Tesla goes at 250 km/h"'}
+};
+function hlObj(el,key){
+  document.querySelectorAll('.obj-box').forEach(b=>b.style.borderColor='var(--blue)');
+  el.style.borderColor='var(--teal)';
+  el.style.boxShadow='var(--glow-teal)';
+  setTimeout(()=>{el.style.boxShadow='';},1000);
+  document.getElementById('obj-msg').textContent='>>> '+objData[key].msg;
+}
+
+// ════════ STEP VIZ ════════
+function stepCO(){
+  const n=6;
+  if(svStep>0){
+    document.getElementById('sl'+(svStep-1)).classList.remove('active');
+    document.getElementById('sl'+(svStep-1)).classList.add('done');
+  }
+  if(svStep<n){
+    document.getElementById('sl'+svStep).classList.add('active');
+    const msgs=['','','','','✅ car1 created in memory!','🖨️ Output: Toyota goes at 120 km/h'];
+    document.getElementById('sv-co-msg').textContent=msgs[svStep]||'';
+    svStep++;
+  }
+}
+function resetCO(){
+  for(let i=0;i<6;i++){
+    const el=document.getElementById('sl'+i);
+    if(el){el.classList.remove('active','done');if(i===0)el.classList.add('active');}
+  }
+  svStep=0;
+  document.getElementById('sv-co-msg').textContent='';
+}
+
+// ════════ ENCAPSULATION SIMULATOR ════════
+function encDeposit(){
+  const a=parseFloat(document.getElementById('enc-amt').value)||0;
+  if(a<=0){showEncMsg('⚠ Please enter a valid amount','#f59e0b');return;}
+  encBal+=a;
+  updateEncUI('deposit',a);
+}
+function encWithdraw(){
+  const a=parseFloat(document.getElementById('enc-amt').value)||0;
+  if(a<=0){showEncMsg('⚠ Please enter a valid amount','#f59e0b');return;}
+  if(a>encBal){showEncMsg('❌ Insufficient balance!','#f43f5e');return;}
+  encBal-=a;
+  updateEncUI('withdraw',a);
+}
+function updateEncUI(type,a){
+  document.getElementById('enc-bal').textContent='₹ '+encBal.toLocaleString('en-IN');
+  const col=type==='deposit'?'var(--green)':'var(--rose)';
+  const sym=type==='deposit'?'+':'-';
+  showEncMsg((type==='deposit'?'✅ Deposit':'✅ Withdrawal')+' of ₹'+a+' successful!','var(--green)');
+  document.getElementById('enc-log').textContent=
+    `acc.${type==='deposit'?'deposit':'withdraw'}(${a}) called\nacc.get_balance() → ${encBal}`;
+  document.getElementById('enc-amt').value='';
+}
+function showEncMsg(m,c){
+  const el=document.getElementById('enc-msg');
+  el.textContent=m;el.style.color=c;
+  setTimeout(()=>{el.textContent='';},3000);
+}
+
+// ════════ INHERITANCE TREE ════════
+const inhData={
+  animal:{title:'🐾 Animal (Parent Class)',body:'Attributes: name<br>Methods: __init__(name), speak()<br><br>speak() returns "Some sound" — generic default that children override.'},
+  dog:{title:'🐶 Dog (Child of Animal)',body:'Inherits: name, __init__<br>Overrides: speak() → "Rex says: Woof!"<br>Added: fetch(), wag_tail()'},
+  cat:{title:'🐱 Cat (Child of Animal)',body:'Inherits: name, __init__<br>Overrides: speak() → "Luna says: Meow!"<br>Added: purr(), scratch()'},
+  bird:{title:'🐦 Bird (Child of Animal)',body:'Inherits: name, __init__<br>Overrides: speak() → "Tweety says: Tweet!"<br>Added: fly(), nest()'}
+};
+function showInh(key){
+  const d=inhData[key];
+  const tip=document.getElementById('inh-tip');
+  tip.innerHTML=`<strong style="color:#93c5fd;">${d.title}</strong><br><br>${d.body}`;
+  tip.classList.toggle('show',true);
+}
+
+// ════════ POLYMORPHISM TABS ════════
+function polyTab(name){
+  ['override','duck','abstract'].forEach(t=>{
+    document.getElementById('poly-'+t).style.display=t===name?'block':'none';
+  });
+  document.querySelectorAll('#poly-tabs .pill-tab').forEach((el,i)=>{
+    el.classList.toggle('active',['override','duck','abstract'][i]===name);
+  });
+}
+
+// ════════ POLY PLAYGROUND ════════
+function selShape(s,el){
+  document.querySelectorAll('.shape-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  curShape=s;
+  renderPolyInputs();
+}
+function renderPolyInputs(){
+  const wrap=document.getElementById('poly-inputs');
+  const configs={
+    circle:[{id:'pi-r',label:'Radius (r)',val:'5'}],
+    rect:[{id:'pi-w',label:'Width (w)',val:'4'},{id:'pi-h',label:'Height (h)',val:'6'}],
+    tri:[{id:'pi-b',label:'Base (b)',val:'10'},{id:'pi-h2',label:'Height (h)',val:'6'}]
+  };
+  wrap.innerHTML='';
+  (configs[curShape]||[]).forEach(f=>{
+    wrap.innerHTML+=`<div class="sl-row"><span class="sl-label">${f.label}</span><input type="range" min="1" max="20" value="${f.val}" id="${f.id}" oninput="calcArea()"><span class="sl-val" id="${f.id}v">${f.val}</span></div>`;
+  });
+}
+function calcArea(){
+  const g=id=>{const el=document.getElementById(id);if(!el)return 0;document.getElementById(id+'v').textContent=el.value;return parseFloat(el.value);};
+  let result='',code='';
+  if(curShape==='circle'){
+    const r=g('pi-r');
+    const a=(3.14159*r*r).toFixed(2);
+    result=`circle.area() → ${a}`;
+    code=`Circle(r=${r}).area() = π × ${r}² = ${a}`;
+  }else if(curShape==='rect'){
+    const w=g('pi-w'),h=g('pi-h');
+    result=`rectangle.area() → ${w*h}`;
+    code=`Rectangle(w=${w},h=${h}).area() = ${w} × ${h} = ${w*h}`;
+  }else{
+    const b=g('pi-b'),h=g('pi-h2');
+    const a=(0.5*b*h).toFixed(1);
+    result=`triangle.area() → ${a}`;
+    code=`Triangle(b=${b},h=${h}).area() = ½ × ${b} × ${h} = ${a}`;
+  }
+  document.getElementById('poly-result').innerHTML=`<span style="color:#8b949e;">>>> </span>${code}`;
+}
+
+// ════════ EXERCISE SOL TOGGLE ════════
+function toggleSol(id,btn){
+  const el=document.getElementById(id);
+  el.classList.toggle('show');
+  btn.textContent=el.classList.contains('show')?'🙈 Hide Solution':'👁 Show Solution';
+}
+
+// ════════ QUIZ DATA ════════
+const QD=[
+  {q:"What is the special method called automatically when a Python object is created?",opts:["create()","new()","__init__()","start()"],ans:2,exp:"__init__() is the constructor — Python calls it automatically when you create an object with ClassName()."},
+  {q:"Which prefix makes an attribute PRIVATE in Python (name mangling)?",opts:["Single underscore _","Double underscore __","Hash # prefix","PRIVATE keyword"],ans:1,exp:"Double underscore __ triggers name mangling, making the attribute effectively private and inaccessible from outside the class."},
+  {q:"What does `super().__init__()` do in a child class?",opts:["Creates a new parent object","Calls the parent class constructor","Deletes the parent class","Copies all parent methods"],ans:1,exp:"super().__init__() calls the parent class's constructor, allowing the child to reuse parent initialisation code without repeating it."},
+  {q:"Which OOP concept is demonstrated when the SAME method name behaves DIFFERENTLY for different classes?",opts:["Encapsulation","Abstraction","Inheritance","Polymorphism"],ans:3,exp:"Polymorphism — 'many forms' — means the same method name can produce different behaviours depending on which class's object calls it."},
+  {q:"What is 'duck typing' in Python?",opts:["Only duck objects can quack","Type checking using isinstance()","If an object has the required method, it works — regardless of its type","Strict type enforcement"],ans:2,exp:"Duck typing: 'If it walks like a duck and quacks like a duck, it's a duck.' Python doesn't need explicit type checks — it just calls the method."}
+];
+
+function renderQ(){
+  if(qIdx>=QD.length)return;
+  const q=QD[qIdx];
+  qAns=false;
+  document.getElementById('quiz-fb').className='quiz-fb';
+  document.getElementById('quiz-next').style.display='none';
+  let h=`<div class="quiz-q">Q${qIdx+1}. ${q.q}</div><div class="quiz-opts">`;
+  q.opts.forEach((o,i)=>h+=`<div class="qopt" id="qo${i}" onclick="ansQ(${i})"><div class="qopt-radio"></div>${o}</div>`);
+  h+='</div>';
+  document.getElementById('quiz-q-area').innerHTML=h;
+  for(let i=0;i<5;i++){
+    const d=document.getElementById('qpd'+i);
+    if(d)d.className='qpd'+(i<qIdx?' done':i===qIdx?' active':'');
+  }
+}
+function ansQ(c){
+  if(qAns)return;
+  qAns=true;
+  const q=QD[qIdx];
+  if(c===q.ans)qScore++;
+  document.querySelectorAll('.qopt').forEach((el,i)=>{
+    el.classList.add('dis');
+    if(i===q.ans)el.classList.add('correct');
+    else if(i===c&&c!==q.ans)el.classList.add('wrong');
+  });
+  const fb=document.getElementById('quiz-fb');
+  fb.className='quiz-fb show '+(c===q.ans?'fb-ok':'fb-bad');
+  fb.innerHTML=(c===q.ans?'✅ Correct! ':'❌ Not quite. ')+q.exp;
+  document.getElementById('quiz-next').style.display='inline-flex';
+}
+function nextQ(){
+  qIdx++;
+  if(qIdx>=QD.length)showScore();
+  else renderQ();
+}
+function showScore(){
+  document.getElementById('quiz-body').style.display='none';
+  const sc=document.getElementById('quiz-score');
+  sc.style.display='block';
+  document.getElementById('score-n').textContent=qScore+'/5';
+  document.getElementById('comp-score').textContent=qScore+'/5';
+  const deg=Math.round(qScore/5*360);
+  document.getElementById('score-ring').style.background=`conic-gradient(var(--teal) ${deg}deg, var(--border) ${deg}deg)`;
+  const msgs=['Keep practising!','Good effort!','Well done!','Almost perfect!','Perfect score! 🏆'];
+  const subs=['Review the OOP concepts and try again.','You\'re getting there — revise inheritance & polymorphism.','Solid understanding of OOP fundamentals!','One small slip — you know this material well!','Exceptional mastery of OOP in Python!'];
+  document.getElementById('score-msg').textContent=msgs[qScore-1]||msgs[0];
+  document.getElementById('score-sub').textContent=subs[qScore-1]||subs[0];
+}
+function restartQ(){
+  qIdx=0;qScore=0;qAns=false;
+  document.getElementById('quiz-body').style.display='block';
+  document.getElementById('quiz-score').style.display='none';
+  renderQ();
+}
+function restartModule(){
+  done.fill(false);qIdx=0;qScore=0;svStep=0;encBal=5000;
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.remove('done','active'));
+  gp(0);
+}
+
+// ════════ INIT ════════
+buildObj();
+renderPolyInputs();
+</script>
+</body>
+</html>
