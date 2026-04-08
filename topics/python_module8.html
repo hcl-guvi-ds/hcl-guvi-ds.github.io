@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 8 – File Handling in Python | HCL-GUVI</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f1f5f9;
+  --surface: #ffffff;
+  --surface2: #f8fafc;
+  --border: #e2e8f0;
+  --primary: #0ea5e9;
+  --primary-dark: #0284c7;
+  --primary-glow: rgba(14,165,233,.18);
+  --accent: #06b6d4;
+  --green: #10b981;
+  --indigo: #6366f1;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --text: #0f172a;
+  --text2: #475569;
+  --text3: #94a3b8;
+  --code-bg: #0d1117;
+  --sidebar-w: 248px;
+  --topbar-h: 62px;
+  --r: 14px;
+  --shadow: 0 2px 16px rgba(15,23,42,.07);
+  --shadow-lg: 0 8px 40px rgba(15,23,42,.13);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
+
+/* TOPBAR */
+#topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 22px;gap:14px;z-index:200;box-shadow:0 1px 10px rgba(15,23,42,.05);}
+.tb-logo{height:35px;object-fit:contain;flex-shrink:0;}
+.tb-logo-txt{font-size:17px;font-weight:800;letter-spacing:-.4px;display:none;align-items:center;gap:1px;}
+.tb-logo-txt span:first-child{color:var(--primary);}
+.tb-logo-txt span:last-child{color:var(--indigo);}
+.tb-sep{width:1px;height:26px;background:var(--border);}
+.tb-mod{font-weight:700;font-size:14px;letter-spacing:-.2px;white-space:nowrap;}
+.tb-badge{padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--indigo));color:#fff;white-space:nowrap;}
+.tb-prog{flex:1;display:flex;align-items:center;gap:10px;min-width:0;}
+.tb-prog-lbl{font-size:11px;font-weight:600;color:var(--text2);white-space:nowrap;}
+.tb-bar{flex:1;height:5px;background:var(--border);border-radius:99px;overflow:hidden;min-width:60px;}
+.tb-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--green));border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.tb-pct{font-size:11px;font-weight:800;color:var(--primary);white-space:nowrap;}
+.tb-user{display:flex;align-items:center;gap:9px;flex-shrink:0;}
+.tb-avatar{width:33px;height:33px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--indigo));display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:13px;}
+.tb-uname{font-size:12px;font-weight:700;color:var(--text);}
+.tb-urole{font-size:10px;color:var(--text2);}
+
+/* SIDEBAR */
+#sidebar{position:fixed;top:var(--topbar-h);left:0;bottom:0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;padding:14px 10px;}
+#sidebar::-webkit-scrollbar{width:3px;}
+#sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+.sb-lbl{font-size:9px;font-weight:800;letter-spacing:1.6px;color:var(--text3);text-transform:uppercase;padding:4px 8px 8px;}
+.nav-it{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:11px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text2);transition:all .18s;margin-bottom:2px;position:relative;user-select:none;}
+.nav-it:hover{background:var(--bg);color:var(--text);}
+.nav-it.active{background:linear-gradient(135deg,rgba(14,165,233,.11),rgba(99,102,241,.08));color:var(--primary);}
+.nav-it.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:linear-gradient(var(--primary),var(--indigo));border-radius:0 4px 4px 0;}
+.nav-icon{width:28px;height:28px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;transition:all .2s;}
+.nav-it.active .nav-icon{background:linear-gradient(135deg,var(--primary),var(--indigo));}
+.nav-ck{margin-left:auto;width:15px;height:15px;border-radius:50%;border:2px solid var(--border);font-size:8px;display:flex;align-items:center;justify-content:center;transition:all .3s;}
+.nav-it.done .nav-ck{background:var(--green);border-color:var(--green);color:#fff;}
+
+/* MAIN */
+#main{position:fixed;top:var(--topbar-h);left:var(--sidebar-w);right:0;bottom:0;overflow-y:auto;padding:30px 36px;}
+#main::-webkit-scrollbar{width:5px;}
+#main::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+
+/* PAGES */
+.page{display:none;animation:pgIn .38s cubic-bezier(.4,0,.2,1);}
+.page.active{display:block;}
+@keyframes pgIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+
+/* TYPOGRAPHY */
+.eyebrow{font-size:10px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:var(--primary);margin-bottom:7px;}
+.pg-title{font-size:30px;font-weight:800;color:var(--text);line-height:1.18;margin-bottom:7px;letter-spacing:-.6px;}
+.pg-sub{font-size:14px;color:var(--text2);margin-bottom:24px;line-height:1.65;max-width:620px;}
+h3.st{font-size:16px;font-weight:700;margin-bottom:11px;color:var(--text);}
+p{font-size:13.5px;line-height:1.7;color:var(--text2);}
+
+/* CARDS */
+.card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:22px;box-shadow:var(--shadow);}
+.card+.card,.card+.g2,.g2+.card{margin-top:18px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:18px;}
+
+/* CODE */
+.cb{background:var(--code-bg);border-radius:12px;padding:18px 22px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.85;color:#e2e8f0;margin:14px 0;overflow-x:auto;position:relative;border:1px solid rgba(255,255,255,.05);}
+.cb .cl{position:absolute;top:10px;right:12px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#374151;font-family:'Plus Jakarta Sans',sans-serif;}
+.cb .ln{color:#374151;user-select:none;margin-right:18px;display:inline-block;width:18px;text-align:right;}
+.kw{color:#ff79c6;}.st{color:#f1fa8c;}.fn{color:#8be9fd;}.cm{color:#6272a4;font-style:italic;}.nm{color:#ffb86c;}.op{color:#ff79c6;}.br{color:#f8f8f2;}.cls{color:#8be9fd;}
+
+/* RUN BTN */
+.run-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:99px;background:linear-gradient(135deg,var(--primary),var(--indigo));color:#fff;font-size:12.5px;font-weight:700;border:none;cursor:pointer;transition:all .2s;box-shadow:0 3px 12px rgba(14,165,233,.28);font-family:'Plus Jakarta Sans',sans-serif;}
+.run-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(14,165,233,.38);}
+.run-btn:active{transform:none;}
+.out{background:#0a0d14;border-radius:10px;padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#4ade80;margin-top:10px;display:none;border:1px solid rgba(74,222,128,.15);line-height:1.9;}
+.out.show{display:block;animation:fi .3s ease;}
+.out-p{color:#374151;}
+@keyframes fi{from{opacity:0;transform:translateY(5px);}to{opacity:1;}}
+
+/* ANALOGY */
+.ana{background:linear-gradient(135deg,rgba(16,185,129,.07),rgba(14,165,233,.04));border:1px solid rgba(16,185,129,.18);border-radius:var(--r);padding:16px 20px;display:flex;gap:12px;align-items:flex-start;margin-bottom:18px;}
+.ana-icon{font-size:26px;flex-shrink:0;}
+.ana-lbl{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:3px;}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;}
+.tg{background:rgba(14,165,233,.1);color:var(--primary);}
+.tg2{background:rgba(16,185,129,.1);color:var(--green);}
+.tg3{background:rgba(99,102,241,.1);color:var(--indigo);}
+.tg4{background:rgba(245,158,11,.1);color:var(--amber);}
+.tg5{background:rgba(244,63,94,.1);color:var(--rose);}
+
+/* BOTTOM NAV */
+.pg-footer{display:flex;justify-content:space-between;align-items:center;margin-top:36px;padding-top:20px;border-top:1px solid var(--border);}
+.btn-p,.btn-n{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
+.btn-p{background:var(--bg);color:var(--text2);border:1px solid var(--border);}
+.btn-p:hover{background:var(--border);}
+.btn-n{background:linear-gradient(135deg,var(--primary),var(--indigo));color:#fff;box-shadow:0 3px 12px rgba(14,165,233,.28);}
+.btn-n:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(14,165,233,.38);}
+
+/* WELCOME HERO */
+.hero{background:linear-gradient(135deg,#0a1628 0%,#0f2040 50%,#0a1628 100%);border-radius:20px;padding:42px 38px;position:relative;overflow:hidden;margin-bottom:22px;}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(14,165,233,.12) 0%,transparent 60%);}
+.hero-content{position:relative;z-index:1;}
+.hero h1{font-size:34px;font-weight:800;color:#fff;letter-spacing:-.6px;line-height:1.15;margin-bottom:10px;}
+.hero p{color:#94a3b8;font-size:14px;line-height:1.65;max-width:500px;margin-bottom:24px;}
+.hero-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px;}
+.hbadge{padding:5px 13px;border-radius:99px;font-size:11.5px;font-weight:700;}
+.hb1{background:rgba(14,165,233,.18);color:#38bdf8;border:1px solid rgba(14,165,233,.25);}
+.hb2{background:rgba(16,185,129,.18);color:#34d399;border:1px solid rgba(16,185,129,.25);}
+.hb3{background:rgba(99,102,241,.18);color:#a5b4fc;border:1px solid rgba(99,102,241,.25);}
+.hb4{background:rgba(245,158,11,.18);color:#fbbf24;border:1px solid rgba(245,158,11,.25);}
+.hero-deco{position:absolute;right:36px;top:50%;transform:translateY(-50%);font-size:88px;opacity:.1;z-index:0;}
+.start-btn{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:99px;background:linear-gradient(135deg,var(--primary),var(--indigo));color:#fff;font-size:14px;font-weight:800;border:none;cursor:pointer;box-shadow:0 5px 22px rgba(14,165,233,.38);transition:all .22s;font-family:'Plus Jakarta Sans',sans-serif;}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(14,165,233,.48);}
+
+/* CHECKLIST */
+.chk-list{display:flex;flex-direction:column;gap:7px;}
+.chk-item{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:10px;background:var(--bg);font-size:13px;font-weight:500;}
+.chk-ico{width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+
+/* FILE MODE TABLE */
+.mode-table{width:100%;border-collapse:separate;border-spacing:0;border-radius:11px;overflow:hidden;border:1px solid var(--border);}
+.mode-table th{background:var(--bg);padding:9px 14px;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--text2);text-align:left;}
+.mode-table td{padding:10px 14px;font-size:12.5px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;}
+.mode-table tr{cursor:pointer;transition:all .15s;}
+.mode-table tr:hover td{background:rgba(14,165,233,.03);}
+.mode-table tr.sel td{background:rgba(14,165,233,.06);}
+
+/* STEP VIZ */
+.sv{display:flex;flex-direction:column;}
+.sv-item{display:flex;gap:14px;cursor:pointer;padding:10px 0;}
+.sv-dc{display:flex;flex-direction:column;align-items:center;}
+.sv-dot{width:30px;height:30px;border-radius:50%;background:var(--bg);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--text2);flex-shrink:0;transition:all .3s;}
+.sv-line{flex:1;width:2px;background:var(--border);min-height:20px;}
+.sv-c{flex:1;padding-bottom:14px;}
+.sv-title{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.sv-desc{font-size:12.5px;color:var(--text2);line-height:1.6;display:none;}
+.sv-item.act .sv-dot{background:linear-gradient(135deg,var(--primary),var(--indigo));border-color:transparent;color:#fff;}
+.sv-item.act .sv-desc{display:block;animation:fi .3s;}
+.sv-item.act .sv-title{color:var(--primary);}
+
+/* REVEAL CARDS */
+.rv-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.rv-card{background:var(--bg);border-radius:12px;padding:16px;cursor:pointer;border:2px solid transparent;transition:all .22s;user-select:none;}
+.rv-card:hover{border-color:var(--primary);background:rgba(14,165,233,.04);}
+.rv-card.fl{background:rgba(14,165,233,.06);border-color:var(--primary);}
+.rv-f{font-size:13.5px;font-weight:700;}
+.rv-b{font-size:12.5px;color:var(--text2);margin-top:7px;display:none;line-height:1.6;}
+.rv-card.fl .rv-b{display:block;animation:fi .3s;}
+.rv-hint{font-size:10px;color:var(--text3);margin-top:5px;}
+
+/* FILE SIMULATOR */
+.file-sim{display:flex;flex-direction:column;gap:10px;}
+.fs-tabs{display:flex;gap:4px;background:var(--bg);border-radius:9px;padding:3px;margin-bottom:4px;}
+.fs-tab{flex:1;padding:7px 12px;border-radius:7px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--text2);transition:all .18s;font-family:'Plus Jakarta Sans',sans-serif;}
+.fs-tab.act{background:var(--surface);color:var(--primary);box-shadow:0 1px 5px rgba(15,23,42,.09);}
+.fs-content-area{background:var(--code-bg);border-radius:11px;min-height:120px;padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#e2e8f0;line-height:1.85;border:1px solid rgba(255,255,255,.04);}
+.file-icon{font-size:11px;margin-right:6px;}
+.fs-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:5px;}
+
+/* SLIDER */
+.sl-wrap{display:flex;flex-direction:column;gap:10px;}
+.sl-row{display:flex;align-items:center;gap:10px;}
+.sl-row label{font-size:12.5px;font-weight:700;color:var(--text2);width:110px;}
+input[type=range]{flex:1;accent-color:var(--primary);height:5px;}
+.sl-val{font-size:12.5px;font-weight:800;color:var(--primary);width:36px;text-align:right;}
+.sl-out{background:var(--code-bg);border-radius:10px;padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#4ade80;min-height:34px;transition:all .2s;}
+
+/* FLOW */
+.flow-wrap{display:flex;flex-direction:column;gap:0;align-items:flex-start;}
+.flow-node{padding:9px 16px;border-radius:10px;font-size:12.5px;font-weight:700;display:inline-block;}
+.flow-arr{width:2px;height:24px;background:var(--border);margin-left:20px;position:relative;}
+.flow-arr::after{content:'▼';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);color:var(--text3);font-size:9px;}
+
+/* MODE SELECTOR */
+.mode-sel{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0;}
+.mode-btn{padding:12px 8px;border-radius:11px;border:2px solid var(--border);background:var(--surface);cursor:pointer;text-align:center;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
+.mode-btn:hover{border-color:var(--primary);background:rgba(14,165,233,.04);}
+.mode-btn.sel{border-color:var(--primary);background:rgba(14,165,233,.08);}
+.mode-btn .mb-key{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--primary);display:block;margin-bottom:4px;}
+.mode-btn .mb-name{font-size:11px;font-weight:700;color:var(--text2);}
+.mode-btn .mb-desc{font-size:10px;color:var(--text3);margin-top:2px;}
+.mode-info{background:var(--bg);border-radius:10px;padding:13px 15px;font-size:12.5px;color:var(--text2);min-height:40px;transition:all .25s;}
+
+/* CONTEXT MGR DEMO */
+.ctx-demo{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;}
+.ctx-box{flex:1;min-width:140px;}
+.ctx-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
+.ctx-visual{border-radius:11px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;}
+
+/* QUIZ */
+.qz-q{background:var(--surface);border-radius:var(--r);padding:22px;border:1px solid var(--border);margin-bottom:14px;display:none;box-shadow:var(--shadow);}
+.qz-q.active{display:block;animation:pgIn .32s;}
+.qz-num{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+.qz-txt{font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.45;}
+.qz-opts{display:flex;flex-direction:column;gap:7px;}
+.qz-opt{padding:11px 15px;border-radius:9px;border:2px solid var(--border);cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;background:var(--surface);display:flex;align-items:center;gap:9px;}
+.qz-opt:hover:not(.dis){border-color:var(--primary);background:rgba(14,165,233,.04);}
+.qz-opt.ok{border-color:var(--green);background:rgba(16,185,129,.07);color:var(--green);}
+.qz-opt.wrong{border-color:var(--rose);background:rgba(244,63,94,.06);color:var(--rose);}
+.opt-l{width:22px;height:22px;border-radius:6px;background:var(--bg);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.qz-fb{margin-top:10px;padding:11px 14px;border-radius:9px;font-size:12.5px;font-weight:700;display:none;}
+.qz-fb.show{display:block;animation:fi .3s;}
+.qz-fb.ok{background:rgba(16,185,129,.09);color:var(--green);}
+.qz-fb.fail{background:rgba(244,63,94,.07);color:var(--rose);}
+.qdots{display:flex;gap:5px;justify-content:center;margin-bottom:18px;}
+.qdot{width:26px;height:5px;border-radius:99px;background:var(--border);transition:all .3s;}
+.qdot.ok{background:var(--green);}
+.qdot.fail{background:var(--rose);}
+.qdot.cur{background:var(--primary);width:38px;}
+
+/* EXERCISE */
+.ex-card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);overflow:hidden;margin-bottom:15px;box-shadow:var(--shadow);}
+.ex-hd{padding:15px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.ex-num{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--primary),var(--indigo));color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.ex-title{font-size:13.5px;font-weight:700;}
+.ex-bd{padding:16px 20px;}
+.sol-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:var(--bg);border:1px solid var(--border);font-size:11.5px;font-weight:700;cursor:pointer;transition:all .18s;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text2);margin-top:9px;}
+.sol-btn:hover{background:var(--border);}
+.sol{display:none;margin-top:10px;}
+.sol.open{display:block;animation:fi .3s;}
+
+/* SCORE */
+.sc-screen{text-align:center;padding:36px;}
+.sc-ring{width:110px;height:110px;border-radius:50%;background:conic-gradient(var(--green) calc(var(--pct)*1%),var(--border) 0);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 0 0 5px rgba(16,185,129,.1);}
+.sc-inner{width:88px;height:88px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.sc-n{font-size:28px;font-weight:800;color:var(--text);}
+.sc-d{font-size:12px;color:var(--text3);}
+.restart-btn{display:inline-flex;align-items:center;gap:7px;padding:11px 24px;border-radius:99px;background:linear-gradient(135deg,var(--primary),var(--indigo));color:#fff;font-size:13px;font-weight:800;border:none;cursor:pointer;box-shadow:0 3px 12px rgba(14,165,233,.28);transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;margin-top:14px;}
+.restart-btn:hover{transform:translateY(-2px);}
+
+/* COMPLETION */
+.cmp-wrap{text-align:center;padding:36px 20px;}
+.cmp-emoji{font-size:60px;animation:bncE 1.1s infinite alternate;display:block;margin-bottom:14px;}
+@keyframes bncE{from{transform:scale(1) translateY(0);}to{transform:scale(1.1) translateY(-7px);}}
+.cmp-title{font-size:34px;font-weight:800;color:var(--text);letter-spacing:-.6px;margin-bottom:7px;}
+.cmp-sub{font-size:14.5px;color:var(--text2);margin-bottom:28px;}
+.skills-wrap{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-bottom:28px;}
+.sk-tag{padding:7px 15px;border-radius:99px;font-size:12.5px;font-weight:700;border:2px solid;animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes popIn{from{transform:scale(.4);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+/* MISC */
+.sep{height:1px;background:var(--border);margin:22px 0;}
+.info-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:7px;background:rgba(14,165,233,.07);border:1px solid rgba(14,165,233,.13);font-size:11.5px;font-weight:700;color:var(--primary);margin:2px;}
+code{font-family:'JetBrains Mono',monospace;background:rgba(14,165,233,.08);color:var(--primary);padding:1px 5px;border-radius:5px;font-size:12px;}
+
+/* FILE VIZ */
+.fv-wrap{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;}
+.fv-disk{background:linear-gradient(160deg,#1e293b,#0f172a);border-radius:14px;padding:16px;min-width:200px;border:1px solid rgba(255,255,255,.05);}
+.fv-disk-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:#475569;margin-bottom:10px;}
+.fv-file{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:all .2s;margin-bottom:5px;}
+.fv-file:hover{border-color:rgba(14,165,233,.4);background:rgba(14,165,233,.08);}
+.fv-file.sel{border-color:rgba(14,165,233,.5);background:rgba(14,165,233,.1);}
+.fv-file-name{font-family:'JetBrains Mono',monospace;font-size:12px;color:#94a3b8;flex:1;}
+.fv-file.sel .fv-file-name{color:#38bdf8;}
+.fv-preview{flex:1;min-width:180px;}
+.fv-prev-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);margin-bottom:7px;}
+.fv-prev-box{background:var(--code-bg);border-radius:10px;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#e2e8f0;line-height:1.8;min-height:90px;border:1px solid rgba(255,255,255,.04);}
+
+/* EXCEPTION DEMO */
+.exc-sim{display:flex;flex-direction:column;gap:8px;}
+.exc-toggle{display:flex;gap:8px;}
+.exc-opt{flex:1;padding:10px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);}
+.exc-opt:hover{border-color:var(--primary);}
+.exc-opt.sel{border-color:var(--green);background:rgba(16,185,129,.07);color:var(--green);}
+.exc-opt.sel-bad{border-color:var(--rose);background:rgba(244,63,94,.06);color:var(--rose);}
+.exc-result{border-radius:10px;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8;min-height:60px;transition:all .3s;}
+
+@media(max-width:900px){
+  #sidebar{display:none;}
+  #main{left:0;padding:18px 14px;}
+  .g2,.g3,.rv-grid,.mode-sel{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <img src="logo.png" alt="HCL-GUVI Logo" class="tb-logo" onerror="this.style.display='none';document.getElementById('ltxt').style.display='flex'">
+  <div id="ltxt" class="tb-logo-txt"><span>HCL</span><span>GUVI</span></div>
+  <div class="tb-sep"></div>
+  <span class="tb-mod">File Handling in Python</span>
+  <span class="tb-badge">Module 8</span>
+  <div class="tb-prog">
+    <span class="tb-prog-lbl">Progress</span>
+    <div class="tb-bar"><div class="tb-fill" id="tbFill" style="width:0%"></div></div>
+    <span class="tb-pct" id="tbPct">0%</span>
+  </div>
+  <div class="tb-user">
+    <div class="tb-avatar">V</div>
+    <div><div class="tb-uname">Vinodhini</div><div class="tb-urole">Data Scientist · HCL GUVI</div></div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sb-lbl">Module 8</div>
+  <div class="nav-it active" onclick="goTo(0)" id="nv0"><div class="nav-icon">🏠</div>Welcome<div class="nav-ck" id="nc0"></div></div>
+  <div class="nav-it" onclick="goTo(1)" id="nv1"><div class="nav-icon">📂</div>Opening Files<div class="nav-ck" id="nc1"></div></div>
+  <div class="nav-it" onclick="goTo(2)" id="nv2"><div class="nav-icon">✍️</div>Reading & Writing<div class="nav-ck" id="nc2"></div></div>
+  <div class="nav-it" onclick="goTo(3)" id="nv3"><div class="nav-icon">🔒</div>Context Managers<div class="nav-ck" id="nc3"></div></div>
+  <div class="nav-it" onclick="goTo(4)" id="nv4"><div class="nav-icon">⚡</div>Advanced: CSV & JSON<div class="nav-ck" id="nc4"></div></div>
+  <div class="nav-it" onclick="goTo(5)" id="nv5"><div class="nav-icon">🧪</div>Exercises<div class="nav-ck" id="nc5"></div></div>
+  <div class="nav-it" onclick="goTo(6)" id="nv6"><div class="nav-icon">🧠</div>Quiz<div class="nav-ck" id="nc6"></div></div>
+  <div class="nav-it" onclick="goTo(7)" id="nv7"><div class="nav-icon">🎉</div>Completion<div class="nav-ck" id="nc7"></div></div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+<!-- PAGE 0: WELCOME -->
+<div class="page active" id="pg0">
+  <div class="hero">
+    <div class="hero-content">
+      <div style="font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#38bdf8;margin-bottom:10px;">Python for Beginners · Module 8</div>
+      <h1>File Handling<br>in Python</h1>
+      <p>Learn to open, read, write, and manage files like a pro. Master the tools Python provides to work with real-world data stored on disk.</p>
+      <div class="hero-badges">
+        <span class="hbadge hb1">📂 open()</span>
+        <span class="hbadge hb2">📖 read/write</span>
+        <span class="hbadge hb3">🔒 with statement</span>
+        <span class="hbadge hb4">📊 CSV & JSON</span>
+      </div>
+      <button class="start-btn" onclick="goTo(1)">Start Learning →</button>
+    </div>
+    <div class="hero-deco">📁</div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="st">📚 What You'll Learn</h3>
+      <div class="chk-list">
+        <div class="chk-item"><div class="chk-ico">✓</div>Open files with different modes (r, w, a)</div>
+        <div class="chk-item"><div class="chk-ico">✓</div>Read file contents line by line</div>
+        <div class="chk-item"><div class="chk-ico">✓</div>Write and append data to files</div>
+        <div class="chk-item"><div class="chk-ico">✓</div>Use the <code>with</code> statement safely</div>
+        <div class="chk-item"><div class="chk-ico">✓</div>Handle CSV and JSON files</div>
+        <div class="chk-item"><div class="chk-ico">✓</div>Handle file errors gracefully</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="st">🗺️ Why File Handling Matters</h3>
+      <p style="margin-bottom:14px;">Almost every real-world program reads or writes files — configuration files, log files, data exports, and reports all depend on file handling.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:22px;margin-bottom:4px;">📊</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text2);">Data Science</div>
+          <div style="font-size:10px;color:var(--text3);">Read CSV datasets</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:22px;margin-bottom:4px;">⚙️</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text2);">Automation</div>
+          <div style="font-size:10px;color:var(--text3);">Process log files</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:22px;margin-bottom:4px;">🌐</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text2);">Web APIs</div>
+          <div style="font-size:10px;color:var(--text3);">Parse JSON responses</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:22px;margin-bottom:4px;">📝</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text2);">Reports</div>
+          <div style="font-size:10px;color:var(--text3);">Generate text reports</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pg-footer"><span></span><button class="btn-n" onclick="goTo(1)">Next: Opening Files →</button></div>
+</div>
+
+<!-- PAGE 1: OPENING FILES -->
+<div class="page" id="pg1">
+  <div class="eyebrow">Concept 1 of 3</div>
+  <div class="pg-title">Opening Files with open() 📂</div>
+  <div class="pg-sub">The <code>open()</code> function is your gateway to files on disk. It takes a filename and a mode, and returns a file object you can work with.</div>
+
+  <div class="ana">
+    <div class="ana-icon">🗃️</div>
+    <div>
+      <div class="ana-lbl">Real-Life Analogy</div>
+      <p><strong>Think of a filing cabinet.</strong> To access a document, you first <em>open</em> the drawer (open the file). You can open it just to read (<code>'r'</code>), to write something new (<code>'w'</code>), or to add notes at the end (<code>'a'</code>).</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <h3 class="st">🎛️ Interactive File Mode Selector</h3>
+    <p style="margin-bottom:14px;">Click a mode below to understand when and how to use it:</p>
+    <div class="mode-sel">
+      <div class="mode-btn" onclick="selMode(this,'r')"><span class="mb-key">'r'</span><span class="mb-name">Read</span><span class="mb-desc">Default mode</span></div>
+      <div class="mode-btn" onclick="selMode(this,'w')"><span class="mb-key">'w'</span><span class="mb-name">Write</span><span class="mb-desc">Overwrites file</span></div>
+      <div class="mode-btn" onclick="selMode(this,'a')"><span class="mb-key">'a'</span><span class="mb-name">Append</span><span class="mb-desc">Adds to end</span></div>
+      <div class="mode-btn" onclick="selMode(this,'r+')"><span class="mb-key">'r+'</span><span class="mb-name">Read+Write</span><span class="mb-desc">Both operations</span></div>
+      <div class="mode-btn" onclick="selMode(this,'x')"><span class="mb-key">'x'</span><span class="mb-name">Create</span><span class="mb-desc">Fails if exists</span></div>
+      <div class="mode-btn" onclick="selMode(this,'b')"><span class="mb-key">'rb'</span><span class="mb-name">Binary</span><span class="mb-desc">Images, PDFs</span></div>
+    </div>
+    <div class="mode-info" id="modeInfo">👆 Click a mode above to see details</div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="st">💻 Code Example</h3>
+      <div class="cb"><span class="cl">Python</span>
+<span class="ln">1</span><span class="cm"># Basic file opening</span>
+<span class="ln">2</span><span class="nm">f</span> <span class="op">=</span> <span class="fn">open</span><span class="br">(</span><span class="st">"data.txt"</span>, <span class="st">"r"</span><span class="br">)</span>
+<span class="ln">3</span><span class="nm">content</span> <span class="op">=</span> <span class="nm">f</span>.<span class="fn">read</span><span class="br">()</span>
+<span class="ln">4</span><span class="fn">print</span><span class="br">(</span><span class="nm">content</span><span class="br">)</span>
+<span class="ln">5</span><span class="nm">f</span>.<span class="fn">close</span><span class="br">()</span>  <span class="cm"># Always close!</span>
+      </div>
+      <button class="run-btn" onclick="showOut('o1')">▶ Run Demo</button>
+      <div class="out" id="o1">
+<span class="out-p">&gt;&gt;&gt; </span>Hello, Python!
+<span class="out-p">&gt;&gt;&gt; </span>This is line 2.
+<span class="out-p">&gt;&gt;&gt; </span>File closed successfully.</div>
+    </div>
+    <div class="card">
+      <h3 class="st">🗂️ Virtual File Explorer</h3>
+      <p style="margin-bottom:10px;">Click a file to preview its content:</p>
+      <div class="fv-wrap">
+        <div class="fv-disk">
+          <div class="fv-disk-lbl">📁 /project</div>
+          <div class="fv-file" onclick="previewFile('notes')"><span>📄</span><span class="fv-file-name">notes.txt</span></div>
+          <div class="fv-file" onclick="previewFile('data')"><span>📊</span><span class="fv-file-name">data.csv</span></div>
+          <div class="fv-file" onclick="previewFile('config')"><span>⚙️</span><span class="fv-file-name">config.json</span></div>
+          <div class="fv-file" onclick="previewFile('log')"><span>📋</span><span class="fv-file-name">app.log</span></div>
+        </div>
+        <div class="fv-preview">
+          <div class="fv-prev-lbl">File Preview</div>
+          <div class="fv-prev-box" id="fvPreview" style="color:#475569;">← Select a file</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px;">
+    <h3 class="st">🪜 Step-by-Step: How open() Works</h3>
+    <div class="sv" id="sv1">
+      <div class="sv-item act" onclick="actStep(0,'sv1')">
+        <div class="sv-dc"><div class="sv-dot">1</div><div class="sv-line"></div></div>
+        <div class="sv-c"><div class="sv-title">Python locates the file on disk</div><div class="sv-desc">Python checks the specified path. If the file doesn't exist and mode is <code>'r'</code>, it raises a <code>FileNotFoundError</code>.</div></div>
+      </div>
+      <div class="sv-item" onclick="actStep(1,'sv1')">
+        <div class="sv-dc"><div class="sv-dot">2</div><div class="sv-line"></div></div>
+        <div class="sv-c"><div class="sv-title">OS grants access based on mode</div><div class="sv-desc">The operating system opens a file descriptor — a low-level handle that points to the file's location on disk.</div></div>
+      </div>
+      <div class="sv-item" onclick="actStep(2,'sv1')">
+        <div class="sv-dc"><div class="sv-dot">3</div><div class="sv-line"></div></div>
+        <div class="sv-c"><div class="sv-title">A file object is returned</div><div class="sv-desc">Python wraps the file descriptor in a convenient file object with methods like <code>.read()</code>, <code>.write()</code>, <code>.close()</code>.</div></div>
+      </div>
+      <div class="sv-item" onclick="actStep(3,'sv1')">
+        <div class="sv-dc"><div class="sv-dot">4</div></div>
+        <div class="sv-c"><div class="sv-title">Always call .close() when done</div><div class="sv-desc">Closing releases the OS file lock and flushes any buffered writes to disk. Forgetting to close can corrupt files or cause resource leaks.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <button class="btn-p" onclick="goTo(0)">← Welcome</button>
+    <button class="btn-n" onclick="goTo(2)">Next: Reading & Writing →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: READING & WRITING -->
+<div class="page" id="pg2">
+  <div class="eyebrow">Concept 2 of 3</div>
+  <div class="pg-title">Reading & Writing Files ✍️</div>
+  <div class="pg-sub">Python gives you multiple ways to read file content and write data back. Choose the right method for your use case.</div>
+
+  <div class="ana">
+    <div class="ana-icon">📰</div>
+    <div>
+      <div class="ana-lbl">Real-Life Analogy</div>
+      <p><strong>Reading a file is like reading a newspaper.</strong> You can read it all at once (<code>read()</code>), one paragraph at a time (<code>readline()</code>), or scan every line (<code>readlines()</code>). Writing is like filling out a form — you put data in specific fields.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <h3 class="st">🎮 Interactive File Simulator</h3>
+    <p style="margin-bottom:12px;">Simulate reading a file using different methods. Click a tab to switch:</p>
+    <div class="file-sim">
+      <div class="fs-tabs">
+        <button class="fs-tab act" onclick="switchFsTab(this,'ft','fread')">read()</button>
+        <button class="fs-tab" onclick="switchFsTab(this,'ft','freadline')">readline()</button>
+        <button class="fs-tab" onclick="switchFsTab(this,'ft','freadlines')">readlines()</button>
+        <button class="fs-tab" onclick="switchFsTab(this,'ft','fwrite')">write()</button>
+      </div>
+      <div id="ft">
+        <div class="fs-content-area" id="fread">
+<span style="color:#6272a4;"># read() — reads entire file as one string</span>
+<span style="color:#ff79c6;">with</span> <span style="color:#8be9fd;">open</span>(<span style="color:#f1fa8c;">"notes.txt"</span>, <span style="color:#f1fa8c;">"r"</span>) <span style="color:#ff79c6;">as</span> <span style="color:#ffb86c;">f</span>:
+  <span style="color:#ffb86c;">content</span> = <span style="color:#ffb86c;">f</span>.<span style="color:#8be9fd;">read</span>()
+  <span style="color:#8be9fd;">print</span>(<span style="color:#ffb86c;">content</span>)
+
+<span style="color:#6272a4;"># Output:</span>
+<span style="color:#4ade80;">Hello, Python!
+This is line 2.
+Learning file handling!</span>
+        </div>
+        <div class="fs-content-area" id="freadline" style="display:none;">
+<span style="color:#6272a4;"># readline() — reads ONE line at a time</span>
+<span style="color:#ff79c6;">with</span> <span style="color:#8be9fd;">open</span>(<span style="color:#f1fa8c;">"notes.txt"</span>, <span style="color:#f1fa8c;">"r"</span>) <span style="color:#ff79c6;">as</span> <span style="color:#ffb86c;">f</span>:
+  <span style="color:#ffb86c;">line1</span> = <span style="color:#ffb86c;">f</span>.<span style="color:#8be9fd;">readline</span>()
+  <span style="color:#ffb86c;">line2</span> = <span style="color:#ffb86c;">f</span>.<span style="color:#8be9fd;">readline</span>()
+  <span style="color:#8be9fd;">print</span>(<span style="color:#ffb86c;">line1</span>, <span style="color:#ffb86c;">line2</span>)
+
+<span style="color:#6272a4;"># Output:</span>
+<span style="color:#4ade80;">Hello, Python!
+This is line 2.</span>
+        </div>
+        <div class="fs-content-area" id="freadlines" style="display:none;">
+<span style="color:#6272a4;"># readlines() — returns a LIST of all lines</span>
+<span style="color:#ff79c6;">with</span> <span style="color:#8be9fd;">open</span>(<span style="color:#f1fa8c;">"notes.txt"</span>, <span style="color:#f1fa8c;">"r"</span>) <span style="color:#ff79c6;">as</span> <span style="color:#ffb86c;">f</span>:
+  <span style="color:#ffb86c;">lines</span> = <span style="color:#ffb86c;">f</span>.<span class="fn">readlines</span>()
+  <span style="color:#ff79c6;">for</span> <span style="color:#ffb86c;">line</span> <span style="color:#ff79c6;">in</span> <span style="color:#ffb86c;">lines</span>:
+    <span style="color:#8be9fd;">print</span>(<span style="color:#ffb86c;">line</span>.<span style="color:#8be9fd;">strip</span>())
+
+<span style="color:#6272a4;"># Output:</span>
+<span style="color:#4ade80;">Hello, Python!
+This is line 2.
+Learning file handling!</span>
+        </div>
+        <div class="fs-content-area" id="fwrite" style="display:none;">
+<span style="color:#6272a4;"># write() — creates/overwrites the file</span>
+<span style="color:#ff79c6;">with</span> <span style="color:#8be9fd;">open</span>(<span style="color:#f1fa8c;">"output.txt"</span>, <span style="color:#f1fa8c;">"w"</span>) <span style="color:#ff79c6;">as</span> <span style="color:#ffb86c;">f</span>:
+  <span style="color:#ffb86c;">f</span>.<span style="color:#8be9fd;">write</span>(<span style="color:#f1fa8c;">"Line 1\n"</span>)
+  <span style="color:#ffb86c;">f</span>.<span style="color:#8be9fd;">write</span>(<span style="color:#f1fa8c;">"Line 2\n"</span>)
+
+<span style="color:#6272a4;"># output.txt now contains:</span>
+<span style="color:#4ade80;">Line 1
+Line 2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="st">📝 Live Write Simulator</h3>
+      <p style="margin-bottom:10px;">Type text and choose a write mode — see what happens to the file!</p>
+      <div style="display:flex;gap:7px;margin-bottom:9px;">
+        <button class="exc-opt" id="wm-w" onclick="setWriteMode('w',this)">Mode: 'w'<br><small style="font-weight:500;font-size:10px;">Overwrite</small></button>
+        <button class="exc-opt" id="wm-a" onclick="setWriteMode('a',this)">Mode: 'a'<br><small style="font-weight:500;font-size:10px;">Append</small></button>
+      </div>
+      <input type="text" id="writeInput" placeholder="Type something to write..." style="width:100%;padding:9px 13px;border-radius:9px;border:2px solid var(--border);font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;margin-bottom:8px;" oninput="updateWriteSim()">
+      <button class="run-btn" onclick="doWrite()" style="margin-bottom:9px;">▶ Write to File</button>
+      <div class="fv-prev-lbl">📄 file.txt (simulated)</div>
+      <div class="fv-prev-box" id="writePrev" style="min-height:70px;color:#4ade80;">(empty)</div>
+    </div>
+    <div class="card">
+      <h3 class="st">🔍 Click-to-Reveal: Reading Methods</h3>
+      <div class="rv-grid">
+        <div class="rv-card" onclick="this.classList.toggle('fl')">
+          <div class="rv-f">📖 .read()</div>
+          <div class="rv-b">Reads the <strong>entire file</strong> as a single string. Best for small files. Memory-heavy for large files.</div>
+          <div class="rv-hint">👆 Click to reveal</div>
+        </div>
+        <div class="rv-card" onclick="this.classList.toggle('fl')">
+          <div class="rv-f">📄 .readline()</div>
+          <div class="rv-b">Reads <strong>one line</strong> at a time. The file pointer moves forward. Returns empty string at end of file.</div>
+          <div class="rv-hint">👆 Click to reveal</div>
+        </div>
+        <div class="rv-card" onclick="this.classList.toggle('fl')">
+          <div class="rv-f">📋 .readlines()</div>
+          <div class="rv-b">Returns a <strong>list of all lines</strong>. Each element ends with <code>\n</code>. Easy to iterate with a for loop.</div>
+          <div class="rv-hint">👆 Click to reveal</div>
+        </div>
+        <div class="rv-card" onclick="this.classList.toggle('fl')">
+          <div class="rv-f">✏️ .write()</div>
+          <div class="rv-b">Writes a <strong>string</strong> to the file. Add <code>\n</code> manually for newlines. Returns number of characters written.</div>
+          <div class="rv-hint">👆 Click to reveal</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <button class="btn-p" onclick="goTo(1)">← Opening Files</button>
+    <button class="btn-n" onclick="goTo(3)">Next: Context Managers →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: CONTEXT MANAGERS -->
+<div class="page" id="pg3">
+  <div class="eyebrow">Concept 3 of 3</div>
+  <div class="pg-title">The <code>with</code> Statement 🔒</div>
+  <div class="pg-sub">The <code>with</code> statement creates a <strong>context manager</strong> that automatically closes the file — even if an error occurs. It's the Python-recommended way to handle files.</div>
+
+  <div class="ana">
+    <div class="ana-icon">🏧</div>
+    <div>
+      <div class="ana-lbl">Real-Life Analogy</div>
+      <p><strong>Think of an ATM transaction.</strong> When you insert your card, the machine "opens" a session. When you're done, it automatically closes the session whether the transaction succeeded or not. The <code>with</code> statement works exactly the same way for files!</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <h3 class="st">⚖️ Without vs With — Visual Comparison</h3>
+    <div class="ctx-demo">
+      <div class="ctx-box">
+        <div class="ctx-lbl" style="color:var(--rose);">❌ The Risky Way</div>
+        <div class="ctx-visual" style="background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.2);">
+<span style="color:#f43f5e;">f = open("data.txt", "r")</span>
+<span style="color:#94a3b8;">content = f.read()</span>
+<span style="color:#94a3b8;"># ⚠️ If error happens here...</span>
+<span style="color:#f43f5e;">f.close()  # ...this never runs!</span>
+<span style="color:#ef4444;">→ File stays locked 🔴</span>
+        </div>
+      </div>
+      <div style="font-size:22px;color:var(--text3);align-self:center;">VS</div>
+      <div class="ctx-box">
+        <div class="ctx-lbl" style="color:var(--green);">✅ The Safe Way</div>
+        <div class="ctx-visual" style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);">
+<span style="color:#10b981;">with open("data.txt", "r") as f:</span>
+<span style="color:#94a3b8;">    content = f.read()</span>
+<span style="color:#94a3b8;">    # ✅ Error or not...</span>
+<span style="color:#10b981;">→ File auto-closes 🟢</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="st">💻 Code Example</h3>
+      <div class="cb"><span class="cl">Python</span>
+<span class="ln">1</span><span class="cm"># Reading with context manager</span>
+<span class="ln">2</span><span class="kw">with</span> <span class="fn">open</span><span class="br">(</span><span class="st">"students.txt"</span>, <span class="st">"r"</span><span class="br">)</span> <span class="kw">as</span> <span class="nm">f</span><span class="op">:</span>
+<span class="ln">3</span>  <span class="kw">for</span> <span class="nm">line</span> <span class="kw">in</span> <span class="nm">f</span><span class="op">:</span>
+<span class="ln">4</span>    <span class="fn">print</span><span class="br">(</span><span class="nm">line</span>.<span class="fn">strip</span><span class="br">()</span><span class="br">)</span>
+<span class="ln">5</span>
+<span class="ln">6</span><span class="cm"># Writing with context manager</span>
+<span class="ln">7</span><span class="kw">with</span> <span class="fn">open</span><span class="br">(</span><span class="st">"output.txt"</span>, <span class="st">"w"</span><span class="br">)</span> <span class="kw">as</span> <span class="nm">f</span><span class="op">:</span>
+<span class="ln">8</span>  <span class="nm">f</span>.<span class="fn">write</span><span class="br">(</span><span class="st">"Data saved!\n"</span><span class="br">)</span>
+      </div>
+      <button class="run-btn" onclick="showOut('o3')">▶ Run Demo</button>
+      <div class="out" id="o3">
+<span class="out-p">&gt;&gt;&gt; </span>Alice
+<span class="out-p">&gt;&gt;&gt; </span>Bob
+<span class="out-p">&gt;&gt;&gt; </span>Charlie
+<span class="out-p">&gt;&gt;&gt; </span>File auto-closed ✓</div>
+    </div>
+    <div class="card">
+      <h3 class="st">⚠️ Exception Handling Demo</h3>
+      <p style="margin-bottom:10px;">Test how Python handles file errors gracefully:</p>
+      <div class="exc-sim">
+        <div class="exc-toggle">
+          <button class="exc-opt" id="eo-exists" onclick="excDemo('exists',this)">File exists ✓</button>
+          <button class="exc-opt" id="eo-missing" onclick="excDemo('missing',this)">File missing ✗</button>
+        </div>
+        <div class="cb" style="margin:8px 0;">
+<span class="kw">try</span><span class="op">:</span>
+  <span class="kw">with</span> <span class="fn">open</span>(<span class="st">"data.txt"</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="nm">f</span><span class="op">:</span>
+    <span class="nm">content</span> <span class="op">=</span> <span class="nm">f</span>.<span class="fn">read</span>()
+    <span class="fn">print</span>(<span class="nm">content</span>)
+<span class="kw">except</span> <span class="cls">FileNotFoundError</span><span class="op">:</span>
+  <span class="fn">print</span>(<span class="st">"File not found!"</span>)
+        </div>
+        <div class="exc-result" id="excResult" style="background:var(--bg);min-height:50px;color:var(--text3);">Click above to simulate ↑</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px;">
+    <h3 class="st">🔄 The with Statement Flow</h3>
+    <p style="margin-bottom:14px;">Here's exactly what happens when Python runs a <code>with</code> block:</p>
+    <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+      <div class="flow-wrap">
+        <div class="flow-node" style="background:rgba(14,165,233,.1);border:1px solid rgba(14,165,233,.2);color:var(--primary);">1. open("file.txt") called</div>
+        <div class="flow-arr"></div>
+        <div class="flow-node" style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:var(--indigo);">2. __enter__() → file object assigned to f</div>
+        <div class="flow-arr"></div>
+        <div class="flow-node" style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);color:var(--green);">3. Code block runs</div>
+        <div class="flow-arr"></div>
+        <div class="flow-node" style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);color:var(--amber);">4. __exit__() → f.close() auto-called</div>
+        <div class="flow-arr"></div>
+        <div class="flow-node" style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);color:var(--green);">5. File safely closed ✓</div>
+      </div>
+      <div style="flex:1;min-width:200px;background:var(--bg);border-radius:12px;padding:16px;">
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:10px;">💡 Key Benefits</div>
+        <div class="chk-list">
+          <div class="chk-item" style="padding:7px 10px;font-size:12px;"><div class="chk-ico" style="width:18px;height:18px;font-size:9px;">✓</div>Auto-closes on success</div>
+          <div class="chk-item" style="padding:7px 10px;font-size:12px;"><div class="chk-ico" style="width:18px;height:18px;font-size:9px;">✓</div>Auto-closes on error</div>
+          <div class="chk-item" style="padding:7px 10px;font-size:12px;"><div class="chk-ico" style="width:18px;height:18px;font-size:9px;">✓</div>Cleaner, shorter code</div>
+          <div class="chk-item" style="padding:7px 10px;font-size:12px;"><div class="chk-ico" style="width:18px;height:18px;font-size:9px;">✓</div>Prevents resource leaks</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <button class="btn-p" onclick="goTo(2)">← Reading & Writing</button>
+    <button class="btn-n" onclick="goTo(4)">Next: CSV & JSON →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: ADVANCED -->
+<div class="page" id="pg4">
+  <div class="eyebrow">Advanced Concept</div>
+  <div class="pg-title">CSV & JSON File Handling ⚡</div>
+  <div class="pg-sub">Real-world data often lives in CSV (spreadsheets) or JSON (APIs) format. Python has built-in modules to handle both effortlessly.</div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="st">📊 CSV Files</h3>
+      <div class="ana" style="margin-bottom:12px;">
+        <div class="ana-icon">📋</div>
+        <div><div class="ana-lbl">Analogy</div><p>CSV = comma-separated spreadsheet. Like an Excel table saved as plain text.</p></div>
+      </div>
+      <div class="cb"><span class="cl">Python</span>
+<span class="ln">1</span><span class="kw">import</span> <span class="cls">csv</span>
+<span class="ln">2</span>
+<span class="ln">3</span><span class="cm"># Reading CSV</span>
+<span class="ln">4</span><span class="kw">with</span> <span class="fn">open</span><span class="br">(</span><span class="st">"students.csv"</span><span class="br">)</span> <span class="kw">as</span> <span class="nm">f</span><span class="op">:</span>
+<span class="ln">5</span>  <span class="nm">reader</span> <span class="op">=</span> <span class="cls">csv</span>.<span class="fn">DictReader</span><span class="br">(</span><span class="nm">f</span><span class="br">)</span>
+<span class="ln">6</span>  <span class="kw">for</span> <span class="nm">row</span> <span class="kw">in</span> <span class="nm">reader</span><span class="op">:</span>
+<span class="ln">7</span>    <span class="fn">print</span><span class="br">(</span><span class="nm">row</span><span class="br">[</span><span class="st">"name"</span><span class="br">]</span>, <span class="nm">row</span><span class="br">[</span><span class="st">"grade"</span><span class="br">]</span><span class="br">)</span>
+      </div>
+      <button class="run-btn" onclick="showOut('o4csv')">▶ Run Demo</button>
+      <div class="out" id="o4csv">
+<span class="out-p">&gt;&gt;&gt; </span>Alice  A
+<span class="out-p">&gt;&gt;&gt; </span>Bob    B+
+<span class="out-p">&gt;&gt;&gt; </span>Carol  A-</div>
+    </div>
+    <div class="card">
+      <h3 class="st">🌐 JSON Files</h3>
+      <div class="ana" style="margin-bottom:12px;">
+        <div class="ana-icon">🗂️</div>
+        <div><div class="ana-lbl">Analogy</div><p>JSON = Python dictionary saved as text. Used by every web API to send/receive data.</p></div>
+      </div>
+      <div class="cb"><span class="cl">Python</span>
+<span class="ln">1</span><span class="kw">import</span> <span class="cls">json</span>
+<span class="ln">2</span>
+<span class="ln">3</span><span class="cm"># Reading JSON</span>
+<span class="ln">4</span><span class="kw">with</span> <span class="fn">open</span><span class="br">(</span><span class="st">"config.json"</span><span class="br">)</span> <span class="kw">as</span> <span class="nm">f</span><span class="op">:</span>
+<span class="ln">5</span>  <span class="nm">data</span> <span class="op">=</span> <span class="cls">json</span>.<span class="fn">load</span><span class="br">(</span><span class="nm">f</span><span class="br">)</span>
+<span class="ln">6</span>  <span class="fn">print</span><span class="br">(</span><span class="nm">data</span><span class="br">[</span><span class="st">"username"</span><span class="br">]</span><span class="br">)</span>
+<span class="ln">7</span>
+<span class="ln">8</span><span class="cm"># Writing JSON</span>
+<span class="ln">9</span><span class="kw">with</span> <span class="fn">open</span><span class="br">(</span><span class="st">"out.json"</span>, <span class="st">"w"</span><span class="br">)</span> <span class="kw">as</span> <span class="nm">f</span><span class="op">:</span>
+<span class="ln">10</span>  <span class="cls">json</span>.<span class="fn">dump</span><span class="br">(</span><span class="nm">data</span>, <span class="nm">f</span>, <span class="nm">indent</span><span class="op">=</span><span class="nm">2</span><span class="br">)</span>
+      </div>
+      <button class="run-btn" onclick="showOut('o4json')">▶ Run Demo</button>
+      <div class="out" id="o4json">
+<span class="out-p">&gt;&gt;&gt; </span>vinodhini
+<span class="out-p">&gt;&gt;&gt; </span>JSON written: out.json ✓</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px;">
+    <h3 class="st">🎯 Format Chooser — Scenario Slider</h3>
+    <p style="margin-bottom:12px;">Drag the slider to explore different real-world scenarios:</p>
+    <div class="sl-wrap">
+      <div class="sl-row">
+        <label>Scenario</label>
+        <input type="range" min="0" max="4" value="0" id="scSlider" oninput="updateScenario4(this.value)">
+        <span class="sl-val" id="scNum">1/5</span>
+      </div>
+      <div style="background:var(--bg);border-radius:12px;padding:16px 18px;">
+        <div style="font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:7px;" id="scDesc">📊 Exporting student grades from a database</div>
+        <div style="display:flex;align-items:center;gap:9px;">
+          <span style="font-size:12px;color:var(--text2);">Best format:</span>
+          <span class="tag tg" id="scAns" style="font-size:12.5px;font-weight:800;">CSV</span>
+        </div>
+        <div style="font-size:12.5px;color:var(--text2);margin-top:7px;" id="scReason">Tabular data with rows and columns fits CSV perfectly</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px;">
+    <h3 class="st">📦 JSON vs CSV — Click to Compare</h3>
+    <div class="rv-grid" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+      <div class="rv-card" onclick="this.classList.toggle('fl')">
+        <div class="rv-f">CSV: Structure</div>
+        <div class="rv-b">Rows and columns (tabular). Row 1 = headers. Best for spreadsheet-like data with uniform fields.</div>
+        <div class="rv-hint">👆 Tap to reveal</div>
+      </div>
+      <div class="rv-card" onclick="this.classList.toggle('fl')">
+        <div class="rv-f">JSON: Structure</div>
+        <div class="rv-b">Nested key-value pairs. Can represent arrays, objects, nested data. Great for complex data structures.</div>
+        <div class="rv-hint">👆 Tap to reveal</div>
+      </div>
+      <div class="rv-card" onclick="this.classList.toggle('fl')">
+        <div class="rv-f">CSV: Use Case</div>
+        <div class="rv-b">Data science datasets, Excel exports, database dumps, financial records, logs with fixed columns.</div>
+        <div class="rv-hint">👆 Tap to reveal</div>
+      </div>
+      <div class="rv-card" onclick="this.classList.toggle('fl')">
+        <div class="rv-f">JSON: Use Case</div>
+        <div class="rv-b">API responses, configuration files, MongoDB documents, nested data like user profiles with preferences.</div>
+        <div class="rv-hint">👆 Tap to reveal</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <button class="btn-p" onclick="goTo(3)">← Context Managers</button>
+    <button class="btn-n" onclick="goTo(5)">Next: Exercises →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: EXERCISES -->
+<div class="page" id="pg5">
+  <div class="eyebrow">Practice</div>
+  <div class="pg-title">Coding Exercises 🧪</div>
+  <div class="pg-sub">Try solving each problem first, then reveal the solution to check your approach.</div>
+
+  <div class="ex-card">
+    <div class="ex-hd">
+      <div class="ex-num">1</div>
+      <div class="ex-title">Count lines in a file using the with statement</div>
+      <span class="tag tg" style="margin-left:auto;">open() · read</span>
+    </div>
+    <div class="ex-bd">
+      <p style="margin-bottom:10px;">Write a Python program that opens <code>"story.txt"</code> and prints the total number of lines it contains.</p>
+      <button class="sol-btn" onclick="toggleSol(this,'s1')">💡 Show Solution</button>
+      <div class="sol" id="s1">
+        <div class="cb">
+<span class="kw">with</span> <span class="fn">open</span><span class="br">(</span><span class="st">"story.txt"</span>, <span class="st">"r"</span><span class="br">)</span> <span class="kw">as</span> <span class="nm">f</span><span class="op">:</span>
+  <span class="nm">lines</span> <span class="op">=</span> <span class="nm">f</span>.<span class="fn">readlines</span><span class="br">()</span>
+  <span class="fn">print</span><span class="br">(</span><span class="st">f"Total lines: </span><span class="op">{</span><span class="fn">len</span><span class="br">(</span><span class="nm">lines</span><span class="br">)</span><span class="op">}</span><span class="st">"</span><span class="br">)</span>
+
+<span class="cm"># Output: Total lines: 42</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-hd">
+      <div class="ex-num">2</div>
+      <div class="ex-title">Append a new entry to a log file</div>
+      <span class="tag tg3" style="margin-left:auto;">write · append</span>
+    </div>
+    <div class="ex-bd">
+      <p style="margin-bottom:10px;">Write a function <code>log_event(message)</code> that appends a timestamped message to <code>"app.log"</code>. Each call should add a new line, not overwrite.</p>
+      <button class="sol-btn" onclick="toggleSol(this,'s2')">💡 Show Solution</button>
+      <div class="sol" id="s2">
+        <div class="cb">
+<span class="kw">from</span> <span class="cls">datetime</span> <span class="kw">import</span> <span class="cls">datetime</span>
+
+<span class="kw">def</span> <span class="fn">log_event</span><span class="br">(</span><span class="nm">message</span><span class="br">)</span><span class="op">:</span>
+  <span class="nm">timestamp</span> <span class="op">=</span> <span class="cls">datetime</span>.<span class="fn">now</span><span class="br">()</span>.<span class="fn">strftime</span><span class="br">(</span><span class="st">"%Y-%m-%d %H:%M"</span><span class="br">)</span>
+  <span class="kw">with</span> <span class="fn">open</span><span class="br">(</span><span class="st">"app.log"</span>, <span class="st">"a"</span><span class="br">)</span> <span class="kw">as</span> <span class="nm">f</span><span class="op">:</span>
+    <span class="nm">f</span>.<span class="fn">write</span><span class="br">(</span><span class="st">f"[</span><span class="op">{</span><span class="nm">timestamp</span><span class="op">}</span><span class="st">] </span><span class="op">{</span><span class="nm">message</span><span class="op">}</span><span class="st">\n"</span><span class="br">)</span>
+
+<span class="fn">log_event</span><span class="br">(</span><span class="st">"User logged in"</span><span class="br">)</span>
+<span class="fn">log_event</span><span class="br">(</span><span class="st">"File uploaded"</span><span class="br">)</span>
+<span class="cm"># app.log now has 2 new lines!</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-hd">
+      <div class="ex-num">3</div>
+      <div class="ex-title">Read a JSON config and update a value</div>
+      <span class="tag tg4" style="margin-left:auto;">JSON · dict</span>
+    </div>
+    <div class="ex-bd">
+      <p style="margin-bottom:10px;">Given a <code>config.json</code> with <code>{"theme": "light", "version": 1}</code>, read it, change the theme to <code>"dark"</code>, and write it back.</p>
+      <button class="sol-btn" onclick="toggleSol(this,'s3')">💡 Show Solution</button>
+      <div class="sol" id="s3">
+        <div class="cb">
+<span class="kw">import</span> <span class="cls">json</span>
+
+<span class="cm"># Step 1: Read existing config</span>
+<span class="kw">with</span> <span class="fn">open</span><span class="br">(</span><span class="st">"config.json"</span>, <span class="st">"r"</span><span class="br">)</span> <span class="kw">as</span> <span class="nm">f</span><span class="op">:</span>
+  <span class="nm">config</span> <span class="op">=</span> <span class="cls">json</span>.<span class="fn">load</span><span class="br">(</span><span class="nm">f</span><span class="br">)</span>
+
+<span class="cm"># Step 2: Modify</span>
+<span class="nm">config</span><span class="br">[</span><span class="st">"theme"</span><span class="br">]</span> <span class="op">=</span> <span class="st">"dark"</span>
+
+<span class="cm"># Step 3: Write back</span>
+<span class="kw">with</span> <span class="fn">open</span><span class="br">(</span><span class="st">"config.json"</span>, <span class="st">"w"</span><span class="br">)</span> <span class="kw">as</span> <span class="nm">f</span><span class="op">:</span>
+  <span class="cls">json</span>.<span class="fn">dump</span><span class="br">(</span><span class="nm">config</span>, <span class="nm">f</span>, <span class="nm">indent</span><span class="op">=</span><span class="nm">2</span><span class="br">)</span>
+  <span class="fn">print</span><span class="br">(</span><span class="st">"Config updated!"</span><span class="br">)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <button class="btn-p" onclick="goTo(4)">← CSV & JSON</button>
+    <button class="btn-n" onclick="goTo(6)">Next: Quiz →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: QUIZ -->
+<div class="page" id="pg6">
+  <div class="eyebrow">Knowledge Check</div>
+  <div class="pg-title">Module Quiz 🧠</div>
+  <div class="pg-sub">5 questions on File Handling. Choose wisely!</div>
+
+  <div class="qdots">
+    <div class="qdot cur" id="qd0"></div>
+    <div class="qdot" id="qd1"></div>
+    <div class="qdot" id="qd2"></div>
+    <div class="qdot" id="qd3"></div>
+    <div class="qdot" id="qd4"></div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="qz-q active" id="q0">
+    <div class="qz-num">Question 1 of 5</div>
+    <div class="qz-txt">What is the default file mode when you call <code>open("file.txt")</code> without specifying a mode?</div>
+    <div class="qz-opts">
+      <div class="qz-opt" onclick="chkAns(this,0,0)"><span class="opt-l">A</span>'w' — write mode</div>
+      <div class="qz-opt" onclick="chkAns(this,0,0)"><span class="opt-l">B</span>'r' — read mode</div>
+      <div class="qz-opt" onclick="chkAns(this,0,0)"><span class="opt-l">C</span>'a' — append mode</div>
+      <div class="qz-opt" onclick="chkAns(this,0,0)"><span class="opt-l">D</span>'r+' — read-write mode</div>
+    </div>
+    <div class="qz-fb" id="qf0"></div>
+    <div style="margin-top:12px;text-align:right;"><button class="btn-n" style="display:none;" id="qnxt0" onclick="nxtQ(1)">Next →</button></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="qz-q" id="q1">
+    <div class="qz-num">Question 2 of 5</div>
+    <div class="qz-txt">Which file mode OVERWRITES existing content (deletes old data)?</div>
+    <div class="qz-opts">
+      <div class="qz-opt" onclick="chkAns(this,1,2)"><span class="opt-l">A</span>'r'</div>
+      <div class="qz-opt" onclick="chkAns(this,1,2)"><span class="opt-l">B</span>'a'</div>
+      <div class="qz-opt" onclick="chkAns(this,1,2)"><span class="opt-l">C</span>'w'</div>
+      <div class="qz-opt" onclick="chkAns(this,1,2)"><span class="opt-l">D</span>'r+'</div>
+    </div>
+    <div class="qz-fb" id="qf1"></div>
+    <div style="margin-top:12px;text-align:right;"><button class="btn-n" style="display:none;" id="qnxt1" onclick="nxtQ(2)">Next →</button></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="qz-q" id="q2">
+    <div class="qz-num">Question 3 of 5</div>
+    <div class="qz-txt">What is the main advantage of using the <code>with</code> statement for file handling?</div>
+    <div class="qz-opts">
+      <div class="qz-opt" onclick="chkAns(this,2,1)"><span class="opt-l">A</span>It makes file reading faster</div>
+      <div class="qz-opt" onclick="chkAns(this,2,1)"><span class="opt-l">B</span>It automatically closes the file even if an error occurs</div>
+      <div class="qz-opt" onclick="chkAns(this,2,1)"><span class="opt-l">C</span>It can only be used with text files</div>
+      <div class="qz-opt" onclick="chkAns(this,2,1)"><span class="opt-l">D</span>It prevents writing to the file</div>
+    </div>
+    <div class="qz-fb" id="qf2"></div>
+    <div style="margin-top:12px;text-align:right;"><button class="btn-n" style="display:none;" id="qnxt2" onclick="nxtQ(3)">Next →</button></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="qz-q" id="q3">
+    <div class="qz-num">Question 4 of 5</div>
+    <div class="qz-txt">Which Python module is used to work with CSV files?</div>
+    <div class="qz-opts">
+      <div class="qz-opt" onclick="chkAns(this,3,0)"><span class="opt-l">A</span>csv</div>
+      <div class="qz-opt" onclick="chkAns(this,3,0)"><span class="opt-l">B</span>spreadsheet</div>
+      <div class="qz-opt" onclick="chkAns(this,3,0)"><span class="opt-l">C</span>pandas</div>
+      <div class="qz-opt" onclick="chkAns(this,3,0)"><span class="opt-l">D</span>excel</div>
+    </div>
+    <div class="qz-fb" id="qf3"></div>
+    <div style="margin-top:12px;text-align:right;"><button class="btn-n" style="display:none;" id="qnxt3" onclick="nxtQ(4)">Next →</button></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="qz-q" id="q4">
+    <div class="qz-num">Question 5 of 5</div>
+    <div class="qz-txt">What error does Python raise when you try to open a non-existent file in read mode?</div>
+    <div class="qz-opts">
+      <div class="qz-opt" onclick="chkAns(this,4,2)"><span class="opt-l">A</span>ValueError</div>
+      <div class="qz-opt" onclick="chkAns(this,4,2)"><span class="opt-l">B</span>TypeError</div>
+      <div class="qz-opt" onclick="chkAns(this,4,2)"><span class="opt-l">C</span>FileNotFoundError</div>
+      <div class="qz-opt" onclick="chkAns(this,4,2)"><span class="opt-l">D</span>IOError</div>
+    </div>
+    <div class="qz-fb" id="qf4"></div>
+    <div style="margin-top:12px;text-align:right;"><button class="btn-n" style="display:none;" id="qnxt4" onclick="showScore()">See Results 🎉</button></div>
+  </div>
+
+  <!-- Score -->
+  <div class="qz-q" id="qScore">
+    <div class="sc-screen">
+      <div class="sc-ring" id="scRing" style="--pct:0">
+        <div class="sc-inner"><div class="sc-n" id="scN">0</div><div class="sc-d">out of 5</div></div>
+      </div>
+      <div style="font-size:20px;font-weight:800;margin-bottom:7px;" id="scMsg"></div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:18px;" id="scDet"></div>
+      <button class="restart-btn" onclick="goTo(7)">🎉 Complete Module →</button>
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <button class="btn-p" onclick="goTo(5)">← Exercises</button>
+    <span></span>
+  </div>
+</div>
+
+<!-- PAGE 7: COMPLETION -->
+<div class="page" id="pg7">
+  <div class="cmp-wrap">
+    <span class="cmp-emoji">🎉</span>
+    <div class="cmp-title">Module 8 Complete!</div>
+    <div class="cmp-sub">You've mastered Python File Handling. You're ready to work with real-world data!</div>
+    <div class="skills-wrap">
+      <span class="sk-tag" style="border-color:var(--primary);color:var(--primary);animation-delay:.0s;">📂 open() & file modes</span>
+      <span class="sk-tag" style="border-color:var(--green);color:var(--green);animation-delay:.08s;">📖 read / readline / readlines</span>
+      <span class="sk-tag" style="border-color:var(--indigo);color:var(--indigo);animation-delay:.16s;">✍️ write & append</span>
+      <span class="sk-tag" style="border-color:var(--amber);color:var(--amber);animation-delay:.24s;">🔒 with statement</span>
+      <span class="sk-tag" style="border-color:var(--rose);color:var(--rose);animation-delay:.32s;">⚠️ Exception Handling</span>
+      <span class="sk-tag" style="border-color:#06b6d4;color:#06b6d4;animation-delay:.40s;">📊 CSV files</span>
+      <span class="sk-tag" style="border-color:#8b5cf6;color:#8b5cf6;animation-delay:.48s;">🌐 JSON files</span>
+    </div>
+    <div class="card" style="max-width:460px;margin:0 auto 22px;text-align:left;">
+      <h3 class="st" style="margin-bottom:11px;">🏅 Achievement Unlocked</h3>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--indigo));display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">📁</div>
+        <div>
+          
+          <div style="margin-top:6px;"><span class="tag tg2">✅ Python for Beginners — Module 8</span></div>
+        </div>
+      </div>
+    </div>
+    <button class="restart-btn" onclick="restartMod()">↺ Restart Module</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ── STATE ──
+let cur = 0;
+const total = 8;
+const done = new Set([0]);
+let qScore = 0;
+let writeMode = 'w';
+let fileContent = '(empty)';
+
+// ── NAV ──
+function goTo(idx) {
+  document.getElementById('pg'+cur).classList.remove('active');
+  document.getElementById('nv'+cur).classList.remove('active');
+  done.add(cur);
+  document.getElementById('nc'+cur).textContent = '✓';
+  document.getElementById('nv'+cur).classList.add('done');
+  cur = idx;
+  document.getElementById('pg'+idx).classList.add('active');
+  document.getElementById('nv'+idx).classList.add('active');
+  document.getElementById('nv'+idx).classList.remove('done');
+  const pct = Math.round((done.size / total) * 100);
+  document.getElementById('tbFill').style.width = pct + '%';
+  document.getElementById('tbPct').textContent = pct + '%';
+  document.getElementById('main').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── RUN DEMO ──
+function showOut(id) {
+  const el = document.getElementById(id);
+  el.classList.add('show');
+  el.style.animation = 'none';
+  setTimeout(() => el.style.animation = '', 10);
+}
+
+// ── STEP VIZ ──
+function actStep(idx, id) {
+  document.getElementById(id).querySelectorAll('.sv-item').forEach((s, i) => s.classList.toggle('act', i === idx));
+}
+
+// ── MODE SELECTOR ──
+const modeData = {
+  'r':  { label: '📖 Read Mode', desc: 'Opens for reading only. Raises FileNotFoundError if file doesn\'t exist. File pointer at start. Most common mode.', color: 'var(--primary)' },
+  'w':  { label: '✏️ Write Mode', desc: 'Opens for writing. DELETES existing content. Creates file if it doesn\'t exist. Start fresh each time.', color: 'var(--rose)' },
+  'a':  { label: '➕ Append Mode', desc: 'Opens for writing at the END of file. Keeps existing content. Creates file if it doesn\'t exist. Perfect for logs.', color: 'var(--green)' },
+  'r+': { label: '🔄 Read+Write', desc: 'Opens for both reading and writing. File must exist. Does NOT truncate. Use seek() to navigate.', color: 'var(--indigo)' },
+  'x':  { label: '🆕 Exclusive Create', desc: 'Creates a new file. Raises FileExistsError if file already exists. Useful to prevent accidental overwrites.', color: 'var(--amber)' },
+  'b':  { label: '⚙️ Binary Mode', desc: 'Used with r or w: "rb", "wb". Reads/writes raw bytes, not text. For images, PDFs, audio, executables.', color: '#8b5cf6' }
+};
+function selMode(btn, key) {
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  const d = modeData[key];
+  document.getElementById('modeInfo').innerHTML = `<span style="font-weight:800;color:${d.color};">${d.label}</span> — ${d.desc}`;
+}
+
+// ── FILE PREVIEW ──
+const filePreviews = {
+  notes: '📄 notes.txt\n──────────────\nHello, Python!\nThis is a note.\nFile handling rocks!',
+  data:  '📊 data.csv\n──────────────\nname,age,grade\nAlice,20,A\nBob,22,B+\nCarol,21,A-',
+  config:'⚙️ config.json\n──────────────\n{\n  "theme": "dark",\n  "version": 2,\n  "debug": false\n}',
+  log:   '📋 app.log\n──────────────\n[2024-01-15 09:00] App started\n[2024-01-15 09:01] User logged in\n[2024-01-15 09:05] File uploaded'
+};
+function previewFile(key) {
+  document.querySelectorAll('.fv-file').forEach(f => f.classList.remove('sel'));
+  event.currentTarget.classList.add('sel');
+  const box = document.getElementById('fvPreview');
+  box.style.color = '#e2e8f0';
+  box.textContent = filePreviews[key];
+  box.style.animation = 'none';
+  setTimeout(() => { box.style.animation = 'fi .3s'; }, 10);
+}
+
+// ── TABS (file simulator) ──
+function switchFsTab(btn, containerId, tabId) {
+  const container = document.getElementById(containerId);
+  document.querySelectorAll('.fs-tab').forEach(b => b.classList.remove('act'));
+  btn.classList.add('act');
+  container.querySelectorAll('.fs-content-area').forEach(t => t.style.display = 'none');
+  document.getElementById(tabId).style.display = 'block';
+}
+
+// ── WRITE SIMULATOR ──
+function setWriteMode(m, btn) {
+  writeMode = m;
+  document.getElementById('wm-w').classList.remove('sel','sel-bad');
+  document.getElementById('wm-a').classList.remove('sel','sel-bad');
+  if (m === 'w') btn.classList.add('sel-bad');
+  else btn.classList.add('sel');
+}
+function doWrite() {
+  const val = document.getElementById('writeInput').value.trim();
+  if (!val) return;
+  if (writeMode === 'w') { fileContent = val; }
+  else { fileContent = fileContent === '(empty)' ? val : fileContent + '\n' + val; }
+  document.getElementById('writePrev').style.color = '#4ade80';
+  document.getElementById('writePrev').textContent = fileContent;
+  document.getElementById('writeInput').value = '';
+}
+
+// ── EXCEPTION DEMO ──
+function excDemo(type, btn) {
+  document.getElementById('eo-exists').classList.remove('sel','sel-bad');
+  document.getElementById('eo-missing').classList.remove('sel','sel-bad');
+  const r = document.getElementById('excResult');
+  if (type === 'exists') {
+    btn.classList.add('sel');
+    r.style.background = 'rgba(16,185,129,.08)';
+    r.style.border = '1px solid rgba(16,185,129,.2)';
+    r.style.color = '#4ade80';
+    r.textContent = '>>> Hello, Python!\n>>> This is line 2.\n>>> File closed ✓';
+  } else {
+    btn.classList.add('sel-bad');
+    r.style.background = 'rgba(244,63,94,.06)';
+    r.style.border = '1px solid rgba(244,63,94,.2)';
+    r.style.color = '#f87171';
+    r.textContent = 'FileNotFoundError: [Errno 2] No such file or directory: "data.txt"\n>>> "File not found!"';
+  }
+  r.style.animation = 'none';
+  setTimeout(() => r.style.animation = 'fi .3s', 10);
+}
+
+// ── SCENARIO SLIDER ──
+const sc4 = [
+  { desc: '📊 Exporting student grades from a database', ans: 'CSV', reason: 'Tabular data with rows and columns fits CSV perfectly', cls: 'tg' },
+  { desc: '🌐 Storing API response with nested user profile', ans: 'JSON', reason: 'Nested key-value data is exactly what JSON handles', cls: 'tg3' },
+  { desc: '📈 Analysing sales data across 10,000 rows', ans: 'CSV', reason: 'Large tabular datasets are the native domain of CSV files', cls: 'tg' },
+  { desc: '⚙️ Saving app settings with arrays and objects', ans: 'JSON', reason: 'Complex nested config structures need JSON flexibility', cls: 'tg3' },
+  { desc: '📝 Logging events with timestamp and message', ans: 'TXT / Log', reason: 'Simple sequential log data belongs in plain text files', cls: 'tg4' }
+];
+function updateScenario4(v) {
+  const s = sc4[v];
+  document.getElementById('scNum').textContent = (parseInt(v)+1)+'/5';
+  document.getElementById('scDesc').textContent = s.desc;
+  const a = document.getElementById('scAns');
+  a.className = 'tag ' + s.cls;
+  a.textContent = s.ans;
+  document.getElementById('scReason').textContent = s.reason;
+}
+
+// ── EXERCISE TOGGLE ──
+function toggleSol(btn, id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+  btn.textContent = el.classList.contains('open') ? '🙈 Hide Solution' : '💡 Show Solution';
+}
+
+// ── QUIZ ──
+const qCorr = [1, 2, 1, 0, 2];
+const qFbOk = [
+  "✅ Correct! 'r' is the default mode — read-only.",
+  "✅ Correct! 'w' mode overwrites (truncates) the existing file.",
+  "✅ Correct! The with statement auto-closes files, even when errors occur.",
+  "✅ Correct! Python's built-in csv module handles CSV reading and writing.",
+  "✅ Correct! FileNotFoundError is raised when the file doesn't exist in 'r' mode."
+];
+const qFbFail = [
+  "❌ Not quite. The default mode is 'r' — read-only.",
+  "❌ Not quite. 'w' mode overwrites. 'a' appends, 'r' reads.",
+  "❌ Not quite. The key benefit of with is automatic file closing, even on errors.",
+  "❌ Not quite. Python's built-in csv module is the standard tool for CSV files.",
+  "❌ Not quite. Python raises FileNotFoundError when the file doesn't exist."
+];
+
+function chkAns(optEl, qIdx, corrIdx) {
+  const q = document.getElementById('q'+qIdx);
+  if (q.querySelector('.dis')) return;
+  const opts = q.querySelectorAll('.qz-opt');
+  opts.forEach(o => o.classList.add('dis'));
+  const chosen = Array.from(opts).indexOf(optEl);
+  const fb = document.getElementById('qf'+qIdx);
+  const dot = document.getElementById('qd'+qIdx);
+  if (chosen === corrIdx) {
+    optEl.classList.add('ok'); fb.className='qz-fb show ok'; fb.textContent=qFbOk[qIdx]; qScore++; dot.classList.add('ok');
+  } else {
+    optEl.classList.add('wrong'); opts[corrIdx].classList.add('ok'); fb.className='qz-fb show fail'; fb.textContent=qFbFail[qIdx]; dot.classList.add('fail');
+  }
+  const nxt = document.getElementById('qnxt'+qIdx);
+  if (nxt) nxt.style.display='inline-flex';
+  if (qIdx+1 < 5) document.getElementById('qd'+(qIdx+1))?.classList.add('cur');
+}
+function nxtQ(idx) {
+  document.getElementById('q'+(idx-1)).classList.remove('active');
+  document.getElementById('q'+idx).classList.add('active');
+}
+function showScore() {
+  document.getElementById('q4').classList.remove('active');
+  const sc = document.getElementById('qScore');
+  sc.classList.add('active');
+  const pct = qScore/5*100;
+  document.getElementById('scRing').style.setProperty('--pct', pct);
+  document.getElementById('scN').textContent = qScore;
+  const msgs = ['Keep practicing! 💪','Good try! 👍','Well done! 🌟','Excellent! ⭐','Perfect! 🏆','Perfect! 🏆'];
+  document.getElementById('scMsg').textContent = msgs[qScore];
+  document.getElementById('scDet').textContent = qScore===5 ? 'Flawless — you nailed every question!' : `You got ${qScore}/5 correct. Review the concepts and try again!`;
+}
+
+// ── RESTART ──
+function restartMod() {
+  qScore = 0;
+  document.querySelectorAll('.qz-q').forEach(q=>q.classList.remove('active'));
+  document.getElementById('q0').classList.add('active');
+  document.querySelectorAll('.qz-opt').forEach(o=>{o.classList.remove('ok','wrong','dis');});
+  document.querySelectorAll('.qz-fb').forEach(f=>{f.className='qz-fb';});
+  document.querySelectorAll('[id^="qnxt"]').forEach(b=>b.style.display='none');
+  document.querySelectorAll('.qdot').forEach((d,i)=>{d.className='qdot'+(i===0?' cur':'');});
+  fileContent='(empty)'; writeMode='w';
+  document.getElementById('writePrev').textContent='(empty)'; document.getElementById('writePrev').style.color='#4ade80';
+  goTo(0);
+}
+</script>
+</body>
+</html>
