@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 11 · Algorithms & Practical Applications | HCL-GUVI</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#f0f4f8;
+  --surface:#ffffff;--s2:#f7f9fc;--s3:#eef2f7;
+  --border:#e1e8f0;--border2:#c8d6e5;
+  --navy:#0b1628;--navy2:#162035;--navy3:#1e2d47;
+  --teal:#0891b2;--teal-l:#cffafe;--teal-d:#0e7490;
+  --emerald:#059669;--em-l:#d1fae5;--em-d:#047857;
+  --violet:#7c3aed;--vi-l:#ede9fe;--vi-d:#6d28d9;
+  --amber:#d97706;--am-l:#fef3c7;--am-d:#b45309;
+  --rose:#e11d48;--ro-l:#ffe4e6;
+  --sky:#0ea5e9;--sky-l:#e0f2fe;
+  --text:#0f1f35;--t2:#3d5475;--t3:#7a90aa;
+  --code:#0d1117;--code2:#161b22;
+  --r:12px;--rlg:18px;--rxl:24px;
+  --sh:0 1px 3px rgba(11,22,40,.07),0 4px 16px rgba(11,22,40,.09);
+  --sh2:0 8px 32px rgba(11,22,40,.14);
+  --sh3:0 20px 60px rgba(11,22,40,.2);
+  --sw:248px;--nh:66px;
+  --gt:0 0 20px rgba(8,145,178,.3);
+  --gv:0 0 20px rgba(124,58,237,.3);
+  --ge:0 0 20px rgba(5,150,105,.3);
+}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+
+/* ══ NAV ══ */
+.tnav{position:fixed;top:0;left:0;right:0;height:var(--nh);background:rgba(255,255,255,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;z-index:300;}
+.tnav-logo{display:flex;align-items:center;gap:9px;flex-shrink:0;}
+.logo-chip{background:linear-gradient(135deg,#0891b2,#7c3aed);color:#fff;font-size:10px;font-weight:800;letter-spacing:.09em;padding:4px 10px;border-radius:20px;text-transform:uppercase;}
+.tnav-sep{width:1px;height:30px;background:var(--border);flex-shrink:0;}
+.tnav-info{display:flex;flex-direction:column;gap:1px;}
+.tnav-tag{font-size:9.5px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.08em;}
+.tnav-name{font-size:13px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
+.tnav-prog{flex:1;max-width:280px;}
+.tp-row{display:flex;justify-content:space-between;margin-bottom:5px;}
+.tp-lbl{font-size:9.5px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;}
+.tp-pct{font-size:9.5px;font-weight:800;color:var(--teal);}
+.tp-track{height:5px;background:var(--s3);border-radius:6px;overflow:hidden;}
+.tp-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--violet));border-radius:6px;transition:width .7s cubic-bezier(.4,0,.2,1);}
+.tnav-user{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.tnav-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800;box-shadow:0 0 0 3px var(--teal-l);}
+.tnav-un{font-size:13px;font-weight:700;color:var(--text);text-align:right;}
+.tnav-ur{font-size:10px;color:var(--t3);}
+
+/* ══ SIDEBAR ══ */
+.sidebar{position:fixed;top:var(--nh);left:0;bottom:0;width:var(--sw);background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:16px 10px;z-index:200;}
+.sb-lbl{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);padding:6px 12px 5px;}
+.sbi{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;transition:all .2s;margin-bottom:2px;position:relative;}
+.sbi:hover{background:var(--s3);}
+.sbi.act{background:linear-gradient(135deg,rgba(8,145,178,.1),rgba(124,58,237,.07));color:var(--teal);}
+.sbi.act::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:linear-gradient(180deg,var(--teal),var(--violet));border-radius:0 3px 3px 0;}
+.sbi-ic{width:28px;height:28px;border-radius:8px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;transition:all .2s;}
+.sbi.act .sbi-ic{background:linear-gradient(135deg,var(--teal),var(--violet));box-shadow:var(--gt);}
+.sbi-lb{font-size:12.5px;font-weight:600;color:var(--t2);}
+.sbi.act .sbi-lb{color:var(--teal);}
+.sbi.done .sbi-ic{background:var(--em-l);}
+.sbi-ck{margin-left:auto;display:none;}
+.sbi.done .sbi-ck{display:block;}
+
+/* ══ MAIN ══ */
+.main{margin-left:var(--sw);padding-top:var(--nh);}
+.pg{display:none;padding:36px 44px 64px;max-width:1000px;animation:pgIn .35s cubic-bezier(.4,0,.2,1);}
+.pg.act{display:block;}
+@keyframes pgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ TYPE ══ */
+.eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:12px;}
+.ey-teal{background:var(--teal-l);color:var(--teal-d);}
+.ey-violet{background:var(--vi-l);color:var(--vi-d);}
+.ey-em{background:var(--em-l);color:var(--em-d);}
+.ey-amber{background:var(--am-l);color:var(--am-d);}
+.ptitle{font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1.15;color:var(--text);margin-bottom:10px;}
+.psub{font-size:14.5px;color:var(--t2);line-height:1.75;max-width:640px;}
+.sh2{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.4px;margin-bottom:12px;}
+p.bd{font-size:13.5px;color:var(--t2);line-height:1.8;}
+
+/* ══ CARDS ══ */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:26px 28px;box-shadow:var(--sh);margin-bottom:20px;transition:box-shadow .25s;}
+.card:hover{box-shadow:var(--sh2);}
+.card-accent-t{border-top:3px solid var(--teal);}
+.card-accent-v{border-top:3px solid var(--violet);}
+.card-accent-e{border-top:3px solid var(--emerald);}
+
+/* ══ CODE ══ */
+.cw{background:var(--code);border-radius:var(--r);overflow:hidden;margin:14px 0;box-shadow:0 4px 20px rgba(0,0,0,.35);}
+.ctop{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;background:var(--code2);border-bottom:1px solid rgba(255,255,255,.05);}
+.cdots{display:flex;gap:6px;align-items:center;}
+.cd{width:12px;height:12px;border-radius:50%;}
+.cdr{background:#ff5f57;}.cdy{background:#febc2e;}.cdg{background:#28c840;}
+.cfn{font-family:'JetBrains Mono',monospace;font-size:11px;color:#6e7681;}
+.cb{padding:18px 20px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#e6edf3;line-height:1.9;overflow-x:auto;}
+.kw{color:#ff7b72;}.fn{color:#79c0ff;}.cl{color:#ffa657;}.st{color:#a5d6ff;}.cm{color:#8b949e;font-style:italic;}.nm{color:#f0883e;}.op{color:#ff7b72;}.pr{color:#7ee787;}.dc{color:#d2a8ff;}
+
+/* ══ OUTPUT ══ */
+.out{background:#010409;border:1px solid #21262d;border-radius:10px;padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#3fb950;line-height:1.9;display:none;animation:fadeUp .3s ease;margin-top:8px;}
+.out.show{display:block;}
+.out-lbl{font-size:9px;font-weight:800;color:#8b949e;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+.out-lbl::before{content:'';width:6px;height:6px;border-radius:50%;background:#3fb950;}
+
+/* ══ BUTTONS ══ */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;transition:all .2s;letter-spacing:-.1px;}
+.btn-t{background:linear-gradient(135deg,var(--teal),var(--teal-d));color:#fff;box-shadow:0 2px 12px rgba(8,145,178,.35);}
+.btn-t:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(8,145,178,.45);}
+.btn-v{background:linear-gradient(135deg,var(--violet),var(--vi-d));color:#fff;box-shadow:0 2px 12px rgba(124,58,237,.35);}
+.btn-v:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,58,237,.45);}
+.btn-e{background:linear-gradient(135deg,var(--emerald),var(--em-d));color:#fff;box-shadow:0 2px 12px rgba(5,150,105,.3);}
+.btn-e:hover{transform:translateY(-2px);}
+.btn-g{background:var(--s3);color:var(--t2);border:1px solid var(--border);}
+.btn-g:hover{background:var(--border);color:var(--text);}
+.btn-ol{background:transparent;color:var(--teal);border:1.5px solid var(--teal);}
+.btn-ol:hover{background:var(--teal-l);}
+.btn-run{background:linear-gradient(135deg,#238636,#2ea043);color:#fff;font-size:12px;padding:7px 14px;font-weight:700;display:inline-flex;align-items:center;gap:6px;cursor:pointer;border:none;font-family:'Sora',sans-serif;border-radius:8px;transition:all .2s;}
+.btn-run:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(46,160,67,.4);}
+.btn-sm{padding:6px 13px;font-size:11.5px;}
+
+/* ══ ANALOGY ══ */
+.analogy{background:linear-gradient(135deg,#fffbeb,#fefce8);border:1px solid #fde68a;border-radius:var(--r);padding:16px 20px;display:flex;gap:13px;margin:14px 0;}
+.an-ic{font-size:24px;flex-shrink:0;margin-top:2px;}
+.an-body{font-size:13px;color:#78350f;line-height:1.75;}
+.an-body strong{color:#451a03;}
+
+/* ══ WELCOME ══ */
+.w-hero{background:linear-gradient(135deg,var(--navy),#1a2d4e);border-radius:var(--rxl);padding:44px 48px;color:#fff;margin-bottom:24px;position:relative;overflow:hidden;}
+.w-hero::after{content:'O(n)';position:absolute;right:40px;bottom:16px;font-family:'JetBrains Mono',monospace;font-size:80px;font-weight:800;color:rgba(255,255,255,.04);}
+.wh-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(8,145,178,.2);border:1px solid rgba(8,145,178,.4);color:#67e8f9;border-radius:20px;padding:5px 14px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px;}
+.wh-title{font-size:38px;font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:14px;}
+.wh-title .hl{background:linear-gradient(135deg,#67e8f9,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.wh-sub{font-size:14px;opacity:.75;line-height:1.75;max-width:520px;}
+.w-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.wstat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center;}
+.wstat-ic{font-size:22px;margin-bottom:6px;}
+.wstat-v{font-size:22px;font-weight:800;color:var(--text);}
+.wstat-l{font-size:10.5px;color:var(--t3);margin-top:2px;}
+.topics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.tpcard{border-radius:var(--r);padding:16px;text-align:center;cursor:pointer;transition:all .25s;border:1.5px solid transparent;}
+.tpcard:hover{transform:translateY(-3px);box-shadow:var(--sh2);}
+
+/* ══ SORT VIZ ══ */
+.sort-bars{display:flex;align-items:flex-end;gap:4px;height:140px;padding:10px;background:var(--s2);border-radius:var(--r);border:1px solid var(--border);}
+.sort-bar{border-radius:5px 5px 0 0;transition:all .4s cubic-bezier(.4,0,.2,1);display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;font-size:10px;font-weight:800;color:#fff;cursor:pointer;min-width:30px;}
+.sort-info{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+.sort-stat{background:var(--s3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;}
+
+/* ══ SEARCH VIZ ══ */
+.search-row{display:flex;gap:6px;flex-wrap:wrap;padding:16px;background:var(--s2);border-radius:var(--r);border:1px solid var(--border);}
+.search-cell{width:44px;height:44px;border-radius:8px;border:2px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--t2);transition:all .3s;cursor:pointer;}
+.search-cell.found{background:var(--em-l);border-color:var(--emerald);color:var(--em-d);}
+.search-cell.check{background:var(--am-l);border-color:var(--amber);color:var(--am-d);}
+.search-cell.skip{background:var(--s3);color:var(--t3);border-color:var(--border);}
+
+/* ══ BIGO CHART ══ */
+.bigo-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+.bigo-card{border-radius:var(--r);padding:16px 18px;border:1.5px solid transparent;cursor:pointer;transition:all .25s;}
+.bigo-card:hover{transform:translateY(-2px);box-shadow:var(--sh2);}
+.bigo-name{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;margin-bottom:6px;}
+.bigo-desc{font-size:12px;color:var(--t2);line-height:1.6;}
+.bigo-bar-wrap{height:8px;background:var(--s3);border-radius:6px;margin-top:10px;overflow:hidden;}
+.bigo-bar{height:100%;border-radius:6px;transition:width 1s cubic-bezier(.4,0,.2,1);}
+
+/* ══ GRAPH VIZ ══ */
+.graph-svg-wrap{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:10px;overflow:hidden;}
+.gnode{cursor:pointer;transition:all .3s;}
+.gnode circle{transition:all .3s;}
+.gnode:hover circle{filter:brightness(1.2);}
+.gedge{stroke:var(--border2);stroke-width:2;transition:all .3s;}
+.gedge.active{stroke:var(--teal);stroke-width:3;}
+.gnode.visited circle{fill:var(--teal)!important;}
+.gnode.current circle{fill:var(--amber)!important;}
+
+/* ══ COMPLEXITY TABLE ══ */
+.ctbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+.ctbl th{background:var(--s2);padding:10px 14px;font-weight:700;color:var(--t2);text-align:left;border:1px solid var(--border);font-size:11px;letter-spacing:.04em;text-transform:uppercase;}
+.ctbl td{padding:10px 14px;border:1px solid var(--border);color:var(--text);}
+.ctbl tr:hover td{background:var(--s3);}
+.badge-g{background:var(--em-l);color:var(--em-d);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+.badge-y{background:var(--am-l);color:var(--am-d);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+.badge-r{background:var(--ro-l);color:var(--rose);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+
+/* ══ STEP VIZ ══ */
+.svwrap{display:flex;flex-direction:column;gap:5px;}
+.svline{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;border-radius:10px;border:1px solid transparent;transition:all .3s;opacity:.45;}
+.svline.act{border-color:var(--teal);background:rgba(8,145,178,.05);opacity:1;}
+.svline.done{border-color:var(--emerald);background:rgba(5,150,105,.04);opacity:.8;}
+.sv-n{width:24px;height:24px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;color:var(--t3);flex-shrink:0;}
+.svline.act .sv-n{background:var(--teal);color:#fff;}
+.svline.done .sv-n{background:var(--emerald);color:#fff;}
+.sv-code{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t2);}
+.sv-note{font-size:11px;color:var(--teal);margin-top:2px;display:none;}
+.svline.act .sv-note{display:block;}
+
+/* ══ REVEAL CARDS ══ */
+.rc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.rc{border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .25s;}
+.rc:hover{border-color:var(--teal);transform:translateY(-3px);box-shadow:var(--sh2);}
+.rc-f{padding:20px 14px;background:var(--s3);text-align:center;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;}
+.rc-b{display:none;padding:14px;font-size:12px;color:var(--t2);line-height:1.7;}
+.rc.open .rc-f{display:none;}
+.rc.open .rc-b{display:block;}
+
+/* ══ PRIORITY QUEUE ══ */
+.pq-wrap{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:16px;}
+.pq-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;transition:all .35s;cursor:pointer;}
+.pq-item:hover{transform:translateX(3px);}
+.pq-pri{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;}
+.pq-name{font-size:13px;font-weight:600;flex:1;}
+.pq-time{font-size:11px;color:var(--t3);}
+.pq-pop{font-size:11px;font-weight:700;color:var(--teal);}
+
+/* ══ EXERCISES ══ */
+.ex-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:24px 26px;margin-bottom:20px;position:relative;overflow:hidden;}
+.ex-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--teal),var(--violet));}
+.ex-n{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:linear-gradient(135deg,var(--teal),var(--violet));color:#fff;border-radius:50%;font-size:11.5px;font-weight:800;margin-bottom:11px;}
+.ex-q{font-size:15px;font-weight:700;color:var(--text);margin-bottom:7px;}
+.ex-d{font-size:13px;color:var(--t2);line-height:1.75;margin-bottom:16px;}
+.sol{display:none;margin-top:14px;animation:fadeUp .3s ease;}
+.sol.show{display:block;}
+.hint-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--amber);background:var(--am-l);border-radius:20px;padding:3px 10px;margin-bottom:10px;}
+
+/* ══ QUIZ ══ */
+.qprog{display:flex;gap:5px;margin-bottom:26px;}
+.qpd{flex:1;height:5px;border-radius:4px;background:var(--border);transition:all .35s;}
+.qpd.done{background:var(--emerald);}
+.qpd.act{background:var(--teal);}
+.quiz-q{font-size:18px;font-weight:700;color:var(--text);line-height:1.5;margin-bottom:22px;letter-spacing:-.3px;}
+.quiz-opts{display:flex;flex-direction:column;gap:9px;}
+.qo{padding:14px 18px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;color:var(--t2);transition:all .22s;display:flex;align-items:center;gap:12px;}
+.qo:hover:not(.dis){border-color:var(--teal);background:var(--teal-l);color:var(--teal-d);}
+.qo.ok{border-color:var(--emerald);background:var(--em-l);color:var(--em-d);}
+.qo.ng{border-color:var(--rose);background:var(--ro-l);color:#be123c;}
+.qo.dis{cursor:default;}
+.qo-r{width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;}
+.qo.ok .qo-r{border-color:var(--emerald);background:var(--emerald);}
+.qo.ng .qo-r{border-color:var(--rose);background:var(--rose);}
+.qfb{border-radius:10px;padding:13px 16px;font-size:12.5px;font-weight:600;margin-top:14px;display:none;}
+.qfb.show{display:flex;gap:9px;}
+.qfb-ok{background:var(--em-l);border:1px solid var(--emerald);color:var(--em-d);}
+.qfb-ng{background:var(--ro-l);border:1px solid #fda4af;color:#9f1239;}
+.score-ring{width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 22px;}
+.score-in{width:88px;height:88px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.score-num{font-size:24px;font-weight:800;color:var(--text);}
+.score-sub{font-size:10px;color:var(--t3);}
+
+/* ══ COMPLETION ══ */
+.comp-hero{text-align:center;padding:40px 20px 28px;}
+.trophy{font-size:70px;display:block;animation:tb 1.2s ease infinite alternate;}
+@keyframes tb{from{transform:translateY(0) scale(1)}to{transform:translateY(-12px) scale(1.04)}}
+.sparks{display:flex;justify-content:center;gap:18px;font-size:26px;animation:sp 2s ease infinite;}
+@keyframes sp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.92)}}
+.skill-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:20px 0;}
+.stag{padding:7px 16px;background:var(--teal-l);color:var(--teal-d);border-radius:20px;font-size:11.5px;font-weight:700;border:1.5px solid rgba(8,145,178,.3);display:flex;align-items:center;gap:5px;}
+
+/* ══ BNAV ══ */
+.bnav{display:flex;justify-content:space-between;align-items:center;padding:22px 0 6px;border-top:1px solid var(--border);margin-top:18px;}
+
+/* ══ SLIDER CONTROLS ══ */
+input[type=range]{-webkit-appearance:none;height:6px;border-radius:6px;background:var(--border);outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:19px;height:19px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--violet));border:2.5px solid #fff;box-shadow:0 2px 8px rgba(8,145,178,.35);cursor:pointer;}
+.sl-row{display:flex;align-items:center;gap:12px;margin:8px 0;}
+.sl-label{font-size:12.5px;font-weight:600;color:var(--t2);min-width:110px;}
+.sl-val{font-size:13px;font-weight:800;color:var(--teal);min-width:38px;text-align:right;}
+
+/* ══ MISC ══ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.divider{height:1px;background:var(--border);margin:18px 0;}
+.tag-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;}
+.tag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.tag-t{background:var(--teal-l);color:var(--teal-d);}
+.tag-v{background:var(--vi-l);color:var(--vi-d);}
+.tag-e{background:var(--em-l);color:var(--em-d);}
+.tag-a{background:var(--am-l);color:var(--am-d);}
+.cert{background:linear-gradient(135deg,var(--navy),#1a3050);border-radius:var(--rlg);padding:26px;text-align:center;color:#fff;position:relative;overflow:hidden;margin:18px 0;}
+.cert::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(8,145,178,.18),transparent),radial-gradient(ellipse at 70% 50%,rgba(124,58,237,.18),transparent);}
+.cert-content{position:relative;}
+.highlight-box{background:linear-gradient(135deg,rgba(8,145,178,.06),rgba(124,58,237,.04));border:1px solid rgba(8,145,178,.2);border-radius:var(--r);padding:14px 18px;margin:10px 0;}
+</style>
+</head>
+<body>
+
+<!-- ════ TOP NAV ════ -->
+<nav class="tnav">
+  <div class="tnav-logo">
+    <div class="logo-chip">HCL · GUVI</div>
+  </div>
+  <div class="tnav-sep"></div>
+  <div class="tnav-info">
+    <div class="tnav-tag">Python for Beginners · Module 11</div>
+    <div class="tnav-name">Algorithms &amp; Practical Applications</div>
+  </div>
+  <div class="tnav-prog">
+    <div class="tp-row"><span class="tp-lbl">Progress</span><span class="tp-pct" id="pp">0%</span></div>
+    <div class="tp-track"><div class="tp-fill" id="pf" style="width:0%"></div></div>
+  </div>
+  <div class="tnav-user">
+    <div style="text-align:right;">
+      <div class="tnav-un">Vinodhini</div>
+      <div class="tnav-ur">Data Scientist · HCL GUVI</div>
+    </div>
+    <div class="tnav-av">Vi</div>
+  </div>
+</nav>
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sb-lbl">Module 11</div>
+  <div class="sbi act" onclick="gp(0)" id="sb0"><div class="sbi-ic">🏠</div><span class="sbi-lb">Welcome</span><svg class="sbi-ck" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#059669"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+  <div class="sbi" onclick="gp(1)" id="sb1"><div class="sbi-ic">🔄</div><span class="sbi-lb">Sorting Algorithms</span><svg class="sbi-ck" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#059669"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+  <div class="sbi" onclick="gp(2)" id="sb2"><div class="sbi-ic">🔍</div><span class="sbi-lb">Searching Algorithms</span><svg class="sbi-ck" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#059669"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+  <div class="sbi" onclick="gp(3)" id="sb3"><div class="sbi-ic">📊</div><span class="sbi-lb">Big-O Complexity</span><svg class="sbi-ck" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#059669"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+  <div class="sbi" onclick="gp(4)" id="sb4"><div class="sbi-ic">🌐</div><span class="sbi-lb">Graphs &amp; Traversal</span><svg class="sbi-ck" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#059669"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+  <div class="sbi" onclick="gp(5)" id="sb5"><div class="sbi-ic">✏️</div><span class="sbi-lb">Exercises</span><svg class="sbi-ck" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#059669"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+  <div class="sbi" onclick="gp(6)" id="sb6"><div class="sbi-ic">🧠</div><span class="sbi-lb">Quiz</span><svg class="sbi-ck" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#059669"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+  <div class="sbi" onclick="gp(7)" id="sb7"><div class="sbi-ic">🎓</div><span class="sbi-lb">Completion</span><svg class="sbi-ck" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#059669"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg></div>
+</aside>
+
+<main class="main">
+
+<!-- ═══ PAGE 0: WELCOME ═══ -->
+<div class="pg act" id="pg0">
+  <div class="w-hero">
+    <div class="wh-badge">📘 Python for Beginners · Module 11</div>
+    <div class="wh-title">Algorithms &amp;<br><span class="hl">Practical Applications</span></div>
+    <div class="wh-sub">Master the art of problem-solving with algorithms — sort, search, analyse complexity, and navigate graphs to build real-world Python solutions.</div>
+  </div>
+  <div class="w-stats">
+    <div class="wstat"><div class="wstat-ic">📖</div><div class="wstat-v">4</div><div class="wstat-l">Core Topics</div></div>
+    <div class="wstat"><div class="wstat-ic">🎮</div><div class="wstat-v">8+</div><div class="wstat-l">Interactive Demos</div></div>
+    <div class="wstat"><div class="wstat-ic">✏️</div><div class="wstat-v">3</div><div class="wstat-l">Exercises</div></div>
+    <div class="wstat"><div class="wstat-ic">⏱️</div><div class="wstat-v">50</div><div class="wstat-l">Minutes</div></div>
+  </div>
+  <div class="card">
+    <h2 class="sh2">What You'll Master</h2>
+    <div class="topics-grid">
+      <div class="tpcard" style="background:var(--teal-l);border-color:var(--teal);" onclick="gp(1)"><div style="font-size:26px;margin-bottom:8px;">🔄</div><div style="font-size:12px;font-weight:700;color:var(--teal-d);">Sorting</div><div style="font-size:11px;color:var(--teal);margin-top:3px;">Bubble Sort</div></div>
+      <div class="tpcard" style="background:var(--em-l);border-color:var(--emerald);" onclick="gp(2)"><div style="font-size:26px;margin-bottom:8px;">🔍</div><div style="font-size:12px;font-weight:700;color:var(--em-d);">Searching</div><div style="font-size:11px;color:var(--emerald);margin-top:3px;">Linear &amp; Binary</div></div>
+      <div class="tpcard" style="background:var(--vi-l);border-color:var(--violet);" onclick="gp(3)"><div style="font-size:26px;margin-bottom:8px;">📊</div><div style="font-size:12px;font-weight:700;color:var(--vi-d);">Big-O</div><div style="font-size:11px;color:var(--violet);margin-top:3px;">Time &amp; Space</div></div>
+      <div class="tpcard" style="background:var(--am-l);border-color:var(--amber);" onclick="gp(4)"><div style="font-size:26px;margin-bottom:8px;">🌐</div><div style="font-size:12px;font-weight:700;color:var(--am-d);">Graphs</div><div style="font-size:11px;color:var(--amber);margin-top:3px;">BFS &amp; DFS</div></div>
+    </div>
+  </div>
+  <div class="card" style="background:linear-gradient(135deg,var(--navy),#1c3050);border:none;color:#fff;">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="font-size:36px;">🎯</div>
+      <div>
+        <div style="font-size:15px;font-weight:800;margin-bottom:5px;">Why Algorithms Matter</div>
+        <div style="font-size:13px;opacity:.75;line-height:1.75;">Algorithms are the <strong style="color:#67e8f9;">recipes of computing</strong>. They determine how fast your code runs, how much memory it uses, and whether it can scale to millions of users. Every great software engineer thinks algorithmically.</div>
+      </div>
+    </div>
+  </div>
+  <div class="bnav"><div></div><button class="btn btn-t" onclick="gp(1)">Start Learning →</button></div>
+</div>
+
+<!-- ═══ PAGE 1: SORTING ═══ -->
+<div class="pg" id="pg1">
+  <div style="margin-bottom:26px;">
+    <div class="eyebrow ey-teal">Concept 1 · Sorting</div>
+    <div class="ptitle">Sorting Algorithms</div>
+    <div class="psub">Arrange data in order — the foundation of efficient computation.</div>
+  </div>
+
+  <div class="card card-accent-t">
+    <h2 class="sh2">What is Bubble Sort?</h2>
+    <p class="bd">Bubble Sort compares adjacent elements and swaps them if they're in the wrong order. It "bubbles" the largest element to the end in each pass. Simple but O(n²) — best for learning, not production!</p>
+    <div class="analogy">
+      <div class="an-ic">🫧</div>
+      <div class="an-body"><strong>Real-life analogy:</strong> Imagine sorting a queue of students by height. You walk down the line comparing each pair — if a taller student is before a shorter one, you swap them. After enough passes, everyone's in order. That's exactly how bubble sort works!</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="sh2">Python Code</h2>
+    <div class="cw">
+      <div class="ctop"><div class="cdots"><span class="cd cdr"></span><span class="cd cdy"></span><span class="cd cdg"></span></div><span class="cfn">bubble_sort.py</span></div>
+      <div class="cb"><span class="kw">def</span> <span class="fn">bubble_sort</span>(<span class="pr">arr</span>):
+    <span class="pr">n</span> = <span class="fn">len</span>(<span class="pr">arr</span>)
+    <span class="kw">for</span> <span class="pr">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="pr">n</span>):
+        <span class="cm"># Last i elements are already sorted</span>
+        <span class="kw">for</span> <span class="pr">j</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">0</span>, <span class="pr">n</span> - <span class="pr">i</span> - <span class="nm">1</span>):
+            <span class="kw">if</span> <span class="pr">arr</span>[<span class="pr">j</span>] > <span class="pr">arr</span>[<span class="pr">j</span>+<span class="nm">1</span>]:
+                <span class="cm"># Swap adjacent elements</span>
+                <span class="pr">arr</span>[<span class="pr">j</span>], <span class="pr">arr</span>[<span class="pr">j</span>+<span class="nm">1</span>] = <span class="pr">arr</span>[<span class="pr">j</span>+<span class="nm">1</span>], <span class="pr">arr</span>[<span class="pr">j</span>]
+    <span class="kw">return</span> <span class="pr">arr</span>
+
+<span class="pr">data</span> = [<span class="nm">64</span>, <span class="nm">34</span>, <span class="nm">25</span>, <span class="nm">12</span>, <span class="nm">22</span>, <span class="nm">11</span>, <span class="nm">90</span>]
+<span class="fn">print</span>(<span class="fn">bubble_sort</span>(<span class="pr">data</span>))</div>
+    </div>
+    <button class="btn-run" onclick="tog('ob1')">▶ Run Demo</button>
+    <div class="out" id="ob1"><div class="out-lbl">Output</div>[11, 12, 22, 25, 34, 64, 90]</div>
+  </div>
+
+  <!-- INTERACTIVE 1: Bubble Sort Visualizer -->
+  <div class="card">
+    <h2 class="sh2">🎮 Interactive Bubble Sort Visualizer</h2>
+    <p class="bd" style="margin-bottom:14px;">Watch the algorithm sort in real time. Click <strong>Shuffle</strong> to randomise, then <strong>Sort</strong> to animate!</p>
+    <div class="sort-bars" id="sort-bars"></div>
+    <div class="sort-info">
+      <div class="sort-stat">Comparisons: <strong id="s-comp" style="color:var(--teal);">0</strong></div>
+      <div class="sort-stat">Swaps: <strong id="s-swap" style="color:var(--violet);">0</strong></div>
+      <div class="sort-stat">Status: <strong id="s-status" style="color:var(--emerald);">Ready</strong></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+      <button class="btn btn-g btn-sm" onclick="shuffleBars()">🔀 Shuffle</button>
+      <button class="btn btn-t btn-sm" id="sort-btn" onclick="animateSort()">▶ Sort</button>
+      <button class="btn btn-g btn-sm" onclick="resetSort()">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE 2: Step-by-Step -->
+  <div class="card">
+    <h2 class="sh2">🔬 Step-by-Step Trace</h2>
+    <p class="bd" style="margin-bottom:14px;">Click <strong>Step</strong> to trace through each line of the algorithm.</p>
+    <div class="svwrap" id="sv-sort">
+      <div class="svline act" id="ss0"><span class="sv-n">1</span><div><div class="sv-code"><span style="color:#ff7b72;">def</span> <span style="color:#79c0ff;">bubble_sort</span>(arr):</div><div class="sv-note">Function defined. arr = [64, 34, 25, 12]</div></div></div>
+      <div class="svline" id="ss1"><span class="sv-n">2</span><div><div class="sv-code">&nbsp;&nbsp;n = len(arr)  <span style="color:#8b949e;"># n = 4</span></div><div class="sv-note">n = 4, we'll need 4 outer passes</div></div></div>
+      <div class="svline" id="ss2"><span class="sv-n">3</span><div><div class="sv-code">&nbsp;&nbsp;<span style="color:#ff7b72;">for</span> i <span style="color:#ff7b72;">in</span> range(n):</div><div class="sv-note">Outer loop: i = 0 (first pass)</div></div></div>
+      <div class="svline" id="ss3"><span class="sv-n">4</span><div><div class="sv-code">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#ff7b72;">for</span> j <span style="color:#ff7b72;">in</span> range(0, n-i-1):</div><div class="sv-note">Inner loop: comparing arr[0]=64 and arr[1]=34</div></div></div>
+      <div class="svline" id="ss4"><span class="sv-n">5</span><div><div class="sv-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#ff7b72;">if</span> arr[j] > arr[j+1]:</div><div class="sv-note">64 > 34 is True → SWAP! arr = [34,64,25,12]</div></div></div>
+      <div class="svline" id="ss5"><span class="sv-n">6</span><div><div class="sv-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arr[j], arr[j+1] = arr[j+1], arr[j]</div><div class="sv-note">Python tuple unpacking does the swap in one line!</div></div></div>
+      <div class="svline" id="ss6"><span class="sv-n">7</span><div><div class="sv-code"><span style="color:#ff7b72;">return</span> arr</div><div class="sv-note">✅ Final sorted array returned: [12, 25, 34, 64]</div></div></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px;align-items:center;">
+      <button class="btn btn-t btn-sm" onclick="stepSort()">→ Step</button>
+      <button class="btn btn-g btn-sm" onclick="resetStep('sv-sort',7,'ss')">↺ Reset</button>
+      <span id="ss-msg" style="font-size:12.5px;font-weight:700;color:var(--emerald);"></span>
+    </div>
+  </div>
+
+  <div class="bnav"><button class="btn btn-g" onclick="gp(0)">← Back</button><button class="btn btn-t" onclick="gp(2)">Next: Searching →</button></div>
+</div>
+
+<!-- ═══ PAGE 2: SEARCHING ═══ -->
+<div class="pg" id="pg2">
+  <div style="margin-bottom:26px;">
+    <div class="eyebrow ey-em">Concept 2 · Searching</div>
+    <div class="ptitle">Searching Algorithms</div>
+    <div class="psub">Find elements efficiently — linear scan vs. smart binary splitting.</div>
+  </div>
+
+  <!-- TABS -->
+  <div style="display:flex;gap:6px;background:var(--s3);border-radius:30px;padding:5px;width:fit-content;margin-bottom:20px;" id="stabs">
+    <div style="padding:8px 18px;border-radius:24px;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .2s;background:var(--surface);color:var(--teal);box-shadow:var(--sh);" id="stab-lin" onclick="switchSearch('linear')">Linear Search</div>
+    <div style="padding:8px 18px;border-radius:24px;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .2s;color:var(--t3);" id="stab-bin" onclick="switchSearch('binary')">Binary Search</div>
+  </div>
+
+  <!-- LINEAR -->
+  <div id="s-linear">
+    <div class="card card-accent-e">
+      <h2 class="sh2">Linear Search</h2>
+      <p class="bd">Check every element one by one from the start until you find the target (or exhaust the list). Works on <strong>unsorted</strong> data. Time complexity: <strong>O(n)</strong>.</p>
+      <div class="analogy">
+        <div class="an-ic">📚</div>
+        <div class="an-body"><strong>Analogy:</strong> Searching for a name in an unsorted phone book — you start at page 1 and check every entry until you find it. Thorough but slow for large datasets.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="cw">
+        <div class="ctop"><div class="cdots"><span class="cd cdr"></span><span class="cd cdy"></span><span class="cd cdg"></span></div><span class="cfn">linear_search.py</span></div>
+        <div class="cb"><span class="kw">def</span> <span class="fn">linear_search</span>(<span class="pr">arr</span>, <span class="pr">target</span>):
+    <span class="kw">for</span> <span class="pr">i</span>, <span class="pr">val</span> <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="pr">arr</span>):
+        <span class="kw">if</span> <span class="pr">val</span> == <span class="pr">target</span>:
+            <span class="kw">return</span> <span class="pr">i</span>  <span class="cm"># Found at index i</span>
+    <span class="kw">return</span> <span class="nm">-1</span>     <span class="cm"># Not found</span>
+
+<span class="pr">nums</span> = [<span class="nm">4</span>, <span class="nm">7</span>, <span class="nm">2</span>, <span class="nm">9</span>, <span class="nm">1</span>, <span class="nm">5</span>]
+<span class="fn">print</span>(<span class="fn">linear_search</span>(<span class="pr">nums</span>, <span class="nm">9</span>))  <span class="cm"># 3</span></div>
+      </div>
+      <button class="btn-run" onclick="tog('o-ls')">▶ Run Demo</button>
+      <div class="out" id="o-ls"><div class="out-lbl">Output</div>3<br><span style="color:#8b949e;"># Found 9 at index 3</span></div>
+    </div>
+  </div>
+
+  <!-- BINARY -->
+  <div id="s-binary" style="display:none;">
+    <div class="card card-accent-e">
+      <h2 class="sh2">Binary Search</h2>
+      <p class="bd">Divide and conquer — always look at the <strong>middle</strong> of a <em>sorted</em> array. If target is smaller, search left half; if larger, search right half. Time complexity: <strong>O(log n)</strong>.</p>
+      <div class="analogy">
+        <div class="an-ic">📖</div>
+        <div class="an-body"><strong>Analogy:</strong> Finding a word in a <strong>sorted</strong> dictionary. You open to the middle — if your word comes before, you search the left half; after, the right half. Much faster than checking page by page!</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="cw">
+        <div class="ctop"><div class="cdots"><span class="cd cdr"></span><span class="cd cdy"></span><span class="cd cdg"></span></div><span class="cfn">binary_search.py</span></div>
+        <div class="cb"><span class="kw">def</span> <span class="fn">binary_search</span>(<span class="pr">arr</span>, <span class="pr">target</span>):
+    <span class="pr">left</span>, <span class="pr">right</span> = <span class="nm">0</span>, <span class="fn">len</span>(<span class="pr">arr</span>) - <span class="nm">1</span>
+    <span class="kw">while</span> <span class="pr">left</span> &lt;= <span class="pr">right</span>:
+        <span class="pr">mid</span> = (<span class="pr">left</span> + <span class="pr">right</span>) // <span class="nm">2</span>
+        <span class="kw">if</span> <span class="pr">arr</span>[<span class="pr">mid</span>] == <span class="pr">target</span>:
+            <span class="kw">return</span> <span class="pr">mid</span>
+        <span class="kw">elif</span> <span class="pr">arr</span>[<span class="pr">mid</span>] &lt; <span class="pr">target</span>:
+            <span class="pr">left</span> = <span class="pr">mid</span> + <span class="nm">1</span>
+        <span class="kw">else</span>:
+            <span class="pr">right</span> = <span class="pr">mid</span> - <span class="nm">1</span>
+    <span class="kw">return</span> <span class="nm">-1</span>
+
+<span class="pr">sorted_nums</span> = [<span class="nm">1</span>, <span class="nm">3</span>, <span class="nm">5</span>, <span class="nm">7</span>, <span class="nm">9</span>, <span class="nm">11</span>, <span class="nm">13</span>]
+<span class="fn">print</span>(<span class="fn">binary_search</span>(<span class="pr">sorted_nums</span>, <span class="nm">7</span>))  <span class="cm"># 3</span></div>
+      </div>
+      <button class="btn-run" onclick="tog('o-bs')">▶ Run Demo</button>
+      <div class="out" id="o-bs"><div class="out-lbl">Output</div>3<br><span style="color:#8b949e;"># Found 7 at index 3</span></div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE 3: Search Visualizer -->
+  <div class="card">
+    <h2 class="sh2">🎮 Search Visualizer</h2>
+    <p class="bd" style="margin-bottom:14px;">Enter a number (1–15) and choose your algorithm. Watch it search!</p>
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+      <input type="number" id="search-target" min="1" max="15" value="7" placeholder="Target" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Sora',sans-serif;outline:none;width:100px;">
+      <button class="btn btn-e btn-sm" onclick="runLinearViz()">▶ Linear Search</button>
+      <button class="btn btn-v btn-sm" onclick="runBinaryViz()">▶ Binary Search</button>
+      <button class="btn btn-g btn-sm" onclick="resetSearch()">↺ Reset</button>
+    </div>
+    <div class="search-row" id="search-cells"></div>
+    <div style="display:flex;gap:14px;margin-top:12px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><div style="width:14px;height:14px;border-radius:4px;background:var(--am-l);border:1.5px solid var(--amber);"></div>Checking</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><div style="width:14px;height:14px;border-radius:4px;background:var(--em-l);border:1.5px solid var(--emerald);"></div>Found!</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><div style="width:14px;height:14px;border-radius:4px;background:var(--s3);border:1.5px solid var(--border);"></div>Skipped</div>
+    </div>
+    <div id="search-result" style="margin-top:10px;font-size:13px;font-weight:700;color:var(--emerald);min-height:20px;"></div>
+    <div id="search-steps" style="margin-top:6px;font-size:12px;color:var(--t3);min-height:16px;"></div>
+  </div>
+
+  <!-- INTERACTIVE 4: Comparison Slider -->
+  <div class="card">
+    <h2 class="sh2">📊 Linear vs Binary: Operations Comparison</h2>
+    <p class="bd" style="margin-bottom:14px;">Drag the slider to see how many operations each algorithm needs for a list of n elements.</p>
+    <div class="sl-row"><span class="sl-label">Array size (n)</span><input type="range" min="1" max="100" value="20" id="cmp-slider" style="flex:1;" oninput="updateCmp()"><span class="sl-val" id="cmp-n">20</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
+      <div style="background:var(--em-l);border:1px solid var(--emerald);border-radius:var(--r);padding:16px;text-align:center;">
+        <div style="font-size:11px;font-weight:800;color:var(--em-d);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Linear Search O(n)</div>
+        <div style="font-size:32px;font-weight:800;color:var(--em-d);" id="cmp-linear">20</div>
+        <div style="font-size:11px;color:var(--emerald);margin-top:4px;">max operations</div>
+      </div>
+      <div style="background:var(--vi-l);border:1px solid var(--violet);border-radius:var(--r);padding:16px;text-align:center;">
+        <div style="font-size:11px;font-weight:800;color:var(--vi-d);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Binary Search O(log n)</div>
+        <div style="font-size:32px;font-weight:800;color:var(--vi-d);" id="cmp-binary">5</div>
+        <div style="font-size:11px;color:var(--violet);margin-top:4px;">max operations</div>
+      </div>
+    </div>
+    <div id="cmp-saving" style="margin-top:12px;text-align:center;font-size:13px;font-weight:700;color:var(--teal);"></div>
+  </div>
+
+  <div class="bnav"><button class="btn btn-g" onclick="gp(1)">← Back</button><button class="btn btn-t" onclick="gp(3)">Next: Big-O →</button></div>
+</div>
+
+<!-- ═══ PAGE 3: BIG-O ═══ -->
+<div class="pg" id="pg3">
+  <div style="margin-bottom:26px;">
+    <div class="eyebrow ey-violet">Concept 3 · Complexity</div>
+    <div class="ptitle">Big-O Notation</div>
+    <div class="psub">Measure algorithm efficiency — how does performance scale with input size?</div>
+  </div>
+
+  <div class="card card-accent-v">
+    <h2 class="sh2">What is Big-O?</h2>
+    <p class="bd">Big-O notation describes the <strong>worst-case growth rate</strong> of an algorithm's time or space usage relative to input size n. It lets us compare algorithms objectively, independent of hardware.</p>
+    <div class="analogy">
+      <div class="an-ic">🚗</div>
+      <div class="an-body"><strong>Analogy:</strong> Think of algorithm speed like travel. O(1) is a teleporter — instant regardless of distance. O(n) is walking — time grows with distance. O(n²) is walking but doubling back for each step. O(log n) is a shortcut that halves your remaining journey each time!</div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE 5: Big-O Complexity Cards -->
+  <div class="card">
+    <h2 class="sh2">📦 Big-O Complexity Cards — Click to Reveal</h2>
+    <div class="rc-grid">
+      <div class="rc" onclick="this.classList.toggle('open')">
+        <div class="rc-f"><div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800;color:var(--em-d);">O(1)</div><div style="font-size:11.5px;font-weight:700;color:var(--t2);">Constant</div></div>
+        <div class="rc-b"><strong style="color:var(--em-d);">O(1) — Constant Time</strong><br>Execution time is always the same, no matter how large n is.<br><br><code style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--violet);">arr[0]  # Always 1 step</code><br><br>Examples: Dictionary lookup, array indexing. Best possible!</div>
+      </div>
+      <div class="rc" onclick="this.classList.toggle('open')">
+        <div class="rc-f"><div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800;color:var(--teal-d);">O(log n)</div><div style="font-size:11.5px;font-weight:700;color:var(--t2);">Logarithmic</div></div>
+        <div class="rc-b"><strong style="color:var(--teal-d);">O(log n) — Logarithmic</strong><br>Halves the problem space each step. Very efficient for large n.<br><br><code style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--violet);">binary_search()</code><br><br>1000 elements? Only ~10 steps needed!</div>
+      </div>
+      <div class="rc" onclick="this.classList.toggle('open')">
+        <div class="rc-f"><div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800;color:var(--teal);">O(n)</div><div style="font-size:11.5px;font-weight:700;color:var(--t2);">Linear</div></div>
+        <div class="rc-b"><strong style="color:var(--teal);">O(n) — Linear Time</strong><br>Time grows proportionally with input size.<br><br><code style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--violet);">for x in arr: print(x)</code><br><br>Double the input → double the time. Linear search, simple loops.</div>
+      </div>
+      <div class="rc" onclick="this.classList.toggle('open')">
+        <div class="rc-f"><div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800;color:var(--amber);">O(n log n)</div><div style="font-size:11.5px;font-weight:700;color:var(--t2);">Linearithmic</div></div>
+        <div class="rc-b"><strong style="color:var(--am-d);">O(n log n) — Linearithmic</strong><br>Efficient sorting algorithms like merge sort and quicksort.<br><br>The sweet spot for most real-world sorting needs. Python's built-in sort() is O(n log n).</div>
+      </div>
+      <div class="rc" onclick="this.classList.toggle('open')">
+        <div class="rc-f"><div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800;color:var(--rose);">O(n²)</div><div style="font-size:11.5px;font-weight:700;color:var(--t2);">Quadratic</div></div>
+        <div class="rc-b"><strong style="color:var(--rose);">O(n²) — Quadratic</strong><br>Nested loops over n elements. Gets slow fast!<br><br><code style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--violet);">bubble_sort()</code><br><br>n=100: 10,000 ops. n=1000: 1,000,000 ops!</div>
+      </div>
+      <div class="rc" onclick="this.classList.toggle('open')">
+        <div class="rc-f"><div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800;color:#6b21a8);">O(2ⁿ)</div><div style="font-size:11.5px;font-weight:700;color:var(--t2);">Exponential</div></div>
+        <div class="rc-b"><strong style="color:#6b21a8;">O(2ⁿ) — Exponential</strong><br>Doubles with each input element. Only feasible for tiny inputs.<br><br>Example: Naive recursive Fibonacci, brute-force subsets. Avoid in production!</div>
+      </div>
+    </div>
+    <p style="font-size:11.5px;color:var(--t3);margin-top:10px;">👆 Click any card to expand details</p>
+  </div>
+
+  <!-- INTERACTIVE 6: Complexity Table + Input Simulator -->
+  <div class="card">
+    <h2 class="sh2">📈 Live Complexity Simulator</h2>
+    <p class="bd" style="margin-bottom:14px;">Change n to see how many operations each complexity class requires:</p>
+    <div class="sl-row"><span class="sl-label">Input size (n)</span><input type="range" min="1" max="50" value="10" id="bigo-slider" style="flex:1;" oninput="updateBigo()"><span class="sl-val" id="bigo-n">10</span></div>
+    <div class="bigo-grid" id="bigo-grid"></div>
+  </div>
+
+  <div class="card">
+    <h2 class="sh2">📋 Algorithm Complexity Reference</h2>
+    <table class="ctbl">
+      <thead><tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th><th>Space</th></tr></thead>
+      <tbody>
+        <tr><td>Bubble Sort</td><td><span class="badge-g">O(n)</span></td><td><span class="badge-r">O(n²)</span></td><td><span class="badge-r">O(n²)</span></td><td><span class="badge-g">O(1)</span></td></tr>
+        <tr><td>Linear Search</td><td><span class="badge-g">O(1)</span></td><td><span class="badge-y">O(n)</span></td><td><span class="badge-y">O(n)</span></td><td><span class="badge-g">O(1)</span></td></tr>
+        <tr><td>Binary Search</td><td><span class="badge-g">O(1)</span></td><td><span class="badge-g">O(log n)</span></td><td><span class="badge-g">O(log n)</span></td><td><span class="badge-g">O(1)</span></td></tr>
+        <tr><td>BFS / DFS</td><td><span class="badge-g">O(1)</span></td><td><span class="badge-y">O(V+E)</span></td><td><span class="badge-y">O(V+E)</span></td><td><span class="badge-y">O(V)</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bnav"><button class="btn btn-g" onclick="gp(2)">← Back</button><button class="btn btn-t" onclick="gp(4)">Next: Graphs →</button></div>
+</div>
+
+<!-- ═══ PAGE 4: GRAPHS ═══ -->
+<div class="pg" id="pg4">
+  <div style="margin-bottom:26px;">
+    <div class="eyebrow ey-amber">Advanced Concept · Graphs</div>
+    <div class="ptitle">Graphs &amp; Traversal</div>
+    <div class="psub">Model networks, paths, and connections — then navigate them with BFS &amp; DFS.</div>
+  </div>
+
+  <div class="card" style="border-top:3px solid var(--amber);">
+    <h2 class="sh2">What is a Graph?</h2>
+    <p class="bd">A graph is a set of <strong>nodes (vertices)</strong> connected by <strong>edges</strong>. It can represent social networks, roads, web pages, or any relationship between entities. We store graphs as <strong>adjacency lists</strong> in Python.</p>
+    <div class="analogy">
+      <div class="an-ic">🗺️</div>
+      <div class="an-body"><strong>Analogy:</strong> Think of a <strong>city map</strong>. Each city is a node, roads are edges. Finding the shortest route between cities is a graph traversal problem — exactly what Google Maps solves every second!</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="sh2">Adjacency List in Python</h2>
+    <div class="cw">
+      <div class="ctop"><div class="cdots"><span class="cd cdr"></span><span class="cd cdy"></span><span class="cd cdg"></span></div><span class="cfn">graph.py</span></div>
+      <div class="cb"><span class="cm"># Graph as adjacency list (dictionary)</span>
+<span class="pr">graph</span> = {
+    <span class="st">'A'</span>: [<span class="st">'B'</span>, <span class="st">'C'</span>],
+    <span class="st">'B'</span>: [<span class="st">'A'</span>, <span class="st">'D'</span>, <span class="st">'E'</span>],
+    <span class="st">'C'</span>: [<span class="st">'A'</span>, <span class="st">'F'</span>],
+    <span class="st">'D'</span>: [<span class="st">'B'</span>],
+    <span class="st">'E'</span>: [<span class="st">'B'</span>, <span class="st">'F'</span>],
+    <span class="st">'F'</span>: [<span class="st">'C'</span>, <span class="st">'E'</span>]
+}
+
+<span class="cm"># BFS — Breadth-First Search</span>
+<span class="kw">from</span> collections <span class="kw">import</span> deque
+
+<span class="kw">def</span> <span class="fn">bfs</span>(<span class="pr">graph</span>, <span class="pr">start</span>):
+    <span class="pr">visited</span>, <span class="pr">queue</span> = <span class="fn">set</span>(), <span class="fn">deque</span>([<span class="pr">start</span>])
+    <span class="pr">visited</span>.<span class="fn">add</span>(<span class="pr">start</span>)
+    <span class="kw">while</span> <span class="pr">queue</span>:
+        <span class="pr">node</span> = <span class="pr">queue</span>.<span class="fn">popleft</span>()
+        <span class="fn">print</span>(<span class="pr">node</span>, <span class="pr">end</span>=<span class="st">" "</span>)
+        <span class="kw">for</span> <span class="pr">n</span> <span class="kw">in</span> <span class="pr">graph</span>[<span class="pr">node</span>]:
+            <span class="kw">if</span> <span class="pr">n</span> <span class="kw">not in</span> <span class="pr">visited</span>:
+                <span class="pr">visited</span>.<span class="fn">add</span>(<span class="pr">n</span>)
+                <span class="pr">queue</span>.<span class="fn">append</span>(<span class="pr">n</span>)
+
+<span class="fn">bfs</span>(<span class="pr">graph</span>, <span class="st">'A'</span>)</div>
+    </div>
+    <button class="btn-run" onclick="tog('o-bfs')">▶ Run Demo</button>
+    <div class="out" id="o-bfs"><div class="out-lbl">Output (BFS from A)</div>A B C D E F<br><span style="color:#8b949e;"># Level-by-level, closest nodes first</span></div>
+  </div>
+
+  <!-- INTERACTIVE 7: Graph Traversal Visualizer -->
+  <div class="card">
+    <h2 class="sh2">🌐 Interactive Graph Traversal</h2>
+    <p class="bd" style="margin-bottom:14px;">Select BFS or DFS, choose a start node, and watch the traversal animate step by step!</p>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      <button class="btn btn-t btn-sm" onclick="setTraversal('bfs')">BFS (Breadth First)</button>
+      <button class="btn btn-v btn-sm" onclick="setTraversal('dfs')">DFS (Depth First)</button>
+      <button class="btn btn-g btn-sm" onclick="resetGraph()">↺ Reset</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+      <span style="font-size:12px;font-weight:600;color:var(--t2);">Start from:</span>
+      <span id="start-A" class="btn btn-t btn-sm" onclick="setStart('A')" style="cursor:pointer;">A</span>
+      <span id="start-B" class="btn btn-g btn-sm" onclick="setStart('B')" style="cursor:pointer;">B</span>
+      <span id="start-C" class="btn btn-g btn-sm" onclick="setStart('C')" style="cursor:pointer;">C</span>
+    </div>
+    <div class="graph-svg-wrap">
+      <svg width="100%" height="280" id="graph-svg" viewBox="0 0 560 280"></svg>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+      <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><div style="width:14px;height:14px;border-radius:50%;background:var(--amber);"></div>Current</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><div style="width:14px;height:14px;border-radius:50%;background:var(--teal);"></div>Visited</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><div style="width:14px;height:14px;border-radius:50%;background:var(--s3);border:2px solid var(--border2);"></div>Unvisited</div>
+    </div>
+    <div id="traversal-log" style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal);min-height:20px;"></div>
+    <div style="margin-top:10px;">
+      <button class="btn btn-t btn-sm" onclick="stepTraversal()">→ Next Step</button>
+      <span id="trav-mode" style="font-size:12px;font-weight:700;color:var(--violet);margin-left:10px;"></span>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE 8: Priority Queue / Task Prioritization -->
+  <div class="card">
+    <h2 class="sh2">🎯 Practical: Task Prioritisation with heapq</h2>
+    <p class="bd" style="margin-bottom:14px;">A <strong>priority queue</strong> always serves the highest-priority task first. Click tasks to pop them from the queue!</p>
+    <div class="cw">
+      <div class="ctop"><div class="cdots"><span class="cd cdr"></span><span class="cd cdy"></span><span class="cd cdg"></span></div><span class="cfn">priority_queue.py</span></div>
+      <div class="cb"><span class="kw">import</span> heapq
+<span class="pr">tasks</span> = []
+<span class="cm"># (priority, task_name) — lower number = higher priority</span>
+<span class="pr">heapq</span>.<span class="fn">heappush</span>(<span class="pr">tasks</span>, (<span class="nm">1</span>, <span class="st">"Critical Bug Fix"</span>))
+<span class="pr">heapq</span>.<span class="fn">heappush</span>(<span class="pr">tasks</span>, (<span class="nm">3</span>, <span class="st">"Write Tests"</span>))
+<span class="pr">heapq</span>.<span class="fn">heappush</span>(<span class="pr">tasks</span>, (<span class="nm">2</span>, <span class="st">"Code Review"</span>))
+<span class="cm"># Pop = always gets LOWEST priority number (highest priority)</span>
+<span class="fn">print</span>(<span class="pr">heapq</span>.<span class="fn">heappop</span>(<span class="pr">tasks</span>))  <span class="cm"># (1, 'Critical Bug Fix')</span></div>
+    </div>
+    <div class="pq-wrap" id="pq-wrap">
+      <div style="font-size:11px;font-weight:800;color:var(--t3);letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px;">Priority Queue (click to pop top task)</div>
+    </div>
+    <button class="btn btn-g btn-sm" style="margin-top:10px;" onclick="resetPQ()">↺ Reset Queue</button>
+    <div id="pq-log" style="margin-top:8px;font-size:12.5px;font-weight:700;color:var(--teal);min-height:18px;"></div>
+  </div>
+
+  <div class="bnav"><button class="btn btn-g" onclick="gp(3)">← Back</button><button class="btn btn-t" onclick="gp(5)">Exercises →</button></div>
+</div>
+
+<!-- ═══ PAGE 5: EXERCISES ═══ -->
+<div class="pg" id="pg5">
+  <div style="margin-bottom:26px;">
+    <div class="eyebrow" style="background:#fce7f3;color:#be185d;">✏️ Exercises</div>
+    <div class="ptitle">Coding Challenges</div>
+    <div class="psub">Apply your algorithm knowledge with these practical problems.</div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-n">1</div>
+    <div class="ex-q">Implement Selection Sort</div>
+    <div class="ex-d">Write a Python function <code style="font-family:'JetBrains Mono',monospace;">selection_sort(arr)</code> that sorts a list by repeatedly finding the minimum element from the unsorted portion and placing it at the beginning. Print the array after each pass for the input <code style="font-family:'JetBrains Mono',monospace;">[64, 25, 12, 22, 11]</code>. Expected final output: <code style="font-family:'JetBrains Mono',monospace;">[11, 12, 22, 25, 64]</code>.</div>
+    <div class="hint-pill">💡 Hint: Find min index in unsorted portion, then swap with position i</div>
+    <button class="btn btn-ol btn-sm" onclick="toggleSol('esol1',this)">👁 Show Solution</button>
+    <div class="sol" id="esol1">
+      <div class="cw">
+        <div class="ctop"><div class="cdots"><span class="cd cdr"></span><span class="cd cdy"></span><span class="cd cdg"></span></div><span class="cfn">solution_1.py</span></div>
+        <div class="cb"><span class="kw">def</span> <span class="fn">selection_sort</span>(<span class="pr">arr</span>):
+    <span class="pr">n</span> = <span class="fn">len</span>(<span class="pr">arr</span>)
+    <span class="kw">for</span> <span class="pr">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="pr">n</span>):
+        <span class="pr">min_idx</span> = <span class="pr">i</span>
+        <span class="kw">for</span> <span class="pr">j</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="pr">i</span>+<span class="nm">1</span>, <span class="pr">n</span>):
+            <span class="kw">if</span> <span class="pr">arr</span>[<span class="pr">j</span>] &lt; <span class="pr">arr</span>[<span class="pr">min_idx</span>]:
+                <span class="pr">min_idx</span> = <span class="pr">j</span>
+        <span class="pr">arr</span>[<span class="pr">i</span>], <span class="pr">arr</span>[<span class="pr">min_idx</span>] = <span class="pr">arr</span>[<span class="pr">min_idx</span>], <span class="pr">arr</span>[<span class="pr">i</span>]
+        <span class="fn">print</span>(<span class="st">f"Pass {i+1}: </span><span class="pr">{arr}</span><span class="st">"</span>)
+    <span class="kw">return</span> <span class="pr">arr</span>
+
+<span class="fn">selection_sort</span>([<span class="nm">64</span>, <span class="nm">25</span>, <span class="nm">12</span>, <span class="nm">22</span>, <span class="nm">11</span>])</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-n">2</div>
+    <div class="ex-q">Count Operations in Linear vs Binary Search</div>
+    <div class="ex-d">Modify both <code style="font-family:'JetBrains Mono',monospace;">linear_search</code> and <code style="font-family:'JetBrains Mono',monospace;">binary_search</code> to count and return the number of comparisons made. Test both on a sorted list of 1000 elements searching for the last element. Compare the counts and explain why binary search wins.</div>
+    <div class="hint-pill">💡 Hint: Add a counter variable, increment it inside each comparison, return (index, count)</div>
+    <button class="btn btn-ol btn-sm" onclick="toggleSol('esol2',this)">👁 Show Solution</button>
+    <div class="sol" id="esol2">
+      <div class="cw">
+        <div class="ctop"><div class="cdots"><span class="cd cdr"></span><span class="cd cdy"></span><span class="cd cdg"></span></div><span class="cfn">solution_2.py</span></div>
+        <div class="cb"><span class="kw">def</span> <span class="fn">linear_search_count</span>(<span class="pr">arr</span>, <span class="pr">target</span>):
+    <span class="pr">count</span> = <span class="nm">0</span>
+    <span class="kw">for</span> <span class="pr">i</span>, <span class="pr">v</span> <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="pr">arr</span>):
+        <span class="pr">count</span> += <span class="nm">1</span>
+        <span class="kw">if</span> <span class="pr">v</span> == <span class="pr">target</span>: <span class="kw">return</span> <span class="pr">i</span>, <span class="pr">count</span>
+    <span class="kw">return</span> <span class="nm">-1</span>, <span class="pr">count</span>
+
+<span class="kw">def</span> <span class="fn">binary_search_count</span>(<span class="pr">arr</span>, <span class="pr">target</span>):
+    <span class="pr">l</span>, <span class="pr">r</span>, <span class="pr">count</span> = <span class="nm">0</span>, <span class="fn">len</span>(<span class="pr">arr</span>)-<span class="nm">1</span>, <span class="nm">0</span>
+    <span class="kw">while</span> <span class="pr">l</span> &lt;= <span class="pr">r</span>:
+        <span class="pr">count</span> += <span class="nm">1</span>
+        <span class="pr">m</span> = (<span class="pr">l</span>+<span class="pr">r</span>)//<span class="nm">2</span>
+        <span class="kw">if</span> <span class="pr">arr</span>[<span class="pr">m</span>] == <span class="pr">target</span>: <span class="kw">return</span> <span class="pr">m</span>, <span class="pr">count</span>
+        <span class="kw">elif</span> <span class="pr">arr</span>[<span class="pr">m</span>] &lt; <span class="pr">target</span>: <span class="pr">l</span> = <span class="pr">m</span>+<span class="nm">1</span>
+        <span class="kw">else</span>: <span class="pr">r</span> = <span class="pr">m</span>-<span class="nm">1</span>
+    <span class="kw">return</span> <span class="nm">-1</span>, <span class="pr">count</span>
+
+<span class="pr">data</span> = <span class="fn">list</span>(<span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">1001</span>))
+<span class="fn">print</span>(<span class="st">"Linear:"</span>, <span class="fn">linear_search_count</span>(<span class="pr">data</span>, <span class="nm">1000</span>)[<span class="nm">1</span>], <span class="st">"ops"</span>)  <span class="cm"># 1000</span>
+<span class="fn">print</span>(<span class="st">"Binary:"</span>, <span class="fn">binary_search_count</span>(<span class="pr">data</span>, <span class="nm">1000</span>)[<span class="nm">1</span>], <span class="st">"ops"</span>)  <span class="cm"># ~10</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-n">3</div>
+    <div class="ex-q">DFS Path Finder</div>
+    <div class="ex-d">Implement a DFS-based function <code style="font-family:'JetBrains Mono',monospace;">find_path(graph, start, end)</code> that returns a list representing a path from <code>start</code> to <code>end</code> in the graph. Use the adjacency list: A–B–C–D–E–F from the examples above. Find the path from 'A' to 'F'.</div>
+    <div class="hint-pill">💡 Hint: Use recursion or a stack. Track visited nodes and build path list</div>
+    <button class="btn btn-ol btn-sm" onclick="toggleSol('esol3',this)">👁 Show Solution</button>
+    <div class="sol" id="esol3">
+      <div class="cw">
+        <div class="ctop"><div class="cdots"><span class="cd cdr"></span><span class="cd cdy"></span><span class="cd cdg"></span></div><span class="cfn">solution_3.py</span></div>
+        <div class="cb"><span class="pr">graph</span> = {<span class="st">'A'</span>:[<span class="st">'B'</span>,<span class="st">'C'</span>],<span class="st">'B'</span>:[<span class="st">'A'</span>,<span class="st">'D'</span>,<span class="st">'E'</span>],
+         <span class="st">'C'</span>:[<span class="st">'A'</span>,<span class="st">'F'</span>],<span class="st">'D'</span>:[<span class="st">'B'</span>],<span class="st">'E'</span>:[<span class="st">'B'</span>,<span class="st">'F'</span>],<span class="st">'F'</span>:[<span class="st">'C'</span>,<span class="st">'E'</span>]}
+
+<span class="kw">def</span> <span class="fn">find_path</span>(<span class="pr">graph</span>, <span class="pr">start</span>, <span class="pr">end</span>, <span class="pr">path</span>=[]):
+    <span class="pr">path</span> = <span class="pr">path</span> + [<span class="pr">start</span>]
+    <span class="kw">if</span> <span class="pr">start</span> == <span class="pr">end</span>:
+        <span class="kw">return</span> <span class="pr">path</span>
+    <span class="kw">for</span> <span class="pr">node</span> <span class="kw">in</span> <span class="pr">graph</span>[<span class="pr">start</span>]:
+        <span class="kw">if</span> <span class="pr">node</span> <span class="kw">not in</span> <span class="pr">path</span>:
+            <span class="pr">result</span> = <span class="fn">find_path</span>(<span class="pr">graph</span>, <span class="pr">node</span>, <span class="pr">end</span>, <span class="pr">path</span>)
+            <span class="kw">if</span> <span class="pr">result</span>: <span class="kw">return</span> <span class="pr">result</span>
+    <span class="kw">return</span> <span class="kw">None</span>
+
+<span class="fn">print</span>(<span class="fn">find_path</span>(<span class="pr">graph</span>, <span class="st">'A'</span>, <span class="st">'F'</span>))  <span class="cm"># ['A', 'C', 'F']</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bnav"><button class="btn btn-g" onclick="gp(4)">← Back</button><button class="btn btn-t" onclick="gp(6)">Take the Quiz →</button></div>
+</div>
+
+<!-- ═══ PAGE 6: QUIZ ═══ -->
+<div class="pg" id="pg6">
+  <div style="margin-bottom:26px;">
+    <div class="eyebrow ey-violet">🧠 Quiz</div>
+    <div class="ptitle">Test Your Knowledge</div>
+    <div class="psub">5 questions on Algorithms &amp; Practical Applications</div>
+  </div>
+  <div class="card" id="quiz-body">
+    <div class="qprog"><div class="qpd act" id="qpd0"></div><div class="qpd" id="qpd1"></div><div class="qpd" id="qpd2"></div><div class="qpd" id="qpd3"></div><div class="qpd" id="qpd4"></div></div>
+    <div id="quiz-qa"></div>
+    <div class="qfb" id="quiz-fb"></div>
+    <div style="margin-top:18px;display:flex;justify-content:flex-end;">
+      <button class="btn btn-t" id="quiz-next" style="display:none;" onclick="nextQ()">Next Question →</button>
+    </div>
+  </div>
+  <div class="card" id="quiz-score" style="display:none;text-align:center;padding:44px;">
+    <div class="score-ring" id="sc-ring"><div class="score-in"><div class="score-num" id="sc-num">0/5</div><div class="score-sub">Score</div></div></div>
+    <h2 class="sh2" id="sc-msg" style="text-align:center;"></h2>
+    <p class="bd" style="text-align:center;margin:8px 0 24px;" id="sc-sub"></p>
+    <div style="display:flex;gap:12px;justify-content:center;">
+      <button class="btn btn-g" onclick="resetQuiz()">↺ Retry</button>
+      <button class="btn btn-t" onclick="gp(7)">Finish Module →</button>
+    </div>
+  </div>
+  <div class="bnav"><button class="btn btn-g" onclick="gp(5)">← Back</button><div></div></div>
+</div>
+
+<!-- ═══ PAGE 7: COMPLETION ═══ -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="comp-hero">
+      <div class="sparks">🎊 ✨ 🎊</div>
+      <div style="height:10px;"></div>
+      <span class="trophy">🏆</span>
+      <h2 style="font-size:28px;font-weight:800;letter-spacing:-1px;margin:16px 0 8px;">Module 11 Complete!</h2>
+      <p style="font-size:14.5px;color:var(--t2);max-width:480px;margin:0 auto;">Brilliant work, <strong>Vinodhini</strong>! You've mastered algorithms and practical data structure applications — the toolkit of every professional developer.</p>
+      <div style="display:flex;gap:14px;justify-content:center;margin:26px 0;flex-wrap:wrap;">
+        <div style="background:var(--s3);border:1px solid var(--border);border-radius:var(--r);padding:16px 24px;text-align:center;"><div style="font-size:24px;font-weight:800;color:var(--teal);" id="comp-score">5/5</div><div style="font-size:10.5px;color:var(--t3);">Quiz Score</div></div>
+        <div style="background:var(--s3);border:1px solid var(--border);border-radius:var(--r);padding:16px 24px;text-align:center;"><div style="font-size:24px;font-weight:800;color:var(--emerald);">100%</div><div style="font-size:10.5px;color:var(--t3);">Completion</div></div>
+        <div style="background:var(--s3);border:1px solid var(--border);border-radius:var(--r);padding:16px 24px;text-align:center;"><div style="font-size:24px;font-weight:800;color:var(--violet);">+80</div><div style="font-size:10.5px;color:var(--t3);">XP Earned</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2 class="sh2">🏅 Skills Earned</h2>
+    <div class="skill-tags">
+      <div class="stag">✅ Bubble Sort</div>
+      <div class="stag">✅ Linear Search</div>
+      <div class="stag">✅ Binary Search</div>
+      <div class="stag">✅ Big-O Notation</div>
+      <div class="stag">✅ Time Complexity</div>
+      <div class="stag">✅ Space Complexity</div>
+      <div class="stag">✅ Graph Structures</div>
+      <div class="stag">✅ Adjacency Lists</div>
+      <div class="stag">✅ BFS Traversal</div>
+      <div class="stag">✅ DFS Traversal</div>
+      <div class="stag">✅ Priority Queues</div>
+      <div class="stag">✅ heapq module</div>
+    </div>
+  </div>
+  <div class="cert">
+    <div class="cert-content">
+      <div style="font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#67e8f9;margin-bottom:8px;">Certificate of Completion</div>
+      <div style="font-size:24px;font-weight:800;letter-spacing:-.5px;">Vinodhini</div>
+      <div style="font-size:13px;opacity:.65;margin-top:6px;">Module 11: Algorithms &amp; Practical Applications<br>Python for Beginners · HCL-GUVI · 2025</div>
+      <div style="font-size:28px;margin-top:14px;">🐍 ⚡ 🐍</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding-bottom:20px;">
+    <button class="btn btn-g" onclick="restartAll()">↺ Restart Module</button>
+    <button class="btn btn-t">Continue to Module 12 →</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════ GLOBALS ═══════
+let cur=0,tot=8,done=new Array(8).fill(false);
+let svStepCO=0;
+let sortArr=[],sortRunning=false,sortComps=0,sortSwaps=0;
+let searchMode='linear';
+let bigoN=10;
+let travMode='bfs',travStart='A',travQueue=[],travVisited=new Set(),travEdge=[];
+let pqTasks=[];
+let qIdx=0,qScore=0,qAnswered=false;
+
+// ═══════ NAV ═══════
+function gp(n){
+  document.getElementById('pg'+cur).classList.remove('act');
+  document.getElementById('sb'+cur).classList.remove('act');
+  done[cur]=true;
+  document.getElementById('sb'+cur).classList.add('done');
+  cur=n;
+  document.getElementById('pg'+n).classList.add('act');
+  document.getElementById('sb'+n).classList.remove('done');
+  document.getElementById('sb'+n).classList.add('act');
+  upProg();
+  window.scrollTo(0,0);
+  if(n===1){initSort();}
+  if(n===2){initSearch();}
+  if(n===3){updateBigo();}
+  if(n===4){drawGraph();initPQ();}
+  if(n===6){renderQ();}
+}
+function upProg(){
+  const d=done.filter(Boolean).length;
+  const p=Math.round(d/(tot-1)*100);
+  document.getElementById('pf').style.width=p+'%';
+  document.getElementById('pp').textContent=p+'%';
+}
+
+// ═══════ OUTPUT TOGGLE ═══════
+function tog(id){document.getElementById(id).classList.toggle('show');}
+
+// ═══════ SORT VISUALIZER ═══════
+const colors=['#0891b2','#7c3aed','#059669','#d97706','#e11d48','#0ea5e9','#8b5cf6'];
+function initSort(){
+  sortArr=[64,34,25,12,22,11,90];
+  renderBars();sortComps=0;sortSwaps=0;
+  document.getElementById('s-comp').textContent='0';
+  document.getElementById('s-swap').textContent='0';
+  document.getElementById('s-status').textContent='Ready';
+  document.getElementById('sort-btn').disabled=false;
+}
+function renderBars(){
+  const w=document.getElementById('sort-bars');
+  w.innerHTML='';
+  const mx=Math.max(...sortArr);
+  sortArr.forEach((v,i)=>{
+    const b=document.createElement('div');
+    b.className='sort-bar';
+    b.style.height=(v/mx*110+20)+'px';
+    b.style.background=colors[i%colors.length];
+    b.style.flex='1';
+    b.textContent=v;
+    w.appendChild(b);
+  });
+}
+function shuffleBars(){
+  sortArr=[...Array(7)].map(()=>Math.floor(Math.random()*90)+10);
+  renderBars();sortComps=0;sortSwaps=0;
+  document.getElementById('s-comp').textContent='0';
+  document.getElementById('s-swap').textContent='0';
+  document.getElementById('s-status').textContent='Shuffled';
+  document.getElementById('sort-btn').disabled=false;
+}
+function resetSort(){initSort();}
+async function animateSort(){
+  if(sortRunning)return;
+  sortRunning=true;
+  document.getElementById('sort-btn').disabled=true;
+  document.getElementById('s-status').textContent='Sorting…';
+  const a=[...sortArr];
+  const n=a.length;
+  for(let i=0;i<n;i++){
+    for(let j=0;j<n-i-1;j++){
+      sortComps++;
+      document.getElementById('s-comp').textContent=sortComps;
+      if(a[j]>a[j+1]){
+        [a[j],a[j+1]]=[a[j+1],a[j]];
+        sortSwaps++;
+        document.getElementById('s-swap').textContent=sortSwaps;
+      }
+      sortArr=[...a];
+      renderBars();
+      await sleep(120);
+    }
+  }
+  document.getElementById('s-status').textContent='✅ Sorted!';
+  sortRunning=false;
+}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// ═══════ STEP VIZ GENERIC ═══════
+let stepIdx={};
+function stepSort(){
+  const id='sv-sort',pre='ss',total=7;
+  if(!stepIdx[id])stepIdx[id]=0;
+  const i=stepIdx[id];
+  if(i>0){
+    document.getElementById(pre+(i-1)).classList.remove('act');
+    document.getElementById(pre+(i-1)).classList.add('done');
+  }
+  if(i<total){
+    document.getElementById(pre+i).classList.add('act');
+    stepIdx[id]++;
+    const msgs=['','','','','','','✅ Sorting complete!'];
+    document.getElementById('ss-msg').textContent=msgs[i]||'';
+  }
+}
+function resetStep(wrapId,total,pre){
+  stepIdx[wrapId]=0;
+  for(let i=0;i<total;i++){
+    const el=document.getElementById(pre+i);
+    if(el){el.classList.remove('act','done');if(i===0)el.classList.add('act');}
+  }
+  document.getElementById('ss-msg').textContent='';
+}
+
+// ═══════ SEARCH TOGGLE ═══════
+function switchSearch(mode){
+  document.getElementById('s-linear').style.display=mode==='linear'?'block':'none';
+  document.getElementById('s-binary').style.display=mode==='binary'?'block':'none';
+  ['lin','bin'].forEach(t=>{
+    const el=document.getElementById('stab-'+t);
+    if(t==='lin'&&mode==='linear'||t==='bin'&&mode==='binary'){
+      el.style.background='var(--surface)';el.style.color='var(--teal)';el.style.boxShadow='var(--sh)';
+    }else{
+      el.style.background='transparent';el.style.color='var(--t3)';el.style.boxShadow='none';
+    }
+  });
+}
+
+// ═══════ SEARCH VISUALIZER ═══════
+const searchData=[1,3,4,6,7,9,10,12,14,15];
+function initSearch(){
+  const w=document.getElementById('search-cells');
+  w.innerHTML='';
+  searchData.forEach((v,i)=>{
+    const c=document.createElement('div');
+    c.className='search-cell';
+    c.id='sc'+i;
+    c.textContent=v;
+    w.appendChild(c);
+  });
+}
+async function runLinearViz(){
+  resetSearch();
+  const t=parseInt(document.getElementById('search-target').value)||7;
+  let steps=0;
+  document.getElementById('search-result').textContent='Searching…';
+  for(let i=0;i<searchData.length;i++){
+    steps++;
+    document.getElementById('sc'+i).classList.add('check');
+    await sleep(320);
+    if(searchData[i]===t){
+      document.getElementById('sc'+i).classList.remove('check');
+      document.getElementById('sc'+i).classList.add('found');
+      document.getElementById('search-result').textContent=`✅ Found ${t} at index ${i}!`;
+      document.getElementById('search-steps').textContent=`Linear Search: ${steps} comparison${steps>1?'s':''}`;
+      return;
+    }
+    document.getElementById('sc'+i).classList.remove('check');
+    document.getElementById('sc'+i).classList.add('skip');
+  }
+  document.getElementById('search-result').textContent=`❌ ${t} not found in array`;
+  document.getElementById('search-steps').textContent=`Linear Search: ${steps} comparisons (full scan)`;
+}
+async function runBinaryViz(){
+  resetSearch();
+  const t=parseInt(document.getElementById('search-target').value)||7;
+  let l=0,r=searchData.length-1,steps=0;
+  document.getElementById('search-result').textContent='Searching…';
+  while(l<=r){
+    steps++;
+    const m=Math.floor((l+r)/2);
+    document.getElementById('sc'+m).classList.add('check');
+    await sleep(450);
+    if(searchData[m]===t){
+      document.getElementById('sc'+m).classList.remove('check');
+      document.getElementById('sc'+m).classList.add('found');
+      for(let i=0;i<searchData.length;i++){if(i!==m)document.getElementById('sc'+i).classList.add('skip');}
+      document.getElementById('search-result').textContent=`✅ Found ${t} at index ${m}!`;
+      document.getElementById('search-steps').textContent=`Binary Search: ${steps} comparison${steps>1?'s':''}`;
+      return;
+    }
+    document.getElementById('sc'+m).classList.remove('check');
+    document.getElementById('sc'+m).classList.add('skip');
+    if(searchData[m]<t)l=m+1;else r=m-1;
+  }
+  document.getElementById('search-result').textContent=`❌ ${t} not found in array`;
+  document.getElementById('search-steps').textContent=`Binary Search: ${steps} comparisons`;
+}
+function resetSearch(){
+  searchData.forEach((_,i)=>{
+    const el=document.getElementById('sc'+i);
+    if(el)el.className='search-cell';
+  });
+  document.getElementById('search-result').textContent='';
+  document.getElementById('search-steps').textContent='';
+}
+function updateCmp(){
+  const n=parseInt(document.getElementById('cmp-slider').value);
+  document.getElementById('cmp-n').textContent=n;
+  document.getElementById('cmp-linear').textContent=n;
+  const bin=Math.max(1,Math.ceil(Math.log2(n)));
+  document.getElementById('cmp-binary').textContent=bin;
+  const saved=Math.round((1-bin/n)*100);
+  document.getElementById('cmp-saving').textContent=`Binary search uses ${bin} operations vs ${n} for linear — ${saved}% fewer operations!`;
+}
+
+// ═══════ BIG-O SIMULATOR ═══════
+function updateBigo(){
+  const n=parseInt(document.getElementById('bigo-slider').value);
+  document.getElementById('bigo-n').textContent=n;
+  const ops=[
+    {name:'O(1)',val:1,color:'#059669',label:'Constant',max:1},
+    {name:'O(log n)',val:Math.ceil(Math.log2(Math.max(n,1))),color:'#0891b2',label:'Logarithmic',max:7},
+    {name:'O(n)',val:n,color:'#7c3aed',label:'Linear',max:50},
+    {name:'O(n log n)',val:Math.ceil(n*Math.log2(Math.max(n,1))),color:'#d97706',label:'Linearithmic',max:300},
+    {name:'O(n²)',val:n*n,color:'#e11d48',label:'Quadratic',max:2500},
+  ];
+  const grid=document.getElementById('bigo-grid');
+  grid.innerHTML='';
+  ops.forEach(o=>{
+    const pct=Math.min(100,Math.round(o.val/o.max*100));
+    const d=document.createElement('div');
+    d.className='bigo-card';
+    d.style.border='1.5px solid '+o.color+'33';
+    d.style.background=o.color+'0d';
+    d.innerHTML=`<div class="bigo-name" style="color:${o.color}">${o.name}</div><div class="bigo-desc">${o.label}: <strong>${o.val.toLocaleString()}</strong> operations</div><div class="bigo-bar-wrap"><div class="bigo-bar" style="width:0%;background:${o.color};" id="bb-${o.name.replace(/[^a-z0-9]/gi,'_')}"></div></div>`;
+    grid.appendChild(d);
+    setTimeout(()=>{d.querySelector('.bigo-bar').style.width=pct+'%';},100);
+  });
+}
+
+// ═══════ GRAPH ═══════
+const gNodes={
+  A:{x:280,y:60,neighbors:['B','C']},
+  B:{x:140,y:160,neighbors:['A','D','E']},
+  C:{x:420,y:160,neighbors:['A','F']},
+  D:{x:70,y:260,neighbors:['B']},
+  E:{x:210,y:260,neighbors:['B','F']},
+  F:{x:490,y:260,neighbors:['C','E']}
+};
+const gEdges=[['A','B'],['A','C'],['B','D'],['B','E'],['C','F'],['E','F']];
+let travState={visited:[],queue:[],stack:[],order:[]};
+let travStart2='A';
+
+function drawGraph(){
+  const svg=document.getElementById('graph-svg');
+  svg.innerHTML='';
+  gEdges.forEach(([a,b])=>{
+    const na=gNodes[a],nb=gNodes[b];
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',na.x);line.setAttribute('y1',na.y);
+    line.setAttribute('x2',nb.x);line.setAttribute('y2',nb.y);
+    line.setAttribute('class','gedge');line.id='edge-'+a+b;
+    svg.appendChild(line);
+  });
+  Object.entries(gNodes).forEach(([name,nd])=>{
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','gnode');g.id='gn-'+name;
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',nd.x);c.setAttribute('cy',nd.y);c.setAttribute('r',24);
+    c.setAttribute('fill','#f1f5f9');c.setAttribute('stroke','#c8d6e5');c.setAttribute('stroke-width','2');
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',nd.x);t.setAttribute('y',nd.y+5);
+    t.setAttribute('text-anchor','middle');t.setAttribute('font-size','14');
+    t.setAttribute('font-weight','800');t.setAttribute('fill','#3d5475');
+    t.setAttribute('font-family','Sora,sans-serif');t.textContent=name;
+    g.appendChild(c);g.appendChild(t);svg.appendChild(g);
+  });
+  resetTrav();
+}
+function setTraversal(m){travMode=m;resetTrav();document.getElementById('trav-mode').textContent='Mode: '+m.toUpperCase();}
+function setStart(s){travStart2=s;resetTrav();}
+function resetTrav(){
+  travState={visited:[],queue:[travStart2],stack:[travStart2],order:[]};
+  Object.keys(gNodes).forEach(n=>{
+    const el=document.getElementById('gn-'+n);
+    if(el){el.querySelector('circle').setAttribute('fill','#f1f5f9');el.querySelector('circle').setAttribute('stroke','#c8d6e5');}
+  });
+  gEdges.forEach(([a,b])=>{const el=document.getElementById('edge-'+a+b);if(el)el.classList.remove('active');});
+  document.getElementById('traversal-log').textContent='Ready. Click "Next Step" to begin '+travMode.toUpperCase()+' from node '+travStart2;
+}
+function stepTraversal(){
+  const {visited,queue,stack,order}=travState;
+  if(travMode==='bfs'){
+    if(!queue.length){document.getElementById('traversal-log').textContent='✅ BFS Complete! Order: '+order.join(' → ');return;}
+    const node=queue.shift();
+    if(visited.includes(node)){stepTraversal();return;}
+    visited.push(node);order.push(node);
+    const el=document.getElementById('gn-'+node);
+    if(el){
+      el.querySelector('circle').setAttribute('fill','#0891b2');
+      el.querySelector('circle').setAttribute('stroke','#0e7490');
+      el.querySelector('text').setAttribute('fill','#fff');
+    }
+    gNodes[node].neighbors.forEach(n=>{
+      if(!visited.includes(n))queue.push(n);
+      const key1=node+n,key2=n+node;
+      const e=document.getElementById('edge-'+key1)||document.getElementById('edge-'+key2);
+      if(e&&visited.includes(n))e.classList.add('active');
+    });
+    document.getElementById('traversal-log').textContent='BFS: Visiting '+node+' | Order so far: '+order.join(' → ')+(queue.length?' | Queue: ['+queue.join(',')+']':'');
+  }else{
+    if(!stack.length){document.getElementById('traversal-log').textContent='✅ DFS Complete! Order: '+order.join(' → ');return;}
+    const node=stack.pop();
+    if(visited.includes(node)){stepTraversal();return;}
+    visited.push(node);order.push(node);
+    const el=document.getElementById('gn-'+node);
+    if(el){
+      el.querySelector('circle').setAttribute('fill','#7c3aed');
+      el.querySelector('circle').setAttribute('stroke','#6d28d9');
+      el.querySelector('text').setAttribute('fill','#fff');
+    }
+    [...gNodes[node].neighbors].reverse().forEach(n=>{
+      if(!visited.includes(n))stack.push(n);
+    });
+    document.getElementById('traversal-log').textContent='DFS: Visiting '+node+' | Order so far: '+order.join(' → ')+(stack.length?' | Stack: ['+stack.join(',')+']':'');
+  }
+}
+
+// ═══════ PRIORITY QUEUE ═══════
+const pqData=[
+  {pri:1,name:'Critical Bug Fix',time:'Due: Now',color:'#e11d48'},
+  {pri:2,name:'Deploy to Production',time:'Due: 2h',color:'#d97706'},
+  {pri:3,name:'Code Review',time:'Due: Today',color:'#0891b2'},
+  {pri:4,name:'Write Unit Tests',time:'Due: Tomorrow',color:'#059669'},
+  {pri:5,name:'Update Documentation',time:'Due: This week',color:'#7c3aed'},
+];
+function initPQ(){pqTasks=[...pqData];renderPQ();}
+function renderPQ(){
+  const w=document.getElementById('pq-wrap');
+  const existing=w.querySelector('.pq-items-wrap');
+  let iw=existing;
+  if(!iw){iw=document.createElement('div');iw.className='pq-items-wrap';w.appendChild(iw);}
+  iw.innerHTML='';
+  if(pqTasks.length===0){iw.innerHTML='<div style="text-align:center;font-size:13px;color:var(--t3);padding:20px;">Queue is empty! All tasks processed. 🎉</div>';return;}
+  pqTasks.forEach((t,i)=>{
+    const el=document.createElement('div');
+    el.className='pq-item';
+    el.onclick=()=>{if(i===0)popPQ();};
+    el.style.opacity=i===0?'1':'0.75';
+    el.innerHTML=`<div class="pq-pri" style="background:${t.color}">${t.pri}</div><div class="pq-name">${t.name}</div><div class="pq-time">${t.time}</div>${i===0?'<span class="pq-pop">← POP</span>':''}`;
+    iw.appendChild(el);
+  });
+}
+function popPQ(){
+  if(!pqTasks.length)return;
+  const popped=pqTasks.shift();
+  document.getElementById('pq-log').textContent=`heapq.heappop() → (${popped.pri}, "${popped.name}")`;
+  renderPQ();
+}
+function resetPQ(){pqTasks=[...pqData];renderPQ();document.getElementById('pq-log').textContent='';}
+
+// ═══════ EXERCISES ═══════
+function toggleSol(id,btn){
+  const el=document.getElementById(id);
+  el.classList.toggle('show');
+  btn.textContent=el.classList.contains('show')?'🙈 Hide Solution':'👁 Show Solution';
+}
+
+// ═══════ QUIZ ═══════
+const QD=[
+  {q:"What is the time complexity of Bubble Sort in the worst case?",opts:["O(n)","O(log n)","O(n²)","O(1)"],ans:2,exp:"Bubble Sort uses two nested loops — outer runs n times, inner runs up to n times → O(n²) worst case."},
+  {q:"Binary Search requires the input array to be:",opts:["Random","Sorted","At least 100 elements","A linked list"],ans:1,exp:"Binary Search only works on sorted arrays because it relies on eliminating half the remaining elements based on comparison with the middle."},
+  {q:"What does O(log n) mean?",opts:["Time doubles with each element","Time grows proportionally to n","Problem space halves each step","Constant time always"],ans:2,exp:"O(log n) means the algorithm halves its search space each step. Binary search is the classic example — 1000 elements need only ~10 steps."},
+  {q:"In BFS (Breadth-First Search), which data structure is used?",opts:["Stack","Queue","Array","Heap"],ans:1,exp:"BFS uses a Queue (FIFO) to explore nodes level-by-level — nearest neighbours first. This is why it finds shortest paths in unweighted graphs."},
+  {q:"Which Python module implements a priority queue (min-heap)?",opts:["queue","collections","heapq","bisect"],ans:2,exp:"Python's `heapq` module provides heap queue operations. heappush() adds, heappop() removes the smallest element — perfect for priority queues."}
+];
+function renderQ(){
+  if(qIdx>=QD.length)return;
+  const q=QD[qIdx];
+  qAnswered=false;
+  document.getElementById('quiz-fb').className='qfb';
+  document.getElementById('quiz-next').style.display='none';
+  let h=`<div class="quiz-q">Q${qIdx+1}. ${q.q}</div><div class="quiz-opts">`;
+  q.opts.forEach((o,i)=>h+=`<div class="qo" id="qo${i}" onclick="ansQ(${i})"><div class="qo-r"></div>${o}</div>`);
+  h+='</div>';
+  document.getElementById('quiz-qa').innerHTML=h;
+  for(let i=0;i<5;i++){
+    const d=document.getElementById('qpd'+i);
+    if(d)d.className='qpd'+(i<qIdx?' done':i===qIdx?' act':'');
+  }
+}
+function ansQ(c){
+  if(qAnswered)return;
+  qAnswered=true;
+  const q=QD[qIdx];
+  const ok=c===q.ans;
+  if(ok)qScore++;
+  document.querySelectorAll('.qo').forEach((el,i)=>{
+    el.classList.add('dis');
+    if(i===q.ans)el.classList.add('ok');
+    else if(i===c&&!ok)el.classList.add('ng');
+  });
+  const fb=document.getElementById('quiz-fb');
+  fb.className='qfb show '+(ok?'qfb-ok':'qfb-ng');
+  fb.innerHTML=(ok?'✅ Correct! ':'❌ Not quite. ')+q.exp;
+  document.getElementById('quiz-next').style.display='inline-flex';
+}
+function nextQ(){
+  qIdx++;
+  if(qIdx>=QD.length)showScore();
+  else renderQ();
+}
+function showScore(){
+  document.getElementById('quiz-body').style.display='none';
+  document.getElementById('quiz-score').style.display='block';
+  document.getElementById('sc-num').textContent=qScore+'/5';
+  document.getElementById('comp-score').textContent=qScore+'/5';
+  const deg=Math.round(qScore/5*360);
+  document.getElementById('sc-ring').style.background=`conic-gradient(var(--teal) ${deg}deg, var(--border) ${deg}deg)`;
+  const msgs=['Keep at it!','Good effort!','Well done!','Almost perfect!','Perfect! 🏆'];
+  const subs=['Review the algorithm concepts and retry.','A little more practice on Big-O and graphs.','Solid foundation in algorithms!','Just one slip — you know this material well!','Exceptional mastery of algorithms!'];
+  document.getElementById('sc-msg').textContent=msgs[qScore-1]||msgs[0];
+  document.getElementById('sc-sub').textContent=subs[qScore-1]||subs[0];
+}
+function resetQuiz(){
+  qIdx=0;qScore=0;qAnswered=false;
+  document.getElementById('quiz-body').style.display='block';
+  document.getElementById('quiz-score').style.display='none';
+  renderQ();
+}
+function restartAll(){
+  done.fill(false);qIdx=0;qScore=0;
+  document.querySelectorAll('.sbi').forEach(e=>e.classList.remove('done','act'));
+  gp(0);
+}
+
+// ═══════ INIT ═══════
+initSort();
+initSearch();
+updateCmp();
+</script>
+</body>
+</html>
