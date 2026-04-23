@@ -7,16 +7,19 @@
 
 <style>
 
-body{
+html, body{
 margin:0;
-font-family:"Segoe UI",system-ui;
-height:100vh;
+height:100%;
 overflow:hidden;
+font-family:"Segoe UI",system-ui;
+}
 
-background: linear-gradient(120deg,#dbeafe,#e0e7ff,#dcfce7);
+/* animated background */
+
+body{
+background:linear-gradient(120deg,#dbeafe,#e0e7ff,#dcfce7);
 background-size:300% 300%;
 animation:bgMove 12s ease infinite;
-
 color:#1e293b;
 }
 
@@ -26,7 +29,32 @@ color:#1e293b;
 100%{background-position:0% 50%;}
 }
 
-/* canvas behind everything */
+/* fullscreen hint */
+
+#fsHint{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+display:flex;
+align-items:center;
+justify-content:center;
+background:rgba(0,0,0,0.4);
+color:#fff;
+font-size:18px;
+z-index:9999;
+backdrop-filter:blur(4px);
+cursor:pointer;
+transition:opacity 0.5s;
+}
+
+#fsHint.hide{
+opacity:0;
+pointer-events:none;
+}
+
+/* canvas */
 
 canvas{
 position:absolute;
@@ -35,7 +63,7 @@ left:0;
 z-index:0;
 }
 
-/* UI layer */
+/* UI */
 
 .ui{
 position:relative;
@@ -48,11 +76,14 @@ z-index:5;
 position:absolute;
 top:25px;
 right:40px;
+padding:6px 12px;
+background:rgba(255,255,255,0.6);
+border-radius:10px;
+backdrop-filter:blur(6px);
 }
 
 .logo img{
-height:40px;
-object-fit:contain;
+height:32px;
 }
 
 /* center */
@@ -75,35 +106,86 @@ border-radius:30px;
 font-size:13px;
 letter-spacing:2px;
 color:#6366f1;
-backdrop-filter:blur(6px);
 margin-bottom:25px;
 }
 
 /* title */
 
 .title{
-font-size:90px;
+font-size:80px;
 font-weight:600;
-letter-spacing:-2px;
 }
 
 /* subtitle */
 
 .subtitle{
 margin-top:20px;
-letter-spacing:6px;
-font-size:16px;
+letter-spacing:5px;
+font-size:15px;
 color:#64748b;
 }
 
+/* announcement */
+
+.announcement{
+margin-top:32px;
+padding:16px 32px;
+border-radius:999px;
+
+/* gradient highlight */
+background:linear-gradient(90deg,#6366f1,#a78bfa);
+
+/* text */
+color:#ffffff;
+font-size:16px;
+font-weight:600;
+letter-spacing:0.5px;
+
+/* layout */
+display:flex;
+align-items:center;
+gap:12px;
+
+/* glow */
+box-shadow:
+0 0 20px rgba(99,102,241,0.4),
+0 8px 30px rgba(0,0,0,0.15);
+
+/* animation */
+animation:pulseGlow 2.5s infinite;
+}
+
+/* glowing dot */
+.announcement .dot{
+width:10px;
+height:10px;
+border-radius:50%;
+background:#ffffff;
+box-shadow:0 0 10px #ffffff;
+}
+
+/* pulse animation */
+@keyframes pulseGlow{
+0%{
+transform:scale(1);
+box-shadow:0 0 10px rgba(99,102,241,0.3);
+}
+50%{
+transform:scale(1.03);
+box-shadow:0 0 30px rgba(99,102,241,0.6);
+}
+100%{
+transform:scale(1);
+box-shadow:0 0 10px rgba(99,102,241,0.3);
+}
+}
 /* quote */
 
 .quote{
-margin-top:40px;
+margin-top:35px;
 font-size:22px;
 font-style:italic;
 max-width:700px;
-opacity:0.85;
 }
 
 /* bottom */
@@ -115,17 +197,17 @@ width:100%;
 display:flex;
 justify-content:center;
 gap:120px;
-text-align:center;
 }
 
 .block{
+text-align:center;
 font-size:14px;
 color:#64748b;
 }
 
 .value{
 margin-top:8px;
-font-size:28px;
+font-size:26px;
 color:#1e293b;
 }
 
@@ -146,12 +228,14 @@ left:15%;
 
 <body>
 
+<div id="fsHint">Click anywhere to enter fullscreen</div>
+
 <canvas id="canvas"></canvas>
 
 <div class="ui">
 
 <div class="logo">
-  <img src="logo.png" alt="GUVI HCL Logo">
+<img src="logo.png">
 </div>
 
 <div class="container">
@@ -161,6 +245,11 @@ left:15%;
 <div class="title">Class is Starting Soon</div>
 
 <div class="subtitle">YOUR TRANSFORMATION BEGINS IN MOMENTS</div>
+
+<div class="announcement">
+<span class="dot"></span>
+Online Metaverse Hackathon · 25 April · 10:30 AM
+</div>
 
 <div class="quote" id="quote">
 "Your journey to excellence starts here."
@@ -193,18 +282,43 @@ NEXT STEP
 
 <script>
 
+/* ===== FULLSCREEN ===== */
+
+const fsHint = document.getElementById("fsHint");
+
+function enterFullscreen() {
+if (document.documentElement.requestFullscreen) {
+document.documentElement.requestFullscreen();
+}
+fsHint.classList.add("hide");
+}
+
+fsHint.addEventListener("click", enterFullscreen);
+
+document.addEventListener("click", () => {
+if (!document.fullscreenElement) {
+enterFullscreen();
+}
+}, { once: true });
+
+document.addEventListener("fullscreenchange", () => {
+if (!document.fullscreenElement) {
+fsHint.classList.remove("hide");
+}
+});
+
 /* ===== CLOCK ===== */
 
 function updateTime(){
-let now=new Date()
-let h=String(now.getHours()).padStart(2,'0')
-let m=String(now.getMinutes()).padStart(2,'0')
-let s=String(now.getSeconds()).padStart(2,'0')
-document.getElementById("time").innerText=`${h}:${m}:${s}`
+let now=new Date();
+let h=String(now.getHours()).padStart(2,'0');
+let m=String(now.getMinutes()).padStart(2,'0');
+let s=String(now.getSeconds()).padStart(2,'0');
+document.getElementById("time").innerText=`${h}:${m}:${s}`;
 }
 
-setInterval(updateTime,1000)
-updateTime()
+setInterval(updateTime,1000);
+updateTime();
 
 /* ===== QUOTES ===== */
 
@@ -214,107 +328,79 @@ const quotes=[
 "Small progress leads to big success.",
 "Consistency creates excellence.",
 "Every expert was once a beginner."
-]
+];
 
-let qi=0
+let qi=0;
 
 setInterval(()=>{
-qi=(qi+1)%quotes.length
-document.getElementById("quote").innerText=`"${quotes[qi]}"`
-},5000)
+qi=(qi+1)%quotes.length;
+document.getElementById("quote").innerText=`"${quotes[qi]}"`;
+},5000);
 
 /* ===== CONSTELLATION ===== */
 
-const canvas=document.getElementById("canvas")
-const ctx=canvas.getContext("2d")
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
 
-canvas.width=window.innerWidth
-canvas.height=window.innerHeight
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
 
-let particles=[]
-const count=100
-
-for(let i=0;i<count;i++){
+let particles=[];
+for(let i=0;i<100;i++){
 particles.push({
 x:Math.random()*canvas.width,
 y:Math.random()*canvas.height,
 vx:(Math.random()-0.5)*0.3,
 vy:(Math.random()-0.5)*0.3
-})
+});
 }
 
 function drawParticles(){
-
 particles.forEach(p=>{
-ctx.fillStyle="rgba(99,102,241,0.4)"
-
-ctx.beginPath()
-ctx.arc(p.x,p.y,2,0,Math.PI*2)
-ctx.fill()
-})
-
+ctx.fillStyle="rgba(99,102,241,0.4)";
+ctx.beginPath();
+ctx.arc(p.x,p.y,2,0,Math.PI*2);
+ctx.fill();
+});
 }
 
 function updateParticles(){
-
 particles.forEach(p=>{
-p.x+=p.vx
-p.y+=p.vy
-
-if(p.x<0||p.x>canvas.width) p.vx*=-1
-if(p.y<0||p.y>canvas.height) p.vy*=-1
-})
-
+p.x+=p.vx;
+p.y+=p.vy;
+if(p.x<0||p.x>canvas.width) p.vx*=-1;
+if(p.y<0||p.y>canvas.height) p.vy*=-1;
+});
 }
 
 function connect(){
-
 for(let a=0;a<particles.length;a++){
-
 for(let b=a;b<particles.length;b++){
-
-let dx=particles[a].x-particles[b].x
-let dy=particles[a].y-particles[b].y
-
-let dist=Math.sqrt(dx*dx+dy*dy)
+let dx=particles[a].x-particles[b].x;
+let dy=particles[a].y-particles[b].y;
+let dist=Math.sqrt(dx*dx+dy*dy);
 
 if(dist<120){
-
-ctx.strokeStyle="rgba(99,102,241,"+(1-dist/120)*0.2+")"
-ctx.lineWidth=1
-
-ctx.beginPath()
-ctx.moveTo(particles[a].x,particles[a].y)
-ctx.lineTo(particles[b].x,particles[b].y)
-ctx.stroke()
-
+ctx.strokeStyle="rgba(99,102,241,"+(1-dist/120)*0.2+")";
+ctx.lineWidth=1;
+ctx.beginPath();
+ctx.moveTo(particles[a].x,particles[a].y);
+ctx.lineTo(particles[b].x,particles[b].y);
+ctx.stroke();
 }
-
 }
-
 }
-
 }
 
 function animate(){
-
-ctx.clearRect(0,0,canvas.width,canvas.height)
-
-updateParticles()
-drawParticles()
-connect()
-
-requestAnimationFrame(animate)
-
+ctx.clearRect(0,0,canvas.width,canvas.height);
+updateParticles();
+drawParticles();
+connect();
+requestAnimationFrame(animate);
 }
 
-animate()
-
-document.body.addEventListener("click", () => {
-if (!document.fullscreenElement) {
-document.documentElement.requestFullscreen();
-}
-});
+animate();
 
 </script>
 
