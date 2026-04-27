@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-Nearest Neighbours | HCL-GUVI</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4ff;--surface:#fff;--border:#e4e9f2;
+  --p:#4f6ef7;--p2:#6c3ff5;--p-glow:rgba(79,110,247,.15);
+  --g:#00c896;--g2:#00a87a;
+  --amber:#f59e0b;--rose:#f43f5e;--sky:#0ea5e9;
+  --text:#0d1b3e;--text2:#4a5578;--text3:#9aa5c4;
+  --code:#0d1117;--sidebar:248px;--top:62px;--r:14px;
+  --sh:0 2px 20px rgba(13,27,62,.07);--sh2:0 8px 40px rgba(13,27,62,.13);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+
+/* ── TOPBAR ── */
+#top{position:fixed;top:0;left:0;right:0;height:var(--top);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 22px;gap:14px;z-index:300;box-shadow:0 1px 12px rgba(13,27,62,.06)}
+.t-logo{height:34px;object-fit:contain;flex-shrink:0}
+.t-logo-fb{font-size:16px;font-weight:800;display:none;align-items:center;gap:2px}
+.t-logo-fb span:first-child{color:var(--p)}
+.t-logo-fb span:last-child{color:var(--p2)}
+.t-div{width:1px;height:24px;background:var(--border)}
+.t-mod{font-size:13.5px;font-weight:700;letter-spacing:-.2px;white-space:nowrap}
+.t-chip{padding:4px 11px;border-radius:99px;font-size:10.5px;font-weight:800;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;white-space:nowrap;letter-spacing:.3px}
+.t-prog{flex:1;display:flex;align-items:center;gap:10px;min-width:0}
+.t-plbl{font-size:10.5px;font-weight:700;color:var(--text2);white-space:nowrap}
+.t-bar{flex:1;height:5px;background:var(--border);border-radius:99px;overflow:hidden;min-width:60px}
+.t-fill{height:100%;background:linear-gradient(90deg,var(--p),var(--g));border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.t-pct{font-size:11px;font-weight:800;color:var(--p);white-space:nowrap}
+.t-user{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.t-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.t-uname{font-size:12px;font-weight:700;color:var(--text)}
+.t-urole{font-size:10px;color:var(--text2)}
+
+/* ── SIDEBAR ── */
+#sb{position:fixed;top:var(--top);left:0;bottom:0;width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:200;padding:16px 10px}
+#sb::-webkit-scrollbar{width:3px}
+#sb::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+.sb-lbl{font-size:9px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:var(--text3);padding:4px 8px 9px}
+.ni{display:flex;align-items:center;gap:9px;padding:8.5px 10px;border-radius:11px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text2);transition:all .17s;margin-bottom:2px;position:relative;user-select:none}
+.ni:hover{background:var(--bg);color:var(--text)}
+.ni.on{background:linear-gradient(135deg,rgba(79,110,247,.11),rgba(108,63,245,.07));color:var(--p)}
+.ni.on::before{content:'';position:absolute;left:0;top:18%;bottom:18%;width:3px;background:linear-gradient(var(--p),var(--p2));border-radius:0 4px 4px 0}
+.ni-ico{width:28px;height:28px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;transition:all .2s}
+.ni.on .ni-ico{background:linear-gradient(135deg,var(--p),var(--p2))}
+.ni-ck{margin-left:auto;width:15px;height:15px;border-radius:50%;border:2px solid var(--border);font-size:8px;display:flex;align-items:center;justify-content:center;transition:all .3s}
+.ni.done .ni-ck{background:var(--g);border-color:var(--g);color:#fff}
+
+/* ── MAIN ── */
+#main{position:fixed;top:var(--top);left:var(--sidebar);right:0;bottom:0;overflow-y:auto;padding:28px 38px 40px}
+#main::-webkit-scrollbar{width:5px}
+#main::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+
+/* ── PAGES ── */
+.pg{display:none;animation:pgIn .38s cubic-bezier(.4,0,.2,1)}
+.pg.on{display:block}
+@keyframes pgIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ── TYPE ── */
+.ey{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--p);margin-bottom:7px}
+.h1{font-size:30px;font-weight:800;color:var(--text);line-height:1.18;margin-bottom:7px;letter-spacing:-.6px}
+.sub{font-size:14px;color:var(--text2);margin-bottom:22px;line-height:1.65;max-width:640px}
+h3.s{font-size:15.5px;font-weight:700;margin-bottom:11px;color:var(--text)}
+p{font-size:13.5px;line-height:1.7;color:var(--text2)}
+
+/* ── CARD ── */
+.card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:22px;box-shadow:var(--sh)}
+.card+.card,.card+.g2,.g2+.card{margin-top:18px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+
+/* ── CODE ── */
+.cb{background:var(--code);border-radius:12px;padding:18px 20px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;line-height:1.88;color:#e2e8f0;margin:13px 0;overflow-x:auto;position:relative;border:1px solid rgba(255,255,255,.04)}
+.cb .cl{position:absolute;top:10px;right:13px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#374151;font-family:'Sora',sans-serif}
+.cb .n{color:#61afef}.cb .s{color:#98c379}.cb .k{color:#c678dd}.cb .c{color:#5c6370;font-style:italic}.cb .m{color:#e5c07b}.cb .f{color:#56b6c2}.cb .op{color:#abb2bf}.cb .cl2{color:#e06c75}
+.run{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:99px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:12.5px;font-weight:700;border:none;cursor:pointer;transition:all .2s;box-shadow:0 3px 14px rgba(79,110,247,.3);font-family:'Sora',sans-serif}
+.run:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(79,110,247,.4)}
+.out{background:#080d16;border-radius:10px;padding:13px 18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#4ade80;margin-top:9px;display:none;border:1px solid rgba(74,222,128,.13);line-height:1.9}
+.out.sh{display:block;animation:fi .3s ease}
+.op2{color:#374151}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1}}
+
+/* ── ANALOGY ── */
+.ana{background:linear-gradient(135deg,rgba(0,200,150,.07),rgba(79,110,247,.04));border:1px solid rgba(0,200,150,.18);border-radius:var(--r);padding:15px 19px;display:flex;gap:12px;align-items:flex-start;margin-bottom:17px}
+.ana-ico{font-size:26px;flex-shrink:0}
+.ana-lbl{font-size:9.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--g);margin-bottom:3px}
+
+/* ── TAGS ── */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700}
+.tgb{background:rgba(79,110,247,.1);color:var(--p)}
+.tgg{background:rgba(0,200,150,.1);color:var(--g)}
+.tgp{background:rgba(108,63,245,.1);color:var(--p2)}
+.tga{background:rgba(245,158,11,.1);color:var(--amber)}
+.tgr{background:rgba(244,63,94,.1);color:var(--rose)}
+
+/* ── FOOTER NAV ── */
+.pgf{display:flex;justify-content:space-between;align-items:center;margin-top:34px;padding-top:20px;border-top:1px solid var(--border)}
+.bp,.bn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .2s;font-family:'Sora',sans-serif}
+.bp{background:var(--bg);color:var(--text2);border:1px solid var(--border)}
+.bp:hover{background:var(--border)}
+.bn{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;box-shadow:0 3px 14px rgba(79,110,247,.3)}
+.bn:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(79,110,247,.4)}
+
+/* ── WELCOME HERO ── */
+.hero{background:linear-gradient(135deg,#070e2b 0%,#0f1b4d 45%,#0a1328 100%);border-radius:20px;padding:44px 40px;position:relative;overflow:hidden;margin-bottom:22px}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 65% 40%,rgba(79,110,247,.18) 0%,transparent 65%)}
+.hc{position:relative;z-index:1}
+.hero h1{font-size:36px;font-weight:800;color:#fff;letter-spacing:-.7px;line-height:1.13;margin-bottom:10px}
+.hero p{color:#8892b0;font-size:14px;line-height:1.65;max-width:520px;margin-bottom:24px}
+.hbadges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+.hb{padding:5px 14px;border-radius:99px;font-size:11.5px;font-weight:700}
+.hb1{background:rgba(79,110,247,.18);color:#7b97ff;border:1px solid rgba(79,110,247,.25)}
+.hb2{background:rgba(0,200,150,.18);color:#4dffc5;border:1px solid rgba(0,200,150,.22)}
+.hb3{background:rgba(108,63,245,.18);color:#b89eff;border:1px solid rgba(108,63,245,.22)}
+.hb4{background:rgba(245,158,11,.18);color:#fcd77d;border:1px solid rgba(245,158,11,.22)}
+.hdeco{position:absolute;right:40px;top:50%;transform:translateY(-50%);font-size:90px;opacity:.09;z-index:0;filter:blur(1px)}
+.sbtn{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:99px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:14px;font-weight:800;border:none;cursor:pointer;box-shadow:0 5px 24px rgba(79,110,247,.4);transition:all .22s;font-family:'Sora',sans-serif}
+.sbtn:hover{transform:translateY(-2px);box-shadow:0 9px 32px rgba(79,110,247,.5)}
+
+/* ── KNN CANVAS ── */
+#knnCanvas{border-radius:12px;cursor:crosshair;background:#f8faff;border:1.5px solid var(--border);display:block;transition:border-color .2s}
+#knnCanvas:hover{border-color:var(--p)}
+
+/* ── K SLIDER ── */
+.kslider-wrap{display:flex;flex-direction:column;gap:10px}
+.sr{display:flex;align-items:center;gap:10px}
+.sr label{font-size:12.5px;font-weight:700;color:var(--text2);width:100px}
+input[type=range]{flex:1;accent-color:var(--p);height:5px}
+.sv{font-size:13px;font-weight:800;color:var(--p);width:36px;text-align:right}
+.sout{background:var(--code);border-radius:10px;padding:12px 16px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#4ade80;transition:all .22s;min-height:36px}
+
+/* ── REVEAL CARDS ── */
+.rv-g{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.rv{background:var(--bg);border-radius:12px;padding:16px;cursor:pointer;border:2px solid transparent;transition:all .22s;user-select:none}
+.rv:hover{border-color:var(--p);background:rgba(79,110,247,.04)}
+.rv.fl{background:rgba(79,110,247,.06);border-color:var(--p)}
+.rv-f{font-size:13.5px;font-weight:700}
+.rv-b{font-size:12.5px;color:var(--text2);margin-top:7px;display:none;line-height:1.6}
+.rv.fl .rv-b{display:block;animation:fi .28s}
+.rv-h{font-size:10px;color:var(--text3);margin-top:5px}
+
+/* ── STEP VIZ ── */
+.stv{display:flex;flex-direction:column}
+.sti{display:flex;gap:14px;cursor:pointer;padding:10px 0}
+.std-c{display:flex;flex-direction:column;align-items:center}
+.std{width:30px;height:30px;border-radius:50%;background:var(--bg);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--text2);flex-shrink:0;transition:all .3s}
+.stl{flex:1;width:2px;background:var(--border);min-height:20px}
+.stc{flex:1;padding-bottom:13px}
+.stt{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:3px}
+.std2{font-size:12.5px;color:var(--text2);line-height:1.6;display:none}
+.sti.act .std{background:linear-gradient(135deg,var(--p),var(--p2));border-color:transparent;color:#fff}
+.sti.act .std2{display:block;animation:fi .3s}
+.sti.act .stt{color:var(--p)}
+
+/* ── DISTANCE VIZ ── */
+.dviz{display:flex;flex-direction:column;gap:9px}
+.drow{display:flex;align-items:center;gap:10px}
+.drow .dlbl{font-size:12px;font-weight:700;color:var(--text2);width:80px;font-family:'IBM Plex Mono',monospace}
+.dbar-wrap{flex:1;height:8px;background:var(--border);border-radius:99px;overflow:hidden}
+.dbar{height:100%;border-radius:99px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.dval{font-size:11.5px;font-weight:800;width:50px;text-align:right;font-family:'IBM Plex Mono',monospace}
+
+/* ── INTERACTIVE KNN VIZ ── */
+.knn-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.kbtn{padding:7px 14px;border-radius:8px;border:2px solid var(--border);background:var(--surface);cursor:pointer;font-size:12px;font-weight:700;transition:all .18s;font-family:'Sora',sans-serif;color:var(--text2)}
+.kbtn:hover{border-color:var(--p);color:var(--p);background:rgba(79,110,247,.04)}
+.kbtn.sel{border-color:var(--p);background:rgba(79,110,247,.09);color:var(--p)}
+.kbtn.sel2{border-color:var(--rose);background:rgba(244,63,94,.08);color:var(--rose)}
+.kbtn.sel3{border-color:var(--g);background:rgba(0,200,150,.08);color:var(--g)}
+.kbtn.danger{border-color:var(--amber);background:rgba(245,158,11,.07);color:var(--amber)}
+
+/* ── CONFUSION MATRIX ── */
+.cm-wrap{display:grid;grid-template-columns:1fr 1fr;gap:4px;max-width:260px}
+.cm-cell{border-radius:8px;padding:16px 12px;text-align:center}
+.cm-tp{background:rgba(0,200,150,.15);border:1px solid rgba(0,200,150,.3)}
+.cm-fp{background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.2)}
+.cm-fn{background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.2)}
+.cm-tn{background:rgba(0,200,150,.15);border:1px solid rgba(0,200,150,.3)}
+.cm-num{font-size:22px;font-weight:800;color:var(--text)}
+.cm-lbl{font-size:10px;font-weight:700;color:var(--text2);margin-top:3px}
+
+/* ── QUIZ ── */
+.qcard{background:var(--surface);border-radius:var(--r);padding:22px;border:1px solid var(--border);margin-bottom:14px;display:none;box-shadow:var(--sh)}
+.qcard.on{display:block;animation:pgIn .32s}
+.qn{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.qt{font-size:15px;font-weight:700;color:var(--text);margin-bottom:15px;line-height:1.45}
+.qopts{display:flex;flex-direction:column;gap:7px}
+.qopt{padding:11px 15px;border-radius:9px;border:2px solid var(--border);cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;background:var(--surface);display:flex;align-items:center;gap:9px}
+.qopt:hover:not(.dis){border-color:var(--p);background:rgba(79,110,247,.04)}
+.qopt.ok{border-color:var(--g);background:rgba(0,200,150,.07);color:var(--g2)}
+.qopt.ng{border-color:var(--rose);background:rgba(244,63,94,.06);color:var(--rose)}
+.qlet{width:22px;height:22px;border-radius:6px;background:var(--bg);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qfb{margin-top:10px;padding:11px 14px;border-radius:9px;font-size:12.5px;font-weight:700;display:none}
+.qfb.sh{display:block;animation:fi .28s}
+.qfb.ok{background:rgba(0,200,150,.09);color:var(--g2)}
+.qfb.ng{background:rgba(244,63,94,.07);color:var(--rose)}
+.qdots{display:flex;gap:5px;justify-content:center;margin-bottom:18px}
+.qd{width:26px;height:5px;border-radius:99px;background:var(--border);transition:all .3s}
+.qd.ok{background:var(--g)}.qd.ng{background:var(--rose)}.qd.cur{background:var(--p);width:38px}
+
+/* ── EXERCISE ── */
+.exc{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);overflow:hidden;margin-bottom:15px;box-shadow:var(--sh)}
+.exh{padding:14px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.exn{width:27px;height:27px;border-radius:8px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.ext{font-size:13.5px;font-weight:700}
+.exb{padding:16px 20px}
+.sol-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:var(--bg);border:1px solid var(--border);font-size:11.5px;font-weight:700;cursor:pointer;transition:all .18s;font-family:'Sora',sans-serif;color:var(--text2);margin-top:9px}
+.sol-btn:hover{background:var(--border)}
+.sol{display:none;margin-top:9px}
+.sol.op{display:block;animation:fi .3s}
+
+/* ── SCORE ── */
+.sc-wrap{text-align:center;padding:32px}
+.sc-ring{width:108px;height:108px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 0 0 5px rgba(0,200,150,.12)}
+.sc-in{width:84px;height:84px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.scn{font-size:28px;font-weight:800;color:var(--text)}
+.scd{font-size:12px;color:var(--text3)}
+.rbtn{display:inline-flex;align-items:center;gap:7px;padding:11px 24px;border-radius:99px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:13px;font-weight:800;border:none;cursor:pointer;box-shadow:0 3px 14px rgba(79,110,247,.3);transition:all .2s;font-family:'Sora',sans-serif;margin-top:14px}
+.rbtn:hover{transform:translateY(-2px)}
+
+/* ── COMPLETION ── */
+.cmp{text-align:center;padding:38px 20px}
+.cmp-ico{font-size:64px;animation:bce 1s infinite alternate;display:block;margin-bottom:14px}
+@keyframes bce{from{transform:scale(1) translateY(0)}to{transform:scale(1.1) translateY(-7px)}}
+.cmp-title{font-size:34px;font-weight:800;color:var(--text);letter-spacing:-.6px;margin-bottom:7px}
+.cmp-sub{font-size:14.5px;color:var(--text2);margin-bottom:28px}
+.sk-wrap{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-bottom:28px}
+.sk{padding:7px 15px;border-radius:99px;font-size:12.5px;font-weight:700;border:2px solid;animation:pop .5s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* MISC */
+.sep{height:1px;background:var(--border);margin:20px 0}
+code{font-family:'IBM Plex Mono',monospace;background:rgba(79,110,247,.08);color:var(--p);padding:1px 5px;border-radius:5px;font-size:12px}
+.chk{display:flex;flex-direction:column;gap:7px}
+.ci{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:10px;background:var(--bg);font-size:13px;font-weight:500}
+.cico{width:20px;height:20px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+
+@media(max-width:880px){#sb{display:none}#main{left:0;padding:18px 14px}.g2,.g3,.rv-g{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="top">
+  <img src="logo.png" alt="HCL-GUVI Logo" class="t-logo" onerror="this.style.display='none';document.getElementById('lfb').style.display='flex'">
+  <div id="lfb" class="t-logo-fb"><span>HCL</span><span>GUVI</span></div>
+  <div class="t-div"></div>
+  <span class="t-mod">K-Nearest Neighbours</span>
+  <span class="t-chip">Supervised ML</span>
+  <div class="t-prog">
+    <span class="t-plbl">Progress</span>
+    <div class="t-bar"><div class="t-fill" id="tf" style="width:0%"></div></div>
+    <span class="t-pct" id="tp">0%</span>
+  </div>
+  <div class="t-user">
+    <div class="t-av">V</div>
+    <div><div class="t-uname">Vinodhini</div><div class="t-urole">Data Scientist · HCL GUVI</div></div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav id="sb">
+  <div class="sb-lbl">KNN Module</div>
+  <div class="ni on" onclick="go(0)" id="nv0"><div class="ni-ico">🏠</div>Welcome<div class="ni-ck" id="nc0"></div></div>
+  <div class="ni" onclick="go(1)" id="nv1"><div class="ni-ico">📌</div>What is KNN?<div class="ni-ck" id="nc1"></div></div>
+  <div class="ni" onclick="go(2)" id="nv2"><div class="ni-ico">📐</div>Distance Metrics<div class="ni-ck" id="nc2"></div></div>
+  <div class="ni" onclick="go(3)" id="nv3"><div class="ni-ico">🎯</div>Choosing K<div class="ni-ck" id="nc3"></div></div>
+  <div class="ni" onclick="go(4)" id="nv4"><div class="ni-ico">⚡</div>Advanced: Weighted KNN<div class="ni-ck" id="nc4"></div></div>
+  <div class="ni" onclick="go(5)" id="nv5"><div class="ni-ico">🧪</div>Exercises<div class="ni-ck" id="nc5"></div></div>
+  <div class="ni" onclick="go(6)" id="nv6"><div class="ni-ico">🧠</div>Quiz<div class="ni-ck" id="nc6"></div></div>
+  <div class="ni" onclick="go(7)" id="nv7"><div class="ni-ico">🎉</div>Completion<div class="ni-ck" id="nc7"></div></div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+<!-- ═══ PAGE 0: WELCOME ═══ -->
+<div class="pg on" id="pg0">
+  <div class="hero">
+    <div class="hc">
+      <div style="font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#4f6ef7;margin-bottom:10px;">SUPERVISED MACHINE LEARNING</div>
+      <h1>K-Nearest<br>Neighbours</h1>
+      <p>Discover one of the most intuitive ML algorithms. KNN classifies data by looking at its closest neighbours — just like asking friends for a recommendation!</p>
+      <div class="hbadges">
+        <span class="hb hb1">📌 Instance-Based</span>
+        <span class="hb hb2">📐 Distance Metrics</span>
+        <span class="hb hb3">🎯 Classification</span>
+        <span class="hb hb4">📊 Regression</span>
+      </div>
+      <button class="sbtn" onclick="go(1)">Start Learning →</button>
+    </div>
+    <div class="hdeco">🔍</div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="s">📚 What You'll Learn</h3>
+      <div class="chk">
+        <div class="ci"><div class="cico">✓</div>Understand how KNN makes predictions</div>
+        <div class="ci"><div class="cico">✓</div>Calculate Euclidean & Manhattan distance</div>
+        <div class="ci"><div class="cico">✓</div>Choose the optimal value of K</div>
+        <div class="ci"><div class="cico">✓</div>Implement KNN with scikit-learn</div>
+        <div class="ci"><div class="cico">✓</div>Apply weighted voting strategies</div>
+        <div class="ci"><div class="cico">✓</div>Evaluate model accuracy</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="s">🗺️ Where KNN is Used</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:var(--bg);border-radius:10px;padding:13px;text-align:center"><div style="font-size:24px;margin-bottom:4px">🏥</div><div style="font-size:11px;font-weight:700;color:var(--text2)">Medical Diagnosis</div></div>
+        <div style="background:var(--bg);border-radius:10px;padding:13px;text-align:center"><div style="font-size:24px;margin-bottom:4px">🎬</div><div style="font-size:11px;font-weight:700;color:var(--text2)">Recommender Systems</div></div>
+        <div style="background:var(--bg);border-radius:10px;padding:13px;text-align:center"><div style="font-size:24px;margin-bottom:4px">💳</div><div style="font-size:11px;font-weight:700;color:var(--text2)">Fraud Detection</div></div>
+        <div style="background:var(--bg);border-radius:10px;padding:13px;text-align:center"><div style="font-size:24px;margin-bottom:4px">🖼️</div><div style="font-size:11px;font-weight:700;color:var(--text2)">Image Recognition</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="pgf"><span></span><button class="bn" onclick="go(1)">Next: What is KNN? →</button></div>
+</div>
+
+<!-- ═══ PAGE 1: WHAT IS KNN ═══ -->
+<div class="pg" id="pg1">
+  <div class="ey">Concept 1 of 3</div>
+  <div class="h1">What is K-Nearest Neighbours? 📌</div>
+  <div class="sub">KNN is a simple, non-parametric algorithm that classifies a new data point based on the majority class of its K closest neighbours in the training data.</div>
+
+  <div class="ana">
+    <div class="ana-ico">🏘️</div>
+    <div>
+      <div class="ana-lbl">Real-Life Analogy</div>
+      <p><strong>Moving to a new neighbourhood:</strong> When you move to a new city, you tend to adopt habits similar to your nearest neighbours. If 4 out of 5 closest neighbours prefer coffee, you're likely a coffee person too. KNN works exactly this way — it judges by your company!</p>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE KNN CANVAS -->
+  <div class="card" style="margin-bottom:18px">
+    <h3 class="s">🎮 Interactive KNN Playground</h3>
+    <p style="margin-bottom:12px">Click on the canvas to add a <strong>mystery point ❓</strong>. Watch KNN classify it based on K nearest neighbours. Use buttons to add training data!</p>
+    <div class="knn-controls">
+      <button class="kbtn sel" id="btnClass0" onclick="setClass(0)">🔵 Add Class A</button>
+      <button class="kbtn" id="btnClass1" onclick="setClass(1)">🔴 Add Class B</button>
+      <button class="kbtn" id="btnQuery" onclick="setMode('query')">❓ Place Mystery Point</button>
+      <div style="display:flex;align-items:center;gap:8px;margin-left:4px">
+        <span style="font-size:12px;font-weight:700;color:var(--text2)">K =</span>
+        <input type="range" min="1" max="9" step="2" value="3" id="kSlider" style="width:80px;accent-color:var(--p)" oninput="updateK(this.value)">
+        <span style="font-size:13px;font-weight:800;color:var(--p)" id="kVal">3</span>
+      </div>
+      <button class="kbtn danger" onclick="clearCanvas()">🗑 Clear</button>
+    </div>
+    <canvas id="knnCanvas" width="640" height="320" onclick="canvasClick(event)"></canvas>
+    <div id="knnResult" style="margin-top:10px;min-height:24px;font-size:13px;font-weight:700;color:var(--p)"></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="s">💻 KNN from Scratch</h3>
+      <div class="cb"><span class="cl">Python</span>
+<span class="k">import</span> numpy <span class="k">as</span> <span class="n">np</span>
+<span class="k">from</span> collections <span class="k">import</span> Counter
+
+<span class="k">def</span> <span class="f">knn_classify</span>(X_train, y_train, x_new, k=<span class="m">3</span>):
+  <span class="c"># Calculate Euclidean distances</span>
+  distances = [
+    np.<span class="f">sqrt</span>(np.<span class="f">sum</span>((x - x_new)**<span class="m">2</span>))
+    <span class="k">for</span> x <span class="k">in</span> X_train
+  ]
+  <span class="c"># Get k nearest indices</span>
+  k_idx = np.<span class="f">argsort</span>(distances)[:k]
+  k_labels = [y_train[i] <span class="k">for</span> i <span class="k">in</span> k_idx]
+  <span class="c"># Majority vote</span>
+  <span class="k">return</span> Counter(k_labels).<span class="f">most_common</span>(<span class="m">1</span>)[<span class="m">0</span>][<span class="m">0</span>]
+      </div>
+      <button class="run" onclick="showOut('o1')">▶ Run Demo</button>
+      <div class="out" id="o1">
+<span class="op2">&gt;&gt;&gt; </span>X_train = [[1,2],[3,1],[5,3],[6,5],[4,4]]
+<span class="op2">&gt;&gt;&gt; </span>y_train = ['A','A','B','B','A']
+<span class="op2">&gt;&gt;&gt; </span>knn_classify(X_train, y_train, [3,3], k=3)
+<span style="color:#4ade80">→ Prediction: 'A'
+  Nearest neighbours: A(×2), B(×1)
+  Majority vote wins! ✓</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="s">🧩 KNN — Step by Step</h3>
+      <div class="stv" id="sv1">
+        <div class="sti act" onclick="actStep(0,'sv1')">
+          <div class="std-c"><div class="std">1</div><div class="stl"></div></div>
+          <div class="stc"><div class="stt">Load training data</div><div class="std2">Store all (feature, label) pairs. KNN is a <em>lazy learner</em> — it memorises everything during training and does all computation at prediction time.</div></div>
+        </div>
+        <div class="sti" onclick="actStep(1,'sv1')">
+          <div class="std-c"><div class="std">2</div><div class="stl"></div></div>
+          <div class="stc"><div class="stt">Receive new data point</div><div class="std2">A new, unlabelled point arrives. We need to classify it into one of the known categories using the training data.</div></div>
+        </div>
+        <div class="sti" onclick="actStep(2,'sv1')">
+          <div class="std-c"><div class="std">3</div><div class="stl"></div></div>
+          <div class="stc"><div class="stt">Calculate all distances</div><div class="std2">Compute distance from the new point to every single training example. Common metrics: Euclidean, Manhattan, Minkowski.</div></div>
+        </div>
+        <div class="sti" onclick="actStep(3,'sv1')">
+          <div class="std-c"><div class="std">4</div><div class="stl"></div></div>
+          <div class="stc"><div class="stt">Sort & pick K nearest</div><div class="std2">Sort all distances (ascending) and select the K smallest. These are the "neighbours" that will vote on the prediction.</div></div>
+        </div>
+        <div class="sti" onclick="actStep(4,'sv1')">
+          <div class="std-c"><div class="std">5</div></div>
+          <div class="stc"><div class="stt">Majority vote → predict</div><div class="std2">Count the labels of the K neighbours. The most common label wins! For regression, take the average of their values.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(0)">← Welcome</button>
+    <button class="bn" onclick="go(2)">Next: Distance Metrics →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 2: DISTANCE METRICS ═══ -->
+<div class="pg" id="pg2">
+  <div class="ey">Concept 2 of 3</div>
+  <div class="h1">Distance Metrics 📐</div>
+  <div class="sub">The heart of KNN is measuring "closeness". Different distance metrics can dramatically change which neighbours are chosen — and thus the prediction.</div>
+
+  <div class="ana">
+    <div class="ana-ico">🗺️</div>
+    <div>
+      <div class="ana-lbl">Real-Life Analogy</div>
+      <p><strong>Navigating a city:</strong> Euclidean distance is like a bird flying straight-line to destination. Manhattan distance is a taxi driving through city blocks. Both measure "closeness" — but differently. Your choice of route changes who your "nearest neighbours" are!</p>
+    </div>
+  </div>
+
+  <!-- DISTANCE CALCULATOR -->
+  <div class="card" style="margin-bottom:18px">
+    <h3 class="s">🧮 Interactive Distance Calculator</h3>
+    <p style="margin-bottom:14px">Adjust coordinates to see how Euclidean and Manhattan distances change in real-time:</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div>
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:8px">Point A</div>
+        <div class="kslider-wrap">
+          <div class="sr"><label>x₁</label><input type="range" min="0" max="10" value="2" id="ax" oninput="calcDist()"><span class="sv" id="axv">2</span></div>
+          <div class="sr"><label>y₁</label><input type="range" min="0" max="10" value="3" id="ay" oninput="calcDist()"><span class="sv" id="ayv">3</span></div>
+        </div>
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin:12px 0 8px">Point B</div>
+        <div class="kslider-wrap">
+          <div class="sr"><label>x₂</label><input type="range" min="0" max="10" value="7" id="bx" oninput="calcDist()"><span class="sv" id="bxv">7</span></div>
+          <div class="sr"><label>y₂</label><input type="range" min="0" max="10" value="8" id="by" oninput="calcDist()"><span class="sv" id="byv">8</span></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;justify-content:center">
+        <div style="background:rgba(79,110,247,.06);border:1.5px solid rgba(79,110,247,.2);border-radius:12px;padding:16px">
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--p);margin-bottom:6px">📏 Euclidean Distance</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text2);margin-bottom:4px">√((x₂-x₁)² + (y₂-y₁)²)</div>
+          <div style="font-size:26px;font-weight:800;color:var(--p)" id="eucDist">7.07</div>
+        </div>
+        <div style="background:rgba(0,200,150,.06);border:1.5px solid rgba(0,200,150,.2);border-radius:12px;padding:16px">
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--g);margin-bottom:6px">🏙️ Manhattan Distance</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text2);margin-bottom:4px">|x₂-x₁| + |y₂-y₁|</div>
+          <div style="font-size:26px;font-weight:800;color:var(--g)" id="manDist">10</div>
+        </div>
+        <div style="background:rgba(108,63,245,.06);border:1.5px solid rgba(108,63,245,.2);border-radius:12px;padding:16px">
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--p2);margin-bottom:6px">♾️ Minkowski (p=3)</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text2);margin-bottom:4px">(|Δx|ᵖ + |Δy|ᵖ)^(1/p)</div>
+          <div style="font-size:26px;font-weight:800;color:var(--p2)" id="minkDist">8.55</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="s">💻 scikit-learn KNN</h3>
+      <div class="cb"><span class="cl">Python</span>
+<span class="k">from</span> sklearn.neighbors <span class="k">import</span> KNeighborsClassifier
+<span class="k">from</span> sklearn.datasets <span class="k">import</span> load_iris
+<span class="k">from</span> sklearn.model_selection <span class="k">import</span> train_test_split
+<span class="k">from</span> sklearn.metrics <span class="k">import</span> accuracy_score
+
+<span class="c"># Load data</span>
+X, y = load_iris(return_X_y=<span class="k">True</span>)
+X_train, X_test, y_train, y_test = <span class="f">train_test_split</span>(
+  X, y, test_size=<span class="m">0.2</span>, random_state=<span class="m">42</span>
+)
+<span class="c"># Euclidean (default) vs Manhattan</span>
+knn_e = <span class="cl2">KNeighborsClassifier</span>(n_neighbors=<span class="m">5</span>, metric=<span class="s">'euclidean'</span>)
+knn_m = <span class="cl2">KNeighborsClassifier</span>(n_neighbors=<span class="m">5</span>, metric=<span class="s">'manhattan'</span>)
+knn_e.<span class="f">fit</span>(X_train, y_train)
+knn_m.<span class="f">fit</span>(X_train, y_train)
+<span class="f">print</span>(<span class="s">f"Euclidean: {accuracy_score(y_test, knn_e.predict(X_test)):.3f}"</span>)
+<span class="f">print</span>(<span class="s">f"Manhattan: {accuracy_score(y_test, knn_m.predict(X_test)):.3f}"</span>)
+      </div>
+      <button class="run" onclick="showOut('o2')">▶ Run Demo</button>
+      <div class="out" id="o2">
+<span class="op2">&gt;&gt;&gt; </span>Euclidean: 1.000
+<span class="op2">&gt;&gt;&gt; </span>Manhattan: 1.000
+<span style="color:#4ade80">Both metrics achieve perfect accuracy on Iris!
+Distance metric choice matters more on noisy, high-dimensional data.</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="s">📊 Neighbour Distance Bar Chart</h3>
+      <p style="margin-bottom:13px">Distances from query point to its 5 nearest training points:</p>
+      <div class="dviz">
+        <div class="drow"><span class="dlbl">Point A</span><div class="dbar-wrap"><div class="dbar" style="width:18%;background:#4f6ef7"></div></div><span class="dval" style="color:#4f6ef7">1.41</span></div>
+        <div class="drow"><span class="dlbl">Point B</span><div class="dbar-wrap"><div class="dbar" style="width:35%;background:#6c3ff5"></div></div><span class="dval" style="color:#6c3ff5">2.83</span></div>
+        <div class="drow"><span class="dlbl">Point C</span><div class="dbar-wrap"><div class="dbar" style="width:52%;background:#00c896"></div></div><span class="dval" style="color:#00c896">4.24</span></div>
+        <div class="drow"><span class="dlbl">Point D</span><div class="dbar-wrap"><div class="dbar" style="width:70%;background:#f59e0b"></div></div><span class="dval" style="color:#f59e0b">5.66</span></div>
+        <div class="drow"><span class="dlbl">Point E</span><div class="dbar-wrap"><div class="dbar" style="width:88%;background:#f43f5e"></div></div><span class="dval" style="color:#f43f5e">7.07</span></div>
+      </div>
+      <div style="margin-top:13px;font-size:12px;color:var(--text2)">With K=3: Points A, B, C are selected. <span style="font-weight:700;color:var(--p)">Majority class wins.</span></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h3 class="s">🔍 When to Use Which Metric — Click to Reveal</h3>
+    <div class="rv-g">
+      <div class="rv" onclick="this.classList.toggle('fl')">
+        <div class="rv-f">📏 Euclidean — Best for?</div>
+        <div class="rv-b">Continuous, real-valued features in <strong>low-dimensional</strong> spaces. Works well for geometry, physical measurements, and image data. Sensitive to scale — normalise first!</div>
+        <div class="rv-h">👆 Click to reveal</div>
+      </div>
+      <div class="rv" onclick="this.classList.toggle('fl')">
+        <div class="rv-f">🏙️ Manhattan — Best for?</div>
+        <div class="rv-b"><strong>High-dimensional</strong> data or when features represent independent categories. Less sensitive to outliers than Euclidean. Good for text and sparse data.</div>
+        <div class="rv-h">👆 Click to reveal</div>
+      </div>
+      <div class="rv" onclick="this.classList.toggle('fl')">
+        <div class="rv-f">🎯 Minkowski — What is it?</div>
+        <div class="rv-b">The generalised form! When p=1 → Manhattan. When p=2 → Euclidean. Adjusting p lets you <strong>tune the sensitivity</strong> to large differences between features.</div>
+        <div class="rv-h">👆 Click to reveal</div>
+      </div>
+      <div class="rv" onclick="this.classList.toggle('fl')">
+        <div class="rv-f">⚠️ The Curse of Dimensionality</div>
+        <div class="rv-b">In very high dimensions, <strong>all points become equidistant</strong>. KNN breaks down! Solution: use PCA or feature selection to reduce dimensions before applying KNN.</div>
+        <div class="rv-h">👆 Click to reveal</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(1)">← What is KNN?</button>
+    <button class="bn" onclick="go(3)">Next: Choosing K →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 3: CHOOSING K ═══ -->
+<div class="pg" id="pg3">
+  <div class="ey">Concept 3 of 3</div>
+  <div class="h1">Choosing the Right K 🎯</div>
+  <div class="sub">K is the most critical hyperparameter in KNN. Too small → overfitting. Too large → underfitting. Finding the sweet spot is an art backed by mathematics.</div>
+
+  <div class="ana">
+    <div class="ana-ico">🗳️</div>
+    <div>
+      <div class="ana-lbl">Real-Life Analogy</div>
+      <p><strong>Asking friends for advice:</strong> If you ask only 1 friend (K=1), their quirky opinion dominates. If you ask 100 friends (K=100), everyone's opinion averages out and nuance is lost. Asking 5–10 trusted friends (optimal K) gives a balanced, reliable decision!</p>
+    </div>
+  </div>
+
+  <!-- K IMPACT VISUALIZER -->
+  <div class="card" style="margin-bottom:18px">
+    <h3 class="s">📈 K Value Impact Simulator</h3>
+    <p style="margin-bottom:12px">Move the slider to see how different K values affect bias-variance tradeoff:</p>
+    <div class="kslider-wrap">
+      <div class="sr">
+        <label style="width:60px">K value</label>
+        <input type="range" min="1" max="21" step="2" value="1" id="kvSlider" oninput="updateKViz(this.value)">
+        <span class="sv" id="kvVal">1</span>
+      </div>
+    </div>
+    <div style="margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px" id="kvCards">
+      <div style="border-radius:12px;padding:14px;background:rgba(244,63,94,.07);border:1.5px solid rgba(244,63,94,.25)">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--rose);margin-bottom:5px">Bias</div>
+        <div style="font-size:22px;font-weight:800;color:var(--rose)" id="kvBias">Very Low</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:3px" id="kvBiasDesc">Model fits training data too tightly</div>
+      </div>
+      <div style="border-radius:12px;padding:14px;background:rgba(245,158,11,.07);border:1.5px solid rgba(245,158,11,.25)">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--amber);margin-bottom:5px">Variance</div>
+        <div style="font-size:22px;font-weight:800;color:var(--amber)" id="kvVar">Very High</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:3px" id="kvVarDesc">Sensitive to noise in training data</div>
+      </div>
+      <div style="border-radius:12px;padding:14px;background:rgba(79,110,247,.07);border:1.5px solid rgba(79,110,247,.25)">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--p);margin-bottom:5px">Model State</div>
+        <div style="font-size:22px;font-weight:800;color:var(--rose)" id="kvState">Overfitting</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:3px" id="kvStateDesc">K=1 memorises every training point</div>
+      </div>
+    </div>
+
+    <!-- Visual accuracy curve -->
+    <div style="margin-top:16px;background:var(--bg);border-radius:12px;padding:16px">
+      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:10px">Accuracy Curve (Train vs Test)</div>
+      <svg width="100%" height="80" viewBox="0 0 400 80" style="overflow:visible">
+        <defs>
+          <linearGradient id="trainGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#f43f5e"/>
+            <stop offset="100%" stop-color="#4f6ef7"/>
+          </linearGradient>
+        </defs>
+        <!-- Test accuracy curve -->
+        <path d="M20,60 Q60,10 100,15 Q160,20 200,18 Q260,16 300,28 Q350,50 380,65" stroke="#00c896" stroke-width="2.5" fill="none" stroke-dasharray="none"/>
+        <!-- Train accuracy curve -->
+        <path d="M20,5 Q60,5 100,8 Q160,14 200,20 Q260,35 300,50 Q350,60 380,68" stroke="#4f6ef7" stroke-width="2.5" fill="none" stroke-dasharray="5,3"/>
+        <!-- K indicator -->
+        <line id="kLine" x1="20" y1="0" x2="20" y2="80" stroke="var(--amber)" stroke-width="2" stroke-dasharray="3,2"/>
+        <circle id="kDot" cx="20" cy="60" r="5" fill="var(--amber)"/>
+        <text x="4" y="15" font-size="9" fill="#00c896" font-family="IBM Plex Mono">Test</text>
+        <text x="4" y="28" font-size="9" fill="#4f6ef7" font-family="IBM Plex Mono">Train</text>
+      </svg>
+      <div style="display:flex;gap:16px;font-size:11px;color:var(--text2);margin-top:4px">
+        <span><span style="color:var(--rose)">←</span> Low K (overfit)</span>
+        <span><span style="color:var(--g)">★</span> Sweet spot</span>
+        <span>High K (underfit) <span style="color:var(--p)">→</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="s">💻 Finding Best K with Cross-Validation</h3>
+      <div class="cb"><span class="cl">Python</span>
+<span class="k">from</span> sklearn.neighbors <span class="k">import</span> KNeighborsClassifier
+<span class="k">from</span> sklearn.model_selection <span class="k">import</span> cross_val_score
+<span class="k">import</span> numpy <span class="k">as</span> <span class="n">np</span>
+
+k_range = <span class="f">range</span>(<span class="m">1</span>, <span class="m">21</span>, <span class="m">2</span>)  <span class="c"># odd values only</span>
+scores = {}
+
+<span class="k">for</span> k <span class="k">in</span> k_range:
+  knn = <span class="cl2">KNeighborsClassifier</span>(n_neighbors=k)
+  cv_scores = <span class="f">cross_val_score</span>(
+    knn, X_train, y_train, cv=<span class="m">5</span>
+  )
+  scores[k] = cv_scores.<span class="f">mean</span>()
+
+best_k = <span class="f">max</span>(scores, key=scores.<span class="f">get</span>)
+<span class="f">print</span>(<span class="s">f"Best K: {best_k}"</span>)
+<span class="f">print</span>(<span class="s">f"Best CV Score: {scores[best_k]:.4f}"</span>)
+      </div>
+      <button class="run" onclick="showOut('o3')">▶ Run Demo</button>
+      <div class="out" id="o3">
+<span class="op2">&gt;&gt;&gt; </span>K=1: 0.9417  K=3: 0.9583
+<span class="op2">&gt;&gt;&gt; </span>K=5: 0.9667  K=7: 0.9750 ← best
+<span class="op2">&gt;&gt;&gt; </span>K=9: 0.9583  K=11: 0.9500
+<span style="color:#4ade80">Best K: 7
+Best CV Score: 0.9750
+✓ Use GridSearchCV for exhaustive tuning</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="s">📋 K Selection Rules of Thumb</h3>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="background:var(--bg);border-radius:11px;padding:14px;border-left:4px solid var(--p)">
+          <div style="font-size:12.5px;font-weight:700;margin-bottom:4px">📐 Use √N as starting point</div>
+          <div style="font-size:12px;color:var(--text2)">For N training samples, start with K ≈ √N as a baseline guess.</div>
+        </div>
+        <div style="background:var(--bg);border-radius:11px;padding:14px;border-left:4px solid var(--g)">
+          <div style="font-size:12.5px;font-weight:700;margin-bottom:4px">🔢 Always use odd K (binary)</div>
+          <div style="font-size:12px;color:var(--text2)">Avoids ties in 2-class problems. K=5 is safer than K=4.</div>
+        </div>
+        <div style="background:var(--bg);border-radius:11px;padding:14px;border-left:4px solid var(--p2)">
+          <div style="font-size:12.5px;font-weight:700;margin-bottom:4px">🔄 Cross-validate every time</div>
+          <div style="font-size:12px;color:var(--text2)">5-fold or 10-fold CV reliably identifies the optimal K for your data.</div>
+        </div>
+        <div style="background:var(--bg);border-radius:11px;padding:14px;border-left:4px solid var(--amber)">
+          <div style="font-size:12.5px;font-weight:700;margin-bottom:4px">⚖️ Balance bias & variance</div>
+          <div style="font-size:12px;color:var(--text2)">Plot train/test accuracy vs K. Pick K where test accuracy peaks.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(2)">← Distance Metrics</button>
+    <button class="bn" onclick="go(4)">Next: Weighted KNN →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 4: ADVANCED ═══ -->
+<div class="pg" id="pg4">
+  <div class="ey">Advanced Concept</div>
+  <div class="h1">Weighted KNN & Evaluation ⚡</div>
+  <div class="sub">Standard KNN treats all K neighbours equally. Weighted KNN gives closer neighbours more influence. Combined with proper evaluation, this makes KNN much more powerful.</div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="s">⚖️ Weighted vs Standard KNN</h3>
+      <div class="ana" style="margin-bottom:12px">
+        <div class="ana-ico">🏋️</div>
+        <div><div class="ana-lbl">Analogy</div><p>Your closest friend's opinion counts more than a distant acquaintance. Weighted KNN applies the same logic — <strong>closer = more vote weight!</strong></p></div>
+      </div>
+      <div class="cb"><span class="cl">Python</span>
+<span class="c"># Standard KNN — equal votes</span>
+knn_std = <span class="cl2">KNeighborsClassifier</span>(
+  n_neighbors=<span class="m">5</span>,
+  weights=<span class="s">'uniform'</span>   <span class="c"># default</span>
+)
+<span class="c"># Weighted KNN — closer = more weight</span>
+knn_w = <span class="cl2">KNeighborsClassifier</span>(
+  n_neighbors=<span class="m">5</span>,
+  weights=<span class="s">'distance'</span>  <span class="c"># 1/distance</span>
+)
+<span class="c"># Custom weight function</span>
+<span class="k">def</span> <span class="f">my_weights</span>(dists):
+  <span class="k">return</span> np.<span class="f">exp</span>(-dists**<span class="m">2</span>)  <span class="c"># Gaussian</span>
+
+knn_gaus = <span class="cl2">KNeighborsClassifier</span>(
+  n_neighbors=<span class="m">5</span>, weights=my_weights
+)
+      </div>
+      <button class="run" onclick="showOut('o4')">▶ Run Demo</button>
+      <div class="out" id="o4">
+<span class="op2">&gt;&gt;&gt; </span>Standard KNN accuracy:  0.9333
+<span class="op2">&gt;&gt;&gt; </span>Distance KNN accuracy:  0.9667
+<span class="op2">&gt;&gt;&gt; </span>Gaussian KNN accuracy:  0.9667
+<span style="color:#4ade80">Weighted KNN handles boundary cases better!
+Especially useful near decision boundaries.</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="s">🎯 Interactive Weight Visualizer</h3>
+      <p style="margin-bottom:12px">5 neighbours at different distances. See how weights change with scheme:</p>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="kbtn sel" id="wbtn-uniform" onclick="setWeight('uniform')">Uniform</button>
+        <button class="kbtn" id="wbtn-distance" onclick="setWeight('distance')">Distance</button>
+        <button class="kbtn" id="wbtn-gaussian" onclick="setWeight('gaussian')">Gaussian</button>
+      </div>
+      <div id="weightViz">
+        <div style="display:flex;flex-direction:column;gap:7px" id="wbars"></div>
+      </div>
+      <div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:10px;font-size:12.5px;color:var(--text2)" id="weightResult">
+        With uniform weights: each neighbour gets 1 vote. Majority class wins!
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h3 class="s">📊 KNN Evaluation — Confusion Matrix</h3>
+    <p style="margin-bottom:14px">Click a cell to understand what each quadrant of the confusion matrix means:</p>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+      <div>
+        <div style="display:flex;gap:4px;margin-bottom:4px">
+          <div style="width:80px"></div>
+          <div style="flex:1;text-align:center;font-size:11px;font-weight:800;color:var(--text2)">Predicted +</div>
+          <div style="flex:1;text-align:center;font-size:11px;font-weight:800;color:var(--text2)">Predicted −</div>
+        </div>
+        <div style="display:flex;gap:4px;margin-bottom:4px;align-items:center">
+          <div style="width:80px;font-size:11px;font-weight:800;color:var(--text2)">Actual +</div>
+          <div class="cm-cell cm-tp" style="flex:1;cursor:pointer" onclick="cmExplain('tp')">
+            <div class="cm-num" style="color:var(--g)">45</div><div class="cm-lbl">TP</div>
+          </div>
+          <div class="cm-cell cm-fn" style="flex:1;cursor:pointer" onclick="cmExplain('fn')">
+            <div class="cm-num" style="color:var(--rose)">5</div><div class="cm-lbl">FN</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:4px;align-items:center">
+          <div style="width:80px;font-size:11px;font-weight:800;color:var(--text2)">Actual −</div>
+          <div class="cm-cell cm-fp" style="flex:1;cursor:pointer" onclick="cmExplain('fp')">
+            <div class="cm-num" style="color:var(--rose)">3</div><div class="cm-lbl">FP</div>
+          </div>
+          <div class="cm-cell cm-tn" style="flex:1;cursor:pointer" onclick="cmExplain('tn')">
+            <div class="cm-num" style="color:var(--g)">47</div><div class="cm-lbl">TN</div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:200px">
+        <div id="cmExplain" style="background:var(--bg);border-radius:12px;padding:16px;min-height:80px">
+          <div style="font-size:12px;color:var(--text2)">👆 Click a cell to learn what it means</div>
+        </div>
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:rgba(79,110,247,.06);border-radius:10px;padding:11px;border:1px solid rgba(79,110,247,.15)">
+            <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--p);letter-spacing:.8px">Accuracy</div>
+            <div style="font-size:20px;font-weight:800;color:var(--p)">92%</div>
+          </div>
+          <div style="background:rgba(0,200,150,.06);border-radius:10px;padding:11px;border:1px solid rgba(0,200,150,.15)">
+            <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--g);letter-spacing:.8px">Precision</div>
+            <div style="font-size:20px;font-weight:800;color:var(--g)">93.8%</div>
+          </div>
+          <div style="background:rgba(108,63,245,.06);border-radius:10px;padding:11px;border:1px solid rgba(108,63,245,.15)">
+            <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--p2);letter-spacing:.8px">Recall</div>
+            <div style="font-size:20px;font-weight:800;color:var(--p2)">90%</div>
+          </div>
+          <div style="background:rgba(245,158,11,.06);border-radius:10px;padding:11px;border:1px solid rgba(245,158,11,.15)">
+            <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--amber);letter-spacing:.8px">F1 Score</div>
+            <div style="font-size:20px;font-weight:800;color:var(--amber)">91.8%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(3)">← Choosing K</button>
+    <button class="bn" onclick="go(5)">Next: Exercises →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 5: EXERCISES ═══ -->
+<div class="pg" id="pg5">
+  <div class="ey">Practice</div>
+  <div class="h1">Coding Exercises 🧪</div>
+  <div class="sub">Try each exercise before revealing the solution. Real learning happens when you struggle first!</div>
+
+  <div class="exc">
+    <div class="exh">
+      <div class="exn">1</div>
+      <div class="ext">Implement KNN Classifier from Scratch</div>
+      <span class="tag tgb" style="margin-left:auto">NumPy</span>
+    </div>
+    <div class="exb">
+      <p style="margin-bottom:10px">Write a complete KNN classifier class with <code>fit()</code> and <code>predict()</code> methods using only NumPy. Include Euclidean distance and majority vote.</p>
+      <button class="sol-btn" onclick="toggleSol(this,'s1')">💡 Show Solution</button>
+      <div class="sol" id="s1">
+        <div class="cb">
+<span class="k">import</span> numpy <span class="k">as</span> <span class="n">np</span>
+<span class="k">from</span> collections <span class="k">import</span> Counter
+
+<span class="k">class</span> <span class="cl2">KNNClassifier</span>:
+  <span class="k">def</span> <span class="f">__init__</span>(self, k=<span class="m">3</span>):
+    self.k = k
+
+  <span class="k">def</span> <span class="f">fit</span>(self, X, y):
+    self.X_train = np.<span class="f">array</span>(X)
+    self.y_train = np.<span class="f">array</span>(y)
+    <span class="k">return</span> self
+
+  <span class="k">def</span> <span class="f">_euclidean</span>(self, a, b):
+    <span class="k">return</span> np.<span class="f">sqrt</span>(np.<span class="f">sum</span>((a - b)**<span class="m">2</span>))
+
+  <span class="k">def</span> <span class="f">predict</span>(self, X):
+    <span class="k">return</span> [self.<span class="f">_predict_one</span>(x) <span class="k">for</span> x <span class="k">in</span> X]
+
+  <span class="k">def</span> <span class="f">_predict_one</span>(self, x):
+    dists = [self.<span class="f">_euclidean</span>(x, xt)
+             <span class="k">for</span> xt <span class="k">in</span> self.X_train]
+    k_idx = np.<span class="f">argsort</span>(dists)[:self.k]
+    votes = Counter(self.y_train[k_idx])
+    <span class="k">return</span> votes.<span class="f">most_common</span>(<span class="m">1</span>)[<span class="m">0</span>][<span class="m">0</span>]
+
+<span class="c"># Test it!</span>
+knn = <span class="cl2">KNNClassifier</span>(k=<span class="m">3</span>)
+knn.<span class="f">fit</span>([[<span class="m">1</span>,<span class="m">2</span>],[<span class="m">3</span>,<span class="m">1</span>],[<span class="m">5</span>,<span class="m">4</span>]], [<span class="s">'A'</span>,<span class="s">'A'</span>,<span class="s">'B'</span>])
+<span class="f">print</span>(knn.<span class="f">predict</span>([[<span class="m">2</span>,<span class="m">2</span>]]))  <span class="c"># ['A']</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exc">
+    <div class="exh">
+      <div class="exn">2</div>
+      <div class="ext">Find Optimal K using Elbow Method</div>
+      <span class="tag tgp" style="margin-left:auto">scikit-learn</span>
+    </div>
+    <div class="exb">
+      <p style="margin-bottom:10px">Using the Breast Cancer dataset, iterate over K=1 to 20, compute cross-validation accuracy for each K, and identify the optimal K using the elbow method.</p>
+      <button class="sol-btn" onclick="toggleSol(this,'s2')">💡 Show Solution</button>
+      <div class="sol" id="s2">
+        <div class="cb">
+<span class="k">from</span> sklearn.datasets <span class="k">import</span> load_breast_cancer
+<span class="k">from</span> sklearn.neighbors <span class="k">import</span> KNeighborsClassifier
+<span class="k">from</span> sklearn.model_selection <span class="k">import</span> cross_val_score
+<span class="k">from</span> sklearn.preprocessing <span class="k">import</span> StandardScaler
+<span class="k">import</span> numpy <span class="k">as</span> <span class="n">np</span>
+
+X, y = <span class="f">load_breast_cancer</span>(return_X_y=<span class="k">True</span>)
+scaler = <span class="cl2">StandardScaler</span>()
+X_scaled = scaler.<span class="f">fit_transform</span>(X)
+
+cv_scores = []
+k_range = <span class="f">range</span>(<span class="m">1</span>, <span class="m">21</span>)
+
+<span class="k">for</span> k <span class="k">in</span> k_range:
+  knn = <span class="cl2">KNeighborsClassifier</span>(n_neighbors=k)
+  scores = <span class="f">cross_val_score</span>(
+    knn, X_scaled, y, cv=<span class="m">5</span>, scoring=<span class="s">'accuracy'</span>
+  )
+  cv_scores.<span class="f">append</span>(scores.<span class="f">mean</span>())
+
+best_k = np.<span class="f">argmax</span>(cv_scores) + <span class="m">1</span>
+<span class="f">print</span>(<span class="s">f"Optimal K: {best_k}"</span>)
+<span class="f">print</span>(<span class="s">f"Best Accuracy: {max(cv_scores):.4f}"</span>)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exc">
+    <div class="exh">
+      <div class="exn">3</div>
+      <div class="ext">KNN Regression for House Price Prediction</div>
+      <span class="tag tgg" style="margin-left:auto">Regression</span>
+    </div>
+    <div class="exb">
+      <p style="margin-bottom:10px">Implement KNN regression to predict house prices. Use features: size (sqft), bedrooms, age. Evaluate using RMSE and compare K=3 vs K=7.</p>
+      <button class="sol-btn" onclick="toggleSol(this,'s3')">💡 Show Solution</button>
+      <div class="sol" id="s3">
+        <div class="cb">
+<span class="k">from</span> sklearn.neighbors <span class="k">import</span> KNeighborsRegressor
+<span class="k">from</span> sklearn.preprocessing <span class="k">import</span> StandardScaler
+<span class="k">from</span> sklearn.metrics <span class="k">import</span> mean_squared_error
+<span class="k">import</span> numpy <span class="k">as</span> <span class="n">np</span>
+
+<span class="c"># Simulated house data</span>
+X = [[<span class="m">1200</span>,<span class="m">2</span>,<span class="m">10</span>],[<span class="m">1800</span>,<span class="m">3</span>,<span class="m">5</span>],[<span class="m">900</span>,<span class="m">1</span>,<span class="m">20</span>],
+     [<span class="m">2200</span>,<span class="m">4</span>,<span class="m">3</span>],[<span class="m">1500</span>,<span class="m">3</span>,<span class="m">8</span>],[<span class="m">2800</span>,<span class="m">5</span>,<span class="m">1</span>]]
+y = [<span class="m">250000</span>,<span class="m">380000</span>,<span class="m">180000</span>,
+     <span class="m">490000</span>,<span class="m">320000</span>,<span class="m">650000</span>]
+
+scaler = <span class="cl2">StandardScaler</span>()
+X_scaled = scaler.<span class="f">fit_transform</span>(X)
+
+<span class="k">for</span> k <span class="k">in</span> [<span class="m">3</span>, <span class="m">7</span>]:
+  knn = <span class="cl2">KNeighborsRegressor</span>(n_neighbors=k)
+  knn.<span class="f">fit</span>(X_scaled, y)
+  pred = knn.<span class="f">predict</span>(X_scaled)
+  rmse = np.<span class="f">sqrt</span>(<span class="f">mean_squared_error</span>(y, pred))
+  <span class="f">print</span>(<span class="s">f"K={k} → RMSE: ${rmse:,.0f}"</span>)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(4)">← Weighted KNN</button>
+    <button class="bn" onclick="go(6)">Next: Quiz →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 6: QUIZ ═══ -->
+<div class="pg" id="pg6">
+  <div class="ey">Knowledge Check</div>
+  <div class="h1">Module Quiz 🧠</div>
+  <div class="sub">5 questions to test your KNN mastery. Think carefully!</div>
+
+  <div class="qdots">
+    <div class="qd cur" id="qd0"></div>
+    <div class="qd" id="qd1"></div>
+    <div class="qd" id="qd2"></div>
+    <div class="qd" id="qd3"></div>
+    <div class="qd" id="qd4"></div>
+  </div>
+
+  <div class="qcard on" id="q0">
+    <div class="qn">Question 1 of 5</div>
+    <div class="qt">KNN is called a "lazy learner" because it…</div>
+    <div class="qopts">
+      <div class="qopt" onclick="ansQ(this,0,2)"><span class="qlet">A</span>Performs poorly on most datasets</div>
+      <div class="qopt" onclick="ansQ(this,0,2)"><span class="qlet">B</span>Requires very little data to train</div>
+      <div class="qopt" onclick="ansQ(this,0,2)"><span class="qlet">C</span>Defers computation to prediction time — no explicit training phase</div>
+      <div class="qopt" onclick="ansQ(this,0,2)"><span class="qlet">D</span>Only works with small datasets</div>
+    </div>
+    <div class="qfb" id="qf0"></div>
+    <div style="margin-top:12px;text-align:right"><button class="bn" style="display:none" id="qn0" onclick="nextQ(1)">Next →</button></div>
+  </div>
+
+  <div class="qcard" id="q1">
+    <div class="qn">Question 2 of 5</div>
+    <div class="qt">What is the Euclidean distance between points (1, 2) and (4, 6)?</div>
+    <div class="qopts">
+      <div class="qopt" onclick="ansQ(this,1,3)"><span class="qlet">A</span>3</div>
+      <div class="qopt" onclick="ansQ(this,1,3)"><span class="qlet">B</span>7</div>
+      <div class="qopt" onclick="ansQ(this,1,3)"><span class="qlet">C</span>4</div>
+      <div class="qopt" onclick="ansQ(this,1,3)"><span class="qlet">D</span>5</div>
+    </div>
+    <div class="qfb" id="qf1"></div>
+    <div style="margin-top:12px;text-align:right"><button class="bn" style="display:none" id="qn1" onclick="nextQ(2)">Next →</button></div>
+  </div>
+
+  <div class="qcard" id="q2">
+    <div class="qn">Question 3 of 5</div>
+    <div class="qt">When K is very small (e.g., K=1), the KNN model tends to…</div>
+    <div class="qopts">
+      <div class="qopt" onclick="ansQ(this,2,1)"><span class="qlet">A</span>Underfit — too simple, high bias</div>
+      <div class="qopt" onclick="ansQ(this,2,1)"><span class="qlet">B</span>Overfit — memorises training data, high variance</div>
+      <div class="qopt" onclick="ansQ(this,2,1)"><span class="qlet">C</span>Achieve perfect generalisation</div>
+      <div class="qopt" onclick="ansQ(this,2,1)"><span class="qlet">D</span>Ignore all training data</div>
+    </div>
+    <div class="qfb" id="qf2"></div>
+    <div style="margin-top:12px;text-align:right"><button class="bn" style="display:none" id="qn2" onclick="nextQ(3)">Next →</button></div>
+  </div>
+
+  <div class="qcard" id="q3">
+    <div class="qn">Question 4 of 5</div>
+    <div class="qt">Which scikit-learn parameter controls the distance metric in KNeighborsClassifier?</div>
+    <div class="qopts">
+      <div class="qopt" onclick="ansQ(this,3,2)"><span class="qlet">A</span><code>algorithm</code></div>
+      <div class="qopt" onclick="ansQ(this,3,2)"><span class="qlet">B</span><code>n_neighbors</code></div>
+      <div class="qopt" onclick="ansQ(this,3,2)"><span class="qlet">C</span><code>metric</code></div>
+      <div class="qopt" onclick="ansQ(this,3,2)"><span class="qlet">D</span><code>weights</code></div>
+    </div>
+    <div class="qfb" id="qf3"></div>
+    <div style="margin-top:12px;text-align:right"><button class="bn" style="display:none" id="qn3" onclick="nextQ(4)">Next →</button></div>
+  </div>
+
+  <div class="qcard" id="q4">
+    <div class="qn">Question 5 of 5</div>
+    <div class="qt">Why is feature normalisation (StandardScaler) important before applying KNN?</div>
+    <div class="qopts">
+      <div class="qopt" onclick="ansQ(this,4,0)"><span class="qlet">A</span>Features with large scales dominate distance calculations, biasing the algorithm</div>
+      <div class="qopt" onclick="ansQ(this,4,0)"><span class="qlet">B</span>KNN cannot process negative values without scaling</div>
+      <div class="qopt" onclick="ansQ(this,4,0)"><span class="qlet">C</span>It speeds up the training phase significantly</div>
+      <div class="qopt" onclick="ansQ(this,4,0)"><span class="qlet">D</span>It reduces the number of neighbours needed</div>
+    </div>
+    <div class="qfb" id="qf4"></div>
+    <div style="margin-top:12px;text-align:right"><button class="bn" style="display:none" id="qn4" onclick="showScore()">See Results 🎉</button></div>
+  </div>
+
+  <div class="qcard" id="qscore">
+    <div class="sc-wrap">
+      <div class="sc-ring" id="scRing" style="background:conic-gradient(var(--g) 0%, var(--border) 0%)">
+        <div class="sc-in"><div class="scn" id="scN">0</div><div class="scd">out of 5</div></div>
+      </div>
+      <div style="font-size:20px;font-weight:800;margin-bottom:7px" id="scMsg"></div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px" id="scDet"></div>
+      <button class="rbtn" onclick="go(7)">🎉 Complete Module →</button>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(5)">← Exercises</button>
+    <span></span>
+  </div>
+</div>
+
+<!-- ═══ PAGE 7: COMPLETION ═══ -->
+<div class="pg" id="pg7">
+  <div class="cmp">
+    <span class="cmp-ico">🎊</span>
+    <div class="cmp-title">Module Complete!</div>
+    <div class="cmp-sub">You've mastered K-Nearest Neighbours! From intuition to implementation, you've got the full picture.</div>
+    <div class="sk-wrap">
+      <span class="sk" style="border-color:var(--p);color:var(--p);animation-delay:.00s">📌 KNN Algorithm</span>
+      <span class="sk" style="border-color:var(--g);color:var(--g);animation-delay:.08s">📐 Euclidean Distance</span>
+      <span class="sk" style="border-color:var(--p2);color:var(--p2);animation-delay:.16s">🏙️ Manhattan Distance</span>
+      <span class="sk" style="border-color:var(--amber);color:var(--amber);animation-delay:.24s">🎯 Choosing K</span>
+      <span class="sk" style="border-color:var(--rose);color:var(--rose);animation-delay:.32s">⚖️ Weighted KNN</span>
+      <span class="sk" style="border-color:var(--sky);color:var(--sky);animation-delay:.40s">📊 Confusion Matrix</span>
+      <span class="sk" style="border-color:#8b5cf6;color:#8b5cf6;animation-delay:.48s">🔬 Cross-Validation</span>
+      <span class="sk" style="border-color:var(--g);color:var(--g);animation-delay:.56s">🐍 scikit-learn</span>
+    </div>
+    <div class="card" style="max-width:460px;margin:0 auto 24px;text-align:left">
+      <h3 class="s" style="margin-bottom:11px">🏅 Achievement Unlocked</h3>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--p2));display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">🔍</div>
+        <div>
+          <div style="font-size:15px;font-weight:800;color:var(--text)">Vinodhini</div>
+          <div style="font-size:12px;color:var(--text2)">Data Scientist · HCL GUVI</div>
+          <div style="margin-top:6px"><span class="tag tgg">✅ Supervised ML — KNN Module</span></div>
+        </div>
+      </div>
+    </div>
+    <button class="rbtn" onclick="restart()">↺ Restart Module</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let cur = 0;
+const total = 8;
+const done = new Set([0]);
+let qScore = 0;
+
+// KNN Canvas state
+let canvasMode = 'class0';
+let knnK = 3;
+const points = [];
+const colors = ['#4f6ef7','#f43f5e'];
+const labels = ['A','B'];
+let queryPt = null;
+
+// Weight viz state
+const neighbourDists = [1.2, 2.5, 3.8, 5.1, 6.9];
+const neighbourClasses = ['A','A','B','A','B'];
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function go(idx) {
+  document.getElementById('pg'+cur).classList.remove('on');
+  document.getElementById('nv'+cur).classList.remove('on');
+  done.add(cur);
+  document.getElementById('nc'+cur).textContent = '✓';
+  document.getElementById('nv'+cur).classList.add('done');
+  cur = idx;
+  document.getElementById('pg'+idx).classList.add('on');
+  document.getElementById('nv'+idx).classList.add('on');
+  document.getElementById('nv'+idx).classList.remove('done');
+  const pct = Math.round((done.size / total) * 100);
+  document.getElementById('tf').style.width = pct + '%';
+  document.getElementById('tp').textContent = pct + '%';
+  document.getElementById('main').scrollTo({top:0, behavior:'smooth'});
+}
+
+// ══════════════════════════════════════════
+// RUN DEMO
+// ══════════════════════════════════════════
+function showOut(id) {
+  const el = document.getElementById(id);
+  el.classList.add('sh');
+  el.style.animation = 'none';
+  setTimeout(() => el.style.animation = '', 10);
+}
+
+// ══════════════════════════════════════════
+// STEP VIZ
+// ══════════════════════════════════════════
+function actStep(idx, id) {
+  document.getElementById(id).querySelectorAll('.sti').forEach((s,i) => s.classList.toggle('act', i === idx));
+}
+
+// ══════════════════════════════════════════
+// KNN CANVAS
+// ══════════════════════════════════════════
+const canvas = document.getElementById('knnCanvas');
+const ctx = canvas.getContext('2d');
+
+function setClass(c) {
+  canvasMode = 'class' + c;
+  document.getElementById('btnClass0').classList.toggle('sel', c === 0);
+  document.getElementById('btnClass1').classList.toggle('sel', c === 1);
+  document.getElementById('btnClass1').classList.toggle('sel2', c === 1);
+  document.getElementById('btnQuery').classList.remove('sel3');
+}
+function setMode(m) {
+  canvasMode = m;
+  document.getElementById('btnClass0').classList.remove('sel');
+  document.getElementById('btnClass1').classList.remove('sel','sel2');
+  document.getElementById('btnQuery').classList.add('sel3');
+}
+function updateK(v) {
+  knnK = parseInt(v);
+  document.getElementById('kVal').textContent = v;
+  if (queryPt) runKNN();
+  else drawCanvas();
+}
+function clearCanvas() {
+  points.length = 0;
+  queryPt = null;
+  document.getElementById('knnResult').textContent = '';
+  drawCanvas();
+}
+
+function canvasClick(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top) * scaleY;
+  if (canvasMode === 'query') {
+    queryPt = {x, y};
+    runKNN();
+  } else {
+    const cls = canvasMode === 'class0' ? 0 : 1;
+    points.push({x, y, cls});
+    if (queryPt) runKNN();
+    else drawCanvas();
+  }
+}
+
+function dist(a, b) {
+  return Math.sqrt((a.x - b.x)**2 + (a.y - b.y)**2);
+}
+
+function runKNN() {
+  if (!queryPt || points.length === 0) { drawCanvas(); return; }
+  const dists = points.map((p,i) => ({d: dist(p, queryPt), idx: i}));
+  dists.sort((a,b) => a.d - b.d);
+  const k = Math.min(knnK, points.length);
+  const neighbours = dists.slice(0, k);
+  const votes = [0, 0];
+  neighbours.forEach(n => votes[points[n.idx].cls]++);
+  const pred = votes[0] >= votes[1] ? 0 : 1;
+  drawCanvas(neighbours.map(n => n.idx), pred);
+  document.getElementById('knnResult').innerHTML =
+    `🎯 Prediction: <strong>Class ${labels[pred]}</strong> &nbsp;|&nbsp; Votes: A=${votes[0]}, B=${votes[1]} &nbsp;|&nbsp; K=${k} neighbours used`;
+}
+
+function drawCanvas(highlightIdx = [], predCls = -1) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Grid
+  ctx.strokeStyle = '#e4e9f2'; ctx.lineWidth = 1;
+  for (let x = 0; x <= canvas.width; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
+  for (let y = 0; y <= canvas.height; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+  // Lines to neighbours
+  if (queryPt && highlightIdx.length > 0) {
+    highlightIdx.forEach(i => {
+      ctx.strokeStyle = 'rgba(79,110,247,.25)'; ctx.lineWidth = 1.5;
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath(); ctx.moveTo(queryPt.x, queryPt.y); ctx.lineTo(points[i].x, points[i].y); ctx.stroke();
+      ctx.setLineDash([]);
+    });
+  }
+  // Points
+  points.forEach((p,i) => {
+    const isHighlight = highlightIdx.includes(i);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, isHighlight ? 10 : 7, 0, Math.PI * 2);
+    ctx.fillStyle = colors[p.cls] + (isHighlight ? 'ff' : 'bb');
+    ctx.fill();
+    if (isHighlight) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.stroke(); }
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 9px Sora';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(labels[p.cls], p.x, p.y);
+  });
+  // Query point
+  if (queryPt) {
+    const qColor = predCls >= 0 ? colors[predCls] : '#f59e0b';
+    ctx.beginPath(); ctx.arc(queryPt.x, queryPt.y, 12, 0, Math.PI * 2);
+    ctx.fillStyle = qColor + '33';
+    ctx.fill();
+    ctx.beginPath(); ctx.arc(queryPt.x, queryPt.y, 8, 0, Math.PI * 2);
+    ctx.fillStyle = qColor;
+    ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 9px Sora'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('?', queryPt.x, queryPt.y);
+  }
+}
+
+// Seed initial points
+(function seedCanvas() {
+  const seed = [
+    {x:120,y:100,cls:0},{x:160,y:140,cls:0},{x:100,y:170,cls:0},
+    {x:200,y:90,cls:0},{x:140,y:220,cls:0},{x:80,y:130,cls:0},
+    {x:400,y:180,cls:1},{x:460,y:130,cls:1},{x:420,y:220,cls:1},
+    {x:500,y:170,cls:1},{x:380,y:240,cls:1},{x:470,y:260,cls:1},
+    {x:290,y:150,cls:0},{x:310,y:200,cls:1}
+  ];
+  seed.forEach(p => points.push(p));
+  drawCanvas();
+})();
+
+// ══════════════════════════════════════════
+// DISTANCE CALCULATOR
+// ══════════════════════════════════════════
+function calcDist() {
+  const ax = +document.getElementById('ax').value;
+  const ay = +document.getElementById('ay').value;
+  const bx = +document.getElementById('bx').value;
+  const by = +document.getElementById('by').value;
+  document.getElementById('axv').textContent = ax;
+  document.getElementById('ayv').textContent = ay;
+  document.getElementById('bxv').textContent = bx;
+  document.getElementById('byv').textContent = by;
+  const euc = Math.sqrt((bx-ax)**2 + (by-ay)**2);
+  const man = Math.abs(bx-ax) + Math.abs(by-ay);
+  const p = 3;
+  const mink = (Math.abs(bx-ax)**p + Math.abs(by-ay)**p)**(1/p);
+  document.getElementById('eucDist').textContent = euc.toFixed(2);
+  document.getElementById('manDist').textContent = man.toFixed(2);
+  document.getElementById('minkDist').textContent = mink.toFixed(2);
+}
+
+// ══════════════════════════════════════════
+// K VALUE IMPACT
+// ══════════════════════════════════════════
+function updateKViz(v) {
+  v = parseInt(v);
+  document.getElementById('kvVal').textContent = v;
+  const states = {
+    1:  {bias:'Very Low', var:'Very High', state:'Overfitting', biasD:'Memorises every training point', varD:'Extremely sensitive to noise', stateD:'K=1 fits every point — even outliers', stC:'var(--rose)'},
+    3:  {bias:'Low', var:'High', state:'Slight Overfit', biasD:'Fits training data closely', varD:'Sensitive to local noise', stateD:'Small K → complex decision boundary', stC:'var(--rose)'},
+    5:  {bias:'Low-Med', var:'Medium', state:'Near Optimal', biasD:'Good fit to training patterns', varD:'Moderately stable', stateD:'Often a good starting point', stC:'var(--g)'},
+    7:  {bias:'Medium', var:'Low-Med', state:'✓ Optimal', biasD:'Balanced fit to data', varD:'Stable across samples', stateD:'Cross-validated sweet spot', stC:'var(--g)'},
+    9:  {bias:'Medium', var:'Low', state:'Balanced', biasD:'Starting to smooth over details', varD:'Resistant to noise', stateD:'Good generalisation', stC:'var(--g)'},
+    11: {bias:'Med-High', var:'Low', state:'Slight Underfit', biasD:'Losing some pattern detail', varD:'Very stable', stateD:'Boundary becoming linear', stC:'var(--amber)'},
+    13: {bias:'High', var:'Very Low', state:'Underfitting', biasD:'Misses fine-grained patterns', varD:'Extremely stable', stateD:'Decision boundary too smooth', stC:'var(--amber)'},
+    15: {bias:'High', var:'Very Low', state:'Underfitting', biasD:'Significant pattern loss', varD:'Almost constant', stateD:'Over-regularised model', stC:'var(--amber)'},
+    17: {bias:'Very High', var:'Very Low', state:'Heavy Underfit', biasD:'Very poor training fit', varD:'Near constant output', stateD:'Too many neighbours', stC:'var(--rose)'},
+    19: {bias:'Very High', var:'Very Low', state:'Heavy Underfit', biasD:'Almost constant prediction', varD:'Negligible', stateD:'Approaching majority class classifier', stC:'var(--rose)'},
+    21: {bias:'Max', var:'Min', state:'Max Underfit', biasD:'Predicts majority class always', varD:'Zero', stateD:'KNN degrades to ZeroR baseline', stC:'var(--rose)'},
+  };
+  const keys = [1,3,5,7,9,11,13,15,17,19,21];
+  const closest = keys.reduce((a,b) => Math.abs(b-v) < Math.abs(a-v) ? b : a);
+  const s = states[closest];
+  document.getElementById('kvBias').textContent = s.bias;
+  document.getElementById('kvBiasDesc').textContent = s.biasD;
+  document.getElementById('kvVar').textContent = s.var;
+  document.getElementById('kvVarDesc').textContent = s.varD;
+  document.getElementById('kvState').textContent = s.state;
+  document.getElementById('kvState').style.color = s.stC;
+  document.getElementById('kvStateDesc').textContent = s.stateD;
+  // Move K line on SVG
+  const xPos = 20 + (v / 21) * 360;
+  document.getElementById('kLine').setAttribute('x1', xPos);
+  document.getElementById('kLine').setAttribute('x2', xPos);
+  // Accuracy dot on test curve
+  const testY = v <= 7 ? 60 - (v-1)*7 + (v>5 ? (v-5)*3 : 0) : 15 + (v-7)*4;
+  document.getElementById('kDot').setAttribute('cx', xPos);
+  document.getElementById('kDot').setAttribute('cy', Math.max(5, Math.min(75, testY)));
+}
+
+// ══════════════════════════════════════════
+// WEIGHT VISUALIZER
+// ══════════════════════════════════════════
+let curWeight = 'uniform';
+function setWeight(w) {
+  curWeight = w;
+  ['uniform','distance','gaussian'].forEach(x => {
+    document.getElementById('wbtn-'+x).classList.toggle('sel', x === w);
+  });
+  renderWeights();
+}
+function renderWeights() {
+  const container = document.getElementById('wbars');
+  container.innerHTML = '';
+  let weights, msg;
+  if (curWeight === 'uniform') {
+    weights = neighbourDists.map(() => 1 / neighbourDists.length);
+    msg = 'With uniform weights: each neighbour gets 1 vote. Majority class wins!';
+  } else if (curWeight === 'distance') {
+    const raw = neighbourDists.map(d => 1 / d);
+    const sum = raw.reduce((a,b) => a+b, 0);
+    weights = raw.map(r => r / sum);
+    msg = 'Closer neighbours have higher weight (1/distance). Ties broken by proximity!';
+  } else {
+    const raw = neighbourDists.map(d => Math.exp(-d*d/10));
+    const sum = raw.reduce((a,b) => a+b, 0);
+    weights = raw.map(r => r / sum);
+    msg = 'Gaussian kernel: weight drops off smoothly with distance. Very smooth predictions!';
+  }
+  document.getElementById('weightResult').textContent = msg;
+  neighbourDists.forEach((d,i) => {
+    const pct = (weights[i] * 100).toFixed(1);
+    const barWidth = Math.max(4, weights[i] / Math.max(...weights) * 100);
+    const col = neighbourClasses[i] === 'A' ? '#4f6ef7' : '#f43f5e';
+    container.innerHTML += `
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:11px;font-weight:700;color:var(--text2);width:56px;font-family:'IBM Plex Mono',monospace">N${i+1} d=${d}</span>
+        <span style="width:20px;height:20px;border-radius:50%;background:${col};color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">${neighbourClasses[i]}</span>
+        <div style="flex:1;height:7px;background:var(--border);border-radius:99px;overflow:hidden">
+          <div style="width:${barWidth}%;height:100%;background:${col};border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1)"></div>
+        </div>
+        <span style="font-size:11px;font-weight:800;color:${col};width:44px;text-align:right;font-family:'IBM Plex Mono',monospace">${pct}%</span>
+      </div>`;
+  });
+}
+renderWeights();
+
+// ══════════════════════════════════════════
+// CONFUSION MATRIX
+// ══════════════════════════════════════════
+const cmData = {
+  tp: {title:'✅ True Positive (TP = 45)', desc:'Model correctly predicted POSITIVE. Patient has disease and test says POSITIVE. These are correct, desirable predictions.', color:'var(--g)'},
+  fn: {title:'❌ False Negative (FN = 5)', desc:'Model predicted NEGATIVE but actual is POSITIVE. Patient has disease but test says NEGATIVE. Dangerous in medical scenarios — also called "Miss".', color:'var(--rose)'},
+  fp: {title:'⚠️ False Positive (FP = 3)', desc:'Model predicted POSITIVE but actual is NEGATIVE. Patient is healthy but test says POSITIVE. Called "False Alarm". Costly but less dangerous than FN.', color:'var(--amber)'},
+  tn: {title:'✅ True Negative (TN = 47)', desc:'Model correctly predicted NEGATIVE. Patient is healthy and test says NEGATIVE. Another desirable outcome.', color:'var(--g)'}
+};
+function cmExplain(key) {
+  const d = cmData[key];
+  document.getElementById('cmExplain').innerHTML = `
+    <div style="font-size:13px;font-weight:800;color:${d.color};margin-bottom:6px">${d.title}</div>
+    <div style="font-size:12.5px;color:var(--text2);line-height:1.6">${d.desc}</div>`;
+}
+
+// ══════════════════════════════════════════
+// SCENARIO SLIDER (page 4)
+// ══════════════════════════════════════════
+
+// ══════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════
+const qCorrect = [2, 3, 1, 2, 0];
+const qOk = [
+  "✅ Correct! KNN does no training — all computation happens at prediction time, making it a 'lazy learner'.",
+  "✅ Correct! √((4-1)² + (6-2)²) = √(9+16) = √25 = 5",
+  "✅ Correct! Small K → complex, wiggly decision boundary → overfits training data.",
+  "✅ Correct! The 'metric' parameter controls the distance function used.",
+  "✅ Correct! Features with larger scales (e.g., house price vs age) dominate distance, so scaling is essential."
+];
+const qFail = [
+  "❌ Lazy learning means KNN defers computation to prediction time — no model is built during training.",
+  "❌ √((4-1)² + (6-2)²) = √(9+16) = √25 = 5. Use the Pythagorean theorem!",
+  "❌ Small K means the model memorises every training point — this is overfitting, not underfitting.",
+  "❌ The 'metric' parameter sets the distance function. 'n_neighbors' sets K, 'weights' sets voting scheme.",
+  "❌ Features on larger scales dominate distance calculations — always normalise before KNN!"
+];
+
+function ansQ(optEl, qIdx, corrIdx) {
+  const q = document.getElementById('q'+qIdx);
+  if (q.querySelector('.dis')) return;
+  const opts = q.querySelectorAll('.qopt');
+  opts.forEach(o => o.classList.add('dis'));
+  const chosen = Array.from(opts).indexOf(optEl);
+  const fb = document.getElementById('qf'+qIdx);
+  const dot = document.getElementById('qd'+qIdx);
+  if (chosen === corrIdx) {
+    optEl.classList.add('ok'); fb.className = 'qfb sh ok'; fb.textContent = qOk[qIdx]; qScore++; dot.classList.add('ok');
+  } else {
+    optEl.classList.add('ng'); opts[corrIdx].classList.add('ok'); fb.className = 'qfb sh ng'; fb.textContent = qFail[qIdx]; dot.classList.add('ng');
+  }
+  const nxt = document.getElementById('qn'+qIdx);
+  if (nxt) nxt.style.display = 'inline-flex';
+  const nextDot = document.getElementById('qd'+(qIdx+1));
+  if (nextDot) nextDot.classList.add('cur');
+}
+
+function nextQ(idx) {
+  document.getElementById('q'+(idx-1)).classList.remove('on');
+  document.getElementById('q'+idx).classList.add('on');
+}
+
+function showScore() {
+  document.getElementById('q4').classList.remove('on');
+  const sc = document.getElementById('qscore');
+  sc.classList.add('on');
+  const pct = (qScore / 5) * 100;
+  document.getElementById('scRing').style.background =
+    `conic-gradient(var(--g) ${pct}%, var(--border) ${pct}%)`;
+  document.getElementById('scN').textContent = qScore;
+  const msgs = ['Keep practising! 💪','Good effort! 👍','Well done! 🌟','Excellent! ⭐','Perfect Score! 🏆','Perfect Score! 🏆'];
+  document.getElementById('scMsg').textContent = msgs[qScore];
+  document.getElementById('scDet').textContent =
+    qScore === 5 ? 'You nailed every question! KNN master 🎉' : `You got ${qScore}/5. Review the concepts and try again!`;
+}
+
+// ══════════════════════════════════════════
+// EXERCISES
+// ══════════════════════════════════════════
+function toggleSol(btn, id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('op');
+  btn.textContent = el.classList.contains('op') ? '🙈 Hide Solution' : '💡 Show Solution';
+}
+
+// ══════════════════════════════════════════
+// RESTART
+// ══════════════════════════════════════════
+function restart() {
+  qScore = 0;
+  done.clear(); done.add(0);
+  document.querySelectorAll('.qcard').forEach(q => q.classList.remove('on'));
+  document.getElementById('q0').classList.add('on');
+  document.querySelectorAll('.qopt').forEach(o => o.classList.remove('ok','ng','dis'));
+  document.querySelectorAll('.qfb').forEach(f => f.className = 'qfb');
+  document.querySelectorAll('[id^="qn"]').forEach(b => b.style.display = 'none');
+  document.querySelectorAll('.qd').forEach((d,i) => { d.className = 'qd' + (i === 0 ? ' cur' : ''); });
+  document.querySelectorAll('.sol').forEach(s => s.classList.remove('op'));
+  document.querySelectorAll('.sol-btn').forEach(b => b.textContent = '💡 Show Solution');
+  go(0);
+}
+</script>
+</body>
+</html>

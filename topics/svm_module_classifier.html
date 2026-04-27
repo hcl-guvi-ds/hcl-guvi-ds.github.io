@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Vector Machine | HCL-GUVI</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f2ff;--surf:#fff;--bdr:#e3e7f5;
+  --p:#5b5ef4;--p2:#8b5cf6;--pdark:#4340d4;
+  --g:#00c9a7;--g2:#00a589;
+  --sky:#0ea5e9;--rose:#f43f5e;--amber:#f59e0b;--emerald:#10b981;
+  --ink:#0e1526;--ink2:#465069;--ink3:#9aa4c0;
+  --vsc:#0d1117;--sb:252px;--tb:64px;--r:15px;
+  --sh:0 2px 24px rgba(14,21,38,.07);--sh2:0 10px 44px rgba(14,21,38,.13);
+  --grad:linear-gradient(135deg,var(--p),var(--p2));
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+
+/* ─── TOPBAR ─── */
+#tb{position:fixed;inset:0 0 auto 0;height:var(--tb);background:var(--surf);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 22px;gap:14px;z-index:400;box-shadow:0 1px 14px rgba(14,21,38,.05)}
+.tb-logo{height:36px;object-fit:contain;flex-shrink:0}
+.tb-lfb{font-size:18px;font-weight:900;display:none;align-items:center}
+.tb-lfb span:nth-child(1){color:var(--p)}
+.tb-lfb span:nth-child(2){color:var(--p2)}
+.tb-div{width:1px;height:26px;background:var(--bdr)}
+.tb-mod{font-weight:700;font-size:14px;letter-spacing:-.25px;white-space:nowrap}
+.tb-badge{padding:4px 11px;border-radius:99px;font-size:10.5px;font-weight:800;background:var(--grad);color:#fff;letter-spacing:.3px;white-space:nowrap}
+.tb-prog{flex:1;display:flex;align-items:center;gap:10px;min-width:0}
+.tb-plbl{font-size:10.5px;font-weight:700;color:var(--ink2);white-space:nowrap}
+.tb-bar{flex:1;height:5px;background:var(--bdr);border-radius:99px;overflow:hidden;min-width:60px}
+.tb-fill{height:100%;background:linear-gradient(90deg,var(--p),var(--g));border-radius:99px;transition:width .7s cubic-bezier(.4,0,.2,1);width:0%}
+.tb-pct{font-size:11px;font-weight:800;color:var(--p);white-space:nowrap}
+.tb-user{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.tb-av{width:33px;height:33px;border-radius:50%;background:var(--grad);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px rgba(91,94,244,.2)}
+.tb-nm{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.2}
+.tb-rl{font-size:10px;color:var(--ink2)}
+
+/* ─── SIDEBAR ─── */
+#sb{position:fixed;top:var(--tb);left:0;bottom:0;width:var(--sb);background:var(--surf);border-right:1px solid var(--bdr);overflow-y:auto;z-index:300;padding:16px 10px}
+#sb::-webkit-scrollbar{width:3px}
+#sb::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:99px}
+.sb-sec{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);padding:6px 8px 10px}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:11px;cursor:pointer;font-size:13px;font-weight:600;color:var(--ink2);transition:all .16s;margin-bottom:2px;position:relative;user-select:none}
+.ni:hover{background:var(--bg);color:var(--ink)}
+.ni.on{background:linear-gradient(135deg,rgba(91,94,244,.11),rgba(139,92,246,.07));color:var(--p)}
+.ni.on::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--grad);border-radius:0 4px 4px 0}
+.ni-ic{width:28px;height:28px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;transition:all .18s}
+.ni.on .ni-ic{background:var(--grad)}
+.ni-ck{margin-left:auto;width:16px;height:16px;border-radius:50%;border:2px solid var(--bdr);font-size:9px;display:flex;align-items:center;justify-content:center;transition:all .3s;flex-shrink:0}
+.ni.done .ni-ck{background:var(--g);border-color:var(--g);color:#fff}
+
+/* ─── MAIN ─── */
+#main{position:fixed;top:var(--tb);left:var(--sb);right:0;bottom:0;overflow-y:auto;padding:30px 38px 44px}
+#main::-webkit-scrollbar{width:5px}
+#main::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:99px}
+
+/* ─── PAGES ─── */
+.pg{display:none;animation:pgIn .4s cubic-bezier(.4,0,.2,1)}
+.pg.on{display:block}
+@keyframes pgIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:none}}
+
+/* ─── TYPOGRAPHY ─── */
+.ey{font-size:10px;font-weight:800;letter-spacing:2.2px;text-transform:uppercase;color:var(--p);margin-bottom:8px}
+.h1{font-size:31px;font-weight:800;color:var(--ink);line-height:1.17;margin-bottom:8px;letter-spacing:-.7px}
+.sub{font-size:14px;color:var(--ink2);margin-bottom:24px;line-height:1.68;max-width:650px}
+h3.s{font-size:16px;font-weight:700;margin-bottom:12px;color:var(--ink)}
+p.body{font-size:13.5px;line-height:1.72;color:var(--ink2)}
+
+/* ─── CARDS ─── */
+.card{background:var(--surf);border-radius:var(--r);border:1px solid var(--bdr);padding:22px;box-shadow:var(--sh)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.card+.card,.g2+.card,.card+.g2{margin-top:18px}
+
+/* ─── CODE ─── */
+.cb{background:var(--vsc);border-radius:12px;padding:18px 22px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.9;color:#e2e8f0;margin:13px 0;position:relative;border:1px solid rgba(255,255,255,.04);overflow-x:auto}
+.cb .cl{position:absolute;top:10px;right:13px;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:#374151;font-family:'Outfit',sans-serif}
+.kw{color:#c792ea}.st{color:#c3e88d}.fn{color:#82aaff}.cm{color:#546e7a;font-style:italic}.nm{color:#ffcb6b}.op{color:#89ddff}.cl2{color:#f07178}.n2{color:#89ddff}.ln{color:#374151;user-select:none;margin-right:16px;width:18px;display:inline-block;text-align:right}
+.run{display:inline-flex;align-items:center;gap:8px;padding:9px 19px;border-radius:99px;background:var(--grad);color:#fff;font-size:12.5px;font-weight:700;border:none;cursor:pointer;transition:all .22s;box-shadow:0 3px 14px rgba(91,94,244,.3);font-family:'Outfit',sans-serif}
+.run:hover{transform:translateY(-2px);box-shadow:0 7px 24px rgba(91,94,244,.42)}
+.run:active{transform:none}
+.out{background:#070c14;border-radius:10px;padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#4ade80;margin-top:10px;display:none;border:1px solid rgba(74,222,128,.14);line-height:1.95}
+.out.sh{display:block;animation:fi .32s ease}
+.out-p{color:#374151}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+
+/* ─── ANALOGY ─── */
+.ana{background:linear-gradient(135deg,rgba(0,201,167,.08),rgba(91,94,244,.04));border:1px solid rgba(0,201,167,.2);border-radius:var(--r);padding:16px 20px;display:flex;gap:13px;align-items:flex-start;margin-bottom:18px}
+.ana-i{font-size:28px;flex-shrink:0;margin-top:2px}
+.ana-lbl{font-size:9.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--g);margin-bottom:3px}
+
+/* ─── FOOTER NAV ─── */
+.pgf{display:flex;justify-content:space-between;align-items:center;margin-top:36px;padding-top:22px;border-top:1px solid var(--bdr)}
+.bp,.bn{display:inline-flex;align-items:center;gap:7px;padding:10px 21px;border-radius:99px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif}
+.bp{background:var(--bg);color:var(--ink2);border:1px solid var(--bdr)}
+.bp:hover{background:var(--bdr)}
+.bn{background:var(--grad);color:#fff;box-shadow:0 3px 14px rgba(91,94,244,.3)}
+.bn:hover{transform:translateY(-2px);box-shadow:0 7px 24px rgba(91,94,244,.42)}
+
+/* ─── HERO ─── */
+.hero{background:linear-gradient(135deg,#080f28 0%,#0f1845 45%,#0a102a 100%);border-radius:20px;padding:44px 40px;position:relative;overflow:hidden;margin-bottom:22px}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 40%,rgba(91,94,244,.2) 0%,transparent 65%),radial-gradient(ellipse at 20% 80%,rgba(0,201,167,.1) 0%,transparent 50%)}
+.hcnt{position:relative;z-index:1}
+.hero h1{font-size:38px;font-weight:900;color:#fff;letter-spacing:-.8px;line-height:1.12;margin-bottom:11px}
+.hero p{color:#8892b0;font-size:14px;line-height:1.68;max-width:530px;margin-bottom:26px}
+.hbdg{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+.hb{padding:5px 14px;border-radius:99px;font-size:11.5px;font-weight:700}
+.h1c{background:rgba(91,94,244,.18);color:#8b8fff;border:1px solid rgba(91,94,244,.28)}
+.h2c{background:rgba(0,201,167,.18);color:#4dffd4;border:1px solid rgba(0,201,167,.24)}
+.h3c{background:rgba(139,92,246,.18);color:#c4a8ff;border:1px solid rgba(139,92,246,.24)}
+.h4c{background:rgba(245,158,11,.18);color:#fcd97d;border:1px solid rgba(245,158,11,.24)}
+.hdeco{position:absolute;right:42px;top:50%;transform:translateY(-50%);font-size:100px;opacity:.07;filter:blur(1px);z-index:0}
+.sbtn{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:99px;background:var(--grad);color:#fff;font-size:14px;font-weight:800;border:none;cursor:pointer;box-shadow:0 6px 26px rgba(91,94,244,.42);transition:all .22s;font-family:'Outfit',sans-serif}
+.sbtn:hover{transform:translateY(-2px);box-shadow:0 10px 34px rgba(91,94,244,.52)}
+
+/* ─── CHECKLIST ─── */
+.chk{display:flex;flex-direction:column;gap:7px}
+.ci{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:10px;background:var(--bg);font-size:13px;font-weight:500}
+.cico{width:21px;height:21px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+
+/* ─── TAGS ─── */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700}
+.tgb{background:rgba(91,94,244,.1);color:var(--p)}
+.tgg{background:rgba(0,201,167,.1);color:var(--g2)}
+.tgp{background:rgba(139,92,246,.1);color:var(--p2)}
+.tga{background:rgba(245,158,11,.1);color:var(--amber)}
+.tgr{background:rgba(244,63,94,.1);color:var(--rose)}
+.tgsk{background:rgba(14,165,233,.1);color:var(--sky)}
+
+/* ─── SVM CANVAS ─── */
+#svmCanvas{border-radius:12px;cursor:crosshair;background:#fafbff;border:1.5px solid var(--bdr);display:block;width:100%;transition:border-color .2s}
+#svmCanvas:hover{border-color:var(--p)}
+
+/* ─── CONTROLS ─── */
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.kb{padding:8px 14px;border-radius:9px;border:2px solid var(--bdr);background:var(--surf);cursor:pointer;font-size:12px;font-weight:700;transition:all .18s;font-family:'Outfit',sans-serif;color:var(--ink2)}
+.kb:hover{border-color:var(--p);color:var(--p);background:rgba(91,94,244,.04)}
+.kb.s1{border-color:var(--p);background:rgba(91,94,244,.09);color:var(--p)}
+.kb.s2{border-color:var(--rose);background:rgba(244,63,94,.08);color:var(--rose)}
+.kb.s3{border-color:var(--g);background:rgba(0,201,167,.08);color:var(--g)}
+.kb.sd{border-color:var(--amber);background:rgba(245,158,11,.07);color:var(--amber)}
+
+/* ─── SLIDER ─── */
+.slw{display:flex;flex-direction:column;gap:10px}
+.slr{display:flex;align-items:center;gap:10px}
+.slr label{font-size:12.5px;font-weight:700;color:var(--ink2);width:110px;flex-shrink:0}
+input[type=range]{flex:1;accent-color:var(--p);height:5px}
+.slv{font-size:13px;font-weight:800;color:var(--p);width:52px;text-align:right;font-family:'JetBrains Mono',monospace}
+.slout{background:var(--vsc);border-radius:10px;padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#4ade80;min-height:34px;transition:all .22s}
+
+/* ─── STEP VIZ ─── */
+.sv{display:flex;flex-direction:column}
+.si{display:flex;gap:14px;cursor:pointer;padding:10px 0;transition:all .15s}
+.si:hover .sd{border-color:var(--p)}
+.sdc{display:flex;flex-direction:column;align-items:center}
+.sd{width:31px;height:31px;border-radius:50%;background:var(--bg);border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--ink2);flex-shrink:0;transition:all .28s}
+.sl2{flex:1;width:2px;background:var(--bdr);min-height:20px}
+.sc{flex:1;padding-bottom:13px}
+.stt{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.sds{font-size:12.5px;color:var(--ink2);line-height:1.62;display:none}
+.si.act .sd{background:var(--grad);border-color:transparent;color:#fff}
+.si.act .sds{display:block;animation:fi .28s}
+.si.act .stt{color:var(--p)}
+
+/* ─── REVEAL CARDS ─── */
+.rvg{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.rv{background:var(--bg);border-radius:12px;padding:16px;cursor:pointer;border:2px solid transparent;transition:all .22s;user-select:none}
+.rv:hover{border-color:var(--p);background:rgba(91,94,244,.04)}
+.rv.fl{background:rgba(91,94,244,.06);border-color:var(--p)}
+.rv-f{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+.rv-b{font-size:12.5px;color:var(--ink2);margin-top:8px;display:none;line-height:1.62}
+.rv.fl .rv-b{display:block;animation:fi .28s}
+.rv-h{font-size:10px;color:var(--ink3);margin-top:5px}
+
+/* ─── KERNEL SELECTOR ─── */
+.ksel{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.kopt{border-radius:11px;border:2px solid var(--bdr);background:var(--surf);cursor:pointer;text-align:center;padding:13px 8px;transition:all .2s;font-family:'Outfit',sans-serif}
+.kopt:hover{border-color:var(--p);background:rgba(91,94,244,.04)}
+.kopt.on{border-color:var(--p);background:rgba(91,94,244,.09)}
+.kopt .k-name{font-size:13px;font-weight:800;color:var(--p);display:block;margin-bottom:3px}
+.kopt .k-math{font-size:10.5px;color:var(--ink3);font-family:'JetBrains Mono',monospace}
+.kopt .k-use{font-size:10.5px;color:var(--ink2);margin-top:4px}
+.kinfo{background:var(--bg);border-radius:11px;padding:14px 16px;min-height:52px;font-size:13px;color:var(--ink2);transition:all .25s;line-height:1.65}
+
+/* ─── C REGULARIZATION VIZ ─── */
+.cviz{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}
+.cbox{flex:1;min-width:140px;border-radius:12px;padding:15px;border:2px solid;text-align:center}
+.cbox-small{border-color:rgba(91,94,244,.3);background:rgba(91,94,244,.05)}
+.cbox-large{border-color:rgba(244,63,94,.3);background:rgba(244,63,94,.05)}
+
+/* ─── MARGIN VIZ SVG ─── */
+.mviz{width:100%;border-radius:12px;overflow:hidden;background:#fafbff;border:1.5px solid var(--bdr)}
+
+/* ─── QUIZ ─── */
+.qc{background:var(--surf);border-radius:var(--r);padding:22px;border:1px solid var(--bdr);margin-bottom:14px;display:none;box-shadow:var(--sh)}
+.qc.on{display:block;animation:pgIn .32s}
+.qn{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);margin-bottom:7px}
+.qt{font-size:15.5px;font-weight:700;color:var(--ink);margin-bottom:16px;line-height:1.45}
+.qos{display:flex;flex-direction:column;gap:7px}
+.qo{padding:11px 15px;border-radius:9px;border:2px solid var(--bdr);cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;background:var(--surf);display:flex;align-items:center;gap:9px}
+.qo:hover:not(.dis){border-color:var(--p);background:rgba(91,94,244,.04)}
+.qo.ok{border-color:var(--g);background:rgba(0,201,167,.07);color:var(--g2)}
+.qo.ng{border-color:var(--rose);background:rgba(244,63,94,.06);color:var(--rose)}
+.ql{width:23px;height:23px;border-radius:7px;background:var(--bg);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.qfb{margin-top:11px;padding:11px 15px;border-radius:9px;font-size:12.5px;font-weight:700;display:none}
+.qfb.sh{display:block;animation:fi .28s}
+.qfb.ok{background:rgba(0,201,167,.09);color:var(--g2)}
+.qfb.ng{background:rgba(244,63,94,.07);color:var(--rose)}
+.qdots{display:flex;gap:5px;justify-content:center;margin-bottom:20px}
+.qd{width:28px;height:5px;border-radius:99px;background:var(--bdr);transition:all .3s}
+.qd.ok{background:var(--g)}.qd.ng{background:var(--rose)}.qd.cur{background:var(--p);width:40px}
+
+/* ─── EXERCISE ─── */
+.ex{background:var(--surf);border-radius:var(--r);border:1px solid var(--bdr);overflow:hidden;margin-bottom:15px;box-shadow:var(--sh)}
+.exh{padding:14px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bdr);background:var(--bg)}
+.exn{width:28px;height:28px;border-radius:8px;background:var(--grad);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ext{font-size:14px;font-weight:700;flex:1}
+.exb{padding:16px 20px}
+.sbt{display:inline-flex;align-items:center;gap:5px;padding:8px 15px;border-radius:8px;background:var(--bg);border:1px solid var(--bdr);font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;font-family:'Outfit',sans-serif;color:var(--ink2);margin-top:10px}
+.sbt:hover{background:var(--bdr)}
+.sol{display:none;margin-top:10px}
+.sol.op{display:block;animation:fi .3s}
+
+/* ─── SCORE ─── */
+.scw{text-align:center;padding:34px}
+.sring{width:114px;height:114px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 0 0 6px rgba(0,201,167,.12)}
+.sin{width:88px;height:88px;border-radius:50%;background:var(--surf);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sn{font-size:30px;font-weight:900;color:var(--ink)}
+.sd2{font-size:12px;color:var(--ink3)}
+.rbtn{display:inline-flex;align-items:center;gap:7px;padding:12px 26px;border-radius:99px;background:var(--grad);color:#fff;font-size:13px;font-weight:800;border:none;cursor:pointer;box-shadow:0 3px 14px rgba(91,94,244,.3);transition:all .2s;font-family:'Outfit',sans-serif;margin-top:14px}
+.rbtn:hover{transform:translateY(-2px)}
+
+/* ─── COMPLETION ─── */
+.cmpw{text-align:center;padding:40px 20px}
+.cmpi{font-size:66px;animation:bce 1s infinite alternate;display:block;margin-bottom:14px}
+@keyframes bce{from{transform:scale(1) translateY(0)}to{transform:scale(1.1) translateY(-8px)}}
+.cmpt{font-size:36px;font-weight:900;color:var(--ink);letter-spacing:-.7px;margin-bottom:7px}
+.cmps{font-size:15px;color:var(--ink2);margin-bottom:30px}
+.skw{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-bottom:30px}
+.sk{padding:7px 16px;border-radius:99px;font-size:12.5px;font-weight:700;border:2px solid;animation:pp .5s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes pp{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* MISC */
+code{font-family:'JetBrains Mono',monospace;background:rgba(91,94,244,.08);color:var(--p);padding:1px 5px;border-radius:5px;font-size:12px}
+.sep{height:1px;background:var(--bdr);margin:20px 0}
+.info{background:rgba(91,94,244,.05);border:1px solid rgba(91,94,244,.15);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--ink2);line-height:1.65}
+.info strong{color:var(--p)}
+
+/* margin bar */
+.mbar-wrap{flex:1;height:8px;background:var(--bdr);border-radius:99px;overflow:hidden}
+.mbar{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+
+/* flow nodes */
+.fnode{padding:10px 18px;border-radius:10px;font-size:12.5px;font-weight:700;display:inline-block;text-align:center}
+.farr{width:2px;height:24px;background:var(--bdr);margin:0 auto;position:relative}
+.farr::after{content:'▼';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--ink3)}
+
+@media(max-width:900px){#sb{display:none}#main{left:0;padding:18px 14px}.g2,.g3,.rvg,.ksel{grid-template-columns:1fr}}
+
+/* SVM hyperplane animation */
+@keyframes dashMove{from{stroke-dashoffset:20}to{stroke-dashoffset:0}}
+.anim-dash{animation:dashMove 1s linear infinite}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="tb">
+  <img src="logo.png" alt="HCL-GUVI Logo" class="tb-logo" onerror="this.style.display='none';document.getElementById('lfb').style.display='flex'">
+  <div id="lfb" class="tb-lfb"><span>HCL</span><span>GUVI</span></div>
+  <div class="tb-div"></div>
+  <span class="tb-mod">Support Vector Machine</span>
+  <span class="tb-badge">Supervised ML</span>
+  <div class="tb-prog">
+    <span class="tb-plbl">Progress</span>
+    <div class="tb-bar"><div class="tb-fill" id="tf"></div></div>
+    <span class="tb-pct" id="tpct">0%</span>
+  </div>
+  <div class="tb-user">
+    <div class="tb-av">V</div>
+    <div><div class="tb-nm">Vinodhini</div><div class="tb-rl">Data Scientist · HCL GUVI</div></div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav id="sb">
+  <div class="sb-sec">SVM Module</div>
+  <div class="ni on" onclick="go(0)" id="nv0"><div class="ni-ic">🏠</div>Welcome<div class="ni-ck" id="nc0"></div></div>
+  <div class="ni" onclick="go(1)" id="nv1"><div class="ni-ic">📐</div>The Hyperplane<div class="ni-ck" id="nc1"></div></div>
+  <div class="ni" onclick="go(2)" id="nv2"><div class="ni-ic">↔️</div>Margin & SVs<div class="ni-ck" id="nc2"></div></div>
+  <div class="ni" onclick="go(3)" id="nv3"><div class="ni-ic">🔮</div>Kernel Trick<div class="ni-ck" id="nc3"></div></div>
+  <div class="ni" onclick="go(4)" id="nv4"><div class="ni-ic">⚡</div>Advanced: Soft Margin<div class="ni-ck" id="nc4"></div></div>
+  <div class="ni" onclick="go(5)" id="nv5"><div class="ni-ic">🧪</div>Exercises<div class="ni-ck" id="nc5"></div></div>
+  <div class="ni" onclick="go(6)" id="nv6"><div class="ni-ic">🧠</div>Quiz<div class="ni-ck" id="nc6"></div></div>
+  <div class="ni" onclick="go(7)" id="nv7"><div class="ni-ic">🎉</div>Completion<div class="ni-ck" id="nc7"></div></div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+<!-- ══════ PAGE 0: WELCOME ══════ -->
+<div class="pg on" id="pg0">
+  <div class="hero">
+    <div class="hcnt">
+      <div style="font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#5b5ef4;margin-bottom:11px">SUPERVISED MACHINE LEARNING</div>
+      <h1>Support Vector<br>Machine</h1>
+      <p>Master one of ML's most powerful classifiers. SVM finds the optimal decision boundary that maximises the margin between classes — making it remarkably robust.</p>
+      <div class="hbdg">
+        <span class="hb h1c">📐 Hyperplane</span>
+        <span class="hb h2c">↔️ Maximum Margin</span>
+        <span class="hb h3c">🔮 Kernel Trick</span>
+        <span class="hb h4c">⚡ Soft Margin</span>
+      </div>
+      <button class="sbtn" onclick="go(1)">Start Learning →</button>
+    </div>
+    <div class="hdeco">⚡</div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="s">📚 What You'll Master</h3>
+      <div class="chk">
+        <div class="ci"><div class="cico">✓</div>What a hyperplane is and why it matters</div>
+        <div class="ci"><div class="cico">✓</div>Maximising margin and support vectors</div>
+        <div class="ci"><div class="cico">✓</div>The kernel trick for non-linear data</div>
+        <div class="ci"><div class="cico">✓</div>C regularisation and soft margin</div>
+        <div class="ci"><div class="cico">✓</div>Implement SVM with scikit-learn</div>
+        <div class="ci"><div class="cico">✓</div>Tune hyperparameters effectively</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="s">🗺️ SVM in the Real World</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:var(--bg);border-radius:10px;padding:13px;text-align:center">
+          <div style="font-size:24px;margin-bottom:4px">✉️</div>
+          <div style="font-size:11px;font-weight:700;color:var(--ink2)">Spam Detection</div>
+          <div style="font-size:10px;color:var(--ink3)">Classify emails</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:13px;text-align:center">
+          <div style="font-size:24px;margin-bottom:4px">🧬</div>
+          <div style="font-size:11px;font-weight:700;color:var(--ink2)">Cancer Detection</div>
+          <div style="font-size:10px;color:var(--ink3)">Medical images</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:13px;text-align:center">
+          <div style="font-size:24px;margin-bottom:4px">😊</div>
+          <div style="font-size:11px;font-weight:700;color:var(--ink2)">Sentiment Analysis</div>
+          <div style="font-size:10px;color:var(--ink3)">Text classification</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:13px;text-align:center">
+          <div style="font-size:24px;margin-bottom:4px">🖋️</div>
+          <div style="font-size:11px;font-weight:700;color:var(--ink2)">Handwriting</div>
+          <div style="font-size:10px;color:var(--ink3)">Digit recognition</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pgf"><span></span><button class="bn" onclick="go(1)">Next: The Hyperplane →</button></div>
+</div>
+
+<!-- ══════ PAGE 1: HYPERPLANE ══════ -->
+<div class="pg" id="pg1">
+  <div class="ey">Concept 1 of 3</div>
+  <div class="h1">The Hyperplane — Decision Boundary 📐</div>
+  <div class="sub">SVM finds a hyperplane — a line in 2D, a plane in 3D — that perfectly separates classes. But not just any hyperplane. The <strong>optimal</strong> one that maximises the gap between classes.</div>
+
+  <div class="ana">
+    <div class="ana-i">🚧</div>
+    <div>
+      <div class="ana-lbl">Real-Life Analogy</div>
+      <p class="body"><strong>Imagine a road divider separating two lanes of traffic.</strong> You could draw the divider anywhere, but the safest position is exactly in the middle — maximum distance from both lanes. SVM does the same: it places the decision boundary where it's furthest from all data points on both sides.</p>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVM CANVAS -->
+  <div class="card" style="margin-bottom:18px">
+    <h3 class="s">🎮 Interactive SVM Playground</h3>
+    <p class="body" style="margin-bottom:12px">Click to place data points. The SVM hyperplane and margin will update automatically! Use buttons to switch class.</p>
+    <div class="ctrl">
+      <button class="kb s1" id="b0" onclick="setC(0)">🔵 Class +1</button>
+      <button class="kb" id="b1" onclick="setC(1)">🔴 Class −1</button>
+      <button class="kb s3" id="bshow" onclick="toggleHyper()">Show Hyperplane</button>
+      <button class="kb sd" onclick="clearSVM()">🗑 Clear</button>
+    </div>
+    <canvas id="svmCanvas" height="300" onclick="svmClick(event)"></canvas>
+    <div id="svmMsg" style="margin-top:9px;font-size:13px;font-weight:700;color:var(--p);min-height:22px"></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="s">💻 SVM in Python</h3>
+      <div class="cb"><span class="cl">Python</span>
+<span class="ln">1</span><span class="kw">from</span> sklearn.svm <span class="kw">import</span> <span class="cl2">SVC</span>
+<span class="ln">2</span><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> make_classification
+<span class="ln">3</span><span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="ln">4</span>
+<span class="ln">5</span><span class="cm"># Generate linearly separable data</span>
+<span class="ln">6</span>X, y = make_classification(
+<span class="ln">7</span>  n_samples=<span class="nm">200</span>, n_features=<span class="nm">2</span>,
+<span class="ln">8</span>  n_redundant=<span class="nm">0</span>, random_state=<span class="nm">42</span>
+<span class="ln">9</span>)
+<span class="ln">10</span>X_tr, X_te, y_tr, y_te = train_test_split(
+<span class="ln">11</span>  X, y, test_size=<span class="nm">0.2</span>, random_state=<span class="nm">42</span>
+<span class="ln">12</span>)
+<span class="ln">13</span><span class="cm"># Linear SVM</span>
+<span class="ln">14</span>svm = <span class="cl2">SVC</span>(kernel=<span class="st">'linear'</span>, C=<span class="nm">1.0</span>)
+<span class="ln">15</span>svm.<span class="fn">fit</span>(X_tr, y_tr)
+<span class="ln">16</span><span class="fn">print</span>(<span class="st">f"Accuracy: {svm.score(X_te, y_te):.4f}"</span>)
+<span class="ln">17</span><span class="fn">print</span>(<span class="st">f"Support Vectors: {svm.support_vectors_.shape}"</span>)
+      </div>
+      <button class="run" onclick="showOut('o1')">▶ Run Demo</button>
+      <div class="out" id="o1">
+<span class="out-p">&gt;&gt;&gt; </span>Accuracy: 0.9750
+<span class="out-p">&gt;&gt;&gt; </span>Support Vectors: (6, 2)
+<span style="color:#4ade80">✓ SVM found the optimal hyperplane
+  using only 6 support vectors!
+  Most training points are ignored.</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="s">🪜 How SVM Finds the Hyperplane</h3>
+      <div class="sv" id="sv1">
+        <div class="si act" onclick="actS(0,'sv1')">
+          <div class="sdc"><div class="sd">1</div><div class="sl2"></div></div>
+          <div class="sc"><div class="stt">Identify the two classes</div><div class="sds">Training data points are labelled +1 or −1. SVM must find a surface that correctly divides them.</div></div>
+        </div>
+        <div class="si" onclick="actS(1,'sv1')">
+          <div class="sdc"><div class="sd">2</div><div class="sl2"></div></div>
+          <div class="sc"><div class="stt">Find candidate hyperplanes</div><div class="sds">Infinitely many hyperplanes can separate two linearly separable classes. SVM considers them all mathematically.</div></div>
+        </div>
+        <div class="si" onclick="actS(2,'sv1')">
+          <div class="sdc"><div class="sd">3</div><div class="sl2"></div></div>
+          <div class="sc"><div class="stt">Calculate margin for each</div><div class="sds">The margin is the perpendicular distance between the hyperplane and the nearest points from each class.</div></div>
+        </div>
+        <div class="si" onclick="actS(3,'sv1')">
+          <div class="sdc"><div class="sd">4</div><div class="sl2"></div></div>
+          <div class="sc"><div class="stt">Select maximum-margin hyperplane</div><div class="sds">The hyperplane with the <em>largest margin</em> is chosen. This is solved as a convex quadratic optimisation problem.</div></div>
+        </div>
+        <div class="si" onclick="actS(4,'sv1')">
+          <div class="sdc"><div class="sd">5</div></div>
+          <div class="sc"><div class="stt">Support vectors define it all</div><div class="sds">The boundary is defined entirely by the closest data points — called support vectors. Move any other point and nothing changes!</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(0)">← Welcome</button>
+    <button class="bn" onclick="go(2)">Next: Margin & SVs →</button>
+  </div>
+</div>
+
+<!-- ══════ PAGE 2: MARGIN & SVs ══════ -->
+<div class="pg" id="pg2">
+  <div class="ey">Concept 2 of 3</div>
+  <div class="h1">Margin & Support Vectors ↔️</div>
+  <div class="sub">The <strong>margin</strong> is the "safety zone" between the hyperplane and each class. Support vectors are the critical border points that define this margin — the algorithm ignores everything else.</div>
+
+  <div class="ana">
+    <div class="ana-i">🎯</div>
+    <div>
+      <div class="ana-lbl">Real-Life Analogy</div>
+      <p class="body"><strong>Think of parking a car in a tight spot.</strong> A good driver maximises the gap from both kerbs. The decision depends only on the two closest obstacles — not every car in the city. Support vectors are those critical obstacles; everything else is irrelevant to where you park.</p>
+    </div>
+  </div>
+
+  <!-- ANIMATED MARGIN SVG -->
+  <div class="card" style="margin-bottom:18px">
+    <h3 class="s">📊 Animated Margin Visualizer</h3>
+    <p class="body" style="margin-bottom:13px">Drag the slider to see how margin width changes. Wider margin = better generalisation!</p>
+    <div class="slw" style="margin-bottom:14px">
+      <div class="slr">
+        <label>Margin Width</label>
+        <input type="range" min="20" max="90" value="50" id="mgSlider" oninput="updateMargin(this.value)">
+        <span class="slv" id="mgVal">50</span>
+      </div>
+    </div>
+    <svg id="marginSVG" class="mviz" height="220" viewBox="0 0 600 220">
+      <!-- Grid -->
+      <defs>
+        <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+          <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#e3e7f5" stroke-width="0.8"/>
+        </pattern>
+      </defs>
+      <rect width="600" height="220" fill="url(#grid)"/>
+      <!-- Class regions -->
+      <rect id="reg1" x="0" y="0" width="300" height="220" fill="rgba(91,94,244,.04)"/>
+      <rect id="reg2" x="300" y="0" width="300" height="220" fill="rgba(244,63,94,.04)"/>
+      <!-- Margin zone -->
+      <rect id="mzone" x="225" y="0" width="150" height="220" fill="rgba(0,201,167,.08)" stroke="rgba(0,201,167,.3)" stroke-width="1" stroke-dasharray="6,4"/>
+      <!-- Hyperplane -->
+      <line id="hplane" x1="300" y1="0" x2="300" y2="220" stroke="#5b5ef4" stroke-width="2.5" stroke-dasharray="10,5" class="anim-dash"/>
+      <!-- Margin lines -->
+      <line id="mline1" x1="225" y1="0" x2="225" y2="220" stroke="#00c9a7" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <line id="mline2" x1="375" y1="0" x2="375" y2="220" stroke="#00c9a7" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <!-- Points -->
+      <g id="svPoints"></g>
+      <!-- Labels -->
+      <text x="120" y="30" font-family="Outfit" font-size="13" font-weight="700" fill="#5b5ef4">Class +1</text>
+      <text x="440" y="30" font-family="Outfit" font-size="13" font-weight="700" fill="#f43f5e">Class −1</text>
+      <text x="240" y="212" font-family="Outfit" font-size="10" fill="#00c9a7" font-weight="700">← Margin →</text>
+      <text x="282" y="17" font-family="Outfit" font-size="10" fill="#5b5ef4" font-weight="700">w·x+b=0</text>
+      <!-- Margin bracket -->
+      <line id="marr1" x1="225" y1="200" x2="300" y2="200" stroke="#00c9a7" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line id="marr2" x1="375" y1="200" x2="300" y2="200" stroke="#00c9a7" stroke-width="1.5"/>
+    </svg>
+    <div id="marginInfo" style="margin-top:12px;padding:12px 16px;background:var(--bg);border-radius:10px;font-size:13px;color:var(--ink2)">
+      Current margin width: <strong style="color:var(--g)">50px</strong> — Balanced margin. Good generalisation expected.
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="s">💻 Inspecting Support Vectors</h3>
+      <div class="cb"><span class="cl">Python</span>
+<span class="ln">1</span><span class="kw">from</span> sklearn.svm <span class="kw">import</span> <span class="cl2">SVC</span>
+<span class="ln">2</span><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="ln">3</span>
+<span class="ln">4</span>svm = <span class="cl2">SVC</span>(kernel=<span class="st">'linear'</span>, C=<span class="nm">1.0</span>)
+<span class="ln">5</span>svm.<span class="fn">fit</span>(X_tr, y_tr)
+<span class="ln">6</span>
+<span class="ln">7</span><span class="cm"># Support vectors — only these matter!</span>
+<span class="ln">8</span><span class="fn">print</span>(<span class="st">"Support Vectors:\n"</span>, svm.support_vectors_)
+<span class="ln">9</span><span class="fn">print</span>(<span class="st">f"\nTotal SVs: {len(svm.support_vectors_)}"</span>)
+<span class="ln">10</span>
+<span class="ln">11</span><span class="cm"># Margin width = 2 / ||w||</span>
+<span class="ln">12</span>w = svm.coef_[<span class="nm">0</span>]
+<span class="ln">13</span>margin = <span class="nm">2</span> / np.<span class="fn">linalg.norm</span>(w)
+<span class="ln">14</span><span class="fn">print</span>(<span class="st">f"Margin width: {margin:.4f}"</span>)
+      </div>
+      <button class="run" onclick="showOut('o2')">▶ Run Demo</button>
+      <div class="out" id="o2">
+<span class="out-p">&gt;&gt;&gt; </span>Support Vectors:
+<span class="out-p">&gt;&gt;&gt; </span>[[1.24, -0.38], [-1.05, 0.79],
+<span class="out-p">&gt;&gt;&gt; </span> [0.98, 1.12], [-0.67, -0.44]]
+<span class="out-p">&gt;&gt;&gt; </span>Total SVs: 4
+<span style="color:#4ade80">Margin width: 1.8743
+Only 4 points out of 160 determine
+the entire decision boundary!</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="s">🧩 Key Concepts — Click to Explore</h3>
+      <div class="rvg">
+        <div class="rv" onclick="this.classList.toggle('fl')">
+          <div class="rv-f">📐 Hyperplane Equation</div>
+          <div class="rv-b">The SVM hyperplane satisfies <strong>w·x + b = 0</strong> where w is the weight vector (normal to hyperplane), x is a data point, and b is the bias. All correctly classified points satisfy y(w·x + b) ≥ 1.</div>
+          <div class="rv-h">👆 Tap to reveal</div>
+        </div>
+        <div class="rv" onclick="this.classList.toggle('fl')">
+          <div class="rv-f">↔️ Margin Formula</div>
+          <div class="rv-b">Margin = <strong>2 / ||w||</strong>. Maximising margin is equivalent to minimising ||w||. This is a convex optimisation problem with a unique global solution — guaranteed!</div>
+          <div class="rv-h">👆 Tap to reveal</div>
+        </div>
+        <div class="rv" onclick="this.classList.toggle('fl')">
+          <div class="rv-f">🎯 Support Vectors Role</div>
+          <div class="rv-b">Points lying exactly on the margin boundaries (w·x + b = ±1) are support vectors. <strong>Remove any other point</strong> and the hyperplane stays identical. SVs are the skeleton of the model.</div>
+          <div class="rv-h">👆 Tap to reveal</div>
+        </div>
+        <div class="rv" onclick="this.classList.toggle('fl')">
+          <div class="rv-f">⚡ Hard vs Soft Margin</div>
+          <div class="rv-b"><strong>Hard margin</strong>: requires perfect linear separation — fails on noisy data. <strong>Soft margin</strong>: allows some misclassifications via slack variables ξᵢ ≥ 0. Controlled by hyperparameter C.</div>
+          <div class="rv-h">👆 Tap to reveal</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(1)">← The Hyperplane</button>
+    <button class="bn" onclick="go(3)">Next: Kernel Trick →</button>
+  </div>
+</div>
+
+<!-- ══════ PAGE 3: KERNEL TRICK ══════ -->
+<div class="pg" id="pg3">
+  <div class="ey">Concept 3 of 3</div>
+  <div class="h1">The Kernel Trick 🔮</div>
+  <div class="sub">Real data is rarely linearly separable. Kernels implicitly map data into higher-dimensional spaces where a linear boundary <em>can</em> separate classes — without the computational cost of explicit transformation.</div>
+
+  <div class="ana">
+    <div class="ana-i">🌍</div>
+    <div>
+      <div class="ana-lbl">Real-Life Analogy</div>
+      <p class="body"><strong>Imagine red and blue marbles mixed on a table.</strong> You can't separate them with a ruler (line). But if you flip the table upward — shooting marbles into the air — a flat hand (plane) could separate them in 3D space! The kernel trick is that "flip into higher dimensions", and it costs almost nothing computationally.</p>
+    </div>
+  </div>
+
+  <!-- KERNEL SELECTOR -->
+  <div class="card" style="margin-bottom:18px">
+    <h3 class="s">🔮 Interactive Kernel Explorer</h3>
+    <p class="body" style="margin-bottom:13px">Click a kernel to learn when and how to use it. Each transforms the feature space differently!</p>
+    <div class="ksel">
+      <div class="kopt on" onclick="selKern(this,'linear')">
+        <span class="k-name">Linear</span>
+        <span class="k-math">x·z</span>
+        <span class="k-use">Linearly separable</span>
+      </div>
+      <div class="kopt" onclick="selKern(this,'poly')">
+        <span class="k-name">Polynomial</span>
+        <span class="k-math">(γx·z+r)ᵈ</span>
+        <span class="k-use">Curved boundaries</span>
+      </div>
+      <div class="kopt" onclick="selKern(this,'rbf')">
+        <span class="k-name">RBF / Gaussian</span>
+        <span class="k-math">exp(-γ||x-z||²)</span>
+        <span class="k-use">Most popular choice</span>
+      </div>
+      <div class="kopt" onclick="selKern(this,'sigmoid')">
+        <span class="k-name">Sigmoid</span>
+        <span class="k-math">tanh(γx·z+r)</span>
+        <span class="k-use">Like neural network</span>
+      </div>
+    </div>
+    <div class="kinfo" id="kinfo">
+      <strong style="color:var(--p)">Linear Kernel:</strong> No transformation applied. The original feature space is used. Best when data is already linearly separable. Fastest kernel — O(n) training. Use when n_features > n_samples.
+    </div>
+
+    <!-- Visual kernel demo -->
+    <div style="margin-top:14px;display:flex;gap:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink3);margin-bottom:8px">Input Space (Non-linearly separable)</div>
+        <svg width="100%" height="150" viewBox="0 0 240 150" style="background:#fafbff;border-radius:10px;border:1.5px solid var(--bdr)">
+          <!-- Blue points (ring) -->
+          <circle cx="120" cy="75" r="35" fill="none" stroke="#5b5ef4" stroke-width="1" stroke-dasharray="3,2" opacity=".3"/>
+          <circle cx="90" cy="60" r="6" fill="#5b5ef4" opacity=".8"/>
+          <circle cx="150" cy="60" r="6" fill="#5b5ef4" opacity=".8"/>
+          <circle cx="120" cy="40" r="6" fill="#5b5ef4" opacity=".8"/>
+          <circle cx="88" cy="88" r="6" fill="#5b5ef4" opacity=".8"/>
+          <circle cx="152" cy="88" r="6" fill="#5b5ef4" opacity=".8"/>
+          <circle cx="120" cy="108" r="6" fill="#5b5ef4" opacity=".8"/>
+          <!-- Red points (center) -->
+          <circle cx="120" cy="75" r="5" fill="#f43f5e" opacity=".9"/>
+          <circle cx="110" cy="68" r="5" fill="#f43f5e" opacity=".9"/>
+          <circle cx="130" cy="68" r="5" fill="#f43f5e" opacity=".9"/>
+          <circle cx="120" cy="83" r="5" fill="#f43f5e" opacity=".9"/>
+          <text x="10" y="18" font-size="10" fill="#f43f5e" font-weight="700" font-family="Outfit">● Class −1 (center)</text>
+          <text x="10" y="32" font-size="10" fill="#5b5ef4" font-weight="700" font-family="Outfit">● Class +1 (ring)</text>
+          <text x="72" y="145" font-size="9" fill="#9aa4c0" font-family="Outfit">No linear boundary exists!</text>
+        </svg>
+      </div>
+      <div style="display:flex;align-items:center;font-size:28px;color:var(--ink3)">→</div>
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink3);margin-bottom:8px">Kernel Space (Linearly separable)</div>
+        <svg width="100%" height="150" viewBox="0 0 240 150" style="background:#fafbff;border-radius:10px;border:1.5px solid var(--bdr)">
+          <!-- 3D projection hint -->
+          <ellipse cx="120" cy="110" rx="90" ry="20" fill="rgba(91,94,244,.06)" stroke="rgba(91,94,244,.2)" stroke-width="1"/>
+          <!-- Blue points (lifted up) -->
+          <circle cx="60" cy="60" r="5" fill="#5b5ef4" opacity=".8"/>
+          <circle cx="180" cy="60" r="5" fill="#5b5ef4" opacity=".8"/>
+          <circle cx="50" cy="90" r="5" fill="#5b5ef4" opacity=".8"/>
+          <circle cx="190" cy="90" r="5" fill="#5b5ef4" opacity=".8"/>
+          <circle cx="80" cy="40" r="5" fill="#5b5ef4" opacity=".8"/>
+          <circle cx="160" cy="40" r="5" fill="#5b5ef4" opacity=".8"/>
+          <!-- Red points (stayed low) -->
+          <circle cx="120" cy="115" r="5" fill="#f43f5e" opacity=".9"/>
+          <circle cx="108" cy="118" r="5" fill="#f43f5e" opacity=".9"/>
+          <circle cx="132" cy="118" r="5" fill="#f43f5e" opacity=".9"/>
+          <circle cx="120" cy="122" r="5" fill="#f43f5e" opacity=".9"/>
+          <!-- Linear separator plane -->
+          <line x1="20" y1="100" x2="220" y2="100" stroke="#00c9a7" stroke-width="2" stroke-dasharray="8,4"/>
+          <text x="145" y="95" font-size="10" fill="#00c9a7" font-weight="700" font-family="Outfit">Hyperplane</text>
+          <text x="40" y="145" font-size="9" fill="#9aa4c0" font-family="Outfit">RBF maps to higher dim!</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="s">💻 Kernel Comparison</h3>
+      <div class="cb"><span class="cl">Python</span>
+<span class="ln">1</span><span class="kw">from</span> sklearn.svm <span class="kw">import</span> <span class="cl2">SVC</span>
+<span class="ln">2</span><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> make_circles
+<span class="ln">3</span>
+<span class="ln">4</span><span class="cm"># Non-linearly separable data</span>
+<span class="ln">5</span>X, y = make_circles(
+<span class="ln">6</span>  n_samples=<span class="nm">300</span>, noise=<span class="nm">0.1</span>, random_state=<span class="nm">42</span>
+<span class="ln">7</span>)
+<span class="ln">8</span>
+<span class="ln">9</span>kernels = [<span class="st">'linear'</span>, <span class="st">'poly'</span>, <span class="st">'rbf'</span>, <span class="st">'sigmoid'</span>]
+<span class="ln">10</span>
+<span class="ln">11</span><span class="kw">for</span> k <span class="kw">in</span> kernels:
+<span class="ln">12</span>  svm = <span class="cl2">SVC</span>(kernel=k, gamma=<span class="st">'scale'</span>)
+<span class="ln">13</span>  svm.<span class="fn">fit</span>(X_tr, y_tr)
+<span class="ln">14</span>  acc = svm.<span class="fn">score</span>(X_te, y_te)
+<span class="ln">15</span>  <span class="fn">print</span>(<span class="st">f"{k:8}: {acc:.4f}"</span>)
+      </div>
+      <button class="run" onclick="showOut('o3')">▶ Run Demo</button>
+      <div class="out" id="o3">
+<span class="out-p">&gt;&gt;&gt; </span>linear  : 0.4833  ← Can't separate circles!
+<span class="out-p">&gt;&gt;&gt; </span>poly    : 0.8167
+<span class="out-p">&gt;&gt;&gt; </span>rbf     : 1.0000  ← Perfect with RBF!
+<span class="out-p">&gt;&gt;&gt; </span>sigmoid : 0.4833
+<span style="color:#4ade80">RBF dominates on circular/complex data.
+Always try RBF as your first choice! 🔮</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="s">🎛️ Gamma Parameter Simulator</h3>
+      <p class="body" style="margin-bottom:12px">Gamma controls how far the influence of a single training point reaches in RBF kernel:</p>
+      <div class="slw" style="margin-bottom:12px">
+        <div class="slr">
+          <label>Gamma (γ)</label>
+          <input type="range" min="1" max="10" value="3" id="gamSlider" oninput="updateGamma(this.value)">
+          <span class="slv" id="gamVal">0.3</span>
+        </div>
+      </div>
+      <div id="gammaViz" style="display:flex;flex-direction:column;gap:9px">
+        <div style="background:var(--bg);border-radius:11px;padding:14px;transition:all .3s">
+          <div style="font-size:12px;font-weight:800;margin-bottom:5px" id="gamLabel">🎯 Medium Gamma (γ=0.3)</div>
+          <div style="font-size:12px;color:var(--ink2)" id="gamDesc">Balanced influence radius. Points affect a moderate neighbourhood. Usually a good default.</div>
+          <div style="margin-top:8px;height:6px;background:var(--bdr);border-radius:99px;overflow:hidden">
+            <div id="gamBar" style="height:100%;width:30%;background:linear-gradient(90deg,var(--p),var(--g));border-radius:99px;transition:width .5s"></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:rgba(91,94,244,.06);border-radius:10px;padding:11px;border:1px solid rgba(91,94,244,.15)">
+            <div style="font-size:10px;font-weight:800;color:var(--p);margin-bottom:4px">Low γ</div>
+            <div style="font-size:11px;color:var(--ink2)">Wide influence → Underfitting → Smoother boundary</div>
+          </div>
+          <div style="background:rgba(244,63,94,.06);border-radius:10px;padding:11px;border:1px solid rgba(244,63,94,.15)">
+            <div style="font-size:10px;font-weight:800;color:var(--rose);margin-bottom:4px">High γ</div>
+            <div style="font-size:11px;color:var(--ink2)">Narrow influence → Overfitting → Jagged boundary</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(2)">← Margin & SVs</button>
+    <button class="bn" onclick="go(4)">Next: Soft Margin →</button>
+  </div>
+</div>
+
+<!-- ══════ PAGE 4: SOFT MARGIN / ADVANCED ══════ -->
+<div class="pg" id="pg4">
+  <div class="ey">Advanced Concept</div>
+  <div class="h1">Soft Margin & Regularisation ⚡</div>
+  <div class="sub">Real-world data has noise and outliers. Soft margin SVM allows some misclassifications by introducing slack variables — controlled by the all-important <strong>C hyperparameter</strong>.</div>
+
+  <!-- C PARAMETER INTERACTIVE -->
+  <div class="card" style="margin-bottom:18px">
+    <h3 class="s">🎛️ C Parameter: Bias-Variance Trade-off</h3>
+    <p class="body" style="margin-bottom:14px">Adjust C to see how it balances margin width vs misclassification penalty:</p>
+    <div class="slw" style="margin-bottom:14px">
+      <div class="slr">
+        <label>C value</label>
+        <input type="range" min="1" max="100" value="10" id="cSlider" oninput="updateC(this.value)">
+        <span class="slv" id="cVal">1.0</span>
+      </div>
+    </div>
+
+    <div class="cviz">
+      <div class="cbox cbox-small" id="cBox1">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--p);margin-bottom:7px">Bias</div>
+        <div style="font-size:20px;font-weight:800;color:var(--p)" id="cBias">Low</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:4px" id="cBiasD">Few constraints, large margin</div>
+      </div>
+      <div class="cbox cbox-large" id="cBox2">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--rose);margin-bottom:7px">Variance</div>
+        <div style="font-size:20px;font-weight:800;color:var(--rose)" id="cVar">Low</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:4px" id="cVarD">Tolerates violations</div>
+      </div>
+      <div style="flex:1;min-width:140px;border-radius:12px;padding:15px;border:2px solid rgba(0,201,167,.3);background:rgba(0,201,167,.06);text-align:center">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--g);margin-bottom:7px">Margin</div>
+        <div style="font-size:20px;font-weight:800;color:var(--g)" id="cMargin">Wide</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:4px" id="cMarginD">High generalisation</div>
+      </div>
+      <div style="flex:1;min-width:140px;border-radius:12px;padding:15px;border:2px solid rgba(245,158,11,.3);background:rgba(245,158,11,.06);text-align:center">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--amber);margin-bottom:7px">Status</div>
+        <div style="font-size:20px;font-weight:800" id="cStatus" style="color:var(--g)">Balanced</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:4px" id="cStatusD">Recommended starting point</div>
+      </div>
+    </div>
+
+    <svg width="100%" height="80" viewBox="0 0 500 80" style="margin-top:14px;background:var(--bg);border-radius:10px;overflow:hidden">
+      <path d="M20,20 Q100,15 200,22 Q280,28 350,42 Q420,58 480,68" stroke="#5b5ef4" stroke-width="2.5" fill="none" stroke-dasharray="none"/>
+      <text x="25" y="15" font-size="9" fill="#5b5ef4" font-family="JetBrains Mono">Train Accuracy</text>
+      <path d="M20,65 Q80,30 160,20 Q230,14 300,20 Q380,30 480,70" stroke="#00c9a7" stroke-width="2.5" fill="none" stroke-dasharray="none"/>
+      <text x="25" y="75" font-size="9" fill="#00c9a7" font-family="JetBrains Mono">Test Accuracy</text>
+      <line id="cLine" x1="100" y1="0" x2="100" y2="80" stroke="var(--amber)" stroke-width="2" stroke-dasharray="4,3" opacity=".8"/>
+      <text x="2" y="40" font-size="9" fill="#9aa4c0" font-family="Outfit">Small C</text>
+      <text x="440" y="40" font-size="9" fill="#9aa4c0" font-family="Outfit">Large C</text>
+    </svg>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="s">💻 GridSearchCV for SVM Tuning</h3>
+      <div class="cb"><span class="cl">Python</span>
+<span class="ln">1</span><span class="kw">from</span> sklearn.svm <span class="kw">import</span> <span class="cl2">SVC</span>
+<span class="ln">2</span><span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> GridSearchCV
+<span class="ln">3</span><span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="ln">4</span><span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="ln">5</span>
+<span class="ln">6</span><span class="cm"># Always scale before SVM!</span>
+<span class="ln">7</span>pipe = <span class="cl2">Pipeline</span>([
+<span class="ln">8</span>  (<span class="st">'scaler'</span>, <span class="cl2">StandardScaler</span>()),
+<span class="ln">9</span>  (<span class="st">'svm'</span>, <span class="cl2">SVC</span>(probability=<span class="kw">True</span>))
+<span class="ln">10</span>])
+<span class="ln">11</span>
+<span class="ln">12</span>param_grid = {
+<span class="ln">13</span>  <span class="st">'svm__C'</span>: [<span class="nm">0.1</span>, <span class="nm">1</span>, <span class="nm">10</span>, <span class="nm">100</span>],
+<span class="ln">14</span>  <span class="st">'svm__gamma'</span>: [<span class="st">'scale'</span>, <span class="nm">0.01</span>, <span class="nm">0.1</span>],
+<span class="ln">15</span>  <span class="st">'svm__kernel'</span>: [<span class="st">'rbf'</span>, <span class="st">'linear'</span>]
+<span class="ln">16</span>}
+<span class="ln">17</span>grid = <span class="cl2">GridSearchCV</span>(
+<span class="ln">18</span>  pipe, param_grid, cv=<span class="nm">5</span>, scoring=<span class="st">'accuracy'</span>
+<span class="ln">19</span>)
+<span class="ln">20</span>grid.<span class="fn">fit</span>(X_tr, y_tr)
+<span class="ln">21</span><span class="fn">print</span>(grid.best_params_)
+      </div>
+      <button class="run" onclick="showOut('o4')">▶ Run Demo</button>
+      <div class="out" id="o4">
+<span class="out-p">&gt;&gt;&gt; </span>Best params: {
+<span class="out-p">&gt;&gt;&gt; </span>  'svm__C': 10,
+<span class="out-p">&gt;&gt;&gt; </span>  'svm__gamma': 'scale',
+<span class="out-p">&gt;&gt;&gt; </span>  'svm__kernel': 'rbf'
+<span class="out-p">&gt;&gt;&gt; </span>}
+<span style="color:#4ade80">Best CV Accuracy: 0.9875
+Test Accuracy:    0.9800
+✓ Always scale + tune together!</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="s">⚖️ SVM Decision Checklist</h3>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div style="background:var(--bg);border-radius:11px;padding:13px;border-left:4px solid var(--p)">
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">1️⃣ Scale your features</div>
+          <div style="font-size:12px;color:var(--ink2)">SVM is sensitive to scale. Always apply StandardScaler or MinMaxScaler first.</div>
+        </div>
+        <div style="background:var(--bg);border-radius:11px;padding:13px;border-left:4px solid var(--g)">
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">2️⃣ Start with RBF kernel</div>
+          <div style="font-size:12px;color:var(--ink2)">RBF handles most data shapes. Use linear only if n_features ≫ n_samples (text data).</div>
+        </div>
+        <div style="background:var(--bg);border-radius:11px;padding:13px;border-left:4px solid var(--p2)">
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">3️⃣ Tune C and gamma together</div>
+          <div style="font-size:12px;color:var(--ink2)">Use GridSearchCV with 5-fold CV. C=[0.1,1,10,100], gamma=[0.001,0.01,0.1,1].</div>
+        </div>
+        <div style="background:var(--bg);border-radius:11px;padding:13px;border-left:4px solid var(--amber)">
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">4️⃣ Consider dataset size</div>
+          <div style="font-size:12px;color:var(--ink2)">SVM scales O(n²–n³). For n > 100k samples, consider LinearSVC or SGDClassifier instead.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(3)">← Kernel Trick</button>
+    <button class="bn" onclick="go(5)">Next: Exercises →</button>
+  </div>
+</div>
+
+<!-- ══════ PAGE 5: EXERCISES ══════ -->
+<div class="pg" id="pg5">
+  <div class="ey">Practice</div>
+  <div class="h1">Coding Exercises 🧪</div>
+  <div class="sub">Attempt each problem before peeking at the solution. Struggling first accelerates learning!</div>
+
+  <div class="ex">
+    <div class="exh">
+      <div class="exn">1</div>
+      <div class="ext">Train a Linear SVM on the Breast Cancer Dataset</div>
+      <span class="tag tgb" style="margin-left:auto">Linear SVM</span>
+    </div>
+    <div class="exb">
+      <p class="body" style="margin-bottom:10px">Load the breast cancer dataset, split 80/20, scale features, and train a linear SVM. Report accuracy, number of support vectors per class, and the margin width.</p>
+      <button class="sbt" onclick="toggleSol(this,'s1')">💡 Show Solution</button>
+      <div class="sol" id="s1">
+        <div class="cb">
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.svm <span class="kw">import</span> <span class="cl2">SVC</span>
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> <span class="cl2">StandardScaler</span>
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+X, y = <span class="fn">load_breast_cancer</span>(return_X_y=<span class="kw">True</span>)
+X_tr, X_te, y_tr, y_te = <span class="fn">train_test_split</span>(
+  X, y, test_size=<span class="nm">0.2</span>, random_state=<span class="nm">42</span>
+)
+scaler = <span class="cl2">StandardScaler</span>()
+X_tr_s = scaler.<span class="fn">fit_transform</span>(X_tr)
+X_te_s = scaler.<span class="fn">transform</span>(X_te)
+
+svm = <span class="cl2">SVC</span>(kernel=<span class="st">'linear'</span>, C=<span class="nm">1.0</span>)
+svm.<span class="fn">fit</span>(X_tr_s, y_tr)
+
+<span class="fn">print</span>(<span class="st">f"Accuracy: {svm.score(X_te_s, y_te):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"SVs per class: {svm.n_support_}"</span>)
+margin = <span class="nm">2</span> / np.<span class="fn">linalg.norm</span>(svm.coef_[<span class="nm">0</span>])
+<span class="fn">print</span>(<span class="st">f"Margin width: {margin:.4f}"</span>)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="exh">
+      <div class="exn">2</div>
+      <div class="ext">RBF Kernel SVM with Hyperparameter Tuning</div>
+      <span class="tag tgp" style="margin-left:auto">RBF + GridSearch</span>
+    </div>
+    <div class="exb">
+      <p class="body" style="margin-bottom:10px">Using the digits dataset, train RBF SVM models with different C and gamma values. Use GridSearchCV with 5-fold cross-validation to find the best combination.</p>
+      <button class="sbt" onclick="toggleSol(this,'s2')">💡 Show Solution</button>
+      <div class="sol" id="s2">
+        <div class="cb">
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_digits
+<span class="kw">from</span> sklearn.svm <span class="kw">import</span> <span class="cl2">SVC</span>
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> GridSearchCV, train_test_split
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> <span class="cl2">StandardScaler</span>
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+
+X, y = <span class="fn">load_digits</span>(return_X_y=<span class="kw">True</span>)
+X_tr, X_te, y_tr, y_te = <span class="fn">train_test_split</span>(
+  X, y, test_size=<span class="nm">0.2</span>, random_state=<span class="nm">42</span>
+)
+pipe = <span class="cl2">Pipeline</span>([
+  (<span class="st">'sc'</span>, <span class="cl2">StandardScaler</span>()),
+  (<span class="st">'svm'</span>, <span class="cl2">SVC</span>(kernel=<span class="st">'rbf'</span>))
+])
+params = {
+  <span class="st">'svm__C'</span>: [<span class="nm">1</span>, <span class="nm">10</span>, <span class="nm">100</span>],
+  <span class="st">'svm__gamma'</span>: [<span class="nm">0.001</span>, <span class="nm">0.01</span>, <span class="nm">0.1</span>]
+}
+gs = <span class="cl2">GridSearchCV</span>(pipe, params, cv=<span class="nm">5</span>)
+gs.<span class="fn">fit</span>(X_tr, y_tr)
+<span class="fn">print</span>(<span class="st">f"Best: {gs.best_params_}"</span>)
+<span class="fn">print</span>(<span class="st">f"Test Acc: {gs.score(X_te, y_te):.4f}"</span>)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="exh">
+      <div class="exn">3</div>
+      <div class="ext">Multi-class SVM with Confusion Matrix</div>
+      <span class="tag tgg" style="margin-left:auto">Multi-class</span>
+    </div>
+    <div class="exb">
+      <p class="body" style="margin-bottom:10px">Train a multi-class SVM on the Iris dataset. Use OvO (One-vs-One) strategy (default in SVC). Print the classification report and plot the confusion matrix values.</p>
+      <button class="sbt" onclick="toggleSol(this,'s3')">💡 Show Solution</button>
+      <div class="sol" id="s3">
+        <div class="cb">
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_iris
+<span class="kw">from</span> sklearn.svm <span class="kw">import</span> <span class="cl2">SVC</span>
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> classification_report, confusion_matrix
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> <span class="cl2">StandardScaler</span>
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+
+X, y = <span class="fn">load_iris</span>(return_X_y=<span class="kw">True</span>)
+X_tr, X_te, y_tr, y_te = <span class="fn">train_test_split</span>(
+  X, y, test_size=<span class="nm">0.2</span>, stratify=y, random_state=<span class="nm">42</span>
+)
+sc = <span class="cl2">StandardScaler</span>()
+X_tr_s, X_te_s = sc.<span class="fn">fit_transform</span>(X_tr), sc.<span class="fn">transform</span>(X_te)
+
+<span class="cm"># OvO is default — creates C(n,2) binary classifiers</span>
+svm = <span class="cl2">SVC</span>(kernel=<span class="st">'rbf'</span>, C=<span class="nm">10</span>, decision_function_shape=<span class="st">'ovo'</span>)
+svm.<span class="fn">fit</span>(X_tr_s, y_tr)
+
+<span class="fn">print</span>(<span class="fn">classification_report</span>(y_te, svm.<span class="fn">predict</span>(X_te_s),
+      target_names=[<span class="st">'Setosa'</span>,<span class="st">'Versicolor'</span>,<span class="st">'Virginica'</span>]))
+<span class="fn">print</span>(<span class="fn">confusion_matrix</span>(y_te, svm.<span class="fn">predict</span>(X_te_s)))
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(4)">← Soft Margin</button>
+    <button class="bn" onclick="go(6)">Next: Quiz →</button>
+  </div>
+</div>
+
+<!-- ══════ PAGE 6: QUIZ ══════ -->
+<div class="pg" id="pg6">
+  <div class="ey">Knowledge Check</div>
+  <div class="h1">Module Quiz 🧠</div>
+  <div class="sub">5 challenging questions to cement your SVM understanding. Think carefully!</div>
+
+  <div class="qdots">
+    <div class="qd cur" id="qd0"></div>
+    <div class="qd" id="qd1"></div>
+    <div class="qd" id="qd2"></div>
+    <div class="qd" id="qd3"></div>
+    <div class="qd" id="qd4"></div>
+  </div>
+
+  <div class="qc on" id="q0">
+    <div class="qn">Question 1 of 5</div>
+    <div class="qt">What is the primary objective of a Support Vector Machine?</div>
+    <div class="qos">
+      <div class="qo" onclick="ans(this,0,2)"><span class="ql">A</span>Minimise training error at all costs</div>
+      <div class="qo" onclick="ans(this,0,2)"><span class="ql">B</span>Maximise the number of support vectors</div>
+      <div class="qo" onclick="ans(this,0,2)"><span class="ql">C</span>Find the hyperplane that maximises the margin between classes</div>
+      <div class="qo" onclick="ans(this,0,2)"><span class="ql">D</span>Minimise the number of features</div>
+    </div>
+    <div class="qfb" id="qfb0"></div>
+    <div style="margin-top:12px;text-align:right"><button class="bn" style="display:none" id="qnxt0" onclick="nxt(1)">Next →</button></div>
+  </div>
+
+  <div class="qc" id="q1">
+    <div class="qn">Question 2 of 5</div>
+    <div class="qt">Which data points actually determine the position of the SVM decision boundary?</div>
+    <div class="qos">
+      <div class="qo" onclick="ans(this,1,1)"><span class="ql">A</span>All training data points equally</div>
+      <div class="qo" onclick="ans(this,1,1)"><span class="ql">B</span>Only the support vectors — the closest points to the hyperplane</div>
+      <div class="qo" onclick="ans(this,1,1)"><span class="ql">C</span>The average of all data points in each class</div>
+      <div class="qo" onclick="ans(this,1,1)"><span class="ql">D</span>Randomly selected training samples</div>
+    </div>
+    <div class="qfb" id="qfb1"></div>
+    <div style="margin-top:12px;text-align:right"><button class="bn" style="display:none" id="qnxt1" onclick="nxt(2)">Next →</button></div>
+  </div>
+
+  <div class="qc" id="q2">
+    <div class="qn">Question 3 of 5</div>
+    <div class="qt">What does a larger value of C in SVM do?</div>
+    <div class="qos">
+      <div class="qo" onclick="ans(this,2,0)"><span class="ql">A</span>Penalises misclassifications more, leading to smaller margin and risk of overfitting</div>
+      <div class="qo" onclick="ans(this,2,0)"><span class="ql">B</span>Makes the margin wider and allows more misclassifications</div>
+      <div class="qo" onclick="ans(this,2,0)"><span class="ql">C</span>Automatically selects the best kernel</div>
+      <div class="qo" onclick="ans(this,2,0)"><span class="ql">D</span>Reduces the number of support vectors to zero</div>
+    </div>
+    <div class="qfb" id="qfb2"></div>
+    <div style="margin-top:12px;text-align:right"><button class="bn" style="display:none" id="qnxt2" onclick="nxt(3)">Next →</button></div>
+  </div>
+
+  <div class="qc" id="q3">
+    <div class="qn">Question 4 of 5</div>
+    <div class="qt">Which kernel would you first try for data that is NOT linearly separable?</div>
+    <div class="qos">
+      <div class="qo" onclick="ans(this,3,2)"><span class="ql">A</span>Linear kernel</div>
+      <div class="qo" onclick="ans(this,3,2)"><span class="ql">B</span>Sigmoid kernel</div>
+      <div class="qo" onclick="ans(this,3,2)"><span class="ql">C</span>RBF (Radial Basis Function) kernel</div>
+      <div class="qo" onclick="ans(this,3,2)"><span class="ql">D</span>No kernel — use a different algorithm</div>
+    </div>
+    <div class="qfb" id="qfb3"></div>
+    <div style="margin-top:12px;text-align:right"><button class="bn" style="display:none" id="qnxt3" onclick="nxt(4)">Next →</button></div>
+  </div>
+
+  <div class="qc" id="q4">
+    <div class="qn">Question 5 of 5</div>
+    <div class="qt">Why must you apply feature scaling (StandardScaler) before training an SVM?</div>
+    <div class="qos">
+      <div class="qo" onclick="ans(this,4,0)"><span class="ql">A</span>SVM computes distances — features on larger scales dominate and distort the margin calculation</div>
+      <div class="qo" onclick="ans(this,4,0)"><span class="ql">B</span>SVC cannot process negative numbers without scaling</div>
+      <div class="qo" onclick="ans(this,4,0)"><span class="ql">C</span>Scaling converts categorical features to numerical</div>
+      <div class="qo" onclick="ans(this,4,0)"><span class="ql">D</span>It reduces the number of support vectors needed</div>
+    </div>
+    <div class="qfb" id="qfb4"></div>
+    <div style="margin-top:12px;text-align:right"><button class="bn" style="display:none" id="qnxt4" onclick="showScore()">See Results 🎉</button></div>
+  </div>
+
+  <div class="qc" id="qsc">
+    <div class="scw">
+      <div class="sring" id="scring" style="background:conic-gradient(var(--g) 0%, var(--bdr) 0%)">
+        <div class="sin"><div class="sn" id="scn">0</div><div class="sd2">out of 5</div></div>
+      </div>
+      <div style="font-size:21px;font-weight:800;margin-bottom:7px" id="scmsg"></div>
+      <div style="font-size:13.5px;color:var(--ink2);margin-bottom:16px" id="scdet"></div>
+      <button class="rbtn" onclick="go(7)">🎉 Complete Module →</button>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(5)">← Exercises</button>
+    <span></span>
+  </div>
+</div>
+
+<!-- ══════ PAGE 7: COMPLETION ══════ -->
+<div class="pg" id="pg7">
+  <div class="cmpw">
+    <span class="cmpi">🏆</span>
+    <div class="cmpt">SVM Module Complete!</div>
+    <div class="cmps">You've conquered one of ML's most mathematically elegant algorithms. From hyperplanes to kernels — you're an SVM expert!</div>
+    <div class="skw">
+      <span class="sk" style="border-color:var(--p);color:var(--p);animation-delay:.00s">📐 Hyperplane</span>
+      <span class="sk" style="border-color:var(--g);color:var(--g);animation-delay:.07s">↔️ Maximum Margin</span>
+      <span class="sk" style="border-color:var(--p2);color:var(--p2);animation-delay:.14s">🎯 Support Vectors</span>
+      <span class="sk" style="border-color:var(--amber);color:var(--amber);animation-delay:.21s">🔮 Kernel Trick</span>
+      <span class="sk" style="border-color:var(--rose);color:var(--rose);animation-delay:.28s">⚡ Soft Margin</span>
+      <span class="sk" style="border-color:var(--sky);color:var(--sky);animation-delay:.35s">🎛️ C Regularisation</span>
+      <span class="sk" style="border-color:#8b5cf6;color:#8b5cf6;animation-delay:.42s">🔮 RBF Kernel</span>
+      <span class="sk" style="border-color:var(--g);color:var(--g);animation-delay:.49s">🐍 scikit-learn SVC</span>
+    </div>
+    <div class="card" style="max-width:460px;margin:0 auto 24px;text-align:left">
+      <h3 class="s" style="margin-bottom:11px">🏅 Certificate of Completion</h3>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:66px;height:66px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;box-shadow:0 0 0 4px rgba(91,94,244,.2)">⚡</div>
+        <div>
+          <div style="font-size:15px;font-weight:800;color:var(--ink)">Vinodhini</div>
+          <div style="font-size:12px;color:var(--ink2)">Data Scientist · HCL GUVI</div>
+          <div style="margin-top:6px"><span class="tag tgg">✅ Supervised ML — SVM Module</span></div>
+        </div>
+      </div>
+    </div>
+    <button class="rbtn" onclick="restart()">↺ Restart Module</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let cur = 0;
+const TOTAL = 8;
+const done = new Set([0]);
+let qScore = 0;
+
+// SVM Canvas
+const canvas = document.getElementById('svmCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = canvas.offsetWidth || 640;
+canvas.height = 300;
+let svmPts = [], classMode = 0, showHyper = false;
+const COLS = ['#5b5ef4', '#f43f5e'];
+const CLBL = ['+1', '−1'];
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function go(idx) {
+  document.getElementById('pg'+cur).classList.remove('on');
+  document.getElementById('nv'+cur).classList.remove('on');
+  done.add(cur);
+  document.getElementById('nc'+cur).textContent = '✓';
+  document.getElementById('nv'+cur).classList.add('done');
+  cur = idx;
+  document.getElementById('pg'+idx).classList.add('on');
+  document.getElementById('nv'+idx).classList.add('on');
+  document.getElementById('nv'+idx).classList.remove('done');
+  const pct = Math.round((done.size / TOTAL) * 100);
+  document.getElementById('tf').style.width = pct + '%';
+  document.getElementById('tpct').textContent = pct + '%';
+  document.getElementById('main').scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ═══════════════════════════════════════════════════
+// RUN DEMO
+// ═══════════════════════════════════════════════════
+function showOut(id) {
+  const el = document.getElementById(id);
+  el.classList.add('sh');
+  el.style.animation = 'none';
+  setTimeout(() => el.style.animation = '', 10);
+}
+
+// ═══════════════════════════════════════════════════
+// STEP VIZ
+// ═══════════════════════════════════════════════════
+function actS(i, id) {
+  document.getElementById(id).querySelectorAll('.si').forEach((s,j) => s.classList.toggle('act', j === i));
+}
+
+// ═══════════════════════════════════════════════════
+// SVM CANVAS
+// ═══════════════════════════════════════════════════
+function setC(c) {
+  classMode = c;
+  document.getElementById('b0').className = 'kb' + (c === 0 ? ' s1' : '');
+  document.getElementById('b1').className = 'kb' + (c === 1 ? ' s2' : '');
+}
+function clearSVM() {
+  svmPts = [];
+  showHyper = false;
+  document.getElementById('bshow').textContent = 'Show Hyperplane';
+  document.getElementById('svmMsg').textContent = '';
+  drawSVM();
+}
+function toggleHyper() {
+  showHyper = !showHyper;
+  document.getElementById('bshow').textContent = showHyper ? 'Hide Hyperplane' : 'Show Hyperplane';
+  drawSVM();
+}
+function svmClick(e) {
+  const rect = canvas.getBoundingClientRect();
+  const sx = canvas.width / rect.width;
+  const sy = canvas.height / rect.height;
+  svmPts.push({ x: (e.clientX - rect.left) * sx, y: (e.clientY - rect.top) * sy, c: classMode });
+  drawSVM();
+}
+
+function computeSimpleHyperplane() {
+  const pos = svmPts.filter(p => p.c === 0);
+  const neg = svmPts.filter(p => p.c === 1);
+  if (pos.length === 0 || neg.length === 0) return null;
+  const cx0 = pos.reduce((s,p) => s + p.x, 0) / pos.length;
+  const cy0 = pos.reduce((s,p) => s + p.y, 0) / pos.length;
+  const cx1 = neg.reduce((s,p) => s + p.x, 0) / neg.length;
+  const cy1 = neg.reduce((s,p) => s + p.y, 0) / neg.length;
+  const mx = (cx0 + cx1) / 2, my = (cy0 + cy1) / 2;
+  const dx = cx1 - cx0, dy = cy1 - cy0;
+  const len = Math.sqrt(dx*dx + dy*dy) || 1;
+  return { mx, my, nx: dx/len, ny: dy/len, cx0, cy0, cx1, cy1,
+    d0: Math.sqrt((cx0-mx)**2+(cy0-my)**2),
+    d1: Math.sqrt((cx1-mx)**2+(cy1-my)**2) };
+}
+
+function drawSVM() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Background
+  ctx.fillStyle = '#fafbff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // Grid
+  ctx.strokeStyle = '#e3e7f5'; ctx.lineWidth = 1;
+  for (let x = 0; x <= canvas.width; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
+  for (let y = 0; y <= canvas.height; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+
+  const hp = showHyper ? computeSimpleHyperplane() : null;
+
+  if (hp) {
+    const {mx, my, nx, ny, d0, d1} = hp;
+    const margin = Math.min(d0, d1) * 0.9;
+    // Shade regions
+    const perp = {x: -ny, y: nx};
+    // Margin zone
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,201,167,.07)';
+    ctx.beginPath();
+    const len = Math.max(canvas.width, canvas.height) * 2;
+    ctx.rect(0, 0, canvas.width, canvas.height);
+    ctx.fill();
+    ctx.restore();
+    // Draw margin lines
+    const drawLine = (ox, oy, color, dash) => {
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = 1.5;
+      if (dash) ctx.setLineDash([6,4]); else ctx.setLineDash([]);
+      ctx.beginPath();
+      const big = 2000;
+      ctx.moveTo(ox - perp.x*big, oy - perp.y*big);
+      ctx.lineTo(ox + perp.x*big, oy + perp.y*big);
+      ctx.stroke();
+      ctx.restore();
+    };
+    drawLine(mx - nx*margin, my - ny*margin, '#00c9a7', true);
+    drawLine(mx + nx*margin, my + ny*margin, '#00c9a7', true);
+    // Hyperplane
+    ctx.save();
+    ctx.strokeStyle = '#5b5ef4'; ctx.lineWidth = 2.5;
+    ctx.setLineDash([10,5]);
+    ctx.beginPath();
+    const big = 2000;
+    ctx.moveTo(mx - perp.x*big, my - perp.y*big);
+    ctx.lineTo(mx + perp.x*big, my + perp.y*big);
+    ctx.stroke();
+    ctx.restore();
+    // Margin label
+    ctx.fillStyle = '#00c9a7'; ctx.font = 'bold 11px Outfit'; ctx.textAlign = 'center';
+    ctx.fillText('↔ Margin', mx, Math.min(canvas.height - 10, my + margin + 20));
+    document.getElementById('svmMsg').textContent =
+      `✓ Hyperplane computed! Margin width ≈ ${(margin*2/40).toFixed(2)} units. ${svmPts.filter(p=>p.c===0).length} blue, ${svmPts.filter(p=>p.c===1).length} red points.`;
+  }
+
+  // Points
+  svmPts.forEach((p,i) => {
+    const isSV = hp && (() => {
+      const {mx,my,nx,ny} = hp;
+      const d = Math.abs((p.x-mx)*nx + (p.y-my)*ny);
+      const margin = Math.min(hp.d0,hp.d1)*0.9;
+      return Math.abs(d - margin) < 12;
+    })();
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, isSV ? 9 : 7, 0, Math.PI*2);
+    ctx.fillStyle = COLS[p.c] + 'cc';
+    ctx.fill();
+    if (isSV) { ctx.strokeStyle = COLS[p.c]; ctx.lineWidth = 2.5; ctx.stroke(); }
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 8px Outfit'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(CLBL[p.c], p.x, p.y);
+  });
+
+  if (svmPts.length === 0) {
+    ctx.fillStyle = '#9aa4c0'; ctx.font = '14px Outfit'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('Click to place data points, then click "Show Hyperplane"', canvas.width/2, canvas.height/2);
+  }
+}
+
+// Seed initial points
+(function seedSVM() {
+  const seed = [
+    {x:120,y:80,c:0},{x:160,y:120,c:0},{x:100,y:150,c:0},{x:180,y:70,c:0},{x:140,y:180,c:0},
+    {x:420,y:80,c:1},{x:460,y:120,c:1},{x:400,y:150,c:1},{x:480,y:170,c:1},{x:440,y:210,c:1}
+  ];
+  seed.forEach(p => svmPts.push(p));
+  drawSVM();
+})();
+
+// ═══════════════════════════════════════════════════
+// MARGIN SLIDER
+// ═══════════════════════════════════════════════════
+function updateMargin(v) {
+  v = parseInt(v);
+  document.getElementById('mgVal').textContent = v;
+  const center = 300;
+  const half = v * 1.5;
+  document.getElementById('mzone').setAttribute('x', center - half);
+  document.getElementById('mzone').setAttribute('width', half * 2);
+  document.getElementById('mline1').setAttribute('x1', center - half);
+  document.getElementById('mline1').setAttribute('x2', center - half);
+  document.getElementById('mline2').setAttribute('x1', center + half);
+  document.getElementById('mline2').setAttribute('x2', center + half);
+  let msg = '';
+  if (v < 30) msg = `Narrow margin (${v}px) — High variance risk. Model may overfit to training data.`;
+  else if (v < 60) msg = `Balanced margin (${v}px) — Good generalisation. Optimal zone.`;
+  else msg = `Wide margin (${v}px) — High bias risk. Model may underfit if data isn't well separated.`;
+  const col = v < 30 ? 'var(--rose)' : v < 60 ? 'var(--g)' : 'var(--amber)';
+  document.getElementById('marginInfo').innerHTML = `Current margin: <strong style="color:${col}">${v}px</strong> — ${msg}`;
+}
+
+// Seed margin SVG points
+(function initMarginSVG() {
+  const g = document.getElementById('svPoints');
+  const pts = [
+    {x:200,y:60,c:'#5b5ef4',sv:true},{x:180,y:140,c:'#5b5ef4',sv:false},{x:220,y:100,c:'#5b5ef4',sv:false},
+    {x:160,y:170,c:'#5b5ef4',sv:false},{x:240,y:50,c:'#5b5ef4',sv:false},
+    {x:400,y:80,c:'#f43f5e',sv:true},{x:420,y:150,c:'#f43f5e',sv:false},{x:380,y:120,c:'#f43f5e',sv:false},
+    {x:440,y:170,c:'#f43f5e',sv:false},{x:360,y:60,c:'#f43f5e',sv:false}
+  ];
+  pts.forEach(p => {
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r', p.sv ? 8 : 6);
+    c.setAttribute('fill', p.c+'cc');
+    if (p.sv) { c.setAttribute('stroke', p.c); c.setAttribute('stroke-width', '2.5'); }
+    g.appendChild(c);
+    if (p.sv) {
+      const l = document.createElementNS('http://www.w3.org/2000/svg','text');
+      l.setAttribute('x',p.x+11); l.setAttribute('y',p.y+4);
+      l.setAttribute('font-size','9'); l.setAttribute('fill','#9aa4c0');
+      l.setAttribute('font-family','Outfit'); l.setAttribute('font-weight','700');
+      l.textContent = 'SV';
+      g.appendChild(l);
+    }
+  });
+})();
+
+// ═══════════════════════════════════════════════════
+// KERNEL SELECTOR
+// ═══════════════════════════════════════════════════
+const kData = {
+  linear: '<strong style="color:var(--p)">Linear Kernel — K(x,z) = x·z:</strong> No transformation. Works in original feature space. Fastest kernel — ideal when n_features > n_samples (e.g. text, genetics). Interpretable via coef_ attribute. Use when data is linearly separable.',
+  poly: '<strong style="color:var(--p)">Polynomial Kernel — K(x,z) = (γx·z + r)ᵈ:</strong> Creates polynomial decision boundaries. Degree d controls complexity (d=2 is quadratic, d=3 cubic). Good for image classification and NLP. Sensitive to parameter tuning.',
+  rbf: '<strong style="color:var(--p)">RBF/Gaussian Kernel — K(x,z) = exp(−γ||x−z||²):</strong> Maps to infinite-dimensional space! The most popular kernel. Works on almost any data distribution. Two parameters: C (regularisation) and γ (bandwidth). Always try this first.',
+  sigmoid: '<strong style="color:var(--p)">Sigmoid Kernel — K(x,z) = tanh(γx·z + r):</strong> Similar to a neural network activation. Not always positive semi-definite — can behave unpredictably. Rarely outperforms RBF. Use only if domain knowledge suggests neural-like behaviour.'
+};
+function selKern(el, key) {
+  document.querySelectorAll('.kopt').forEach(k => k.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('kinfo').innerHTML = kData[key];
+}
+
+// ═══════════════════════════════════════════════════
+// GAMMA SLIDER
+// ═══════════════════════════════════════════════════
+function updateGamma(v) {
+  v = parseInt(v);
+  const gVal = (v / 10).toFixed(1);
+  document.getElementById('gamVal').textContent = gVal;
+  const pct = (v / 10) * 100;
+  document.getElementById('gamBar').style.width = pct + '%';
+  let lbl, desc;
+  if (v <= 2) { lbl = '🌐 Very Low Gamma (γ=' + gVal + ')'; desc = 'Very wide influence radius. Every training point affects a large region. High bias → underfitting. Decision boundary is very smooth/linear.'; }
+  else if (v <= 4) { lbl = '📊 Low Gamma (γ=' + gVal + ')'; desc = 'Wide influence. Good starting point for underfitting scenarios. Smooth, generalised boundary.'; }
+  else if (v <= 6) { lbl = '🎯 Medium Gamma (γ=' + gVal + ')'; desc = 'Balanced influence radius. Usually a good default. Combine with cross-validation to find optimal.'; }
+  else if (v <= 8) { lbl = '⚠️ High Gamma (γ=' + gVal + ')'; desc = 'Narrow influence. Risk of overfitting. Each point only affects a small neighbourhood. Jagged boundary.'; }
+  else { lbl = '🔴 Very High Gamma (γ=' + gVal + ')'; desc = 'Extremely narrow influence. Severe overfitting. Model memorises training data. Poor generalisation.'; }
+  document.getElementById('gamLabel').textContent = lbl;
+  document.getElementById('gamDesc').textContent = desc;
+}
+
+// ═══════════════════════════════════════════════════
+// C SLIDER
+// ═══════════════════════════════════════════════════
+function updateC(v) {
+  v = parseInt(v);
+  const cReal = v <= 1 ? '0.01' : v <= 5 ? '0.1' : v <= 20 ? '1.0' : v <= 50 ? '10' : '100';
+  document.getElementById('cVal').textContent = cReal;
+  const xPos = 20 + (v / 100) * 460;
+  document.getElementById('cLine').setAttribute('x1', xPos);
+  document.getElementById('cLine').setAttribute('x2', xPos);
+  let bias, biasd, variance, vard, margin, margind, status, statusD, stCol;
+  if (v <= 10) {
+    bias = 'High'; biasd = 'Large tolerance for misclassifications';
+    variance = 'Low'; vard = 'Stable across different datasets';
+    margin = 'Wide'; margind = 'Maximum separation, good generalisation';
+    status = 'Underfitting risk'; statusD = 'C too small → ignores important patterns'; stCol = 'var(--amber)';
+  } else if (v <= 30) {
+    bias = 'Medium'; biasd = 'Balanced misclassification tolerance';
+    variance = 'Medium'; vard = 'Moderately stable';
+    margin = 'Balanced'; margind = 'Good trade-off for most problems';
+    status = '✓ Balanced'; statusD = 'Good starting region for tuning'; stCol = 'var(--g)';
+  } else if (v <= 70) {
+    bias = 'Low'; biasd = 'Strict misclassification penalty';
+    variance = 'Medium-High'; vard = 'More sensitive to data variations';
+    margin = 'Narrow'; margind = 'Tighter fit to training data';
+    status = 'Near Optimal'; statusD = 'May overfit on noisy data'; stCol = 'var(--g)';
+  } else {
+    bias = 'Very Low'; biasd = 'Extreme penalty for any mistake';
+    variance = 'High'; vard = 'Very sensitive to training data';
+    margin = 'Very Narrow'; margind = 'Almost no tolerance for errors';
+    status = 'Overfitting risk'; statusD = 'C too large → fits noise'; stCol = 'var(--rose)';
+  }
+  document.getElementById('cBias').textContent = bias;
+  document.getElementById('cBiasD').textContent = biasd;
+  document.getElementById('cVar').textContent = variance;
+  document.getElementById('cVarD').textContent = vard;
+  document.getElementById('cMargin').textContent = margin;
+  document.getElementById('cMarginD').textContent = margind;
+  document.getElementById('cStatus').textContent = status;
+  document.getElementById('cStatus').style.color = stCol;
+  document.getElementById('cStatusD').textContent = statusD;
+}
+
+// ═══════════════════════════════════════════════════
+// QUIZ
+// ═══════════════════════════════════════════════════
+const qOK = [
+  '✅ Correct! SVM maximises the margin — the gap between the hyperplane and the nearest points of each class. This is what makes it robust.',
+  '✅ Correct! Only support vectors matter. Remove any other point and the hyperplane is identical. This makes SVM memory-efficient!',
+  '✅ Correct! Large C penalises misclassifications heavily → smaller margin → risk of overfitting on noisy data.',
+  '✅ Correct! RBF kernel is the go-to for non-linear data. It implicitly maps to infinite dimensions and handles most data distributions.',
+  '✅ Correct! SVM is distance-based. Features with large scales (e.g., salary vs age) dominate, distorting the margin. Always scale first!'
+];
+const qNG = [
+  '❌ SVM does NOT just minimise training error — it specifically maximises the margin while correctly classifying. These goals work together.',
+  '❌ Only support vectors (the closest points) determine the boundary — not all points. This is what makes SVM elegant and efficient.',
+  '❌ Large C does the opposite — it penalises misclassifications MORE, leading to a SMALLER, tighter margin, risking overfitting.',
+  '❌ Linear kernel fails on non-linear data. RBF is the standard first choice — it handles complex boundaries through kernel mapping.',
+  '❌ Scaling is about distance sensitivity. SVM uses distances to compute margins, so unscaled features corrupt the entire margin geometry.'
+];
+const qCORR = [2, 1, 0, 2, 0];
+
+function ans(el, qi, ci) {
+  const q = document.getElementById('q'+qi);
+  if (q.querySelector('.dis')) return;
+  q.querySelectorAll('.qo').forEach(o => o.classList.add('dis'));
+  const chosen = Array.from(q.querySelectorAll('.qo')).indexOf(el);
+  const fb = document.getElementById('qfb'+qi);
+  const dot = document.getElementById('qd'+qi);
+  if (chosen === ci) {
+    el.classList.add('ok'); fb.className = 'qfb sh ok'; fb.textContent = qOK[qi]; qScore++; dot.classList.add('ok');
+  } else {
+    el.classList.add('ng');
+    q.querySelectorAll('.qo')[ci].classList.add('ok');
+    fb.className = 'qfb sh ng'; fb.textContent = qNG[qi]; dot.classList.add('ng');
+  }
+  const nxtBtn = document.getElementById('qnxt'+qi);
+  if (nxtBtn) nxtBtn.style.display = 'inline-flex';
+  const nextDot = document.getElementById('qd'+(qi+1));
+  if (nextDot) nextDot.classList.add('cur');
+}
+function nxt(i) {
+  document.getElementById('q'+(i-1)).classList.remove('on');
+  document.getElementById('q'+i).classList.add('on');
+}
+function showScore() {
+  document.getElementById('q4').classList.remove('on');
+  document.getElementById('qsc').classList.add('on');
+  const pct = (qScore / 5) * 100;
+  document.getElementById('scring').style.background =
+    `conic-gradient(var(--g) ${pct}%, var(--bdr) ${pct}%)`;
+  document.getElementById('scn').textContent = qScore;
+  const msgs = ['Keep Going! 💪', 'Good Try! 👍', 'Well Done! 🌟', 'Excellent! ⭐', 'Perfect! 🏆', 'Perfect! 🏆'];
+  document.getElementById('scmsg').textContent = msgs[qScore];
+  document.getElementById('scdet').textContent =
+    qScore === 5 ? 'Flawless! You fully understand SVM 🎉' : `You scored ${qScore}/5. Review concepts and try again!`;
+}
+
+// ═══════════════════════════════════════════════════
+// EXERCISES
+// ═══════════════════════════════════════════════════
+function toggleSol(btn, id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('op');
+  btn.textContent = el.classList.contains('op') ? '🙈 Hide Solution' : '💡 Show Solution';
+}
+
+// ═══════════════════════════════════════════════════
+// RESTART
+// ═══════════════════════════════════════════════════
+function restart() {
+  qScore = 0;
+  done.clear(); done.add(0);
+  document.querySelectorAll('.qc').forEach(q => q.classList.remove('on'));
+  document.getElementById('q0').classList.add('on');
+  document.querySelectorAll('.qo').forEach(o => o.classList.remove('ok','ng','dis'));
+  document.querySelectorAll('.qfb').forEach(f => f.className = 'qfb');
+  document.querySelectorAll('[id^="qnxt"]').forEach(b => b.style.display = 'none');
+  document.querySelectorAll('.qd').forEach((d,i) => { d.className = 'qd' + (i === 0 ? ' cur' : ''); });
+  document.querySelectorAll('.sol').forEach(s => s.classList.remove('op'));
+  document.querySelectorAll('.sbt').forEach(b => b.textContent = '💡 Show Solution');
+  svmPts = []; showHyper = false; classMode = 0;
+  document.getElementById('b0').className = 'kb s1';
+  document.getElementById('b1').className = 'kb';
+  document.getElementById('bshow').textContent = 'Show Hyperplane';
+  document.getElementById('svmMsg').textContent = '';
+  // Re-seed canvas
+  [{x:120,y:80,c:0},{x:160,y:120,c:0},{x:100,y:150,c:0},{x:180,y:70,c:0},{x:140,y:180,c:0},
+   {x:420,y:80,c:1},{x:460,y:120,c:1},{x:400,y:150,c:1},{x:480,y:170,c:1},{x:440,y:210,c:1}]
+   .forEach(p => svmPts.push(p));
+  drawSVM();
+  go(0);
+}
+
+// Resize canvas on window resize
+window.addEventListener('resize', () => {
+  canvas.width = canvas.offsetWidth || 640;
+  drawSVM();
+});
+</script>
+</body>
+</html>

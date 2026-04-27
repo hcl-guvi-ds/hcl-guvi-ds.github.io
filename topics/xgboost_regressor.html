@@ -1,0 +1,2063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XGBoost Regressor | HCL-GUVI Machine Learning Course</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #d1fae5;
+            --secondary: #3b82f6;
+            --secondary-dark: #1e40af;
+            --secondary-light: #dbeafe;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --error: #ef4444;
+            --bg: #f9fafb;
+            --surface: #ffffff;
+            --surface-2: #f3f4f6;
+            --text: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ==================== HEADER ==================== */
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .module-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .progress-bar-container {
+            width: 200px;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .creator-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .creator-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* ==================== LAYOUT ==================== */
+        .app-container {
+            display: flex;
+            height: calc(100vh - 70px);
+            gap: 0;
+        }
+
+        /* ==================== SIDEBAR ==================== */
+        .sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 1.5rem 0;
+            position: relative;
+        }
+
+        .sidebar-section {
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 0.5rem 1.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-item:hover {
+            background: var(--surface-2);
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
+            border-left-color: var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .progress-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-left: auto;
+        }
+
+        .progress-indicator.completed {
+            background: var(--primary);
+            color: white;
+        }
+
+        .progress-indicator.active {
+            background: var(--secondary);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .page {
+            display: none;
+            animation: slideInUp 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        /* ==================== CARDS ==================== */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .card-description {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        /* ==================== BUTTONS ==================== */
+        .btn {
+            padding: 0.625rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-lg {
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        /* ==================== CODE BLOCK ==================== */
+        .code-block {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            border: 1px solid #333;
+        }
+
+        .code-block code {
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .code-keyword {
+            color: #569cd6;
+        }
+
+        .code-string {
+            color: #ce9178;
+        }
+
+        .code-function {
+            color: #dcdcaa;
+        }
+
+        .code-comment {
+            color: #6a9955;
+        }
+
+        .code-number {
+            color: #b5cea8;
+        }
+
+        /* ==================== ANALOGY BOX ==================== */
+        .analogy-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin: 1rem 0;
+        }
+
+        .analogy-label {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .analogy-text {
+            color: var(--text);
+            line-height: 1.8;
+        }
+
+        /* ==================== INTERACTIVE COMPONENTS ==================== */
+        .interactive-section {
+            background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface) 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        .interactive-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        /* Slider */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .slider-input {
+            flex: 1;
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border);
+            outline: none;
+            -webkit-slider-thumb-appearance: none;
+        }
+
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            transition: all 0.2s ease;
+        }
+
+        .slider-input::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .slider-input::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            border: none;
+        }
+
+        .slider-value {
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* Reveal Card */
+        .reveal-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 1rem 0;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .reveal-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .reveal-card.revealed {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+        }
+
+        .reveal-label {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Boolean Tester */
+        .boolean-tester {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .boolean-btn {
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .boolean-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .boolean-btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Step Visualizer */
+        .step-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .step-box {
+            background: var(--surface-2);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .step-box.active {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%);
+            border-color: var(--primary);
+            transform: scale(1.05);
+            box-shadow: var(--shadow-md);
+        }
+
+        .step-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .step-label {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* Navigation Flow */
+        .nav-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* ==================== EXERCISE CARDS ==================== */
+        .exercise-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .exercise-number {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .exercise-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .exercise-description {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .solution-toggle {
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .solution-toggle:hover {
+            color: var(--primary-dark);
+            gap: 0.75rem;
+        }
+
+        .solution-content {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .solution-content.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ==================== QUIZ ==================== */
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .quiz-progress {
+            margin-bottom: 2rem;
+        }
+
+        .progress-dots {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.active {
+            background: var(--primary);
+            transform: scale(1.5);
+        }
+
+        .progress-dot.completed {
+            background: var(--success);
+        }
+
+        .quiz-question {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .quiz-option {
+            background: var(--surface-2);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+        }
+
+        .quiz-option input[type="radio"] {
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+        }
+
+        .quiz-option.selected {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+            border-color: var(--primary);
+        }
+
+        .quiz-option.correct {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border-color: var(--success);
+        }
+
+        .quiz-option.incorrect {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%);
+            border-color: var(--error);
+        }
+
+        .quiz-feedback {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+            padding-left: 1rem;
+        }
+
+        .quiz-feedback.incorrect {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+            color: var(--error);
+            border-left: 4px solid var(--error);
+            padding-left: 1rem;
+        }
+
+        .quiz-result {
+            background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface) 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .result-emoji {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-score {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-text {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        /* ==================== COMPLETION ==================== */
+        .completion-container {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .celebration {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .skill-tag {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            padding: 1rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+            animation: slideInUp 0.5s ease forwards;
+        }
+
+        .skill-tag:nth-child(1) { animation-delay: 0.1s; }
+        .skill-tag:nth-child(2) { animation-delay: 0.2s; }
+        .skill-tag:nth-child(3) { animation-delay: 0.3s; }
+        .skill-tag:nth-child(4) { animation-delay: 0.4s; }
+        .skill-tag:nth-child(5) { animation-delay: 0.5s; }
+        .skill-tag:nth-child(6) { animation-delay: 0.6s; }
+
+        /* ==================== VISUAL COMPONENTS ==================== */
+        .flowchart {
+            margin: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .flow-step {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text);
+            position: relative;
+        }
+
+        .flow-arrow {
+            text-align: center;
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .decision-tree {
+            background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface) 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .tree-node {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+            border: 2px dashed var(--primary);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.5rem 0 0.5rem 1.5rem;
+            position: relative;
+        }
+
+        .tree-node::before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 1rem;
+            width: 1.5rem;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        /* ==================== SCROLLBAR ==================== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .header-right {
+                gap: 1rem;
+            }
+
+            .progress-bar-container {
+                width: 120px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 1rem 0;
+                max-height: 150px;
+                overflow-x: auto;
+                display: flex;
+                gap: 1rem;
+            }
+
+            .sidebar-section {
+                display: flex;
+                gap: 0.5rem;
+                margin: 0;
+            }
+
+            .sidebar-label {
+                display: none;
+            }
+
+            .nav-item {
+                padding: 0.5rem 0.75rem;
+                border: 1px solid var(--border);
+                border-bottom: none;
+                border-radius: 8px 8px 0 0;
+                width: 200px;
+                flex-shrink: 0;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            header {
+                padding: 0 1rem;
+            }
+
+            .header-right {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .creator-info {
+                display: none;
+            }
+
+            .progress-bar-container {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 1rem;">
+            <div class="header-left">
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.1rem;">HG</div>
+                <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                    <div class="module-title">XGBoost Regressor</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Supervised Machine Learning</div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: right;">
+                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Progress</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="creator-info">
+                    <div class="creator-avatar">V</div>
+                    <div style="line-height: 1.3;">
+                        <div style="font-weight: 600; color: var(--text);">Vinodhini</div>
+                        <div style="font-size: 0.75rem;">Data Scientist · HCL GUVI</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- APP CONTAINER -->
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-label">Getting Started</div>
+                <div class="nav-item active" onclick="navigate('welcome')">
+                    <div class="nav-icon">👋</div>
+                    <span>Welcome</span>
+                    <div class="progress-indicator active"></div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">Concepts</div>
+                <div class="nav-item" onclick="navigate('concept1')">
+                    <div class="nav-icon">🌳</div>
+                    <span>Decision Trees</span>
+                </div>
+                <div class="nav-item" onclick="navigate('concept2')">
+                    <div class="nav-icon">⚡</div>
+                    <span>Boosting Basics</span>
+                </div>
+                <div class="nav-item" onclick="navigate('concept3')">
+                    <div class="nav-icon">🚀</div>
+                    <span>XGBoost Core</span>
+                </div>
+                <div class="nav-item" onclick="navigate('advanced')">
+                    <div class="nav-icon">🔮</div>
+                    <span>Advanced Topics</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">Practice</div>
+                <div class="nav-item" onclick="navigate('exercises')">
+                    <div class="nav-icon">💻</div>
+                    <span>Exercises</span>
+                </div>
+                <div class="nav-item" onclick="navigate('quiz')">
+                    <div class="nav-icon">🧠</div>
+                    <span>Quiz</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">Completion</div>
+                <div class="nav-item" onclick="navigate('completion')">
+                    <div class="nav-icon">🎉</div>
+                    <span>Completion</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- WELCOME PAGE -->
+            <div id="welcome" class="page active">
+                <div class="page-header">
+                    <div class="page-title">Welcome to XGBoost Mastery</div>
+                    <div class="page-subtitle">Master gradient boosting with interactive learning and real-world examples</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🎯 What You'll Learn</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+                        <div style="padding: 1.5rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border-radius: 8px; border-left: 4px solid var(--primary);">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">🌳 Decision Trees Foundation</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted);">Understand how decision trees work and their limitations</div>
+                        </div>
+                        <div style="padding: 1.5rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border-radius: 8px; border-left: 4px solid var(--secondary);">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">⚡ Boosting Concepts</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted);">Learn how boosting improves model performance</div>
+                        </div>
+                        <div style="padding: 1.5rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border-radius: 8px; border-left: 4px solid var(--primary);">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">🚀 XGBoost Implementation</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted);">Build, train, and optimize XGBoost models</div>
+                        </div>
+                        <div style="padding: 1.5rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border-radius: 8px; border-left: 4px solid var(--secondary);">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">📊 Real-World Applications</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted);">Apply XGBoost to practical regression problems</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📚 Course Structure</div>
+                    <div class="card-description">This interactive module is designed for hands-on learning with real code examples, visualizations, and exercises.</div>
+                    <div class="step-container" style="margin-top: 1.5rem;">
+                        <div class="step-box">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Concepts</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Learn the theory</div>
+                        </div>
+                        <div class="step-box">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Interactive Demos</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">See it in action</div>
+                        </div>
+                        <div class="step-box">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Exercises</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Practice coding</div>
+                        </div>
+                        <div class="step-box">
+                            <div class="step-number">4</div>
+                            <div class="step-label">Quiz</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Test knowledge</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-flow">
+                    <button class="btn btn-primary btn-lg" onclick="navigate('concept1')">
+                        Start Learning →
+                    </button>
+                </div>
+            </div>
+
+            <!-- CONCEPT 1: DECISION TREES -->
+            <div id="concept1" class="page">
+                <div class="page-header">
+                    <div class="page-title">🌳 Decision Trees Foundation</div>
+                    <div class="page-subtitle">Understanding the building blocks of ensemble methods</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">What Are Decision Trees?</div>
+                    <div class="card-description">A decision tree is a tree-shaped model used for regression and classification. It works by recursively splitting data based on features that minimize impurity.</div>
+
+                    <div class="analogy-box">
+                        <div class="analogy-label">💡 Real-Life Analogy</div>
+                        <div class="analogy-text">Imagine a bank deciding whether to approve a loan. They ask: "Is income > $50k?" → If yes, "Is credit score > 700?" → Each question splits people into groups. Decision trees work exactly like this series of yes/no questions to make predictions!</div>
+                    </div>
+
+                    <div class="interactive-section">
+                        <div class="interactive-title">🎮 Interactive Decision Tree Visualizer</div>
+                        <div class="decision-tree">
+                            <div style="text-align: center; margin-bottom: 1.5rem; font-weight: 600;">Is Income > $50k?</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="tree-node">
+                                    <div style="font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;">Yes (High)</div>
+                                    <div style="font-size: 0.9rem; color: var(--text-muted);">Is Credit > 700?</div>
+                                </div>
+                                <div class="tree-node">
+                                    <div style="font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;">No (Low)</div>
+                                    <div style="font-size: 0.9rem; color: var(--text-muted);">Deny Loan</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="interactive-section">
+                        <div class="interactive-title">⚙️ Adjust Tree Depth</div>
+                        <div class="slider-container">
+                            <div style="flex: 1;">
+                                <label for="depth-slider" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Tree Depth:</label>
+                                <input type="range" id="depth-slider" class="slider-input" min="1" max="10" value="3" onchange="updateDepth(this.value)">
+                            </div>
+                            <div class="slider-value" id="depth-value">3</div>
+                        </div>
+                        <div style="margin-top: 1rem; padding: 1rem; background: var(--surface-2); border-radius: 8px;">
+                            <div style="font-size: 0.9rem;"><strong>Depth Impact:</strong> Greater depth = more splits = fits training data better but risks overfitting</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Python Code Example</div>
+                    <div class="code-block">
+                        <code><span class="code-keyword">from</span> sklearn.tree <span class="code-keyword">import</span> <span class="code-function">DecisionTreeRegressor</span>
+<span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
+
+<span class="code-comment"># Create and train decision tree</span>
+dt_model = <span class="code-function">DecisionTreeRegressor</span>(max_depth=<span class="code-number">5</span>, random_state=<span class="code-number">42</span>)
+dt_model.fit(X_train, y_train)
+
+<span class="code-comment"># Make predictions</span>
+predictions = dt_model.predict(X_test)
+mse = np.mean((predictions - y_test)**<span class="code-number">2</span>)
+                        </code>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🎮 Run Interactive Demo</div>
+                    <button class="btn btn-primary" onclick="runDecisionTreeDemo()">
+                        ▶ Run Demo
+                    </button>
+                    <div id="dt-demo-output" style="margin-top: 1rem; padding: 1rem; background: var(--surface-2); border-radius: 8px; display: none; font-family: monospace; font-size: 0.85rem; color: var(--text-muted);">
+                    </div>
+                </div>
+
+                <div class="nav-flow">
+                    <button class="btn btn-secondary" onclick="navigate('welcome')">← Back</button>
+                    <button class="btn btn-primary" onclick="navigate('concept2')">Next →</button>
+                </div>
+            </div>
+
+            <!-- CONCEPT 2: BOOSTING -->
+            <div id="concept2" class="page">
+                <div class="page-header">
+                    <div class="page-title">⚡ Boosting Basics</div>
+                    <div class="page-subtitle">How weak learners become powerful predictors</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Understanding Boosting</div>
+                    <div class="card-description">Boosting combines multiple weak learners sequentially, where each new learner focuses on correcting mistakes made by previous ones. This ensemble approach typically outperforms individual models.</div>
+
+                    <div class="analogy-box">
+                        <div class="analogy-label">💡 Real-Life Analogy</div>
+                        <div class="analogy-text">Like a sports team improving through practice: First game, team plays poorly. Coach analyzes errors. Next game, team focuses on fixing those errors. Boosting works similarly—each weak model learns from previous mistakes!</div>
+                    </div>
+
+                    <div class="interactive-section">
+                        <div class="interactive-title">🎮 Boosting Stages Visualizer</div>
+                        <div class="step-container">
+                            <div class="step-box" onclick="highlightStage(0)" style="cursor: pointer;">
+                                <div class="step-number">1</div>
+                                <div class="step-label">Initial Model</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Weak learner on all data</div>
+                            </div>
+                            <div class="step-box" onclick="highlightStage(1)" style="cursor: pointer;">
+                                <div class="step-number">2</div>
+                                <div class="step-label">Focus on Errors</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Increase weight of wrong predictions</div>
+                            </div>
+                            <div class="step-box" onclick="highlightStage(2)" style="cursor: pointer;">
+                                <div class="step-number">3</div>
+                                <div class="step-label">Fit New Model</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Train on weighted data</div>
+                            </div>
+                            <div class="step-box" onclick="highlightStage(3)" style="cursor: pointer;">
+                                <div class="step-number">4</div>
+                                <div class="step-label">Combine</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Weighted ensemble prediction</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="stage-info" style="margin-top: 1.5rem; padding: 1.5rem; background: var(--surface-2); border-radius: 8px; border-left: 4px solid var(--primary);">
+                        <div style="font-weight: 600; margin-bottom: 0.5rem;">Stage 1: Initial Model</div>
+                        <div style="color: var(--text-muted);">The first weak learner is trained on all data equally. It performs worse than optimal but provides a baseline.</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Boosting Algorithm Types</div>
+                    <div class="interactive-section">
+                        <div class="boolean-tester">
+                            <div class="boolean-btn" onclick="selectBoostType('adaboost')">AdaBoost</div>
+                            <div class="boolean-btn" onclick="selectBoostType('gradient')" style="border-color: var(--secondary);">Gradient Boosting</div>
+                            <div class="boolean-btn" onclick="selectBoostType('xgboost')">XGBoost</div>
+                        </div>
+                        <div id="boost-description" style="margin-top: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface) 100%); border-radius: 8px; border-left: 4px solid var(--secondary);">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;" id="boost-title">Gradient Boosting</div>
+                            <div style="color: var(--text-muted);" id="boost-desc">Minimizes loss function by fitting trees to residuals (prediction errors). More flexible and powerful than AdaBoost.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Code Comparison</div>
+                    <div class="code-block">
+                        <code><span class="code-keyword">from</span> sklearn.ensemble <span class="code-keyword">import</span> <span class="code-function">GradientBoostingRegressor</span>
+
+<span class="code-comment"># Gradient Boosting Regressor</span>
+gb_model = <span class="code-function">GradientBoostingRegressor</span>(
+    n_estimators=<span class="code-number">100</span>,  <span class="code-comment"># number of weak learners</span>
+    learning_rate=<span class="code-number">0.1</span>,   <span class="code-comment"># shrinkage parameter</span>
+    max_depth=<span class="code-number">5</span>         <span class="code-comment"># tree depth</span>
+)
+
+gb_model.fit(X_train, y_train)
+score = gb_model.score(X_test, y_test)
+                        </code>
+                    </div>
+                </div>
+
+                <div class="nav-flow">
+                    <button class="btn btn-secondary" onclick="navigate('concept1')">← Back</button>
+                    <button class="btn btn-primary" onclick="navigate('concept3')">Next →</button>
+                </div>
+            </div>
+
+            <!-- CONCEPT 3: XGBOOST -->
+            <div id="concept3" class="page">
+                <div class="page-header">
+                    <div class="page-title">🚀 XGBoost: Extreme Gradient Boosting</div>
+                    <div class="page-subtitle">The industry-standard gradient boosting framework</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">What Makes XGBoost Special?</div>
+                    <div class="card-description">XGBoost (eXtreme Gradient Boosting) is an optimized gradient boosting library designed for speed and performance. It dominates machine learning competitions and real-world applications.</div>
+
+                    <div class="analogy-box">
+                        <div class="analogy-label">💡 Real-Life Analogy</div>
+                        <div class="analogy-text">If Gradient Boosting is a reliable car, XGBoost is a high-performance sports car—same principles, but with turbochargers, better fuel efficiency, and refined engineering for maximum speed and reliability!</div>
+                    </div>
+
+                    <div class="card" style="margin-top: 1.5rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%); border: 1px solid rgba(16, 185, 129, 0.2);">
+                        <div class="interactive-title">🎯 Key Features of XGBoost</div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                            <div class="reveal-card" onclick="toggleReveal(this)">
+                                <div class="reveal-label">📊 Regularization</div>
+                            </div>
+                            <div class="reveal-card" onclick="toggleReveal(this)">
+                                <div class="reveal-label">⚙️ Built-in Cross-validation</div>
+                            </div>
+                            <div class="reveal-card" onclick="toggleReveal(this)">
+                                <div class="reveal-label">🔥 GPU Acceleration</div>
+                            </div>
+                            <div class="reveal-card" onclick="toggleReveal(this)">
+                                <div class="reveal-label">📈 Feature Importance</div>
+                            </div>
+                        </div>
+                        <div id="reveal-content" style="margin-top: 1rem; padding: 1rem; background: var(--surface); border-radius: 8px; display: none;">
+                            <div style="color: var(--text-muted); line-height: 1.8;">L1/L2 penalties prevent overfitting. Easy CV folds. Supports hardware acceleration. Built-in feature scoring methods.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">XGBoost Architecture Flow</div>
+                    <div class="flowchart">
+                        <div class="flow-step">📥 Input Data</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step">🌳 First Tree (Weak Learner)</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step">📊 Calculate Residuals</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step">🌳 Fit Tree to Residuals</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step">⚖️ Combine Predictions (Weighted)</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-step">🎯 Final Prediction</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Installation & Basic Usage</div>
+                    <div class="code-block">
+                        <code><span class="code-comment"># Install XGBoost</span>
+<span class="code-comment"># pip install xgboost</span>
+
+<span class="code-keyword">import</span> xgboost <span class="code-keyword">as</span> xgb
+<span class="code-keyword">from</span> sklearn.model_selection <span class="code-keyword">import</span> train_test_split
+
+<span class="code-comment"># Create XGBoost regressor</span>
+model = xgb.<span class="code-function">XGBRegressor</span>(
+    objective=<span class="code-string">'reg:squarederror'</span>,
+    max_depth=<span class="code-number">6</span>,
+    learning_rate=<span class="code-number">0.1</span>,
+    n_estimators=<span class="code-number">100</span>,
+    random_state=<span class="code-number">42</span>
+)
+
+<span class="code-comment"># Train and evaluate</span>
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)
+                        </code>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🎮 Interactive Parameter Tuner</div>
+                    <div class="interactive-section">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div>
+                                <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Learning Rate: <span id="lr-display">0.1</span></label>
+                                <input type="range" class="slider-input" min="0.01" max="0.5" step="0.01" value="0.1" onchange="updateParam('lr', this.value)">
+                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Controls how much each tree contributes</div>
+                            </div>
+                            <div>
+                                <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Max Depth: <span id="md-display">6</span></label>
+                                <input type="range" class="slider-input" min="1" max="15" value="6" onchange="updateParam('md', this.value)">
+                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Complexity of each tree</div>
+                            </div>
+                        </div>
+                        <div id="param-feedback" style="margin-top: 1.5rem; padding: 1rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border-radius: 8px; border-left: 4px solid var(--primary);">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">⚠️ Bias-Variance Tradeoff</div>
+                            <div style="color: var(--text-muted); font-size: 0.9rem;" id="tradeoff-text">Lower learning rate = slower training but better generalization. Higher max depth = more complex trees.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-flow">
+                    <button class="btn btn-secondary" onclick="navigate('concept2')">← Back</button>
+                    <button class="btn btn-primary" onclick="navigate('advanced')">Next →</button>
+                </div>
+            </div>
+
+            <!-- ADVANCED CONCEPTS -->
+            <div id="advanced" class="page">
+                <div class="page-header">
+                    <div class="page-title">🔮 Advanced XGBoost Topics</div>
+                    <div class="page-subtitle">Optimization, regularization, and production considerations</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Hyperparameter Tuning</div>
+                    <div class="card-description">XGBoost has many hyperparameters that control model behavior. Understanding these is key to building high-performance models.</div>
+
+                    <div class="interactive-section">
+                        <div class="interactive-title">🎯 Key Hyperparameters</div>
+                        <div style="display: grid; gap: 1rem;">
+                            <div style="padding: 1rem; background: var(--surface-2); border-radius: 8px; border-left: 4px solid var(--primary);">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem;">eta (Learning Rate)</div>
+                                <div style="color: var(--text-muted); font-size: 0.9rem;">Range: 0.01-1.0 | Lower = more conservative, better generalization</div>
+                            </div>
+                            <div style="padding: 1rem; background: var(--surface-2); border-radius: 8px; border-left: 4px solid var(--secondary);">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem;">max_depth</div>
+                                <div style="color: var(--text-muted); font-size: 0.9rem;">Range: 3-10 | Higher = more complex trees, risk of overfitting</div>
+                            </div>
+                            <div style="padding: 1rem; background: var(--surface-2); border-radius: 8px; border-left: 4px solid var(--primary);">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem;">min_child_weight</div>
+                                <div style="color: var(--text-muted); font-size: 0.9rem;">Minimum samples in leaf | Higher = more conservative</div>
+                            </div>
+                            <div style="padding: 1rem; background: var(--surface-2); border-radius: 8px; border-left: 4px solid var(--secondary);">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem;">subsample & colsample_bytree</div>
+                                <div style="color: var(--text-muted); font-size: 0.9rem;">Fraction of samples/features | Adds randomness, prevents overfitting</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Advanced Code: Grid Search for Tuning</div>
+                    <div class="code-block">
+                        <code><span class="code-keyword">from</span> sklearn.model_selection <span class="code-keyword">import</span> <span class="code-function">GridSearchCV</span>
+
+<span class="code-comment"># Define parameter grid</span>
+params = {
+    <span class="code-string">'max_depth'</span>: [<span class="code-number">3</span>, <span class="code-number">5</span>, <span class="code-number">7</span>],
+    <span class="code-string">'learning_rate'</span>: [<span class="code-number">0.01</span>, <span class="code-number">0.1</span>, <span class="code-number">0.3</span>],
+    <span class="code-string">'n_estimators'</span>: [<span class="code-number">50</span>, <span class="code-number">100</span>, <span class="code-number">200</span>]
+}
+
+<span class="code-comment"># Grid search</span>
+grid = <span class="code-function">GridSearchCV</span>(xgb.XGBRegressor(), params, cv=<span class="code-number">5</span>)
+grid.fit(X_train, y_train)
+best_model = grid.best_estimator_
+                        </code>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Model Validation & Monitoring</div>
+                    <div class="code-block">
+                        <code><span class="code-keyword">from</span> sklearn.metrics <span class="code-keyword">import</span> mean_squared_error, r2_score
+
+<span class="code-comment"># Evaluate performance</span>
+y_pred = model.predict(X_test)
+mse = <span class="code-function">mean_squared_error</span>(y_test, y_pred)
+rmse = mse ** <span class="code-number">0.5</span>
+r2 = <span class="code-function">r2_score</span>(y_test, y_pred)
+
+<span class="code-comment"># Feature importance</span>
+importance = model.feature_importances_
+<span class="code-keyword">for</span> name, imp <span class="code-keyword">in</span> <span class="code-function">zip</span>(feature_names, importance):
+    <span class="code-keyword">print</span>(f<span class="code-string">'{name}: {imp:.4f}'</span>)
+                        </code>
+                    </div>
+                </div>
+
+                <div class="nav-flow">
+                    <button class="btn btn-secondary" onclick="navigate('concept3')">← Back</button>
+                    <button class="btn btn-primary" onclick="navigate('exercises')">Exercises →</button>
+                </div>
+            </div>
+
+            <!-- EXERCISES -->
+            <div id="exercises" class="page">
+                <div class="page-header">
+                    <div class="page-title">💻 Practice Exercises</div>
+                    <div class="page-subtitle">Apply your XGBoost knowledge with coding challenges</div>
+                </div>
+
+                <!-- Exercise 1 -->
+                <div class="exercise-card">
+                    <div class="exercise-number">Exercise 1</div>
+                    <div class="exercise-title">Build a Basic XGBoost Model</div>
+                    <div class="exercise-description">Create an XGBoost regressor with appropriate hyperparameters for a housing price prediction task.</div>
+
+                    <button class="solution-toggle" onclick="toggleSolution(this)">
+                        <span>💡 Show Solution</span>
+                        <span style="transition: transform 0.3s;">→</span>
+                    </button>
+                    <div class="solution-content">
+                        <div class="code-block">
+                            <code><span class="code-keyword">import</span> xgboost <span class="code-keyword">as</span> xgb
+<span class="code-keyword">from</span> sklearn.datasets <span class="code-keyword">import</span> load_boston
+<span class="code-keyword">from</span> sklearn.model_selection <span class="code-keyword">import</span> train_test_split
+
+<span class="code-comment"># Load data</span>
+X, y = load_boston(return_X_y=<span class="code-keyword">True</span>)
+X_train, X_test, y_train, y_test = <span class="code-function">train_test_split</span>(
+    X, y, test_size=<span class="code-number">0.2</span>, random_state=<span class="code-number">42</span>
+)
+
+<span class="code-comment"># Create and train model</span>
+model = xgb.<span class="code-function">XGBRegressor</span>(
+    max_depth=<span class="code-number">6</span>,
+    learning_rate=<span class="code-number">0.1</span>,
+    n_estimators=<span class="code-number">100</span>,
+    subsample=<span class="code-number">0.8</span>,
+    colsample_bytree=<span class="code-number">0.8</span>
+)
+model.fit(X_train, y_train)
+
+<span class="code-comment"># Evaluate</span>
+train_score = model.score(X_train, y_train)
+test_score = model.score(X_test, y_test)
+<span class="code-keyword">print</span>(f<span class="code-string">'Train R²: {train_score:.4f}, Test R²: {test_score:.4f}'</span>)
+                            </code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exercise 2 -->
+                <div class="exercise-card">
+                    <div class="exercise-number">Exercise 2</div>
+                    <div class="exercise-title">Compare Models with Cross-Validation</div>
+                    <div class="exercise-description">Implement k-fold cross-validation to evaluate XGBoost vs Gradient Boosting performance.</div>
+
+                    <button class="solution-toggle" onclick="toggleSolution(this)">
+                        <span>💡 Show Solution</span>
+                        <span style="transition: transform 0.3s;">→</span>
+                    </button>
+                    <div class="solution-content">
+                        <div class="code-block">
+                            <code><span class="code-keyword">from</span> sklearn.model_selection <span class="code-keyword">import</span> cross_val_score
+<span class="code-keyword">from</span> sklearn.ensemble <span class="code-keyword">import</span> GradientBoostingRegressor
+<span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
+
+<span class="code-comment"># Define models</span>
+xgb_model = xgb.<span class="code-function">XGBRegressor</span>(n_estimators=<span class="code-number">100</span>)
+gb_model = <span class="code-function">GradientBoostingRegressor</span>(n_estimators=<span class="code-number">100</span>)
+
+<span class="code-comment"># 5-fold cross validation</span>
+xgb_scores = <span class="code-function">cross_val_score</span>(xgb_model, X, y, cv=<span class="code-number">5</span>, 
+                               scoring=<span class="code-string">'r2'</span>)
+gb_scores = <span class="code-function">cross_val_score</span>(gb_model, X, y, cv=<span class="code-number">5</span>, 
+                              scoring=<span class="code-string">'r2'</span>)
+
+<span class="code-keyword">print</span>(f<span class="code-string">'XGBoost: {xgb_scores.mean():.4f} ± {xgb_scores.std():.4f}'</span>)
+<span class="code-keyword">print</span>(f<span class="code-string">'Gradient Boosting: {gb_scores.mean():.4f} ± {gb_scores.std():.4f}'</span>)
+                            </code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exercise 3 -->
+                <div class="exercise-card">
+                    <div class="exercise-number">Exercise 3</div>
+                    <div class="exercise-title">Feature Importance Analysis</div>
+                    <div class="exercise-description">Extract and visualize feature importance to understand which features drive predictions.</div>
+
+                    <button class="solution-toggle" onclick="toggleSolution(this)">
+                        <span>💡 Show Solution</span>
+                        <span style="transition: transform 0.3s;">→</span>
+                    </button>
+                    <div class="solution-content">
+                        <div class="code-block">
+                            <code><span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+<span class="code-keyword">import</span> matplotlib.pyplot <span class="code-keyword">as</span> plt
+
+<span class="code-comment"># Get feature importance</span>
+importance_df = pd.<span class="code-function">DataFrame</span>({
+    <span class="code-string">'feature'</span>: feature_names,
+    <span class="code-string">'importance'</span>: model.feature_importances_
+}).sort_values(<span class="code-string">'importance'</span>, ascending=<span class="code-keyword">False</span>)
+
+<span class="code-comment"># Visualize top 10 features</span>
+plt.<span class="code-function">barh</span>(importance_df[<span class="code-string">'feature'</span>][::<span class="code-number">-1</span>], 
+        importance_df[<span class="code-string">'importance'</span>][::<span class="code-number">-1</span>])
+plt.<span class="code-function">xlabel</span>(<span class="code-string">'Importance Score'</span>)
+plt.<span class="code-function">title</span>(<span class="code-string">'XGBoost Feature Importance'</span>)
+plt.<span class="code-function">show</span>()
+                            </code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-flow">
+                    <button class="btn btn-secondary" onclick="navigate('advanced')">← Back</button>
+                    <button class="btn btn-primary" onclick="navigate('quiz')">Quiz →</button>
+                </div>
+            </div>
+
+            <!-- QUIZ PAGE -->
+            <div id="quiz" class="page">
+                <div class="page-header">
+                    <div class="page-title">🧠 Knowledge Check Quiz</div>
+                    <div class="page-subtitle">Test your understanding of XGBoost concepts</div>
+                </div>
+
+                <div class="quiz-container">
+                    <div class="quiz-progress">
+                        <div style="font-weight: 600; margin-bottom: 0.5rem;" id="quiz-progress-text">Question 1 of 5</div>
+                        <div class="progress-dots" id="quiz-dots">
+                            <div class="progress-dot active"></div>
+                            <div class="progress-dot"></div>
+                            <div class="progress-dot"></div>
+                            <div class="progress-dot"></div>
+                            <div class="progress-dot"></div>
+                        </div>
+                    </div>
+
+                    <!-- Q1 -->
+                    <div id="quiz-q1" class="quiz-question" style="display: block;">
+                        <div class="question-number">Question 1</div>
+                        <div class="question-text">What is the main advantage of XGBoost over basic decision trees?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="a" onchange="selectOption('q1', 'a')">
+                                <span>It uses a single tree for predictions</span>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="b" onchange="selectOption('q1', 'b')">
+                                <span>It combines multiple weak learners sequentially with regularization</span>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="c" onchange="selectOption('q1', 'c')">
+                                <span>It requires less computational power</span>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="d" onchange="selectOption('q1', 'd')">
+                                <span>It eliminates the need for data preprocessing</span>
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="q1-feedback"></div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div id="quiz-q2" class="quiz-question">
+                        <div class="question-number">Question 2</div>
+                        <div class="question-text">In XGBoost, what does a lower learning rate (eta) typically result in?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="a" onchange="selectOption('q2', 'a')">
+                                <span>Faster training time and better generalization</span>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="b" onchange="selectOption('q2', 'b')">
+                                <span>Slower training but better generalization</span>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="c" onchange="selectOption('q2', 'c')">
+                                <span>Higher variance and overfitting</span>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="d" onchange="selectOption('q2', 'd')">
+                                <span>Simpler models with fewer trees needed</span>
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="q2-feedback"></div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div id="quiz-q3" class="quiz-question">
+                        <div class="question-number">Question 3</div>
+                        <div class="question-text">What is the primary objective of boosting algorithms?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="a" onchange="selectOption('q3', 'a')">
+                                <span>To reduce bias by combining weak learners</span>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="b" onchange="selectOption('q3', 'b')">
+                                <span>To increase variance for better predictions</span>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="c" onchange="selectOption('q3', 'c')">
+                                <span>To eliminate the need for feature scaling</span>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="d" onchange="selectOption('q3', 'd')">
+                                <span>To create perfectly balanced datasets</span>
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="q3-feedback"></div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div id="quiz-q4" class="quiz-question">
+                        <div class="question-number">Question 4</div>
+                        <div class="question-text">Which hyperparameter controls the maximum depth of trees in XGBoost?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="a" onchange="selectOption('q4', 'a')">
+                                <span>learning_rate</span>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="b" onchange="selectOption('q4', 'b')">
+                                <span>n_estimators</span>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="c" onchange="selectOption('q4', 'c')">
+                                <span>max_depth</span>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="d" onchange="selectOption('q4', 'd')">
+                                <span>subsample</span>
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="q4-feedback"></div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div id="quiz-q5" class="quiz-question">
+                        <div class="question-number">Question 5</div>
+                        <div class="question-text">What does feature importance in XGBoost typically measure?</div>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="a" onchange="selectOption('q5', 'a')">
+                                <span>How frequently a feature appears in trees and its splitting gain</span>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="b" onchange="selectOption('q5', 'b')">
+                                <span>The correlation between features and target variable</span>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="c" onchange="selectOption('q5', 'c')">
+                                <span>The number of missing values in each feature</span>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="d" onchange="selectOption('q5', 'd')">
+                                <span>The computational cost of using each feature</span>
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="q5-feedback"></div>
+                    </div>
+
+                    <div class="nav-flow">
+                        <button class="btn btn-secondary" onclick="navigate('exercises')">← Back</button>
+                        <button class="btn btn-primary" id="next-q-btn" style="display:none;" onclick="nextQuestion()">Next Question →</button>
+                        <button class="btn btn-primary" id="submit-quiz-btn" onclick="submitQuiz()">Submit Quiz</button>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="quiz-results" style="display: none; margin-top: 2rem;">
+                        <div class="quiz-result">
+                            <div class="result-emoji" id="result-emoji">🎉</div>
+                            <div class="result-score" id="result-score">0/5</div>
+                            <div class="result-text" id="result-text">Great effort!</div>
+                            <button class="btn btn-primary btn-lg" onclick="navigate('completion')">Continue to Completion →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPLETION PAGE -->
+            <div id="completion" class="page">
+                <div class="completion-container">
+                    <div class="celebration">🎉</div>
+                    <div class="page-title">Congratulations!</div>
+                    <div style="font-size: 1.2rem; color: var(--text-muted); margin-bottom: 2rem;">You've completed the XGBoost Regressor module!</div>
+
+                    <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; border: 2px solid rgba(16, 185, 129, 0.3);">
+                        <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--primary);">✅ Skills You've Mastered</div>
+                        <div class="skills-grid">
+                            <div class="skill-tag">📊 Decision Trees</div>
+                            <div class="skill-tag">⚡ Boosting Algorithms</div>
+                            <div class="skill-tag">🚀 XGBoost Architecture</div>
+                            <div class="skill-tag">🔧 Hyperparameter Tuning</div>
+                            <div class="skill-tag">📈 Model Evaluation</div>
+                            <div class="skill-tag">💻 Hands-on Coding</div>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+                        <div style="font-weight: 600; margin-bottom: 1rem;">📚 Next Steps</div>
+                        <ul style="list-style: none; padding-left: 0;">
+                            <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border);">✓ Practice with real datasets from Kaggle</li>
+                            <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border);">✓ Explore XGBoost documentation and examples</li>
+                            <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border);">✓ Try advanced techniques like early stopping</li>
+                            <li style="padding: 0.5rem 0;">✓ Build end-to-end machine learning pipelines</li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-flow">
+                        <button class="btn btn-outline" onclick="navigate('welcome')">← Back to Start</button>
+                        <button class="btn btn-primary btn-lg" onclick="restartModule()">🔄 Restart Module</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================== STATE MANAGEMENT ==================
+        let currentPage = 'welcome';
+        let quizAnswers = {q1: null, q2: null, q3: null, q4: null, q5: null};
+        let quizCorrect = {q1: 'b', q2: 'b', q3: 'a', q4: 'c', q5: 'a'};
+        let completedPages = ['welcome'];
+
+        // ================== NAVIGATION ==================
+        function navigate(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelector(`[onclick="navigate('${pageId}')"]`)?.classList.add('active');
+            
+            currentPage = pageId;
+            updateProgress();
+            window.scrollTo(0, 0);
+        }
+
+        // ================== PROGRESS TRACKING ==================
+        function updateProgress() {
+            const pages = ['welcome', 'concept1', 'concept2', 'concept3', 'advanced', 'exercises', 'quiz', 'completion'];
+            const currentIndex = pages.indexOf(currentPage);
+            const progress = ((currentIndex + 1) / pages.length) * 100;
+            document.querySelector('.progress-bar').style.width = progress + '%';
+
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach((item, idx) => {
+                const indicator = item.querySelector('.progress-indicator');
+                if (indicator) {
+                    if (idx < currentIndex) {
+                        indicator.classList.add('completed');
+                        indicator.innerHTML = '✓';
+                    } else if (idx === currentIndex) {
+                        indicator.classList.add('active');
+                        indicator.classList.remove('completed');
+                    } else {
+                        indicator.classList.remove('active', 'completed');
+                    }
+                }
+            });
+        }
+
+        // ================== INTERACTIVE COMPONENTS ==================
+
+        // Depth slider update
+        function updateDepth(value) {
+            document.getElementById('depth-value').textContent = value;
+            const message = `Depth ${value} = ${Math.pow(2, value)} possible leaves | `;
+            if (value <= 3) {
+                document.getElementById('depth-value').textContent = value + ' (Simple)';
+            } else if (value <= 6) {
+                document.getElementById('depth-value').textContent = value + ' (Balanced)';
+            } else {
+                document.getElementById('depth-value').textContent = value + ' (Complex)';
+            }
+        }
+
+        // Boost type selector
+        function selectBoostType(type) {
+            document.querySelectorAll('.boolean-tester .boolean-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const descriptions = {
+                adaboost: {
+                    title: 'AdaBoost (Adaptive Boosting)',
+                    desc: 'Focuses on misclassified samples by adjusting their weights. Simple but effective for classification. Often less stable than gradient boosting.'
+                },
+                gradient: {
+                    title: 'Gradient Boosting',
+                    desc: 'Minimizes loss function by fitting trees to residuals. More flexible and handles regression well. Foundation for XGBoost.'
+                },
+                xgboost: {
+                    title: 'XGBoost',
+                    desc: 'Optimized gradient boosting with regularization, parallel processing, and advanced features. Industry standard with best performance.'
+                }
+            };
+
+            document.getElementById('boost-title').textContent = descriptions[type].title;
+            document.getElementById('boost-desc').textContent = descriptions[type].desc;
+        }
+
+        // Reveal cards
+        function toggleReveal(card) {
+            card.classList.toggle('revealed');
+            const revealContent = document.getElementById('reveal-content');
+            if (document.querySelectorAll('.reveal-card.revealed').length > 0) {
+                revealContent.style.display = 'block';
+            }
+        }
+
+        // Stage highlighting
+        function highlightStage(stage) {
+            document.querySelectorAll('.step-box').forEach((box, idx) => {
+                box.classList.toggle('active', idx === stage);
+            });
+
+            const stageTexts = [
+                { title: 'Stage 1: Initial Model', text: 'The first weak learner is trained on all data equally. It performs worse than optimal but provides a baseline.' },
+                { title: 'Stage 2: Focus on Errors', text: 'The algorithm identifies samples that were predicted incorrectly and increases their weights, forcing the next model to focus on these difficult cases.' },
+                { title: 'Stage 3: Fit New Model', text: 'A new tree is trained on the weighted data, focusing on reducing errors made by previous models.' },
+                { title: 'Stage 4: Combine', text: 'All trees are combined with appropriate weights to make the final prediction. Each tree\'s contribution depends on its performance.' }
+            ];
+
+            document.getElementById('stage-info').innerHTML = `
+                <div style="font-weight: 600; margin-bottom: 0.5rem;">${stageTexts[stage].title}</div>
+                <div style="color: var(--text-muted);">${stageTexts[stage].text}</div>
+            `;
+        }
+
+        // Parameter updates
+        function updateParam(param, value) {
+            if (param === 'lr') {
+                document.getElementById('lr-display').textContent = value;
+                updateTradeoffText();
+            } else if (param === 'md') {
+                document.getElementById('md-display').textContent = value;
+                updateTradeoffText();
+            }
+        }
+
+        function updateTradeoffText() {
+            const lr = parseFloat(document.getElementById('lr-display').textContent);
+            const md = parseInt(document.getElementById('md-display').textContent);
+
+            let text = '';
+            if (lr < 0.1 && md < 6) {
+                text = '✓ Conservative settings: Better generalization, slower convergence';
+            } else if (lr > 0.2 && md > 10) {
+                text = '⚠️ Aggressive settings: Risk of overfitting, faster training';
+            } else {
+                text = '⚡ Balanced settings: Good trade-off between bias and variance';
+            }
+            document.getElementById('tradeoff-text').textContent = text;
+        }
+
+        // Demo functions
+        function runDecisionTreeDemo() {
+            const output = document.getElementById('dt-demo-output');
+            output.style.display = 'block';
+            output.innerHTML = 'Loading...\n';
+            
+            setTimeout(() => {
+                output.innerHTML = `
+Decision Tree Regressor Demo
+============================
+Training on sample housing data...
+
+✓ Model trained in 0.045 seconds
+✓ Mean Squared Error: 0.0845
+✓ R² Score: 0.9234
+
+Predictions:
+[45000.5, 89300.2, 156450.8, 120300.1, 67890.4]
+
+Tree Depth: 5
+Number of Leaves: 32
+Total Splits: 31
+
+✅ Model ready for predictions!
+                `;
+            }, 800);
+        }
+
+        // Solution toggle
+        function toggleSolution(btn) {
+            const solution = btn.nextElementSibling;
+            solution.classList.toggle('show');
+            const arrow = btn.querySelector('span:last-child');
+            arrow.style.transform = solution.classList.contains('show') ? 'rotate(90deg)' : 'rotate(0)';
+        }
+
+        // ================== QUIZ LOGIC ==================
+        function selectOption(question, option) {
+            quizAnswers[question] = option;
+            document.querySelectorAll(`input[name="${question}"]`).forEach(radio => {
+                const parent = radio.parentElement;
+                parent.classList.remove('selected', 'correct', 'incorrect');
+                if (radio.checked) {
+                    parent.classList.add('selected');
+                }
+            });
+        }
+
+        function nextQuestion() {
+            // Implement if needed
+        }
+
+        function submitQuiz() {
+            let correct = 0;
+            Object.keys(quizAnswers).forEach(q => {
+                if (quizAnswers[q] === quizCorrect[q]) {
+                    correct++;
+                    document.querySelector(`input[name="${q}"][value="${quizCorrect[q]}"]`).parentElement.classList.add('correct');
+                    document.getElementById(`${q}-feedback`).classList.add('show', 'correct');
+                    document.getElementById(`${q}-feedback`).innerHTML = '✓ Correct!';
+                } else if (quizAnswers[q]) {
+                    document.querySelector(`input[name="${q}"][value="${quizAnswers[q]}"]`).parentElement.classList.add('incorrect');
+                    document.getElementById(`${q}-feedback`).classList.add('show', 'incorrect');
+                    document.getElementById(`${q}-feedback`).innerHTML = `✗ Incorrect. Correct answer: ${quizCorrect[q].toUpperCase()}`;
+                }
+            });
+
+            document.getElementById('submit-quiz-btn').style.display = 'none';
+            document.getElementById('quiz-results').style.display = 'block';
+            document.getElementById('result-score').textContent = `${correct}/5`;
+
+            const emoji = correct >= 4 ? '🌟' : correct >= 3 ? '👍' : '💪';
+            const text = correct === 5 ? 'Perfect Score!' : correct >= 4 ? 'Excellent Work!' : correct >= 3 ? 'Good Job!' : 'Keep Practicing!';
+            document.getElementById('result-emoji').textContent = emoji;
+            document.getElementById('result-text').textContent = text;
+        }
+
+        // ================== RESTART ==================
+        function restartModule() {
+            quizAnswers = {q1: null, q2: null, q3: null, q4: null, q5: null};
+            document.querySelectorAll('.quiz-question').forEach(q => {
+                q.style.display = q.id === 'quiz-q1' ? 'block' : 'none';
+                q.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+                q.querySelectorAll('.quiz-feedback').forEach(f => f.classList.remove('show'));
+            });
+            document.getElementById('quiz-results').style.display = 'none';
+            document.getElementById('submit-quiz-btn').style.display = 'inline-flex';
+            navigate('welcome');
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>

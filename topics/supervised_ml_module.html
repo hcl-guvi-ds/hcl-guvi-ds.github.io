@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supervised Machine Learning | HCL-GUVI</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef1ff;--surf:#fff;--bdr:#dde3ff;
+  --p:#4361ee;--p2:#7209b7;--pdark:#3651d4;
+  --g:#06d6a0;--g2:#05b386;
+  --sky:#4cc9f0;--rose:#ef233c;--amber:#ffd166;--violet:#b5179e;
+  --ink:#0d1b4b;--ink2:#3d4f7c;--ink3:#8891b4;
+  --vsc:#0a0e1a;--sb:256px;--tb:64px;--r:14px;
+  --sh:0 2px 20px rgba(13,27,75,.07);--sh2:0 12px 48px rgba(13,27,75,.14);
+  --grad:linear-gradient(135deg,var(--p),var(--p2));
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Bricolage Grotesque',sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+
+/* ── TOPBAR ── */
+#tb{position:fixed;inset:0 0 auto 0;height:var(--tb);background:var(--surf);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 22px;gap:14px;z-index:400;box-shadow:0 1px 16px rgba(13,27,75,.05)}
+.tl{height:36px;object-fit:contain;flex-shrink:0}
+.tlfb{font-size:17px;font-weight:800;display:none;align-items:center}
+.tlfb span:first-child{color:var(--p)}.tlfb span:last-child{color:var(--p2)}
+.tdiv{width:1px;height:26px;background:var(--bdr)}
+.tmod{font-weight:700;font-size:14px;letter-spacing:-.2px;white-space:nowrap}
+.tbadge{padding:4px 12px;border-radius:99px;font-size:10.5px;font-weight:800;background:var(--grad);color:#fff;letter-spacing:.4px}
+.tpw{flex:1;display:flex;align-items:center;gap:10px;min-width:0}
+.tplbl{font-size:10.5px;font-weight:700;color:var(--ink2);white-space:nowrap}
+.tbar{flex:1;height:5px;background:var(--bdr);border-radius:99px;overflow:hidden;min-width:60px}
+.tfill{height:100%;background:linear-gradient(90deg,var(--p),var(--g));border-radius:99px;transition:width .7s cubic-bezier(.4,0,.2,1);width:0%}
+.tpct{font-size:11px;font-weight:800;color:var(--p)}
+.tusr{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.tav{width:33px;height:33px;border-radius:50%;background:var(--grad);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px rgba(67,97,238,.18)}
+.tnm{font-size:12.5px;font-weight:700;color:var(--ink)}
+.trl{font-size:10px;color:var(--ink2)}
+
+/* ── SIDEBAR ── */
+#sb{position:fixed;top:var(--tb);left:0;bottom:0;width:var(--sb);background:var(--surf);border-right:1px solid var(--bdr);overflow-y:auto;z-index:300;padding:16px 10px}
+#sb::-webkit-scrollbar{width:3px}
+#sb::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:99px}
+.sblbl{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);padding:4px 8px 10px}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:11px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--ink2);transition:all .16s;margin-bottom:2px;position:relative;user-select:none}
+.ni:hover{background:var(--bg);color:var(--ink)}
+.ni.on{background:linear-gradient(135deg,rgba(67,97,238,.11),rgba(114,9,183,.07));color:var(--p)}
+.ni.on::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--grad);border-radius:0 4px 4px 0}
+.nic{width:28px;height:28px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;transition:all .18s}
+.ni.on .nic{background:var(--grad)}
+.nck{margin-left:auto;width:16px;height:16px;border-radius:50%;border:2px solid var(--bdr);font-size:9px;display:flex;align-items:center;justify-content:center;transition:all .3s}
+.ni.done .nck{background:var(--g);border-color:var(--g);color:#fff}
+
+/* ── MAIN ── */
+#main{position:fixed;top:var(--tb);left:var(--sb);right:0;bottom:0;overflow-y:auto;padding:30px 38px 44px}
+#main::-webkit-scrollbar{width:5px}
+#main::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:99px}
+
+/* ── PAGES ── */
+.pg{display:none;animation:pgIn .4s cubic-bezier(.4,0,.2,1)}
+.pg.on{display:block}
+@keyframes pgIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ── TYPOGRAPHY ── */
+.ey{font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--p);margin-bottom:8px}
+.h1{font-size:31px;font-weight:800;color:var(--ink);line-height:1.16;margin-bottom:8px;letter-spacing:-.7px}
+.sub{font-size:14px;color:var(--ink2);margin-bottom:24px;line-height:1.68;max-width:660px}
+h3.s{font-size:16px;font-weight:700;margin-bottom:12px;color:var(--ink)}
+p.b{font-size:13.5px;line-height:1.72;color:var(--ink2)}
+
+/* ── CARDS ── */
+.card{background:var(--surf);border-radius:var(--r);border:1px solid var(--bdr);padding:22px;box-shadow:var(--sh)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.card+.card,.g2+.card,.card+.g2{margin-top:18px}
+
+/* ── CODE ── */
+.cb{background:var(--vsc);border-radius:12px;padding:18px 22px;font-family:'Fira Code',monospace;font-size:12.5px;line-height:1.9;color:#e2e8f0;margin:13px 0;position:relative;border:1px solid rgba(255,255,255,.04);overflow-x:auto}
+.cb .cl{position:absolute;top:10px;right:13px;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:#374151;font-family:'Bricolage Grotesque',sans-serif}
+.kw{color:#c792ea}.st{color:#c3e88d}.fn{color:#82aaff}.cm{color:#546e7a;font-style:italic}.nm{color:#ffcb6b}.op{color:#89ddff}.cl2{color:#f07178}.n2{color:#4ec9b0}
+.run{display:inline-flex;align-items:center;gap:8px;padding:9px 19px;border-radius:99px;background:var(--grad);color:#fff;font-size:12.5px;font-weight:700;border:none;cursor:pointer;transition:all .22s;box-shadow:0 3px 14px rgba(67,97,238,.3);font-family:'Bricolage Grotesque',sans-serif}
+.run:hover{transform:translateY(-2px);box-shadow:0 7px 24px rgba(67,97,238,.42)}
+.out{background:#060a14;border-radius:10px;padding:14px 18px;font-family:'Fira Code',monospace;font-size:12px;color:#4ade80;margin-top:10px;display:none;border:1px solid rgba(74,222,128,.13);line-height:1.95}
+.out.sh{display:block;animation:fi .32s ease}
+.op2{color:#374151}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1}}
+
+/* ── ANALOGY ── */
+.ana{background:linear-gradient(135deg,rgba(6,214,160,.08),rgba(67,97,238,.04));border:1px solid rgba(6,214,160,.22);border-radius:var(--r);padding:16px 20px;display:flex;gap:13px;align-items:flex-start;margin-bottom:18px}
+.anai{font-size:28px;flex-shrink:0}
+.analbl{font-size:9.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--g);margin-bottom:3px}
+
+/* ── FOOTER NAV ── */
+.pgf{display:flex;justify-content:space-between;align-items:center;margin-top:36px;padding-top:22px;border-top:1px solid var(--bdr)}
+.bp,.bn{display:inline-flex;align-items:center;gap:7px;padding:10px 21px;border-radius:99px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .2s;font-family:'Bricolage Grotesque',sans-serif}
+.bp{background:var(--bg);color:var(--ink2);border:1px solid var(--bdr)}.bp:hover{background:var(--bdr)}
+.bn{background:var(--grad);color:#fff;box-shadow:0 3px 14px rgba(67,97,238,.3)}.bn:hover{transform:translateY(-2px);box-shadow:0 7px 24px rgba(67,97,238,.42)}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#070d2e 0%,#0d1a56 45%,#06102a 100%);border-radius:20px;padding:46px 40px;position:relative;overflow:hidden;margin-bottom:22px}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 68% 38%,rgba(67,97,238,.22) 0%,transparent 65%),radial-gradient(ellipse at 18% 75%,rgba(6,214,160,.12) 0%,transparent 50%)}
+.hcnt{position:relative;z-index:1}
+.hero h1{font-size:38px;font-weight:800;color:#fff;letter-spacing:-.8px;line-height:1.12;margin-bottom:11px}
+.hero p{color:#8892c8;font-size:14px;line-height:1.68;max-width:540px;margin-bottom:26px}
+.hbdg{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+.hb{padding:5px 14px;border-radius:99px;font-size:11.5px;font-weight:700}
+.hb1{background:rgba(67,97,238,.2);color:#8b9fff;border:1px solid rgba(67,97,238,.3)}
+.hb2{background:rgba(6,214,160,.18);color:#4dffc5;border:1px solid rgba(6,214,160,.26)}
+.hb3{background:rgba(114,9,183,.18);color:#d4a5ff;border:1px solid rgba(114,9,183,.26)}
+.hb4{background:rgba(255,209,102,.18);color:#ffd166;border:1px solid rgba(255,209,102,.26)}
+.hdeco{position:absolute;right:44px;top:50%;transform:translateY(-50%);font-size:96px;opacity:.08;filter:blur(1px);z-index:0}
+.sbtn{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:99px;background:var(--grad);color:#fff;font-size:14px;font-weight:800;border:none;cursor:pointer;box-shadow:0 6px 28px rgba(67,97,238,.44);transition:all .22s;font-family:'Bricolage Grotesque',sans-serif}
+.sbtn:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(67,97,238,.54)}
+
+/* ── CHECKLIST ── */
+.chk{display:flex;flex-direction:column;gap:7px}
+.ci{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:10px;background:var(--bg);font-size:13px;font-weight:500}
+.cico{width:21px;height:21px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+
+/* ── TAGS ── */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700}
+.tgb{background:rgba(67,97,238,.1);color:var(--p)}
+.tgg{background:rgba(6,214,160,.1);color:var(--g2)}
+.tgp{background:rgba(114,9,183,.1);color:var(--p2)}
+.tga{background:rgba(255,209,102,.15);color:#b8860b}
+.tgr{background:rgba(239,35,60,.1);color:var(--rose)}
+
+/* ── STEP VIZ ── */
+.sv{display:flex;flex-direction:column}
+.si{display:flex;gap:14px;cursor:pointer;padding:10px 0;transition:all .15s}
+.si:hover .sd{border-color:var(--p)}
+.sdc{display:flex;flex-direction:column;align-items:center}
+.sd{width:31px;height:31px;border-radius:50%;background:var(--bg);border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--ink2);flex-shrink:0;transition:all .28s}
+.sl{flex:1;width:2px;background:var(--bdr);min-height:20px}
+.sc2{flex:1;padding-bottom:13px}
+.stt{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.sdd{font-size:12.5px;color:var(--ink2);line-height:1.62;display:none}
+.si.act .sd{background:var(--grad);border-color:transparent;color:#fff}
+.si.act .sdd{display:block;animation:fi .28s}
+.si.act .stt{color:var(--p)}
+
+/* ── REVEAL ── */
+.rvg{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.rv{background:var(--bg);border-radius:12px;padding:16px;cursor:pointer;border:2px solid transparent;transition:all .22s;user-select:none}
+.rv:hover{border-color:var(--p);background:rgba(67,97,238,.04)}
+.rv.fl{background:rgba(67,97,238,.06);border-color:var(--p)}
+.rvf{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+.rvb{font-size:12.5px;color:var(--ink2);margin-top:8px;display:none;line-height:1.62}
+.rv.fl .rvb{display:block;animation:fi .28s}
+.rvh{font-size:10px;color:var(--ink3);margin-top:5px}
+
+/* ── SLIDER ── */
+.slw{display:flex;flex-direction:column;gap:10px}
+.slr{display:flex;align-items:center;gap:10px}
+.slr label{font-size:12.5px;font-weight:700;color:var(--ink2);width:130px;flex-shrink:0}
+input[type=range]{flex:1;accent-color:var(--p);height:5px}
+.slv{font-size:13px;font-weight:800;color:var(--p);width:54px;text-align:right;font-family:'Fira Code',monospace}
+.slout{background:var(--vsc);border-radius:10px;padding:12px 16px;font-family:'Fira Code',monospace;font-size:12.5px;color:#4ade80;min-height:34px;transition:all .22s}
+
+/* ── SCENARIO CARDS ── */
+.scen-g{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.scen{border-radius:13px;padding:18px;border:2px solid var(--bdr);cursor:pointer;transition:all .22s;background:var(--surf);text-align:center}
+.scen:hover{border-color:var(--p);transform:translateY(-3px);box-shadow:var(--sh2)}
+.scen.sel{border-color:var(--p);background:rgba(67,97,238,.06)}
+.scen-ico{font-size:28px;margin-bottom:8px}
+.scen-title{font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:5px}
+.scen-type{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:99px;display:inline-block;margin-bottom:7px}
+.scen-desc{font-size:11.5px;color:var(--ink2);line-height:1.5;display:none}
+.scen.sel .scen-desc{display:block;animation:fi .3s}
+
+/* ── DECISION TREE VIZ ── */
+.dtree{width:100%;overflow-x:auto;padding:10px 0}
+.dnode{display:inline-flex;flex-direction:column;align-items:center;gap:0}
+.dbox{padding:10px 16px;border-radius:10px;font-size:12px;font-weight:700;text-align:center;min-width:110px;cursor:pointer;transition:all .2s;user-select:none}
+.dbox:hover{transform:scale(1.04)}
+.dline{width:2px;height:24px;background:var(--bdr);margin:0 auto}
+.drow{display:flex;gap:0;justify-content:center;align-items:flex-start;position:relative}
+.dbranch{display:flex;flex-direction:column;align-items:center;padding:0 20px}
+.dhline{height:2px;background:var(--bdr);position:absolute;top:0}
+.dlabel{font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:6px}
+
+/* ── QUIZ ── */
+.qc{background:var(--surf);border-radius:var(--r);padding:22px;border:1px solid var(--bdr);margin-bottom:14px;display:none;box-shadow:var(--sh)}
+.qc.on{display:block;animation:pgIn .32s}
+.qn{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);margin-bottom:7px}
+.qt{font-size:15.5px;font-weight:700;color:var(--ink);margin-bottom:16px;line-height:1.45}
+.qos{display:flex;flex-direction:column;gap:7px}
+.qo{padding:11px 15px;border-radius:9px;border:2px solid var(--bdr);cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;background:var(--surf);display:flex;align-items:center;gap:9px}
+.qo:hover:not(.dis){border-color:var(--p);background:rgba(67,97,238,.04)}
+.qo.ok{border-color:var(--g);background:rgba(6,214,160,.07);color:var(--g2)}
+.qo.ng{border-color:var(--rose);background:rgba(239,35,60,.06);color:var(--rose)}
+.ql{width:23px;height:23px;border-radius:7px;background:var(--bg);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qfb{margin-top:11px;padding:11px 15px;border-radius:9px;font-size:12.5px;font-weight:700;display:none}
+.qfb.sh{display:block;animation:fi .28s}
+.qfb.ok{background:rgba(6,214,160,.09);color:var(--g2)}
+.qfb.ng{background:rgba(239,35,60,.07);color:var(--rose)}
+.qdots{display:flex;gap:5px;justify-content:center;margin-bottom:20px}
+.qd{width:28px;height:5px;border-radius:99px;background:var(--bdr);transition:all .3s}
+.qd.ok{background:var(--g)}.qd.ng{background:var(--rose)}.qd.cur{background:var(--p);width:40px}
+
+/* ── EXERCISE ── */
+.ex{background:var(--surf);border-radius:var(--r);border:1px solid var(--bdr);overflow:hidden;margin-bottom:15px;box-shadow:var(--sh)}
+.exh{padding:14px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bdr);background:var(--bg)}
+.exn{width:28px;height:28px;border-radius:8px;background:var(--grad);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.ext{font-size:14px;font-weight:700;flex:1}
+.exb{padding:16px 20px}
+.sbt{display:inline-flex;align-items:center;gap:5px;padding:8px 15px;border-radius:8px;background:var(--bg);border:1px solid var(--bdr);font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;font-family:'Bricolage Grotesque',sans-serif;color:var(--ink2);margin-top:10px}
+.sbt:hover{background:var(--bdr)}
+.sol{display:none;margin-top:10px}.sol.op{display:block;animation:fi .3s}
+
+/* ── SCORE ── */
+.scw{text-align:center;padding:36px}
+.sring{width:114px;height:114px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 0 0 6px rgba(6,214,160,.12)}
+.sin{width:88px;height:88px;border-radius:50%;background:var(--surf);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sn{font-size:30px;font-weight:900;color:var(--ink)}.sd2{font-size:12px;color:var(--ink3)}
+.rbtn{display:inline-flex;align-items:center;gap:7px;padding:12px 26px;border-radius:99px;background:var(--grad);color:#fff;font-size:13px;font-weight:800;border:none;cursor:pointer;box-shadow:0 3px 14px rgba(67,97,238,.3);transition:all .2s;font-family:'Bricolage Grotesque',sans-serif;margin-top:14px}
+.rbtn:hover{transform:translateY(-2px)}
+
+/* ── COMPLETION ── */
+.cmpw{text-align:center;padding:42px 20px}
+.cmpi{font-size:70px;animation:bce 1s infinite alternate;display:block;margin-bottom:14px}
+@keyframes bce{from{transform:scale(1) translateY(0)}to{transform:scale(1.1) translateY(-8px)}}
+.cmpt{font-size:36px;font-weight:900;color:var(--ink);letter-spacing:-.7px;margin-bottom:8px}
+.cmps{font-size:15px;color:var(--ink2);margin-bottom:30px}
+.skw{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-bottom:30px}
+.sk{padding:7px 16px;border-radius:99px;font-size:12.5px;font-weight:700;border:2px solid;animation:pp .5s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes pp{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* ── MISC ── */
+code{font-family:'Fira Code',monospace;background:rgba(67,97,238,.08);color:var(--p);padding:1px 5px;border-radius:5px;font-size:12px}
+.sep{height:1px;background:var(--bdr);margin:20px 0}
+.info-box{background:rgba(67,97,238,.05);border:1px solid rgba(67,97,238,.15);border-radius:10px;padding:13px 16px;font-size:13px;color:var(--ink2);line-height:1.65}
+.info-box strong{color:var(--p)}
+
+/* ── REGRESSION VIZ ── */
+.reg-canvas{width:100%;border-radius:12px;border:1.5px solid var(--bdr);background:#fafbff;cursor:crosshair;display:block}
+.reg-canvas:hover{border-color:var(--p)}
+
+/* ── COMPARE TABLE ── */
+.ctbl{width:100%;border-collapse:separate;border-spacing:0;border-radius:11px;overflow:hidden;border:1px solid var(--bdr)}
+.ctbl th{background:var(--bg);padding:10px 16px;font-size:11.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--ink2);text-align:left}
+.ctbl td{padding:11px 16px;font-size:13px;border-top:1px solid var(--bdr)}
+.ctbl tr:hover td{background:rgba(67,97,238,.03)}
+
+/* ── FLOW DIAGRAM ── */
+.flow{display:flex;flex-direction:column;align-items:flex-start;gap:0}
+.fnode{padding:10px 18px;border-radius:10px;font-size:12.5px;font-weight:700;display:inline-block}
+.farr{width:2px;height:22px;background:var(--bdr);margin:0 8px;position:relative}
+.farr::after{content:'▼';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--ink3)}
+.frow{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin:4px 0}
+
+/* ── METRIC BARS ── */
+.mbar-wrap{display:flex;flex-direction:column;gap:9px}
+.mbar-row{display:flex;align-items:center;gap:10px}
+.mbar-lbl{font-size:12px;font-weight:700;color:var(--ink2);width:100px}
+.mbar-bg{flex:1;height:8px;background:var(--bdr);border-radius:99px;overflow:hidden}
+.mbar{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.mbar-val{font-size:11.5px;font-weight:800;width:40px;text-align:right;font-family:'Fira Code',monospace}
+
+@media(max-width:900px){#sb{display:none}#main{left:0;padding:18px 14px}.g2,.g3,.rvg,.scen-g{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="tb">
+  <img src="logo.png" alt="HCL-GUVI Logo" class="tl" onerror="this.style.display='none';document.getElementById('lfb').style.display='flex'">
+  <div id="lfb" class="tlfb"><span>HCL</span><span>GUVI</span></div>
+  <div class="tdiv"></div>
+  <span class="tmod">Supervised Machine Learning</span>
+  <span class="tbadge">Core Module</span>
+  <div class="tpw">
+    <span class="tplbl">Progress</span>
+    <div class="tbar"><div class="tfill" id="tf"></div></div>
+    <span class="tpct" id="tpct">0%</span>
+  </div>
+  <div class="tusr">
+    <div class="tav">V</div>
+    <div><div class="tnm">Vinodhini</div><div class="trl">Data Scientist · HCL GUVI</div></div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav id="sb">
+  <div class="sblbl">ML Module</div>
+  <div class="ni on" onclick="go(0)" id="nv0"><div class="nic">🏠</div>Welcome<div class="nck" id="nc0"></div></div>
+  <div class="ni" onclick="go(1)" id="nv1"><div class="nic">🎯</div>What is SML?<div class="nck" id="nc1"></div></div>
+  <div class="ni" onclick="go(2)" id="nv2"><div class="nic">📈</div>Regression<div class="nck" id="nc2"></div></div>
+  <div class="ni" onclick="go(3)" id="nv3"><div class="nic">🏷️</div>Classification<div class="nck" id="nc3"></div></div>
+  <div class="ni" onclick="go(4)" id="nv4"><div class="nic">⚡</div>Advanced: Model Selection<div class="nck" id="nc4"></div></div>
+  <div class="ni" onclick="go(5)" id="nv5"><div class="nic">🧪</div>Exercises<div class="nck" id="nc5"></div></div>
+  <div class="ni" onclick="go(6)" id="nv6"><div class="nic">🧠</div>Quiz<div class="nck" id="nc6"></div></div>
+  <div class="ni" onclick="go(7)" id="nv7"><div class="nic">🎉</div>Completion<div class="nck" id="nc7"></div></div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+<!-- ══ PAGE 0: WELCOME ══ -->
+<div class="pg on" id="pg0">
+  <div class="hero">
+    <div class="hcnt">
+      <div style="font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#4361ee;margin-bottom:11px">HCL-GUVI · MACHINE LEARNING SERIES</div>
+      <h1>Supervised<br>Machine Learning</h1>
+      <p>Unlock the power of algorithms that learn from labelled data. From predicting house prices to diagnosing diseases — supervised ML is the engine of modern AI.</p>
+      <div class="hbdg">
+        <span class="hb hb1">🎯 Core Concept</span>
+        <span class="hb hb2">📈 Regression</span>
+        <span class="hb hb3">🏷️ Classification</span>
+        <span class="hb hb4">⚡ Model Selection</span>
+      </div>
+      <button class="sbtn" onclick="go(1)">Start Learning →</button>
+    </div>
+    <div class="hdeco">🤖</div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="s">📚 What You'll Master</h3>
+      <div class="chk">
+        <div class="ci"><div class="cico">✓</div>What supervised machine learning is</div>
+        <div class="ci"><div class="cico">✓</div>Difference between regression & classification</div>
+        <div class="ci"><div class="cico">✓</div>Real-life applications of each type</div>
+        <div class="ci"><div class="cico">✓</div>Build models with scikit-learn</div>
+        <div class="ci"><div class="cico">✓</div>Evaluate and select the right model</div>
+        <div class="ci"><div class="cico">✓</div>Understand overfitting vs underfitting</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="s">🗺️ Learning Journey</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+        <div style="display:flex;gap:12px;align-items:center;padding:10px;background:var(--bg);border-radius:10px">
+          <div style="font-size:20px">🧠</div>
+          <div><div style="font-size:12.5px;font-weight:700;color:var(--ink)">4 Core Concepts</div><div style="font-size:11px;color:var(--ink2)">Step-by-step explanations with visuals</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;padding:10px;background:var(--bg);border-radius:10px">
+          <div style="font-size:20px">🎮</div>
+          <div><div style="font-size:12.5px;font-weight:700;color:var(--ink)">5+ Interactive Components</div><div style="font-size:11px;color:var(--ink2)">Drag sliders, click scenarios, build intuition</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;padding:10px;background:var(--bg);border-radius:10px">
+          <div style="font-size:20px">🧪</div>
+          <div><div style="font-size:12.5px;font-weight:700;color:var(--ink)">3 Coding Exercises</div><div style="font-size:11px;color:var(--ink2)">Practice with scikit-learn code</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;padding:10px;background:var(--bg);border-radius:10px">
+          <div style="font-size:20px">🏆</div>
+          <div><div style="font-size:12.5px;font-weight:700;color:var(--ink)">5-Question Quiz</div><div style="font-size:11px;color:var(--ink2)">Test your understanding, earn your badge</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pgf"><span></span><button class="bn" onclick="go(1)">Next: What is SML? →</button></div>
+</div>
+
+<!-- ══ PAGE 1: WHAT IS SML ══ -->
+<div class="pg" id="pg1">
+  <div class="ey">Concept 1 of 3</div>
+  <div class="h1">What is Supervised Machine Learning? 🎯</div>
+  <div class="sub">Supervised ML is teaching a computer by example. We give it labelled data (inputs + correct answers) and it learns patterns to predict new, unseen data.</div>
+
+  <div class="ana">
+    <div class="anai">👩‍🏫</div>
+    <div>
+      <div class="analbl">Real-Life Analogy</div>
+      <p class="b"><strong>Think of a teacher grading papers.</strong> The teacher shows students thousands of solved examples (training data), explains right/wrong (labels), and the student learns to solve new problems independently (prediction). SML works the same: train on labelled examples → predict new cases.</p>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE: SML Pipeline Flow -->
+  <div class="card" style="margin-bottom:18px">
+    <h3 class="s">🔄 The SML Pipeline — Click each step</h3>
+    <p class="b" style="margin-bottom:14px">Click any step to learn what happens at that stage of supervised learning:</p>
+    <div style="display:flex;gap:0;align-items:center;flex-wrap:wrap;gap:4px" id="pipelineFlow">
+      <div class="fnode" style="background:rgba(67,97,238,.1);border:2px solid rgba(67,97,238,.25);color:var(--p);cursor:pointer" onclick="showPipeline(0)">📊 Collect Data</div>
+      <div style="color:var(--ink3);font-size:18px;padding:0 6px">→</div>
+      <div class="fnode" style="background:rgba(6,214,160,.1);border:2px solid rgba(6,214,160,.22);color:var(--g2);cursor:pointer" onclick="showPipeline(1)">🏷️ Label Data</div>
+      <div style="color:var(--ink3);font-size:18px;padding:0 6px">→</div>
+      <div class="fnode" style="background:rgba(114,9,183,.1);border:2px solid rgba(114,9,183,.22);color:var(--p2);cursor:pointer" onclick="showPipeline(2)">🔧 Train Model</div>
+      <div style="color:var(--ink3);font-size:18px;padding:0 6px">→</div>
+      <div class="fnode" style="background:rgba(255,209,102,.15);border:2px solid rgba(255,209,102,.3);color:#a07000;cursor:pointer" onclick="showPipeline(3)">📐 Evaluate</div>
+      <div style="color:var(--ink3);font-size:18px;padding:0 6px">→</div>
+      <div class="fnode" style="background:rgba(239,35,60,.1);border:2px solid rgba(239,35,60,.22);color:var(--rose);cursor:pointer" onclick="showPipeline(4)">🚀 Deploy</div>
+    </div>
+    <div id="pipelineInfo" style="margin-top:14px;padding:14px 18px;background:var(--bg);border-radius:11px;font-size:13px;color:var(--ink2);line-height:1.65;min-height:60px;transition:all .3s">
+      👆 Click any stage above to explore the SML pipeline
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="s">💻 SML: Train & Predict</h3>
+      <div class="cb"><span class="cl">Python</span>
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> <span class="cl2">LinearRegression</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Labelled training data</span>
+X_train = np.array([[<span class="nm">1</span>],[<span class="nm">2</span>],[<span class="nm">3</span>],[<span class="nm">4</span>],[<span class="nm">5</span>]])
+y_train = np.array([<span class="nm">2</span>,<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">4</span>,<span class="nm">5</span>])
+
+<span class="cm"># Step 1: Choose algorithm</span>
+model = <span class="cl2">LinearRegression</span>()
+
+<span class="cm"># Step 2: Train on labelled data</span>
+model.<span class="fn">fit</span>(X_train, y_train)
+
+<span class="cm"># Step 3: Predict new input</span>
+prediction = model.<span class="fn">predict</span>([[<span class="nm">6</span>]])
+<span class="fn">print</span>(<span class="st">f"Prediction for x=6: {prediction[0]:.2f}"</span>)
+      </div>
+      <button class="run" onclick="showOut('o1')">▶ Run Demo</button>
+      <div class="out" id="o1">
+<span class="op2">&gt;&gt;&gt; </span>Prediction for x=6: 5.20
+<span style="color:#4ade80">Model learned the pattern from 5 examples!
+Intercept: 2.20, Coefficient: 0.50
+✓ Training complete in 0.002s</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="s">🗂️ SML vs Other ML Types</h3>
+      <table class="ctbl">
+        <tr><th>Type</th><th>Labels?</th><th>Goal</th><th>Example</th></tr>
+        <tr>
+          <td><strong style="color:var(--p)">Supervised</strong></td>
+          <td><span class="tag tgg">Yes ✓</span></td>
+          <td>Predict output</td>
+          <td>Price forecast</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--p2)">Unsupervised</strong></td>
+          <td><span class="tag tgr">No ✗</span></td>
+          <td>Find patterns</td>
+          <td>Customer groups</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--g2)">Reinforcement</strong></td>
+          <td><span class="tag tga">Reward</span></td>
+          <td>Maximise reward</td>
+          <td>Game playing</td>
+        </tr>
+        <tr>
+          <td><strong style="color:#a07000">Semi-supervised</strong></td>
+          <td><span class="tag tgb">Some</span></td>
+          <td>Mixed learning</td>
+          <td>Image tagging</td>
+        </tr>
+      </table>
+      <div class="info-box" style="margin-top:14px">
+        <strong>Key insight:</strong> Supervised ML requires labelled training data — the "ground truth" answers that guide learning. More quality labels = better models!
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h3 class="s">🌍 Real-World SML Applications — Click to Explore</h3>
+    <div class="scen-g" id="scenGrid">
+      <div class="scen" onclick="selScen(this,'reg')">
+        <div class="scen-ico">🏠</div>
+        <div class="scen-title">House Price Prediction</div>
+        <div class="scen-type" style="background:rgba(67,97,238,.1);color:var(--p)">Regression</div>
+        <div class="scen-desc">Predict property prices from features like size, location, bedrooms. Model learns: bigger house + better area = higher price.</div>
+      </div>
+      <div class="scen" onclick="selScen(this,'cls')">
+        <div class="scen-ico">✉️</div>
+        <div class="scen-title">Spam Email Detection</div>
+        <div class="scen-type" style="background:rgba(239,35,60,.1);color:var(--rose)">Classification</div>
+        <div class="scen-desc">Label emails as spam/not spam. Model learns suspicious keywords, sender patterns, and links to automatically filter your inbox.</div>
+      </div>
+      <div class="scen" onclick="selScen(this,'reg')">
+        <div class="scen-ico">📈</div>
+        <div class="scen-title">Stock Price Forecast</div>
+        <div class="scen-type" style="background:rgba(67,97,238,.1);color:var(--p)">Regression</div>
+        <div class="scen-desc">Predict tomorrow's stock price using historical prices, volume, and market indicators. Output is a continuous numeric value.</div>
+      </div>
+      <div class="scen" onclick="selScen(this,'cls')">
+        <div class="scen-ico">🧬</div>
+        <div class="scen-title">Cancer Detection</div>
+        <div class="scen-type" style="background:rgba(239,35,60,.1);color:var(--rose)">Classification</div>
+        <div class="scen-desc">Classify tumour cells as malignant or benign from medical images. Binary classification that literally saves lives.</div>
+      </div>
+      <div class="scen" onclick="selScen(this,'reg')">
+        <div class="scen-ico">🚗</div>
+        <div class="scen-title">Car Price Estimation</div>
+        <div class="scen-type" style="background:rgba(67,97,238,.1);color:var(--p)">Regression</div>
+        <div class="scen-desc">Predict used car value from age, mileage, brand, and condition. Powers platforms like CarWale, OLX Autos.</div>
+      </div>
+      <div class="scen" onclick="selScen(this,'cls')">
+        <div class="scen-ico">😊</div>
+        <div class="scen-title">Sentiment Analysis</div>
+        <div class="scen-type" style="background:rgba(239,35,60,.1);color:var(--rose)">Classification</div>
+        <div class="scen-desc">Classify customer reviews as Positive/Negative/Neutral. Helps businesses understand customer satisfaction at scale.</div>
+      </div>
+    </div>
+    <div id="scenResult" style="margin-top:12px;min-height:16px;font-size:12.5px;color:var(--ink2)"></div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(0)">← Welcome</button>
+    <button class="bn" onclick="go(2)">Next: Regression →</button>
+  </div>
+</div>
+
+<!-- ══ PAGE 2: REGRESSION ══ -->
+<div class="pg" id="pg2">
+  <div class="ey">Concept 2 of 3</div>
+  <div class="h1">Regression — Predicting Numbers 📈</div>
+  <div class="sub">Regression predicts a <strong>continuous numeric value</strong>. When the answer is a number (not a category), you need regression. Examples: price, temperature, salary.</div>
+
+  <div class="ana">
+    <div class="anai">🌡️</div>
+    <div>
+      <div class="analbl">Real-Life Analogy</div>
+      <p class="b"><strong>Like a weather forecaster predicting tomorrow's temperature.</strong> They don't say "hot or cold" — they give 34.5°C. Regression outputs a precise number on a continuous scale. More training data (historical weather) → more accurate predictions.</p>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE REGRESSION CANVAS -->
+  <div class="card" style="margin-bottom:18px">
+    <h3 class="s">📊 Draw Your Own Regression Line</h3>
+    <p class="b" style="margin-bottom:10px">Click on the canvas to add data points. Watch the regression line update automatically!</p>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="run" style="padding:8px 16px;font-size:12px" onclick="clearReg()">🗑 Clear Points</button>
+      <button class="run" style="padding:8px 16px;font-size:12px;background:linear-gradient(135deg,var(--g),var(--g2))" onclick="addSampleReg()">✨ Load Sample Data</button>
+    </div>
+    <canvas id="regCanvas" class="reg-canvas" height="250" onclick="regClick(event)"></canvas>
+    <div id="regInfo" style="margin-top:9px;font-size:12.5px;color:var(--ink2);min-height:20px"></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="s">💻 Linear Regression Example</h3>
+      <div class="cb"><span class="cl">Python</span>
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> <span class="cl2">LinearRegression</span>
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> mean_squared_error, r2_score
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># House price dataset</span>
+X = np.array([[<span class="nm">1000</span>],[<span class="nm">1500</span>],[<span class="nm">2000</span>],[<span class="nm">2500</span>],[<span class="nm">3000</span>]])
+y = np.array([<span class="nm">250000</span>,<span class="nm">350000</span>,<span class="nm">450000</span>,<span class="nm">550000</span>,<span class="nm">650000</span>])
+
+X_tr, X_te, y_tr, y_te = train_test_split(
+  X, y, test_size=<span class="nm">0.2</span>, random_state=<span class="nm">42</span>
+)
+model = <span class="cl2">LinearRegression</span>()
+model.<span class="fn">fit</span>(X_tr, y_tr)
+y_pred = model.<span class="fn">predict</span>(X_te)
+
+<span class="fn">print</span>(<span class="st">f"R² Score: {r2_score(y_te, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"RMSE: ${np.sqrt(mean_squared_error(y_te,y_pred)):,.0f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Price for 1800 sqft: ${model.predict([[1800]])[0]:,.0f}"</span>)
+      </div>
+      <button class="run" onclick="showOut('o2')">▶ Run Demo</button>
+      <div class="out" id="o2">
+<span class="op2">&gt;&gt;&gt; </span>R² Score: 1.0000
+<span class="op2">&gt;&gt;&gt; </span>RMSE: $0
+<span class="op2">&gt;&gt;&gt; </span>Price for 1800 sqft: $410,000
+<span style="color:#4ade80">Model explains 100% of price variance.
+Linear relationship: +$200/sqft ✓</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="s">🎛️ Regression Metrics Explorer</h3>
+      <p class="b" style="margin-bottom:12px">Drag sliders to understand how each metric measures model quality:</p>
+      <div class="slw">
+        <div class="slr">
+          <label>Actual Value</label>
+          <input type="range" min="100" max="500" value="300" id="actSlider" oninput="updateMetrics()">
+          <span class="slv" id="actVal">300</span>
+        </div>
+        <div class="slr">
+          <label>Predicted Value</label>
+          <input type="range" min="100" max="500" value="270" id="predSlider" oninput="updateMetrics()">
+          <span class="slv" id="predVal">270</span>
+        </div>
+      </div>
+      <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px" id="metricsGrid">
+        <div style="background:var(--bg);border-radius:10px;padding:13px">
+          <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:4px">MAE</div>
+          <div style="font-size:22px;font-weight:800;color:var(--p)" id="maeVal">30.0</div>
+          <div style="font-size:11px;color:var(--ink2)">Mean Absolute Error</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:13px">
+          <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:4px">MSE</div>
+          <div style="font-size:22px;font-weight:800;color:var(--p2)" id="mseVal">900</div>
+          <div style="font-size:11px;color:var(--ink2)">Mean Squared Error</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:13px">
+          <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:4px">RMSE</div>
+          <div style="font-size:22px;font-weight:800;color:var(--g2)" id="rmseVal">30.0</div>
+          <div style="font-size:11px;color:var(--ink2)">Root MSE (same unit)</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:13px">
+          <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:4px">Error %</div>
+          <div style="font-size:22px;font-weight:800;color:var(--amber)" style="color:#a07000" id="pctVal">10.0%</div>
+          <div style="font-size:11px;color:var(--ink2)">MAPE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h3 class="s">📘 Types of Regression — Click to Reveal</h3>
+    <div class="rvg">
+      <div class="rv" onclick="this.classList.toggle('fl')">
+        <div class="rvf">📏 Linear Regression</div>
+        <div class="rvb">Fits a straight line (y = mx + b) between features and target. Best for linearly related data. Use when: predicting salary from years of experience, price from size.</div>
+        <div class="rvh">👆 Click to reveal</div>
+      </div>
+      <div class="rv" onclick="this.classList.toggle('fl')">
+        <div class="rvf">🌀 Polynomial Regression</div>
+        <div class="rvb">Fits curved lines using polynomial features (x², x³...). Use when data shows non-linear patterns — like growth curves, speed vs drag, or temperature cycles.</div>
+        <div class="rvh">👆 Click to reveal</div>
+      </div>
+      <div class="rv" onclick="this.classList.toggle('fl')">
+        <div class="rvf">🌲 Decision Tree Regression</div>
+        <div class="rvb">Splits data into regions and predicts the mean value in each region. Non-parametric — no assumptions about data distribution. Handles complex relationships.</div>
+        <div class="rvh">👆 Click to reveal</div>
+      </div>
+      <div class="rv" onclick="this.classList.toggle('fl')">
+        <div class="rvf">🌳 Random Forest Regression</div>
+        <div class="rvb">Ensemble of decision trees — predictions are averaged across many trees. More robust, handles outliers better, and reduces overfitting vs a single tree.</div>
+        <div class="rvh">👆 Click to reveal</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(1)">← What is SML?</button>
+    <button class="bn" onclick="go(3)">Next: Classification →</button>
+  </div>
+</div>
+
+<!-- ══ PAGE 3: CLASSIFICATION ══ -->
+<div class="pg" id="pg3">
+  <div class="ey">Concept 3 of 3</div>
+  <div class="h1">Classification — Predicting Categories 🏷️</div>
+  <div class="sub">Classification predicts which <strong>category</strong> a data point belongs to. The answer is a class label — not a number. Binary (2 classes) or Multi-class (3+ classes).</div>
+
+  <div class="ana">
+    <div class="anai">🔍</div>
+    <div>
+      <div class="analbl">Real-Life Analogy</div>
+      <p class="b"><strong>Like a doctor diagnosing a patient.</strong> The diagnosis isn't a number — it's a category: "flu", "cold", or "COVID". The doctor looks at symptoms (features) and assigns a label. Classification does exactly this: given features → assign the most likely category.</p>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE: Decision Boundary Viz -->
+  <div class="card" style="margin-bottom:18px">
+    <h3 class="s">🌳 Interactive Decision Tree Classifier</h3>
+    <p class="b" style="margin-bottom:13px">Click each decision node to traverse the tree and classify a fruit:</p>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start">
+      <div style="flex:1;min-width:260px">
+        <div style="text-align:center">
+          <div class="dbox" style="background:rgba(67,97,238,.1);border:2px solid var(--p);color:var(--p)" id="node0" onclick="dtClick(0)">🌳 Is it red?</div>
+          <div class="dline"></div>
+          <div style="display:flex;gap:32px;justify-content:center">
+            <div style="display:flex;flex-direction:column;align-items:center">
+              <div style="font-size:10px;font-weight:700;color:var(--g2);margin-bottom:4px">YES →</div>
+              <div class="dbox" style="background:rgba(6,214,160,.1);border:2px solid var(--g);color:var(--g2)" id="node1" onclick="dtClick(1)">Is it round?</div>
+              <div class="dline" style="height:16px"></div>
+              <div style="display:flex;gap:16px">
+                <div style="display:flex;flex-direction:column;align-items:center">
+                  <div style="font-size:10px;font-weight:700;color:var(--g2);margin-bottom:4px">YES</div>
+                  <div class="dbox" style="background:rgba(239,35,60,.1);border:2px solid var(--rose);color:var(--rose);font-size:11px" id="node2" onclick="dtClick(2)">🍎 Apple</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center">
+                  <div style="font-size:10px;font-weight:700;color:var(--rose);margin-bottom:4px">NO</div>
+                  <div class="dbox" style="background:rgba(239,35,60,.1);border:2px solid var(--rose);color:var(--rose);font-size:11px" id="node3" onclick="dtClick(3)">🍓 Strawberry</div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center">
+              <div style="font-size:10px;font-weight:700;color:var(--rose);margin-bottom:4px">NO →</div>
+              <div class="dbox" style="background:rgba(255,209,102,.15);border:2px solid var(--amber);color:#a07000" id="node4" onclick="dtClick(4)">Has peel?</div>
+              <div class="dline" style="height:16px"></div>
+              <div style="display:flex;gap:16px">
+                <div style="display:flex;flex-direction:column;align-items:center">
+                  <div style="font-size:10px;font-weight:700;color:var(--g2);margin-bottom:4px">YES</div>
+                  <div class="dbox" style="background:rgba(255,209,102,.15);border:2px solid var(--amber);color:#a07000;font-size:11px" id="node5" onclick="dtClick(5)">🍌 Banana</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center">
+                  <div style="font-size:10px;font-weight:700;color:var(--rose);margin-bottom:4px">NO</div>
+                  <div class="dbox" style="background:rgba(114,9,183,.1);border:2px solid var(--p2);color:var(--p2);font-size:11px" id="node6" onclick="dtClick(6)">🍇 Grapes</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:200px">
+        <div id="dtInfo" style="background:var(--bg);border-radius:12px;padding:16px;font-size:13px;color:var(--ink2);line-height:1.65;min-height:100px">
+          👆 Click the root node to start classifying a fruit!<br><br>This simulates how a Decision Tree classifier works — splitting data by asking yes/no questions at each node.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="s">💻 Classification with scikit-learn</h3>
+      <div class="cb"><span class="cl">Python</span>
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_iris
+<span class="kw">from</span> sklearn.tree <span class="kw">import</span> <span class="cl2">DecisionTreeClassifier</span>
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> classification_report
+
+<span class="cm"># Load classic iris dataset</span>
+X, y = load_iris(return_X_y=<span class="kw">True</span>)
+X_tr,X_te,y_tr,y_te = train_test_split(
+  X, y, test_size=<span class="nm">0.2</span>, random_state=<span class="nm">42</span>
+)
+<span class="cm"># Train Decision Tree</span>
+clf = <span class="cl2">DecisionTreeClassifier</span>(max_depth=<span class="nm">3</span>)
+clf.<span class="fn">fit</span>(X_tr, y_tr)
+y_pred = clf.<span class="fn">predict</span>(X_te)
+
+<span class="fn">print</span>(classification_report(y_te, y_pred,
+  target_names=[<span class="st">'Setosa'</span>,<span class="st">'Versicolor'</span>,<span class="st">'Virginica'</span>]))
+      </div>
+      <button class="run" onclick="showOut('o3')">▶ Run Demo</button>
+      <div class="out" id="o3">
+<span class="op2">&gt;&gt;&gt; </span>              precision  recall  f1
+<span class="op2">&gt;&gt;&gt; </span>Setosa         1.00      1.00    1.00
+<span class="op2">&gt;&gt;&gt; </span>Versicolor     0.94      0.94    0.94
+<span class="op2">&gt;&gt;&gt; </span>Virginica      0.94      0.94    0.94
+<span class="op2">&gt;&gt;&gt; </span>Accuracy: 96.67% ✓
+<span style="color:#4ade80">Near-perfect classification on Iris!</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="s">📊 Classification Algorithms Comparison</h3>
+      <p class="b" style="margin-bottom:13px">Accuracy on Iris dataset by algorithm:</p>
+      <div class="mbar-wrap">
+        <div class="mbar-row">
+          <span class="mbar-lbl">Decision Tree</span>
+          <div class="mbar-bg"><div class="mbar" style="width:97%;background:linear-gradient(90deg,var(--p),var(--p2))"></div></div>
+          <span class="mbar-val" style="color:var(--p)">97%</span>
+        </div>
+        <div class="mbar-row">
+          <span class="mbar-lbl">Random Forest</span>
+          <div class="mbar-bg"><div class="mbar" style="width:97%;background:linear-gradient(90deg,var(--g),var(--g2))"></div></div>
+          <span class="mbar-val" style="color:var(--g2)">97%</span>
+        </div>
+        <div class="mbar-row">
+          <span class="mbar-lbl">SVM</span>
+          <div class="mbar-bg"><div class="mbar" style="width:100%;background:linear-gradient(90deg,var(--p2),var(--violet))"></div></div>
+          <span class="mbar-val" style="color:var(--p2)">100%</span>
+        </div>
+        <div class="mbar-row">
+          <span class="mbar-lbl">KNN (k=5)</span>
+          <div class="mbar-bg"><div class="mbar" style="width:97%;background:linear-gradient(90deg,var(--sky),var(--p))"></div></div>
+          <span class="mbar-val" style="color:var(--sky)">97%</span>
+        </div>
+        <div class="mbar-row">
+          <span class="mbar-lbl">Naive Bayes</span>
+          <div class="mbar-bg"><div class="mbar" style="width:95%;background:linear-gradient(90deg,var(--amber),#e67e00)"></div></div>
+          <span class="mbar-val" style="color:#a07000">95%</span>
+        </div>
+        <div class="mbar-row">
+          <span class="mbar-lbl">Logistic Reg</span>
+          <div class="mbar-bg"><div class="mbar" style="width:97%;background:linear-gradient(90deg,var(--rose),#c11e31)"></div></div>
+          <span class="mbar-val" style="color:var(--rose)">97%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(2)">← Regression</button>
+    <button class="bn" onclick="go(4)">Next: Model Selection →</button>
+  </div>
+</div>
+
+<!-- ══ PAGE 4: ADVANCED ══ -->
+<div class="pg" id="pg4">
+  <div class="ey">Advanced Concept</div>
+  <div class="h1">Model Selection & Evaluation ⚡</div>
+  <div class="sub">Choosing the right model and evaluating it correctly is as important as training. Learn bias-variance tradeoff, cross-validation, and how to avoid overfitting.</div>
+
+  <!-- BIAS-VARIANCE INTERACTIVE -->
+  <div class="card" style="margin-bottom:18px">
+    <h3 class="s">⚖️ Bias-Variance Tradeoff Simulator</h3>
+    <p class="b" style="margin-bottom:13px">Adjust model complexity to see the effect on bias and variance:</p>
+    <div class="slw" style="margin-bottom:14px">
+      <div class="slr">
+        <label>Model Complexity</label>
+        <input type="range" min="1" max="10" value="3" id="compSlider" oninput="updateBV(this.value)">
+        <span class="slv" id="compVal">3</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px" id="bvCards">
+      <div style="border-radius:12px;padding:14px;background:rgba(239,35,60,.07);border:1.5px solid rgba(239,35,60,.2)">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--rose);margin-bottom:5px">Bias</div>
+        <div style="font-size:22px;font-weight:800;color:var(--rose)" id="bvBias">High</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:3px" id="bvBiasD">Model too simple, misses patterns</div>
+      </div>
+      <div style="border-radius:12px;padding:14px;background:rgba(67,97,238,.07);border:1.5px solid rgba(67,97,238,.2)">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--p);margin-bottom:5px">Variance</div>
+        <div style="font-size:22px;font-weight:800;color:var(--p)" id="bvVar">Low</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:3px" id="bvVarD">Stable across datasets</div>
+      </div>
+      <div style="border-radius:12px;padding:14px;background:rgba(6,214,160,.07);border:1.5px solid rgba(6,214,160,.2)">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--g2);margin-bottom:5px">State</div>
+        <div style="font-size:22px;font-weight:800" id="bvState" style="color:var(--rose)">Underfitting</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:3px" id="bvStateD">Increase complexity</div>
+      </div>
+    </div>
+    <svg width="100%" height="90" viewBox="0 0 500 90" style="margin-top:14px;background:var(--bg);border-radius:10px;overflow:hidden">
+      <path d="M20,75 Q80,65 140,48 Q200,35 260,26 Q320,20 380,24 Q440,32 480,65" stroke="var(--rose)" stroke-width="2" fill="none"/>
+      <path d="M20,20 Q80,22 140,28 Q200,38 260,52 Q320,65 380,73 Q440,78 480,80" stroke="var(--p)" stroke-width="2" fill="none"/>
+      <path d="M20,58 Q80,45 140,36 Q200,30 260,32 Q320,38 380,50 Q440,62 480,72" stroke="var(--g)" stroke-width="2.5" fill="none" stroke-dasharray="6,3"/>
+      <text x="24" y="18" font-size="9" fill="var(--rose)" font-family="Bricolage Grotesque" font-weight="700">Bias</text>
+      <text x="24" y="32" font-size="9" fill="var(--p)" font-family="Bricolage Grotesque" font-weight="700">Variance</text>
+      <text x="24" y="46" font-size="9" fill="var(--g2)" font-family="Bricolage Grotesque" font-weight="700">Total Error</text>
+      <line id="bvLine" x1="100" y1="0" x2="100" y2="90" stroke="var(--amber)" stroke-width="2" stroke-dasharray="4,3" opacity=".8"/>
+      <text x="4" y="88" font-size="8" fill="var(--ink3)" font-family="Bricolage Grotesque">Simple</text>
+      <text x="440" y="88" font-size="8" fill="var(--ink3)" font-family="Bricolage Grotesque">Complex</text>
+    </svg>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3 class="s">💻 Cross-Validation</h3>
+      <div class="cb"><span class="cl">Python</span>
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> cross_val_score
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> <span class="cl2">RandomForestClassifier</span>
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_iris
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> <span class="cl2">StandardScaler</span>
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+
+X, y = load_iris(return_X_y=<span class="kw">True</span>)
+
+pipe = <span class="cl2">Pipeline</span>([
+  (<span class="st">'scaler'</span>, <span class="cl2">StandardScaler</span>()),
+  (<span class="st">'clf'</span>, <span class="cl2">RandomForestClassifier</span>(n_estimators=<span class="nm">100</span>))
+])
+<span class="cm"># 5-fold cross validation</span>
+scores = cross_val_score(pipe, X, y, cv=<span class="nm">5</span>)
+<span class="fn">print</span>(<span class="st">f"Scores: {scores}"</span>)
+<span class="fn">print</span>(<span class="st">f"Mean: {scores.mean():.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Std:  {scores.std():.4f}"</span>)
+      </div>
+      <button class="run" onclick="showOut('o4')">▶ Run Demo</button>
+      <div class="out" id="o4">
+<span class="op2">&gt;&gt;&gt; </span>Scores: [0.967 1.000 0.933 0.967 1.000]
+<span class="op2">&gt;&gt;&gt; </span>Mean: 0.9733
+<span class="op2">&gt;&gt;&gt; </span>Std:  0.0231
+<span style="color:#4ade80">Consistent 97.33% ± 2.31% accuracy!
+Low std = model generalises well ✓</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="s">🗺️ Choosing the Right Algorithm</h3>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div style="background:var(--bg);border-radius:11px;padding:13px;border-left:4px solid var(--p)">
+          <div style="font-size:12.5px;font-weight:700;margin-bottom:4px">📊 Small Dataset (&lt;1k samples)</div>
+          <div style="font-size:12px;color:var(--ink2)">Use Naive Bayes, Logistic Regression, or SVM. Avoid deep learning — too few examples.</div>
+        </div>
+        <div style="background:var(--bg);border-radius:11px;padding:13px;border-left:4px solid var(--g)">
+          <div style="font-size:12.5px;font-weight:700;margin-bottom:4px">🔢 Medium Dataset (1k–100k)</div>
+          <div style="font-size:12px;color:var(--ink2)">Random Forest, Gradient Boosting (XGBoost), or SVM. Great balance of speed and performance.</div>
+        </div>
+        <div style="background:var(--bg);border-radius:11px;padding:13px;border-left:4px solid var(--p2)">
+          <div style="font-size:12.5px;font-weight:700;margin-bottom:4px">🌐 Large Dataset (&gt;100k)</div>
+          <div style="font-size:12px;color:var(--ink2)">Deep learning, gradient boosting, or linear models with SGD. Scale matters more than algorithm.</div>
+        </div>
+        <div style="background:var(--bg);border-radius:11px;padding:13px;border-left:4px solid var(--amber)">
+          <div style="font-size:12.5px;font-weight:700;margin-bottom:4px">⚡ Need Interpretability</div>
+          <div style="font-size:12px;color:var(--ink2)">Decision Tree, Logistic Regression, or Linear models. "Why" matters as much as "What".</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(3)">← Classification</button>
+    <button class="bn" onclick="go(5)">Next: Exercises →</button>
+  </div>
+</div>
+
+<!-- ══ PAGE 5: EXERCISES ══ -->
+<div class="pg" id="pg5">
+  <div class="ey">Practice</div>
+  <div class="h1">Coding Exercises 🧪</div>
+  <div class="sub">Try each problem first. Real learning happens when you struggle before looking at the solution!</div>
+
+  <div class="ex">
+    <div class="exh">
+      <div class="exn">1</div>
+      <div class="ext">Build a House Price Predictor</div>
+      <span class="tag tgb" style="margin-left:auto">Regression</span>
+    </div>
+    <div class="exb">
+      <p class="b" style="margin-bottom:10px">Using the California Housing dataset, build a regression model to predict house prices. Evaluate using R² and RMSE. Try at least 2 different algorithms.</p>
+      <button class="sbt" onclick="toggleSol(this,'s1')">💡 Show Solution</button>
+      <div class="sol" id="s1">
+        <div class="cb">
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> fetch_california_housing
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> <span class="cl2">LinearRegression</span>
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> <span class="cl2">RandomForestRegressor</span>
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> <span class="cl2">StandardScaler</span>
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> r2_score, mean_squared_error
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+data = fetch_california_housing()
+X, y = data.data, data.target
+X_tr,X_te,y_tr,y_te = train_test_split(
+  X,y,test_size=<span class="nm">0.2</span>,random_state=<span class="nm">42</span>
+)
+sc = <span class="cl2">StandardScaler</span>()
+X_tr_s = sc.fit_transform(X_tr)
+X_te_s = sc.transform(X_te)
+
+models = {
+  <span class="st">'Linear'</span>: <span class="cl2">LinearRegression</span>(),
+  <span class="st">'Random Forest'</span>: <span class="cl2">RandomForestRegressor</span>(n_estimators=<span class="nm">100</span>)
+}
+<span class="kw">for</span> name, m <span class="kw">in</span> models.items():
+  m.fit(X_tr_s, y_tr)
+  p = m.predict(X_te_s)
+  r2 = r2_score(y_te, p)
+  rmse = np.sqrt(mean_squared_error(y_te, p))
+  <span class="fn">print</span>(<span class="st">f"{name}: R²={r2:.3f}, RMSE={rmse:.3f}"</span>)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="exh">
+      <div class="exn">2</div>
+      <div class="ext">Multi-class Email Classification</div>
+      <span class="tag tgp" style="margin-left:auto">Classification</span>
+    </div>
+    <div class="exb">
+      <p class="b" style="margin-bottom:10px">Build a text classifier to categorise emails into: spam, promotions, updates, and primary. Use TF-IDF vectorisation and compare Naive Bayes vs Logistic Regression.</p>
+      <button class="sbt" onclick="toggleSol(this,'s2')">💡 Show Solution</button>
+      <div class="sol" id="s2">
+        <div class="cb">
+<span class="kw">from</span> sklearn.feature_extraction.text <span class="kw">import</span> <span class="cl2">TfidfVectorizer</span>
+<span class="kw">from</span> sklearn.naive_bayes <span class="kw">import</span> <span class="cl2">MultinomialNB</span>
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> <span class="cl2">LogisticRegression</span>
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+
+<span class="cm"># Sample data (use real dataset in practice)</span>
+texts = [
+  <span class="st">"Win a prize now!"</span>, <span class="st">"Sale 50% off today"</span>,
+  <span class="st">"Your order shipped"</span>, <span class="st">"Meeting at 3pm"</span>,
+  <span class="st">"Claim free gift card"</span>, <span class="st">"Invoice attached"</span>
+]
+labels = [<span class="st">'spam'</span>,<span class="st">'promo'</span>,<span class="st">'update'</span>,<span class="st">'primary'</span>,<span class="st">'spam'</span>,<span class="st">'update'</span>]
+
+pipes = {
+  <span class="st">'NB'</span>: Pipeline([(<span class="st">'tf'</span>,<span class="cl2">TfidfVectorizer</span>()),(<span class="st">'m'</span>,<span class="cl2">MultinomialNB</span>())]),
+  <span class="st">'LR'</span>: Pipeline([(<span class="st">'tf'</span>,<span class="cl2">TfidfVectorizer</span>()),(<span class="st">'m'</span>,<span class="cl2">LogisticRegression</span>())])
+}
+<span class="kw">for</span> name, p <span class="kw">in</span> pipes.items():
+  p.fit(texts, labels)
+  pred = p.predict([<span class="st">"You've won!"</span>, <span class="st">"Please review attached"</span>])
+  <span class="fn">print</span>(<span class="st">f"{name}: {pred}"</span>)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="exh">
+      <div class="exn">3</div>
+      <div class="ext">Full ML Pipeline with Model Comparison</div>
+      <span class="tag tgg" style="margin-left:auto">Pipeline</span>
+    </div>
+    <div class="exb">
+      <p class="b" style="margin-bottom:10px">Create a complete ML pipeline using the Breast Cancer dataset. Compare 4 classifiers using 5-fold cross-validation. Select the best model and tune its hyperparameters.</p>
+      <button class="sbt" onclick="toggleSol(this,'s3')">💡 Show Solution</button>
+      <div class="sol" id="s3">
+        <div class="cb">
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> cross_val_score, GridSearchCV
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> <span class="cl2">StandardScaler</span>
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> sklearn.svm <span class="kw">import</span> <span class="cl2">SVC</span>
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> <span class="cl2">RandomForestClassifier</span>, <span class="cl2">GradientBoostingClassifier</span>
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> <span class="cl2">LogisticRegression</span>
+
+X, y = load_breast_cancer(return_X_y=<span class="kw">True</span>)
+models = {
+  <span class="st">'SVM'</span>:<span class="cl2">SVC</span>(), <span class="st">'RF'</span>:<span class="cl2">RandomForestClassifier</span>(),
+  <span class="st">'GB'</span>:<span class="cl2">GradientBoostingClassifier</span>(), <span class="st">'LR'</span>:<span class="cl2">LogisticRegression</span>()
+}
+results = {}
+<span class="kw">for</span> name, m <span class="kw">in</span> models.items():
+  pipe = <span class="cl2">Pipeline</span>([(<span class="st">'sc'</span>,<span class="cl2">StandardScaler</span>()),(<span class="st">'m'</span>,m)])
+  scores = cross_val_score(pipe,X,y,cv=<span class="nm">5</span>)
+  results[name] = scores.mean()
+  <span class="fn">print</span>(<span class="st">f"{name}: {scores.mean():.4f}±{scores.std():.4f}"</span>)
+
+best = <span class="fn">max</span>(results, key=results.get)
+<span class="fn">print</span>(<span class="st">f"\nBest Model: {best}"</span>)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(4)">← Model Selection</button>
+    <button class="bn" onclick="go(6)">Next: Quiz →</button>
+  </div>
+</div>
+
+<!-- ══ PAGE 6: QUIZ ══ -->
+<div class="pg" id="pg6">
+  <div class="ey">Knowledge Check</div>
+  <div class="h1">Module Quiz 🧠</div>
+  <div class="sub">5 questions to test your Supervised ML mastery. Think carefully!</div>
+
+  <div class="qdots">
+    <div class="qd cur" id="qd0"></div>
+    <div class="qd" id="qd1"></div>
+    <div class="qd" id="qd2"></div>
+    <div class="qd" id="qd3"></div>
+    <div class="qd" id="qd4"></div>
+  </div>
+
+  <div class="qc on" id="q0">
+    <div class="qn">Question 1 of 5</div>
+    <div class="qt">What makes machine learning "supervised"?</div>
+    <div class="qos">
+      <div class="qo" onclick="ansQ(this,0,1)"><span class="ql">A</span>The algorithm is controlled by a human supervisor at all times</div>
+      <div class="qo" onclick="ansQ(this,0,1)"><span class="ql">B</span>The training data includes labelled input-output pairs as examples</div>
+      <div class="qo" onclick="ansQ(this,0,1)"><span class="ql">C</span>The model supervises itself by generating its own labels</div>
+      <div class="qo" onclick="ansQ(this,0,1)"><span class="ql">D</span>Multiple models supervise each other during training</div>
+    </div>
+    <div class="qfb" id="qfb0"></div>
+    <div style="margin-top:12px;text-align:right"><button class="bn" style="display:none" id="qnxt0" onclick="nxtQ(1)">Next →</button></div>
+  </div>
+
+  <div class="qc" id="q1">
+    <div class="qn">Question 2 of 5</div>
+    <div class="qt">Which task is a regression problem?</div>
+    <div class="qos">
+      <div class="qo" onclick="ansQ(this,1,2)"><span class="ql">A</span>Classify whether a tumour is malignant or benign</div>
+      <div class="qo" onclick="ansQ(this,1,2)"><span class="ql">B</span>Detect if an email is spam or not spam</div>
+      <div class="qo" onclick="ansQ(this,1,2)"><span class="ql">C</span>Predict tomorrow's temperature in Celsius</div>
+      <div class="qo" onclick="ansQ(this,1,2)"><span class="ql">D</span>Identify which breed a dog belongs to</div>
+    </div>
+    <div class="qfb" id="qfb1"></div>
+    <div style="margin-top:12px;text-align:right"><button class="bn" style="display:none" id="qnxt1" onclick="nxtQ(2)">Next →</button></div>
+  </div>
+
+  <div class="qc" id="q2">
+    <div class="qn">Question 3 of 5</div>
+    <div class="qt">A model has 99% training accuracy but only 62% test accuracy. This is a sign of…</div>
+    <div class="qos">
+      <div class="qo" onclick="ansQ(this,2,0)"><span class="ql">A</span>Overfitting — the model memorised training data and can't generalise</div>
+      <div class="qo" onclick="ansQ(this,2,0)"><span class="ql">B</span>Underfitting — the model is too simple to capture any patterns</div>
+      <div class="qo" onclick="ansQ(this,2,0)"><span class="ql">C</span>A perfect model — training accuracy is what matters most</div>
+      <div class="qo" onclick="ansQ(this,2,0)"><span class="ql">D</span>A data imbalance problem in the test set</div>
+    </div>
+    <div class="qfb" id="qfb2"></div>
+    <div style="margin-top:12px;text-align:right"><button class="bn" style="display:none" id="qnxt2" onclick="nxtQ(3)">Next →</button></div>
+  </div>
+
+  <div class="qc" id="q3">
+    <div class="qn">Question 4 of 5</div>
+    <div class="qt">Which metric is most appropriate for evaluating a regression model's performance?</div>
+    <div class="qos">
+      <div class="qo" onclick="ansQ(this,3,2)"><span class="ql">A</span>Precision and Recall</div>
+      <div class="qo" onclick="ansQ(this,3,2)"><span class="ql">B</span>F1 Score</div>
+      <div class="qo" onclick="ansQ(this,3,2)"><span class="ql">C</span>RMSE (Root Mean Squared Error)</div>
+      <div class="qo" onclick="ansQ(this,3,2)"><span class="ql">D</span>ROC-AUC Score</div>
+    </div>
+    <div class="qfb" id="qfb3"></div>
+    <div style="margin-top:12px;text-align:right"><button class="bn" style="display:none" id="qnxt3" onclick="nxtQ(4)">Next →</button></div>
+  </div>
+
+  <div class="qc" id="q4">
+    <div class="qn">Question 5 of 5</div>
+    <div class="qt">What is the purpose of cross-validation in machine learning?</div>
+    <div class="qos">
+      <div class="qo" onclick="ansQ(this,4,1)"><span class="ql">A</span>To train the model on more data by augmenting the dataset</div>
+      <div class="qo" onclick="ansQ(this,4,1)"><span class="ql">B</span>To get a reliable estimate of model performance on unseen data by rotating the test set</div>
+      <div class="qo" onclick="ansQ(this,4,1)"><span class="ql">C</span>To validate that the Python code runs without errors</div>
+      <div class="qo" onclick="ansQ(this,4,1)"><span class="ql">D</span>To automatically select the best algorithm for the dataset</div>
+    </div>
+    <div class="qfb" id="qfb4"></div>
+    <div style="margin-top:12px;text-align:right"><button class="bn" style="display:none" id="qnxt4" onclick="showScore()">See Results 🎉</button></div>
+  </div>
+
+  <div class="qc" id="qsc">
+    <div class="scw">
+      <div class="sring" id="scring" style="background:conic-gradient(var(--g) 0%, var(--bdr) 0%)">
+        <div class="sin"><div class="sn" id="scn">0</div><div class="sd2">out of 5</div></div>
+      </div>
+      <div style="font-size:21px;font-weight:800;margin-bottom:7px" id="scmsg"></div>
+      <div style="font-size:13.5px;color:var(--ink2);margin-bottom:16px" id="scdet"></div>
+      <button class="rbtn" onclick="go(7)">🎉 Complete Module →</button>
+    </div>
+  </div>
+
+  <div class="pgf">
+    <button class="bp" onclick="go(5)">← Exercises</button>
+    <span></span>
+  </div>
+</div>
+
+<!-- ══ PAGE 7: COMPLETION ══ -->
+<div class="pg" id="pg7">
+  <div class="cmpw">
+    <span class="cmpi">🎓</span>
+    <div class="cmpt">Module Complete!</div>
+    <div class="cmps">You've mastered Supervised Machine Learning — from core concepts to real-world applications!</div>
+    <div class="skw">
+      <span class="sk" style="border-color:var(--p);color:var(--p);animation-delay:.00s">🎯 SML Fundamentals</span>
+      <span class="sk" style="border-color:var(--g);color:var(--g);animation-delay:.07s">📈 Regression</span>
+      <span class="sk" style="border-color:var(--p2);color:var(--p2);animation-delay:.14s">🏷️ Classification</span>
+      <span class="sk" style="border-color:var(--amber);color:#a07000;animation-delay:.21s">⚖️ Bias-Variance</span>
+      <span class="sk" style="border-color:var(--rose);color:var(--rose);animation-delay:.28s">🔄 Cross-Validation</span>
+      <span class="sk" style="border-color:var(--sky);color:var(--sky);animation-delay:.35s">🌲 Decision Trees</span>
+      <span class="sk" style="border-color:#7b2d8b;color:#7b2d8b;animation-delay:.42s">🌳 Random Forest</span>
+      <span class="sk" style="border-color:var(--g2);color:var(--g2);animation-delay:.49s">🐍 scikit-learn</span>
+    </div>
+    <div class="card" style="max-width:460px;margin:0 auto 24px;text-align:left">
+      <h3 class="s" style="margin-bottom:11px">🏅 Certificate of Completion</h3>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:66px;height:66px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;box-shadow:0 0 0 4px rgba(67,97,238,.18)">🤖</div>
+        <div>
+          <div style="font-size:15px;font-weight:800;color:var(--ink)">Vinodhini</div>
+          <div style="font-size:12px;color:var(--ink2)">Data Scientist · HCL GUVI</div>
+          <div style="margin-top:6px"><span class="tag tgg">✅ Supervised Machine Learning</span></div>
+        </div>
+      </div>
+    </div>
+    <button class="rbtn" onclick="restart()">↺ Restart Module</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let cur = 0;
+const TOTAL = 8;
+const done = new Set([0]);
+let qScore = 0;
+
+// Regression canvas
+const regCanvas = document.getElementById('regCanvas');
+const rCtx = regCanvas.getContext('2d');
+regCanvas.width = regCanvas.offsetWidth || 700;
+regCanvas.height = 250;
+let regPts = [];
+
+// ══════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════
+function go(idx) {
+  document.getElementById('pg'+cur).classList.remove('on');
+  document.getElementById('nv'+cur).classList.remove('on');
+  done.add(cur);
+  document.getElementById('nc'+cur).textContent = '✓';
+  document.getElementById('nv'+cur).classList.add('done');
+  cur = idx;
+  document.getElementById('pg'+idx).classList.add('on');
+  document.getElementById('nv'+idx).classList.add('on');
+  document.getElementById('nv'+idx).classList.remove('done');
+  const pct = Math.round((done.size / TOTAL) * 100);
+  document.getElementById('tf').style.width = pct + '%';
+  document.getElementById('tpct').textContent = pct + '%';
+  document.getElementById('main').scrollTo({top:0, behavior:'smooth'});
+}
+
+// ══════════════════════════════════════
+// RUN DEMO
+// ══════════════════════════════════════
+function showOut(id) {
+  const el = document.getElementById(id);
+  el.classList.add('sh');
+  el.style.animation = 'none';
+  setTimeout(() => el.style.animation = '', 10);
+}
+
+// ══════════════════════════════════════
+// STEP VIZ
+// ══════════════════════════════════════
+function actS(i, id) {
+  document.getElementById(id).querySelectorAll('.si').forEach((s,j) => s.classList.toggle('act', j === i));
+}
+
+// ══════════════════════════════════════
+// PIPELINE FLOW
+// ══════════════════════════════════════
+const pipeInfo = [
+  '<strong style="color:var(--p)">📊 Collect Data:</strong> Gather raw data from various sources — databases, APIs, surveys, sensors. The quality and quantity of data determine the ceiling of model performance. "Garbage in, garbage out" is the golden rule of ML.',
+  '<strong style="color:var(--g2)">🏷️ Label Data:</strong> Assign correct output labels to each input example. For spam detection: mark each email as spam/not-spam. This is often the most expensive step — requiring human experts for medical, legal, or complex domains.',
+  '<strong style="color:var(--p2)">🔧 Train Model:</strong> Feed labelled data to the algorithm. The model adjusts its internal parameters (weights) to minimise the difference between its predictions and the true labels. This is where the actual "learning" happens.',
+  '<strong style="color:#a07000">📐 Evaluate:</strong> Test the model on held-out data it has never seen. Calculate metrics like accuracy, RMSE, or F1 score. Use cross-validation for more reliable estimates. This tells you if the model truly learned or just memorised.',
+  '<strong style="color:var(--rose)">🚀 Deploy:</strong> Integrate the model into production systems via REST APIs, batch pipelines, or edge devices. Monitor for data drift, performance degradation, and retrain periodically as real-world data evolves.'
+];
+function showPipeline(i) {
+  document.getElementById('pipelineInfo').innerHTML = pipeInfo[i];
+  document.getElementById('pipelineInfo').style.animation = 'none';
+  setTimeout(() => document.getElementById('pipelineInfo').style.animation = 'fi .3s', 10);
+}
+
+// ══════════════════════════════════════
+// SCENARIO CARDS
+// ══════════════════════════════════════
+function selScen(el, type) {
+  document.querySelectorAll('.scen').forEach(s => s.classList.remove('sel'));
+  el.classList.add('sel');
+  const typeLabel = type === 'reg' ? 'Regression' : 'Classification';
+  const typeColor = type === 'reg' ? 'var(--p)' : 'var(--rose)';
+  document.getElementById('scenResult').innerHTML =
+    `<strong style="color:${typeColor}">📌 ${typeLabel} task selected!</strong> ${type === 'reg' ? 'Output is a continuous number on a scale.' : 'Output is one of a fixed set of category labels.'}`;
+}
+
+// ══════════════════════════════════════
+// REGRESSION CANVAS
+// ══════════════════════════════════════
+function regClick(e) {
+  const rect = regCanvas.getBoundingClientRect();
+  const sx = regCanvas.width / rect.width;
+  const sy = regCanvas.height / rect.height;
+  regPts.push({x:(e.clientX-rect.left)*sx, y:(e.clientY-rect.top)*sy});
+  drawReg();
+}
+function clearReg() { regPts = []; drawReg(); }
+function addSampleReg() {
+  regPts = [];
+  const cx = regCanvas.width, cy = regCanvas.height;
+  [[.1,.8],[.2,.65],[.28,.55],[.35,.48],[.45,.42],[.5,.38],[.6,.3],[.68,.25],[.78,.18],[.88,.12]]
+    .forEach(([fx,fy]) => regPts.push({x:fx*cx, y:fy*cy + (Math.random()-.5)*20}));
+  drawReg();
+}
+function linReg(pts) {
+  if (pts.length < 2) return null;
+  const n = pts.length;
+  const mx = pts.reduce((s,p)=>s+p.x,0)/n, my = pts.reduce((s,p)=>s+p.y,0)/n;
+  const num = pts.reduce((s,p)=>s+(p.x-mx)*(p.y-my),0);
+  const den = pts.reduce((s,p)=>s+(p.x-mx)**2,0);
+  if (den===0) return null;
+  const m = num/den, b = my - m*mx;
+  const ss_res = pts.reduce((s,p)=>s+(p.y-(m*p.x+b))**2,0);
+  const ss_tot = pts.reduce((s,p)=>s+(p.y-my)**2,0);
+  const r2 = ss_tot===0 ? 1 : 1 - ss_res/ss_tot;
+  return {m, b, r2};
+}
+function drawReg() {
+  rCtx.clearRect(0,0,regCanvas.width,regCanvas.height);
+  rCtx.fillStyle='#fafbff'; rCtx.fillRect(0,0,regCanvas.width,regCanvas.height);
+  rCtx.strokeStyle='#e3e7f5'; rCtx.lineWidth=1;
+  for(let x=0;x<=regCanvas.width;x+=50){rCtx.beginPath();rCtx.moveTo(x,0);rCtx.lineTo(x,regCanvas.height);rCtx.stroke();}
+  for(let y=0;y<=regCanvas.height;y+=50){rCtx.beginPath();rCtx.moveTo(0,y);rCtx.lineTo(regCanvas.width,y);rCtx.stroke();}
+
+  const lr = linReg(regPts);
+  if (lr) {
+    rCtx.strokeStyle='#4361ee'; rCtx.lineWidth=2.5;
+    rCtx.setLineDash([8,4]);
+    rCtx.beginPath();
+    rCtx.moveTo(0, lr.b);
+    rCtx.lineTo(regCanvas.width, lr.m*regCanvas.width+lr.b);
+    rCtx.stroke();
+    rCtx.setLineDash([]);
+    // Residual lines
+    regPts.forEach(p => {
+      const py = lr.m*p.x+lr.b;
+      rCtx.strokeStyle='rgba(239,35,60,.25)'; rCtx.lineWidth=1;
+      rCtx.beginPath(); rCtx.moveTo(p.x,p.y); rCtx.lineTo(p.x,py); rCtx.stroke();
+    });
+  }
+  regPts.forEach(p => {
+    rCtx.beginPath(); rCtx.arc(p.x,p.y,6,0,Math.PI*2);
+    rCtx.fillStyle='#4361eecc'; rCtx.fill();
+    rCtx.strokeStyle='#fff'; rCtx.lineWidth=1.5; rCtx.stroke();
+  });
+
+  if (regPts.length === 0) {
+    rCtx.fillStyle='#8891b4'; rCtx.font='14px Bricolage Grotesque'; rCtx.textAlign='center'; rCtx.textBaseline='middle';
+    rCtx.fillText('Click to add data points — watch the regression line appear!', regCanvas.width/2, regCanvas.height/2);
+  } else {
+    const info = lr ? `R² = ${lr.r2.toFixed(3)} | Points: ${regPts.length} | Slope: ${lr.m.toFixed(3)}` : `Add more points to see the regression line (need ≥ 2)`;
+    document.getElementById('regInfo').textContent = info;
+  }
+}
+drawReg();
+
+// ══════════════════════════════════════
+// METRICS CALCULATOR
+// ══════════════════════════════════════
+function updateMetrics() {
+  const act = +document.getElementById('actSlider').value;
+  const pred = +document.getElementById('predSlider').value;
+  document.getElementById('actVal').textContent = act;
+  document.getElementById('predVal').textContent = pred;
+  const err = Math.abs(act - pred);
+  document.getElementById('maeVal').textContent = err.toFixed(1);
+  document.getElementById('mseVal').textContent = (err**2).toFixed(0);
+  document.getElementById('rmseVal').textContent = err.toFixed(1);
+  document.getElementById('pctVal').textContent = ((err/act)*100).toFixed(1)+'%';
+}
+
+// ══════════════════════════════════════
+// DECISION TREE
+// ══════════════════════════════════════
+const dtInfos = {
+  0: '<strong style="color:var(--p)">Root Node: Is it red?</strong><br>The tree starts by asking the most discriminating question. Red vs not-red separates most fruits into two broad groups. Each question reduces uncertainty.',
+  1: '<strong style="color:var(--g2)">Decision Node: Is it round?</strong><br>Red + round → Apple! Red + not round → Strawberry! This node only applies when the fruit is red.',
+  2: '<strong style="color:var(--rose)">🍎 Leaf: Apple!</strong><br>Red + Round = Apple. Leaf nodes contain the final class prediction. No more splitting needed — we\'re confident in the answer.',
+  3: '<strong style="color:var(--rose)">🍓 Leaf: Strawberry!</strong><br>Red + Not Round = Strawberry. Notice how the tree handles both correctly with just 2 questions!',
+  4: '<strong style="color:#a07000">Decision Node: Has a peel?</strong><br>Not red → look at other features. Peel yes? Banana! No peel? Grapes! The tree automatically picks the best splitting feature.',
+  5: '<strong style="color:#a07000">🍌 Leaf: Banana!</strong><br>Not red + Has peel = Banana. A real Decision Tree learns these splits from training data — we defined them manually here for illustration.',
+  6: '<strong style="color:var(--p2)">🍇 Leaf: Grapes!</strong><br>Not red + No peel = Grapes. This simple 4-leaf tree perfectly classifies all 4 fruits with only 2 yes/no questions each!'
+};
+function dtClick(id) {
+  document.getElementById('dtInfo').innerHTML = dtInfos[id];
+  document.getElementById('dtInfo').style.animation = 'none';
+  setTimeout(() => document.getElementById('dtInfo').style.animation = 'fi .3s', 10);
+  document.querySelectorAll('.dbox').forEach(d => d.style.transform = 'none');
+  document.getElementById('node'+id).style.transform = 'scale(1.05)';
+}
+
+// ══════════════════════════════════════
+// BIAS-VARIANCE SLIDER
+// ══════════════════════════════════════
+function updateBV(v) {
+  v = parseInt(v);
+  document.getElementById('compVal').textContent = v;
+  const xPos = 20 + (v/10)*460;
+  document.getElementById('bvLine').setAttribute('x1',xPos);
+  document.getElementById('bvLine').setAttribute('x2',xPos);
+  let bias,biasD,variance,varD,state,stateD,stColor;
+  if(v<=2){bias='High';biasD='Model too simple, misses patterns';variance='Low';varD='Stable across datasets';state='Underfitting';stateD='Increase complexity';stColor='var(--rose)';}
+  else if(v<=4){bias='Medium-High';biasD='Still missing important patterns';variance='Low-Med';varD='Mostly stable';state='Slight Underfit';stateD='Try more features';stColor='var(--amber)';}
+  else if(v<=6){bias='Low';biasD='Captures key patterns well';variance='Medium';varD='Reasonable generalisation';state='✓ Balanced';stateD='Ideal zone!';stColor='var(--g)';}
+  else if(v<=8){bias='Very Low';biasD='Fits training data tightly';variance='High';varD='Sensitive to training samples';state='Slight Overfit';stateD='Regularise or get more data';stColor='var(--amber)';}
+  else{bias='Near Zero';biasD='Memorising training data';variance='Very High';varD='Collapses on new data';state='Overfitting';stateD='Reduce complexity';stColor='var(--rose)';}
+  document.getElementById('bvBias').textContent=bias;
+  document.getElementById('bvBias').parentElement.querySelector('div:last-child').textContent=biasD;
+  document.getElementById('bvVar').textContent=variance;
+  document.getElementById('bvVar').parentElement.querySelector('div:last-child').textContent=varD;
+  document.getElementById('bvState').textContent=state;
+  document.getElementById('bvState').style.color=stColor;
+  document.getElementById('bvState').parentElement.querySelector('div:last-child').textContent=stateD;
+}
+
+// ══════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════
+const qOK=[
+  '✅ Correct! "Supervised" means the training data includes labelled pairs — the algorithm learns the mapping from inputs to known outputs.',
+  '✅ Correct! Predicting temperature is regression — the output is a continuous number, not a discrete category.',
+  '✅ Correct! A huge gap between training and test accuracy is the classic sign of overfitting — memorising training data, not learning.',
+  '✅ Correct! RMSE measures prediction error in the same unit as the target variable — perfect for regression evaluation.',
+  '✅ Correct! Cross-validation rotates the test set across multiple folds, giving a reliable, unbiased estimate of generalisation performance.'
+];
+const qNG=[
+  '❌ "Supervised" refers to the labelled training data — not human supervision during inference. The labels are the "supervisor".',
+  '❌ Temperature is a continuous number → regression. Cancer detection and spam filtering are classification (discrete categories).',
+  '❌ A near-perfect training score with poor test score means the model memorised rather than learned — that\'s overfitting, not underfitting.',
+  '❌ Precision, Recall, F1, and ROC-AUC are classification metrics. For regression problems, use MSE, RMSE, MAE, or R² score.',
+  '❌ Cross-validation estimates how well the model generalises to unseen data — it\'s not about augmentation or automatic algorithm selection.'
+];
+const qCORR=[1,2,0,2,1];
+
+function ansQ(el,qi,ci) {
+  const q=document.getElementById('q'+qi);
+  if(q.querySelector('.dis')) return;
+  q.querySelectorAll('.qo').forEach(o=>o.classList.add('dis'));
+  const chosen=Array.from(q.querySelectorAll('.qo')).indexOf(el);
+  const fb=document.getElementById('qfb'+qi);
+  const dot=document.getElementById('qd'+qi);
+  if(chosen===ci){el.classList.add('ok');fb.className='qfb sh ok';fb.textContent=qOK[qi];qScore++;dot.classList.add('ok');}
+  else{el.classList.add('ng');q.querySelectorAll('.qo')[ci].classList.add('ok');fb.className='qfb sh ng';fb.textContent=qNG[qi];dot.classList.add('ng');}
+  const btn=document.getElementById('qnxt'+qi);
+  if(btn) btn.style.display='inline-flex';
+  const nd=document.getElementById('qd'+(qi+1));
+  if(nd) nd.classList.add('cur');
+}
+function nxtQ(i){
+  document.getElementById('q'+(i-1)).classList.remove('on');
+  document.getElementById('q'+i).classList.add('on');
+}
+function showScore(){
+  document.getElementById('q4').classList.remove('on');
+  document.getElementById('qsc').classList.add('on');
+  const pct=(qScore/5)*100;
+  document.getElementById('scring').style.background=`conic-gradient(var(--g) ${pct}%, var(--bdr) ${pct}%)`;
+  document.getElementById('scn').textContent=qScore;
+  const msgs=['Keep Studying! 💪','Good Try! 👍','Well Done! 🌟','Excellent! ⭐','Perfect! 🏆','Perfect! 🏆'];
+  document.getElementById('scmsg').textContent=msgs[qScore];
+  document.getElementById('scdet').textContent=qScore===5?'Flawless! You\'ve mastered Supervised ML 🎉':`You got ${qScore}/5 correct. Review the concepts and retake!`;
+}
+
+// ══════════════════════════════════════
+// EXERCISES
+// ══════════════════════════════════════
+function toggleSol(btn,id){
+  const el=document.getElementById(id);
+  el.classList.toggle('op');
+  btn.textContent=el.classList.contains('op')?'🙈 Hide Solution':'💡 Show Solution';
+}
+
+// ══════════════════════════════════════
+// RESTART
+// ══════════════════════════════════════
+function restart(){
+  qScore=0;
+  done.clear(); done.add(0);
+  document.querySelectorAll('.qc').forEach(q=>q.classList.remove('on'));
+  document.getElementById('q0').classList.add('on');
+  document.querySelectorAll('.qo').forEach(o=>o.classList.remove('ok','ng','dis'));
+  document.querySelectorAll('.qfb').forEach(f=>f.className='qfb');
+  document.querySelectorAll('[id^="qnxt"]').forEach(b=>b.style.display='none');
+  document.querySelectorAll('.qd').forEach((d,i)=>{d.className='qd'+(i===0?' cur':'');});
+  document.querySelectorAll('.sol').forEach(s=>s.classList.remove('op'));
+  document.querySelectorAll('.sbt').forEach(b=>b.textContent='💡 Show Solution');
+  regPts=[]; drawReg();
+  go(0);
+}
+
+// Resize
+window.addEventListener('resize',()=>{
+  regCanvas.width=regCanvas.offsetWidth||700;
+  drawReg();
+});
+</script>
+</body>
+</html>
