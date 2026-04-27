@@ -130,8 +130,17 @@
 <body>
 
 <header>
-  <h1>ZEN</h1>
-  <a href="supervised.html" class="back-btn">← Back to Supervised ML</a>
+  <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:20px;">
+
+    <div style="display:flex; align-items:center; gap:15px;">
+      <h1 style="color: var(--primary); margin:0;">ZEN</h1>
+      <a href="supervised.html" class="back-btn">← Back to Supervised ML</a>
+    </div>
+
+    <img src="logo.png" alt="HCL-GUVI Logo"
+         style="height:40px; object-fit:contain;">
+
+  </div>
 </header>
 
 <section class="hero">
@@ -146,56 +155,56 @@
 
 <section class="grid">
 
-  <a href="classification/logistic_regression.html" class="card">
+  <a href="logistic_regression.html" class="card">
     <span class="icon">📊</span>
     <h3>Logistic Regression</h3>
     <p>Despite the name, it's a classifier! Predicts probabilities and classifies into binary categories.</p>
     <span class="badge">Beginner</span>
   </a>
 
-  <a href="classification/knn.html" class="card">
+  <a href="knn_module_classifier.html" class="card">
     <span class="icon">📍</span>
     <h3>K-Nearest Neighbors (KNN)</h3>
     <p>Classifies a point based on the majority vote of its K closest neighbors in the dataset.</p>
     <span class="badge">Beginner</span>
   </a>
 
-  <a href="classification/naive_bayes.html" class="card">
+  <a href="naive_bayes.html" class="card">
     <span class="icon">🎲</span>
     <h3>Naive Bayes</h3>
     <p>Probabilistic classifier based on Bayes' theorem. Fast and great for text classification.</p>
     <span class="badge">Beginner</span>
   </a>
 
-  <a href="classification/svm.html" class="card">
+  <a href="svm_module_classifier.html" class="card">
     <span class="icon">✂️</span>
     <h3>Support Vector Machine (SVM)</h3>
     <p>Finds the optimal hyperplane that best separates classes with maximum margin.</p>
     <span class="badge">Intermediate</span>
   </a>
 
-  <a href="classification/decision_tree.html" class="card">
+  <a href="decision_tree_classifier.html" class="card">
     <span class="icon">🌿</span>
     <h3>Decision Tree</h3>
     <p>Splits data using if-else rules at each node. Easy to interpret and visualize.</p>
     <span class="badge">Intermediate</span>
   </a>
 
-  <a href="classification/random_forest.html" class="card">
+  <a href="random_forest_classifier.html" class="card">
     <span class="icon">🌲</span>
     <h3>Random Forest</h3>
     <p>Builds many decision trees and takes a majority vote. Robust and highly accurate.</p>
     <span class="badge">Intermediate</span>
   </a>
 
-  <a href="classification/xgboost.html" class="card">
+  <a href="xgboost_classifier.html" class="card">
     <span class="icon">⚡</span>
     <h3>XGBoost</h3>
     <p>Extreme Gradient Boosting — one of the most powerful algorithms for structured data.</p>
     <span class="badge">Advanced</span>
   </a>
 
-  <a href="classification/gradient_boosting.html" class="card">
+  <a href="gradient_boosting.html" class="card">
     <span class="icon">🚀</span>
     <h3>Gradient Boosting</h3>
     <p>Builds trees sequentially where each tree corrects the errors of the previous one.</p>
