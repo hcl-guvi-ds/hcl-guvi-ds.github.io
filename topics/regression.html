@@ -130,8 +130,17 @@
 <body>
 
 <header>
-  <h1>ZEN</h1>
-  <a href="supervised.html" class="back-btn">← Back to Supervised ML</a>
+  <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:20px;">
+
+    <div style="display:flex; align-items:center; gap:15px;">
+      <h1 style="color: var(--primary); margin:0;">ZEN</h1>
+      <a href="supervised.html" class="back-btn">← Back to Supervised ML</a>
+    </div>
+
+    <img src="logo.png" alt="HCL-GUVI Logo"
+         style="height:40px; object-fit:contain;">
+
+  </div>
 </header>
 
 <section class="hero">
@@ -146,62 +155,69 @@
 
 <section class="grid">
 
-  <a href="regression/linear_regression.html" class="card">
+  <a href="linear_regression.html" class="card">
     <span class="icon">📏</span>
     <h3>Linear Regression</h3>
     <p>The foundation of regression. Fits a straight line through data points to predict a continuous output.</p>
     <span class="badge">Beginner</span>
   </a>
 
-  <a href="regression/multiple_regression.html" class="card">
+  <a href="multiple_regression.html" class="card">
     <span class="icon">📐</span>
     <h3>Multiple Linear Regression</h3>
     <p>Extends linear regression to use multiple input features to make better predictions.</p>
     <span class="badge">Beginner</span>
   </a>
 
-  <a href="regression/polynomial_regression.html" class="card">
+  <a href="polynomial_regression.html" class="card">
     <span class="icon">〰️</span>
     <h3>Polynomial Regression</h3>
     <p>Fits a curved line to data. Great for capturing non-linear relationships between variables.</p>
     <span class="badge">Intermediate</span>
   </a>
 
-  <a href="regression/ridge_regression.html" class="card">
+  <a href="ridge_regression.html" class="card">
     <span class="icon">🔵</span>
     <h3>Ridge Regression (L2)</h3>
     <p>Adds a penalty to large coefficients to prevent overfitting. Best when all features matter.</p>
     <span class="badge">Intermediate</span>
   </a>
 
-  <a href="regression/lasso_regression.html" class="card">
+  <a href="lasso_regression.html" class="card">
     <span class="icon">🔶</span>
     <h3>Lasso Regression (L1)</h3>
     <p>Similar to Ridge but can shrink some coefficients to zero — great for feature selection.</p>
     <span class="badge">Intermediate</span>
   </a>
 
-  <a href="regression/decision_tree_regression.html" class="card">
+  <a href="decision_tree.html" class="card">
     <span class="icon">🌿</span>
     <h3>Decision Tree Regression</h3>
     <p>Splits data into branches based on feature values to predict a number at each leaf node.</p>
     <span class="badge">Intermediate</span>
   </a>
 
-  <a href="regression/random_forest_regression.html" class="card">
+  <a href="random_forest_regressor.html" class="card">
     <span class="icon">🌲</span>
     <h3>Random Forest Regression</h3>
     <p>Builds hundreds of decision trees and averages their predictions for better accuracy.</p>
     <span class="badge">Intermediate</span>
   </a>
 
-  <a href="regression/svr.html" class="card">
+  <a href="svr.html" class="card">
     <span class="icon">📡</span>
     <h3>Support Vector Regression</h3>
     <p>Uses SVM principles to find the best-fit line within a margin of tolerance.</p>
     <span class="badge">Advanced</span>
   </a>
 
+   <a href="xgboost_regressor.html" class="card">
+    <span class="icon">📡</span>
+    <h3>Xgboost Regression</h3>
+    <p>Uses ensemble boosting techniques to build sequential decision trees that minimize errors and deliver highly accurate regression predictions.</p>
+    <span class="badge">Advanced</span>
+  </a>
+  
 </section>
 
 <footer>© 2026 HCL-GUVI Data Science Program</footer>
