@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classification Algorithms | HCL-GUVI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #7c3aed;
+      --secondary: #2563eb;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body { background: linear-gradient(120deg, #f5f3ff, #faf5ff); color: var(--text); }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 50px;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(10px);
+      position: sticky; top: 0; z-index: 10;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+    header h1 { color: #2563eb; font-weight: 700; }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      background: #f5f3ff;
+      color: #7c3aed;
+      border-radius: 20px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    .back-btn:hover { background: #ede9fe; }
+
+    .hero {
+      text-align: center;
+      padding: 60px 20px 30px;
+      animation: fadeIn 0.8s ease;
+    }
+    .hero h2 {
+      font-size: 2.4rem;
+      background: linear-gradient(to right, #7c3aed, #db2777);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .hero p { color: var(--muted); font-size: 1rem; }
+
+    .breadcrumb {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .breadcrumb a { color: #7c3aed; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 25px;
+      padding: 40px 50px 80px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 28px 25px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      transition: all 0.35s ease;
+      position: relative;
+      overflow: hidden;
+      border-top: 4px solid #7c3aed;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      width: 200%; height: 200%;
+      background: linear-gradient(120deg, transparent, rgba(124,58,237,0.07), transparent);
+      transform: rotate(25deg);
+      top: -100%; left: -100%;
+      transition: 0.6s;
+    }
+    .card:hover::before { top: 100%; left: 100%; }
+    .card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 45px rgba(0,0,0,0.13);
+    }
+
+    .card .icon { font-size: 2rem; margin-bottom: 14px; display: block; }
+    .card h3 { color: #7c3aed; font-size: 1.15rem; margin-bottom: 8px; }
+    .card p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 12px; }
+    .card .badge {
+      display: inline-block;
+      padding: 3px 12px;
+      background: #f5f3ff;
+      color: #7c3aed;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      background: rgba(255,255,255,0.7);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>ZEN</h1>
+  <a href="supervised.html" class="back-btn">← Back to Supervised ML</a>
+</header>
+
+<section class="hero">
+  <div class="breadcrumb">
+    <a href="../index.html">Home</a> ›
+    <a href="supervised.html">Supervised Learning</a> ›
+    <strong>Classification</strong>
+  </div>
+  <h2>🏷️ Classification Algorithms</h2>
+  <p>Predict categories and class labels — choose an algorithm to learn</p>
+</section>
+
+<section class="grid">
+
+  <a href="classification/logistic_regression.html" class="card">
+    <span class="icon">📊</span>
+    <h3>Logistic Regression</h3>
+    <p>Despite the name, it's a classifier! Predicts probabilities and classifies into binary categories.</p>
+    <span class="badge">Beginner</span>
+  </a>
+
+  <a href="classification/knn.html" class="card">
+    <span class="icon">📍</span>
+    <h3>K-Nearest Neighbors (KNN)</h3>
+    <p>Classifies a point based on the majority vote of its K closest neighbors in the dataset.</p>
+    <span class="badge">Beginner</span>
+  </a>
+
+  <a href="classification/naive_bayes.html" class="card">
+    <span class="icon">🎲</span>
+    <h3>Naive Bayes</h3>
+    <p>Probabilistic classifier based on Bayes' theorem. Fast and great for text classification.</p>
+    <span class="badge">Beginner</span>
+  </a>
+
+  <a href="classification/svm.html" class="card">
+    <span class="icon">✂️</span>
+    <h3>Support Vector Machine (SVM)</h3>
+    <p>Finds the optimal hyperplane that best separates classes with maximum margin.</p>
+    <span class="badge">Intermediate</span>
+  </a>
+
+  <a href="classification/decision_tree.html" class="card">
+    <span class="icon">🌿</span>
+    <h3>Decision Tree</h3>
+    <p>Splits data using if-else rules at each node. Easy to interpret and visualize.</p>
+    <span class="badge">Intermediate</span>
+  </a>
+
+  <a href="classification/random_forest.html" class="card">
+    <span class="icon">🌲</span>
+    <h3>Random Forest</h3>
+    <p>Builds many decision trees and takes a majority vote. Robust and highly accurate.</p>
+    <span class="badge">Intermediate</span>
+  </a>
+
+  <a href="classification/xgboost.html" class="card">
+    <span class="icon">⚡</span>
+    <h3>XGBoost</h3>
+    <p>Extreme Gradient Boosting — one of the most powerful algorithms for structured data.</p>
+    <span class="badge">Advanced</span>
+  </a>
+
+  <a href="classification/gradient_boosting.html" class="card">
+    <span class="icon">🚀</span>
+    <h3>Gradient Boosting</h3>
+    <p>Builds trees sequentially where each tree corrects the errors of the previous one.</p>
+    <span class="badge">Advanced</span>
+  </a>
+
+</section>
+
+<footer>© 2026 HCL-GUVI Data Science Program</footer>
+
+</body>
+</html>
