@@ -3,1428 +3,655 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Module 7 — Functions in Python · HCL-GUVI</title>
+<title>Module 7 — Functions in Python</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Satoshi:wght@400;500;700;900&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet"/>
 <style>
-/* ═══════════════════════════════════════════════
-   DESIGN SYSTEM — Soft Modern Green/Blue + Depth
-═══════════════════════════════════════════════ */
 :root {
-  --bg:        #f4f8f5;
-  --surface:   #ffffff;
-  --s2:        #eef6f1;
-  --s3:        #e2f0e8;
-  --border:    #cce5d8;
-  --border2:   #bcd4ef;
-  --green:     #16a05e;
-  --green-lt:  #e4f7ee;
-  --green-dk:  #0d6b3e;
-  --green-glow:rgba(22,160,94,0.15);
-  --blue:      #1d72c2;
-  --blue-lt:   #e4eefb;
-  --blue-dk:   #0e4d8a;
-  --teal:      #0c9e8a;
-  --orange:    #e07830;
-  --red:       #e03050;
-  --purple:    #7c4dff;
-  --yellow:    #f0c040;
-  --text:      #18291e;
-  --text2:     #3a5244;
-  --text3:     #78998a;
-  --code-bg:   #0d1f14;
-  --code-txt:  #c0e8d0;
-  --shadow-sm: 0 2px 10px rgba(22,160,94,0.08);
-  --shadow:    0 4px 24px rgba(22,160,94,0.12);
-  --shadow-lg: 0 12px 48px rgba(22,160,94,0.18);
-  --r:         16px;
-  --r-sm:      10px;
-  --fh: 'Clash Display', sans-serif;
-  --fn: 'Satoshi', sans-serif;
-  --fc: 'JetBrains Mono', monospace;
+  --bg: #f0f4ff;
+  --surface: #ffffff;
+  --surface2: #f7f9fe;
+  --surface3: #eef2fc;
+  --primary: #2563eb;
+  --primary-light: #dbeafe;
+  --primary-dark: #1d4ed8;
+  --accent: #059669;
+  --accent-light: #d1fae5;
+  --accent-dark: #047857;
+  --warn: #d97706;
+  --warn-light: #fef3c7;
+  --purple: #7c3aed;
+  --purple-light: #ede9fe;
+  --coral: #e11d48;
+  --coral-light: #ffe4e6;
+  --text: #0f172a;
+  --text2: #334155;
+  --text3: #64748b;
+  --text4: #94a3b8;
+  --border: #e2e8f0;
+  --border2: #cbd5e1;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+  --shadow-lg: 0 4px 24px rgba(37,99,235,.10), 0 1px 4px rgba(0,0,0,.06);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --sidebar-w: 260px;
+  --header-h: 60px;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --serif: 'Fraunces', serif;
+  --transition: .25s cubic-bezier(.4,0,.2,1);
 }
 
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{width:100%;height:100%;overflow:hidden;}
-body{background:var(--bg);color:var(--text);font-family:var(--fn);font-size:15px;line-height:1.65;}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; overflow: hidden; height: 100vh; }
 
-/* Scrollbar */
-::-webkit-scrollbar{width:5px;height:5px;}
-::-webkit-scrollbar-track{background:var(--s2);}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-::-webkit-scrollbar-thumb:hover{background:var(--green);}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
 
-/* ════ APP SHELL ════ */
-#app{display:grid;grid-template-rows:64px 1fr;grid-template-columns:260px 1fr;grid-template-areas:"nav nav" "side main";width:100vw;height:100vh;}
-
-/* ════ TOP NAV ════ */
-#nav{
-  grid-area:nav;
-  background:var(--surface);
-  border-bottom:2px solid var(--border);
-  display:flex;align-items:center;
-  padding:0 24px;gap:16px;
-  box-shadow:var(--shadow-sm);
-  z-index:100;
-  position:relative;
+/* HEADER */
+.app-header {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); z-index: 100;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 24px 0 20px;
 }
-.nav-logo{display:flex;align-items:center;gap:12px;flex-shrink:0;}
-.nav-logo-img{height:38px;object-fit:contain;}
-.nav-logo-fb{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
-.nav-logo-txt{display:flex;flex-direction:column;}
-.nav-logo-name{font-family:var(--fh);font-size:.95rem;font-weight:700;color:var(--green);letter-spacing:-.02em;line-height:1.1;}
-.nav-logo-sub{font-family:var(--fc);font-size:.58rem;color:var(--text3);}
-.nav-div{width:1px;height:30px;background:var(--border);flex-shrink:0;}
-.nav-module{display:flex;flex-direction:column;}
-.nav-module-tag{font-family:var(--fc);font-size:.62rem;color:var(--green);letter-spacing:.1em;text-transform:uppercase;}
-.nav-module-name{font-family:var(--fh);font-size:1rem;font-weight:600;color:var(--text);}
-.nav-sep{flex:1;}
-.nav-progress-wrap{display:flex;flex-direction:column;gap:4px;width:180px;}
-.nav-progress-row{display:flex;justify-content:space-between;font-family:var(--fc);font-size:.65rem;color:var(--text3);}
-.nav-progress-bar{height:6px;background:var(--s3);border-radius:3px;overflow:hidden;border:1px solid var(--border);}
-.nav-progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:3px;transition:width .5s ease;}
-.nav-learner{display:flex;align-items:center;gap:10px;background:var(--blue-lt);border:1px solid var(--border2);border-radius:12px;padding:8px 14px;}
-.nl-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:.9rem;font-weight:700;color:white;flex-shrink:0;}
-.nl-name{font-family:var(--fn);font-size:.8rem;font-weight:700;color:var(--blue-dk);}
-.nl-role{font-family:var(--fc);font-size:.6rem;color:var(--text3);}
-
-/* ════ SIDEBAR ════ */
-#side{
-  grid-area:side;
-  background:var(--surface);
-  border-right:2px solid var(--border);
-  overflow-y:auto;
-  display:flex;flex-direction:column;
-  box-shadow:2px 0 12px rgba(22,160,94,0.06);
+.header-left { display: flex; align-items: center; gap: 14px; }
+.logo-area { display: flex; align-items: center; gap: 10px; }
+.logo-badge {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb 0%, #059669 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 15px; color: #fff; letter-spacing: -1px;
 }
-.side-section{padding:14px 16px 6px;font-family:var(--fc);font-size:.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;}
-.side-item{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 16px;cursor:pointer;
-  font-family:var(--fn);font-size:.85rem;font-weight:600;
-  color:var(--text2);border-left:3px solid transparent;
-  transition:all .2s;user-select:none;
-  position:relative;
+.logo-text { font-size: 13px; font-weight: 700; color: var(--text); letter-spacing: -.3px; }
+.logo-sub { font-size: 11px; color: var(--text3); font-weight: 400; }
+.header-divider { width: 1px; height: 28px; background: var(--border); }
+.module-title { font-size: 14px; font-weight: 600; color: var(--text2); }
+.module-badge { font-size: 11px; background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+
+.header-right { display: flex; align-items: center; gap: 20px; }
+.progress-wrap { display: flex; align-items: center; gap: 8px; }
+.progress-label { font-size: 11px; color: var(--text3); font-weight: 500; }
+.progress-track { width: 120px; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+.progress-pct { font-size: 11px; font-weight: 700; color: var(--primary); min-width: 28px; }
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed; top: var(--header-h); left: 0; bottom: 0; width: var(--sidebar-w);
+  background: var(--surface); border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 20px 12px; z-index: 50;
 }
-.side-item::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--green),var(--blue));border-radius:2px;opacity:0;transition:opacity .2s;}
-.side-item:hover{background:var(--green-lt);color:var(--green);}
-.side-item.active{background:var(--green-lt);color:var(--green);font-weight:700;}
-.side-item.active::after{opacity:1;}
-.side-item.completed .si-check{opacity:1;}
-.si-icon{font-size:.95rem;min-width:18px;text-align:center;transition:transform .2s;}
-.side-item:hover .si-icon{transform:scale(1.15);}
-.si-check{margin-left:auto;color:var(--green);opacity:0;font-size:.85rem;transition:opacity .3s;}
-.side-divider{height:1px;background:var(--border);margin:8px 16px;}
-.side-credits{padding:16px;border-top:1px solid var(--border);margin-top:auto;}
-.sc-inner{background:linear-gradient(135deg,var(--green-lt),var(--blue-lt));border:1px solid var(--border);border-radius:14px;padding:14px;}
-.sc-lbl{font-family:var(--fc);font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
-.sc-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:1rem;font-weight:700;color:white;margin-bottom:6px;box-shadow:0 4px 12px var(--green-glow);}
-.sc-name{font-family:var(--fh);font-size:.92rem;font-weight:700;color:var(--green);}
-.sc-title{font-family:var(--fc);font-size:.68rem;color:var(--text2);}
-.sc-org{display:inline-flex;align-items:center;gap:3px;font-family:var(--fc);font-size:.63rem;color:var(--blue);background:var(--blue-lt);border:1px solid var(--border2);padding:2px 9px;border-radius:50px;margin-top:5px;}
+.sidebar-section { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--text4); text-transform: uppercase; padding: 12px 12px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: 10px; cursor: pointer; transition: all var(--transition);
+  margin-bottom: 2px; font-size: 13px; font-weight: 500; color: var(--text2);
+  border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: var(--surface3); color: var(--text); }
+.nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.nav-item.done { color: var(--accent); }
+.nav-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; background: var(--surface3); }
+.nav-item.active .nav-icon { background: var(--primary); color: #fff; }
+.nav-item.done .nav-icon { background: var(--accent-light); color: var(--accent-dark); }
+.nav-check { margin-left: auto; font-size: 11px; color: var(--accent); display: none; }
+.nav-item.done .nav-check { display: block; }
 
-/* ════ MAIN CONTENT ════ */
-#main{grid-area:main;overflow:hidden;position:relative;}
-.page{position:absolute;inset:0;overflow-y:auto;padding:40px 52px;opacity:0;transform:translateX(30px);transition:opacity .38s ease,transform .38s ease;pointer-events:none;}
-.page.active{opacity:1;transform:translateX(0);pointer-events:all;}
-.page.exit-left{opacity:0;transform:translateX(-30px);}
+/* MAIN */
+.main-content {
+  margin-left: var(--sidebar-w); margin-top: var(--header-h);
+  height: calc(100vh - var(--header-h)); overflow-y: auto; padding: 32px 48px 80px;
+}
 
-/* ════ BOTTOM BAR ════ */
-.page-bottom-bar{display:flex;align-items:center;justify-content:space-between;margin-top:40px;padding-top:24px;border-top:1.5px solid var(--border);}
-.btn-nav{display:flex;align-items:center;gap:8px;padding:11px 26px;border-radius:12px;font-family:var(--fh);font-size:.88rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
-.btn-prev{background:var(--s2);border:1.5px solid var(--border);color:var(--text2);}
-.btn-prev:hover{border-color:var(--green);color:var(--green);}
-.btn-next{background:linear-gradient(135deg,var(--green),var(--blue));color:white;box-shadow:0 4px 16px var(--green-glow);}
-.btn-next:hover{opacity:.88;transform:translateY(-2px);box-shadow:0 6px 22px var(--green-glow);}
-.btn-next:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+/* PAGES */
+.page { display: none; animation: fadeSlide .35s cubic-bezier(.4,0,.2,1); }
+.page.active { display: block; }
+@keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ════ TYPOGRAPHY ════ */
-h1{font-family:var(--fh);font-size:clamp(1.9rem,3vw,2.8rem);font-weight:700;line-height:1.1;letter-spacing:-.03em;color:var(--text);}
-h2{font-family:var(--fh);font-size:clamp(1.3rem,2.5vw,1.9rem);font-weight:600;line-height:1.2;letter-spacing:-.02em;}
-h3{font-family:var(--fh);font-size:1.1rem;font-weight:600;}
-p{margin-bottom:.9em;color:var(--text2);line-height:1.7;}
-strong{color:var(--text);font-weight:700;}
-code{font-family:var(--fc);font-size:.83em;background:var(--green-lt);border:1px solid var(--border);padding:2px 7px;border-radius:5px;color:var(--green-dk);}
+/* BUTTONS */
+.page-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 600; font-size: 13px; cursor: pointer; transition: all var(--transition); border: none; font-family: var(--font); }
+.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,.3); }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,99,235,.35); }
+.btn-ghost { background: var(--surface); color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { background: var(--surface3); }
+.btn-run { background: #1e1e2e; color: #a6e3a1; border: 1px solid #313244; font-family: var(--mono); font-size: 12px; }
+.btn-run:hover { background: #11111b; }
+.btn-accent { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(5,150,105,.3); }
+.btn-accent:hover { background: var(--accent-dark); transform: translateY(-1px); }
 
-.ptag{display:inline-flex;align-items:center;gap:7px;font-family:var(--fc);font-size:.68rem;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;}
-.ptag::before{content:'';width:18px;height:2px;background:linear-gradient(90deg,var(--green),var(--blue));}
-.ph{margin-bottom:32px;}
-.ph p{font-size:1rem;max-width:580px;}
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow); }
+.card-blue { border-left: 4px solid var(--primary); }
+.card-green { border-left: 4px solid var(--accent); }
+.card-purple { border-left: 4px solid var(--purple); }
 
-/* ════ CARDS ════ */
-.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:22px;box-shadow:var(--shadow-sm);transition:box-shadow .2s,transform .2s;}
-.card:hover{box-shadow:var(--shadow);}
-.card-green{background:var(--green-lt);border-color:var(--border);}
-.card-blue{background:var(--blue-lt);border-color:var(--border2);}
-.card-dark{background:var(--code-bg);border-color:rgba(22,160,94,.2);}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+/* HERO */
+.hero { background: linear-gradient(135deg, #1e3a8a 0%, #0c4a6e 50%, #134e4a 100%); border-radius: 20px; padding: 48px 40px; margin-bottom: 28px; color: #fff; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+.hero-tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15); border-radius: 99px; padding: 4px 12px; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,.8); margin-bottom: 16px; }
+.hero h1 { font-family: var(--serif); font-size: 42px; font-weight: 700; line-height: 1.15; margin-bottom: 12px; }
+.hero h1 em { font-style: italic; color: #86efac; }
+.hero p { font-size: 15px; color: rgba(255,255,255,.75); max-width: 520px; line-height: 1.7; }
+.hero-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+.chip-blue { background: rgba(96,165,250,.2); color: #93c5fd; border: 1px solid rgba(96,165,250,.25); }
+.chip-green { background: rgba(52,211,153,.2); color: #6ee7b7; border: 1px solid rgba(52,211,153,.25); }
+.chip-purple { background: rgba(167,139,250,.2); color: #c4b5fd; border: 1px solid rgba(167,139,250,.25); }
 
-/* ════ CALLOUTS ════ */
-.tip{background:var(--green-lt);border:1.5px solid var(--border);border-left:4px solid var(--green);border-radius:12px;padding:14px 18px;font-size:.88rem;color:var(--green-dk);margin:16px 0;}
-.tip::before{content:'💡 ';}
-.warn{background:#fffbea;border:1.5px solid #f0c840;border-left:4px solid #d4a010;border-radius:12px;padding:14px 18px;font-size:.88rem;color:#7a5500;margin:16px 0;}
-.warn::before{content:'⚠️ ';}
-.info{background:var(--blue-lt);border:1.5px solid var(--border2);border-left:4px solid var(--blue);border-radius:12px;padding:14px 18px;font-size:.88rem;color:var(--blue-dk);margin:16px 0;}
-.info::before{content:'ℹ️ ';}
+/* SECTION TITLES */
+.section-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); margin-bottom: 8px; }
+.page-h2 { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -.5px; }
+.page-subtitle { font-size: 14px; color: var(--text3); margin-bottom: 24px; line-height: 1.6; }
 
-/* ════ CODE BLOCK ════ */
-.cb{background:var(--code-bg);border-radius:var(--r);overflow:hidden;margin:16px 0;box-shadow:0 8px 32px rgba(0,0,0,.2);}
-.cb-hdr{background:rgba(255,255,255,.04);padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.06);}
-.cb-dots{display:flex;gap:5px;}
-.cb-dots span{width:11px;height:11px;border-radius:50%;}
-.cb-dots span:nth-child(1){background:#ff5f57;}.cb-dots span:nth-child(2){background:#febc2e;}.cb-dots span:nth-child(3){background:#28c840;}
-.cb-filename{font-family:var(--fc);font-size:.7rem;color:rgba(192,232,208,.5);margin-left:auto;background:rgba(22,160,94,.15);padding:2px 9px;border-radius:4px;}
-.cb-body{padding:20px 22px;overflow-x:auto;}
-.cb-body pre{font-family:var(--fc);font-size:.88rem;line-height:2;color:#c0e8d0;white-space:pre;}
-.kw{color:#5dc8f0;font-weight:500;}.fn{color:#a8e870;}.st{color:#f5d860;}.cm{color:#3a6040;font-style:italic;}.nm{color:#f0a860;}.bl{color:#ff9860;}.dec{color:#c898ff;}
+/* ============================================ */
+/* FIXED: CODE BLOCKS - LIGHT BLUE BACKGROUND */
+/* ============================================ */
+.code-block {
+  background: #b8d8fc !important;
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.8;
+  border: 1px solid #89b9e8;
+  position: relative;
+  overflow: auto;
+  color: #0a0a2a;
+}
+.code-header { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.code-dot { width: 10px; height: 10px; border-radius: 50%; }
+.code-dot:nth-child(1) { background: #f38ba8; }
+.code-dot:nth-child(2) { background: #f9e2af; }
+.code-dot:nth-child(3) { background: #a6e3a1; }
+.code-fname { font-size: 11px; color: #1e3a5f; margin-left: 6px; font-family: var(--mono); font-weight: bold; }
 
-/* Run button */
-.run-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--green),var(--teal));color:white;border:none;border-radius:10px;padding:10px 24px;font-family:var(--fh);font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 3px 12px var(--green-glow);}
-.run-btn:hover{opacity:.88;transform:translateY(-1px);box-shadow:0 5px 18px var(--green-glow);}
-.run-btn:active{transform:translateY(0);}
-.out-box{background:rgba(13,31,20,.95);border:1px solid rgba(22,160,94,.2);border-radius:10px;padding:14px 18px;font-family:var(--fc);font-size:.84rem;line-height:2;color:#7ae890;min-height:50px;white-space:pre-wrap;display:none;margin-top:12px;animation:fadeIn .3s ease;}
-.out-box.show{display:block;}
-.out-prompt{color:rgba(120,160,130,.6);}
+/* Syntax highlighting colors for light blue background */
+.kw { color: #7c3aed; font-weight: bold; }
+.fn { color: #2563eb; font-weight: bold; }
+.st { color: #059669; font-weight: bold; }
+.cm { color: #6c7086; font-style: italic; }
+.nu { color: #d97706; font-weight: bold; }
+.vr { color: #0f172a; font-weight: bold; }
+.op { color: #0891b2; }
 
-/* Solutions */
-.sol-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1.5px solid var(--blue);border-radius:9px;color:var(--blue);font-family:var(--fc);font-size:.77rem;padding:7px 16px;cursor:pointer;transition:all .2s;}
-.sol-btn:hover{background:var(--blue-lt);}
-.sol-box{display:none;margin-top:14px;animation:fadeIn .3s ease;}
-.sol-box.open{display:block;}
+.output-block {
+  background: #e6f3ff;
+  border: 1px solid #89b9e8;
+  border-top: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: #0a0a2a;
+  line-height: 1.8;
+  margin-top: 10px;
+  display: none;
+}
+.output-block.visible { display: block; animation: revealOut .3s ease; }
+@keyframes revealOut { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.out-prompt { color: #2563eb; }
 
-.exc-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow-sm);}
-.exc-hdr{padding:14px 20px;background:linear-gradient(135deg,var(--green-lt),var(--blue-lt));border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.exc-num{font-family:var(--fc);font-size:.68rem;color:var(--text3);}
-.exc-title{font-family:var(--fh);font-size:.9rem;font-weight:600;color:var(--green-dk);}
-.exc-body{padding:20px;}
-.exc-body p{font-size:.88rem;color:var(--text2);margin-bottom:12px;}
+/* INFO BOX */
+.info-box { display: flex; gap: 12px; padding: 14px 16px; border-radius: var(--radius-sm); margin-bottom: 14px; }
+.info-box.blue { background: var(--primary-light); border: 1px solid #bfdbfe; }
+.info-box.green { background: var(--accent-light); border: 1px solid #bbf7d0; }
+.info-box.purple { background: var(--purple-light); border: 1px solid #ddd6fe; }
+.info-box.warn { background: var(--warn-light); border: 1px solid #fde68a; }
+.info-icon { font-size: 16px; flex-shrink: 0; padding-top: 1px; }
+.info-text { font-size: 13px; line-height: 1.6; }
 
-/* ════ QUIZ ════ */
-.qprog{display:flex;gap:6px;margin-bottom:24px;}
-.qpd{flex:1;height:5px;background:var(--s3);border-radius:3px;opacity:.5;transition:all .3s;}
-.qpd.correct{background:var(--green);opacity:1;}.qpd.wrong{background:var(--red);opacity:1;}
-.qcard{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:28px;min-height:300px;box-shadow:var(--shadow);}
-.qbadge{font-family:var(--fc);font-size:.7rem;color:var(--text3);margin-bottom:10px;}
-.qtxt{font-family:var(--fh);font-size:1.1rem;font-weight:600;margin-bottom:22px;line-height:1.4;color:var(--text);}
-.qopts{display:flex;flex-direction:column;gap:10px;}
-.qo{background:var(--surface);border:1.5px solid var(--border);border-radius:11px;padding:12px 18px;text-align:left;font-family:var(--fn);font-size:.93rem;color:var(--text);cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:12px;}
-.qo:hover:not(:disabled){border-color:var(--green);background:var(--green-lt);transform:translateX(4px);}
-.qol{width:28px;height:28px;border-radius:8px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-family:var(--fc);font-size:.72rem;color:var(--text3);flex-shrink:0;border:1px solid var(--border);transition:all .18s;}
-.qo.correct{border-color:var(--green);background:var(--green-lt);color:var(--green-dk);}
-.qo.correct .qol{background:var(--green);color:white;border-color:var(--green);}
-.qo.wrong{border-color:var(--red);background:#fef0f2;color:#7a1520;}
-.qo.wrong .qol{background:var(--red);color:white;border-color:var(--red);}
-.qo:disabled{cursor:default;}
-.qfb{margin-top:14px;padding:12px 16px;border-radius:10px;font-family:var(--fc);font-size:.79rem;display:none;animation:fadeIn .3s ease;}
-.qfb.show{display:block;}
-.qfb.correct{background:var(--green-lt);color:var(--green-dk);border:1px solid var(--border);}
-.qfb.wrong{background:#fef0f2;color:#8b1520;border:1px solid #f5c0c8;}
-.qnav{display:flex;align-items:center;justify-content:space-between;margin-top:18px;}
-.qnb{background:var(--s2);border:1.5px solid var(--border);border-radius:9px;padding:9px 20px;font-family:var(--fh);font-size:.82rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all .18s;}
-.qnb:hover{border-color:var(--green);color:var(--green);}
-.qnb.pri{background:linear-gradient(135deg,var(--green),var(--blue));color:white;border-color:transparent;box-shadow:0 3px 12px var(--green-glow);}
-.qnb:disabled{opacity:.3;cursor:not-allowed;}
-.qres{display:none;text-align:center;padding:40px 20px;animation:fadeIn .5s ease;}
-.qres.show{display:block;}
-.qre{font-size:4rem;display:block;margin-bottom:14px;animation:bounceIn .7s ease;}
-.qrs{font-family:var(--fh);font-size:3.5rem;font-weight:700;color:var(--green);line-height:1;margin-bottom:8px;}
-.qrsb{color:var(--text2);font-size:1rem;margin-bottom:24px;}
-.qrbd{display:flex;gap:24px;justify-content:center;margin-bottom:24px;}
-.qrv{font-family:var(--fh);font-size:1.8rem;font-weight:700;}
-.qrv.c{color:var(--green);}.qrv.w{color:var(--red);}
-.qrl{font-family:var(--fc);font-size:.7rem;color:var(--text3);}
-.rtb{background:var(--s2);border:1.5px solid var(--border);border-radius:11px;padding:11px 28px;font-family:var(--fh);font-size:.9rem;font-weight:600;color:var(--text);cursor:pointer;transition:all .2s;margin-right:10px;}
-.rtb:hover{border-color:var(--green);color:var(--green);}
+/* ANALOGY CARD */
+.analogy-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 18px; display: flex; gap: 14px; align-items: flex-start; }
+.analogy-icon { font-size: 28px; flex-shrink: 0; }
+.analogy-title { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--warn); margin-bottom: 4px; }
 
-/* ════ COMPLETION ════ */
-.comp-wrap{text-align:center;max-width:560px;margin:0 auto;padding:20px 0;}
-.comp-icon{width:110px;height:110px;background:linear-gradient(135deg,var(--green-lt),var(--blue-lt));border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:3.2rem;margin:0 auto 24px;animation:float 3s ease-in-out infinite;box-shadow:var(--shadow);}
-.skills-wrap{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:20px 0 28px;}
-.skill-tag{background:var(--green-lt);border:1px solid var(--border);border-radius:50px;padding:6px 16px;font-family:var(--fc);font-size:.75rem;color:var(--green-dk);display:flex;align-items:center;gap:5px;animation:bounceIn .5s ease both;}
-.skill-tag .ck{color:var(--green);font-weight:700;}
-.comp-btn{background:linear-gradient(135deg,var(--green),var(--blue));color:white;border:none;border-radius:14px;padding:15px 38px;font-family:var(--fh);font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 20px var(--green-glow);}
-.comp-btn:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 8px 28px var(--green-glow);}
-.restart-btn{background:var(--s2);border:1.5px solid var(--border);border-radius:12px;padding:12px 28px;font-family:var(--fh);font-size:.88rem;font-weight:600;color:var(--text);cursor:pointer;transition:all .2s;margin-top:12px;}
-.restart-btn:hover{border-color:var(--green);color:var(--green);}
+/* INTERACTIVE MACHINE */
+.fn-machine { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 20px 0; box-shadow: var(--shadow); }
+.fn-machine-inner { display: flex; align-items: stretch; min-height: 120px; flex-wrap: wrap; }
+.fm-io { flex: 1; padding: 20px; text-align: center; }
+.fm-io.input { background: var(--primary-light); border-right: 1px solid var(--border); }
+.fm-io.output { background: var(--accent-light); border-left: 1px solid var(--border); }
+.fm-io .fm-box { font-size: 1rem; font-weight: 700; font-family: var(--mono); }
+.fm-center { flex: 2; padding: 16px; background: var(--surface2); text-align: center; }
+.fm-center .fm-gear { font-size: 2rem; animation: spin 3s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.fm-input-row { display: flex; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--border); background: var(--surface2); flex-wrap: wrap; align-items: center; }
+.fm-input { background: #b8d8fc; border: 1px solid #89b9e8; border-radius: 8px; padding: 8px 12px; font-family: var(--mono); font-size: 0.85rem; outline: none; color: #0a0a2a; }
+.fm-input:focus { border-color: var(--primary); }
+.fm-run { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-weight: 600; cursor: pointer; }
 
-/* ════ ANIMATIONS ════ */
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@keyframes bounceIn{0%{transform:scale(0)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes confetti-pop{0%{transform:translate(0,0)rotate(0);opacity:1}100%{transform:translate(var(--cx),var(--cy))rotate(var(--cr));opacity:0}}
-@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-@keyframes flowPulse{0%,100%{stroke-dashoffset:0}100%{stroke-dashoffset:-20}}
-@keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 var(--green-glow)}50%{box-shadow:0 0 0 8px transparent}}
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
 
-.stg>*{animation:slideUp .4s ease both;}
-.stg>*:nth-child(1){animation-delay:.05s}.stg>*:nth-child(2){animation-delay:.12s}
-.stg>*:nth-child(3){animation-delay:.19s}.stg>*:nth-child(4){animation-delay:.26s}
-.stg>*:nth-child(5){animation-delay:.33s}.stg>*:nth-child(6){animation-delay:.40s}
-.stg>*:nth-child(7){animation-delay:.47s}
+/* WELCOME GRID */
+.welcome-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin: 20px 0; }
+.welcome-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 18px; text-align: center; transition: all var(--transition); cursor: pointer; }
+.welcome-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+.welcome-card-icon { font-size: 28px; margin-bottom: 8px; }
+.welcome-card-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 
-/* ════════════════════════════════════════
-   PAGE-SPECIFIC INTERACTIVE COMPONENTS
-════════════════════════════════════════ */
+/* REVEAL GRID */
+.reveal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 18px 0; }
+.reveal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all .2s; box-shadow: var(--shadow); }
+.reveal-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+.reveal-card .rc-front { padding: 18px; text-align: center; }
+.reveal-card .rc-front .rc-emoji { font-size: 28px; display: block; margin-bottom: 8px; }
+.reveal-card .rc-front h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.reveal-card .rc-back { padding: 14px; background: var(--primary-light); border-top: 1px solid var(--border); display: none; font-family: var(--mono); font-size: 0.75rem; line-height: 1.6; }
+.reveal-card.open .rc-back { display: block; animation: fadein .3s; }
+.reveal-card.open { border-color: var(--primary); }
 
-/* ── Function Machine (Visual) ── */
-.fn-machine{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);margin:20px 0;}
-.fn-machine-inner{display:flex;align-items:stretch;min-height:120px;}
-.fm-io{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:8px;flex:1;}
-.fm-io.input{background:var(--blue-lt);border-right:1.5px solid var(--border2);}
-.fm-io.output{background:var(--green-lt);border-left:1.5px solid var(--border);}
-.fm-box{font-family:var(--fh);font-size:1rem;font-weight:700;}
-.fm-io.input .fm-box{color:var(--blue-dk);}
-.fm-io.output .fm-box{color:var(--green-dk);}
-.fm-lbl{font-family:var(--fc);font-size:.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;}
-.fm-center{flex:2;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;background:linear-gradient(135deg,var(--s2),var(--green-lt));position:relative;}
-.fm-gear{font-size:2.4rem;animation:spin 3s linear infinite;display:block;margin-bottom:6px;}
-.fm-name{font-family:var(--fh);font-size:.9rem;font-weight:700;color:var(--green);}
-.fm-arrow{font-size:1.4rem;color:var(--text3);padding:0 8px;animation:pulse 2s infinite;}
-.fm-input-row{display:flex;gap:8px;align-items:center;padding:14px 20px;border-top:1.5px solid var(--border);background:var(--s2);}
-.fm-input{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--fc);font-size:.85rem;color:var(--text);width:120px;outline:none;transition:border-color .2s;}
-.fm-input:focus{border-color:var(--green);}
-.fm-run{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--green),var(--teal));color:white;border:none;border-radius:8px;padding:8px 18px;font-family:var(--fh);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .18s;}
-.fm-run:hover{opacity:.88;transform:translateY(-1px);}
-.fm-result{font-family:var(--fh);font-size:1.3rem;font-weight:700;color:var(--green);flex:1;text-align:right;}
+/* PARAM PLAYGROUND */
+.param-playground { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin: 18px 0; box-shadow: var(--shadow); }
+.pp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.pp-field { display: flex; flex-direction: column; gap: 5px; }
+.pp-label { font-family: var(--mono); font-size: 0.65rem; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; }
+.pp-input, .pp-select { background: #b8d8fc; border: 1px solid #89b9e8; border-radius: 8px; padding: 8px 12px; font-family: var(--mono); font-size: 0.85rem; outline: none; color: #0a0a2a; }
+.pp-input:focus, .pp-select:focus { border-color: var(--primary); }
+.pp-eq { font-family: var(--mono); font-size: 0.85rem; color: var(--accent); margin-bottom: 12px; }
+.pp-output { background: #b8d8fc; border-radius: 8px; padding: 12px 16px; font-family: var(--mono); font-size: 0.85rem; color: #0a0a2a; border: 1px solid #89b9e8; }
 
-/* ── Step Executor ── */
-.step-exec{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin:18px 0;box-shadow:var(--shadow-sm);}
-.se-header{padding:14px 18px;background:linear-gradient(135deg,var(--code-bg),#122a1a);display:flex;align-items:center;justify-content:space-between;}
-.se-title{font-family:var(--fh);font-size:.88rem;font-weight:600;color:#a0e8b8;}
-.se-controls{display:flex;gap:8px;}
-.se-btn{padding:6px 14px;border-radius:7px;border:1px solid rgba(22,160,94,.3);background:rgba(22,160,94,.12);color:#6de8a0;font-family:var(--fc);font-size:.75rem;cursor:pointer;transition:all .18s;}
-.se-btn:hover{background:rgba(22,160,94,.25);}
-.se-btn.reset{border-color:rgba(224,120,48,.3);background:rgba(224,120,48,.12);color:#f0a060;}
-.se-lines{background:var(--code-bg);}
-.se-line{display:flex;align-items:center;padding:4px 0;transition:all .25s;cursor:pointer;}
-.se-line:hover{background:rgba(255,255,255,.03);}
-.se-line.active{background:rgba(22,160,94,.15);}
-.se-line.executed{background:rgba(22,160,94,.06);}
-.se-ln{font-family:var(--fc);font-size:.72rem;color:rgba(120,160,130,.4);min-width:36px;text-align:right;padding:0 10px;user-select:none;}
-.se-arrow{font-size:.75rem;min-width:20px;text-align:center;color:transparent;transition:color .2s;}
-.se-line.active .se-arrow{color:var(--green);}
-.se-code{font-family:var(--fc);font-size:.84rem;padding:2px 0;color:#c0e8d0;flex:1;}
-.se-info{padding:12px 18px;background:rgba(22,160,94,.08);border-top:1px solid rgba(22,160,94,.15);font-family:var(--fn);font-size:.82rem;color:#6de8a0;min-height:40px;transition:all .3s;}
-.se-var-table{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
-.se-var{background:rgba(22,160,94,.15);border:1px solid rgba(22,160,94,.25);border-radius:7px;padding:4px 10px;font-family:var(--fc);font-size:.76rem;}
-.se-var .vn{color:rgba(168,232,112,.8);}.se-var .vv{color:#f5d860;}
+/* RETURN FLOW */
+.return-viz { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin: 16px 0; }
+.rv-flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.rv-block { border-radius: 10px; padding: 12px 18px; text-align: center; font-family: var(--mono); font-size: 0.8rem; transition: all .3s; }
+.rv-block.fn-call { background: var(--primary-light); border: 1px solid var(--border2); }
+.rv-block.processing { background: var(--accent-light); border: 1px solid var(--border); }
+.rv-block.returns { background: var(--purple-light); border: 1px solid var(--border); }
+.rv-block.stored { background: var(--warn-light); border: 1px solid #fde68a; }
+.rv-arrow { font-size: 1.2rem; color: var(--text3); }
 
-/* ── Scope Visualizer ── */
-.scope-viz{background:var(--code-bg);border-radius:var(--r);padding:22px;margin:16px 0;box-shadow:0 8px 32px rgba(0,0,0,.2);}
-.sv-zone{border-radius:10px;padding:14px 16px;margin:8px 0;border:2px solid;}
-.sv-zone.global{border-color:rgba(22,160,94,.5);background:rgba(22,160,94,.06);}
-.sv-zone.local{border-color:rgba(29,114,194,.5);background:rgba(29,114,194,.08);margin-left:24px;}
-.sv-lbl{font-family:var(--fc);font-size:.72rem;margin-bottom:8px;}
-.sv-lbl.g{color:rgba(93,200,120,.7);}
-.sv-lbl.l{color:rgba(93,160,224,.7);}
-.sv-vars{display:flex;flex-wrap:wrap;gap:8px;}
-.sv-var{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:6px 12px;font-family:var(--fc);font-size:.8rem;}
-.sv-var .k{color:#7ae890;}.sv-var .v{color:#f5d860;}
-.sv-click-hint{font-family:var(--fc);font-size:.68rem;color:rgba(120,160,130,.5);text-align:center;margin-top:10px;}
+/* SCOPE VIZ */
+.scope-viz { background: #b8d8fc; border-radius: var(--radius); padding: 22px; margin: 16px 0; border: 1px solid #89b9e8; }
+.sv-zone { border-radius: 10px; padding: 14px 16px; margin: 8px 0; border: 2px solid; }
+.sv-zone.global { border-color: rgba(5,150,105,.5); background: rgba(5,150,105,.08); }
+.sv-zone.local { border-color: rgba(37,99,235,.5); background: rgba(37,99,235,.08); margin-left: 24px; }
+.sv-lbl { font-family: var(--mono); font-size: 0.7rem; margin-bottom: 8px; }
+.sv-vars { display: flex; flex-wrap: wrap; gap: 8px; }
+.sv-var { background: rgba(255,255,255,.7); border: 1px solid rgba(0,0,0,.12); border-radius: 7px; padding: 6px 12px; font-family: var(--mono); font-size: 0.75rem; color: #0a0a2a; }
+.sv-var .k { color: #7c3aed; font-weight: bold; }
+.sv-var .v { color: #d97706; }
 
-/* ── Param Playground ── */
-.param-playground{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:22px;margin:18px 0;box-shadow:var(--shadow-sm);}
-.pp-title{font-family:var(--fh);font-size:.9rem;font-weight:700;margin-bottom:14px;color:var(--text);}
-.pp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
-.pp-field{display:flex;flex-direction:column;gap:5px;}
-.pp-label{font-family:var(--fc);font-size:.67rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;}
-.pp-input{background:var(--s2);border:1.5px solid var(--border);border-radius:9px;padding:9px 14px;font-family:var(--fc);font-size:.85rem;color:var(--text);outline:none;transition:border-color .2s;}
-.pp-input:focus{border-color:var(--green);}
-.pp-select{background:var(--s2);border:1.5px solid var(--border);border-radius:9px;padding:9px 12px;font-family:var(--fc);font-size:.82rem;color:var(--text);outline:none;cursor:pointer;}
-.pp-output{background:var(--code-bg);border-radius:10px;padding:14px 18px;font-family:var(--fc);font-size:.85rem;color:#a8e870;line-height:2;min-height:54px;transition:all .3s;}
-.pp-eq{font-family:var(--fc);font-size:.82rem;color:rgba(160,232,176,.7);margin-bottom:8px;}
+/* LAMBDA BUILDER */
+.lambda-builder { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin: 18px 0; }
+.lb-parts { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.lb-part { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.lb-part-lbl { font-family: var(--mono); font-size: 0.6rem; color: var(--text3); text-transform: uppercase; }
+.lb-part-input { background: #b8d8fc; border: 1px solid #89b9e8; border-radius: 8px; padding: 8px 12px; font-family: var(--mono); font-size: 0.85rem; width: 100px; text-align: center; outline: none; color: #0a0a2a; }
+.lb-kw { font-family: var(--mono); font-size: 1rem; font-weight: 700; color: var(--primary); }
+.lb-preview { background: #b8d8fc; border-radius: 8px; padding: 12px 16px; font-family: var(--mono); font-size: 0.85rem; color: #0a0a2a; margin-bottom: 10px; border: 1px solid #89b9e8; }
+.lb-result-wrap { background: var(--accent-light); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; color: var(--accent-dark); }
 
-/* ── Return Value Visualizer ── */
-.return-viz{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:20px;margin:16px 0;box-shadow:var(--shadow-sm);}
-.rv-flow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
-.rv-block{border-radius:10px;padding:12px 18px;text-align:center;font-family:var(--fc);font-size:.82rem;transition:all .3s;}
-.rv-block.fn-call{background:var(--blue-lt);border:1.5px solid var(--border2);color:var(--blue-dk);}
-.rv-block.processing{background:var(--green-lt);border:1.5px solid var(--border);color:var(--green-dk);}
-.rv-block.returns{background:var(--code-bg);border:1.5px solid rgba(22,160,94,.3);color:#7ae890;}
-.rv-block.stored{background:#fff8e0;border:1.5px solid #f0c840;color:#7a5500;}
-.rv-arrow{font-size:1.2rem;color:var(--text3);animation:pulse 2s infinite;}
-.rv-block.active{animation:glowPulse .8s ease infinite;}
+/* RECURSION VIZ */
+.rec-stack { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; }
+.rec-item { background: rgba(5,150,105,.08); border: 1px solid rgba(5,150,105,.2); border-radius: 8px; padding: 8px 14px; font-family: var(--mono); font-size: 0.75rem; transition: all .2s; }
+.rec-item.active { background: rgba(5,150,105,.2); border-color: var(--accent); }
 
-/* ── Analogy cards ── */
-.analogy-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:20px;display:flex;gap:18px;align-items:flex-start;box-shadow:var(--shadow-sm);margin:16px 0;transition:all .2s;}
-.analogy-card:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
-.ac-icon{font-size:2.6rem;flex-shrink:0;line-height:1;}
-.ac-body h4{font-family:var(--fh);font-size:.95rem;font-weight:600;margin-bottom:6px;color:var(--text);}
-.ac-body p{font-size:.85rem;color:var(--text2);margin:0;}
+/* EXERCISE CARD */
+.ex-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 18px; }
+.ex-badge { display: inline-flex; gap: 6px; align-items: center; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; background: var(--accent-light); color: var(--accent-dark); }
+.ex-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.ex-desc { font-size: 13px; color: var(--text2); margin-bottom: 16px; line-height: 1.7; }
+.sol-toggle { font-size: 12px; font-weight: 600; color: var(--primary); cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 0; border: none; background: none; font-family: var(--font); }
+.sol-toggle:hover { color: var(--primary-dark); }
+.solution { display: none; margin-top: 12px; }
+.solution.open { display: block; animation: revealOut .25s ease; }
 
-/* ── Click-reveal cards ── */
-.reveal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin:18px 0;}
-.reveal-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm);}
-.reveal-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);}
-.rc-front{padding:20px;text-align:center;}
-.rc-front .rc-emoji{font-size:2rem;display:block;margin-bottom:8px;}
-.rc-front h4{font-family:var(--fh);font-size:.88rem;font-weight:600;margin-bottom:4px;}
-.rc-front p{font-size:.76rem;color:var(--text3);margin:0;}
-.rc-back{padding:14px;background:var(--green-lt);border-top:1.5px solid var(--border);display:none;font-family:var(--fc);font-size:.76rem;line-height:1.7;color:var(--green-dk);}
-.reveal-card.open .rc-back{display:block;animation:fadeIn .3s ease;}
-.reveal-card.open{border-color:var(--green);}
-.reveal-card.open .rc-front{background:var(--s2);}
-.reveal-hint{font-family:var(--fc);font-size:.67rem;color:var(--text3);text-align:center;margin-top:-6px;margin-bottom:14px;}
+/* QUIZ */
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 28px; }
+.qp-dot { flex: 1; height: 4px; background: var(--border); border-radius: 2px; transition: background .3s; }
+.qp-dot.correct { background: var(--accent); }
+.qp-dot.wrong { background: var(--coral); }
+.q-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; min-height: 320px; }
+.q-badge { font-family: var(--mono); font-size: 0.7rem; color: var(--text3); margin-bottom: 10px; }
+.q-text { font-family: var(--font); font-size: 1.1rem; font-weight: 700; margin-bottom: 24px; line-height: 1.4; }
+.q-options { display: flex; flex-direction: column; gap: 10px; }
+.q-opt { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 18px; text-align: left; font-size: 0.95rem; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 12px; }
+.q-opt:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-light); transform: translateX(3px); }
+.q-opt-letter { width: 26px; height: 26px; border-radius: 6px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.7rem; color: var(--text3); flex-shrink: 0; }
+.q-opt.correct { border-color: var(--accent); background: rgba(5,150,105,0.1); color: var(--accent-dark); }
+.q-opt.correct .q-opt-letter { background: var(--accent); color: #fff; }
+.q-opt.wrong { border-color: var(--coral); background: rgba(225,29,72,0.1); color: var(--coral); }
+.q-opt.wrong .q-opt-letter { background: var(--coral); color: #fff; }
+.q-opt:disabled { cursor: default; }
+.q-feedback { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-family: var(--mono); font-size: 0.8rem; display: none; }
+.q-feedback.show { display: block; }
+.q-feedback.correct { background: rgba(5,150,105,0.12); color: var(--accent-dark); border: 1px solid rgba(5,150,105,0.3); }
+.q-feedback.wrong { background: rgba(225,29,72,0.1); color: var(--coral); border: 1px solid #fecdd3; }
+.quiz-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; }
+.qnav-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 20px; font-family: var(--font); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all .15s; color: var(--text2); }
+.qnav-btn:hover { border-color: var(--text3); }
+.qnav-btn.primary { background: var(--primary); color: #fff; border-color: transparent; }
+.qnav-btn:disabled { opacity: .3; cursor: not-allowed; }
+.quiz-result { display: none; text-align: center; padding: 40px 20px; }
+.quiz-result.show { display: block; }
+.qr-emoji { font-size: 4rem; display: block; margin-bottom: 16px; }
+.qr-score { font-family: var(--font); font-size: 3rem; font-weight: 800; color: var(--primary); line-height: 1; margin-bottom: 8px; }
+.qr-sub { color: var(--text2); font-size: 0.9rem; margin-bottom: 28px; }
+.qr-breakdown { display: flex; gap: 20px; justify-content: center; margin-bottom: 28px; }
+.qrb-item { text-align: center; }
+.qrb-val { font-family: var(--font); font-size: 1.5rem; font-weight: 800; }
+.qrb-val.c { color: var(--accent); }
+.qrb-val.w { color: var(--coral); }
+.retry-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 11px 28px; font-family: var(--font); font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all .15s; margin-right: 10px; }
+.retry-btn:hover { border-color: var(--primary); color: var(--primary); }
 
-/* ── Lambda builder ── */
-.lambda-builder{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:22px;margin:18px 0;box-shadow:var(--shadow-sm);}
-.lb-title{font-family:var(--fh);font-size:.9rem;font-weight:700;margin-bottom:14px;}
-.lb-parts{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
-.lb-kw{font-family:var(--fh);font-size:1rem;font-weight:700;color:var(--green);padding:8px 0;}
-.lb-colon{font-family:var(--fh);font-size:1.2rem;color:var(--text3);padding:0 2px;}
-.lb-part{display:flex;flex-direction:column;align-items:center;gap:4px;}
-.lb-part-lbl{font-family:var(--fc);font-size:.6rem;color:var(--text3);text-transform:uppercase;}
-.lb-part-input{background:var(--s2);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--fc);font-size:.88rem;color:var(--text);width:100px;outline:none;text-align:center;transition:border-color .2s;}
-.lb-part-input:focus{border-color:var(--green);}
-.lb-preview{background:var(--code-bg);border-radius:9px;padding:12px 16px;font-family:var(--fc);font-size:.88rem;color:#c0e8d0;margin-bottom:10px;}
-.lb-preview .hl{color:var(--yellow);}
-.lb-result-wrap{background:var(--green-lt);border:1px solid var(--border);border-radius:9px;padding:12px 16px;font-family:var(--fn);font-size:.9rem;font-weight:700;color:var(--green-dk);min-height:44px;transition:all .3s;}
+/* COMPLETE */
+.complete-wrap { text-align: center; max-width: 520px; margin: 0 auto; padding: 20px 0; }
+.complete-icon { width: 100px; height: 100px; background: rgba(37,99,235,0.1); border: 2px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 24px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.skills-learnt { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0 32px; }
+.skill-badge { background: var(--surface2); border: 1px solid var(--border); border-radius: 50px; padding: 6px 16px; font-family: var(--mono); font-size: 0.75rem; color: var(--text2); display: flex; align-items: center; gap: 6px; }
+.skill-badge .check { color: var(--accent); }
+.cert-btn { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: none; border-radius: 12px; padding: 14px 32px; font-family: var(--font); font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; }
+.cert-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,99,235,.3); }
 
-/* Training animation */
-.train-steps{display:flex;flex-direction:column;gap:0;}
-.ts-item{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:.82rem;color:var(--text2);}
-.ts-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;flex-shrink:0;transition:all .3s;}
-.ts-item.pending .ts-icon{background:var(--border);color:var(--text3);}
-.ts-item.running .ts-icon{background:var(--yellow);color:#7a5500;animation:spin .8s linear infinite;}
-.ts-item.done .ts-icon{background:var(--green);color:white;}
-.ts-item.done{color:var(--green-dk);}
-.ts-bar-wrap{height:7px;background:var(--s3);border-radius:4px;overflow:hidden;margin-top:10px;}
-.ts-bar{height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:4px;transition:width .12s linear;}
-
-/* Author footer */
-.author-footer{margin-top:28px;padding-top:20px;border-top:1.5px solid var(--border);text-align:center;}
-.af-label{font-family:var(--fc);font-size:.61rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:9px;}
-.af-inner{display:inline-flex;align-items:center;gap:14px;}
-.af-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:1.2rem;font-weight:700;color:white;box-shadow:0 4px 14px var(--green-glow);}
-
-/* Mobile */
-@media(max-width:700px){
-  #app{grid-template-columns:1fr;grid-template-areas:"nav" "main";}
-  #side{display:none;}
-  .page{padding:24px 18px;}
-  .g2,.g3{grid-template-columns:1fr;}
-  .fn-machine-inner{flex-direction:column;}
-  .fm-io.input{border-right:none;border-bottom:1.5px solid var(--border2);}
-  .fm-io.output{border-left:none;border-top:1.5px solid var(--border);}
-  .nav-progress-wrap,.nav-learner{display:none;}
+/* RESPONSIVE */
+@media (max-width: 800px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; padding: 24px 20px; }
+  .hero h1 { font-size: 32px; }
+  .pp-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 <body>
-<div id="app">
 
-<!-- ════ HEADER / TOP NAV ════ -->
-<header id="nav">
-  <!-- Exact branding as required -->
-  <div class="nav-logo">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <img src="logo.png" alt="HCL-GUVI Logo" class="nav-logo-img"
-           onerror="this.style.display='none';document.getElementById('logofb').style.display='flex';"
-           style="height:40px;object-fit:contain;"/>
-      <div class="nav-logo-fb" id="logofb" style="display:none;">🐍</div>
+<header class="app-header">
+  <div class="header-left">
+    <div class="logo-area">
+      <img src="logo.png" alt="Logo" style="height:36px; width:auto; object-fit:contain;">
+      <div class="logo-badge">⚙️</div>
+      <div>
+        <div class="logo-text">Python for Beginners</div>
+        <div class="logo-sub">Functions</div>
+      </div>
     </div>
-    <div class="nav-logo-txt">
-      <div class="nav-logo-name">HCL-GUVI</div>
-      <div class="nav-logo-sub">Python for Beginners</div>
+    <div class="header-divider"></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="module-badge">Module 7</div>
+      <div class="module-title">Functions in Python</div>
     </div>
   </div>
-  <div class="nav-div"></div>
-  <div class="nav-module">
-    <div class="nav-module-tag">Module 07</div>
-    <div class="nav-module-name">Functions in Python</div>
-  </div>
-  <div class="nav-sep"></div>
-  <div class="nav-progress-wrap">
-    <div class="nav-progress-row"><span>Progress</span><span id="navPct">0%</span></div>
-    <div class="nav-progress-bar"><div class="nav-progress-fill" id="navFill" style="width:0%"></div></div>
-  </div>
-  <div class="nav-learner">
-    <div class="nl-av">V</div>
-    <div><div class="nl-name">Vinodhini</div><div class="nl-role">Data Scientist · HCL GUVI</div></div>
+  <div class="header-right">
+    <div class="progress-wrap">
+      <span class="progress-label">Progress</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
   </div>
 </header>
 
-<!-- ════ SIDEBAR ════ -->
-<aside id="side">
-  <div class="side-section">Module 07</div>
-  <div class="side-item active" data-p="0" onclick="gp(0)"><span class="si-icon">🏠</span>Welcome<span class="si-check">✓</span></div>
-  <div class="side-item" data-p="1" onclick="gp(1)"><span class="si-icon">🔧</span>What is a Function?<span class="si-check">✓</span></div>
-  <div class="side-item" data-p="2" onclick="gp(2)"><span class="si-icon">📥</span>Parameters &amp; Arguments<span class="si-check">✓</span></div>
-  <div class="side-item" data-p="3" onclick="gp(3)"><span class="si-icon">📤</span>Return Values<span class="si-check">✓</span></div>
-  <div class="side-item" data-p="4" onclick="gp(4)"><span class="si-icon">🌍</span>Scope &amp; Variables<span class="si-check">✓</span></div>
-  <div class="side-item" data-p="5" onclick="gp(5)"><span class="si-icon">⚡</span>Advanced: Lambda &amp; Recursion<span class="si-check">✓</span></div>
-  <div class="side-divider"></div>
-  <div class="side-section">Practice</div>
-  <div class="side-item" data-p="6" onclick="gp(6)"><span class="si-icon">✏️</span>Exercises<span class="si-check">✓</span></div>
-  <div class="side-item" data-p="7" onclick="gp(7)"><span class="si-icon">🧠</span>Quiz<span class="si-check">✓</span></div>
-  <div class="side-item" data-p="8" onclick="gp(8)"><span class="si-icon">🎉</span>Completion<span class="si-check">✓</span></div>
-  <div class="side-credits">
-    <div class="sc-inner">
-      <div class="sc-lbl">Created by</div>
-      <div class="sc-av">V</div>
-      <div class="sc-name">Vinodhini</div>
-      <div class="sc-title">Data Scientist</div>
-      <div class="sc-org">🏢 HCL GUVI</div>
-    </div>
-  </div>
-</aside>
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-section">Module 7</div>
+  <button class="nav-item active" onclick="goTo(0)" id="nav-0"><span class="nav-icon">🏠</span>Welcome<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(1)" id="nav-1"><span class="nav-icon">🔧</span>What is a Function?<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(2)" id="nav-2"><span class="nav-icon">📥</span>Parameters & Args<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(3)" id="nav-3"><span class="nav-icon">📤</span>Return Values<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(4)" id="nav-4"><span class="nav-icon">🌍</span>Scope<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(5)" id="nav-5"><span class="nav-icon">⚡</span>Lambda & Recursion<span class="nav-check">✓</span></button>
+  <div class="sidebar-section">Practice</div>
+  <button class="nav-item" onclick="goTo(6)" id="nav-6"><span class="nav-icon">✏️</span>Exercises<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(7)" id="nav-7"><span class="nav-icon">🧠</span>Quiz<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(8)" id="nav-8"><span class="nav-icon">🎉</span>Complete!<span class="nav-check">✓</span></button>
+</nav>
 
-<!-- ════ MAIN CONTENT ════ -->
-<main id="main">
+<main class="main-content" id="mainContent">
 
-<!-- ░░░ PAGE 0 — WELCOME ░░░ -->
-<div class="page active" id="page-0">
-  <span style="font-size:5rem;display:block;margin-bottom:16px;animation:float 3s ease-in-out infinite;line-height:1;">⚙️</span>
-  <div class="ptag">Module 07 · Python for Beginners</div>
-  <h1>Functions<br><span style="color:var(--green)">in Python</span></h1>
-  <p style="font-size:1.05rem;max-width:520px;margin:16px 0 28px;">Write code once, use it everywhere. Functions are the building blocks of every real Python program — from simple scripts to AI models.</p>
-  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:32px;" class="stg">
-    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:50px;padding:6px 16px;font-family:var(--fc);font-size:.73rem;color:var(--text2);display:flex;align-items:center;gap:6px;box-shadow:var(--shadow-sm);">📖 6 Lessons</div>
-    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:50px;padding:6px 16px;font-family:var(--fc);font-size:.73rem;color:var(--text2);display:flex;align-items:center;gap:6px;box-shadow:var(--shadow-sm);">🎮 8 Interactive Demos</div>
-    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:50px;padding:6px 16px;font-family:var(--fc);font-size:.73rem;color:var(--text2);display:flex;align-items:center;gap:6px;box-shadow:var(--shadow-sm);">✏️ 3 Exercises</div>
-    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:50px;padding:6px 16px;font-family:var(--fc);font-size:.73rem;color:var(--text2);display:flex;align-items:center;gap:6px;box-shadow:var(--shadow-sm);">🧠 5-Q Quiz</div>
-    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:50px;padding:6px 16px;font-family:var(--fc);font-size:.73rem;color:var(--text2);display:flex;align-items:center;gap:6px;box-shadow:var(--shadow-sm);">⏱️ ~35 min</div>
-  </div>
-  <div style="display:flex;gap:32px;flex-wrap:wrap;margin-bottom:32px;" class="stg">
-    <div><div style="font-family:var(--fh);font-size:2rem;font-weight:700;color:var(--green);line-height:1;">def</div><div style="font-family:var(--fc);font-size:.68rem;color:var(--text3);">The magic keyword</div></div>
-    <div><div style="font-family:var(--fh);font-size:2rem;font-weight:700;color:var(--green);line-height:1;">DRY</div><div style="font-family:var(--fc);font-size:.68rem;color:var(--text3);">Don't Repeat Yourself</div></div>
-    <div><div style="font-family:var(--fh);font-size:2rem;font-weight:700;color:var(--green);line-height:1;">∞</div><div style="font-family:var(--fc);font-size:.68rem;color:var(--text3);">Reusable forever</div></div>
-  </div>
-  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-top:24px;border-top:1.5px solid var(--border);" class="stg">
-    <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:1.3rem;font-weight:700;color:white;box-shadow:0 4px 14px var(--green-glow);flex-shrink:0;">V</div>
-    <div><div style="font-family:var(--fc);font-size:.61rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">Course Author</div><div style="font-family:var(--fh);font-size:1.05rem;font-weight:700;color:var(--green);">Vinodhini</div><div style="font-family:var(--fc);font-size:.73rem;color:var(--text2);">Data Scientist · HCL GUVI</div></div>
-  </div>
-  <div class="page-bottom-bar"><div></div><button class="btn-nav btn-next" onclick="gp(1)">Let's Begin →</button></div>
-</div>
-
-<!-- ░░░ PAGE 1 — WHAT IS A FUNCTION ░░░ -->
-<div class="page" id="page-1">
-  <div class="ph">
-    <div class="ptag">Concept 1</div>
-    <h2>What is a Function?</h2>
-    <p>A function is a <strong>named, reusable block of code</strong> that performs a specific task. You define it once with <code>def</code> and call it as many times as you need.</p>
-  </div>
-
-  <!-- Analogy -->
-  <div class="analogy-card stg">
-    <div class="ac-icon">☕</div>
-    <div class="ac-body">
-      <h4>Real-Life Analogy: Coffee Machine</h4>
-      <p>A coffee machine is a function. You press a button (call the function), it grinds beans, heats water, and brews coffee (executes the body) — then gives you coffee (returns output). You don't re-wire it every time you want coffee!</p>
+<!-- PAGE 0: WELCOME -->
+<section class="page active" id="page-0">
+  <div class="hero">
+    <div class="hero-deco" style="position:absolute; right:40px; top:50%; font-size:100px; opacity:.07;">⚙️</div>
+    <div class="hero-tag">⭐ Module 7 of 12 · Python for Beginners</div>
+    <h1>Functions<br><em>in Python</em></h1>
+    <p>Write code once, use it everywhere. Functions are the building blocks of every real Python program — from simple scripts to AI models.</p>
+    <div class="hero-chips">
+      <span class="chip chip-blue">📖 6 Lessons</span>
+      <span class="chip chip-green">🎮 8 Interactive Demos</span>
+      <span class="chip chip-purple">✏️ 3 Exercises</span>
+      <span class="chip chip-blue">🧠 5 Questions</span>
     </div>
   </div>
 
-  <!-- Interactive Function Machine -->
-  <h3 style="margin:22px 0 10px;font-size:.95rem;">🎮 Interactive Function Machine</h3>
+  <div class="card">
+    <div class="section-tag">🎯 What You'll Learn</div>
+    <div class="welcome-grid">
+      <div class="welcome-card" onclick="goTo(1)"><div class="welcome-card-icon">🔧</div><div class="welcome-card-title">def & Calling</div><div class="welcome-card-desc">Create and use functions</div></div>
+      <div class="welcome-card" onclick="goTo(2)"><div class="welcome-card-icon">📥</div><div class="welcome-card-title">Parameters</div><div class="welcome-card-desc">Pass data into functions</div></div>
+      <div class="welcome-card" onclick="goTo(3)"><div class="welcome-card-icon">📤</div><div class="welcome-card-title">Return Values</div><div class="welcome-card-desc">Get results back</div></div>
+      <div class="welcome-card" onclick="goTo(4)"><div class="welcome-card-icon">🌍</div><div class="welcome-card-title">Scope</div><div class="welcome-card-desc">Local vs Global</div></div>
+      <div class="welcome-card" onclick="goTo(5)"><div class="welcome-card-icon">⚡</div><div class="welcome-card-title">Lambda & Recursion</div><div class="welcome-card-desc">Advanced techniques</div></div>
+    </div>
+  </div>
+
+  <div class="card card-green">
+    <div class="section-tag">✅ Prerequisites</div>
+    <div class="prereq-list" style="display:flex; flex-direction:column; gap:8px;">
+      <div style="display:flex; align-items:center; gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;">✓</div> Variables & Data Types</div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;">✓</div> Operators & Expressions</div>
+    </div>
+  </div>
+
+  <div class="info-box blue"><span class="info-icon">💡</span><div class="info-text"><strong>Why functions?</strong> They let you write code once and reuse it anywhere. This is called the DRY principle: Don't Repeat Yourself!</div></div>
+  <div class="page-nav"><span></span><button class="btn btn-primary" onclick="goTo(1)">Start Learning →</button></div>
+</section>
+
+<!-- PAGE 1: WHAT IS A FUNCTION -->
+<section class="page" id="page-1">
+  <div class="section-tag">📘 Concept 1</div>
+  <div class="page-h2">What is a Function?</div>
+  <div class="page-subtitle">A named, reusable block of code that performs a specific task.</div>
+
+  <div class="analogy-card"><div class="analogy-icon">☕</div><div><div class="analogy-title">Real-Life Analogy: Coffee Machine</div><div class="info-text">A coffee machine is a function. You press a button (call the function), it processes (executes the body), and gives you coffee (returns output). You don't re-wire it every time!</div></div></div>
+
   <div class="fn-machine">
     <div class="fn-machine-inner">
-      <div class="fm-io input">
-        <div class="fm-lbl">Input (Parameter)</div>
-        <div class="fm-box" id="fmInput">—</div>
-      </div>
-      <div class="fm-arrow">→</div>
-      <div class="fm-center">
-        <span class="fm-gear">⚙️</span>
-        <div class="fm-name">greet(name)</div>
-        <div style="font-family:var(--fc);font-size:.7rem;color:var(--text3);margin-top:4px;">def greet(name):<br>&nbsp;&nbsp;return "Hello, " + name</div>
-      </div>
-      <div class="fm-arrow">→</div>
-      <div class="fm-io output">
-        <div class="fm-lbl">Output (Return value)</div>
-        <div class="fm-box" id="fmOutput">—</div>
-      </div>
+      <div class="fm-io input"><div class="fm-lbl">Input</div><div class="fm-box" id="fmInput">—</div></div>
+      <div class="fm-center"><span class="fm-gear">⚙️</span><div class="fm-name">greet(name)</div><div style="font-size:0.7rem;" id="fmDef">def greet(name):<br>&nbsp;&nbsp;return "Hello, " + name</div></div>
+      <div class="fm-io output"><div class="fm-lbl">Output</div><div class="fm-box" id="fmOutput">—</div></div>
     </div>
-    <div class="fm-input-row">
-      <span style="font-family:var(--fc);font-size:.78rem;color:var(--text3);">Enter a name:</span>
-      <input class="fm-input" id="fmNameInput" type="text" value="Alice" placeholder="e.g. Alice"/>
-      <button class="fm-run" onclick="runMachine()">▶ Call greet()</button>
-      <div class="fm-result" id="fmResult"></div>
-    </div>
+    <div class="fm-input-row"><span>Enter a name:</span><input class="fm-input" id="fmNameInput" value="Alice"><button class="fm-run" onclick="runMachine()">▶ Call greet()</button><div id="fmResult" style="font-family:var(--mono);color:var(--accent);"></div></div>
   </div>
 
-  <!-- Code + Demo -->
-  <div class="cb stg">
-    <div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-filename">functions_basic.py</span></div>
-    <div class="cb-body"><pre><span class="cm"># Define a function using 'def'</span>
-<span class="kw">def</span> <span class="fn">greet</span>(name):
-    <span class="kw">return</span> <span class="st">"Hello, "</span> + name + <span class="st">"! Welcome to Python."</span>
-
-<span class="cm"># Call the function (reuse it!)</span>
-<span class="fn">print</span>(<span class="fn">greet</span>(<span class="st">"Alice"</span>))
-<span class="fn">print</span>(<span class="fn">greet</span>(<span class="st">"Bob"</span>))
-<span class="fn">print</span>(<span class="fn">greet</span>(<span class="st">"Vinodhini"</span>))</pre></div>
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">functions.py</span></div>
+    <span class="kw">def</span> <span class="fn">greet</span>(name):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> <span class="st">"Hello, "</span> + name<br><br>
+    <span class="fn">print</span>(<span class="fn">greet</span>(<span class="st">"Alice"</span>))<br>
+    <span class="fn">print</span>(<span class="fn">greet</span>(<span class="st">"Bob"</span>))
   </div>
-  <button class="run-btn" onclick="runDemo('demo1',['Hello, Alice! Welcome to Python.','Hello, Bob! Welcome to Python.','Hello, Vinodhini! Welcome to Python.'])">▶ Run Demo</button>
-  <div class="out-box" id="demo1"></div>
+  <button class="btn btn-run" onclick="toggleOutput('out1')">▶ Run Demo</button>
+  <div class="output-block" id="out1">Hello, Alice<br>Hello, Bob</div>
 
-  <!-- Step-by-step executor -->
-  <h3 style="margin:22px 0 10px;font-size:.95rem;">🔍 Step-by-Step Execution Visualizer</h3>
-  <div class="step-exec" id="seBasic">
-    <div class="se-header">
-      <span class="se-title">Execution Trace</span>
-      <div class="se-controls">
-        <button class="se-btn" onclick="seStep('seBasic')">▶ Next Step</button>
-        <button class="se-btn reset" onclick="seReset('seBasic')">↺ Reset</button>
-      </div>
-    </div>
-    <div class="se-lines">
-      <div class="se-line"><div class="se-ln">1</div><div class="se-arrow">→</div><div class="se-code"><span class="kw">def</span> <span class="fn">greet</span>(name):</div></div>
-      <div class="se-line"><div class="se-ln">2</div><div class="se-arrow">→</div><div class="se-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> <span class="st">"Hello, "</span> + name</div></div>
-      <div class="se-line"><div class="se-ln">3</div><div class="se-arrow">→</div><div class="se-code"><span class="cm"># ─── Calling the function ───</span></div></div>
-      <div class="se-line"><div class="se-ln">4</div><div class="se-arrow">→</div><div class="se-code">result = <span class="fn">greet</span>(<span class="st">"Alice"</span>)</div></div>
-      <div class="se-line"><div class="se-ln">5</div><div class="se-arrow">→</div><div class="se-code"><span class="fn">print</span>(result)</div></div>
-    </div>
-    <div class="se-info" id="seBasic-info">Click "Next Step" to walk through execution line by line.</div>
-    <div class="se-var-table" id="seBasic-vars"></div>
+  <div class="info-box blue"><span class="info-icon">💡</span><div class="info-text">The <code>def</code> keyword defines a function. The code inside runs only when you call the function by name!</div></div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(0)">← Back</button><button class="btn btn-primary" onclick="goTo(2)">Next: Parameters →</button></div>
+</section>
+
+<!-- PAGE 2: PARAMETERS & ARGUMENTS -->
+<section class="page" id="page-2">
+  <div class="section-tag">📘 Concept 2</div>
+  <div class="page-h2">Parameters &amp; Arguments</div>
+  <div class="page-subtitle">Parameters are the variables in the definition; arguments are the actual values you pass when calling.</div>
+
+  <div class="reveal-grid">
+    <div class="reveal-card" onclick="this.classList.toggle('open')"><div class="rc-front"><span class="rc-emoji">📋</span><h4>Positional</h4><p>Matched by position</p></div><div class="rc-back">def add(a, b): return a + b<br>add(3, 5)  # a=3, b=5</div></div>
+    <div class="reveal-card" onclick="this.classList.toggle('open')"><div class="rc-front"><span class="rc-emoji">🏷️</span><h4>Default Values</h4><p>Optional with fallbacks</p></div><div class="rc-back">def greet(name, msg="Hello"):<br>&nbsp;&nbsp;return msg + " " + name<br>greet("Alice")</div></div>
+    <div class="reveal-card" onclick="this.classList.toggle('open')"><div class="rc-front"><span class="rc-emoji">🔑</span><h4>Keyword Args</h4><p>Named, any order</p></div><div class="rc-back">def profile(name, age, city): pass<br>profile(age=25, name="Bob", city="NYC")</div></div>
+    <div class="reveal-card" onclick="this.classList.toggle('open')"><div class="rc-front"><span class="rc-emoji">📦</span><h4>*args</h4><p>Any number</p></div><div class="rc-back">def total(*nums): return sum(nums)<br>total(1,2,3,4,5)  # 15</div></div>
   </div>
 
-  <div class="tip">Functions follow the <strong>DRY principle</strong>: Don't Repeat Yourself. Instead of writing the same code 10 times, write it once as a function and call it 10 times.</div>
-
-  <div class="page-bottom-bar">
-    <button class="btn-nav btn-prev" onclick="gp(0)">← Back</button>
-    <button class="btn-nav btn-next" onclick="gp(2)">Parameters →</button>
-  </div>
-</div>
-
-<!-- ░░░ PAGE 2 — PARAMETERS & ARGUMENTS ░░░ -->
-<div class="page" id="page-2">
-  <div class="ph">
-    <div class="ptag">Concept 2</div>
-    <h2>Parameters &amp; Arguments</h2>
-    <p><strong>Parameters</strong> are the variables listed in the function definition. <strong>Arguments</strong> are the actual values you pass in when calling the function.</p>
-  </div>
-
-  <!-- Reveal cards -->
-  <h3 style="margin-bottom:8px;font-size:.95rem;">🃏 Click each card to explore parameter types</h3>
-  <div class="reveal-hint">Tap any card to see how it works in Python</div>
-  <div class="reveal-grid stg" id="paramCards">
-    <div class="reveal-card" onclick="toggleReveal(this)">
-      <div class="rc-front"><span class="rc-emoji">📋</span><h4>Positional</h4><p>Values matched by position</p></div>
-      <div class="rc-back">def add(a, b):<br>&nbsp;&nbsp;return a + b<br><br>add(3, 5)  # a=3, b=5</div>
-    </div>
-    <div class="reveal-card" onclick="toggleReveal(this)">
-      <div class="rc-front"><span class="rc-emoji">🏷️</span><h4>Default Values</h4><p>Optional params with fallbacks</p></div>
-      <div class="rc-back">def greet(name, msg="Hello"):<br>&nbsp;&nbsp;return msg + " " + name<br><br>greet("Alice")  # uses default</div>
-    </div>
-    <div class="reveal-card" onclick="toggleReveal(this)">
-      <div class="rc-front"><span class="rc-emoji">🔑</span><h4>Keyword Args</h4><p>Named values, any order</p></div>
-      <div class="rc-back">def profile(name, age, city):<br>&nbsp;&nbsp;pass<br><br>profile(age=25, name="Bob", city="NYC")</div>
-    </div>
-    <div class="reveal-card" onclick="toggleReveal(this)">
-      <div class="rc-front"><span class="rc-emoji">📦</span><h4>*args</h4><p>Any number of positional args</p></div>
-      <div class="rc-back">def total(*nums):<br>&nbsp;&nbsp;return sum(nums)<br><br>total(1,2,3,4,5)  # → 15</div>
-    </div>
-    <div class="reveal-card" onclick="toggleReveal(this)">
-      <div class="rc-front"><span class="rc-emoji">📚</span><h4>**kwargs</h4><p>Any number of keyword args</p></div>
-      <div class="rc-back">def info(**details):<br>&nbsp;&nbsp;for k,v in details.items():<br>&nbsp;&nbsp;&nbsp;&nbsp;print(k, ":", v)<br><br>info(name="Alice", age=25)</div>
-    </div>
-  </div>
-
-  <!-- Param Playground -->
-  <h3 style="margin:22px 0 10px;font-size:.95rem;">🎮 Parameter Playground — Build your own function call</h3>
   <div class="param-playground">
     <div class="pp-title">⚙️ def power(base, exponent=2, label="Result")</div>
     <div class="pp-grid">
-      <div class="pp-field">
-        <div class="pp-label">base (required)</div>
-        <input class="pp-input" id="pp-base" type="number" value="3" oninput="updateParamPlayground()"/>
-      </div>
-      <div class="pp-field">
-        <div class="pp-label">exponent (default=2)</div>
-        <input class="pp-input" id="pp-exp" type="number" value="2" oninput="updateParamPlayground()"/>
-      </div>
-      <div class="pp-field">
-        <div class="pp-label">label (default="Result")</div>
-        <input class="pp-input" id="pp-label" type="text" value="Result" oninput="updateParamPlayground()"/>
-      </div>
-      <div class="pp-field">
-        <div class="pp-label">Call style</div>
-        <select class="pp-select" id="pp-style" onchange="updateParamPlayground()">
-          <option value="pos">Positional</option>
-          <option value="kw">Keyword</option>
-          <option value="def">Use default</option>
-        </select>
-      </div>
+      <div class="pp-field"><div class="pp-label">base</div><input class="pp-input" id="pp-base" type="number" value="3" oninput="updateParamPlayground()"></div>
+      <div class="pp-field"><div class="pp-label">exponent</div><input class="pp-input" id="pp-exp" type="number" value="2" oninput="updateParamPlayground()"></div>
     </div>
-    <div class="pp-eq" id="pp-eq">power(3, 2, "Result")</div>
-    <div class="pp-output" id="pp-out">→ Result: 9</div>
+    <div class="pp-eq" id="pp-eq">power(3, 2)</div>
+    <div class="pp-output" id="pp-out">→ 9</div>
   </div>
 
-  <div class="cb stg">
-    <div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-filename">parameters.py</span></div>
-    <div class="cb-body"><pre><span class="cm"># Default parameters</span>
-<span class="kw">def</span> <span class="fn">introduce</span>(name, role=<span class="st">"Student"</span>, city=<span class="st">"India"</span>):
-    <span class="fn">print</span>(<span class="st">f"Hi! I'm {name}, a {role} from {city}."</span>)
-
-<span class="fn">introduce</span>(<span class="st">"Alice"</span>)                    <span class="cm"># uses defaults</span>
-<span class="fn">introduce</span>(<span class="st">"Bob"</span>, <span class="st">"Engineer"</span>)         <span class="cm"># overrides role</span>
-<span class="fn">introduce</span>(name=<span class="st">"Vinodhini"</span>, role=<span class="st">"Data Scientist"</span>, city=<span class="st">"Chennai"</span>)</pre></div>
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">parameters.py</span></div>
+    <span class="kw">def</span> <span class="fn">introduce</span>(name, role=<span class="st">"Student"</span>, city=<span class="st">"India"</span>):<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">f"Hi! I'm {name}, a {role} from {city}."</span>)<br><br>
+    <span class="fn">introduce</span>(<span class="st">"Alice"</span>)<br>
+    <span class="fn">introduce</span>(<span class="st">"Bob"</span>, <span class="st">"Engineer"</span>)
   </div>
-  <button class="run-btn" onclick="runDemo('demo2',[\"Hi! I'm Alice, a Student from India.\",\"Hi! I'm Bob, an Engineer from India.\",\"Hi! I'm Vinodhini, a Data Scientist from Chennai.\"])">▶ Run Demo</button>
-  <div class="out-box" id="demo2"></div>
+  <button class="btn btn-run" onclick="toggleOutput('out2')">▶ Run Demo</button>
+  <div class="output-block" id="out2">Hi! I'm Alice, a Student from India.<br>Hi! I'm Bob, an Engineer from India.</div>
 
-  <div class="tip">Default parameters must always come <strong>after</strong> required parameters. <code>def fn(required, optional="default")</code> ✅ — not the other way around.</div>
+  <div class="info-box warn"><span class="info-icon">⚠️</span><div class="info-text">Default parameters must come <strong>after</strong> required parameters. <code>def fn(required, optional="default")</code> ✅</div></div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(1)">← Back</button><button class="btn btn-primary" onclick="goTo(3)">Next: Return →</button></div>
+</section>
 
-  <div class="page-bottom-bar">
-    <button class="btn-nav btn-prev" onclick="gp(1)">← What is a Function?</button>
-    <button class="btn-nav btn-next" onclick="gp(3)">Return Values →</button>
+<!-- PAGE 3: RETURN VALUES -->
+<section class="page" id="page-3">
+  <div class="section-tag">📘 Concept 3</div>
+  <div class="page-h2">Return Values</div>
+  <div class="page-subtitle">The <code>return</code> statement sends a value back to where the function was called.</div>
+
+  <div class="analogy-card"><div class="analogy-icon">🏧</div><div><div class="analogy-title">Real-Life Analogy: ATM</div><div class="info-text">You input PIN and amount, the ATM processes, and <em>returns</em> your cash. Without return, the ATM just runs but gives you nothing!</div></div></div>
+
+  <div class="return-viz"><div class="rv-flow"><div class="rv-block fn-call">📞 Call add(3,4)</div><span class="rv-arrow">→</span><div class="rv-block processing">⚙️ 3+4</div><span class="rv-arrow">→</span><div class="rv-block returns">📦 return 7</div><span class="rv-arrow">→</span><div class="rv-block stored">💾 result = 7</div></div></div>
+
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">return_values.py</span></div>
+    <span class="kw">def</span> <span class="fn">add</span>(a, b):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> a + b<br><br>
+    result = <span class="fn">add</span>(<span class="nu">3</span>, <span class="nu">4</span>)<br>
+    <span class="fn">print</span>(result)       <span class="cm"># 7</span><br>
+    <span class="fn">print</span>(result * <span class="nu">2</span>) <span class="cm"># 14</span>
   </div>
-</div>
+  <button class="btn btn-run" onclick="toggleOutput('out3')">▶ Run Demo</button>
+  <div class="output-block" id="out3">7<br>14</div>
 
-<!-- ░░░ PAGE 3 — RETURN VALUES ░░░ -->
-<div class="page" id="page-3">
-  <div class="ph">
-    <div class="ptag">Concept 3</div>
-    <h2>Return Values</h2>
-    <p>The <code>return</code> statement sends a value <strong>back</strong> to wherever the function was called from. Without <code>return</code>, the function returns <code>None</code>.</p>
-  </div>
-
-  <div class="analogy-card stg">
-    <div class="ac-icon">🏧</div>
-    <div class="ac-body">
-      <h4>Real-Life Analogy: ATM Machine</h4>
-      <p>When you use an ATM, you input your PIN and amount (parameters). The machine processes it (function body) and <em>returns</em> your cash (return value). Without the return, the ATM just runs but gives you nothing!</p>
-    </div>
-  </div>
-
-  <!-- Return flow visualizer -->
-  <h3 style="margin:22px 0 10px;font-size:.95rem;">🔀 Return Value Flow — Click to animate</h3>
-  <div class="return-viz">
-    <div class="rv-flow" id="rvFlow">
-      <div class="rv-block fn-call" id="rv0">📞 Call<br><code style="font-size:.7rem;">add(3,4)</code></div>
-      <div class="rv-arrow">→</div>
-      <div class="rv-block processing" id="rv1">⚙️ Execute<br><code style="font-size:.7rem;">3 + 4</code></div>
-      <div class="rv-arrow">→</div>
-      <div class="rv-block returns" id="rv2">📦 return<br><code style="font-size:.7rem;">7</code></div>
-      <div class="rv-arrow">→</div>
-      <div class="rv-block stored" id="rv3">💾 Stored<br><code style="font-size:.7rem;">result = 7</code></div>
-    </div>
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-      <button class="run-btn" onclick="animateReturnFlow()">▶ Animate Flow</button>
-      <div style="font-family:var(--fc);font-size:.76rem;color:var(--text3);" id="rvMsg">Click to see how return value travels</div>
-    </div>
-  </div>
-
-  <div class="cb stg">
-    <div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-filename">return_values.py</span></div>
-    <div class="cb-body"><pre><span class="cm"># Function WITH return</span>
-<span class="kw">def</span> <span class="fn">add</span>(a, b):
-    <span class="kw">return</span> a + b
-
-result = <span class="fn">add</span>(<span class="nm">3</span>, <span class="nm">4</span>)
-<span class="fn">print</span>(result)      <span class="cm"># 7</span>
-<span class="fn">print</span>(result * <span class="nm">2</span>)  <span class="cm"># 14 — we can use the result!</span>
-
-<span class="cm"># Multiple return values (as tuple)</span>
-<span class="kw">def</span> <span class="fn">min_max</span>(numbers):
-    <span class="kw">return</span> <span class="fn">min</span>(numbers), <span class="fn">max</span>(numbers)
-
-lo, hi = <span class="fn">min_max</span>([<span class="nm">3</span>, <span class="nm">1</span>, <span class="nm">9</span>, <span class="nm">4</span>, <span class="nm">7</span>])
-<span class="fn">print</span>(<span class="st">f"Min: {lo}, Max: {hi}"</span>)  <span class="cm"># Min: 1, Max: 9</span></pre></div>
-  </div>
-  <button class="run-btn" onclick="runDemo('demo3',['7','14','Min: 1, Max: 9'])">▶ Run Demo</button>
-  <div class="out-box" id="demo3"></div>
-
-  <!-- Return calculator playground -->
-  <h3 style="margin:22px 0 10px;font-size:.95rem;">🎮 Calculator Function — Live return values</h3>
   <div class="param-playground">
     <div class="pp-title">🔢 def calculate(a, b, operation)</div>
     <div class="pp-grid">
-      <div class="pp-field"><div class="pp-label">Number A</div><input class="pp-input" id="calc-a" type="number" value="10" oninput="updateCalc()"/></div>
-      <div class="pp-field"><div class="pp-label">Number B</div><input class="pp-input" id="calc-b" type="number" value="3" oninput="updateCalc()"/></div>
-      <div class="pp-field"><div class="pp-label">Operation</div>
-        <select class="pp-select" id="calc-op" onchange="updateCalc()">
-          <option value="add">+ add</option><option value="sub">- subtract</option>
-          <option value="mul">× multiply</option><option value="div">÷ divide</option>
-          <option value="mod">% modulus</option><option value="pow">** power</option>
-        </select>
-      </div>
+      <div class="pp-field"><div class="pp-label">A</div><input class="pp-input" id="calc-a" type="number" value="10" oninput="updateCalc()"></div>
+      <div class="pp-field"><div class="pp-label">B</div><input class="pp-input" id="calc-b" type="number" value="3" oninput="updateCalc()"></div>
+      <div class="pp-field"><div class="pp-label">Operation</div><select class="pp-select" id="calc-op" onchange="updateCalc()"><option value="add">+ add</option><option value="sub">- subtract</option><option value="mul">× multiply</option></select></div>
     </div>
     <div class="pp-eq" id="calc-eq">calculate(10, 3, "add")</div>
     <div class="pp-output" id="calc-out">→ returns: 13</div>
   </div>
 
-  <div class="warn">A function without <code>return</code> implicitly returns <code>None</code>. Storing its result gives you <code>None</code>, not a useful value!</div>
+  <div class="info-box warn"><span class="info-icon">⚠️</span><div class="info-text">No <code>return</code>? The function returns <code>None</code>. Storing its result gives you None, not a useful value!</div></div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(2)">← Back</button><button class="btn btn-primary" onclick="goTo(4)">Next: Scope →</button></div>
+</section>
 
-  <div class="page-bottom-bar">
-    <button class="btn-nav btn-prev" onclick="gp(2)">← Parameters</button>
-    <button class="btn-nav btn-next" onclick="gp(4)">Scope →</button>
-  </div>
-</div>
+<!-- PAGE 4: SCOPE -->
+<section class="page" id="page-4">
+  <div class="section-tag">📘 Concept 4</div>
+  <div class="page-h2">Scope &amp; Variables</div>
+  <div class="page-subtitle">Scope determines where a variable can be accessed. Local (inside functions) vs Global (anywhere).</div>
 
-<!-- ░░░ PAGE 4 — SCOPE ░░░ -->
-<div class="page" id="page-4">
-  <div class="ph">
-    <div class="ptag">Concept 4</div>
-    <h2>Scope &amp; Variables</h2>
-    <p><strong>Scope</strong> determines where a variable can be accessed. Variables inside a function are <em>local</em> — they don't exist outside it. Variables outside are <em>global</em>.</p>
-  </div>
-
-  <div class="analogy-card stg">
-    <div class="ac-icon">🏠</div>
-    <div class="ac-body">
-      <h4>Real-Life Analogy: House Rooms</h4>
-      <p>Think of global variables as furniture in the living room — everyone in the house can see it. Local variables are like items in a locked bedroom — only the person in that room can use them, and they disappear when they leave.</p>
+  <div class="scope-viz">
+    <div class="sv-zone global"><div class="sv-lbl">🌍 GLOBAL SCOPE</div><div class="sv-vars"><div class="sv-var"><span class="k">message</span> = <span class="v">"Hello World"</span></div><div class="sv-var"><span class="k">count</span> = <span class="v">0</span></div></div>
+      <div class="sv-zone local" style="margin-top:12px;"><div class="sv-lbl">🔵 LOCAL SCOPE (inside function)</div><div class="sv-vars"><div class="sv-var"><span class="k">x</span> = <span class="v">10</span></div><div class="sv-var"><span class="k">y</span> = <span class="v">20</span></div></div><div style="font-size:0.7rem;color:#1e3a5f;margin-top:5px;">✅ Can see: x, y, message<br>❌ message read-only without global</div></div>
+      <div style="font-size:0.7rem;color:#1e4a5f;margin-top:8px;">✅ Can see: message, count<br>❌ Cannot see: x, y (local)</div>
     </div>
   </div>
 
-  <!-- Interactive Scope Visualizer -->
-  <h3 style="margin:22px 0 10px;font-size:.95rem;">🌍 Scope Visualizer — Click to toggle scopes</h3>
-  <div class="scope-viz" id="scopeViz">
-    <div class="sv-zone global" id="svGlobal">
-      <div class="sv-lbl g">🌍 GLOBAL SCOPE — accessible everywhere</div>
-      <div class="sv-vars" id="svGlobalVars">
-        <div class="sv-var"><span class="k">message</span> = <span class="v">"Hello World"</span></div>
-        <div class="sv-var"><span class="k">count</span> = <span class="v">0</span></div>
-      </div>
-      <div class="sv-zone local" id="svLocal" style="margin-top:12px;">
-        <div class="sv-lbl l">🔵 LOCAL SCOPE (inside my_function) — only here</div>
-        <div class="sv-vars" id="svLocalVars">
-          <div class="sv-var"><span class="k">x</span> = <span class="v">10</span></div>
-          <div class="sv-var"><span class="k">y</span> = <span class="v">20</span></div>
-          <div class="sv-var"><span class="k">result</span> = <span class="v">30</span></div>
-        </div>
-        <div style="font-family:var(--fc);font-size:.72rem;color:rgba(93,160,224,.6);margin-top:8px;">
-          ✅ Can see: x, y, result, message, count<br>
-          ❌ message is read-only unless global keyword used
-        </div>
-      </div>
-      <div style="font-family:var(--fc);font-size:.72rem;color:rgba(93,200,120,.6);margin-top:10px;">
-        ✅ Can see: message, count<br>
-        ❌ Cannot see: x, y, result (those are local)
-      </div>
-    </div>
-    <div class="sv-click-hint">The local scope lives only while the function runs, then vanishes!</div>
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">scope.py</span></div>
+    name = <span class="st">"Global Alice"</span><br>
+    <span class="kw">def</span> <span class="fn">show</span>():<br>&nbsp;&nbsp;&nbsp;&nbsp;name = <span class="st">"Local Bob"</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">f"Inside: {name}"</span>)<br>
+    <span class="fn">show</span>()<br>
+    <span class="fn">print</span>(<span class="st">f"Outside: {name}"</span>)
   </div>
+  <button class="btn btn-run" onclick="toggleOutput('out4')">▶ Run Demo</button>
+  <div class="output-block" id="out4">Inside: Local Bob<br>Outside: Global Alice</div>
 
-  <div class="cb stg">
-    <div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-filename">scope.py</span></div>
-    <div class="cb-body"><pre>name = <span class="st">"Global Alice"</span>    <span class="cm"># GLOBAL variable</span>
+  <div class="info-box blue"><span class="info-icon">💡</span><div class="info-text"><strong>Best practice:</strong> Avoid using global variables inside functions. Pass values as parameters and return results — this makes functions predictable and testable.</div></div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(3)">← Back</button><button class="btn btn-primary" onclick="goTo(5)">Next: Advanced →</button></div>
+</section>
 
-<span class="kw">def</span> <span class="fn">show_scope</span>():
-    name = <span class="st">"Local Bob"</span>   <span class="cm"># LOCAL variable — shadows global</span>
-    <span class="fn">print</span>(<span class="st">f"Inside:  {name}"</span>)
+<!-- PAGE 5: LAMBDA & RECURSION -->
+<section class="page" id="page-5">
+  <div class="section-tag">⭐ Advanced Concept</div>
+  <div class="page-h2">Lambda &amp; Recursion</div>
+  <div class="page-subtitle">Anonymous one-line functions and functions that call themselves.</div>
 
-<span class="fn">show_scope</span>()              <span class="cm"># Inside:  Local Bob</span>
-<span class="fn">print</span>(<span class="st">f"Outside: {name}"</span>)  <span class="cm"># Outside: Global Alice</span>
-
-<span class="cm"># Using global keyword</span>
-counter = <span class="nm">0</span>
-<span class="kw">def</span> <span class="fn">increment</span>():
-    <span class="kw">global</span> counter
-    counter += <span class="nm">1</span>
-
-<span class="fn">increment</span>(); <span class="fn">increment</span>()
-<span class="fn">print</span>(counter)  <span class="cm"># 2</span></pre></div>
-  </div>
-  <button class="run-btn" onclick="runDemo('demo4',['Inside:  Local Bob','Outside: Global Alice','2'])">▶ Run Demo</button>
-  <div class="out-box" id="demo4"></div>
-
-  <div class="tip"><strong>Best practice:</strong> Avoid using <code>global</code> variables inside functions. Instead, pass values as parameters and return results — this makes functions predictable and testable.</div>
-
-  <div class="page-bottom-bar">
-    <button class="btn-nav btn-prev" onclick="gp(3)">← Return Values</button>
-    <button class="btn-nav btn-next" onclick="gp(5)">Advanced →</button>
-  </div>
-</div>
-
-<!-- ░░░ PAGE 5 — ADVANCED: LAMBDA & RECURSION ░░░ -->
-<div class="page" id="page-5">
-  <div class="ph">
-    <div class="ptag">Advanced Concept</div>
-    <h2>Lambda &amp; Recursion</h2>
-    <p>Python has <strong>lambda</strong> — anonymous one-line functions — and <strong>recursion</strong>, where a function calls itself to solve smaller sub-problems.</p>
-  </div>
-
-  <!-- Lambda Builder -->
-  <h3 style="margin-bottom:10px;font-size:.95rem;">⚡ Lambda Builder — Assemble your own lambda</h3>
   <div class="lambda-builder">
-    <div class="lb-parts">
-      <div class="lb-part"><div class="lb-part-lbl">Result var</div><input class="lb-part-input" id="lb-var" value="square" style="width:90px;" oninput="updateLambda()"/></div>
-      <span style="font-family:var(--fc);font-size:1rem;color:var(--text3);margin-top:18px;">=</span>
-      <div class="lb-part"><div class="lb-part-lbl" style="color:var(--green);">lambda</div><div class="lb-kw">lambda</div></div>
-      <div class="lb-part"><div class="lb-part-lbl">parameter</div><input class="lb-part-input" id="lb-param" value="x" style="width:70px;" oninput="updateLambda()"/></div>
-      <div class="lb-colon">:</div>
-      <div class="lb-part"><div class="lb-part-lbl">expression</div><input class="lb-part-input" id="lb-expr" value="x ** 2" style="width:110px;" oninput="updateLambda()"/></div>
-    </div>
+    <div class="lb-parts"><div class="lb-part"><div class="lb-part-lbl">Name</div><input class="lb-part-input" id="lb-name" value="square" style="width:80px;" oninput="updateLambda()"></div><span>=</span><div class="lb-kw">lambda</div><div class="lb-part"><div class="lb-part-lbl">param</div><input class="lb-part-input" id="lb-param" value="x" style="width:60px;" oninput="updateLambda()"></div><div class="lb-kw">:</div><div class="lb-part"><div class="lb-part-lbl">expr</div><input class="lb-part-input" id="lb-expr" value="x ** 2" style="width:100px;" oninput="updateLambda()"></div></div>
     <div class="lb-preview" id="lb-preview">square = lambda x: x ** 2</div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-      <span style="font-family:var(--fc);font-size:.72rem;color:var(--text3);">Test with value:</span>
-      <input type="number" id="lb-test" value="5" style="background:var(--s2);border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;font-family:var(--fc);font-size:.85rem;color:var(--text);width:80px;outline:none;" oninput="updateLambda()"/>
-    </div>
-    <div class="lb-result-wrap" id="lb-result">→ square(5) = 25</div>
+    <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;"><span>Test value:</span><input type="number" id="lb-test" value="5" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;width:80px;" oninput="updateLambda()"><span id="lb-result" style="font-family:var(--mono);color:var(--accent);"></span></div>
   </div>
 
-  <!-- Recursion Visualizer -->
-  <h3 style="margin:22px 0 10px;font-size:.95rem;">🪆 Recursion Visualizer — Factorial(n)</h3>
   <div class="param-playground">
-    <div class="pp-title">🔁 def factorial(n) — watch the call stack</div>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
-      <div class="pp-field">
-        <div class="pp-label">n (1–8)</div>
-        <input type="number" class="pp-input" id="rec-n" value="5" min="1" max="8" style="width:90px;" oninput="updateRecursion()"/>
-      </div>
-      <button class="run-btn" onclick="animateRecursion()">▶ Animate Stack</button>
-    </div>
-    <div id="recStack" style="display:flex;flex-direction:column;gap:0;"></div>
+    <div class="pp-title">🪆 def factorial(n) — recursion</div>
+    <div style="display:flex; gap:12px; align-items:center; margin-bottom:14px;"><input type="number" id="rec-n" value="5" min="1" max="6" style="background:#b8d8fc;border:1px solid #89b9e8;border-radius:8px;padding:8px 12px;width:80px;color:#0a0a2a;"><button class="btn btn-primary" onclick="animateRecursion()">▶ Animate</button></div>
+    <div id="recStack" style="display:flex; flex-direction:column; gap:6px;"></div>
     <div class="pp-output" id="rec-out" style="margin-top:12px;">→ factorial(5) = 120</div>
   </div>
 
-  <div class="cb stg">
-    <div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-filename">advanced_functions.py</span></div>
-    <div class="cb-body"><pre><span class="cm"># Lambda — anonymous one-line function</span>
-square = <span class="kw">lambda</span> x: x ** <span class="nm">2</span>
-<span class="fn">print</span>(<span class="fn">square</span>(<span class="nm">5</span>))    <span class="cm"># 25</span>
-
-<span class="cm"># Lambda with map()</span>
-nums = [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>]
-squares = <span class="fn">list</span>(<span class="fn">map</span>(<span class="kw">lambda</span> x: x**<span class="nm">2</span>, nums))
-<span class="fn">print</span>(squares)       <span class="cm"># [1, 4, 9, 16, 25]</span>
-
-<span class="cm"># Recursion — function calling itself</span>
-<span class="kw">def</span> <span class="fn">factorial</span>(n):
-    <span class="kw">if</span> n <= <span class="nm">1</span>:
-        <span class="kw">return</span> <span class="nm">1</span>              <span class="cm"># base case</span>
-    <span class="kw">return</span> n * <span class="fn">factorial</span>(n - <span class="nm">1</span>)  <span class="cm"># recursive call</span>
-
-<span class="fn">print</span>(<span class="fn">factorial</span>(<span class="nm">5</span>))   <span class="cm"># 120</span></pre></div>
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">advanced.py</span></div>
+    <span class="cm"># Lambda — anonymous function</span><br>
+    square = <span class="kw">lambda</span> x: x ** <span class="nu">2</span><br>
+    <span class="fn">print</span>(<span class="fn">square</span>(<span class="nu">5</span>))<br><br>
+    <span class="cm"># Recursion — function calls itself</span><br>
+    <span class="kw">def</span> <span class="fn">factorial</span>(n):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> n <= <span class="nu">1</span>: <span class="kw">return</span> <span class="nu">1</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> n * <span class="fn">factorial</span>(n - <span class="nu">1</span>)<br><br>
+    <span class="fn">print</span>(<span class="fn">factorial</span>(<span class="nu">5</span>))
   </div>
-  <button class="run-btn" onclick="runDemo('demo5',['25','[1, 4, 9, 16, 25]','120'])">▶ Run Demo</button>
-  <div class="out-box" id="demo5"></div>
+  <button class="btn btn-run" onclick="toggleOutput('out5')">▶ Run Demo</button>
+  <div class="output-block" id="out5">25<br>120</div>
 
-  <div class="info">Every recursive function needs a <strong>base case</strong> — a condition where it stops calling itself. Without it, you get infinite recursion and a <code>RecursionError</code>!</div>
+  <div class="info-box warn"><span class="info-icon">⚠️</span><div class="info-text">Every recursive function needs a <strong>base case</strong> — a condition where it stops calling itself. Without it, you get infinite recursion and a RecursionError!</div></div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(4)">← Back</button><button class="btn btn-primary" onclick="goTo(6)">Next: Exercises →</button></div>
+</section>
 
-  <div class="page-bottom-bar">
-    <button class="btn-nav btn-prev" onclick="gp(4)">← Scope</button>
-    <button class="btn-nav btn-next" onclick="gp(6)">Exercises →</button>
-  </div>
-</div>
+<!-- PAGE 6: EXERCISES -->
+<section class="page" id="page-6">
+  <div class="section-tag">💻 Practice</div>
+  <div class="page-h2">Coding Exercises</div>
+  <div class="page-subtitle">Try each exercise before revealing the solution.</div>
 
-<!-- ░░░ PAGE 6 — EXERCISES ░░░ -->
-<div class="page" id="page-6">
-  <div class="ph">
-    <div class="ptag">Practice</div>
-    <h2>Coding Exercises</h2>
-    <p>Try solving each exercise before revealing the solution. Real learning happens when you struggle a little!</p>
-  </div>
+  <div class="ex-card"><div class="ex-badge">⭐ Exercise 1</div><div class="ex-title">Temperature Converter</div><div class="ex-desc">Write a function <code>celsius_to_fahrenheit(celsius)</code> that converts Celsius to Fahrenheit using: F = (C × 9/5) + 32. Test with 0, 100, and 37.</div><button class="sol-toggle" onclick="toggleSolution(this,'sol1')">▼ Show Solution</button><div class="solution" id="sol1"><div class="code-block">def celsius_to_fahrenheit(c):<br>&nbsp;&nbsp;&nbsp;&nbsp;return (c * 9/5) + 32<br>print(celsius_to_fahrenheit(0))   # 32.0<br>print(celsius_to_fahrenheit(100)) # 212.0<br>print(celsius_to_fahrenheit(37))  # 98.6</div></div></div>
 
-  <div class="exc-card stg">
-    <div class="exc-hdr"><span class="exc-num">Exercise 01</span><span class="exc-title">Temperature Converter</span></div>
-    <div class="exc-body">
-      <p>Write a function <code>celsius_to_fahrenheit(celsius)</code> that converts Celsius to Fahrenheit using the formula: <strong>F = (C × 9/5) + 32</strong>. Test with 0, 100, and 37.</p>
-      <div class="tip" style="margin-bottom:12px;">Use an f-string to format the output nicely: <code>f"0°C = 32.0°F"</code></div>
-      <button class="sol-btn" onclick="toggleSol(this)">▼ Show Solution</button>
-      <div class="sol-box">
-        <div class="cb"><div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-filename">solution.py</span></div>
-        <div class="cb-body"><pre><span class="kw">def</span> <span class="fn">celsius_to_fahrenheit</span>(celsius):
-    fahrenheit = (celsius * <span class="nm">9</span>/<span class="nm">5</span>) + <span class="nm">32</span>
-    <span class="kw">return</span> fahrenheit
+  <div class="ex-card"><div class="ex-badge">⭐ Exercise 2</div><div class="ex-title">Palindrome Checker</div><div class="ex-desc">Write a function <code>is_palindrome(word)</code> that returns True if the word reads the same forwards and backwards.</div><button class="sol-toggle" onclick="toggleSolution(this,'sol2')">▼ Show Solution</button><div class="solution" id="sol2"><div class="code-block">def is_palindrome(word):<br>&nbsp;&nbsp;&nbsp;&nbsp;word = word.lower()<br>&nbsp;&nbsp;&nbsp;&nbsp;return word == word[::-1]<br>print(is_palindrome("racecar"))  # True<br>print(is_palindrome("hello"))    # False</div></div></div>
 
-<span class="fn">print</span>(<span class="st">f"0°C = {celsius_to_fahrenheit(0)}°F"</span>)    <span class="cm"># 32.0</span>
-<span class="fn">print</span>(<span class="st">f"100°C = {celsius_to_fahrenheit(100)}°F"</span>) <span class="cm"># 212.0</span>
-<span class="fn">print</span>(<span class="st">f"37°C = {celsius_to_fahrenheit(37)}°F"</span>)  <span class="cm"># 98.6</span></pre></div></div>
-      </div>
-    </div>
-  </div>
+  <div class="ex-card"><div class="ex-badge">⭐ Exercise 3</div><div class="ex-title">Grade Calculator with *args</div><div class="ex-desc">Write a function <code>average_grade(*scores)</code> that takes any number of scores and returns the average and letter grade (A≥90, B≥80, C≥70, D≥60, F).</div><button class="sol-toggle" onclick="toggleSolution(this,'sol3')">▼ Show Solution</button><div class="solution" id="sol3"><div class="code-block">def average_grade(*scores):<br>&nbsp;&nbsp;&nbsp;&nbsp;avg = sum(scores) / len(scores)<br>&nbsp;&nbsp;&nbsp;&nbsp;grade = 'A' if avg >= 90 else 'B' if avg >= 80 else 'C' if avg >= 70 else 'D' if avg >= 60 else 'F'<br>&nbsp;&nbsp;&nbsp;&nbsp;return avg, grade<br>print(average_grade(85, 92, 78, 90))</div></div></div>
 
-  <div class="exc-card stg">
-    <div class="exc-hdr"><span class="exc-num">Exercise 02</span><span class="exc-title">Palindrome Checker</span></div>
-    <div class="exc-body">
-      <p>Write a function <code>is_palindrome(word)</code> that returns <code>True</code> if the word reads the same forwards and backwards. Test with "racecar", "hello", "level".</p>
-      <button class="sol-btn" onclick="toggleSol(this)">▼ Show Solution</button>
-      <div class="sol-box">
-        <div class="cb"><div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-filename">solution.py</span></div>
-        <div class="cb-body"><pre><span class="kw">def</span> <span class="fn">is_palindrome</span>(word):
-    word = word.lower()          <span class="cm"># make case-insensitive</span>
-    <span class="kw">return</span> word == word[::-<span class="nm">1</span>]   <span class="cm"># compare to reversed</span>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(5)">← Back</button><button class="btn btn-primary" onclick="goTo(7)">Take Quiz →</button></div>
+</section>
 
-<span class="fn">print</span>(<span class="fn">is_palindrome</span>(<span class="st">"racecar"</span>))  <span class="cm"># True</span>
-<span class="fn">print</span>(<span class="fn">is_palindrome</span>(<span class="st">"hello"</span>))    <span class="cm"># False</span>
-<span class="fn">print</span>(<span class="fn">is_palindrome</span>(<span class="st">"level"</span>))    <span class="cm"># True</span></pre></div></div>
-      </div>
-    </div>
-  </div>
+<!-- PAGE 7: QUIZ -->
+<section class="page" id="page-7">
+  <div class="section-tag">🧠 Quiz Time</div>
+  <div class="page-h2">Test Your Knowledge</div>
+  <div class="quiz-progress"><div class="qp-dot" id="qd0"></div><div class="qp-dot" id="qd1"></div><div class="qp-dot" id="qd2"></div><div class="qp-dot" id="qd3"></div><div class="qp-dot" id="qd4"></div></div>
+  <div id="quizContainer"><div class="q-card" id="qCard"></div><div class="quiz-nav"><button class="qnav-btn" id="qPrevBtn" onclick="quizNav(-1)" disabled>← Prev</button><span id="qCounter">Question 1 of 5</span><button class="qnav-btn primary" id="qNextBtn" onclick="quizNav(1)" disabled>Next →</button></div></div>
+  <div class="quiz-result" id="quizResult"><span class="qr-emoji" id="qrEmoji">🎉</span><div class="qr-score" id="qrScore">5/5</div><div class="qr-sub" id="qrSub"></div><div class="qr-breakdown"><div class="qrb-item"><div class="qrb-val c" id="qrCorrect">5</div><div class="qrb-lbl">Correct</div></div><div class="qrb-item"><div class="qrb-val w" id="qrWrong">0</div><div class="qrb-lbl">Wrong</div></div></div><button class="retry-btn" onclick="resetQuiz()">↩ Retry</button><button class="btn btn-primary" onclick="goTo(8)">Complete Module →</button></div>
+</section>
 
-  <div class="exc-card stg">
-    <div class="exc-hdr"><span class="exc-num">Exercise 03</span><span class="exc-title">Grade Calculator with *args</span></div>
-    <div class="exc-body">
-      <p>Write a function <code>average_grade(*scores)</code> using <code>*args</code> that takes any number of scores and returns the average. Return the letter grade too (A≥90, B≥80, C≥70, D≥60, F otherwise).</p>
-      <button class="sol-btn" onclick="toggleSol(this)">▼ Show Solution</button>
-      <div class="sol-box">
-        <div class="cb"><div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-filename">solution.py</span></div>
-        <div class="cb-body"><pre><span class="kw">def</span> <span class="fn">average_grade</span>(*scores):
-    avg = <span class="fn">sum</span>(scores) / <span class="fn">len</span>(scores)
-    <span class="kw">if</span>   avg >= <span class="nm">90</span>: grade = <span class="st">"A"</span>
-    <span class="kw">elif</span> avg >= <span class="nm">80</span>: grade = <span class="st">"B"</span>
-    <span class="kw">elif</span> avg >= <span class="nm">70</span>: grade = <span class="st">"C"</span>
-    <span class="kw">elif</span> avg >= <span class="nm">60</span>: grade = <span class="st">"D"</span>
-    <span class="kw">else</span>:          grade = <span class="st">"F"</span>
-    <span class="kw">return</span> avg, grade
-
-avg, letter = <span class="fn">average_grade</span>(<span class="nm">85</span>, <span class="nm">92</span>, <span class="nm">78</span>, <span class="nm">90</span>)
-<span class="fn">print</span>(<span class="st">f"Average: {avg:.1f} → Grade: {letter}"</span>)</pre></div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="page-bottom-bar">
-    <button class="btn-nav btn-prev" onclick="gp(5)">← Advanced</button>
-    <button class="btn-nav btn-next" onclick="gp(7)">Take Quiz →</button>
-  </div>
-</div>
-
-<!-- ░░░ PAGE 7 — QUIZ ░░░ -->
-<div class="page" id="page-7">
-  <div class="ph">
-    <div class="ptag">Quiz · 5 Questions</div>
-    <h2>Test Your Knowledge</h2>
-    <p>One question at a time. Instant feedback after every answer!</p>
-  </div>
-  <div class="qprog" id="qprog">
-    <div class="qpd" id="qd0"></div><div class="qpd" id="qd1"></div>
-    <div class="qpd" id="qd2"></div><div class="qpd" id="qd3"></div><div class="qpd" id="qd4"></div>
-  </div>
-  <div id="qcont">
-    <div class="qcard" id="qcard"></div>
-    <div class="qnav">
-      <button class="qnb" id="qprev" onclick="qnav(-1)" disabled>← Prev</button>
-      <span style="font-family:var(--fc);font-size:.73rem;color:var(--text3);" id="qctr">Question 1 of 5</span>
-      <button class="qnb pri" id="qnext" onclick="qnav(1)" disabled>Next →</button>
-    </div>
-  </div>
-  <div class="qres" id="qres">
-    <span class="qre" id="qre">🎉</span>
-    <div class="qrs" id="qrs">5/5</div>
-    <div class="qrsb" id="qrsb"></div>
-    <div class="qrbd">
-      <div><div class="qrv c" id="qrc">5</div><div class="qrl">Correct</div></div>
-      <div><div class="qrv w" id="qrw">0</div><div class="qrl">Wrong</div></div>
-    </div>
-    <button class="rtb" onclick="resetQuiz()">↩ Retry Quiz</button>
-    <button class="btn-nav btn-next" onclick="gp(8)" style="margin-left:8px;">See Completion 🎉</button>
-  </div>
-  <div class="page-bottom-bar">
-    <button class="btn-nav btn-prev" onclick="gp(6)">← Exercises</button>
-    <div></div>
-  </div>
-</div>
-
-<!-- ░░░ PAGE 8 — COMPLETION ░░░ -->
-<div class="page" id="page-8">
-  <div class="comp-wrap">
-    <div class="comp-icon">⚙️</div>
-    <div class="ptag" style="justify-content:center;">Module 07 — Complete!</div>
-    <h1 style="margin-bottom:12px;">Functions<br><span style="color:var(--green)">Mastered!</span> 🎉</h1>
-    <p style="font-size:1rem;margin-bottom:20px;">You've completed <strong>Functions in Python</strong>. You can now write clean, reusable, professional-grade code!</p>
-    <div class="skills-wrap stg">
-      <div class="skill-tag"><span class="ck">✓</span>def keyword</div>
-      <div class="skill-tag"><span class="ck">✓</span>Parameters & Arguments</div>
-      <div class="skill-tag"><span class="ck">✓</span>Return values</div>
-      <div class="skill-tag"><span class="ck">✓</span>Default parameters</div>
-      <div class="skill-tag"><span class="ck">✓</span>*args & **kwargs</div>
-      <div class="skill-tag"><span class="ck">✓</span>Local vs Global scope</div>
-      <div class="skill-tag"><span class="ck">✓</span>Lambda functions</div>
-      <div class="skill-tag"><span class="ck">✓</span>Recursion</div>
-    </div>
-    <button class="comp-btn" onclick="celebrate()">🏆 Claim Completion Badge</button>
-    <br>
-    <button class="restart-btn" onclick="restartModule()">↺ Restart Module</button>
-    <p style="margin-top:20px;font-size:.88rem;color:var(--text2);">Next: <strong>Module 8 — File Handling</strong> · Read and write files with Python</p>
-    <div class="author-footer">
-      <div class="af-label">Module created by</div>
-      <div class="af-inner">
-        <div class="af-av">V</div>
-        <div style="text-align:left;">
-          <div style="font-family:var(--fh);font-size:1rem;font-weight:700;color:var(--green);">Vinodhini</div>
-          <div style="font-family:var(--fc);font-size:.7rem;color:var(--text2);">Data Scientist · HCL GUVI</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- PAGE 8: COMPLETION -->
+<section class="page" id="page-8">
+  <div class="card complete-wrap"><div class="complete-icon">🎉</div><div class="page-tag">Module 07 — Complete</div><h1 style="margin-bottom:12px;">Functions<br><span style="color:var(--accent)">Mastered!</span></h1><p>You can now write clean, reusable, professional-grade code with functions!</p><div class="skills-learnt"><div class="skill-badge"><span class="check">✓</span> def keyword</div><div class="skill-badge"><span class="check">✓</span> Parameters & Arguments</div><div class="skill-badge"><span class="check">✓</span> Return values</div><div class="skill-badge"><span class="check">✓</span> Default parameters</div><div class="skill-badge"><span class="check">✓</span> *args & **kwargs</div><div class="skill-badge"><span class="check">✓</span> Local vs Global scope</div><div class="skill-badge"><span class="check">✓</span> Lambda functions</div><div class="skill-badge"><span class="check">✓</span> Recursion</div></div><button class="cert-btn" onclick="celebrate()">🏆 Claim Completion Badge</button><p style="margin-top:20px;">Next up: <strong>Module 8 — File Handling</strong></p></div>
+</section>
 
 </main>
-</div>
 
 <script>
-/* ════════════════════════════════════════
-   NAVIGATION
-════════════════════════════════════════ */
-const TOTAL = 9;
-let cp = 0, vp = new Set([0]);
-
-function gp(n) {
-  if (n < 0 || n >= TOTAL) return;
-  const prev = document.getElementById('page-' + cp);
-  const next = document.getElementById('page-' + n);
-  if (!next) return;
-  prev.classList.add('exit-left'); prev.classList.remove('active');
-  setTimeout(() => prev.classList.remove('exit-left'), 380);
-  next.classList.add('active');
-  cp = n; vp.add(n);
-  // Sidebar
-  document.querySelectorAll('.side-item').forEach(el => {
-    const p = parseInt(el.dataset.p);
-    el.classList.toggle('active', p === n);
-    if (vp.has(p) && p < n) el.classList.add('completed');
-  });
-  // Progress
-  const pct = Math.round((vp.size / TOTAL) * 100);
-  document.getElementById('navFill').style.width = pct + '%';
-  document.getElementById('navPct').textContent = pct + '%';
-  // Page-specific inits
-  if (n === 5) { updateLambda(); updateRecursion(); }
-  if (n === 2) { updateParamPlayground(); }
-  if (n === 3) { updateCalc(); }
-  if (n === 7) renderQ();
-}
-
-/* ════════════════════════════════════════
-   DEMO RUNNER
-════════════════════════════════════════ */
-function runDemo(id, lines) {
-  const b = document.getElementById(id);
-  if (!b) return;
-  b.innerHTML = '<span class="out-prompt">$ python3 script.py\n</span>';
-  b.classList.add('show');
-  let i = 0;
-  const t = () => { if (i < lines.length) { b.innerHTML += lines[i++] + '\n'; setTimeout(t, 160); } };
-  t();
-}
-
-/* ════════════════════════════════════════
-   FUNCTION MACHINE
-════════════════════════════════════════ */
-function runMachine() {
-  const name = document.getElementById('fmNameInput').value || 'World';
-  document.getElementById('fmInput').textContent = '"' + name + '"';
-  setTimeout(() => {
-    const result = 'Hello, ' + name + '!';
-    document.getElementById('fmOutput').textContent = '"' + result + '"';
-    document.getElementById('fmResult').textContent = '"' + result + '"';
-    document.getElementById('fmOutput').style.animation = 'none';
-    void document.getElementById('fmOutput').offsetWidth;
-    document.getElementById('fmOutput').style.animation = 'bounceIn .5s ease';
-  }, 300);
-}
-
-/* ════════════════════════════════════════
-   STEP EXECUTOR
-════════════════════════════════════════ */
-const seStates = {
-  seBasic: {
-    step: -1,
-    infos: [
-      'Line 1: Python reads the function definition. No code runs yet — Python just remembers it.',
-      'Line 2: The return statement is registered — will run when called.',
-      'Line 3: Comment — skipped.',
-      'Line 4: Calling greet("Alice"). Python jumps INTO the function!\n→ name = "Alice"',
-      'Line 5: result = "Hello, Alice" — printing the value returned by greet().\n→ Output: Hello, Alice',
-    ],
-    vars: [
-      [],
-      [],
-      [],
-      [{n:'name',v:'"Alice"'}],
-      [{n:'result',v:'"Hello, Alice"'}],
-    ]
-  }
-};
-
-function seStep(id) {
-  const state = seStates[id];
-  const lines = document.querySelectorAll(`#${id} .se-line`);
-  state.step = Math.min(state.step + 1, lines.length - 1);
-  lines.forEach((l, i) => {
-    l.classList.toggle('active', i === state.step);
-    l.classList.toggle('executed', i < state.step);
-  });
-  document.getElementById(`${id}-info`).textContent = state.infos[state.step] || '';
-  const vt = document.getElementById(`${id}-vars`);
-  vt.innerHTML = (state.vars[state.step] || []).map(v =>
-    `<div class="se-var"><span class="vn">${v.n}</span> = <span class="vv">${v.v}</span></div>`
-  ).join('');
-}
-
-function seReset(id) {
-  seStates[id].step = -1;
-  document.querySelectorAll(`#${id} .se-line`).forEach(l => {
-    l.classList.remove('active', 'executed');
-  });
-  document.getElementById(`${id}-info`).textContent = 'Click "Next Step" to walk through execution line by line.';
-  document.getElementById(`${id}-vars`).innerHTML = '';
-}
-
-/* ════════════════════════════════════════
-   PARAM PLAYGROUND
-════════════════════════════════════════ */
-function updateParamPlayground() {
-  const base = parseFloat(document.getElementById('pp-base').value) || 0;
-  const exp = parseFloat(document.getElementById('pp-exp').value) || 2;
-  const label = document.getElementById('pp-label').value || 'Result';
-  const style = document.getElementById('pp-style').value;
-  let callStr;
-  if (style === 'pos') callStr = `power(${base}, ${exp}, "${label}")`;
-  else if (style === 'kw') callStr = `power(base=${base}, exponent=${exp}, label="${label}")`;
-  else callStr = `power(${base})  # exponent uses default=${exp}`;
-  const result = Math.pow(base, exp);
-  document.getElementById('pp-eq').textContent = callStr;
-  document.getElementById('pp-out').textContent = `→ ${label}: ${result}`;
-}
-
-/* ════════════════════════════════════════
-   CALCULATOR RETURN
-════════════════════════════════════════ */
-function updateCalc() {
-  const a = parseFloat(document.getElementById('calc-a').value) || 0;
-  const b = parseFloat(document.getElementById('calc-b').value) || 0;
-  const op = document.getElementById('calc-op').value;
-  let result, sym;
-  const ops = {add:['+',a+b],sub:['-',a-b],mul:['×',a*b],div:['÷',b!==0?+(a/b).toFixed(4):'ZeroDivisionError'],mod:['%',a%b],pow:['**',Math.pow(a,b)]};
-  [sym, result] = ops[op];
-  document.getElementById('calc-eq').textContent = `calculate(${a}, ${b}, "${op}")`;
-  document.getElementById('calc-out').textContent = `→ returns: ${result}`;
-}
-
-/* ════════════════════════════════════════
-   RETURN FLOW ANIMATION
-════════════════════════════════════════ */
-async function animateReturnFlow() {
-  const ids = ['rv0','rv1','rv2','rv3'];
-  const msgs = ['📞 Calling add(3, 4) …','⚙️ Computing 3 + 4 inside function…','📦 return 7 — value leaves the function!','💾 result = 7 — stored in caller!'];
-  ids.forEach(id => document.getElementById(id).classList.remove('active'));
-  for (let i = 0; i < ids.length; i++) {
-    ids.forEach(id => document.getElementById(id).classList.remove('active'));
-    document.getElementById(ids[i]).classList.add('active');
-    document.getElementById('rvMsg').textContent = msgs[i];
-    await sleep(800);
-  }
-  document.getElementById('rvMsg').textContent = '✅ Complete! The value 7 is now stored in result.';
-}
-
-/* ════════════════════════════════════════
-   REVEAL CARDS
-════════════════════════════════════════ */
-function toggleReveal(card) { card.classList.toggle('open'); }
-
-/* ════════════════════════════════════════
-   LAMBDA BUILDER
-════════════════════════════════════════ */
-function updateLambda() {
-  const varName = document.getElementById('lb-var').value || 'fn';
-  const param = document.getElementById('lb-param').value || 'x';
-  const expr = document.getElementById('lb-expr').value || 'x';
-  const testVal = parseFloat(document.getElementById('lb-test').value);
-  const preview = `${varName} = lambda ${param}: ${expr}`;
-  document.getElementById('lb-preview').textContent = preview;
-  try {
-    const safe = expr.replace(/\*\*/g, '**').replace(/[a-zA-Z_][a-zA-Z0-9_]*/g, m => m === param ? testVal : m === 'abs' ? 'Math.abs' : m === 'round' ? 'Math.round' : m);
-    const result = Function(`"use strict"; const ${param}=${testVal}; return (${safe});`)();
-    document.getElementById('lb-result').textContent = `→ ${varName}(${testVal}) = ${isNaN(result) ? '?' : result}`;
-  } catch {
-    document.getElementById('lb-result').textContent = `→ ${varName}(${testVal}) = (expression error)`;
-  }
-}
-
-/* ════════════════════════════════════════
-   RECURSION VISUALIZER
-════════════════════════════════════════ */
-function updateRecursion() {
-  const n = parseInt(document.getElementById('rec-n').value) || 5;
-  const result = factorial(n);
-  document.getElementById('rec-out').textContent = `→ factorial(${n}) = ${result}`;
-  buildRecStack(n);
-}
-
-function factorial(n) { return n <= 1 ? 1 : n * factorial(n - 1); }
-
-function buildRecStack(n) {
-  const div = document.getElementById('recStack');
-  div.innerHTML = '';
-  for (let i = n; i >= 1; i--) {
-    const depth = n - i;
-    const el = document.createElement('div');
-    el.style.cssText = `background:rgba(22,160,94,${0.05 + depth*0.06});border:1.5px solid rgba(22,160,94,${0.15+depth*0.08});border-radius:9px;padding:8px 14px;font-family:var(--fc);font-size:.78rem;color:${i===1?'#f5d860':'#a8e870'};margin-bottom:4px;margin-left:${depth*16}px;display:flex;align-items:center;justify-content:space-between;`;
-    el.innerHTML = `<span>factorial(${i})</span><span style="color:var(--text3);font-size:.7rem;">${i===1?'→ BASE CASE: returns 1':i===n?'→ starts here':''}</span>`;
-    div.appendChild(el);
-  }
-}
-
-async function animateRecursion() {
-  const n = parseInt(document.getElementById('rec-n').value) || 5;
-  const items = document.querySelectorAll('#recStack > div');
-  for (const item of items) {
-    item.style.opacity = '0.3';
-    item.style.transform = 'translateX(-8px)';
-  }
-  for (let i = 0; i < items.length; i++) {
-    await sleep(200);
-    items[i].style.transition = 'all .25s ease';
-    items[i].style.opacity = '1';
-    items[i].style.transform = 'translateX(0)';
-  }
-  await sleep(300);
-  let val = 1;
-  for (let i = items.length - 1; i >= 0; i--) {
-    await sleep(160);
-    const calls = n - i;
-    items[i].style.background = 'rgba(22,160,94,0.2)';
-    items[i].style.borderColor = 'rgba(22,160,94,0.5)';
-    val = i === items.length - 1 ? 1 : val * (parseInt(items[i].textContent.match(/\d+/)[0]));
-  }
-}
-
-/* ════════════════════════════════════════
-   SOLUTION TOGGLE
-════════════════════════════════════════ */
-function toggleSol(btn) {
-  const box = btn.nextElementSibling;
-  const open = box.classList.toggle('open');
-  btn.textContent = open ? '▲ Hide Solution' : '▼ Show Solution';
-}
-
-/* ════════════════════════════════════════
-   QUIZ
-════════════════════════════════════════ */
-const QS = [
-  { q:"What keyword is used to define a function in Python?",
-    opts:["function","define","def","fn"], correct:2,
-    exp:"✓ 'def' is the keyword. def function_name(): starts every function definition in Python." },
-  { q:"What does the 'return' statement do?",
-    opts:["Prints a value","Ends the program","Sends a value back to the caller","Loops the function"], correct:2,
-    exp:"✓ return sends a value back to wherever the function was called. Without it, the function returns None." },
-  { q:"What type of function has NO name?",
-    opts:["Anonymous","Lambda","Both A and B","Recursive"], correct:2,
-    exp:"✓ Lambda functions are anonymous (no def, no name). They're defined with: lambda params: expression" },
-  { q:"What is a LOCAL variable?",
-    opts:["A variable in the main program","A variable defined inside a function","A variable shared everywhere","A constant value"], correct:1,
-    exp:"✓ Local variables live inside a function only. They're created when the function runs and destroyed when it ends." },
-  { q:"Which of these is valid *args usage?",
-    opts:["def fn(a, *args): pass","def fn(*args, a): pass","def fn(a *args): pass","def fn(args*): pass"], correct:0,
-    exp:"✓ *args must come after regular parameters. def fn(a, *args) lets you pass 'a' as required and then any extras." }
-];
-let qs = { cur:0, ans:new Array(QS.length).fill(null), done:false };
-
-function renderQ() {
-  if (qs.done) return;
-  const q = QS[qs.cur], a = qs.ans[qs.cur];
-  document.getElementById('qctr').textContent = `Question ${qs.cur + 1} of ${QS.length}`;
-  document.getElementById('qprev').disabled = qs.cur === 0;
-  const nb = document.getElementById('qnext');
-  nb.disabled = a === null;
-  nb.textContent = qs.cur === QS.length - 1 ? 'See Results →' : 'Next →';
-  document.getElementById('qcard').innerHTML = `
-    <div class="qbadge">Question ${qs.cur + 1} / ${QS.length}</div>
-    <div class="qtxt">${q.q}</div>
-    <div class="qopts">
-      ${'ABCD'.split('').slice(0, q.opts.length).map((l, i) => {
-        let cls = 'qo';
-        if (a !== null) { if (i === q.correct) cls += ' correct'; else if (i === a && i !== q.correct) cls += ' wrong'; }
-        return `<button class="${cls}" onclick="ansQ(${i})" ${a !== null ? 'disabled' : ''}>
-          <span class="qol">${l}</span>${q.opts[i]}
-        </button>`;
-      }).join('')}
-    </div>
-    <div class="qfb ${a !== null ? 'show ' + (a === q.correct ? 'correct' : 'wrong') : ''}">
-      ${a !== null ? q.exp : ''}
-    </div>`;
-  QS.forEach((_, i) => {
-    const d = document.getElementById('qd' + i);
-    if (!d) return;
-    d.className = 'qpd';
-    const an = qs.ans[i];
-    if (an !== null) d.classList.add(an === QS[i].correct ? 'correct' : 'wrong');
-  });
-}
-
-function ansQ(c) {
-  qs.ans[qs.cur] = c;
-  document.getElementById('qnext').disabled = false;
-  renderQ();
-}
-
-function qnav(d) {
-  if (d === 1 && qs.cur === QS.length - 1) { showQRes(); return; }
-  const n = qs.cur + d;
-  if (n >= 0 && n < QS.length) { qs.cur = n; renderQ(); }
-}
-
-function showQRes() {
-  qs.done = true;
-  document.getElementById('qcont').style.display = 'none';
-  const r = document.getElementById('qres'); r.classList.add('show');
-  const correct = qs.ans.filter((a, i) => a === QS[i].correct).length;
-  const pct = Math.round((correct / QS.length) * 100);
-  document.getElementById('qrs').textContent = `${correct}/${QS.length}`;
-  document.getElementById('qrc').textContent = correct;
-  document.getElementById('qrw').textContent = QS.length - correct;
-  document.getElementById('qre').textContent = ['😅','🤔','👍','🌟','🎉'][Math.min(correct, 4)];
-  document.getElementById('qrsb').textContent =
-    pct === 100 ? '🔥 Perfect! You truly understand Python functions!' :
-    pct >= 80 ? '⭐ Great work! Functions are nearly mastered.' :
-    pct >= 60 ? '👍 Good effort! Review def, return, and scope.' :
-    '📖 Keep going — re-read the concept pages and retry!';
-  if (pct >= 80) setTimeout(confetti, 300);
-}
-
-function resetQuiz() {
-  qs = { cur:0, ans:new Array(QS.length).fill(null), done:false };
-  document.getElementById('qres').classList.remove('show');
-  document.getElementById('qcont').style.display = '';
-  QS.forEach((_, i) => { const d = document.getElementById('qd' + i); if (d) d.className = 'qpd'; });
-  renderQ();
-}
-
-/* ════════════════════════════════════════
-   CONFETTI
-════════════════════════════════════════ */
-function confetti() {
-  const cs = ['#16a05e','#1d72c2','#f0c040','#e07830','#7c4dff','#e03050'];
-  for (let i = 0; i < 80; i++) {
-    const el = document.createElement('div');
-    const s = 6 + Math.random() * 9;
-    el.style.cssText = `position:fixed;top:50%;left:50%;width:${s}px;height:${s}px;
-      background:${cs[i % cs.length]};border-radius:${Math.random() > .5 ? '50%' : '2px'};
-      pointer-events:none;z-index:9999;
-      --cx:${(Math.random() - .5) * 700}px;--cy:${-(200 + Math.random() * 500)}px;--cr:${Math.random() * 720 - 360}deg;
-      animation:confetti-pop 1.5s ease forwards;animation-delay:${Math.random() * .3}s;`;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 2000);
-  }
-}
-
-function celebrate() {
-  confetti();
-  const btn = event.target.closest('button');
-  btn.textContent = '✓ Badge Claimed!';
-  btn.style.background = 'var(--green)';
-  btn.disabled = true;
-  localStorage.setItem('module7_complete', 'true');
-}
-
-function restartModule() {
-  vp = new Set([0]);
-  gp(0);
-}
-
-/* ════════════════════════════════════════
-   UTILITIES
-════════════════════════════════════════ */
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-/* ════════════════════════════════════════
-   INIT
-════════════════════════════════════════ */
-window.addEventListener('load', () => {
-  updateParamPlayground();
-  updateCalc();
-  updateLambda();
-  updateRecursion();
-});
+let currentPage = 0, totalPages = 9, visited = new Set([0]);
+function goTo(n) { if (n<0||n>=totalPages) return; document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active')); document.getElementById('page-'+n).classList.add('active'); document.getElementById('nav-'+n).classList.add('active'); document.getElementById('mainContent').scrollTo({top:0}); currentPage=n; visited.add(n); for(let i=0;i<n;i++) document.getElementById('nav-'+i).classList.add('done'); let pct=Math.round(visited.size/totalPages*100); document.getElementById('progressFill').style.width=pct+'%'; document.getElementById('progressPct').textContent=pct+'%'; if(n===7) initQuiz(); }
+function toggleOutput(id){ document.getElementById(id).classList.toggle('visible'); }
+function toggleSolution(btn,id){ let sol=document.getElementById(id); sol.classList.toggle('open'); btn.textContent=sol.classList.contains('open')?'▲ Hide Solution':'▼ Show Solution'; }
+function runMachine(){ let name=document.getElementById('fmNameInput').value||'World'; document.getElementById('fmInput').innerHTML='"'+name+'"'; setTimeout(()=>{let result='Hello, '+name+'!'; document.getElementById('fmOutput').innerHTML='"'+result+'"'; document.getElementById('fmResult').innerHTML='→ '+result;},300); }
+function updateParamPlayground(){ let b=parseFloat(document.getElementById('pp-base').value)||0; let e=parseFloat(document.getElementById('pp-exp').value)||2; document.getElementById('pp-eq').innerHTML=`power(${b}, ${e})`; document.getElementById('pp-out').innerHTML=`→ ${Math.pow(b,e)}`; }
+function updateCalc(){ let a=parseFloat(document.getElementById('calc-a').value)||0, b=parseFloat(document.getElementById('calc-b').value)||0, op=document.getElementById('calc-op').value; let r=op==='add'?a+b:op==='sub'?a-b:a*b; document.getElementById('calc-eq').innerHTML=`calculate(${a}, ${b}, "${op}")`; document.getElementById('calc-out').innerHTML=`→ returns: ${r}`; }
+function updateLambda(){ let name=document.getElementById('lb-name').value||'fn', param=document.getElementById('lb-param').value||'x', expr=document.getElementById('lb-expr').value||'x', test=parseFloat(document.getElementById('lb-test').value); document.getElementById('lb-preview').innerHTML=`${name} = lambda ${param}: ${expr}`; try{ let val; if(expr.includes('**')){ let parts=expr.split('**'); val=Math.pow(parseFloat(parts[0]), parseFloat(parts[1])); }else{ val=eval(expr.replace(/x/g,test)); } document.getElementById('lb-result').innerHTML=`→ ${name}(${test}) = ${val}`; }catch(e){ document.getElementById('lb-result').innerHTML=`→ error`; } }
+function animateRecursion(){ let n=parseInt(document.getElementById('rec-n').value)||5; let div=document.getElementById('recStack'); div.innerHTML=''; for(let i=n;i>=1;i--){ let el=document.createElement('div'); el.className='rec-item'; el.innerHTML=`factorial(${i}) <span style="float:right;">${i===1?'base case → returns 1':i===n?'starts here':''}</span>`; div.appendChild(el); } let val=1; let items=div.children; let idx=items.length-1; let interval=setInterval(()=>{ if(idx>=0){ items[idx].classList.add('active'); val=idx===items.length-1?1:val*(idx+2); idx--; }else{ clearInterval(interval); document.getElementById('rec-out').innerHTML=`→ factorial(${n}) = ${val}`; } },400); }
+const QUESTIONS=[{q:"What keyword defines a function in Python?",opts:["function","define","def","fn"],correct:2,exp:"'def' is the keyword."},{q:"What does 'return' do?",opts:["Prints a value","Ends the program","Sends value back to caller","Loops the function"],correct:2,exp:"return sends a value back to the caller."},{q:"What is a lambda function?",opts:["A named function","An anonymous one-line function","A recursive function","A built-in function"],correct:1,exp:"Lambda is an anonymous, one-line function."},{q:"A variable defined inside a function is:",opts:["Global","Local","Constant","Private"],correct:1,exp:"Local variables live only inside the function."},{q:"What does *args do?",opts:["No arguments","One argument","Any number of positional args","Keyword args only"],correct:2,exp:"*args collects any number of positional arguments."}];
+let quizState={currentQ:0,answers:new Array(5).fill(null),finished:false};
+function initQuiz(){ quizState={currentQ:0,answers:new Array(5).fill(null),finished:false}; document.getElementById('quizResult').classList.remove('show'); document.getElementById('quizContainer').style.display=''; renderQuiz(); }
+function renderQuiz(){ if(quizState.finished) return; let q=QUESTIONS[quizState.currentQ]; let answered=quizState.answers[quizState.currentQ]; document.getElementById('qCounter').textContent=`Question ${quizState.currentQ+1} of 5`; document.getElementById('qPrevBtn').disabled=quizState.currentQ===0; document.getElementById('qNextBtn').disabled=answered===null; document.getElementById('qNextBtn').textContent=quizState.currentQ===4?'See Results →':'Next →'; let letters='ABCD'; document.getElementById('qCard').innerHTML=`<div class="q-badge">Question ${quizState.currentQ+1} / 5</div><div class="q-text">${q.q}</div><div class="q-options">${q.opts.map((opt,i)=>{ let cls='q-opt'; if(answered!==null){ if(i===q.correct)cls+=' correct'; else if(i===answered&&i!==q.correct)cls+=' wrong'; } return `<button class="${cls}" onclick="answerQ(${i})" ${answered!==null?'disabled':''}><span class="q-opt-letter">${letters[i]}</span>${opt}</button>`; }).join('')}</div><div class="q-feedback ${answered!==null?'show '+(answered===q.correct?'correct':'wrong'):''}">${answered!==null?q.exp:''}</div>`; QUESTIONS.forEach((_,i)=>{ let d=document.getElementById('qd'+i); if(d){ d.className='qp-dot'; let a=quizState.answers[i]; if(a!==null) d.classList.add(a===QUESTIONS[i].correct?'correct':'wrong'); } }); }
+function answerQ(chosen){ quizState.answers[quizState.currentQ]=chosen; document.getElementById('qNextBtn').disabled=false; renderQuiz(); }
+function quizNav(dir){ if(dir===1&&quizState.currentQ===4){ showResult(); return; } let n=quizState.currentQ+dir; if(n>=0&&n<5){ quizState.currentQ=n; renderQuiz(); } }
+function showResult(){ quizState.finished=true; document.getElementById('quizContainer').style.display='none'; let r=document.getElementById('quizResult'); r.classList.add('show'); let correct=quizState.answers.filter((a,i)=>a===QUESTIONS[i].correct).length; document.getElementById('qrScore').textContent=`${correct}/5`; document.getElementById('qrCorrect').textContent=correct; document.getElementById('qrWrong').textContent=5-correct; let emojis=['😅','🤔','👍','🌟','🎉']; document.getElementById('qrEmoji').textContent=emojis[Math.min(correct,4)]; if(correct>=4) launchConfetti(); }
+function resetQuiz(){ quizState={currentQ:0,answers:new Array(5).fill(null),finished:false}; document.getElementById('quizResult').classList.remove('show'); document.getElementById('quizContainer').style.display=''; renderQuiz(); }
+function launchConfetti(){ let cs=['#2563eb','#059669','#7c3aed','#eab308']; for(let i=0;i<60;i++){ let el=document.createElement('div'); let s=6+Math.random()*8; el.style.cssText=`position:fixed;top:50%;left:50%;width:${s}px;height:${s}px;background:${cs[i%cs.length]};border-radius:${Math.random()>.5?'50%':'2px'};pointer-events:none;z-index:9999;--cx:${(Math.random()-.5)*600}px;--cy:${-(200+Math.random()*400)}px;--cr:${Math.random()*720-360}deg;animation:confetti-pop 1.4s ease forwards;`; document.body.appendChild(el); setTimeout(()=>el.remove(),1400); } }
+function celebrate(){ launchConfetti(); let btn=event.target.closest('button'); btn.textContent='✓ Badge Claimed!'; btn.style.background='var(--accent)'; btn.disabled=true; localStorage.setItem('module7_complete','true'); }
+updateParamPlayground(); updateCalc(); updateLambda();
 </script>
 </body>
 </html>
