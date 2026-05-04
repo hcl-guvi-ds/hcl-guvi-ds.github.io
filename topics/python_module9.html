@@ -3,1397 +3,738 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Module 9 — Exception Handling · HCL-GUVI</title>
+<title>Module 9 — Exception Handling in Python</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet"/>
 <style>
-/* ═══════════════════════════════════════════
-   DESIGN TOKENS — Deep Teal + Amber Warning
-═══════════════════════════════════════════ */
-:root{
-  --bg:#f2f7f5;
-  --surface:#ffffff;
-  --s2:#eaf2ee;
-  --s3:#dff0e8;
-  --border:#c4ddd0;
-  --border2:#b8d0f0;
-  --green:#138a62;
-  --green-lt:#e0f5ec;
-  --green-dk:#0a5c40;
-  --green-glow:rgba(19,138,98,.14);
-  --blue:#1660b0;
-  --blue-lt:#e4edfc;
-  --blue-dk:#0c3d74;
-  --teal:#0b96a8;
-  --amber:#d97706;
-  --amber-lt:#fef3c7;
-  --red:#dc2626;
-  --red-lt:#fee2e2;
-  --purple:#7c3aed;
-  --purple-lt:#f5f3ff;
-  --text:#0f1f16;
-  --text2:#2e4a38;
-  --text3:#6e8c7a;
-  --code-bg:#0c1d12;
-  --code-txt:#b6e8c8;
-  --shadow-sm:0 1px 8px rgba(19,138,98,.08);
-  --shadow:0 4px 24px rgba(19,138,98,.11);
-  --shadow-lg:0 12px 48px rgba(19,138,98,.16);
-  --r:16px; --r-sm:10px;
-  --fh:'Plus Jakarta Sans',sans-serif;
-  --ff:'Fraunces',serif;
-  --fc:'JetBrains Mono',monospace;
+:root {
+  --bg: #f0f4ff;
+  --surface: #ffffff;
+  --surface2: #f7f9fe;
+  --surface3: #eef2fc;
+  --primary: #2563eb;
+  --primary-light: #dbeafe;
+  --primary-dark: #1d4ed8;
+  --accent: #059669;
+  --accent-light: #d1fae5;
+  --accent-dark: #047857;
+  --warn: #d97706;
+  --warn-light: #fef3c7;
+  --purple: #7c3aed;
+  --purple-light: #ede9fe;
+  --coral: #e11d48;
+  --coral-light: #ffe4e6;
+  --text: #0f172a;
+  --text2: #334155;
+  --text3: #64748b;
+  --text4: #94a3b8;
+  --border: #e2e8f0;
+  --border2: #cbd5e1;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+  --shadow-lg: 0 4px 24px rgba(37,99,235,.10), 0 1px 4px rgba(0,0,0,.06);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --sidebar-w: 260px;
+  --header-h: 60px;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --serif: 'Fraunces', serif;
+  --transition: .25s cubic-bezier(.4,0,.2,1);
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{width:100%;height:100%;overflow:hidden;}
-body{background:var(--bg);color:var(--text);font-family:var(--fh);font-size:15px;line-height:1.65;}
-::-webkit-scrollbar{width:5px;height:5px;}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-::-webkit-scrollbar-thumb:hover{background:var(--green);}
 
-/* ════ LAYOUT ════ */
-#shell{display:grid;grid-template-rows:62px 1fr;grid-template-columns:256px 1fr;grid-template-areas:"nav nav" "side main";width:100vw;height:100vh;}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; overflow: hidden; height: 100vh; }
 
-/* ════ TOP NAV ════ */
-#nav{
-  grid-area:nav;background:var(--surface);
-  border-bottom:2px solid var(--border);
-  display:flex;align-items:center;padding:0 24px;gap:14px;
-  box-shadow:var(--shadow-sm);z-index:100;
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+/* HEADER */
+.app-header {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); z-index: 100;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 24px 0 20px;
 }
-.nlogo{display:flex;align-items:center;gap:12px;flex-shrink:0;}
-.nlogo img{height:38px;object-fit:contain;}
-.nlogo-fb{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
-.nlogo-txt .ln{font-family:var(--fh);font-size:.94rem;font-weight:800;color:var(--green);}
-.nlogo-txt .ls{font-family:var(--fc);font-size:.58rem;color:var(--text3);}
-.ndiv{width:1px;height:28px;background:var(--border);flex-shrink:0;}
-.nmod{display:flex;flex-direction:column;}
-.nmod-tag{font-family:var(--fc);font-size:.6rem;color:var(--amber);letter-spacing:.1em;text-transform:uppercase;font-weight:500;}
-.nmod-name{font-family:var(--fh);font-size:.96rem;font-weight:700;color:var(--text);}
-.nsep{flex:1;}
-.nprog{width:180px;display:flex;flex-direction:column;gap:4px;}
-.nprog-row{display:flex;justify-content:space-between;font-family:var(--fc);font-size:.63rem;color:var(--text3);}
-.nprog-bar{height:6px;background:var(--s3);border-radius:3px;overflow:hidden;border:1px solid var(--border);}
-.nprog-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:3px;transition:width .5s ease;}
-.ncreator{display:flex;align-items:center;gap:9px;background:var(--blue-lt);border:1px solid var(--border2);border-radius:12px;padding:7px 14px;}
-.nc-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:.88rem;font-weight:800;color:white;flex-shrink:0;}
-.nc-n{font-family:var(--fh);font-size:.78rem;font-weight:700;color:var(--blue-dk);}
-.nc-r{font-family:var(--fc);font-size:.58rem;color:var(--text3);}
-
-/* ════ SIDEBAR ════ */
-#side{
-  grid-area:side;background:var(--surface);
-  border-right:2px solid var(--border);
-  overflow-y:auto;display:flex;flex-direction:column;
-  box-shadow:2px 0 12px rgba(19,138,98,.06);
+.header-left { display: flex; align-items: center; gap: 14px; }
+.logo-area { display: flex; align-items: center; gap: 10px; }
+.logo-badge {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb 0%, #059669 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 15px; color: #fff; letter-spacing: -1px;
 }
-.slbl{padding:14px 16px 5px;font-family:var(--fc);font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;}
-.si{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 16px;cursor:pointer;
-  font-family:var(--fh);font-size:.83rem;font-weight:600;
-  color:var(--text2);border-left:3px solid transparent;
-  transition:all .18s;position:relative;
+.logo-text { font-size: 13px; font-weight: 700; color: var(--text); letter-spacing: -.3px; }
+.logo-sub { font-size: 11px; color: var(--text3); font-weight: 400; }
+.header-divider { width: 1px; height: 28px; background: var(--border); }
+.module-title { font-size: 14px; font-weight: 600; color: var(--text2); }
+.module-badge { font-size: 11px; background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+
+.header-right { display: flex; align-items: center; gap: 20px; }
+.progress-wrap { display: flex; align-items: center; gap: 8px; }
+.progress-label { font-size: 11px; color: var(--text3); font-weight: 500; }
+.progress-track { width: 120px; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+.progress-pct { font-size: 11px; font-weight: 700; color: var(--primary); min-width: 28px; }
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed; top: var(--header-h); left: 0; bottom: 0; width: var(--sidebar-w);
+  background: var(--surface); border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 20px 12px; z-index: 50;
 }
-.si:hover{background:var(--green-lt);color:var(--green);}
-.si.active{background:var(--green-lt);color:var(--green);border-left-color:var(--green);font-weight:700;}
-.si.completed .sck{opacity:1;}
-.s-ico{font-size:.9rem;min-width:18px;text-align:center;transition:transform .2s;}
-.si:hover .s-ico{transform:scale(1.15);}
-.sck{margin-left:auto;color:var(--green);opacity:0;font-size:.82rem;}
-.sdiv{height:1px;background:var(--border);margin:8px 16px;}
-.side-foot{padding:14px;border-top:1px solid var(--border);margin-top:auto;}
-.sf-in{background:linear-gradient(135deg,var(--green-lt),var(--blue-lt));border:1px solid var(--border);border-radius:14px;padding:14px;}
-.sf-lbl{font-family:var(--fc);font-size:.58rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
-.sf-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:.95rem;font-weight:800;color:white;margin-bottom:6px;box-shadow:0 4px 10px var(--green-glow);}
-.sf-n{font-family:var(--fh);font-size:.9rem;font-weight:700;color:var(--green);}
-.sf-t{font-family:var(--fc);font-size:.67rem;color:var(--text2);}
-.sf-o{display:inline-flex;align-items:center;gap:3px;font-family:var(--fc);font-size:.6rem;color:var(--blue);background:var(--blue-lt);border:1px solid var(--border2);padding:2px 8px;border-radius:50px;margin-top:4px;}
+.sidebar-section { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--text4); text-transform: uppercase; padding: 12px 12px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: 10px; cursor: pointer; transition: all var(--transition);
+  margin-bottom: 2px; font-size: 13px; font-weight: 500; color: var(--text2);
+  border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: var(--surface3); color: var(--text); }
+.nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.nav-item.done { color: var(--accent); }
+.nav-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; background: var(--surface3); }
+.nav-item.active .nav-icon { background: var(--primary); color: #fff; }
+.nav-item.done .nav-icon { background: var(--accent-light); color: var(--accent-dark); }
+.nav-check { margin-left: auto; font-size: 11px; color: var(--accent); display: none; }
+.nav-item.done .nav-check { display: block; }
 
-/* ════ MAIN ════ */
-#main{grid-area:main;overflow:hidden;position:relative;}
-.page{position:absolute;inset:0;overflow-y:auto;padding:38px 50px;opacity:0;transform:translateX(30px);transition:opacity .35s ease,transform .35s ease;pointer-events:none;}
-.page.active{opacity:1;transform:translateX(0);pointer-events:all;}
-.page.exit-left{opacity:0;transform:translateX(-30px);}
+/* MAIN */
+.main-content {
+  margin-left: var(--sidebar-w); margin-top: var(--header-h);
+  height: calc(100vh - var(--header-h)); overflow-y: auto; padding: 32px 48px 80px;
+}
 
-/* ════ TYPOGRAPHY ════ */
-h1{font-family:var(--fh);font-size:clamp(2rem,3vw,2.9rem);font-weight:800;line-height:1.1;letter-spacing:-.03em;color:var(--text);}
-h2{font-family:var(--fh);font-size:clamp(1.4rem,2.5vw,2rem);font-weight:700;letter-spacing:-.02em;line-height:1.2;}
-h3{font-family:var(--fh);font-size:1.08rem;font-weight:700;}
-p{margin-bottom:.9em;color:var(--text2);line-height:1.72;}
-strong{color:var(--text);font-weight:700;}
-code{font-family:var(--fc);font-size:.82em;background:var(--green-lt);border:1px solid var(--border);padding:2px 7px;border-radius:5px;color:var(--green-dk);}
-.ptag{display:inline-flex;align-items:center;gap:7px;font-family:var(--fc);font-size:.66rem;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;}
-.ptag::before{content:'';width:16px;height:2px;background:linear-gradient(90deg,var(--green),var(--blue));}
-.ph{margin-bottom:30px;}
-.ph p{font-size:1rem;max-width:560px;}
+/* PAGES */
+.page { display: none; animation: fadeSlide .35s cubic-bezier(.4,0,.2,1); }
+.page.active { display: block; }
+@keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ════ LAYOUT HELPERS ════ */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;}
+/* BUTTONS */
+.page-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 600; font-size: 13px; cursor: pointer; transition: all var(--transition); border: none; font-family: var(--font); }
+.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,.3); }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,99,235,.35); }
+.btn-ghost { background: var(--surface); color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { background: var(--surface3); }
+.btn-run { background: #1e1e2e; color: #a6e3a1; border: 1px solid #313244; font-family: var(--mono); font-size: 12px; }
+.btn-run:hover { background: #11111b; }
 
-/* ════ CARDS ════ */
-.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:22px;box-shadow:var(--shadow-sm);transition:box-shadow .2s,transform .2s;}
-.card:hover{box-shadow:var(--shadow);}
-.card-green{background:var(--green-lt);border-color:var(--border);}
-.card-blue{background:var(--blue-lt);border-color:var(--border2);}
-.card-amber{background:var(--amber-lt);border-color:#fcd34d;}
-.card-red{background:var(--red-lt);border-color:#fca5a5;}
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow); }
+.card-blue { border-left: 4px solid var(--primary); }
+.card-green { border-left: 4px solid var(--accent); }
 
-/* ════ CALLOUTS ════ */
-.tip{background:var(--green-lt);border:1.5px solid var(--border);border-left:4px solid var(--green);border-radius:12px;padding:13px 17px;font-size:.87rem;color:var(--green-dk);margin:14px 0;}
-.tip::before{content:'💡 ';}
-.warn{background:var(--amber-lt);border:1.5px solid #fcd34d;border-left:4px solid var(--amber);border-radius:12px;padding:13px 17px;font-size:.87rem;color:#92400e;margin:14px 0;}
-.warn::before{content:'⚠️ ';}
-.danger{background:var(--red-lt);border:1.5px solid #fca5a5;border-left:4px solid var(--red);border-radius:12px;padding:13px 17px;font-size:.87rem;color:#991b1b;margin:14px 0;}
-.danger::before{content:'🚨 ';}
-.info{background:var(--blue-lt);border:1.5px solid var(--border2);border-left:4px solid var(--blue);border-radius:12px;padding:13px 17px;font-size:.87rem;color:var(--blue-dk);margin:14px 0;}
-.info::before{content:'ℹ️ ';}
+/* HERO */
+.hero { background: linear-gradient(135deg, #1e3a8a 0%, #0c4a6e 50%, #134e4a 100%); border-radius: 20px; padding: 48px 40px; margin-bottom: 28px; color: #fff; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+.hero-tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15); border-radius: 99px; padding: 4px 12px; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,.8); margin-bottom: 16px; }
+.hero h1 { font-family: var(--serif); font-size: 42px; font-weight: 700; line-height: 1.15; margin-bottom: 12px; }
+.hero h1 em { font-style: italic; color: #86efac; }
+.hero p { font-size: 15px; color: rgba(255,255,255,.75); max-width: 520px; line-height: 1.7; }
+.hero-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+.chip-blue { background: rgba(96,165,250,.2); color: #93c5fd; border: 1px solid rgba(96,165,250,.25); }
+.chip-green { background: rgba(52,211,153,.2); color: #6ee7b7; border: 1px solid rgba(52,211,153,.25); }
+.chip-purple { background: rgba(167,139,250,.2); color: #c4b5fd; border: 1px solid rgba(167,139,250,.25); }
 
-/* ════ CODE BLOCK ════ */
-.cb{background:var(--code-bg);border-radius:var(--r);overflow:hidden;margin:14px 0;box-shadow:0 8px 30px rgba(0,0,0,.22);}
-.cb-hdr{background:rgba(255,255,255,.04);padding:9px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.06);}
-.cb-dots{display:flex;gap:5px;}
-.cb-dots span{width:11px;height:11px;border-radius:50%;}
-.cb-dots span:nth-child(1){background:#ff5f57;}.cb-dots span:nth-child(2){background:#febc2e;}.cb-dots span:nth-child(3){background:#28c840;}
-.cb-fn{font-family:var(--fc);font-size:.68rem;color:rgba(182,232,200,.4);margin-left:auto;background:rgba(19,138,98,.15);padding:2px 8px;border-radius:4px;}
-.cb-body{padding:18px 20px;overflow-x:auto;}
-.cb-body pre{font-family:var(--fc);font-size:.87rem;line-height:2;color:#b6e8c8;white-space:pre;}
-.kw{color:#60c8f0;font-weight:500;}.fn{color:#a8e870;}.st{color:#f5d870;}.cm{color:#3a6040;font-style:italic;}.nm{color:#f0a870;}.ex{color:#ff8870;font-weight:500;}.dec{color:#c8a0ff;}
+/* SECTION TITLES */
+.section-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); margin-bottom: 8px; }
+.page-h2 { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -.5px; }
+.page-subtitle { font-size: 14px; color: var(--text3); margin-bottom: 24px; line-height: 1.6; }
 
-/* ════ BUTTONS ════ */
-.btn-run{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--green),var(--teal));color:white;border:none;border-radius:10px;padding:10px 22px;font-family:var(--fh);font-size:.84rem;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 3px 12px var(--green-glow);}
-.btn-run:hover{opacity:.88;transform:translateY(-1px);}
-.out-box{background:rgba(12,29,18,.95);border:1px solid rgba(19,138,98,.2);border-radius:10px;padding:14px 18px;font-family:var(--fc);font-size:.83rem;line-height:2;color:#6de8a0;min-height:50px;white-space:pre-wrap;display:none;margin-top:10px;}
-.out-box.show{display:block;animation:fadeIn .3s ease;}
-.out-box.error-out{color:#ff7070;}
-.out-prompt{color:rgba(109,148,120,.5);}
-.btn-prev{display:flex;align-items:center;gap:7px;padding:11px 24px;border-radius:12px;font-family:var(--fh);font-size:.86rem;font-weight:700;cursor:pointer;border:none;transition:all .2s;background:var(--s2);border:1.5px solid var(--border);color:var(--text2);}
-.btn-prev:hover{border-color:var(--green);color:var(--green);}
-.btn-next{display:flex;align-items:center;gap:7px;padding:11px 24px;border-radius:12px;font-family:var(--fh);font-size:.86rem;font-weight:700;cursor:pointer;border:none;transition:all .2s;background:linear-gradient(135deg,var(--green),var(--blue));color:white;box-shadow:0 4px 16px var(--green-glow);}
-.btn-next:hover{opacity:.88;transform:translateY(-2px);box-shadow:0 6px 22px var(--green-glow);}
-.btn-next:disabled{opacity:.38;cursor:not-allowed;transform:none;}
-.pbb{display:flex;align-items:center;justify-content:space-between;margin-top:38px;padding-top:22px;border-top:1.5px solid var(--border);}
-.sol-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1.5px solid var(--blue);border-radius:9px;color:var(--blue);font-family:var(--fc);font-size:.75rem;padding:7px 15px;cursor:pointer;transition:all .2s;}
-.sol-btn:hover{background:var(--blue-lt);}
-.sol-box{display:none;margin-top:13px;animation:fadeIn .3s ease;}
-.sol-box.open{display:block;}
+/* ============================================ */
+/* FIXED: CODE BLOCKS - LIGHT BLUE BACKGROUND */
+/* ============================================ */
+.code-block {
+  background: #b8d8fc !important;
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.8;
+  border: 1px solid #89b9e8;
+  position: relative;
+  overflow: auto;
+  color: #0a0a2a;
+}
+.code-header { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.code-dot { width: 10px; height: 10px; border-radius: 50%; }
+.code-dot:nth-child(1) { background: #f38ba8; }
+.code-dot:nth-child(2) { background: #f9e2af; }
+.code-dot:nth-child(3) { background: #a6e3a1; }
+.code-fname { font-size: 11px; color: #1e3a5f; margin-left: 6px; font-family: var(--mono); font-weight: bold; }
 
-/* ════ ANIMATIONS ════ */
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@keyframes bounceIn{0%{transform:scale(0)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-@keyframes glow{0%,100%{box-shadow:0 0 0 0 var(--green-glow)}50%{box-shadow:0 0 0 8px transparent}}
-@keyframes confetti-pop{0%{transform:translate(0,0)rotate(0);opacity:1}100%{transform:translate(var(--cx),var(--cy))rotate(var(--cr));opacity:0}}
-@keyframes errorFlash{0%{background:var(--code-bg)}50%{background:rgba(220,38,38,.15)}100%{background:var(--code-bg)}}
-@keyframes successFlash{0%{background:var(--code-bg)}50%{background:rgba(19,138,98,.15)}100%{background:var(--code-bg)}}
-@keyframes flowMove{0%{stroke-dashoffset:40}100%{stroke-dashoffset:0}}
-@keyframes drawPath{from{stroke-dashoffset:300}to{stroke-dashoffset:0}}
-@keyframes fadeSlide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+/* Syntax highlighting colors for light blue background */
+.kw { color: #7c3aed; font-weight: bold; }
+.fn { color: #2563eb; font-weight: bold; }
+.st { color: #059669; font-weight: bold; }
+.cm { color: #6c7086; font-style: italic; }
+.nu { color: #d97706; font-weight: bold; }
+.vr { color: #0f172a; font-weight: bold; }
+.op { color: #0891b2; }
+.ex { color: #c2410c; font-weight: bold; }
 
-.stg>*{animation:slideUp .4s ease both;}
-.stg>*:nth-child(1){animation-delay:.05s}.stg>*:nth-child(2){animation-delay:.12s}
-.stg>*:nth-child(3){animation-delay:.19s}.stg>*:nth-child(4){animation-delay:.26s}
-.stg>*:nth-child(5){animation-delay:.33s}.stg>*:nth-child(6){animation-delay:.40s}
-.stg>*:nth-child(7){animation-delay:.47s}
+.output-block {
+  background: #e6f3ff;
+  border: 1px solid #89b9e8;
+  border-top: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: #0a0a2a;
+  line-height: 1.8;
+  margin-top: 10px;
+  display: none;
+}
+.output-block.visible { display: block; animation: revealOut .3s ease; }
+@keyframes revealOut { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ═══════════════════════════════════════
-   PAGE-SPECIFIC INTERACTIVE COMPONENTS
-═══════════════════════════════════════ */
+/* INFO BOX */
+.info-box { display: flex; gap: 12px; padding: 14px 16px; border-radius: var(--radius-sm); margin-bottom: 14px; }
+.info-box.blue { background: var(--primary-light); border: 1px solid #bfdbfe; }
+.info-box.green { background: var(--accent-light); border: 1px solid #bbf7d0; }
+.info-box.warn { background: var(--warn-light); border: 1px solid #fde68a; }
+.info-icon { font-size: 16px; flex-shrink: 0; padding-top: 1px; }
+.info-text { font-size: 13px; line-height: 1.6; }
 
-/* Welcome hero chips */
-.hero-chip{background:var(--surface);border:1.5px solid var(--border);border-radius:50px;padding:6px 16px;font-family:var(--fc);font-size:.71rem;color:var(--text2);display:flex;align-items:center;gap:5px;box-shadow:var(--shadow-sm);}
+/* ANALOGY CARD */
+.analogy-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 18px; display: flex; gap: 14px; align-items: flex-start; }
+.analogy-icon { font-size: 28px; flex-shrink: 0; }
+.analogy-title { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--warn); margin-bottom: 4px; }
 
-/* ── Error Type Cards (Click to reveal) ── */
-.err-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:13px;margin:16px 0;}
-.err-card{border-radius:14px;border:1.5px solid;overflow:hidden;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm);}
-.err-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);}
-.ec-front{padding:18px;text-align:center;}
-.ec-emoji{font-size:2rem;display:block;margin-bottom:7px;}
-.ec-name{font-family:var(--fh);font-size:.88rem;font-weight:700;margin-bottom:3px;}
-.ec-hint{font-size:.74rem;color:var(--text3);}
-.ec-back{padding:12px;border-top:1.5px solid;display:none;font-family:var(--fc);font-size:.74rem;line-height:1.75;}
-.err-card.open .ec-back{display:block;animation:fadeIn .28s ease;}
-.err-card.ve{background:#fff7ed;border-color:#fed7aa;}.err-card.ve .ec-back{background:#fff7ed;border-color:#fed7aa;color:#9a3412;}
-.err-card.te{background:var(--red-lt);border-color:#fca5a5;}.err-card.te .ec-back{background:var(--red-lt);border-color:#fca5a5;color:#991b1b;}
-.err-card.ze{background:var(--amber-lt);border-color:#fcd34d;}.err-card.ze .ec-back{background:var(--amber-lt);border-color:#fcd34d;color:#92400e;}
-.err-card.ie{background:var(--blue-lt);border-color:var(--border2);}.err-card.ie .ec-back{background:var(--blue-lt);border-color:var(--border2);color:var(--blue-dk);}
-.err-card.ae{background:var(--purple-lt);border-color:#c4b5fd;}.err-card.ae .ec-back{background:var(--purple-lt);border-color:#c4b5fd;color:#4c1d95;}
-.reveal-hint{font-family:var(--fc);font-size:.66rem;color:var(--text3);text-align:center;margin-bottom:14px;}
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
 
-/* ── Try/Except Flow Diagram (SVG animated) ── */
-.flow-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:24px;margin:16px 0;box-shadow:var(--shadow-sm);display:flex;justify-content:center;overflow-x:auto;}
+/* WELCOME GRID */
+.welcome-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin: 20px 0; }
+.welcome-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 18px; text-align: center; transition: all var(--transition); cursor: pointer; }
+.welcome-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+.welcome-card-icon { font-size: 28px; margin-bottom: 8px; }
+.welcome-card-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 
-/* ── Exception Simulator ── */
-.exc-sim{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin:18px 0;box-shadow:var(--shadow-sm);}
-.es-header{background:linear-gradient(135deg,var(--code-bg),#0c2020);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;}
-.es-title{font-family:var(--fh);font-size:.86rem;font-weight:700;color:#8fe8b0;}
-.es-controls{display:flex;gap:8px;}
-.es-btn{padding:6px 14px;border-radius:7px;border:1px solid rgba(19,138,98,.3);background:rgba(19,138,98,.1);color:#6de8a0;font-family:var(--fc);font-size:.73rem;cursor:pointer;transition:all .18s;}
-.es-btn:hover{background:rgba(19,138,98,.25);}
-.es-btn.err-btn{border-color:rgba(220,38,38,.3);background:rgba(220,38,38,.1);color:#ff8888;}
-.es-btn.err-btn:hover{background:rgba(220,38,38,.25);}
-.es-output{padding:14px 18px;font-family:var(--fc);font-size:.83rem;line-height:1.9;min-height:70px;transition:all .3s;}
-.es-line{display:flex;align-items:flex-start;gap:8px;margin-bottom:3px;animation:fadeSlide .3s ease both;}
-.el-badge{padding:2px 8px;border-radius:5px;font-family:var(--fc);font-size:.66rem;font-weight:700;flex-shrink:0;margin-top:2px;}
-.el-badge.try-b{background:rgba(19,138,98,.2);color:#5de8a0;}
-.el-badge.exc-b{background:rgba(220,38,38,.2);color:#ff7070;}
-.el-badge.fin-b{background:rgba(22,96,176,.2);color:#70b0ff;}
-.el-badge.els-b{background:rgba(124,58,237,.2);color:#b070ff;}
-.el-text{color:#b6e8c8;}
-.el-text.err{color:#ff8080;}
-.el-text.fin{color:#80c8ff;}
-.el-text.els{color:#c0a0ff;}
+/* ERROR TYPE CARDS */
+.err-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
+.err-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; cursor: pointer; transition: all .2s; box-shadow: var(--shadow); }
+.err-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.err-card .ec-front { padding: 16px; text-align: center; }
+.err-card .ec-emoji { font-size: 28px; display: block; margin-bottom: 6px; }
+.err-card .ec-name { font-weight: 700; margin-bottom: 4px; }
+.err-card .ec-hint { font-size: 11px; color: var(--text3); }
+.err-card .ec-back { display: none; padding: 12px; background: var(--primary-light); border-top: 1px solid var(--border); font-size: 12px; line-height: 1.6; font-family: var(--mono); }
+.err-card.open .ec-back { display: block; animation: fadein .3s; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
 
-/* ── Step Executor ── */
-.step-exec{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin:18px 0;box-shadow:var(--shadow-sm);}
-.se-hdr{background:linear-gradient(135deg,var(--code-bg),#0c2020);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;}
-.se-ttl{font-family:var(--fh);font-size:.86rem;font-weight:700;color:#8fe8b0;}
-.se-ctrls{display:flex;gap:8px;}
-.se-btn{padding:6px 14px;border-radius:7px;border:1px solid rgba(19,138,98,.3);background:rgba(19,138,98,.1);color:#6de8a0;font-family:var(--fc);font-size:.73rem;cursor:pointer;transition:all .18s;}
-.se-btn:hover{background:rgba(19,138,98,.25);}
-.se-btn.rst{border-color:rgba(217,119,6,.3);background:rgba(217,119,6,.1);color:#f0c060;}
-.se-lines{background:var(--code-bg);}
-.se-line{display:flex;align-items:center;padding:3px 0;transition:all .22s;}
-.se-ln{font-family:var(--fc);font-size:.7rem;color:rgba(109,148,120,.4);min-width:34px;text-align:right;padding:0 9px;user-select:none;}
-.se-arr{font-size:.72rem;min-width:20px;text-align:center;color:transparent;transition:color .2s;}
-.se-line.active .se-arr{color:var(--green);}
-.se-line.active{background:rgba(19,138,98,.14);}
-.se-line.done{background:rgba(19,138,98,.05);}
-.se-line.err-line.active{background:rgba(220,38,38,.12);}
-.se-code{font-family:var(--fc);font-size:.84rem;padding:5px 0;color:#b6e8c8;flex:1;}
-.se-info{padding:11px 16px;background:rgba(19,138,98,.07);border-top:1px solid rgba(19,138,98,.12);font-family:var(--fh);font-size:.81rem;color:#5de8a0;min-height:42px;transition:all .3s;}
-.se-info.err{color:#ff8080;background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.15);}
+/* EXCEPTION SIMULATOR */
+.exc-sim { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 18px 0; }
+.es-header { background: #b8d8fc; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #89b9e8; }
+.es-header .es-title { font-family: var(--mono); font-size: 12px; color: #1e3a5f; font-weight: bold; }
+.es-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+.es-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); font-size: 11px; font-weight: 600; cursor: pointer; transition: all .2s; }
+.es-btn:hover { border-color: var(--primary); background: var(--primary-light); }
+.es-output { background: #b8d8fc; padding: 16px; font-family: var(--mono); font-size: 12px; color: #0a0a2a; line-height: 1.8; min-height: 100px; }
+.es-line { display: flex; gap: 8px; margin-bottom: 6px; animation: fadeSlide .25s ease; }
+.el-badge { padding: 2px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; font-family: var(--mono); }
+.el-badge.try { background: rgba(5,150,105,.2); color: #047857; }
+.el-badge.exc { background: rgba(225,29,72,.2); color: #c2410c; }
+.el-badge.fin { background: rgba(37,99,235,.2); color: #1d4ed8; }
+.el-badge.els { background: rgba(124,58,237,.2); color: #5b21b6; }
 
-/* ── Custom Exception Builder ── */
-.exc-builder{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:22px;margin:18px 0;box-shadow:var(--shadow-sm);}
-.eb-title{font-family:var(--fh);font-size:.9rem;font-weight:700;margin-bottom:14px;}
-.eb-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px;}
-.eb-field{display:flex;flex-direction:column;gap:4px;}
-.eb-lbl{font-family:var(--fc);font-size:.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;}
-.eb-input{background:var(--s2);border:1.5px solid var(--border);border-radius:9px;padding:9px 13px;font-family:var(--fc);font-size:.84rem;color:var(--text);outline:none;transition:border-color .2s;width:200px;}
-.eb-input:focus{border-color:var(--green);}
-.eb-select{background:var(--s2);border:1.5px solid var(--border);border-radius:9px;padding:9px 12px;font-family:var(--fc);font-size:.8rem;color:var(--text);outline:none;cursor:pointer;}
-.eb-preview{background:var(--code-bg);border-radius:10px;padding:14px 18px;font-family:var(--fc);font-size:.84rem;color:#b6e8c8;line-height:2;margin:12px 0;}
-.eb-result{background:rgba(220,38,38,.08);border:1.5px solid rgba(220,38,38,.25);border-radius:10px;padding:12px 16px;font-family:var(--fc);font-size:.82rem;color:#ff7070;min-height:44px;transition:all .3s;}
+/* STEP EXECUTOR */
+.step-exec { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 18px 0; }
+.se-hdr { background: #b8d8fc; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #89b9e8; }
+.se-ttl { font-family: var(--mono); font-size: 12px; color: #1e3a5f; font-weight: bold; }
+.se-ctrls { display: flex; gap: 8px; }
+.se-btn { padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); font-size: 11px; font-weight: 600; cursor: pointer; }
+.se-lines { background: #b8d8fc; }
+.se-line { display: flex; align-items: center; padding: 6px 0; transition: all .2s; border-bottom: 1px solid #89b9e8; }
+.se-line.active { background: rgba(5,150,105,.15); }
+.se-ln { font-family: var(--mono); font-size: 11px; color: #1e3a5f; min-width: 32px; text-align: right; padding: 0 8px; }
+.se-arr { font-size: 10px; min-width: 18px; text-align: center; color: transparent; }
+.se-line.active .se-arr { color: #059669; }
+.se-code { font-family: var(--mono); font-size: 12px; color: #0a0a2a; flex: 1; }
+.se-info { padding: 10px 16px; background: rgba(5,150,105,.08); font-size: 12px; color: var(--accent-dark); min-height: 42px; }
 
-/* ── Finally Always Runs Demo ── */
-.finally-demo{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin:16px 0;box-shadow:var(--shadow-sm);}
-.fd-header{background:var(--s2);border-bottom:1.5px solid var(--border);padding:12px 18px;display:flex;align-items:center;gap:10px;font-family:var(--fh);font-size:.88rem;font-weight:700;}
-.fd-body{padding:18px;display:flex;gap:14px;flex-wrap:wrap;}
-.fd-scenario{flex:1;min-width:200px;background:var(--s2);border:1.5px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;}
-.fd-scenario:hover{border-color:var(--green);background:var(--green-lt);}
-.fd-scenario.active-s{border-color:var(--green);background:var(--green-lt);box-shadow:0 0 0 3px var(--green-glow);}
-.fds-title{font-family:var(--fh);font-size:.84rem;font-weight:700;margin-bottom:4px;}
-.fds-desc{font-size:.76rem;color:var(--text3);}
-.fd-output{padding:0 18px 18px;}
-.fdo-inner{background:var(--code-bg);border-radius:10px;padding:14px;font-family:var(--fc);font-size:.8rem;line-height:2;min-height:80px;}
+/* FINALLY DEMO */
+.finally-demo { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 16px 0; }
+.fd-header { background: var(--surface2); padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 700; }
+.fd-body { display: flex; gap: 12px; padding: 16px; flex-wrap: wrap; }
+.fd-scenario { flex: 1; min-width: 140px; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; transition: all .2s; text-align: center; }
+.fd-scenario:hover { border-color: var(--primary); background: var(--primary-light); }
+.fd-scenario.active { border-color: var(--primary); background: var(--primary-light); }
+.fds-title { font-weight: 700; margin-bottom: 4px; }
+.fds-desc { font-size: 11px; color: var(--text3); }
+.fd-output { padding: 16px; background: #b8d8fc; }
+.fdo-inner { font-family: var(--mono); font-size: 12px; color: #0a0a2a; line-height: 1.8; }
 
-/* ── Exception Hierarchy Tree ── */
-.exc-tree{background:var(--code-bg);border-radius:var(--r);padding:22px;margin:16px 0;box-shadow:0 8px 30px rgba(0,0,0,.2);}
-.et-node{cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:8px;font-family:var(--fc);font-size:.8rem;transition:all .2s;border:1px solid transparent;}
-.et-node:hover{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.06);}
-.et-root{color:#ff9060;font-weight:700;}
-.et-base{color:#f0d060;}
-.et-specific{color:#80d8a0;}
-.et-arrow{color:rgba(100,140,110,.5);font-size:.8rem;}
-.et-tooltip{display:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px 12px;margin-top:6px;font-size:.75rem;color:#90d0b0;animation:fadeIn .2s ease;}
-.et-node.open .et-tooltip{display:block;}
+/* CUSTOM EXCEPTION BUILDER */
+.exc-builder { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin: 16px 0; }
+.eb-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.eb-field { display: flex; flex-direction: column; gap: 4px; }
+.eb-lbl { font-family: var(--mono); font-size: 10px; color: var(--text3); text-transform: uppercase; }
+.eb-input { background: #b8d8fc; border: 1px solid #89b9e8; border-radius: 8px; padding: 8px 12px; font-family: var(--mono); font-size: 12px; outline: none; color: #0a0a2a; }
+.eb-input:focus { border-color: var(--primary); }
+.eb-select { background: #b8d8fc; border: 1px solid #89b9e8; border-radius: 8px; padding: 8px 12px; font-family: var(--mono); font-size: 12px; color: #0a0a2a; }
+.eb-preview { background: #b8d8fc; border-radius: 8px; padding: 16px; font-family: var(--mono); font-size: 12px; color: #0a0a2a; line-height: 1.8; margin: 12px 0; border: 1px solid #89b9e8; }
+.eb-result { background: rgba(225,29,72,.08); border: 1px solid rgba(225,29,72,.2); border-radius: 8px; padding: 12px; font-family: var(--mono); font-size: 12px; color: #c2410c; }
 
-/* ── Analogy card ── */
-.analogy{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:20px;display:flex;gap:18px;align-items:flex-start;box-shadow:var(--shadow-sm);margin:16px 0;transition:all .2s;}
-.analogy:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
-.an-ico{font-size:2.5rem;flex-shrink:0;line-height:1;}
-.an-body h4{font-family:var(--fh);font-size:.93rem;font-weight:700;margin-bottom:5px;}
-.an-body p{font-size:.84rem;color:var(--text2);margin:0;}
+/* QUIZ */
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 28px; }
+.qp-dot { flex: 1; height: 4px; background: var(--border); border-radius: 2px; transition: background .3s; }
+.qp-dot.correct { background: var(--accent); }
+.qp-dot.wrong { background: var(--coral); }
+.q-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; min-height: 320px; }
+.q-badge { font-family: var(--mono); font-size: 0.7rem; color: var(--text3); margin-bottom: 10px; }
+.q-text { font-family: var(--font); font-size: 1.1rem; font-weight: 700; margin-bottom: 24px; line-height: 1.4; }
+.q-options { display: flex; flex-direction: column; gap: 10px; }
+.q-opt { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 18px; text-align: left; font-size: 0.95rem; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 12px; }
+.q-opt:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-light); transform: translateX(3px); }
+.q-opt-letter { width: 26px; height: 26px; border-radius: 6px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.7rem; color: var(--text3); flex-shrink: 0; }
+.q-opt.correct { border-color: var(--accent); background: rgba(5,150,105,0.1); color: var(--accent-dark); }
+.q-opt.correct .q-opt-letter { background: var(--accent); color: #fff; }
+.q-opt.wrong { border-color: var(--coral); background: rgba(225,29,72,0.1); color: var(--coral); }
+.q-opt.wrong .q-opt-letter { background: var(--coral); color: #fff; }
+.q-opt:disabled { cursor: default; }
+.q-feedback { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-family: var(--mono); font-size: 0.8rem; display: none; }
+.q-feedback.show { display: block; }
+.q-feedback.correct { background: rgba(5,150,105,0.12); color: var(--accent-dark); border: 1px solid rgba(5,150,105,0.3); }
+.q-feedback.wrong { background: rgba(225,29,72,0.1); color: var(--coral); border: 1px solid #fecdd3; }
+.quiz-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; }
+.qnav-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 20px; font-family: var(--font); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all .15s; color: var(--text2); }
+.qnav-btn:hover { border-color: var(--text3); }
+.qnav-btn.primary { background: var(--primary); color: #fff; border-color: transparent; }
+.qnav-btn:disabled { opacity: .3; cursor: not-allowed; }
+.quiz-result { display: none; text-align: center; padding: 40px 20px; }
+.quiz-result.show { display: block; }
+.qr-emoji { font-size: 4rem; display: block; margin-bottom: 16px; }
+.qr-score { font-family: var(--font); font-size: 3rem; font-weight: 800; color: var(--primary); line-height: 1; margin-bottom: 8px; }
+.qr-sub { color: var(--text2); font-size: 0.9rem; margin-bottom: 28px; }
+.qr-breakdown { display: flex; gap: 20px; justify-content: center; margin-bottom: 28px; }
+.qrb-item { text-align: center; }
+.qrb-val { font-family: var(--font); font-size: 1.5rem; font-weight: 800; }
+.qrb-val.c { color: var(--accent); }
+.qrb-val.w { color: var(--coral); }
+.retry-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 11px 28px; font-family: var(--font); font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all .15s; margin-right: 10px; }
+.retry-btn:hover { border-color: var(--primary); color: var(--primary); }
 
-/* Exercise & Quiz cards */
-.exc-card-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow-sm);}
-.ech{padding:13px 18px;background:linear-gradient(135deg,var(--green-lt),var(--blue-lt));border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.ec-num{font-family:var(--fc);font-size:.67rem;color:var(--text3);}
-.ec-title{font-family:var(--fh);font-size:.88rem;font-weight:700;color:var(--green-dk);}
-.ecb{padding:18px;}
-.ecb p{font-size:.87rem;color:var(--text2);margin-bottom:11px;}
+/* EXERCISE CARD */
+.ex-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 18px; }
+.ex-badge { display: inline-flex; gap: 6px; align-items: center; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; background: var(--accent-light); color: var(--accent-dark); }
+.ex-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.ex-desc { font-size: 13px; color: var(--text2); margin-bottom: 16px; line-height: 1.7; }
+.sol-toggle { font-size: 12px; font-weight: 600; color: var(--primary); cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 0; border: none; background: none; font-family: var(--font); }
+.sol-toggle:hover { color: var(--primary-dark); }
+.solution { display: none; margin-top: 12px; }
+.solution.open { display: block; animation: revealOut .25s ease; }
 
-/* Quiz */
-.qprog{display:flex;gap:6px;margin-bottom:22px;}
-.qpd{flex:1;height:5px;background:var(--s3);border-radius:3px;opacity:.5;transition:all .3s;}
-.qpd.correct{background:var(--green);opacity:1;}.qpd.wrong{background:var(--red);opacity:1;}
-.qcard{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:26px;min-height:295px;box-shadow:var(--shadow);}
-.qbadge{font-family:var(--fc);font-size:.68rem;color:var(--text3);margin-bottom:9px;}
-.qtxt{font-family:var(--fh);font-size:1.08rem;font-weight:700;margin-bottom:20px;line-height:1.4;}
-.qopts{display:flex;flex-direction:column;gap:9px;}
-.qo{background:var(--surface);border:1.5px solid var(--border);border-radius:11px;padding:11px 16px;text-align:left;font-family:var(--fh);font-size:.91rem;color:var(--text);cursor:pointer;transition:all .16s;display:flex;align-items:center;gap:11px;}
-.qo:hover:not(:disabled){border-color:var(--green);background:var(--green-lt);transform:translateX(4px);}
-.qol{width:26px;height:26px;border-radius:7px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-family:var(--fc);font-size:.7rem;color:var(--text3);flex-shrink:0;border:1px solid var(--border);transition:all .16s;}
-.qo.correct{border-color:var(--green);background:var(--green-lt);color:var(--green-dk);}
-.qo.correct .qol{background:var(--green);color:white;border-color:var(--green);}
-.qo.wrong{border-color:var(--red);background:var(--red-lt);color:#991b1b;}
-.qo.wrong .qol{background:var(--red);color:white;border-color:var(--red);}
-.qo:disabled{cursor:default;}
-.qfb{margin-top:13px;padding:11px 15px;border-radius:10px;font-family:var(--fc);font-size:.77rem;display:none;}
-.qfb.show{display:block;animation:fadeIn .3s ease;}
-.qfb.correct{background:var(--green-lt);color:var(--green-dk);border:1px solid var(--border);}
-.qfb.wrong{background:var(--red-lt);color:#991b1b;border:1px solid #fca5a5;}
-.qnav{display:flex;align-items:center;justify-content:space-between;margin-top:16px;}
-.qnb{background:var(--s2);border:1.5px solid var(--border);border-radius:9px;padding:9px 18px;font-family:var(--fh);font-size:.8rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all .18s;}
-.qnb:hover{border-color:var(--green);color:var(--green);}
-.qnb.pri{background:linear-gradient(135deg,var(--green),var(--blue));color:white;border-color:transparent;box-shadow:0 3px 10px var(--green-glow);}
-.qnb:disabled{opacity:.3;cursor:not-allowed;}
-.qres{display:none;text-align:center;padding:36px 18px;}
-.qres.show{display:block;animation:fadeIn .5s ease;}
-.qre{font-size:3.8rem;display:block;margin-bottom:12px;animation:bounceIn .7s ease;}
-.qrs{font-family:var(--fh);font-size:3.4rem;font-weight:800;color:var(--green);line-height:1;margin-bottom:7px;}
-.qrsb{color:var(--text2);font-size:.98rem;margin-bottom:22px;}
-.qrbd{display:flex;gap:22px;justify-content:center;margin-bottom:22px;}
-.qrv{font-family:var(--fh);font-size:1.7rem;font-weight:800;}
-.qrv.c{color:var(--green);}.qrv.w{color:var(--red);}
-.qrl{font-family:var(--fc);font-size:.67rem;color:var(--text3);}
-.rtb{background:var(--s2);border:1.5px solid var(--border);border-radius:10px;padding:10px 26px;font-family:var(--fh);font-size:.88rem;font-weight:700;color:var(--text);cursor:pointer;transition:all .2s;margin-right:8px;}
-.rtb:hover{border-color:var(--green);color:var(--green);}
+/* COMPLETE */
+.complete-wrap { text-align: center; max-width: 520px; margin: 0 auto; padding: 20px 0; }
+.complete-icon { width: 100px; height: 100px; background: rgba(37,99,235,0.1); border: 2px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 24px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.skills-learnt { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0 32px; }
+.skill-badge { background: var(--surface2); border: 1px solid var(--border); border-radius: 50px; padding: 6px 16px; font-family: var(--mono); font-size: 0.75rem; color: var(--text2); display: flex; align-items: center; gap: 6px; }
+.skill-badge .check { color: var(--accent); }
+.cert-btn { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: none; border-radius: 12px; padding: 14px 32px; font-family: var(--font); font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; }
+.cert-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,99,235,.3); }
 
-/* Completion */
-.comp-wrap{text-align:center;max-width:540px;margin:0 auto;padding:20px 0;}
-.comp-icon{width:108px;height:108px;background:linear-gradient(135deg,var(--green-lt),var(--blue-lt));border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:3rem;margin:0 auto 22px;animation:float 3s ease-in-out infinite;box-shadow:var(--shadow);}
-.skills-wrap{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:18px 0 26px;}
-.sk-tag{background:var(--green-lt);border:1px solid var(--border);border-radius:50px;padding:6px 15px;font-family:var(--fc);font-size:.73rem;color:var(--green-dk);display:flex;align-items:center;gap:5px;animation:bounceIn .5s ease both;}
-.sk-tag .ck{color:var(--green);font-weight:700;}
-.comp-btn{background:linear-gradient(135deg,var(--green),var(--blue));color:white;border:none;border-radius:13px;padding:14px 36px;font-family:var(--fh);font-size:.98rem;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 18px var(--green-glow);}
-.comp-btn:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 6px 24px var(--green-glow);}
-.restart-btn{background:var(--s2);border:1.5px solid var(--border);border-radius:11px;padding:11px 26px;font-family:var(--fh);font-size:.86rem;font-weight:700;color:var(--text);cursor:pointer;transition:all .2s;margin-top:12px;}
-.restart-btn:hover{border-color:var(--green);color:var(--green);}
-.af{margin-top:26px;padding-top:18px;border-top:1.5px solid var(--border);text-align:center;}
-.af-l{font-family:var(--fc);font-size:.6rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
-.af-i{display:inline-flex;align-items:center;gap:12px;}
-.af-a{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:1.1rem;font-weight:800;color:white;box-shadow:0 4px 12px var(--green-glow);}
+/* EXCEPTION TREE */
+.exc-tree { background: #b8d8fc; border-radius: var(--radius); padding: 20px; margin: 16px 0; border: 1px solid #89b9e8; }
+.et-node { cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 8px; font-family: var(--mono); font-size: 12px; transition: all .2s; border: 1px solid transparent; color: #0a0a2a; }
+.et-node:hover { border-color: #89b9e8; background: rgba(255,255,255,.6); }
+.et-root { color: #c2410c; font-weight: 700; }
+.et-base { color: #d97706; font-weight: 700; }
+.et-specific { color: #059669; }
+.et-arrow { color: #6c7086; font-size: 10px; }
+.et-tooltip { display: none; background: rgba(255,255,255,.8); border-radius: 6px; padding: 6px 10px; margin-top: 6px; font-size: 11px; color: #0a0a2a; border: 1px solid #89b9e8; }
+.et-node.open .et-tooltip { display: block; }
 
-/* Mobile */
-@media(max-width:680px){
-  #shell{grid-template-columns:1fr;grid-template-areas:"nav" "main";}
-  #side{display:none;}
-  .page{padding:22px 18px;}
-  .g2,.g3{grid-template-columns:1fr;}
-  .ncreator,.nprog{display:none;}
+/* RESPONSIVE */
+@media (max-width: 800px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; padding: 24px 20px; }
+  .hero h1 { font-size: 32px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .err-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 <body>
-<div id="shell">
 
-<!-- ════ EXACT HEADER (MANDATORY) ════ -->
-<header id="nav">
-  <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
-    <div class="nlogo">
-      <img src="logo.png" alt="HCL-GUVI Logo" class="nlogo-img"
-           onerror="this.style.display='none';document.getElementById('lfb').style.display='flex';"
-           style="height:40px;object-fit:contain;"/>
-      <div class="nlogo-fb" id="lfb" style="display:none;">🐍</div>
-      <div class="nlogo-txt">
-        <div class="ln">HCL-GUVI</div>
-        <div class="ls">Python for Beginners</div>
+<header class="app-header">
+  <div class="header-left">
+    <div class="logo-area">
+      <img src="logo.png" alt="Logo" style="height:36px; width:auto; object-fit:contain;">
+      <div class="logo-badge">🛡️</div>
+      <div>
+        <div class="logo-text">Python for Beginners</div>
+        <div class="logo-sub">Exception Handling</div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:14px;">
-      <div class="ndiv"></div>
-      <div class="nmod">
-        <div class="nmod-tag">Module 09</div>
-        <div class="nmod-name">Exception Handling</div>
-      </div>
-      <div class="ndiv"></div>
-      <div class="nprog">
-        <div class="nprog-row"><span>Progress</span><span id="npct">0%</span></div>
-        <div class="nprog-bar"><div class="nprog-fill" id="nfill" style="width:0%"></div></div>
-      </div>
-      <div class="ncreator">
-        <div class="nc-av">V</div>
-        <div><div class="nc-n">Vinodhini</div><div class="nc-r">Data Scientist · HCL GUVI</div></div>
-      </div>
+    <div class="header-divider"></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="module-badge">Module 9</div>
+      <div class="module-title">Exception Handling</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="progress-wrap">
+      <span class="progress-label">Progress</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <span class="progress-pct" id="progressPct">0%</span>
     </div>
   </div>
 </header>
 
-<!-- ════ SIDEBAR ════ -->
-<aside id="side">
-  <div class="slbl">Module 09</div>
-  <div class="si active" data-p="0" onclick="gp(0)"><span class="s-ico">🏠</span>Welcome<span class="sck">✓</span></div>
-  <div class="si" data-p="1" onclick="gp(1)"><span class="s-ico">🚨</span>What are Exceptions?<span class="sck">✓</span></div>
-  <div class="si" data-p="2" onclick="gp(2)"><span class="s-ico">🛡️</span>try / except<span class="sck">✓</span></div>
-  <div class="si" data-p="3" onclick="gp(3)"><span class="s-ico">🔄</span>else / finally<span class="sck">✓</span></div>
-  <div class="si" data-p="4" onclick="gp(4)"><span class="s-ico">🏗️</span>Custom Exceptions<span class="sck">✓</span></div>
-  <div class="sdiv"></div>
-  <div class="slbl">Practice</div>
-  <div class="si" data-p="5" onclick="gp(5)"><span class="s-ico">✏️</span>Exercises<span class="sck">✓</span></div>
-  <div class="si" data-p="6" onclick="gp(6)"><span class="s-ico">🧠</span>Quiz<span class="sck">✓</span></div>
-  <div class="si" data-p="7" onclick="gp(7)"><span class="s-ico">🎉</span>Completion<span class="sck">✓</span></div>
-  <div class="side-foot">
-    <div class="sf-in">
-      <div class="sf-lbl">Created by</div>
-      <div class="sf-av">V</div>
-      <div class="sf-n">Vinodhini</div>
-      <div class="sf-t">Data Scientist</div>
-      <div class="sf-o">🏢 HCL GUVI</div>
-    </div>
-  </div>
-</aside>
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-section">Module 9</div>
+  <button class="nav-item active" onclick="goTo(0)" id="nav-0"><span class="nav-icon">🏠</span>Welcome<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(1)" id="nav-1"><span class="nav-icon">🚨</span>What are Exceptions?<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(2)" id="nav-2"><span class="nav-icon">🛡️</span>try / except<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(3)" id="nav-3"><span class="nav-icon">🔄</span>else / finally<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(4)" id="nav-4"><span class="nav-icon">🏗️</span>Custom Exceptions<span class="nav-check">✓</span></button>
+  <div class="sidebar-section">Practice</div>
+  <button class="nav-item" onclick="goTo(5)" id="nav-5"><span class="nav-icon">✏️</span>Exercises<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(6)" id="nav-6"><span class="nav-icon">🧠</span>Quiz<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(7)" id="nav-7"><span class="nav-icon">🎉</span>Complete!<span class="nav-check">✓</span></button>
+</nav>
 
-<!-- ════ MAIN CONTENT ════ -->
-<main id="main">
+<main class="main-content" id="mainContent">
 
-<!-- ░░░ PAGE 0 — WELCOME ░░░ -->
-<div class="page active" id="page-0">
-  <span style="font-size:4.8rem;display:block;margin-bottom:14px;animation:float 3s ease-in-out infinite;line-height:1;filter:drop-shadow(0 8px 16px rgba(220,38,38,.25))">🛡️</span>
-  <div class="ptag">Module 09 · Python for Beginners</div>
-  <h1>Exception<br><span style="color:var(--green)">Handling</span></h1>
-  <p style="font-size:1.02rem;max-width:500px;margin:14px 0 24px;">Errors happen. Great programmers don't fear them — they <strong>handle them gracefully</strong>. Learn to write bulletproof Python code that never crashes unexpectedly.</p>
-  <div style="display:flex;flex-wrap:wrap;gap:9px;margin-bottom:28px;" class="stg">
-    <div class="hero-chip">📖 5 Lessons</div>
-    <div class="hero-chip">🎮 7 Interactive Demos</div>
-    <div class="hero-chip">✏️ 3 Exercises</div>
-    <div class="hero-chip">🧠 5-Q Quiz</div>
-    <div class="hero-chip">⏱️ ~30 min</div>
-  </div>
-  <div style="display:flex;gap:28px;flex-wrap:wrap;margin-bottom:28px;" class="stg">
-    <div><div style="font-family:var(--fh);font-size:1.85rem;font-weight:800;color:var(--green);line-height:1;">try</div><div style="font-family:var(--fc);font-size:.67rem;color:var(--text3);">Attempt risky code</div></div>
-    <div><div style="font-family:var(--fh);font-size:1.85rem;font-weight:800;color:var(--amber);line-height:1;">except</div><div style="font-family:var(--fc);font-size:.67rem;color:var(--text3);">Catch errors</div></div>
-    <div><div style="font-family:var(--fh);font-size:1.85rem;font-weight:800;color:var(--blue);line-height:1;">finally</div><div style="font-family:var(--fc);font-size:.67rem;color:var(--text3);">Always runs</div></div>
-  </div>
-  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-top:22px;border-top:1.5px solid var(--border);" class="stg">
-    <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:1.2rem;font-weight:800;color:white;box-shadow:0 4px 12px var(--green-glow);flex-shrink:0;">V</div>
-    <div><div style="font-family:var(--fc);font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;">Course Author</div><div style="font-family:var(--fh);font-size:1rem;font-weight:700;color:var(--green);">Vinodhini</div><div style="font-family:var(--fc);font-size:.71rem;color:var(--text2);">Data Scientist · HCL GUVI</div></div>
-  </div>
-  <div class="pbb"><div></div><button class="btn-next" onclick="gp(1)">Let's Begin →</button></div>
-</div>
-
-<!-- ░░░ PAGE 1 — WHAT ARE EXCEPTIONS ░░░ -->
-<div class="page" id="page-1">
-  <div class="ph">
-    <div class="ptag">Concept 1</div>
-    <h2>What are Exceptions?</h2>
-    <p>An <strong>exception</strong> is an error that occurs during program execution — not a syntax error (caught before running), but a <em>runtime error</em> that crashes your program if unhandled.</p>
-  </div>
-
-  <div class="analogy stg">
-    <div class="an-ico">🚗</div>
-    <div class="an-body">
-      <h4>Real-Life Analogy: Car Dashboard Warnings</h4>
-      <p>When something goes wrong while driving, your dashboard shows a warning light — it doesn't stop the car immediately. Python exceptions are like those warnings. Without exception handling, the car <em>immediately</em> stalls. With it, you can respond gracefully: pull over, check the issue, and continue.</p>
+<!-- PAGE 0: WELCOME -->
+<section class="page active" id="page-0">
+  <div class="hero">
+    <div class="hero-deco" style="position:absolute; right:40px; top:50%; font-size:100px; opacity:.07;">🛡️</div>
+    <div class="hero-tag">⭐ Module 9 of 12 · Python for Beginners</div>
+    <h1>Exception<br><em>Handling</em></h1>
+    <p>Errors happen. Great programmers don't fear them — they handle them gracefully. Learn to write bulletproof Python code that never crashes unexpectedly.</p>
+    <div class="hero-chips">
+      <span class="chip chip-blue">📖 5 Lessons</span>
+      <span class="chip chip-green">🎮 Interactive Demos</span>
+      <span class="chip chip-purple">✏️ 3 Exercises</span>
+      <span class="chip chip-blue">🧠 5 Questions</span>
     </div>
   </div>
 
-  <!-- Error Type Cards -->
-  <h3 style="margin:20px 0 8px;font-size:.93rem;">🃏 Common Python Exceptions — Click each to learn more</h3>
-  <div class="reveal-hint">Tap any card to see when it occurs and an example</div>
-  <div class="err-grid stg">
-    <div class="err-card ve" onclick="toggleErr(this)">
-      <div class="ec-front"><span class="ec-emoji">📝</span><div class="ec-name">ValueError</div><div class="ec-hint">Wrong value type</div></div>
-      <div class="ec-back">Raised when a function receives the right type but wrong value.<br><br><span style="color:#9a3412;">int("hello")</span><br>→ ValueError: invalid literal for int()</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-tag">🎯 What You'll Learn</div>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+        <div style="display:flex; align-items:center; gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;">✓</div> Understand Python exceptions</div>
+        <div style="display:flex; align-items:center; gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;">✓</div> Use try/except to catch errors</div>
+        <div style="display:flex; align-items:center; gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;">✓</div> else and finally blocks</div>
+        <div style="display:flex; align-items:center; gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;">✓</div> Create custom exceptions</div>
+        <div style="display:flex; align-items:center; gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;">✓</div> Raise exceptions intentionally</div>
+      </div>
     </div>
-    <div class="err-card te" onclick="toggleErr(this)">
-      <div class="ec-front"><span class="ec-emoji">⚡</span><div class="ec-name">TypeError</div><div class="ec-hint">Wrong data type</div></div>
-      <div class="ec-back">Raised when an operation is applied to wrong type.<br><br><span style="color:#991b1b;">"hello" + 5</span><br>→ TypeError: can only concatenate str (not "int") to str</div>
-    </div>
-    <div class="err-card ze" onclick="toggleErr(this)">
-      <div class="ec-front"><span class="ec-emoji">➗</span><div class="ec-name">ZeroDivisionError</div><div class="ec-hint">Division by zero</div></div>
-      <div class="ec-back">Raised when dividing any number by zero.<br><br><span style="color:#92400e;">10 / 0</span><br>→ ZeroDivisionError: division by zero</div>
-    </div>
-    <div class="err-card ie" onclick="toggleErr(this)">
-      <div class="ec-front"><span class="ec-emoji">📂</span><div class="ec-name">FileNotFoundError</div><div class="ec-hint">File doesn't exist</div></div>
-      <div class="ec-back">Raised when a file operation fails because file doesn't exist.<br><br><span style="color:var(--blue-dk);">open("ghost.txt")</span><br>→ FileNotFoundError: No such file</div>
-    </div>
-    <div class="err-card ae" onclick="toggleErr(this)">
-      <div class="ec-front"><span class="ec-emoji">📋</span><div class="ec-name">IndexError</div><div class="ec-hint">List index out of range</div></div>
-      <div class="ec-back">Raised when accessing an invalid list/tuple index.<br><br><span style="color:#4c1d95;">lst = [1,2]; lst[5]</span><br>→ IndexError: list index out of range</div>
+    <div class="card">
+      <div class="section-tag">🗺️ Why Exception Handling Matters</div>
+      <p>Unhandled exceptions crash your program. Proper exception handling makes your code robust, user-friendly, and professional.</p>
+      <div class="grid-2" style="margin-top:12px; gap:8px;">
+        <div style="background:var(--surface2);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:22px;">🚀</div><div style="font-size:11px;font-weight:600;">Production Ready</div></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:22px;">👥</div><div style="font-size:11px;font-weight:600;">User Friendly</div></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:22px;">🔒</div><div style="font-size:11px;font-weight:600;">Secure</div></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:22px;">🐛</div><div style="font-size:11px;font-weight:600;">Debuggable</div></div>
+      </div>
     </div>
   </div>
 
-  <!-- Exception Hierarchy Tree -->
-  <h3 style="margin:22px 0 10px;font-size:.93rem;">🌲 Exception Hierarchy — Click nodes to expand</h3>
+  <div class="info-box blue"><span class="info-icon">💡</span><div class="info-text"><strong>Did you know?</strong> Python has over 60 built-in exception types. The most common ones are ValueError, TypeError, ZeroDivisionError, and FileNotFoundError.</div></div>
+  <div class="page-nav"><span></span><button class="btn btn-primary" onclick="goTo(1)">Start Learning →</button></div>
+</section>
+
+<!-- PAGE 1: WHAT ARE EXCEPTIONS -->
+<section class="page" id="page-1">
+  <div class="section-tag">📘 Concept 1</div>
+  <div class="page-h2">What are Exceptions?</div>
+  <div class="page-subtitle">An exception is an error that occurs during program execution — a runtime error that crashes your program if unhandled.</div>
+
+  <div class="analogy-card"><div class="analogy-icon">🚗</div><div><div class="analogy-title">Real-Life Analogy: Dashboard Warnings</div><div class="info-text">When something goes wrong while driving, your dashboard shows a warning light. Python exceptions are like those warnings — without handling them, the car stalls immediately. With handling, you can respond gracefully.</div></div></div>
+
+  <div class="err-grid">
+    <div class="err-card" onclick="this.classList.toggle('open')"><div class="ec-front"><span class="ec-emoji">📝</span><div class="ec-name">ValueError</div><div class="ec-hint">Wrong value type</div></div><div class="ec-back">int("hello") → ValueError: invalid literal for int()</div></div>
+    <div class="err-card" onclick="this.classList.toggle('open')"><div class="ec-front"><span class="ec-emoji">⚡</span><div class="ec-name">TypeError</div><div class="ec-hint">Wrong data type</div></div><div class="ec-back">"hello" + 5 → TypeError: can only concatenate str (not "int") to str</div></div>
+    <div class="err-card" onclick="this.classList.toggle('open')"><div class="ec-front"><span class="ec-emoji">➗</span><div class="ec-name">ZeroDivisionError</div><div class="ec-hint">Division by zero</div></div><div class="ec-back">10 / 0 → ZeroDivisionError: division by zero</div></div>
+    <div class="err-card" onclick="this.classList.toggle('open')"><div class="ec-front"><span class="ec-emoji">📂</span><div class="ec-name">FileNotFoundError</div><div class="ec-hint">File doesn't exist</div></div><div class="ec-back">open("ghost.txt") → FileNotFoundError: No such file</div></div>
+    <div class="err-card" onclick="this.classList.toggle('open')"><div class="ec-front"><span class="ec-emoji">📋</span><div class="ec-name">IndexError</div><div class="ec-hint">List index out of range</div></div><div class="ec-back">lst = [1,2]; lst[5] → IndexError: list index out of range</div></div>
+  </div>
+
   <div class="exc-tree">
-    <div style="display:flex;flex-direction:column;gap:4px;">
-      <div onclick="toggleTree(this)" class="et-node et-root">BaseException<span style="font-size:.7rem;margin-left:6px;opacity:.6;">▼ root of all</span><div class="et-tooltip">The base class of all built-in exceptions. You almost never catch this directly.</div></div>
-      <div style="margin-left:20px;display:flex;flex-direction:column;gap:4px;">
-        <div onclick="toggleTree(this)" class="et-node et-base">└─ Exception<span style="font-size:.7rem;margin-left:6px;opacity:.6;">▼ catch all</span><div class="et-tooltip">Base for all non-system-exiting exceptions. catch Exception to handle almost anything.</div></div>
-        <div style="margin-left:24px;display:flex;flex-direction:column;gap:4px;">
-          <div onclick="toggleTree(this)" class="et-node et-specific">├─ ValueError<div class="et-tooltip">int("abc"), float("xyz") — wrong value for the type</div></div>
-          <div onclick="toggleTree(this)" class="et-node et-specific">├─ TypeError<div class="et-tooltip">"str" + 5 — incompatible types in an operation</div></div>
-          <div onclick="toggleTree(this)" class="et-node et-specific">├─ ZeroDivisionError<div class="et-tooltip">10/0 — mathematical impossibility</div></div>
-          <div onclick="toggleTree(this)" class="et-node et-specific">├─ IndexError<div class="et-tooltip">list[99] — accessing non-existent position</div></div>
-          <div onclick="toggleTree(this)" class="et-node et-specific">├─ KeyError<div class="et-tooltip">dict["missing_key"] — key not in dictionary</div></div>
-          <div onclick="toggleTree(this)" class="et-node et-specific">├─ FileNotFoundError<div class="et-tooltip">open("ghost.txt") — file doesn't exist</div></div>
-          <div onclick="toggleTree(this)" class="et-node et-specific">└─ NameError<div class="et-tooltip">print(undefined_var) — variable not defined</div></div>
+    <div style="display:flex; flex-direction:column; gap:4px;">
+      <div onclick="this.classList.toggle('open')" class="et-node et-root">BaseException<span style="font-size:10px;margin-left:6px;">▼ root</span><div class="et-tooltip">Base class of all built-in exceptions</div></div>
+      <div style="margin-left:20px;"><div onclick="this.classList.toggle('open')" class="et-node et-base">└─ Exception<span class="et-arrow"></span><div class="et-tooltip">Base for all non-system-exiting exceptions</div></div>
+        <div style="margin-left:24px; margin-top:4px;">
+          <div class="et-node et-specific">├─ ValueError</div>
+          <div class="et-node et-specific">├─ TypeError</div>
+          <div class="et-node et-specific">├─ ZeroDivisionError</div>
+          <div class="et-node et-specific">├─ IndexError</div>
+          <div class="et-node et-specific">├─ KeyError</div>
+          <div class="et-node et-specific">├─ FileNotFoundError</div>
+          <div class="et-node et-specific">└─ NameError</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="cb stg">
-    <div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-fn">what_happens.py</span></div>
-    <div class="cb-body"><pre><span class="cm"># Without exception handling — program CRASHES</span>
-x = <span class="fn">int</span>(<span class="st">"hello"</span>)   <span class="cm"># raises ValueError</span>
-<span class="fn">print</span>(<span class="st">"This never prints"</span>)
-
-<span class="cm"># Output:</span>
-<span class="cm"># ValueError: invalid literal for int() with base 10: 'hello'</span>
-<span class="cm"># Traceback (most recent call last):</span>
-<span class="cm">#   File "script.py", line 2, in &lt;module&gt;</span></pre></div>
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">exceptions.py</span></div>
+    <span class="cm"># Without exception handling — program CRASHES</span><br>
+    <span class="vr">x</span> = <span class="fn">int</span>(<span class="st">"hello"</span>)   <span class="cm"># raises ValueError</span><br>
+    <span class="fn">print</span>(<span class="st">"This never prints"</span>)
   </div>
-  <button class="btn-run" onclick="runDemo('d1',['Traceback (most recent call last):','  File \"script.py\", line 2, in <module>','    x = int(\"hello\")','ValueError: invalid literal for int() with base 10: \"hello\"'],true)">💥 Simulate Crash</button>
-  <div class="out-box error-out" id="d1"></div>
+  <button class="btn btn-run" onclick="toggleOutput('out1')">💥 Run Crash Demo</button>
+  <div class="output-block" id="out1">ValueError: invalid literal for int() with base 10: 'hello'<br>Traceback (most recent call last):<br>  File "script.py", line 2, in &lt;module&gt;</div>
 
-  <div class="pbb"><button class="btn-prev" onclick="gp(0)">← Back</button><button class="btn-next" onclick="gp(2)">try / except →</button></div>
-</div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(0)">← Back</button><button class="btn btn-primary" onclick="goTo(2)">Next →</button></div>
+</section>
 
-<!-- ░░░ PAGE 2 — TRY / EXCEPT ░░░ -->
-<div class="page" id="page-2">
-  <div class="ph">
-    <div class="ptag">Concept 2</div>
-    <h2>try / except</h2>
-    <p>Wrap risky code in a <code>try</code> block. If an exception occurs, Python jumps to the matching <code>except</code> block — your program keeps running!</p>
-  </div>
+<!-- PAGE 2: TRY / EXCEPT -->
+<section class="page" id="page-2">
+  <div class="section-tag">📘 Concept 2</div>
+  <div class="page-h2">try / except</div>
+  <div class="page-subtitle">Wrap risky code in a try block. If an exception occurs, Python jumps to the matching except block — your program keeps running!</div>
 
-  <div class="analogy stg">
-    <div class="an-ico">🏥</div>
-    <div class="an-body">
-      <h4>Real-Life Analogy: Hospital Emergency Plan</h4>
-      <p><strong>Try:</strong> Attempt the normal procedure. <strong>Except:</strong> If something goes wrong, activate the emergency plan. The hospital (your program) doesn't shut down — it gracefully handles the situation and continues operating.</p>
-    </div>
-  </div>
+  <div class="analogy-card"><div class="analogy-icon">🏥</div><div><div class="analogy-title">Real-Life Analogy: Emergency Plan</div><div class="info-text">Try: Attempt the normal procedure. Except: If something goes wrong, activate the emergency plan. The hospital (your program) doesn't shut down — it handles the situation and continues.</div></div></div>
 
-  <!-- Animated SVG Flow Diagram -->
-  <h3 style="margin:18px 0 10px;font-size:.93rem;">🔀 try/except Control Flow</h3>
-  <div class="flow-wrap">
-    <svg width="560" height="240" viewBox="0 0 560 240">
-      <defs>
-        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-          <path d="M0,0 L0,6 L8,3 z" fill="#138a62"/>
-        </marker>
-        <marker id="arr-r" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-          <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
-        </marker>
-        <marker id="arr-b" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-          <path d="M0,0 L0,6 L8,3 z" fill="#1660b0"/>
-        </marker>
-      </defs>
-      <!-- Start -->
-      <rect x="220" y="8" width="120" height="36" rx="18" fill="#e0f5ec" stroke="#138a62" stroke-width="1.5"/>
-      <text x="280" y="31" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="12" font-weight="700" fill="#0a5c40">Enter try block</text>
-      <!-- Arrow down -->
-      <line x1="280" y1="44" x2="280" y2="70" stroke="#138a62" stroke-width="2" marker-end="url(#arr)"/>
-      <!-- Try box -->
-      <rect x="190" y="70" width="180" height="40" rx="10" fill="#e0f5ec" stroke="#138a62" stroke-width="1.5"/>
-      <text x="280" y="93" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#0a5c40">risky_code()</text>
-      <!-- Diamond -->
-      <polygon points="280,130 360,155 280,180 200,155" fill="#fff7ed" stroke="#d97706" stroke-width="2"/>
-      <text x="280" y="152" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="10" font-weight="700" fill="#92400e">Exception?</text>
-      <line x1="280" y1="110" x2="280" y2="128" stroke="#138a62" stroke-width="2" marker-end="url(#arr)"/>
-      <!-- NO path -->
-      <line x1="200" y1="155" x2="80" y2="155" stroke="#138a62" stroke-width="2" marker-end="url(#arr)"/>
-      <text x="140" y="148" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="10" font-weight="700" fill="#138a62">NO ✓</text>
-      <rect x="10" y="135" width="70" height="40" rx="10" fill="#e0f5ec" stroke="#138a62" stroke-width="1.5"/>
-      <text x="45" y="159" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="10" font-weight="700" fill="#0a5c40">Continue</text>
-      <!-- YES path -->
-      <line x1="360" y1="155" x2="470" y2="155" stroke="#dc2626" stroke-width="2" marker-end="url(#arr-r)"/>
-      <text x="415" y="148" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="10" font-weight="700" fill="#dc2626">YES ✗</text>
-      <rect x="470" y="135" width="80" height="40" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
-      <text x="510" y="153" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="10" font-weight="700" fill="#991b1b">except</text>
-      <text x="510" y="167" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" fill="#991b1b">block runs</text>
-      <!-- Both converge -->
-      <line x1="45" y1="175" x2="45" y2="215" stroke="#138a62" stroke-width="2"/>
-      <line x1="510" y1="175" x2="510" y2="215" stroke="#dc2626" stroke-width="2"/>
-      <line x1="45" y1="215" x2="280" y2="215" stroke="#6b7280" stroke-width="2"/>
-      <line x1="510" y1="215" x2="280" y2="215" stroke="#6b7280" stroke-width="2"/>
-      <polygon points="276,211 284,211 280,219" fill="#6b7280"/>
-      <text x="280" y="235" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="10" fill="#6b7280">Program continues…</text>
-    </svg>
-  </div>
-
-  <!-- Exception Simulator -->
-  <h3 style="margin:20px 0 10px;font-size:.93rem;">🎮 Exception Simulator — Click a scenario to see what happens</h3>
   <div class="exc-sim">
-    <div class="es-header">
-      <span class="es-title">⚡ Live Exception Simulator</span>
-      <div class="es-controls">
-        <button class="es-btn" onclick="simScenario('safe')">✅ Safe Input</button>
-        <button class="es-btn err-btn" onclick="simScenario('value')">💥 ValueError</button>
-        <button class="es-btn err-btn" onclick="simScenario('zero')">➗ ZeroDivision</button>
-        <button class="es-btn err-btn" onclick="simScenario('type')">⚡ TypeError</button>
-      </div>
+    <div class="es-header"><span class="es-title">⚡ Exception Simulator</span>
+      <div class="es-controls"><button class="es-btn" onclick="simulateException('safe')">✅ Safe Input</button><button class="es-btn" onclick="simulateException('value')">💥 ValueError</button><button class="es-btn" onclick="simulateException('zero')">➗ ZeroDivision</button></div>
     </div>
-    <div class="es-output" id="simOutput">
-      <div style="font-family:var(--fc);font-size:.8rem;color:rgba(109,148,120,.4);padding:8px 0;">← Click a scenario to simulate exception handling</div>
-    </div>
+    <div class="es-output" id="simOutput"></div>
   </div>
 
-  <div class="cb stg">
-    <div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-fn">try_except.py</span></div>
-    <div class="cb-body"><pre><span class="cm"># Catch a specific exception</span>
-<span class="kw">try</span>:
-    age = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"Enter age: "</span>))  <span class="cm"># risky!</span>
-    <span class="fn">print</span>(<span class="st">f"Your age is {age}"</span>)
-<span class="kw">except</span> <span class="ex">ValueError</span>:
-    <span class="fn">print</span>(<span class="st">"Please enter a valid number!"</span>)
-
-<span class="cm"># Catch multiple exceptions</span>
-<span class="kw">try</span>:
-    result = <span class="nm">10</span> / <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"Divisor: "</span>))
-    <span class="fn">print</span>(<span class="st">f"Result: {result}"</span>)
-<span class="kw">except</span> <span class="ex">ValueError</span>:
-    <span class="fn">print</span>(<span class="st">"Not a number!"</span>)
-<span class="kw">except</span> <span class="ex">ZeroDivisionError</span>:
-    <span class="fn">print</span>(<span class="st">"Can't divide by zero!"</span>)
-<span class="kw">except</span> <span class="ex">Exception</span> <span class="kw">as</span> e:
-    <span class="fn">print</span>(<span class="st">f"Unexpected error: {e}"</span>)</pre></div>
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">try_except.py</span></div>
+    <span class="kw">try</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;age = <span class="fn">int</span>(<span class="fn">input</span>(<span class="st">"Enter age: "</span>))<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">f"Your age is {age}"</span>)<br><span class="kw">except</span> <span class="ex">ValueError</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"Please enter a valid number!"</span>)
   </div>
-  <button class="btn-run" onclick="runDemo('d2',['Enter age: abc  (simulated)','Please enter a valid number!','','Divisor: 0  (simulated)','Can\'t divide by zero!'])">▶ Run Demo</button>
-  <div class="out-box" id="d2"></div>
+  <button class="btn btn-run" onclick="toggleOutput('out2')">▶ Run Demo</button>
+  <div class="output-block" id="out2">Please enter a valid number!</div>
 
-  <!-- Step Executor -->
-  <h3 style="margin:22px 0 10px;font-size:.93rem;">🔍 Step-by-Step Execution — Walk through the try/except</h3>
-  <div class="step-exec" id="se1">
-    <div class="se-hdr">
-      <span class="se-ttl">Execution Trace</span>
-      <div class="se-ctrls">
-        <button class="se-btn" onclick="seNext('se1')">▶ Next Step</button>
-        <button class="se-btn rst" onclick="seReset('se1')">↺ Reset</button>
-      </div>
-    </div>
+  <div class="step-exec" id="stepExec">
+    <div class="se-hdr"><span class="se-ttl">Execution Trace</span><div class="se-ctrls"><button class="se-btn" onclick="stepNext()">▶ Next Step</button><button class="se-btn" onclick="stepReset()">↺ Reset</button></div></div>
     <div class="se-lines">
       <div class="se-line"><div class="se-ln">1</div><div class="se-arr">→</div><div class="se-code"><span class="kw">try</span>:</div></div>
       <div class="se-line"><div class="se-ln">2</div><div class="se-arr">→</div><div class="se-code">&nbsp;&nbsp;&nbsp;&nbsp;x = <span class="fn">int</span>(<span class="st">"hello"</span>)  <span class="cm"># raises ValueError</span></div></div>
-      <div class="se-line err-line"><div class="se-ln">3</div><div class="se-arr">→</div><div class="se-code"><span class="kw">except</span> <span class="ex">ValueError</span>:</div></div>
+      <div class="se-line"><div class="se-ln">3</div><div class="se-arr">→</div><div class="se-code"><span class="kw">except</span> <span class="ex">ValueError</span>:</div></div>
       <div class="se-line"><div class="se-ln">4</div><div class="se-arr">→</div><div class="se-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"Caught it!"</span>)</div></div>
-      <div class="se-line"><div class="se-ln">5</div><div class="se-arr">→</div><div class="se-code"><span class="fn">print</span>(<span class="st">"Program continues..."</span>)</div></div>
+      <div class="se-line"><div class="se-ln">5</div><div class="se-arr">→</div><div class="se-code"><span class="fn">print</span>(<span class="st">"Program continues"</span>)</div></div>
     </div>
-    <div class="se-info" id="se1-info">Click "Next Step" to begin the execution trace.</div>
+    <div class="se-info" id="stepInfo">Click "Next Step" to trace execution</div>
   </div>
 
-  <div class="tip">Catch the <strong>most specific</strong> exceptions first, then more general ones. If you catch <code>Exception</code> first, it will swallow everything — even errors you didn't expect!</div>
+  <div class="info-box warn"><span class="info-icon">⚠️</span><div class="info-text">Catch specific exceptions first, then more general ones. If you catch Exception first, it will swallow everything — even errors you didn't expect!</div></div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(1)">← Back</button><button class="btn btn-primary" onclick="goTo(3)">Next →</button></div>
+</section>
 
-  <div class="pbb"><button class="btn-prev" onclick="gp(1)">← Exceptions</button><button class="btn-next" onclick="gp(3)">else / finally →</button></div>
-</div>
+<!-- PAGE 3: ELSE / FINALLY -->
+<section class="page" id="page-3">
+  <div class="section-tag">📘 Concept 3</div>
+  <div class="page-h2">else &amp; finally</div>
+  <div class="page-subtitle">else runs only if no exception occurred; finally runs no matter what — even if there's an exception or a return statement.</div>
 
-<!-- ░░░ PAGE 3 — ELSE / FINALLY ░░░ -->
-<div class="page" id="page-3">
-  <div class="ph">
-    <div class="ptag">Concept 3</div>
-    <h2>else &amp; finally</h2>
-    <p>Two powerful additions to the try/except block: <code>else</code> runs <em>only if no exception occurred</em>; <code>finally</code> runs <em>no matter what</em> — even if there's an exception or a return statement.</p>
+  <div class="grid-2">
+    <div class="card card-green"><h4 style="margin-bottom:8px;">✅ else block</h4><p>Runs <strong>only</strong> when the try block succeeds with no exceptions. Perfect for success-only code.</p></div>
+    <div class="card card-blue"><h4 style="margin-bottom:8px;">🔒 finally block</h4><p>Runs <strong>always</strong> — success or failure. Perfect for cleanup: closing files, releasing resources.</p></div>
   </div>
 
-  <div class="g2 stg" style="margin-bottom:18px;">
-    <div class="card card-green">
-      <h4 style="font-family:var(--fh);margin-bottom:8px;font-size:.92rem;color:var(--green-dk);">✅ else block</h4>
-      <p style="font-size:.84rem;margin:0;color:var(--green-dk);">Runs <strong>only</strong> when the try block succeeds with no exceptions. Use it for code that should only run on success.</p>
-    </div>
-    <div class="card card-blue">
-      <h4 style="font-family:var(--fh);margin-bottom:8px;font-size:.92rem;color:var(--blue-dk);">🔒 finally block</h4>
-      <p style="font-size:.84rem;margin:0;color:var(--blue-dk);">Runs <strong>always</strong> — success or failure. Perfect for cleanup: closing files, releasing resources, database disconnects.</p>
-    </div>
-  </div>
-
-  <!-- Finally Always Runs Demo -->
-  <h3 style="margin:18px 0 10px;font-size:.93rem;">🎮 finally Always Runs — Choose a scenario</h3>
   <div class="finally-demo">
-    <div class="fd-header">
-      <span>🔒</span> <span>Simulate: database connection with finally cleanup</span>
-    </div>
+    <div class="fd-header">🔒 Simulate: database connection with finally cleanup</div>
     <div class="fd-body">
-      <div class="fd-scenario" id="fds0" onclick="runFinally('success')">
-        <div class="fds-title">✅ Success</div>
-        <div class="fds-desc">Query executes without error</div>
-      </div>
-      <div class="fd-scenario" id="fds1" onclick="runFinally('error')">
-        <div class="fds-title">💥 DB Error</div>
-        <div class="fds-desc">Query fails with exception</div>
-      </div>
-      <div class="fd-scenario" id="fds2" onclick="runFinally('network')">
-        <div class="fds-title">🌐 Network Error</div>
-        <div class="fds-desc">Connection lost mid-query</div>
-      </div>
+      <div class="fd-scenario" onclick="runFinally('success')"><div class="fds-title">✅ Success</div><div class="fds-desc">Query executes without error</div></div>
+      <div class="fd-scenario" onclick="runFinally('error')"><div class="fds-title">💥 DB Error</div><div class="fds-desc">Query fails with exception</div></div>
     </div>
-    <div class="fd-output">
-      <div class="fdo-inner" id="fdoInner" style="color:rgba(182,232,200,.4);font-size:.8rem;">← Select a scenario above</div>
-    </div>
+    <div class="fd-output"><div class="fdo-inner" id="finallyOutput">← Select a scenario</div></div>
   </div>
 
-  <div class="cb stg">
-    <div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-fn">else_finally.py</span></div>
-    <div class="cb-body"><pre><span class="kw">def</span> <span class="fn">safe_divide</span>(a, b):
-    <span class="kw">try</span>:
-        result = a / b
-    <span class="kw">except</span> <span class="ex">ZeroDivisionError</span>:
-        <span class="fn">print</span>(<span class="st">"❌ Cannot divide by zero!"</span>)
-    <span class="kw">else</span>:
-        <span class="fn">print</span>(<span class="st">f"✅ Result: {result}"</span>)  <span class="cm"># only if no exception</span>
-    <span class="kw">finally</span>:
-        <span class="fn">print</span>(<span class="st">"🔒 Always runs — cleanup done"</span>)
-
-<span class="fn">safe_divide</span>(<span class="nm">10</span>, <span class="nm">2</span>)
-<span class="fn">safe_divide</span>(<span class="nm">10</span>, <span class="nm">0</span>)</pre></div>
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">else_finally.py</span></div>
+    <span class="kw">try</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;result = <span class="nu">10</span> / b<br><span class="kw">except</span> <span class="ex">ZeroDivisionError</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"Cannot divide by zero!"</span>)<br><span class="kw">else</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">f"Result: {result}"</span>)<br><span class="kw">finally</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"Cleanup complete"</span>)
   </div>
-  <button class="btn-run" onclick="runDemo('d3',['✅ Result: 5.0','🔒 Always runs — cleanup done','❌ Cannot divide by zero!','🔒 Always runs — cleanup done'])">▶ Run Demo</button>
-  <div class="out-box" id="d3"></div>
+  <button class="btn btn-run" onclick="toggleOutput('out3')">▶ Run Demo</button>
+  <div class="output-block" id="out3">Cannot divide by zero!<br>Cleanup complete</div>
 
-  <!-- Complete structure visual -->
-  <h3 style="margin:22px 0 10px;font-size:.93rem;">📋 Complete try/except/else/finally Structure</h3>
-  <div class="card-amber stg" style="border-radius:var(--r);padding:20px;">
-    <div style="font-family:var(--fc);font-size:.84rem;line-height:2.1;color:#78350f;">
-      <div><span style="color:#0a5c40;font-weight:600;">try:</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--text3);"># attempt risky code</span></div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#0a5c40;">...code...</span></div>
-      <div><span style="color:#991b1b;font-weight:600;">except ValueError:</span> &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--text3);"># specific exception</span></div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#991b1b;">...handle...</span></div>
-      <div><span style="color:#991b1b;font-weight:600;">except Exception as e:</span> <span style="color:var(--text3);"># catch-all</span></div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#991b1b;">...handle...</span></div>
-      <div><span style="color:#4c1d95;font-weight:600;">else:</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--text3);"># no exception? run this</span></div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#4c1d95;">...success code...</span></div>
-      <div><span style="color:var(--blue-dk);font-weight:600;">finally:</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--text3);"># ALWAYS runs</span></div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--blue-dk);">...cleanup...</span></div>
-    </div>
-  </div>
+  <div class="info-box blue"><span class="info-icon">📋</span><div class="info-text">Order must be: try → except → else → finally. You can skip else or finally, but order cannot be changed.</div></div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(2)">← Back</button><button class="btn btn-primary" onclick="goTo(4)">Next →</button></div>
+</section>
 
-  <div class="warn">The order must always be: <code>try → except → else → finally</code>. You can skip <code>else</code> or <code>finally</code>, but you can never change the order.</div>
+<!-- PAGE 4: CUSTOM EXCEPTIONS -->
+<section class="page" id="page-4">
+  <div class="section-tag">⭐ Advanced Concept</div>
+  <div class="page-h2">Custom Exceptions</div>
+  <div class="page-subtitle">Define your own exception types by creating a class that inherits from Exception — powerful for domain-specific error handling.</div>
 
-  <div class="pbb"><button class="btn-prev" onclick="gp(2)">← try/except</button><button class="btn-next" onclick="gp(4)">Custom Exceptions →</button></div>
-</div>
+  <div class="analogy-card"><div class="analogy-icon">🏦</div><div><div class="analogy-title">Real-Life Analogy: Bank Custom Rules</div><div class="info-text">A bank doesn't use a generic "error" when you overdraft. It uses InsufficientFundsError with the amount short. Custom exceptions give your errors context and meaning.</div></div></div>
 
-<!-- ░░░ PAGE 4 — CUSTOM EXCEPTIONS ░░░ -->
-<div class="page" id="page-4">
-  <div class="ph">
-    <div class="ptag">Advanced Concept</div>
-    <h2>Custom Exceptions</h2>
-    <p>You can define your <strong>own exception types</strong> by creating a class that inherits from <code>Exception</code>. This is powerful for domain-specific error handling.</p>
-  </div>
-
-  <div class="analogy stg">
-    <div class="an-ico">🏦</div>
-    <div class="an-body">
-      <h4>Real-Life Analogy: Bank Custom Rules</h4>
-      <p>A bank doesn't use a generic "error" when you overdraft. It uses a specific <strong>InsufficientFundsError</strong> with the amount short. Custom exceptions give your errors <em>context</em>, <em>meaning</em>, and <em>precise handling</em>.</p>
-    </div>
-  </div>
-
-  <!-- Custom Exception Builder -->
-  <h3 style="margin:18px 0 10px;font-size:.93rem;">🔨 Custom Exception Builder — Build your own</h3>
   <div class="exc-builder">
-    <div class="eb-title">⚙️ Design your custom exception</div>
     <div class="eb-row">
-      <div class="eb-field">
-        <div class="eb-lbl">Exception name</div>
-        <input class="eb-input" id="eb-name" value="InsufficientFundsError" placeholder="MyCustomError" oninput="updateBuilder()"/>
-      </div>
-      <div class="eb-field">
-        <div class="eb-lbl">Message</div>
-        <input class="eb-input" id="eb-msg" value="Balance too low for this transaction" placeholder="Error message" oninput="updateBuilder()"/>
-      </div>
-      <div class="eb-field">
-        <div class="eb-lbl">Parent class</div>
-        <select class="eb-select" id="eb-parent" onchange="updateBuilder()">
-          <option>Exception</option>
-          <option>ValueError</option>
-          <option>TypeError</option>
-          <option>RuntimeError</option>
-        </select>
-      </div>
+      <div class="eb-field"><div class="eb-lbl">Exception name</div><input class="eb-input" id="ebName" value="InsufficientFundsError" oninput="updateBuilder()"></div>
+      <div class="eb-field"><div class="eb-lbl">Message</div><input class="eb-input" id="ebMsg" value="Balance too low for this transaction" oninput="updateBuilder()"></div>
     </div>
-    <div class="eb-preview" id="eb-preview"></div>
-    <div class="eb-result" id="eb-result"></div>
+    <div class="eb-preview" id="ebPreview"></div>
+    <div class="eb-result" id="ebResult"></div>
   </div>
 
-  <div class="cb stg">
-    <div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-fn">custom_exceptions.py</span></div>
-    <div class="cb-body"><pre><span class="cm"># Define a custom exception</span>
-<span class="kw">class</span> <span class="ex">InsufficientFundsError</span>(<span class="ex">Exception</span>):
-    <span class="kw">def</span> <span class="fn">__init__</span>(self, balance, amount):
-        self.balance = balance
-        self.amount = amount
-        <span class="fn">super().__init__</span>(
-            <span class="st">f"Need ₹{amount}, but only ₹{balance} available"</span>
-        )
-
-<span class="cm"># Use it in your code</span>
-<span class="kw">def</span> <span class="fn">withdraw</span>(balance, amount):
-    <span class="kw">if</span> amount > balance:
-        <span class="kw">raise</span> <span class="ex">InsufficientFundsError</span>(balance, amount)
-    <span class="kw">return</span> balance - amount
-
-<span class="kw">try</span>:
-    <span class="fn">withdraw</span>(<span class="nm">500</span>, <span class="nm">800</span>)
-<span class="kw">except</span> <span class="ex">InsufficientFundsError</span> <span class="kw">as</span> e:
-    <span class="fn">print</span>(<span class="st">f"Transaction failed: {e}"</span>)</pre></div>
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">custom_exceptions.py</span></div>
+    <span class="kw">class</span> <span class="ex">InsufficientFundsError</span>(<span class="ex">Exception</span>):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">def</span> <span class="fn">__init__</span>(self, balance, amount):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">super().__init__</span>(<span class="st">f"Need ₹{amount}, only ₹{balance} available"</span>)<br><br><span class="kw">def</span> <span class="fn">withdraw</span>(balance, amount):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> amount > balance:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">raise</span> <span class="ex">InsufficientFundsError</span>(balance, amount)<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> balance - amount
   </div>
-  <button class="btn-run" onclick="runDemo('d4',['Transaction failed: Need ₹800, but only ₹500 available'])">▶ Run Demo</button>
-  <div class="out-box" id="d4"></div>
+  <button class="btn btn-run" onclick="toggleOutput('out4')">▶ Run Demo</button>
+  <div class="output-block" id="out4">Transaction failed: Need ₹800, only ₹500 available</div>
 
-  <!-- raise keyword demo -->
-  <h3 style="margin:22px 0 10px;font-size:.93rem;">⬆️ The <code>raise</code> keyword</h3>
-  <div class="card stg" style="margin-bottom:16px;">
-    <div style="font-family:var(--fc);font-size:.84rem;line-height:2.2;color:var(--text2);">
-      <div>• <code>raise</code> — re-raises the current exception (inside except)</div>
-      <div>• <code>raise ValueError("msg")</code> — raise a specific exception manually</div>
-      <div>• <code>raise InsufficientFundsError(500, 800)</code> — raise custom exception</div>
-    </div>
-  </div>
+  <div class="info-box warn"><span class="info-icon">⬆️</span><div class="info-text">The <code>raise</code> keyword lets you throw exceptions manually. Use it to validate inputs and signal errors in your own code.</div></div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(3)">← Back</button><button class="btn btn-primary" onclick="goTo(5)">Next →</button></div>
+</section>
 
-  <div class="cb stg">
-    <div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-fn">raise_examples.py</span></div>
-    <div class="cb-body"><pre><span class="cm"># Validate input and raise if invalid</span>
-<span class="kw">def</span> <span class="fn">set_age</span>(age):
-    <span class="kw">if</span> <span class="kw">not</span> <span class="fn">isinstance</span>(age, <span class="fn">int</span>):
-        <span class="kw">raise</span> <span class="ex">TypeError</span>(<span class="st">f"Age must be int, got {type(age).__name__}"</span>)
-    <span class="kw">if</span> age < <span class="nm">0</span> <span class="kw">or</span> age > <span class="nm">150</span>:
-        <span class="kw">raise</span> <span class="ex">ValueError</span>(<span class="st">f"Age {age} is not realistic"</span>)
-    <span class="kw">return</span> age
+<!-- PAGE 5: EXERCISES -->
+<section class="page" id="page-5">
+  <div class="section-tag">💻 Practice</div>
+  <div class="page-h2">Coding Exercises</div>
+  <div class="page-subtitle">Try each exercise before revealing the solution.</div>
 
-<span class="fn">print</span>(<span class="fn">set_age</span>(<span class="nm">25</span>))           <span class="cm"># 25</span>
-<span class="fn">print</span>(<span class="fn">set_age</span>(<span class="st">"twenty"</span>))   <span class="cm"># TypeError</span></pre></div>
-  </div>
-  <button class="btn-run" onclick="runDemo('d5',['25','TypeError: Age must be int, got str'],true)">▶ Run Demo</button>
-  <div class="out-box" id="d5"></div>
+  <div class="ex-card"><div class="ex-badge">⭐ Exercise 1</div><div class="ex-title">Safe Division Calculator</div><div class="ex-desc">Write a function <code>safe_divide(a, b)</code> that handles ZeroDivisionError and TypeError. Return the result or error message.</div><button class="sol-toggle" onclick="toggleSolution(this,'sol1')">▼ Show Solution</button><div class="solution" id="sol1"><div class="code-block">def safe_divide(a, b):<br>&nbsp;&nbsp;&nbsp;&nbsp;try:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return a / b<br>&nbsp;&nbsp;&nbsp;&nbsp;except ZeroDivisionError:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return "Cannot divide by zero!"<br>&nbsp;&nbsp;&nbsp;&nbsp;except TypeError:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return "Both inputs must be numbers"</div></div></div>
 
-  <div class="pbb"><button class="btn-prev" onclick="gp(3)">← else/finally</button><button class="btn-next" onclick="gp(5)">Exercises →</button></div>
-</div>
+  <div class="ex-card"><div class="ex-badge">⭐ Exercise 2</div><div class="ex-title">Safe File Reader</div><div class="ex-desc">Write a function <code>read_file(filename)</code> that handles FileNotFoundError and PermissionError. Use finally to print "File operation complete."</div><button class="sol-toggle" onclick="toggleSolution(this,'sol2')">▼ Show Solution</button><div class="solution" id="sol2"><div class="code-block">def read_file(filename):<br>&nbsp;&nbsp;&nbsp;&nbsp;try:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with open(filename, 'r') as f:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f.read())<br>&nbsp;&nbsp;&nbsp;&nbsp;except FileNotFoundError:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"File '{filename}' not found")<br>&nbsp;&nbsp;&nbsp;&nbsp;except PermissionError:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("Permission denied")<br>&nbsp;&nbsp;&nbsp;&nbsp;finally:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print("File operation complete.")</div></div></div>
 
-<!-- ░░░ PAGE 5 — EXERCISES ░░░ -->
-<div class="page" id="page-5">
-  <div class="ph">
-    <div class="ptag">Practice</div>
-    <h2>Coding Exercises</h2>
-    <p>Try to solve each exercise yourself before looking at the solution. That struggle is where real learning happens!</p>
-  </div>
+  <div class="ex-card"><div class="ex-badge">⭐ Exercise 3</div><div class="ex-title">Custom AgeValidationError</div><div class="ex-desc">Create a custom exception <code>AgeValidationError</code> that inherits from ValueError. Write a function that raises it for invalid ages.</div><button class="sol-toggle" onclick="toggleSolution(this,'sol3')">▼ Show Solution</button><div class="solution" id="sol3"><div class="code-block">class AgeValidationError(ValueError):<br>&nbsp;&nbsp;&nbsp;&nbsp;def __init__(self, age, reason):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super().__init__(f"Invalid age {age}: {reason}")<br><br>def validate_age(age):<br>&nbsp;&nbsp;&nbsp;&nbsp;if not isinstance(age, int):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise AgeValidationError(age, "must be integer")<br>&nbsp;&nbsp;&nbsp;&nbsp;if age < 0 or age > 130:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise AgeValidationError(age, "out of range")<br>&nbsp;&nbsp;&nbsp;&nbsp;return age</div></div></div>
 
-  <div class="exc-card-wrap stg">
-    <div class="ech"><span class="ec-num">Exercise 01</span><span class="ec-title">Safe Division Calculator</span></div>
-    <div class="ecb">
-      <p>Write a function <code>safe_divide(a, b)</code> that handles both <code>ZeroDivisionError</code> and <code>TypeError</code>. Return the result if successful, or a helpful error message string if not. Test with (10, 2), (10, 0), and (10, "five").</p>
-      <div class="tip" style="margin-bottom:10px;">Use multiple <code>except</code> blocks and return different messages for each.</div>
-      <button class="sol-btn" onclick="toggleSol(this)">▼ Show Solution</button>
-      <div class="sol-box">
-        <div class="cb"><div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-fn">solution.py</span></div>
-        <div class="cb-body"><pre><span class="kw">def</span> <span class="fn">safe_divide</span>(a, b):
-    <span class="kw">try</span>:
-        result = a / b
-    <span class="kw">except</span> <span class="ex">ZeroDivisionError</span>:
-        <span class="kw">return</span> <span class="st">"Error: Cannot divide by zero!"</span>
-    <span class="kw">except</span> <span class="ex">TypeError</span>:
-        <span class="kw">return</span> <span class="st">f"Error: Both inputs must be numbers, got {type(b).__name__}"</span>
-    <span class="kw">else</span>:
-        <span class="kw">return</span> <span class="st">f"Result: {result}"</span>
-    <span class="kw">finally</span>:
-        <span class="fn">print</span>(<span class="st">"Division attempted."</span>)
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(4)">← Back</button><button class="btn btn-primary" onclick="goTo(6)">Take Quiz →</button></div>
+</section>
 
-<span class="fn">print</span>(<span class="fn">safe_divide</span>(<span class="nm">10</span>, <span class="nm">2</span>))      <span class="cm"># Result: 5.0</span>
-<span class="fn">print</span>(<span class="fn">safe_divide</span>(<span class="nm">10</span>, <span class="nm">0</span>))      <span class="cm"># Error: Cannot divide by zero!</span>
-<span class="fn">print</span>(<span class="fn">safe_divide</span>(<span class="nm">10</span>, <span class="st">"five"</span>)) <span class="cm"># Error: Both inputs must be numbers, got str</span></pre></div></div>
-      </div>
-    </div>
-  </div>
+<!-- PAGE 6: QUIZ -->
+<section class="page" id="page-6">
+  <div class="section-tag">🧠 Quiz Time</div>
+  <div class="page-h2">Test Your Knowledge</div>
+  <div class="quiz-progress"><div class="qp-dot" id="qd0"></div><div class="qp-dot" id="qd1"></div><div class="qp-dot" id="qd2"></div><div class="qp-dot" id="qd3"></div><div class="qp-dot" id="qd4"></div></div>
+  <div id="quizContainer"><div class="q-card" id="qCard"></div><div class="quiz-nav"><button class="qnav-btn" id="qPrevBtn" onclick="quizNav(-1)" disabled>← Prev</button><span id="qCounter">Question 1 of 5</span><button class="qnav-btn primary" id="qNextBtn" onclick="quizNav(1)" disabled>Next →</button></div></div>
+  <div class="quiz-result" id="quizResult"><span class="qr-emoji" id="qrEmoji">🎉</span><div class="qr-score" id="qrScore">5/5</div><div class="qr-sub" id="qrSub"></div><div class="qr-breakdown"><div class="qrb-item"><div class="qrb-val c" id="qrCorrect">5</div><div class="qrb-lbl">Correct</div></div><div class="qrb-item"><div class="qrb-val w" id="qrWrong">0</div><div class="qrb-lbl">Wrong</div></div></div><button class="retry-btn" onclick="resetQuiz()">↩ Retry</button><button class="btn btn-primary" onclick="goTo(7)">Complete Module →</button></div>
+</section>
 
-  <div class="exc-card-wrap stg">
-    <div class="ech"><span class="ec-num">Exercise 02</span><span class="ec-title">Safe File Reader</span></div>
-    <div class="ecb">
-      <p>Write a function <code>read_file(filename)</code> that tries to open and read a file. Handle <code>FileNotFoundError</code> and <code>PermissionError</code> separately. Use <code>finally</code> to print "File operation complete." regardless.</p>
-      <button class="sol-btn" onclick="toggleSol(this)">▼ Show Solution</button>
-      <div class="sol-box">
-        <div class="cb"><div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-fn">solution.py</span></div>
-        <div class="cb-body"><pre><span class="kw">def</span> <span class="fn">read_file</span>(filename):
-    <span class="kw">try</span>:
-        <span class="kw">with</span> <span class="fn">open</span>(filename, <span class="st">'r'</span>) <span class="kw">as</span> f:
-            content = f.<span class="fn">read</span>()
-            <span class="fn">print</span>(<span class="st">f"File contents:\n{content}"</span>)
-    <span class="kw">except</span> <span class="ex">FileNotFoundError</span>:
-        <span class="fn">print</span>(<span class="st">f"❌ File '{filename}' does not exist."</span>)
-    <span class="kw">except</span> <span class="ex">PermissionError</span>:
-        <span class="fn">print</span>(<span class="st">f"❌ No permission to read '{filename}'."</span>)
-    <span class="kw">else</span>:
-        <span class="fn">print</span>(<span class="st">"✅ File read successfully!"</span>)
-    <span class="kw">finally</span>:
-        <span class="fn">print</span>(<span class="st">"📁 File operation complete."</span>)
-
-<span class="fn">read_file</span>(<span class="st">"data.txt"</span>)       <span class="cm"># if exists, reads it</span>
-<span class="fn">read_file</span>(<span class="st">"ghost.txt"</span>)      <span class="cm"># FileNotFoundError</span></pre></div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="exc-card-wrap stg">
-    <div class="ech"><span class="ec-num">Exercise 03</span><span class="ec-title">Custom AgeValidationError</span></div>
-    <div class="ecb">
-      <p>Create a custom exception <code>AgeValidationError</code> that inherits from <code>ValueError</code>. Write a function <code>validate_age(age)</code> that raises this exception if age is negative, non-integer, or greater than 130. Include the invalid value in the error message.</p>
-      <button class="sol-btn" onclick="toggleSol(this)">▼ Show Solution</button>
-      <div class="sol-box">
-        <div class="cb"><div class="cb-hdr"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-fn">solution.py</span></div>
-        <div class="cb-body"><pre><span class="kw">class</span> <span class="ex">AgeValidationError</span>(<span class="ex">ValueError</span>):
-    <span class="kw">def</span> <span class="fn">__init__</span>(self, age, reason):
-        self.age = age
-        <span class="fn">super().__init__</span>(<span class="st">f"Invalid age {age!r}: {reason}"</span>)
-
-<span class="kw">def</span> <span class="fn">validate_age</span>(age):
-    <span class="kw">if</span> <span class="kw">not</span> <span class="fn">isinstance</span>(age, <span class="fn">int</span>):
-        <span class="kw">raise</span> <span class="ex">AgeValidationError</span>(age, <span class="st">"must be an integer"</span>)
-    <span class="kw">if</span> age < <span class="nm">0</span>:
-        <span class="kw">raise</span> <span class="ex">AgeValidationError</span>(age, <span class="st">"cannot be negative"</span>)
-    <span class="kw">if</span> age > <span class="nm">130</span>:
-        <span class="kw">raise</span> <span class="ex">AgeValidationError</span>(age, <span class="st">"unrealistically large"</span>)
-    <span class="kw">return</span> <span class="st">f"Valid age: {age}"</span>
-
-<span class="kw">try</span>:
-    <span class="fn">validate_age</span>(-<span class="nm">5</span>)
-<span class="kw">except</span> <span class="ex">AgeValidationError</span> <span class="kw">as</span> e:
-    <span class="fn">print</span>(<span class="st">f"Caught: {e}"</span>)</pre></div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="pbb"><button class="btn-prev" onclick="gp(4)">← Custom Exceptions</button><button class="btn-next" onclick="gp(6)">Take Quiz →</button></div>
-</div>
-
-<!-- ░░░ PAGE 6 — QUIZ ░░░ -->
-<div class="page" id="page-6">
-  <div class="ph">
-    <div class="ptag">Quiz · 5 Questions</div>
-    <h2>Test Your Knowledge</h2>
-    <p>One question at a time. Instant feedback after every answer!</p>
-  </div>
-  <div class="qprog" id="qprog">
-    <div class="qpd" id="qd0"></div><div class="qpd" id="qd1"></div>
-    <div class="qpd" id="qd2"></div><div class="qpd" id="qd3"></div><div class="qpd" id="qd4"></div>
-  </div>
-  <div id="qcont">
-    <div class="qcard" id="qcard"></div>
-    <div class="qnav">
-      <button class="qnb" id="qprev" onclick="qnav(-1)" disabled>← Prev</button>
-      <span style="font-family:var(--fc);font-size:.71rem;color:var(--text3);" id="qctr">Question 1 of 5</span>
-      <button class="qnb pri" id="qnext" onclick="qnav(1)" disabled>Next →</button>
-    </div>
-  </div>
-  <div class="qres" id="qres">
-    <span class="qre" id="qre">🎉</span>
-    <div class="qrs" id="qrs">5/5</div>
-    <div class="qrsb" id="qrsb"></div>
-    <div class="qrbd">
-      <div><div class="qrv c" id="qrc">5</div><div class="qrl">Correct</div></div>
-      <div><div class="qrv w" id="qrw">0</div><div class="qrl">Wrong</div></div>
-    </div>
-    <button class="rtb" onclick="resetQuiz()">↩ Retry</button>
-    <button class="btn-next" onclick="gp(7)" style="padding:10px 22px;">See Completion 🎉</button>
-  </div>
-  <div class="pbb"><button class="btn-prev" onclick="gp(5)">← Exercises</button><div></div></div>
-</div>
-
-<!-- ░░░ PAGE 7 — COMPLETION ░░░ -->
-<div class="page" id="page-7">
-  <div class="comp-wrap">
-    <div class="comp-icon">🛡️</div>
-    <div class="ptag" style="justify-content:center;">Module 09 — Complete!</div>
-    <h1 style="margin-bottom:11px;">Exception Handling<br><span style="color:var(--green)">Mastered!</span> 🎉</h1>
-    <p style="font-size:.98rem;margin-bottom:18px;">You can now write <strong>bulletproof Python code</strong> that handles errors gracefully — like a professional developer!</p>
-    <div class="skills-wrap stg">
-      <div class="sk-tag"><span class="ck">✓</span>try / except</div>
-      <div class="sk-tag"><span class="ck">✓</span>Multiple except blocks</div>
-      <div class="sk-tag"><span class="ck">✓</span>else block</div>
-      <div class="sk-tag"><span class="ck">✓</span>finally block</div>
-      <div class="sk-tag"><span class="ck">✓</span>Custom exceptions</div>
-      <div class="sk-tag"><span class="ck">✓</span>raise keyword</div>
-      <div class="sk-tag"><span class="ck">✓</span>Exception hierarchy</div>
-    </div>
-    <button class="comp-btn" onclick="celebrate()">🏆 Claim Completion Badge</button>
-    <br>
-    <button class="restart-btn" onclick="restart()">↺ Restart Module</button>
-    <p style="margin-top:18px;font-size:.87rem;color:var(--text2);">Next: <strong>Module 10 — Object-Oriented Programming</strong></p>
-    <div class="af">
-      <div class="af-l">Module created by</div>
-      <div class="af-i">
-        <div class="af-a">V</div>
-        <div style="text-align:left;">
-          <div style="font-family:var(--fh);font-size:.97rem;font-weight:700;color:var(--green);">Vinodhini</div>
-          <div style="font-family:var(--fc);font-size:.68rem;color:var(--text2);">Data Scientist · HCL GUVI</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- PAGE 7: COMPLETION -->
+<section class="page" id="page-7">
+  <div class="card complete-wrap"><div class="complete-icon">🎉</div><div class="page-tag">Module 09 — Complete</div><h1 style="margin-bottom:12px;">Exception<br><span style="color:var(--accent)">Handling Mastered!</span></h1><p>You can now write bulletproof Python code that handles errors gracefully!</p><div class="skills-learnt"><div class="skill-badge"><span class="check">✓</span> try / except</div><div class="skill-badge"><span class="check">✓</span> Multiple except blocks</div><div class="skill-badge"><span class="check">✓</span> else block</div><div class="skill-badge"><span class="check">✓</span> finally block</div><div class="skill-badge"><span class="check">✓</span> Custom exceptions</div><div class="skill-badge"><span class="check">✓</span> raise keyword</div></div><button class="cert-btn" onclick="celebrate()">🏆 Claim Completion Badge</button><p style="margin-top:20px;">Next up: <strong>Module 10 — Object-Oriented Programming (OOP)</strong></p></div>
+</section>
 
 </main>
-</div>
 
 <script>
-/* ════════════════════════════════
-   NAVIGATION
-════════════════════════════════ */
-const TP = 8;
-let cp = 0, vp = new Set([0]);
+let currentPage = 0, totalPages = 8, visited = new Set([0]);
+let stepIndex = -1;
+const stepSteps = [
+  "Line 1: Python enters the try block",
+  "Line 2: int('hello') raises ValueError immediately!",
+  "Line 3: Python jumps to the matching except block",
+  "Line 4: Handler runs — prints 'Caught it!'",
+  "Line 5: Program continues normally"
+];
 
-function gp(n) {
-  if (n < 0 || n >= TP) return;
-  const prev = document.getElementById('page-' + cp);
-  const next = document.getElementById('page-' + n);
-  if (!next) return;
-  prev.classList.add('exit-left'); prev.classList.remove('active');
-  setTimeout(() => prev.classList.remove('exit-left'), 350);
-  next.classList.add('active');
-  cp = n; vp.add(n);
-  document.querySelectorAll('.si').forEach(el => {
-    const p = parseInt(el.dataset.p);
-    el.classList.toggle('active', p === n);
-    if (vp.has(p) && p < n) el.classList.add('completed');
-  });
-  const pct = Math.round((vp.size / TP) * 100);
-  document.getElementById('nfill').style.width = pct + '%';
-  document.getElementById('npct').textContent = pct + '%';
-  if (n === 6) renderQ();
+function goTo(n) {
+  if (n < 0 || n >= totalPages) return;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + n).classList.add('active');
+  document.getElementById('nav-' + n).classList.add('active');
+  visited.add(currentPage);
+  for (let i = 0; i < n; i++) document.getElementById('nav-' + i).classList.add('done');
+  currentPage = n;
+  let pct = Math.round((visited.size / totalPages) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').innerText = pct + '%';
+  document.getElementById('mainContent').scrollTo({ top: 0 });
+  if (n === 6) renderQuiz();
   if (n === 4) updateBuilder();
 }
 
-/* ════════════════════════════════
-   DEMO RUNNER
-════════════════════════════════ */
-function runDemo(id, lines, isError) {
-  const b = document.getElementById(id);
-  if (!b) return;
-  b.innerHTML = '<span class="out-prompt">$ python3 script.py\n</span>';
-  b.classList.add('show');
-  if (isError) b.classList.add('error-out'); else b.classList.remove('error-out');
-  let i = 0;
-  const t = () => { if (i < lines.length) { b.innerHTML += lines[i++] + '\n'; setTimeout(t, 160); } };
-  t();
-}
+function toggleOutput(id) { document.getElementById(id).classList.toggle('visible'); }
+function toggleSolution(btn, id) { let sol = document.getElementById(id); sol.classList.toggle('open'); btn.textContent = sol.classList.contains('open') ? '▲ Hide Solution' : '▼ Show Solution'; }
+function celebrate() { let btn = event.target.closest('button'); btn.textContent = '✓ Badge Claimed!'; btn.style.background = 'var(--accent)'; btn.disabled = true; alert('🎉 Congratulations! Module 9 Complete!'); }
 
-/* ════════════════════════════════
-   ERROR TYPE CARDS
-════════════════════════════════ */
-function toggleErr(card) { card.classList.toggle('open'); }
-
-/* ════════════════════════════════
-   EXCEPTION TREE
-════════════════════════════════ */
-function toggleTree(node) { node.classList.toggle('open'); }
-
-/* ════════════════════════════════
-   EXCEPTION SIMULATOR
-════════════════════════════════ */
-const simScenarios = {
-  safe: {
-    lines: [
-      {type:'try', text:'try: block entered'},
-      {type:'try', text:'x = int("42")  → x = 42 ✅'},
-      {type:'try', text:'print(f"Result: {x * 2}")'},
-      {type:'els', text:'else: No exception! Bonus code runs.'},
-      {type:'fin', text:'finally: Always runs — cleanup done.'},
-    ],
-    output: 'Result: 84'
-  },
-  value: {
-    lines: [
-      {type:'try', text:'try: block entered'},
-      {type:'err', text:'int("hello")  → 💥 ValueError raised!'},
-      {type:'exc', text:'except ValueError: caught it!'},
-      {type:'exc', text:'print("Please enter a valid number!")'},
-      {type:'fin', text:'finally: Always runs — cleanup done.'},
-    ],
-    output: 'Please enter a valid number!'
-  },
-  zero: {
-    lines: [
-      {type:'try', text:'try: block entered'},
-      {type:'err', text:'10 / 0  → 💥 ZeroDivisionError!'},
-      {type:'exc', text:'except ZeroDivisionError: caught it!'},
-      {type:'exc', text:'print("Cannot divide by zero!")'},
-      {type:'fin', text:'finally: Always runs — cleanup done.'},
-    ],
-    output: 'Cannot divide by zero!'
-  },
-  type: {
-    lines: [
-      {type:'try', text:'try: block entered'},
-      {type:'err', text:'"hello" + 5  → 💥 TypeError!'},
-      {type:'exc', text:'except TypeError: caught it!'},
-      {type:'exc', text:'print("Type mismatch — check your input")'},
-      {type:'fin', text:'finally: Always runs — cleanup done.'},
-    ],
-    output: 'Type mismatch — check your input'
-  }
-};
-
-async function simScenario(key) {
-  const s = simScenarios[key];
+function simulateException(type) {
   const out = document.getElementById('simOutput');
   out.innerHTML = '';
-  for (let i = 0; i < s.lines.length; i++) {
-    await sleep(350);
-    const line = s.lines[i];
-    const div = document.createElement('div');
-    div.className = 'es-line';
-    div.style.animationDelay = '0s';
-    const badge = document.createElement('div');
-    badge.className = 'el-badge';
-    const text = document.createElement('div');
-    text.className = 'el-text';
-    if (line.type === 'try') { badge.className += ' try-b'; badge.textContent = 'TRY'; text.style.color='#b6e8c8'; }
-    else if (line.type === 'exc') { badge.className += ' exc-b'; badge.textContent = 'EXCEPT'; text.className += ' err'; }
-    else if (line.type === 'fin') { badge.className += ' fin-b'; badge.textContent = 'FINALLY'; text.className += ' fin'; }
-    else if (line.type === 'els') { badge.className += ' els-b'; badge.textContent = 'ELSE'; text.className += ' els'; }
-    else if (line.type === 'err') { badge.className += ' exc-b'; badge.textContent = '⚠ ERROR'; text.className += ' err'; }
-    text.textContent = line.text;
-    div.appendChild(badge); div.appendChild(text);
-    out.appendChild(div);
+  let lines = [];
+  if (type === 'safe') {
+    lines = ['try: block entered', 'x = int("42") → x = 42 ✅', 'Result printed successfully', 'else: No exception!', 'finally: Cleanup done'];
+  } else if (type === 'value') {
+    lines = ['try: block entered', 'int("hello") → 💥 ValueError raised!', 'except ValueError: caught it!', 'Printed error message', 'finally: Cleanup done'];
+  } else {
+    lines = ['try: block entered', '10 / 0 → 💥 ZeroDivisionError!', 'except ZeroDivisionError: caught it!', 'Printed error message', 'finally: Cleanup done'];
   }
-}
-
-/* ════════════════════════════════
-   STEP EXECUTOR
-════════════════════════════════ */
-const seData = {
-  se1: {
-    step: -1,
-    infos: [
-      'Line 1: Python enters the try block. It will attempt to run the code inside.',
-      'Line 2: int("hello") is attempted. This RAISES a ValueError immediately!',
-      'Line 3: Python sees a ValueError was raised — jumps to the matching except block.',
-      'Line 4: The handler runs — printing "Caught it!". The program does NOT crash.',
-      'Line 5: After the try/except, the rest of the program continues normally.',
-    ],
-    errLines: [1]
-  }
-};
-
-function seNext(id) {
-  const s = seData[id];
-  const lines = document.querySelectorAll(`#${id} .se-line`);
-  s.step = Math.min(s.step + 1, lines.length - 1);
-  lines.forEach((l, i) => {
-    l.classList.toggle('active', i === s.step);
-    l.classList.toggle('done', i < s.step);
+  lines.forEach((line, i) => {
+    setTimeout(() => { out.innerHTML += `<div class="es-line"><div class="el-badge try">TRY</div><div>${line}</div></div>`; }, i * 400);
   });
-  const infoEl = document.getElementById(`${id}-info`);
-  infoEl.textContent = s.infos[s.step] || '';
-  infoEl.className = 'se-info' + (s.errLines && s.errLines.includes(s.step) ? ' err' : '');
 }
 
-function seReset(id) {
-  seData[id].step = -1;
-  document.querySelectorAll(`#${id} .se-line`).forEach(l => l.classList.remove('active','done'));
-  document.getElementById(`${id}-info`).textContent = 'Click "Next Step" to begin the execution trace.';
-  document.getElementById(`${id}-info`).className = 'se-info';
+function stepNext() {
+  stepIndex = Math.min(stepIndex + 1, stepSteps.length - 1);
+  document.querySelectorAll('.se-line').forEach((l, i) => l.classList.toggle('active', i === stepIndex));
+  document.getElementById('stepInfo').innerHTML = stepSteps[stepIndex];
+}
+function stepReset() { stepIndex = -1; document.querySelectorAll('.se-line').forEach(l => l.classList.remove('active')); document.getElementById('stepInfo').innerHTML = 'Click "Next Step" to trace execution'; }
+
+async function runFinally(type) {
+  document.querySelectorAll('.fd-scenario').forEach(s => s.classList.remove('active'));
+  event.target.closest('.fd-scenario').classList.add('active');
+  const out = document.getElementById('finallyOutput');
+  out.innerHTML = '';
+  let msgs = type === 'success' ? ['🔗 Connecting to database...', '✅ Connected!', '📊 Running query...', '✅ 42 rows returned', '🔒 finally: Closing connection...', '✅ Connection closed'] : ['🔗 Connecting to database...', '✅ Connected!', '💥 DatabaseError: Invalid query!', '❌ except: Query failed — rolling back', '🔒 finally: Closing connection...', '✅ Connection closed (even after error!)'];
+  for (let i = 0; i < msgs.length; i++) { await sleep(300); out.innerHTML += `<div>${msgs[i]}</div>`; }
 }
 
-/* ════════════════════════════════
-   FINALLY DEMO
-════════════════════════════════ */
-const finallyScenarios = {
-  success: {
-    lines: [
-      {c:'#5de8a0', t:'🔗 Connecting to database…'},
-      {c:'#5de8a0', t:'✅ Connected successfully!'},
-      {c:'#b6e8c8', t:'📊 Running query: SELECT * FROM users'},
-      {c:'#5de8a0', t:'✅ 42 rows returned'},
-      {c:'#80c8ff', t:'🔒 finally: Closing database connection…'},
-      {c:'#80c8ff', t:'✅ Connection closed safely.'},
-    ]
-  },
-  error: {
-    lines: [
-      {c:'#5de8a0', t:'🔗 Connecting to database…'},
-      {c:'#5de8a0', t:'✅ Connected successfully!'},
-      {c:'#b6e8c8', t:'📊 Running query: DELETE FROM users WHERE id=-1'},
-      {c:'#ff8080', t:'💥 DatabaseError: Invalid operation!'},
-      {c:'#ff8080', t:'❌ except: Query failed — rolling back'},
-      {c:'#80c8ff', t:'🔒 finally: Closing database connection…'},
-      {c:'#80c8ff', t:'✅ Connection closed safely. (even after error!)'},
-    ]
-  },
-  network: {
-    lines: [
-      {c:'#5de8a0', t:'🔗 Connecting to database…'},
-      {c:'#ff8080', t:'💥 ConnectionError: Network timeout!'},
-      {c:'#ff8080', t:'❌ except: Could not connect'},
-      {c:'#80c8ff', t:'🔒 finally: Attempting cleanup…'},
-      {c:'#80c8ff', t:'✅ Cleanup complete. (connection was never opened)'},
-    ]
-  }
-};
-
-async function runFinally(key) {
-  ['fds0','fds1','fds2'].forEach(id => document.getElementById(id).classList.remove('active-s'));
-  const idx = {success:'fds0',error:'fds1',network:'fds2'}[key];
-  document.getElementById(idx).classList.add('active-s');
-  const inner = document.getElementById('fdoInner');
-  inner.innerHTML = '';
-  inner.style.color = '#b6e8c8';
-  const lines = finallyScenarios[key].lines;
-  for (const line of lines) {
-    await sleep(300);
-    const d = document.createElement('div');
-    d.style.color = line.c;
-    d.style.animation = 'fadeSlide .25s ease';
-    d.textContent = line.t;
-    inner.appendChild(d);
-  }
-}
-
-/* ════════════════════════════════
-   CUSTOM EXCEPTION BUILDER
-════════════════════════════════ */
 function updateBuilder() {
-  const name = document.getElementById('eb-name').value || 'MyError';
-  const msg = document.getElementById('eb-msg').value || 'Something went wrong';
-  const parent = document.getElementById('eb-parent').value;
-  const preview = document.getElementById('eb-preview');
-  const result = document.getElementById('eb-result');
-  preview.innerHTML = `<span class="kw">class</span> <span class="ex">${name}</span>(<span class="ex">${parent}</span>):\n    <span class="kw">def</span> <span class="fn">__init__</span>(self, message=<span class="st">"${msg}"</span>):\n        <span class="fn">super().__init__</span>(message)\n\n<span class="cm"># Raise it:</span>\n<span class="kw">try</span>:\n    <span class="kw">raise</span> <span class="ex">${name}</span>(<span class="st">"${msg}"</span>)\n<span class="kw">except</span> <span class="ex">${name}</span> <span class="kw">as</span> e:\n    <span class="fn">print</span>(<span class="st">f"Caught: {String.fromCharCode(123)}e{String.fromCharCode(125)}"</span>)`;
-  result.textContent = `${name}: ${msg}`;
+  let name = document.getElementById('ebName').value || 'MyError';
+  let msg = document.getElementById('ebMsg').value || 'Something went wrong';
+  document.getElementById('ebPreview').innerHTML = `<span class="kw">class</span> <span class="ex">${name}</span>(<span class="ex">Exception</span>):\n    <span class="kw">def</span> <span class="fn">__init__</span>(self):\n        <span class="fn">super().__init__</span>(<span class="st">"${msg}"</span>)`;
+  document.getElementById('ebResult').innerHTML = `${name}: ${msg}`;
 }
 
-/* ════════════════════════════════
-   SOLUTION TOGGLE
-════════════════════════════════ */
-function toggleSol(btn) {
-  const box = btn.nextElementSibling;
-  const open = box.classList.toggle('open');
-  btn.textContent = open ? '▲ Hide Solution' : '▼ Show Solution';
-}
-
-/* ════════════════════════════════
-   QUIZ
-════════════════════════════════ */
-const QS = [
-  {
-    q:"What happens if an exception occurs inside a try block and is NOT caught?",
-    opts:["The program pauses","The program continues normally","The program crashes with a Traceback","Python retries automatically"],
-    correct:2, exp:"✓ An uncaught exception terminates the program immediately and prints a Traceback error message showing where it occurred."
-  },
-  {
-    q:"Which block in try/except ALWAYS executes, even if an exception occurs?",
-    opts:["try","except","else","finally"],
-    correct:3, exp:"✓ finally always executes — whether the try block succeeded, raised an exception, or even if there's a return statement."
-  },
-  {
-    q:"What does the 'else' block in a try/except do?",
-    opts:["Catches all exceptions","Runs only if NO exception occurred","Runs after finally","Retries the try block"],
-    correct:1, exp:"✓ else runs only when the try block completes successfully with no exceptions. It's perfect for success-only code."
-  },
-  {
-    q:"How do you create a custom exception class in Python?",
-    opts:["class MyError: pass","class MyError(Exception): pass","def MyError(Exception): pass","raise MyError from Exception"],
-    correct:1, exp:"✓ Custom exceptions are classes that inherit from Exception (or a more specific exception). This makes them part of Python's exception hierarchy."
-  },
-  {
-    q:"What is the correct order of try/except blocks?",
-    opts:["try → else → except → finally","try → except → finally → else","try → except → else → finally","except → try → else → finally"],
-    correct:2, exp:"✓ The correct order is: try → except (one or more) → else (optional) → finally (optional). This order cannot be changed."
-  }
+const questions = [
+  { q: "What happens if an exception occurs inside a try block and is NOT caught?", opts: ["Program pauses", "Program continues", "Program crashes with Traceback", "Python retries automatically"], correct: 2, exp: "Uncaught exception terminates the program and prints a Traceback." },
+  { q: "Which block in try/except ALWAYS executes, even if an exception occurs?", opts: ["try", "except", "else", "finally"], correct: 3, exp: "finally always executes — whether the try succeeded, raised an exception, or even on return." },
+  { q: "What does the 'else' block in a try/except do?", opts: ["Catches all exceptions", "Runs only if NO exception occurred", "Runs after finally", "Retries the try block"], correct: 1, exp: "else runs only when the try block completes successfully with no exceptions." },
+  { q: "How do you create a custom exception class in Python?", opts: ["class MyError: pass", "class MyError(Exception): pass", "def MyError(Exception): pass", "raise MyError from Exception"], correct: 1, exp: "Custom exceptions inherit from Exception (or a more specific exception)." },
+  { q: "What is the correct order of try/except blocks?", opts: ["try→else→except→finally", "try→except→finally→else", "try→except→else→finally", "except→try→else→finally"], correct: 2, exp: "Correct order: try → except → else → finally." }
 ];
+let quizAnswers = new Array(5).fill(null), quizCurrent = 0;
 
-let qs = { cur:0, ans:new Array(QS.length).fill(null), done:false };
-
-function renderQ() {
-  if (qs.done) return;
-  const q = QS[qs.cur], a = qs.ans[qs.cur];
-  document.getElementById('qctr').textContent = `Question ${qs.cur+1} of ${QS.length}`;
-  document.getElementById('qprev').disabled = qs.cur === 0;
-  const nb = document.getElementById('qnext');
-  nb.disabled = a === null;
-  nb.textContent = qs.cur === QS.length-1 ? 'See Results →' : 'Next →';
-  document.getElementById('qcard').innerHTML = `
-    <div class="qbadge">Question ${qs.cur+1} / ${QS.length}</div>
-    <div class="qtxt">${q.q}</div>
-    <div class="qopts">
-      ${'ABCD'.split('').slice(0,q.opts.length).map((l,i)=>{
-        let c='qo';
-        if(a!==null){if(i===q.correct)c+=' correct';else if(i===a&&i!==q.correct)c+=' wrong';}
-        return`<button class="${c}" onclick="ansQ(${i})" ${a!==null?'disabled':''}>
-          <span class="qol">${l}</span>${q.opts[i]}</button>`;
-      }).join('')}
-    </div>
-    <div class="qfb ${a!==null?'show '+(a===q.correct?'correct':'wrong'):''}">
-      ${a!==null?q.exp:''}
-    </div>`;
-  QS.forEach((_,i)=>{
-    const d=document.getElementById('qd'+i);
-    if(!d)return;
-    d.className='qpd';
-    const an=qs.ans[i];
-    if(an!==null)d.classList.add(an===QS[i].correct?'correct':'wrong');
+function renderQuiz() {
+  let q = questions[quizCurrent]; let a = quizAnswers[quizCurrent];
+  document.getElementById('qCounter').innerText = `Question ${quizCurrent + 1} of 5`;
+  document.getElementById('qPrevBtn').disabled = quizCurrent === 0;
+  document.getElementById('qNextBtn').disabled = a === null;
+  document.getElementById('qNextBtn').innerText = quizCurrent === 4 ? 'See Results →' : 'Next →';
+  let letters = 'ABCD', html = `<div class="q-badge">Question ${quizCurrent + 1} / 5</div><div class="q-text">${q.q}</div><div class="q-options">`;
+  q.opts.forEach((opt, i) => {
+    let cls = 'q-opt';
+    if (a !== null) { if (i === q.correct) cls += ' correct'; else if (i === a && i !== q.correct) cls += ' wrong'; }
+    html += `<button class="${cls}" onclick="answerQuiz(${i})" ${a !== null ? 'disabled' : ''}><span class="q-opt-letter">${letters[i]}</span>${opt}</button>`;
   });
-}
-
-function ansQ(c){qs.ans[qs.cur]=c;document.getElementById('qnext').disabled=false;renderQ();}
-
-function qnav(d){
-  if(d===1&&qs.cur===QS.length-1){showRes();return;}
-  const n=qs.cur+d;
-  if(n>=0&&n<QS.length){qs.cur=n;renderQ();}
-}
-
-function showRes(){
-  qs.done=true;
-  document.getElementById('qcont').style.display='none';
-  const r=document.getElementById('qres');r.classList.add('show');
-  const correct=qs.ans.filter((a,i)=>a===QS[i].correct).length;
-  const pct=Math.round(correct/QS.length*100);
-  document.getElementById('qrs').textContent=`${correct}/${QS.length}`;
-  document.getElementById('qrc').textContent=correct;
-  document.getElementById('qrw').textContent=QS.length-correct;
-  document.getElementById('qre').textContent=['😅','🤔','👍','🌟','🎉'][Math.min(correct,4)];
-  document.getElementById('qrsb').textContent=
-    pct===100?'🔥 Perfect! Exception handling completely mastered!':
-    pct>=80?'⭐ Excellent! You really understand Python exceptions.':
-    pct>=60?'👍 Good! Review try/except/else/finally again.':
-    '📖 Keep going — re-read the lessons and try again!';
-  if(pct>=80)setTimeout(confetti,300);
-}
-
-function resetQuiz(){
-  qs={cur:0,ans:new Array(QS.length).fill(null),done:false};
-  document.getElementById('qres').classList.remove('show');
-  document.getElementById('qcont').style.display='';
-  QS.forEach((_,i)=>{const d=document.getElementById('qd'+i);if(d)d.className='qpd';});
-  renderQ();
-}
-
-/* ════════════════════════════════
-   CONFETTI
-════════════════════════════════ */
-function confetti(){
-  const cs=['#138a62','#1660b0','#d97706','#dc2626','#7c3aed','#0b96a8'];
-  for(let i=0;i<80;i++){
-    const el=document.createElement('div');
-    const s=5+Math.random()*9;
-    el.style.cssText=`position:fixed;top:50%;left:50%;width:${s}px;height:${s}px;
-      background:${cs[i%cs.length]};border-radius:${Math.random()>.5?'50%':'2px'};
-      pointer-events:none;z-index:9999;
-      --cx:${(Math.random()-.5)*700}px;--cy:${-(200+Math.random()*500)}px;--cr:${Math.random()*720-360}deg;
-      animation:confetti-pop 1.5s ease forwards;animation-delay:${Math.random()*.3}s;`;
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),2100);
+  html += `</div><div class="q-feedback ${a !== null ? 'show ' + (a === q.correct ? 'correct' : 'wrong') : ''}">${a !== null ? q.exp : ''}</div>`;
+  document.getElementById('qCard').innerHTML = html;
+  for (let i = 0; i < 5; i++) {
+    let dot = document.getElementById('qd' + i);
+    dot.classList.remove('correct', 'wrong');
+    if (quizAnswers[i] !== null) dot.classList.add(quizAnswers[i] === questions[i].correct ? 'correct' : 'wrong');
   }
 }
-
-function celebrate(){
-  confetti();
-  const btn=event.target.closest('button');
-  btn.textContent='✓ Badge Claimed!';
-  btn.style.background='var(--green)';
-  btn.disabled=true;
-  localStorage.setItem('module9_complete','true');
+function answerQuiz(choice) { if (quizAnswers[quizCurrent] !== null) return; quizAnswers[quizCurrent] = choice; renderQuiz(); document.getElementById('qNextBtn').disabled = false; }
+function quizNav(dir) {
+  if (dir === 1 && quizCurrent === 4) { showQuizResult(); return; }
+  let n = quizCurrent + dir;
+  if (n >= 0 && n < 5) { quizCurrent = n; renderQuiz(); }
 }
-
-function restart(){
-  vp=new Set([0]);gp(0);
+function showQuizResult() {
+  let correct = quizAnswers.filter((a, i) => a === questions[i].correct).length;
+  document.getElementById('quizContainer').style.display = 'none';
+  document.getElementById('quizResult').classList.add('show');
+  document.getElementById('qrScore').innerText = `${correct}/5`;
+  document.getElementById('qrCorrect').innerText = correct;
+  document.getElementById('qrWrong').innerText = 5 - correct;
+  let emojis = ['😅', '🤔', '👍', '🌟', '🎉'];
+  document.getElementById('qrEmoji').innerText = emojis[Math.min(correct, 4)];
+  if (correct >= 4) launchConfetti();
 }
-
-/* ════════════════════════════════
-   UTILITIES
-════════════════════════════════ */
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-
-/* ════ INIT ════ */
-window.addEventListener('load',()=>{
-  updateBuilder();
-});
+function resetQuiz() { quizAnswers = new Array(5).fill(null); quizCurrent = 0; document.getElementById('quizResult').classList.remove('show'); document.getElementById('quizContainer').style.display = 'block'; renderQuiz(); }
+function launchConfetti() { let cs = ['#2563eb', '#059669', '#7c3aed', '#eab308']; for (let i = 0; i < 60; i++) { let el = document.createElement('div'); let s = 6 + Math.random() * 8; el.style.cssText = `position:fixed;top:50%;left:50%;width:${s}px;height:${s}px;background:${cs[i % cs.length]};border-radius:${Math.random() > .5 ? '50%' : '2px'};pointer-events:none;z-index:9999;animation:confetti-pop 1.4s ease forwards;`; document.body.appendChild(el); setTimeout(() => el.remove(), 1400); } }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+updateBuilder();
 </script>
 </body>
 </html>
