@@ -3,1242 +3,757 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Module 11 — Libraries in Python · HCL-GUVI</title>
+<title>Module 11 — Libraries in Python</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet"/>
 <style>
-/* ═══════════════════════════════════════════
-   DESIGN SYSTEM — Midnight Teal + Citrus Gold
-═══════════════════════════════════════════ */
-:root{
-  --bg:#f0f8f4;
-  --surf:#ffffff;
-  --s2:#e8f5ee;
-  --s3:#d8edd8;
-  --bdr:#b8d8c8;
-  --bdr2:#a8c8f0;
-  --G:#0e9060;       /* primary green */
-  --G-lt:#d8f5e8;
-  --G-dk:#085f40;
-  --G-glow:rgba(14,144,96,.15);
-  --B:#1458b0;       /* blue */
-  --B-lt:#ddeeff;
-  --B-dk:#0a3a78;
-  --teal:#009898;
-  --gold:#d48010;
-  --gold-lt:#fff3d8;
-  --red:#d43030;
-  --red-lt:#ffe8e8;
-  --purple:#7830d8;
-  --pur-lt:#f0e8ff;
-  --orange:#d86820;
-  --ora-lt:#fff0e0;
-  --text:#0a1a12;
-  --t2:#284838;
-  --t3:#608070;
-  --cdbg:#071810;
-  --cdtxt:#b0e8c8;
-  --shsm:0 1px 8px rgba(14,144,96,.07);
-  --sh:0 4px 24px rgba(14,144,96,.10);
-  --shlg:0 12px 48px rgba(14,144,96,.15);
-  --r:16px;--rs:10px;
-  --fh:'Outfit',sans-serif;
-  --fd:'DM Serif Display',serif;
-  --fc:'JetBrains Mono',monospace;
+:root {
+  --bg: #f0f4ff;
+  --surface: #ffffff;
+  --surface2: #f7f9fe;
+  --surface3: #eef2fc;
+  --primary: #2563eb;
+  --primary-light: #dbeafe;
+  --primary-dark: #1d4ed8;
+  --accent: #059669;
+  --accent-light: #d1fae5;
+  --accent-dark: #047857;
+  --warn: #d97706;
+  --warn-light: #fef3c7;
+  --purple: #7c3aed;
+  --purple-light: #ede9fe;
+  --coral: #e11d48;
+  --coral-light: #ffe4e6;
+  --text: #0f172a;
+  --text2: #334155;
+  --text3: #64748b;
+  --text4: #94a3b8;
+  --border: #e2e8f0;
+  --border2: #cbd5e1;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+  --shadow-lg: 0 4px 24px rgba(37,99,235,.10), 0 1px 4px rgba(0,0,0,.06);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --sidebar-w: 260px;
+  --header-h: 60px;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --serif: 'Fraunces', serif;
+  --transition: .25s cubic-bezier(.4,0,.2,1);
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{width:100%;height:100%;overflow:hidden;}
-body{background:var(--bg);color:var(--text);font-family:var(--fh);font-size:15px;line-height:1.65;}
-::-webkit-scrollbar{width:5px;height:5px;}
-::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px;}
-::-webkit-scrollbar-thumb:hover{background:var(--G);}
 
-/* ════ SHELL ════ */
-#app{display:grid;grid-template-rows:62px 1fr;grid-template-columns:252px 1fr;grid-template-areas:"nav nav" "side main";width:100vw;height:100vh;}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; overflow: hidden; height: 100vh; }
 
-/* ════ NAV ════ */
-#nav{
-  grid-area:nav;background:var(--surf);
-  border-bottom:2px solid var(--bdr);
-  display:flex;align-items:center;padding:0 22px;gap:13px;
-  box-shadow:var(--shsm);z-index:100;position:relative;
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+/* HEADER */
+.app-header {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); z-index: 100;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 24px 0 20px;
 }
-.nlogo{display:flex;align-items:center;gap:11px;flex-shrink:0;}
-.nlogo-img{height:38px;object-fit:contain;}
-.nlogo-fb{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--G),var(--B));display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
-.nlogo-txt .nl{font-family:var(--fh);font-size:.93rem;font-weight:800;color:var(--G);}
-.nlogo-txt .ns{font-family:var(--fc);font-size:.57rem;color:var(--t3);}
-.ndiv{width:1px;height:28px;background:var(--bdr);}
-.nmod{display:flex;flex-direction:column;}
-.nmod-t{font-family:var(--fc);font-size:.6rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;}
-.nmod-n{font-family:var(--fh);font-size:.95rem;font-weight:700;}
-.nsep{flex:1;}
-.npw{width:180px;}
-.npr{display:flex;justify-content:space-between;font-family:var(--fc);font-size:.62rem;color:var(--t3);margin-bottom:3px;}
-.npb{height:6px;background:var(--s3);border-radius:3px;overflow:hidden;border:1px solid var(--bdr);}
-.npf{height:100%;background:linear-gradient(90deg,var(--G),var(--B));border-radius:3px;transition:width .5s ease;}
-.ncr{display:flex;align-items:center;gap:9px;background:var(--B-lt);border:1px solid var(--bdr2);border-radius:12px;padding:7px 13px;}
-.ncr-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--G),var(--B));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:.88rem;font-weight:800;color:white;}
-.ncr-n{font-family:var(--fh);font-size:.77rem;font-weight:700;color:var(--B-dk);}
-.ncr-r{font-family:var(--fc);font-size:.57rem;color:var(--t3);}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.logo-area { display: flex; align-items: center; gap: 10px; }
+.logo-badge {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb 0%, #059669 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 15px; color: #fff; letter-spacing: -1px;
+}
+.logo-text { font-size: 13px; font-weight: 700; color: var(--text); letter-spacing: -.3px; }
+.logo-sub { font-size: 11px; color: var(--text3); font-weight: 400; }
+.header-divider { width: 1px; height: 28px; background: var(--border); }
+.module-title { font-size: 14px; font-weight: 600; color: var(--text2); }
+.module-badge { font-size: 11px; background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 99px; font-weight: 600; }
 
-/* ════ SIDEBAR ════ */
-#side{grid-area:side;background:var(--surf);border-right:2px solid var(--bdr);overflow-y:auto;display:flex;flex-direction:column;box-shadow:2px 0 12px rgba(14,144,96,.05);}
-.slbl{padding:13px 15px 5px;font-family:var(--fc);font-size:.6rem;color:var(--t3);text-transform:uppercase;letter-spacing:.12em;}
-.si{display:flex;align-items:center;gap:9px;padding:10px 15px;cursor:pointer;font-family:var(--fh);font-size:.83rem;font-weight:600;color:var(--t2);border-left:3px solid transparent;transition:all .18s;}
-.si:hover{background:var(--G-lt);color:var(--G);}
-.si.active{background:var(--G-lt);color:var(--G);border-left-color:var(--G);font-weight:700;}
-.si.done .sck{opacity:1;}
-.sico{font-size:.9rem;min-width:18px;text-align:center;transition:transform .2s;}
-.si:hover .sico{transform:scale(1.15);}
-.sck{margin-left:auto;color:var(--G);opacity:0;font-size:.82rem;}
-.sdiv{height:1px;background:var(--bdr);margin:7px 15px;}
-.sfoot{padding:13px;border-top:1px solid var(--bdr);margin-top:auto;}
-.sf-in{background:linear-gradient(135deg,var(--G-lt),var(--B-lt));border:1px solid var(--bdr);border-radius:13px;padding:13px;}
-.sf-lb{font-family:var(--fc);font-size:.58rem;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;}
-.sf-av{width:33px;height:33px;border-radius:50%;background:linear-gradient(135deg,var(--G),var(--B));display:flex;align-items:center;justify-content:center;font-size:.93rem;font-weight:800;color:white;font-family:var(--fh);margin-bottom:5px;box-shadow:0 3px 10px var(--G-glow);}
-.sf-n{font-family:var(--fh);font-size:.88rem;font-weight:700;color:var(--G);}
-.sf-t{font-family:var(--fc);font-size:.66rem;color:var(--t2);}
-.sf-o{display:inline-flex;align-items:center;gap:3px;font-family:var(--fc);font-size:.6rem;color:var(--B);background:var(--B-lt);border:1px solid var(--bdr2);padding:2px 8px;border-radius:50px;margin-top:4px;}
+.header-right { display: flex; align-items: center; gap: 20px; }
+.progress-wrap { display: flex; align-items: center; gap: 8px; }
+.progress-label { font-size: 11px; color: var(--text3); font-weight: 500; }
+.progress-track { width: 120px; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+.progress-pct { font-size: 11px; font-weight: 700; color: var(--primary); min-width: 28px; }
 
-/* ════ MAIN ════ */
-#main{grid-area:main;overflow:hidden;position:relative;}
-.page{position:absolute;inset:0;overflow-y:auto;padding:36px 48px;opacity:0;transform:translateX(28px);transition:opacity .33s ease,transform .33s ease;pointer-events:none;}
-.page.active{opacity:1;transform:translateX(0);pointer-events:all;}
-.page.out{opacity:0;transform:translateX(-28px);}
+/* SIDEBAR */
+.sidebar {
+  position: fixed; top: var(--header-h); left: 0; bottom: 0; width: var(--sidebar-w);
+  background: var(--surface); border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 20px 12px; z-index: 50;
+}
+.sidebar-section { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--text4); text-transform: uppercase; padding: 12px 12px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: 10px; cursor: pointer; transition: all var(--transition);
+  margin-bottom: 2px; font-size: 13px; font-weight: 500; color: var(--text2);
+  border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: var(--surface3); color: var(--text); }
+.nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.nav-item.done { color: var(--accent); }
+.nav-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; background: var(--surface3); }
+.nav-item.active .nav-icon { background: var(--primary); color: #fff; }
+.nav-item.done .nav-icon { background: var(--accent-light); color: var(--accent-dark); }
+.nav-check { margin-left: auto; font-size: 11px; color: var(--accent); display: none; }
+.nav-item.done .nav-check { display: block; }
 
-/* ════ BOTTOM NAV ════ */
-.pbb{display:flex;align-items:center;justify-content:space-between;margin-top:36px;padding-top:20px;border-top:1.5px solid var(--bdr);}
-.btn-bk{display:flex;align-items:center;gap:7px;padding:10px 22px;border-radius:12px;font-family:var(--fh);font-size:.84rem;font-weight:700;cursor:pointer;border:none;transition:all .2s;background:var(--s2);border:1.5px solid var(--bdr);color:var(--t2);}
-.btn-bk:hover{border-color:var(--G);color:var(--G);}
-.btn-nx{display:flex;align-items:center;gap:7px;padding:10px 22px;border-radius:12px;font-family:var(--fh);font-size:.84rem;font-weight:700;cursor:pointer;border:none;transition:all .2s;background:linear-gradient(135deg,var(--G),var(--B));color:white;box-shadow:0 4px 16px var(--G-glow);}
-.btn-nx:hover{opacity:.88;transform:translateY(-2px);box-shadow:0 6px 22px var(--G-glow);}
-.btn-nx:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+/* MAIN */
+.main-content {
+  margin-left: var(--sidebar-w); margin-top: var(--header-h);
+  height: calc(100vh - var(--header-h)); overflow-y: auto; padding: 32px 48px 80px;
+}
 
-/* ════ TYPE ════ */
-h1{font-family:var(--fh);font-size:clamp(1.9rem,3vw,2.8rem);font-weight:800;line-height:1.1;letter-spacing:-.03em;}
-h2{font-family:var(--fh);font-size:clamp(1.3rem,2.5vw,1.95rem);font-weight:700;letter-spacing:-.02em;line-height:1.2;}
-h3{font-family:var(--fh);font-size:1.06rem;font-weight:700;}
-p{margin-bottom:.85em;color:var(--t2);line-height:1.72;}
-strong{color:var(--text);font-weight:700;}
-code{font-family:var(--fc);font-size:.82em;background:var(--G-lt);border:1px solid var(--bdr);padding:2px 7px;border-radius:5px;color:var(--G-dk);}
-.ptag{display:inline-flex;align-items:center;gap:7px;font-family:var(--fc);font-size:.65rem;color:var(--G);letter-spacing:.1em;text-transform:uppercase;margin-bottom:9px;}
-.ptag::before{content:'';width:16px;height:2px;background:linear-gradient(90deg,var(--G),var(--B));}
-.ph{margin-bottom:28px;}
-.ph p{font-size:.99rem;max-width:560px;}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;}
+/* PAGES */
+.page { display: none; animation: fadeSlide .35s cubic-bezier(.4,0,.2,1); }
+.page.active { display: block; }
+@keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ════ CARDS ════ */
-.card{background:var(--surf);border:1.5px solid var(--bdr);border-radius:var(--r);padding:20px;box-shadow:var(--shsm);transition:box-shadow .2s,transform .2s;}
-.card:hover{box-shadow:var(--sh);}
-.cg{background:var(--G-lt);border-color:var(--bdr);}
-.cb2{background:var(--B-lt);border-color:var(--bdr2);}
-.cgo{background:var(--gold-lt);border-color:#fcd34d;}
-.cpur{background:var(--pur-lt);border-color:#c4b5fd;}
+/* BUTTONS */
+.page-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 600; font-size: 13px; cursor: pointer; transition: all var(--transition); border: none; font-family: var(--font); }
+.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,.3); }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,99,235,.35); }
+.btn-ghost { background: var(--surface); color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { background: var(--surface3); }
+.btn-run { background: #1e1e2e; color: #a6e3a1; border: 1px solid #313244; font-family: var(--mono); font-size: 12px; }
+.btn-run:hover { background: #11111b; }
+.btn-accent { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(5,150,105,.3); }
+.btn-accent:hover { background: var(--accent-dark); transform: translateY(-1px); }
 
-/* ════ CALLOUTS ════ */
-.tip{background:var(--G-lt);border:1.5px solid var(--bdr);border-left:4px solid var(--G);border-radius:12px;padding:13px 17px;font-size:.86rem;color:var(--G-dk);margin:13px 0;}
-.tip::before{content:'💡 ';}
-.info{background:var(--B-lt);border:1.5px solid var(--bdr2);border-left:4px solid var(--B);border-radius:12px;padding:13px 17px;font-size:.86rem;color:var(--B-dk);margin:13px 0;}
-.info::before{content:'ℹ️ ';}
-.warn{background:var(--gold-lt);border:1.5px solid #fcd34d;border-left:4px solid var(--gold);border-radius:12px;padding:13px 17px;font-size:.86rem;color:#92400e;margin:13px 0;}
-.warn::before{content:'⚠️ ';}
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow); }
+.card-blue { border-left: 4px solid var(--primary); }
+.card-green { border-left: 4px solid var(--accent); }
+.card-purple { border-left: 4px solid var(--purple); }
 
-/* ════ CODE BLOCK ════ */
-.cb{background:var(--cdbg);border-radius:var(--r);overflow:hidden;margin:14px 0;box-shadow:0 8px 28px rgba(0,0,0,.22);}
-.cb-h{background:rgba(255,255,255,.04);padding:9px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.06);}
-.cbd{display:flex;gap:5px;}
-.cbd span{width:11px;height:11px;border-radius:50%;}
-.cbd span:nth-child(1){background:#ff5f57;}.cbd span:nth-child(2){background:#febc2e;}.cbd span:nth-child(3){background:#28c840;}
-.cbf{font-family:var(--fc);font-size:.68rem;color:rgba(176,232,200,.4);margin-left:auto;background:rgba(14,144,96,.15);padding:2px 8px;border-radius:4px;}
-.cb-b{padding:18px 20px;overflow-x:auto;}
-.cb-b pre{font-family:var(--fc);font-size:.86rem;line-height:2;color:#b0e8c8;white-space:pre;}
-.kw{color:#60c8f8;font-weight:500;}.fn{color:#a8e870;}.st{color:#f5d870;}.cm{color:#385840;font-style:italic;}.nm{color:#f0a870;}.imp{color:#80d0ff;font-weight:500;}.lib{color:#ffd878;font-weight:500;}
+/* HERO */
+.hero { background: linear-gradient(135deg, #1e3a8a 0%, #0c4a6e 50%, #134e4a 100%); border-radius: 20px; padding: 48px 40px; margin-bottom: 28px; color: #fff; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+.hero-tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15); border-radius: 99px; padding: 4px 12px; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,.8); margin-bottom: 16px; }
+.hero h1 { font-family: var(--serif); font-size: 42px; font-weight: 700; line-height: 1.15; margin-bottom: 12px; }
+.hero h1 em { font-style: italic; color: #86efac; }
+.hero p { font-size: 15px; color: rgba(255,255,255,.75); max-width: 520px; line-height: 1.7; }
+.hero-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+.chip-blue { background: rgba(96,165,250,.2); color: #93c5fd; border: 1px solid rgba(96,165,250,.25); }
+.chip-green { background: rgba(52,211,153,.2); color: #6ee7b7; border: 1px solid rgba(52,211,153,.25); }
+.chip-purple { background: rgba(167,139,250,.2); color: #c4b5fd; border: 1px solid rgba(167,139,250,.25); }
 
-/* Run button + output */
-.rbtn{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--G),var(--teal));color:white;border:none;border-radius:10px;padding:9px 22px;font-family:var(--fh);font-size:.83rem;font-weight:700;cursor:pointer;transition:all .18s;box-shadow:0 3px 12px var(--G-glow);}
-.rbtn:hover{opacity:.88;transform:translateY(-1px);}
-.obox{background:rgba(7,24,16,.94);border:1px solid rgba(14,144,96,.2);border-radius:10px;padding:13px 17px;font-family:var(--fc);font-size:.82rem;line-height:2;color:#5de890;min-height:48px;white-space:pre-wrap;display:none;margin-top:10px;}
-.obox.show{display:block;animation:fadein .3s ease;}
-.obox.err{color:#ff8080;}
-.oprmt{color:rgba(93,148,112,.5);}
-.sol-btn{display:inline-flex;align-items:center;gap:5px;background:transparent;border:1.5px solid var(--B);border-radius:9px;color:var(--B);font-family:var(--fc);font-size:.74rem;padding:7px 14px;cursor:pointer;transition:all .2s;}
-.sol-btn:hover{background:var(--B-lt);}
-.sol-box{display:none;margin-top:12px;}
-.sol-box.open{display:block;animation:fadein .3s ease;}
+/* SECTION TITLES */
+.section-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); margin-bottom: 8px; }
+.page-h2 { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -.5px; }
+.page-subtitle { font-size: 14px; color: var(--text3); margin-bottom: 24px; line-height: 1.6; }
 
-/* ════ ANIMATIONS ════ */
-@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@keyframes slideup{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@keyframes bouncein{0%{transform:scale(0)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes confpop{0%{transform:translate(0,0)rotate(0);opacity:1}100%{transform:translate(var(--cx),var(--cy))rotate(var(--cr));opacity:0}}
-@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-@keyframes glow{0%,100%{box-shadow:0 0 0 0 var(--G-glow)}50%{box-shadow:0 0 0 8px transparent}}
-@keyframes drawpath{from{stroke-dashoffset:300}to{stroke-dashoffset:0}}
-@keyframes flowdot{0%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0)}}
+/* ============================================ */
+/* FIXED: CODE BLOCKS - LIGHT BLUE BACKGROUND */
+/* ============================================ */
+.code-block {
+  background: #b8d8fc !important;
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.8;
+  border: 1px solid #89b9e8;
+  position: relative;
+  overflow: auto;
+  color: #0a0a2a;
+}
+.code-header { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.code-dot { width: 10px; height: 10px; border-radius: 50%; }
+.code-dot:nth-child(1) { background: #f38ba8; }
+.code-dot:nth-child(2) { background: #f9e2af; }
+.code-dot:nth-child(3) { background: #a6e3a1; }
+.code-fname { font-size: 11px; color: #1e3a5f; margin-left: 6px; font-family: var(--mono); font-weight: bold; }
 
-.stg>*{animation:slideup .4s ease both;}
-.stg>*:nth-child(1){animation-delay:.04s}.stg>*:nth-child(2){animation-delay:.1s}
-.stg>*:nth-child(3){animation-delay:.16s}.stg>*:nth-child(4){animation-delay:.22s}
-.stg>*:nth-child(5){animation-delay:.28s}.stg>*:nth-child(6){animation-delay:.34s}
-.stg>*:nth-child(7){animation-delay:.40s}
+/* Syntax highlighting colors for light blue background */
+.kw { color: #7c3aed; font-weight: bold; }
+.fn { color: #2563eb; font-weight: bold; }
+.st { color: #059669; font-weight: bold; }
+.cm { color: #6c7086; font-style: italic; }
+.nu { color: #d97706; font-weight: bold; }
+.vr { color: #0f172a; font-weight: bold; }
+.op { color: #0891b2; }
+.imp { color: #7c3aed; font-weight: bold; }
+.lib { color: #d97706; font-weight: bold; }
 
-/* ═══════════════════════════════════════
-   PAGE-SPECIFIC COMPONENTS
-═══════════════════════════════════════ */
+.output-block {
+  background: #e6f3ff;
+  border: 1px solid #89b9e8;
+  border-top: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: #0a0a2a;
+  line-height: 1.8;
+  margin-top: 10px;
+  display: none;
+}
+.output-block.visible { display: block; animation: revealOut .3s ease; }
+@keyframes revealOut { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Hero chips */
-.hchip{background:var(--surf);border:1.5px solid var(--bdr);border-radius:50px;padding:5px 14px;font-family:var(--fc);font-size:.7rem;color:var(--t2);display:flex;align-items:center;gap:5px;box-shadow:var(--shsm);}
+/* INFO BOX */
+.info-box { display: flex; gap: 12px; padding: 14px 16px; border-radius: var(--radius-sm); margin-bottom: 14px; }
+.info-box.blue { background: var(--primary-light); border: 1px solid #bfdbfe; }
+.info-box.green { background: var(--accent-light); border: 1px solid #bbf7d0; }
+.info-box.purple { background: var(--purple-light); border: 1px solid #ddd6fe; }
+.info-box.warn { background: var(--warn-light); border: 1px solid #fde68a; }
+.info-icon { font-size: 16px; flex-shrink: 0; padding-top: 1px; }
+.info-text { font-size: 13px; line-height: 1.6; }
 
-/* Analogy */
-.analogy{background:var(--surf);border:1.5px solid var(--bdr);border-radius:var(--r);padding:18px;display:flex;gap:16px;align-items:flex-start;box-shadow:var(--shsm);margin:14px 0;transition:all .2s;}
-.analogy:hover{box-shadow:var(--sh);transform:translateY(-2px);}
-.an-ic{font-size:2.4rem;flex-shrink:0;line-height:1;}
-.an-b h4{font-family:var(--fh);font-size:.92rem;font-weight:700;margin-bottom:4px;}
-.an-b p{font-size:.83rem;color:var(--t2);margin:0;}
+/* ANALOGY CARD */
+.analogy-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 18px; display: flex; gap: 14px; align-items: flex-start; }
+.analogy-icon { font-size: 28px; flex-shrink: 0; }
+.analogy-title { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--warn); margin-bottom: 4px; }
 
-/* Library Explorer Cards */
-.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:12px;margin:16px 0;}
-.lib-card{border-radius:14px;border:1.5px solid;overflow:hidden;cursor:pointer;transition:all .2s;box-shadow:var(--shsm);}
-.lib-card:hover{transform:translateY(-3px);box-shadow:var(--sh);}
-.lc-front{padding:16px;text-align:center;}
-.lc-ic{font-size:1.9rem;display:block;margin-bottom:6px;}
-.lc-n{font-family:var(--fh);font-size:.86rem;font-weight:700;margin-bottom:2px;}
-.lc-h{font-size:.72rem;color:var(--t3);}
-.lc-back{padding:12px;border-top:1.5px solid;display:none;font-family:var(--fc);font-size:.73rem;line-height:1.72;}
-.lib-card.open .lc-back{display:block;animation:fadein .28s ease;}
-.lib-card.open{transform:translateY(-2px);}
-/* Library card colors */
-.lc-math{background:#fff8e8;border-color:#fcd34d;}.lc-math .lc-back{background:#fff8e8;border-color:#fcd34d;color:#7a4500;}
-.lc-os{background:#e8f0ff;border-color:#a8c0f0;}.lc-os .lc-back{background:#e8f0ff;border-color:#a8c0f0;color:#1a3a88;}
-.lc-rand{background:#ffe8f8;border-color:#f0a8d8;}.lc-rand .lc-back{background:#ffe8f8;border-color:#f0a8d8;color:#701a60;}
-.lc-dt{background:#e8fff8;border-color:#a8f0d8;}.lc-dt .lc-back{background:#e8fff8;border-color:#a8f0d8;color:#0a5840;}
-.lc-json{background:#f8e8ff;border-color:#d0a8f0;}.lc-json .lc-back{background:#f8e8ff;border-color:#d0a8f0;color:#480a78;}
-.lc-re{background:#fff0e8;border-color:#f0c0a8;}.lc-re .lc-back{background:#fff0e8;border-color:#f0c0a8;color:#7a2a00;}
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
 
-/* Import Pipeline Visualizer */
-.import-pipe{background:var(--surf);border:1.5px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin:16px 0;box-shadow:var(--shsm);}
-.ip-header{padding:13px 18px;background:linear-gradient(135deg,var(--cdbg),#081808);display:flex;align-items:center;justify-content:space-between;}
-.ip-title{font-family:var(--fh);font-size:.86rem;font-weight:700;color:#80e8b0;}
-.ip-steps{display:flex;gap:0;padding:16px 18px;flex-wrap:wrap;justify-content:center;align-items:center;}
-.ip-step{background:var(--s2);border:1.5px solid var(--bdr);border-radius:10px;padding:10px 14px;text-align:center;font-family:var(--fc);font-size:.74rem;color:var(--t2);transition:all .3s;min-width:110px;}
-.ip-step.lit{background:var(--G-lt);border-color:var(--G);color:var(--G-dk);animation:glow .8s ease infinite;}
-.ip-arr{color:var(--bdr);padding:0 8px;font-size:1.2rem;animation:pulse 2s infinite;}
-.ip-arr.lit{color:var(--G);}
+/* WELCOME GRID */
+.welcome-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin: 20px 0; }
+.welcome-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 18px; text-align: center; transition: all var(--transition); cursor: pointer; }
+.welcome-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+.welcome-card-icon { font-size: 28px; margin-bottom: 8px; }
+.welcome-card-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 
-/* Math library interactive slider */
-.math-demo{background:var(--surf);border:1.5px solid var(--bdr);border-radius:var(--r);padding:20px;margin:16px 0;box-shadow:var(--shsm);}
-.md-title{font-family:var(--fh);font-size:.88rem;font-weight:700;margin-bottom:14px;}
-.md-func-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:14px;}
-.md-func{background:var(--s2);border:1.5px solid var(--bdr);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .18s;font-family:var(--fc);font-size:.78rem;color:var(--t2);text-align:center;}
-.md-func:hover{border-color:var(--G);background:var(--G-lt);color:var(--G-dk);}
-.md-func.active{border-color:var(--G);background:var(--G-lt);color:var(--G-dk);box-shadow:0 0 0 3px var(--G-glow);}
-.md-input-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.md-input{background:var(--s2);border:1.5px solid var(--bdr);border-radius:8px;padding:8px 12px;font-family:var(--fc);font-size:.84rem;color:var(--text);width:100px;outline:none;transition:border-color .2s;}
-.md-input:focus{border-color:var(--G);}
-.md-result{font-family:var(--fh);font-size:1.5rem;font-weight:800;color:var(--G);flex:1;text-align:right;}
-.md-eq{font-family:var(--fc);font-size:.8rem;color:var(--t3);width:100%;}
+/* REVEAL CARDS */
+.reveal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 18px 0; }
+.reveal-card { background: var(--surface2); border-radius: 12px; padding: 16px; cursor: pointer; border: 1px solid var(--border); transition: all .25s; }
+.reveal-card:hover { border-color: var(--primary); background: rgba(37,99,235,.04); transform: translateY(-2px); }
+.reveal-card .rc-front { font-size: 13px; font-weight: 700; color: var(--text); text-align: center; }
+.reveal-card .rc-back { font-size: 12px; color: var(--text2); margin-top: 8px; display: none; line-height: 1.6; }
+.reveal-card.flipped .rc-back { display: block; animation: fadein .3s; }
+.reveal-card.flipped { background: var(--primary-light); border-color: var(--primary); }
+@keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-/* Random playground */
-.rand-play{background:var(--surf);border:1.5px solid var(--bdr);border-radius:var(--r);padding:20px;margin:16px 0;box-shadow:var(--shsm);}
-.rp-title{font-family:var(--fh);font-size:.88rem;font-weight:700;margin-bottom:14px;}
-.rp-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:flex-end;}
-.rp-field{display:flex;flex-direction:column;gap:4px;}
-.rp-lbl{font-family:var(--fc);font-size:.64rem;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;}
-.rp-inp{background:var(--s2);border:1.5px solid var(--bdr);border-radius:8px;padding:8px 12px;font-family:var(--fc);font-size:.83rem;color:var(--text);width:90px;outline:none;transition:border-color .2s;}
-.rp-inp:focus{border-color:var(--G);}
-.rp-sel{background:var(--s2);border:1.5px solid var(--bdr);border-radius:8px;padding:8px 11px;font-family:var(--fc);font-size:.8rem;color:var(--text);outline:none;cursor:pointer;}
-.rp-out{background:var(--cdbg);border-radius:10px;padding:13px 17px;font-family:var(--fh);font-size:1.1rem;font-weight:800;color:#5de890;min-height:50px;display:flex;align-items:center;gap:10px;transition:all .3s;}
-.rp-dice{font-size:2rem;animation:bouncein .4s ease;}
+/* LIBRARY CARDS */
+.lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 12px; margin: 16px 0; }
+.lib-card { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; cursor: pointer; transition: all .2s; }
+.lib-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.lib-card .lc-front { padding: 16px; text-align: center; }
+.lib-card .lc-ic { font-size: 28px; display: block; margin-bottom: 6px; }
+.lib-card .lc-n { font-weight: 700; margin-bottom: 2px; }
+.lib-card .lc-h { font-size: 11px; color: var(--text3); }
+.lib-card .lc-back { display: none; padding: 12px; border-top: 1px solid var(--border); background: var(--primary-light); font-family: var(--mono); font-size: 11px; line-height: 1.6; color: var(--primary-dark); }
+.lib-card.open .lc-back { display: block; animation: fadein .28s ease; }
 
-/* Step-by-step import trace */
-.step-exec{background:var(--surf);border:1.5px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin:16px 0;box-shadow:var(--shsm);}
-.se-h{background:linear-gradient(135deg,var(--cdbg),#091408);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;}
-.se-ht{font-family:var(--fh);font-size:.86rem;font-weight:700;color:#80e8b0;}
-.se-btns{display:flex;gap:8px;}
-.se-btn{padding:5px 13px;border-radius:7px;border:1px solid rgba(14,144,96,.3);background:rgba(14,144,96,.1);color:#5de890;font-family:var(--fc);font-size:.72rem;cursor:pointer;transition:all .18s;}
-.se-btn:hover{background:rgba(14,144,96,.25);}
-.se-btn.rst{border-color:rgba(212,128,16,.3);background:rgba(212,128,16,.1);color:#f0c060;}
-.se-lines{background:var(--cdbg);}
-.se-line{display:flex;align-items:center;padding:3px 0;transition:all .22s;cursor:pointer;}
-.se-line:hover{background:rgba(255,255,255,.03);}
-.se-ln{font-family:var(--fc);font-size:.7rem;color:rgba(80,130,100,.4);min-width:34px;text-align:right;padding:0 9px;user-select:none;}
-.se-ar{font-size:.7rem;min-width:20px;text-align:center;color:transparent;transition:color .2s;}
-.se-line.active .se-ar{color:var(--G);}
-.se-line.active{background:rgba(14,144,96,.14);}
-.se-line.done{background:rgba(14,144,96,.05);}
-.se-code{font-family:var(--fc);font-size:.83rem;padding:5px 0;color:#b0e8c8;flex:1;}
-.se-info{padding:11px 16px;background:rgba(14,144,96,.07);border-top:1px solid rgba(14,144,96,.12);font-family:var(--fh);font-size:.8rem;color:#5de890;min-height:40px;}
+/* IMPORT PIPELINE */
+.import-pipe { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 16px 0; }
+.ip-header { padding: 12px 16px; background: #b8d8fc; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #89b9e8; }
+.ip-title { font-family: var(--mono); font-size: 12px; color: #1e3a5f; font-weight: 600; }
+.ip-steps { display: flex; gap: 0; padding: 16px; flex-wrap: wrap; justify-content: center; align-items: center; background: #e6f3ff; }
+.ip-step { background: var(--surface2); border: 1px solid #89b9e8; border-radius: 8px; padding: 8px 12px; text-align: center; font-family: var(--mono); font-size: 11px; color: var(--text2); transition: all .3s; min-width: 100px; margin: 4px; }
+.ip-step.active { background: #b8d8fc; border-color: var(--primary); color: var(--primary-dark); }
+.ip-arrow { color: var(--text3); padding: 0 4px; font-size: 1rem; }
 
-/* Pip / module map */
-.pkg-map{background:var(--surf);border:1.5px solid var(--bdr);border-radius:var(--r);padding:20px;margin:16px 0;box-shadow:var(--shsm);}
-.pm-title{font-family:var(--fh);font-size:.88rem;font-weight:700;margin-bottom:14px;}
-.pm-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
-.pm-tab{padding:7px 18px;border-radius:9px;font-family:var(--fh);font-size:.8rem;font-weight:700;cursor:pointer;border:1.5px solid var(--bdr);background:var(--s2);color:var(--t2);transition:all .18s;}
-.pm-tab:hover{border-color:var(--G);color:var(--G);}
-.pm-tab.active{background:var(--G-lt);border-color:var(--G);color:var(--G);}
-.pm-content{display:none;animation:fadein .3s ease;}
-.pm-content.active{display:block;}
-.pm-pkg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
-.pm-pkg{background:var(--s2);border:1.5px solid var(--bdr);border-radius:10px;padding:12px 14px;transition:all .18s;}
-.pm-pkg:hover{border-color:var(--G);background:var(--G-lt);transform:translateY(-2px);}
-.pm-pkg-n{font-family:var(--fh);font-size:.84rem;font-weight:700;margin-bottom:3px;}
-.pm-pkg-d{font-size:.76rem;color:var(--t3);}
-.pm-pkg-tag{display:inline-flex;align-items:center;font-family:var(--fc);font-size:.64rem;padding:2px 8px;border-radius:50px;margin-top:5px;}
-.tag-builtin{background:var(--G-lt);color:var(--G-dk);border:1px solid var(--bdr);}
-.tag-pip{background:var(--gold-lt);color:#7a4500;border:1px solid #fcd34d;}
-.tag-ds{background:var(--pur-lt);color:#480a78;border:1px solid #c4b5fd;}
+/* MATH PLAYGROUND */
+.math-demo { background: var(--surface2); border-radius: var(--radius); padding: 20px; margin: 16px 0; border: 1px solid #89b9e8; }
+.md-func-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.md-func { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-family: var(--mono); font-size: 12px; transition: all .2s; }
+.md-func:hover { border-color: var(--primary); background: var(--primary-light); }
+.md-func.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.md-input-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.md-input { background: #b8d8fc; border: 1px solid #89b9e8; border-radius: 8px; padding: 8px 12px; font-family: var(--mono); font-size: 13px; width: 100px; outline: none; color: #0a0a2a; }
+.md-result { font-family: var(--mono); font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+.md-eq { font-family: var(--mono); font-size: 12px; color: var(--text3); }
 
-/* Scenario cards */
-.scenario-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:13px;margin:16px 0;}
-.sc-card{background:var(--surf);border:1.5px solid var(--bdr);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s;box-shadow:var(--shsm);}
-.sc-card:hover{transform:translateY(-3px);box-shadow:var(--sh);}
-.sc-front{padding:18px;text-align:center;}
-.sc-ic{font-size:2rem;display:block;margin-bottom:8px;}
-.sc-n{font-family:var(--fh);font-size:.86rem;font-weight:700;margin-bottom:3px;}
-.sc-h{font-size:.74rem;color:var(--t3);}
-.sc-back{padding:12px;background:var(--G-lt);border-top:1.5px solid var(--bdr);display:none;font-family:var(--fc);font-size:.74rem;line-height:1.75;color:var(--G-dk);}
-.sc-card.open .sc-back{display:block;animation:fadein .28s ease;}
-.sc-card.open{border-color:var(--G);}
-.sc-hint{font-family:var(--fc);font-size:.65rem;color:var(--t3);text-align:center;margin:-6px 0 13px;}
+/* RANDOM PLAYGROUND */
+.rand-play { background: var(--surface2); border-radius: var(--radius); padding: 20px; margin: 16px 0; border: 1px solid #89b9e8; }
+.rp-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; align-items: flex-end; }
+.rp-field { display: flex; flex-direction: column; gap: 4px; }
+.rp-lbl { font-family: var(--mono); font-size: 10px; color: var(--text3); text-transform: uppercase; }
+.rp-inp { background: #b8d8fc; border: 1px solid #89b9e8; border-radius: 8px; padding: 8px 12px; font-family: var(--mono); font-size: 13px; width: 90px; outline: none; color: #0a0a2a; }
+.rp-sel { background: #b8d8fc; border: 1px solid #89b9e8; border-radius: 8px; padding: 8px 12px; font-family: var(--mono); font-size: 12px; cursor: pointer; color: #0a0a2a; }
+.rp-out { background: #b8d8fc; border-radius: 10px; padding: 16px; font-family: var(--mono); font-size: 13px; color: #0a0a2a; min-height: 60px; border: 1px solid #89b9e8; }
 
-/* Exercise cards */
-.exc-card{background:var(--surf);border:1.5px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:14px;box-shadow:var(--shsm);}
-.exch{padding:13px 18px;background:linear-gradient(135deg,var(--G-lt),var(--B-lt));border-bottom:1.5px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;}
-.exc-num{font-family:var(--fc);font-size:.66rem;color:var(--t3);}
-.exc-ttl{font-family:var(--fh);font-size:.88rem;font-weight:700;color:var(--G-dk);}
-.excb{padding:18px;}
-.excb p{font-size:.86rem;color:var(--t2);margin-bottom:10px;}
+/* PACKAGE MAP */
+.pkg-map { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin: 16px 0; }
+.pm-tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.pm-tab { padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface2); transition: all .2s; }
+.pm-tab:hover { border-color: var(--primary); color: var(--primary); }
+.pm-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.pm-content { display: none; animation: fadein .3s ease; }
+.pm-content.active { display: block; }
+.pm-pkg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 12px; }
+.pm-pkg { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; transition: all .2s; }
+.pm-pkg:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); }
+.pm-pkg-n { font-weight: 700; margin-bottom: 4px; }
+.pm-pkg-d { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
+.pm-pkg-tag { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 12px; background: var(--accent-light); color: var(--accent-dark); }
 
-/* Quiz */
-.qprog{display:flex;gap:6px;margin-bottom:22px;}
-.qpd{flex:1;height:5px;background:var(--s3);border-radius:3px;opacity:.5;transition:all .3s;}
-.qpd.ok{background:var(--G);opacity:1;}.qpd.no{background:var(--red);opacity:1;}
-.qcard{background:var(--surf);border:1.5px solid var(--bdr);border-radius:var(--r);padding:26px;min-height:290px;box-shadow:var(--sh);}
-.qbg{font-family:var(--fc);font-size:.67rem;color:var(--t3);margin-bottom:8px;}
-.qtx{font-family:var(--fh);font-size:1.07rem;font-weight:700;margin-bottom:20px;line-height:1.4;}
-.qopts{display:flex;flex-direction:column;gap:9px;}
-.qo{background:var(--surf);border:1.5px solid var(--bdr);border-radius:11px;padding:11px 16px;text-align:left;font-family:var(--fh);font-size:.9rem;color:var(--text);cursor:pointer;transition:all .16s;display:flex;align-items:center;gap:11px;}
-.qo:hover:not(:disabled){border-color:var(--G);background:var(--G-lt);transform:translateX(4px);}
-.qol{width:26px;height:26px;border-radius:7px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-family:var(--fc);font-size:.7rem;color:var(--t3);flex-shrink:0;border:1px solid var(--bdr);}
-.qo.ok{border-color:var(--G);background:var(--G-lt);color:var(--G-dk);}
-.qo.ok .qol{background:var(--G);color:white;border-color:var(--G);}
-.qo.no{border-color:var(--red);background:var(--red-lt);color:#991b1b;}
-.qo.no .qol{background:var(--red);color:white;border-color:var(--red);}
-.qo:disabled{cursor:default;}
-.qfb{margin-top:12px;padding:11px 15px;border-radius:10px;font-family:var(--fc);font-size:.77rem;display:none;}
-.qfb.show{display:block;animation:fadein .3s ease;}
-.qfb.ok{background:var(--G-lt);color:var(--G-dk);border:1px solid var(--bdr);}
-.qfb.no{background:var(--red-lt);color:#991b1b;border:1px solid #fca5a5;}
-.qnav{display:flex;align-items:center;justify-content:space-between;margin-top:16px;}
-.qnb{background:var(--s2);border:1.5px solid var(--bdr);border-radius:9px;padding:9px 18px;font-family:var(--fh);font-size:.8rem;font-weight:700;color:var(--t2);cursor:pointer;transition:all .18s;}
-.qnb:hover{border-color:var(--G);color:var(--G);}
-.qnb.pri{background:linear-gradient(135deg,var(--G),var(--B));color:white;border-color:transparent;box-shadow:0 3px 10px var(--G-glow);}
-.qnb:disabled{opacity:.3;cursor:not-allowed;}
-.qres{display:none;text-align:center;padding:36px 18px;}
-.qres.show{display:block;animation:fadein .5s ease;}
-.qre{font-size:3.8rem;display:block;margin-bottom:12px;animation:bouncein .7s ease;}
-.qrs{font-family:var(--fh);font-size:3.4rem;font-weight:900;color:var(--G);line-height:1;margin-bottom:7px;}
-.qrsb{color:var(--t2);font-size:.97rem;margin-bottom:22px;}
-.qrbd{display:flex;gap:22px;justify-content:center;margin-bottom:22px;}
-.qrv{font-family:var(--fh);font-size:1.7rem;font-weight:800;}
-.qrv.c{color:var(--G);}.qrv.w{color:var(--red);}
-.qrl{font-family:var(--fc);font-size:.67rem;color:var(--t3);}
-.rtb{background:var(--s2);border:1.5px solid var(--bdr);border-radius:10px;padding:10px 24px;font-family:var(--fh);font-size:.87rem;font-weight:700;color:var(--text);cursor:pointer;transition:all .2s;margin-right:8px;}
-.rtb:hover{border-color:var(--G);color:var(--G);}
+/* SCENARIO CARDS */
+.scenario-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+.sc-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all .2s; }
+.sc-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.sc-front { padding: 16px; text-align: center; }
+.sc-ic { font-size: 28px; display: block; margin-bottom: 8px; }
+.sc-n { font-weight: 700; margin-bottom: 4px; }
+.sc-h { font-size: 11px; color: var(--text3); }
+.sc-back { display: none; padding: 12px; background: var(--primary-light); border-top: 1px solid var(--border); font-family: var(--mono); font-size: 11px; line-height: 1.6; }
+.sc-card.open .sc-back { display: block; }
 
-/* Completion */
-.cw{text-align:center;max-width:540px;margin:0 auto;padding:18px 0;}
-.ci{width:106px;height:106px;background:linear-gradient(135deg,var(--G-lt),var(--B-lt));border:2px solid var(--bdr);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:3rem;margin:0 auto 22px;animation:float 3s ease-in-out infinite;box-shadow:var(--sh);}
-.skw{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin:18px 0 24px;}
-.skt{background:var(--G-lt);border:1px solid var(--bdr);border-radius:50px;padding:5px 14px;font-family:var(--fc);font-size:.72rem;color:var(--G-dk);display:flex;align-items:center;gap:4px;animation:bouncein .5s ease both;}
-.skt .ck{color:var(--G);font-weight:700;}
-.comp-btn{background:linear-gradient(135deg,var(--G),var(--B));color:white;border:none;border-radius:13px;padding:14px 34px;font-family:var(--fh);font-size:.97rem;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px;box-shadow:0 4px 18px var(--G-glow);}
-.comp-btn:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 6px 24px var(--G-glow);}
-.rst-btn{background:var(--s2);border:1.5px solid var(--bdr);border-radius:11px;padding:10px 24px;font-family:var(--fh);font-size:.85rem;font-weight:700;color:var(--text);cursor:pointer;transition:all .2s;margin-top:11px;}
-.rst-btn:hover{border-color:var(--G);color:var(--G);}
-.afoot{margin-top:24px;padding-top:18px;border-top:1.5px solid var(--bdr);text-align:center;}
-.afl{font-family:var(--fc);font-size:.59rem;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
-.afi{display:inline-flex;align-items:center;gap:12px;}
-.afa{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--G),var(--B));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:1.1rem;font-weight:800;color:white;box-shadow:0 4px 12px var(--G-glow);}
+/* EXERCISE CARD */
+.ex-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 18px; }
+.ex-badge { display: inline-flex; gap: 6px; align-items: center; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; background: var(--accent-light); color: var(--accent-dark); }
+.ex-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.ex-desc { font-size: 13px; color: var(--text2); margin-bottom: 16px; line-height: 1.7; }
+.sol-toggle { font-size: 12px; font-weight: 600; color: var(--primary); cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 0; border: none; background: none; font-family: var(--font); }
+.sol-toggle:hover { color: var(--primary-dark); }
+.solution { display: none; margin-top: 12px; }
+.solution.open { display: block; animation: revealOut .25s ease; }
 
-/* Mobile */
-@media(max-width:680px){
-  #app{grid-template-columns:1fr;grid-template-areas:"nav" "main";}
-  #side{display:none;}
-  .page{padding:22px 18px;}
-  .g2,.g3{grid-template-columns:1fr;}
-  .ncr,.npw{display:none;}
+/* QUIZ */
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 28px; }
+.qp-dot { flex: 1; height: 4px; background: var(--border); border-radius: 2px; transition: background .3s; }
+.qp-dot.correct { background: var(--accent); }
+.qp-dot.wrong { background: var(--coral); }
+.q-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; min-height: 320px; }
+.q-badge { font-family: var(--mono); font-size: 0.7rem; color: var(--text3); margin-bottom: 10px; }
+.q-text { font-family: var(--font); font-size: 1.1rem; font-weight: 700; margin-bottom: 24px; line-height: 1.4; }
+.q-options { display: flex; flex-direction: column; gap: 10px; }
+.q-opt { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 18px; text-align: left; font-size: 0.95rem; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 12px; }
+.q-opt:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-light); transform: translateX(3px); }
+.q-opt-letter { width: 26px; height: 26px; border-radius: 6px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.7rem; color: var(--text3); flex-shrink: 0; }
+.q-opt.correct { border-color: var(--accent); background: rgba(5,150,105,0.1); color: var(--accent-dark); }
+.q-opt.correct .q-opt-letter { background: var(--accent); color: #fff; }
+.q-opt.wrong { border-color: var(--coral); background: rgba(225,29,72,0.1); color: var(--coral); }
+.q-opt.wrong .q-opt-letter { background: var(--coral); color: #fff; }
+.q-opt:disabled { cursor: default; }
+.q-feedback { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-family: var(--mono); font-size: 0.8rem; display: none; }
+.q-feedback.show { display: block; }
+.q-feedback.correct { background: rgba(5,150,105,0.12); color: var(--accent-dark); border: 1px solid rgba(5,150,105,0.3); }
+.q-feedback.wrong { background: rgba(225,29,72,0.1); color: var(--coral); border: 1px solid #fecdd3; }
+.quiz-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; }
+.qnav-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 20px; font-family: var(--font); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all .15s; color: var(--text2); }
+.qnav-btn:hover { border-color: var(--text3); }
+.qnav-btn.primary { background: var(--primary); color: #fff; border-color: transparent; }
+.qnav-btn:disabled { opacity: .3; cursor: not-allowed; }
+.quiz-result { display: none; text-align: center; padding: 40px 20px; }
+.quiz-result.show { display: block; }
+.qr-emoji { font-size: 4rem; display: block; margin-bottom: 16px; }
+.qr-score { font-family: var(--font); font-size: 3rem; font-weight: 800; color: var(--primary); line-height: 1; margin-bottom: 8px; }
+.qr-sub { color: var(--text2); font-size: 0.9rem; margin-bottom: 28px; }
+.qr-breakdown { display: flex; gap: 20px; justify-content: center; margin-bottom: 28px; }
+.qrb-item { text-align: center; }
+.qrb-val { font-family: var(--font); font-size: 1.5rem; font-weight: 800; }
+.qrb-val.c { color: var(--accent); }
+.qrb-val.w { color: var(--coral); }
+.retry-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 11px 28px; font-family: var(--font); font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all .15s; margin-right: 10px; }
+.retry-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+/* COMPLETE */
+.complete-wrap { text-align: center; max-width: 520px; margin: 0 auto; padding: 20px 0; }
+.complete-icon { width: 100px; height: 100px; background: rgba(37,99,235,0.1); border: 2px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 24px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.skills-learnt { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0 32px; }
+.skill-badge { background: var(--surface2); border: 1px solid var(--border); border-radius: 50px; padding: 6px 16px; font-family: var(--mono); font-size: 0.75rem; color: var(--text2); display: flex; align-items: center; gap: 6px; }
+.skill-badge .check { color: var(--accent); }
+.cert-btn { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: none; border-radius: 12px; padding: 14px 32px; font-family: var(--font); font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; }
+.cert-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,99,235,.3); }
+
+/* STEP EXECUTOR */
+.step-exec { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 16px 0; }
+.se-h { background: #b8d8fc; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #89b9e8; }
+.se-ht { font-family: var(--mono); font-size: 12px; color: #1e3a5f; font-weight: bold; }
+.se-btns { display: flex; gap: 8px; }
+.se-btn { padding: 5px 12px; border-radius: 6px; background: rgba(37,99,235,.1); border: 1px solid rgba(37,99,235,.3); color: #1e3a5f; font-family: var(--mono); font-size: 10px; cursor: pointer; }
+.se-lines { background: #b8d8fc; }
+.se-line { display: flex; align-items: center; padding: 3px 0; border-bottom: 1px solid #89b9e8; }
+.se-ln { font-family: var(--mono); font-size: 10px; color: #1e3a5f; min-width: 30px; text-align: right; padding: 0 8px; }
+.se-ar { font-size: 10px; min-width: 18px; text-align: center; color: transparent; }
+.se-line.active .se-ar { color: #059669; }
+.se-line.active { background: rgba(5,150,105,.15); }
+.se-code { font-family: var(--mono); font-size: 11px; color: #0a0a2a; flex: 1; }
+.se-info { padding: 10px 16px; background: rgba(5,150,105,.08); font-size: 11px; color: var(--accent-dark); min-height: 36px; }
+
+@media (max-width: 800px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; padding: 24px 20px; }
+  .hero h1 { font-size: 32px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .reveal-grid { grid-template-columns: 1fr; }
+  .lib-grid { grid-template-columns: 1fr 1fr; }
 }
 </style>
 </head>
 <body>
-<div id="app">
 
-<!-- ════ EXACT HEADER (MANDATORY) ════ -->
-<header id="nav">
-  <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
-    <div class="nlogo">
-      <img src="logo.png" alt="HCL-GUVI Logo" class="nlogo-img"
-           onerror="this.style.display='none';document.getElementById('lfb').style.display='flex';"
-           style="height:40px;object-fit:contain;"/>
-      <div class="nlogo-fb" id="lfb" style="display:none;">📚</div>
-      <div class="nlogo-txt">
-        <div class="nl">HCL-GUVI</div>
-        <div class="ns">Python for Beginners</div>
+<header class="app-header">
+  <div class="header-left">
+    <div class="logo-area">
+      <img src="logo.png" alt="Logo" style="height:36px; width:auto; object-fit:contain;">
+      <div class="logo-badge">📘</div>
+      <div>
+        <div class="logo-text">Python for Beginners</div>
+        <div class="logo-sub">Libraries in Python</div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:13px;">
-      <div class="ndiv"></div>
-      <div class="nmod">
-        <div class="nmod-t">Module 11</div>
-        <div class="nmod-n">Libraries in Python</div>
-      </div>
-      <div class="ndiv"></div>
-      <div class="npw">
-        <div class="npr"><span>Progress</span><span id="npct">0%</span></div>
-        <div class="npb"><div class="npf" id="nfill" style="width:0%"></div></div>
-      </div>
-      <div class="ncr">
-        <div class="ncr-av">V</div>
-        <div><div class="ncr-n">Vinodhini</div><div class="ncr-r">Data Scientist · HCL GUVI</div></div>
-      </div>
+    <div class="header-divider"></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="module-badge">Module 11</div>
+      <div class="module-title">Libraries</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="progress-wrap">
+      <span class="progress-label">Progress</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <span class="progress-pct" id="progressPct">0%</span>
     </div>
   </div>
 </header>
 
-<!-- ════ SIDEBAR ════ -->
-<aside id="side">
-  <div class="slbl">Module 11</div>
-  <div class="si active" data-p="0" onclick="gp(0)"><span class="sico">🏠</span>Welcome<span class="sck">✓</span></div>
-  <div class="si" data-p="1" onclick="gp(1)"><span class="sico">📦</span>What are Libraries?<span class="sck">✓</span></div>
-  <div class="si" data-p="2" onclick="gp(2)"><span class="sico">🔢</span>math &amp; random<span class="sck">✓</span></div>
-  <div class="si" data-p="3" onclick="gp(3)"><span class="sico">🗂️</span>os &amp; datetime<span class="sck">✓</span></div>
-  <div class="si" data-p="4" onclick="gp(4)"><span class="sico">🌐</span>Third-Party Libraries<span class="sck">✓</span></div>
-  <div class="sdiv"></div>
-  <div class="slbl">Practice</div>
-  <div class="si" data-p="5" onclick="gp(5)"><span class="sico">✏️</span>Exercises<span class="sck">✓</span></div>
-  <div class="si" data-p="6" onclick="gp(6)"><span class="sico">🧠</span>Quiz<span class="sck">✓</span></div>
-  <div class="si" data-p="7" onclick="gp(7)"><span class="sico">🎉</span>Completion<span class="sck">✓</span></div>
-  <div class="sfoot">
-    <div class="sf-in">
-      <div class="sf-lb">Created by</div>
-      <div class="sf-av">V</div>
-      <div class="sf-n">Vinodhini</div>
-      <div class="sf-t">Data Scientist</div>
-      <div class="sf-o">🏢 HCL GUVI</div>
-    </div>
-  </div>
-</aside>
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-section">Module 11</div>
+  <button class="nav-item active" onclick="goTo(0)" id="nav-0"><span class="nav-icon">🏠</span>Welcome<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(1)" id="nav-1"><span class="nav-icon">📦</span>What are Libraries?<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(2)" id="nav-2"><span class="nav-icon">🔢</span>math & random<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(3)" id="nav-3"><span class="nav-icon">🗂️</span>os & datetime<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(4)" id="nav-4"><span class="nav-icon">🌐</span>Third-Party<span class="nav-check">✓</span></button>
+  <div class="sidebar-section">Practice</div>
+  <button class="nav-item" onclick="goTo(5)" id="nav-5"><span class="nav-icon">✏️</span>Exercises<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(6)" id="nav-6"><span class="nav-icon">🧠</span>Quiz<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(7)" id="nav-7"><span class="nav-icon">🎉</span>Complete!<span class="nav-check">✓</span></button>
+</nav>
 
-<!-- ════ MAIN ════ -->
-<main id="main">
+<main class="main-content" id="mainContent">
 
-<!-- ░░░ PAGE 0 — WELCOME ░░░ -->
-<div class="page active" id="page-0">
-  <span style="font-size:4.8rem;display:block;margin-bottom:14px;animation:float 3s ease-in-out infinite;line-height:1;filter:drop-shadow(0 8px 16px rgba(14,144,96,.3))">📚</span>
-  <div class="ptag">Module 11 · Python for Beginners</div>
-  <h1>Libraries<br><span style="color:var(--G)">in Python</span></h1>
-  <p style="font-size:1.02rem;max-width:500px;margin:14px 0 24px;">Don't reinvent the wheel! Python's <strong>rich ecosystem of libraries</strong> gives you superpowers — from mathematics to machine learning, all with a single <code>import</code>.</p>
-  <div style="display:flex;flex-wrap:wrap;gap:9px;margin-bottom:28px;" class="stg">
-    <div class="hchip">📖 5 Lessons</div>
-    <div class="hchip">🎮 8 Interactive Demos</div>
-    <div class="hchip">✏️ 3 Exercises</div>
-    <div class="hchip">🧠 5-Q Quiz</div>
-    <div class="hchip">⏱️ ~30 min</div>
-  </div>
-  <div style="display:flex;gap:28px;flex-wrap:wrap;margin-bottom:28px;" class="stg">
-    <div><div style="font-family:var(--fh);font-size:1.85rem;font-weight:800;color:var(--G);line-height:1;">import</div><div style="font-family:var(--fc);font-size:.66rem;color:var(--t3);">The magic keyword</div></div>
-    <div><div style="font-family:var(--fh);font-size:1.85rem;font-weight:800;color:var(--B);line-height:1;">pip</div><div style="font-family:var(--fc);font-size:.66rem;color:var(--t3);">Package installer</div></div>
-    <div><div style="font-family:var(--fh);font-size:1.85rem;font-weight:800;color:var(--gold);line-height:1;">300k+</div><div style="font-family:var(--fc);font-size:.66rem;color:var(--t3);">Packages on PyPI</div></div>
-  </div>
-  <div style="display:flex;align-items:center;gap:13px;flex-wrap:wrap;padding-top:22px;border-top:1.5px solid var(--bdr);" class="stg">
-    <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--G),var(--B));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:1.2rem;font-weight:800;color:white;box-shadow:0 4px 12px var(--G-glow);flex-shrink:0;">V</div>
-    <div><div style="font-family:var(--fc);font-size:.59rem;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;">Course Author</div><div style="font-family:var(--fh);font-size:1rem;font-weight:700;color:var(--G);">Vinodhini</div><div style="font-family:var(--fc);font-size:.71rem;color:var(--t2);">Data Scientist · HCL GUVI</div></div>
-  </div>
-  <div class="pbb"><div></div><button class="btn-nx" onclick="gp(1)">Let's Begin →</button></div>
-</div>
-
-<!-- ░░░ PAGE 1 — WHAT ARE LIBRARIES ░░░ -->
-<div class="page" id="page-1">
-  <div class="ph">
-    <div class="ptag">Concept 1</div>
-    <h2>What are Libraries?</h2>
-    <p>A <strong>library</strong> (also called a module or package) is a collection of pre-written Python code that you can reuse in your programs. Instead of writing everything from scratch, you <code>import</code> a library and use its ready-made tools.</p>
-  </div>
-
-  <div class="analogy stg">
-    <div class="an-ic">🧰</div>
-    <div class="an-b">
-      <h4>Real-Life Analogy: A Toolbox</h4>
-      <p>Imagine building a house. You don't forge your own hammer or manufacture screws — you open a toolbox full of ready-made tools. Python libraries are your toolbox. You pick the right tool for the job and get building!</p>
+<!-- PAGE 0: WELCOME -->
+<section class="page active" id="page-0">
+  <div class="hero">
+    <div class="hero-deco" style="position:absolute; right:40px; top:50%; font-size:100px; opacity:.07;">📚</div>
+    <div class="hero-tag">⭐ Module 11 of 12 · Python for Beginners</div>
+    <h1>Libraries<br><em>in Python</em></h1>
+    <p>Don't reinvent the wheel! Python's rich ecosystem of libraries gives you superpowers — from mathematics to machine learning, all with a single import.</p>
+    <div class="hero-chips">
+      <span class="chip chip-blue">📖 5 Lessons</span>
+      <span class="chip chip-green">🎮 Interactive Demos</span>
+      <span class="chip chip-purple">✏️ 3 Exercises</span>
+      <span class="chip chip-blue">🧠 5 Questions</span>
     </div>
   </div>
 
-  <!-- Import Pipeline Visualizer -->
-  <h3 style="margin:20px 0 10px;font-size:.92rem;">🔀 How import Works — Click to Animate</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-tag">🎯 What You'll Learn</div>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+        <div style="display:flex; align-items:center; gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;">✓</div> Import syntax and usage</div>
+        <div style="display:flex; align-items:center; gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;">✓</div> math & random libraries</div>
+        <div style="display:flex; align-items:center; gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;">✓</div> os & datetime modules</div>
+        <div style="display:flex; align-items:center; gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;">✓</div> Third-party packages with pip</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-tag">🗺️ Why Libraries Matter</div>
+      <p>Python's standard library alone has over 200 modules. Plus 300,000+ packages on PyPI — solutions for almost any programming challenge.</p>
+      <div class="grid-2" style="margin-top:12px; gap:8px;">
+        <div style="background:var(--surface2);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:22px;">🔢</div><div style="font-size:11px;font-weight:600;">Math</div></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:22px;">🎲</div><div style="font-size:11px;font-weight:600;">Random</div></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:22px;">💻</div><div style="font-size:11px;font-weight:600;">OS</div></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:22px;">📅</div><div style="font-size:11px;font-weight:600;">DateTime</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box blue"><span class="info-icon">💡</span><div class="info-text"><strong>Did you know?</strong> Python comes with "batteries included" — over 200 built-in modules ready to use. Just import them!</div></div>
+  <div class="page-nav"><span></span><button class="btn btn-primary" onclick="goTo(1)">Start Learning →</button></div>
+</section>
+
+<!-- PAGE 1: WHAT ARE LIBRARIES -->
+<section class="page" id="page-1">
+  <div class="section-tag">📘 Concept 1</div>
+  <div class="page-h2">What are Libraries?</div>
+  <div class="page-subtitle">A library (module/package) is a collection of pre-written Python code you can reuse.</div>
+
+  <div class="analogy-card"><div class="analogy-icon">🧰</div><div><div class="analogy-title">Real-Life Analogy: Toolbox</div><div class="info-text">You don't forge your own hammer — you open a toolbox full of ready-made tools. Python libraries are your toolbox!</div></div></div>
+
   <div class="import-pipe">
-    <div class="ip-header">
-      <span class="ip-title">Import Pipeline Visualizer</span>
-      <button class="se-btn" onclick="animImport()">▶ Animate</button>
-    </div>
-    <div class="ip-steps" id="ipSteps">
-      <div class="ip-step" id="ip0">📝 Your code<br><code style="font-size:.68rem;background:none;border:none;color:inherit;">import math</code></div>
-      <div class="ip-arr" id="ipa0">→</div>
-      <div class="ip-step" id="ip1">🔍 Python searches<br>sys.path</div>
-      <div class="ip-arr" id="ipa1">→</div>
-      <div class="ip-step" id="ip2">📦 Finds module<br>math.py</div>
-      <div class="ip-arr" id="ipa2">→</div>
-      <div class="ip-step" id="ip3">⚙️ Loads &amp; compiles<br>bytecode</div>
-      <div class="ip-arr" id="ipa3">→</div>
-      <div class="ip-step" id="ip4">✅ math available<br>in namespace</div>
-    </div>
+    <div class="ip-header"><span class="ip-title">How import Works — Animate</span><button class="se-btn" onclick="animateImport()">▶ Animate</button></div>
+    <div class="ip-steps" id="importSteps"><div class="ip-step">📝 import math</div><div class="ip-arrow">→</div><div class="ip-step">🔍 Python searches</div><div class="ip-arrow">→</div><div class="ip-step">📦 Finds module</div><div class="ip-arrow">→</div><div class="ip-step">⚙️ Loads bytecode</div><div class="ip-arrow">→</div><div class="ip-step">✅ math available</div></div>
   </div>
 
-  <!-- Library Explorer -->
-  <h3 style="margin:20px 0 8px;font-size:.92rem;">📚 Standard Library Explorer — Click to learn more</h3>
-  <div style="font-family:var(--fc);font-size:.64rem;color:var(--t3);text-align:center;margin-bottom:12px;">Tap any library card to see what it does and example functions</div>
-  <div class="lib-grid stg">
-    <div class="lib-card lc-math" onclick="toggleLib(this)">
-      <div class="lc-front"><span class="lc-ic">🔢</span><div class="lc-n">math</div><div class="lc-h">Mathematical functions</div></div>
-      <div class="lc-back">import math<br><br>math.sqrt(16) → 4.0<br>math.pi → 3.14159…<br>math.ceil(2.3) → 3<br>math.floor(2.9) → 2<br>math.log(100,10) → 2.0</div>
-    </div>
-    <div class="lib-card lc-os" onclick="toggleLib(this)">
-      <div class="lc-front"><span class="lc-ic">💻</span><div class="lc-n">os</div><div class="lc-h">Operating system interface</div></div>
-      <div class="lc-back">import os<br><br>os.getcwd() → current dir<br>os.listdir('.') → files<br>os.path.exists(f) → bool<br>os.mkdir("folder")<br>os.getenv("HOME")</div>
-    </div>
-    <div class="lib-card lc-rand" onclick="toggleLib(this)">
-      <div class="lc-front"><span class="lc-ic">🎲</span><div class="lc-n">random</div><div class="lc-h">Random number generation</div></div>
-      <div class="lc-back">import random<br><br>random.randint(1,6)<br>random.random() → 0-1<br>random.choice(list)<br>random.shuffle(list)<br>random.sample(list,k)</div>
-    </div>
-    <div class="lib-card lc-dt" onclick="toggleLib(this)">
-      <div class="lc-front"><span class="lc-ic">📅</span><div class="lc-n">datetime</div><div class="lc-h">Dates and times</div></div>
-      <div class="lc-back">from datetime import datetime<br><br>datetime.now()<br>datetime(2024,1,1)<br>.strftime("%Y-%m-%d")<br>.strptime(str, fmt)<br>timedelta(days=7)</div>
-    </div>
-    <div class="lib-card lc-json" onclick="toggleLib(this)">
-      <div class="lc-front"><span class="lc-ic">🔗</span><div class="lc-n">json</div><div class="lc-h">JSON data handling</div></div>
-      <div class="lc-back">import json<br><br>json.dumps(dict) → str<br>json.loads(str) → dict<br>json.dump(d, file)<br>json.load(file)<br>indent=4 for pretty</div>
-    </div>
-    <div class="lib-card lc-re" onclick="toggleLib(this)">
-      <div class="lc-front"><span class="lc-ic">🔍</span><div class="lc-n">re</div><div class="lc-h">Regular expressions</div></div>
-      <div class="lc-back">import re<br><br>re.search(pat,str)<br>re.findall(pat,str)<br>re.sub(pat,new,str)<br>re.match(pat,str)<br>re.compile(pattern)</div>
-    </div>
+  <div class="lib-grid">
+    <div class="lib-card" onclick="this.classList.toggle('open')"><div class="lc-front"><div class="lc-ic">🔢</div><div class="lc-n">math</div><div class="lc-h">Math functions</div></div><div class="lc-back">math.sqrt(16) → 4.0<br>math.pi → 3.14159<br>math.ceil(2.3) → 3</div></div>
+    <div class="lib-card" onclick="this.classList.toggle('open')"><div class="lc-front"><div class="lc-ic">🎲</div><div class="lc-n">random</div><div class="lc-h">Random generation</div></div><div class="lc-back">random.randint(1,6)<br>random.random() → 0-1<br>random.choice(list)</div></div>
+    <div class="lib-card" onclick="this.classList.toggle('open')"><div class="lc-front"><div class="lc-ic">💻</div><div class="lc-n">os</div><div class="lc-h">OS interface</div></div><div class="lc-back">os.getcwd()<br>os.listdir('.')<br>os.path.exists(f)</div></div>
+    <div class="lib-card" onclick="this.classList.toggle('open')"><div class="lc-front"><div class="lc-ic">📅</div><div class="lc-n">datetime</div><div class="lc-h">Dates & times</div></div><div class="lc-back">datetime.now()<br>.strftime("%Y-%m-%d")<br>timedelta(days=7)</div></div>
+    <div class="lib-card" onclick="this.classList.toggle('open')"><div class="lc-front"><div class="lc-ic">🔗</div><div class="lc-n">json</div><div class="lc-h">JSON handling</div></div><div class="lc-back">json.dumps(dict)<br>json.loads(str)<br>json.dump(d, file)</div></div>
+    <div class="lib-card" onclick="this.classList.toggle('open')"><div class="lc-front"><div class="lc-ic">🔍</div><div class="lc-n">re</div><div class="lc-h">Regex</div></div><div class="lc-back">re.search(pattern, str)<br>re.findall(pattern, str)<br>re.sub(pattern, new, str)</div></div>
   </div>
 
-  <div class="cb stg">
-    <div class="cb-h"><div class="cbd"><span></span><span></span><span></span></div><span class="cbf">imports.py</span></div>
-    <div class="cb-b"><pre><span class="cm"># Three ways to import</span>
-
-<span class="cm"># 1. Import the whole module</span>
-<span class="imp">import</span> <span class="lib">math</span>
-<span class="fn">print</span>(<span class="lib">math</span>.sqrt(<span class="nm">16</span>))   <span class="cm"># 4.0</span>
-
-<span class="cm"># 2. Import specific functions</span>
-<span class="imp">from</span> <span class="lib">math</span> <span class="imp">import</span> sqrt, pi
-<span class="fn">print</span>(sqrt(<span class="nm">25</span>))         <span class="cm"># 5.0</span>
-<span class="fn">print</span>(pi)               <span class="cm"># 3.14159…</span>
-
-<span class="cm"># 3. Import with alias</span>
-<span class="imp">import</span> <span class="lib">random</span> <span class="imp">as</span> rnd
-<span class="fn">print</span>(rnd.randint(<span class="nm">1</span>,<span class="nm">6</span>)) <span class="cm"># dice roll!</span></pre></div>
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">imports.py</span></div>
+    <span class="imp">import</span> <span class="lib">math</span><br>
+    <span class="fn">print</span>(<span class="lib">math</span>.sqrt(<span class="nu">16</span>))<br><br>
+    <span class="imp">from</span> <span class="lib">math</span> <span class="imp">import</span> <span class="vr">pi</span><br>
+    <span class="fn">print</span>(<span class="vr">pi</span>)<br><br>
+    <span class="imp">import</span> <span class="lib">random</span> <span class="imp">as</span> <span class="vr">rnd</span><br>
+    <span class="fn">print</span>(<span class="vr">rnd</span>.randint(<span class="nu">1</span>, <span class="nu">10</span>))
   </div>
-  <button class="rbtn" onclick="runD('d1',['4.0','5.0','3.141592653589793','4  (random)'])">▶ Run Demo</button>
-  <div class="obox" id="d1"></div>
+  <button class="btn btn-run" onclick="toggleOutput('out1')">▶ Run Demo</button>
+  <div class="output-block" id="out1">4.0<br>3.141592653589793<br>7 (random)</div>
 
-  <div class="pbb"><div></div><button class="btn-nx" onclick="gp(2)">math &amp; random →</button></div>
-</div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(0)">← Back</button><button class="btn btn-primary" onclick="goTo(2)">Next →</button></div>
+</section>
 
-<!-- ░░░ PAGE 2 — MATH & RANDOM ░░░ -->
-<div class="page" id="page-2">
-  <div class="ph">
-    <div class="ptag">Concept 2</div>
-    <h2>math &amp; random Libraries</h2>
-    <p>Two of Python's most used standard library modules: <strong>math</strong> for precise mathematical operations and <strong>random</strong> for generating random numbers, choices, and shuffles.</p>
-  </div>
+<!-- PAGE 2: MATH & RANDOM -->
+<section class="page" id="page-2">
+  <div class="section-tag">📘 Concept 2</div>
+  <div class="page-h2">math &amp; random Libraries</div>
+  <div class="page-subtitle">Powerful mathematical functions and random number generation.</div>
 
-  <div class="analogy stg">
-    <div class="an-ic">🧮</div>
-    <div class="an-b">
-      <h4>Analogy: Scientific Calculator &amp; Dice</h4>
-      <p>The <strong>math</strong> library is your scientific calculator — it handles square roots, logarithms, trigonometry. The <strong>random</strong> library is like rolling dice — great for games, simulations, sampling, and security tokens.</p>
-    </div>
-  </div>
-
-  <!-- Interactive Math Functions -->
-  <h3 style="margin:18px 0 10px;font-size:.92rem;">🔢 Math Library Playground — Click a function, enter a value</h3>
   <div class="math-demo">
-    <div class="md-title">⚙️ Try math functions live</div>
-    <div class="md-func-grid" id="mathFuncs">
-      <div class="md-func active" onclick="selectMath(this,'sqrt','√')">math.sqrt(x)</div>
-      <div class="md-func" onclick="selectMath(this,'ceil','⌈⌉')">math.ceil(x)</div>
-      <div class="md-func" onclick="selectMath(this,'floor','⌊⌋')">math.floor(x)</div>
-      <div class="md-func" onclick="selectMath(this,'log10','log₁₀')">math.log10(x)</div>
-      <div class="md-func" onclick="selectMath(this,'factorial','n!')">math.factorial(x)</div>
-      <div class="md-func" onclick="selectMath(this,'pi','π')">math.pi</div>
+    <div class="md-func-grid">
+      <span class="md-func active" onclick="selectMath('sqrt')">sqrt(x)</span>
+      <span class="md-func" onclick="selectMath('ceil')">ceil(x)</span>
+      <span class="md-func" onclick="selectMath('floor')">floor(x)</span>
+      <span class="md-func" onclick="selectMath('pi')">π (pi)</span>
     </div>
-    <div class="md-input-row">
-      <span style="font-family:var(--fc);font-size:.78rem;color:var(--t3);">Input value:</span>
-      <input class="md-input" id="mathInput" type="number" value="16" oninput="calcMath()"/>
-      <div style="display:flex;flex-direction:column;flex:1;">
-        <div class="md-eq" id="mathEq">math.sqrt(16) =</div>
-        <div class="md-result" id="mathResult">4.0</div>
-      </div>
-    </div>
+    <div class="md-input-row"><span>Value:</span><input class="md-input" id="mathInput" type="number" value="16" oninput="updateMath()"><div class="md-eq" id="mathEq">math.sqrt(16) =</div><div class="md-result" id="mathResult">4.0</div></div>
   </div>
 
-  <!-- Random Playground -->
-  <h3 style="margin:20px 0 10px;font-size:.92rem;">🎲 Random Library Playground — Generate random values</h3>
   <div class="rand-play">
-    <div class="rp-title">🎰 random module in action</div>
     <div class="rp-controls">
-      <div class="rp-field">
-        <div class="rp-lbl">Function</div>
-        <select class="rp-sel" id="randFunc" onchange="genRandom()">
-          <option value="int">randint(1, max)</option>
-          <option value="float">random() → 0.0-1.0</option>
-          <option value="choice">choice(list)</option>
-          <option value="shuffle">shuffle(list)</option>
-        </select>
-      </div>
-      <div class="rp-field" id="randMaxWrap">
-        <div class="rp-lbl">Max value</div>
-        <input class="rp-inp" id="randMax" type="number" value="100" min="1" max="10000" oninput="genRandom()"/>
-      </div>
-      <button class="rbtn" onclick="genRandom()">🎲 Generate</button>
+      <div class="rp-field"><div class="rp-lbl">Function</div><select class="rp-sel" id="randSelect" onchange="updateRandom()"><option value="int">randint(a,b)</option><option value="float">random()</option><option value="choice">choice(list)</option></select></div>
+      <div class="rp-field" id="randMaxField"><div class="rp-lbl">Max value</div><input class="rp-inp" id="randMax" type="number" value="100" oninput="updateRandom()"></div>
+      <button class="btn btn-primary" onclick="updateRandom()">🎲 Generate</button>
     </div>
-    <div class="rp-out" id="randOut">
-      <span>Click Generate to see a random result!</span>
-    </div>
+    <div class="rp-out" id="randOut">Click Generate to see a random result!</div>
   </div>
 
-  <!-- Step-by-step execution -->
-  <h3 style="margin:20px 0 10px;font-size:.92rem;">🔍 Step-by-Step — Random Password Generator</h3>
-  <div class="step-exec" id="se1">
-    <div class="se-h">
-      <span class="se-ht">Execution Trace — password_gen.py</span>
-      <div class="se-btns">
-        <button class="se-btn" onclick="seNext('se1')">▶ Next Step</button>
-        <button class="se-btn rst" onclick="seReset('se1')">↺ Reset</button>
-      </div>
-    </div>
-    <div class="se-lines">
-      <div class="se-line"><div class="se-ln">1</div><div class="se-ar">→</div><div class="se-code"><span class="imp">import</span> <span class="lib">random</span>, <span class="lib">string</span></div></div>
-      <div class="se-line"><div class="se-ln">2</div><div class="se-ar">→</div><div class="se-code">chars = <span class="lib">string</span>.ascii_letters + <span class="lib">string</span>.digits</div></div>
-      <div class="se-line"><div class="se-ln">3</div><div class="se-ar">→</div><div class="se-code">pwd = <span class="st">""</span></div></div>
-      <div class="se-line"><div class="se-ln">4</div><div class="se-ar">→</div><div class="se-code"><span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">8</span>):</div></div>
-      <div class="se-line"><div class="se-ln">5</div><div class="se-ar">→</div><div class="se-code">&nbsp;&nbsp;&nbsp;&nbsp;pwd += <span class="lib">random</span>.choice(chars)</div></div>
-      <div class="se-line"><div class="se-ln">6</div><div class="se-ar">→</div><div class="se-code"><span class="fn">print</span>(<span class="st">f"Password: {pwd}"</span>)</div></div>
-    </div>
-    <div class="se-info" id="se1-info">Click "Next Step" to trace through the password generator.</div>
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">math_random.py</span></div>
+    <span class="imp">import</span> <span class="lib">math</span>, <span class="lib">random</span><br><br>
+    <span class="fn">print</span>(<span class="lib">math</span>.sqrt(<span class="nu">144</span>))<br>
+    <span class="fn">print</span>(<span class="lib">math</span>.log10(<span class="nu">1000</span>))<br>
+    <span class="fn">print</span>(<span class="lib">random</span>.randint(<span class="nu">1</span>, <span class="nu">6</span>))<br>
+    <span class="fn">print</span>(<span class="lib">random</span>.choice([<span class="st">"apple"</span>, <span class="st">"banana"</span>, <span class="st">"cherry"</span>]))
+  </div>
+  <button class="btn btn-run" onclick="toggleOutput('out2')">▶ Run Demo</button>
+  <div class="output-block" id="out2">12.0<br>3.0<br>4 (random)<br>banana (random)</div>
+
+  <div class="step-exec">
+    <div class="se-h"><span class="se-ht">Import Execution Trace</span><div class="se-btns"><button class="se-btn" onclick="stepNext()">▶ Next</button><button class="se-btn" onclick="stepReset()">↺ Reset</button></div></div>
+    <div class="se-lines" id="stepLines"><div class="se-line"><div class="se-ln">1</div><div class="se-ar">→</div><div class="se-code">import random</div></div><div class="se-line"><div class="se-ln">2</div><div class="se-ar">→</div><div class="se-code">chars = "abc123"</div></div><div class="se-line"><div class="se-ln">3</div><div class="se-ar">→</div><div class="se-code">pwd = random.choice(chars)</div></div></div>
+    <div class="se-info" id="stepInfo">Click Next to trace import execution</div>
   </div>
 
-  <div class="cb stg">
-    <div class="cb-h"><div class="cbd"><span></span><span></span><span></span></div><span class="cbf">math_random.py</span></div>
-    <div class="cb-b"><pre><span class="imp">import</span> <span class="lib">math</span>, <span class="lib">random</span>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(1)">← Back</button><button class="btn btn-primary" onclick="goTo(3)">Next →</button></div>
+</section>
 
-<span class="cm"># math examples</span>
-<span class="fn">print</span>(<span class="lib">math</span>.sqrt(<span class="nm">144</span>))      <span class="cm"># 12.0</span>
-<span class="fn">print</span>(<span class="lib">math</span>.pi)              <span class="cm"># 3.14159…</span>
-<span class="fn">print</span>(<span class="lib">math</span>.factorial(<span class="nm">5</span>))   <span class="cm"># 120</span>
-<span class="fn">print</span>(<span class="lib">math</span>.log10(<span class="nm">1000</span>))    <span class="cm"># 3.0</span>
+<!-- PAGE 3: OS & DATETIME -->
+<section class="page" id="page-3">
+  <div class="section-tag">📘 Concept 3</div>
+  <div class="page-h2">os &amp; datetime Libraries</div>
+  <div class="page-subtitle">Interact with the operating system and work with dates and times.</div>
 
-<span class="cm"># random examples</span>
-<span class="fn">print</span>(<span class="lib">random</span>.randint(<span class="nm">1</span>, <span class="nm">6</span>))    <span class="cm"># dice roll: 1-6</span>
-<span class="fn">print</span>(<span class="lib">random</span>.random())          <span class="cm"># float: 0.0-1.0</span>
-fruits = [<span class="st">"apple"</span>,<span class="st">"banana"</span>,<span class="st">"mango"</span>]
-<span class="fn">print</span>(<span class="lib">random</span>.choice(fruits))     <span class="cm"># random fruit</span></pre></div>
-  </div>
-  <button class="rbtn" onclick="runD('d2',['12.0','3.141592653589793','120','3.0','4  (random 1-6)','0.7341...  (random float)','banana  (random choice)'])">▶ Run Demo</button>
-  <div class="obox" id="d2"></div>
-
-  <div class="pbb"><button class="btn-bk" onclick="gp(1)">← Libraries</button><button class="btn-nx" onclick="gp(3)">os &amp; datetime →</button></div>
-</div>
-
-<!-- ░░░ PAGE 3 — OS & DATETIME ░░░ -->
-<div class="page" id="page-3">
-  <div class="ph">
-    <div class="ptag">Concept 3</div>
-    <h2>os &amp; datetime Libraries</h2>
-    <p>The <strong>os</strong> module lets you interact with your operating system — files, folders, environment. <strong>datetime</strong> gives you powerful tools for working with dates and times.</p>
+  <div class="scenario-grid">
+    <div class="sc-card" onclick="this.classList.toggle('open')"><div class="sc-front"><div class="sc-ic">📁</div><div class="sc-n">List Files</div><div class="sc-h">See files in directory</div></div><div class="sc-back">import os<br>files = os.listdir('.')<br>for f in files: print(f)</div></div>
+    <div class="sc-card" onclick="this.classList.toggle('open')"><div class="sc-front"><div class="sc-ic">🔍</div><div class="sc-n">Check Exists</div><div class="sc-h">File or folder exists?</div></div><div class="sc-back">if os.path.exists("data.txt"):<br>&nbsp;&nbsp;print("Found!")</div></div>
+    <div class="sc-card" onclick="this.classList.toggle('open')"><div class="sc-front"><div class="sc-ic">📂</div><div class="sc-n">Create Folder</div><div class="sc-h">Make directories</div></div><div class="sc-back">os.makedirs("reports/2024", exist_ok=True)</div></div>
+    <div class="sc-card" onclick="this.classList.toggle('open')"><div class="sc-front"><div class="sc-ic">🌍</div><div class="sc-n">Env Variables</div><div class="sc-h">Read system environment</div></div><div class="sc-back">home = os.environ.get("HOME")</div></div>
   </div>
 
-  <div class="g2 stg" style="margin-bottom:18px;">
-    <div class="card cg">
-      <h4 style="font-family:var(--fh);margin-bottom:7px;font-size:.9rem;color:var(--G-dk);">💻 os module</h4>
-      <p style="font-size:.83rem;margin:0;color:var(--G-dk);">Interface to the <strong>Operating System</strong>. Navigate directories, check if files exist, read environment variables, create folders — all from Python!</p>
-    </div>
-    <div class="card cb2">
-      <h4 style="font-family:var(--fh);margin-bottom:7px;font-size:.9rem;color:var(--B-dk);">📅 datetime module</h4>
-      <p style="font-size:.83rem;margin:0;color:var(--B-dk);">Work with <strong>dates, times, and time differences</strong>. Format dates for display, parse strings into dates, calculate how many days between events.</p>
-    </div>
-  </div>
-
-  <!-- Scenario cards for os -->
-  <h3 style="margin:18px 0 8px;font-size:.92rem;">🃏 os Module Use Cases — Click to reveal code</h3>
-  <div class="sc-hint">Tap a card to see how os handles it</div>
-  <div class="scenario-grid stg">
-    <div class="sc-card" onclick="toggleSc(this)">
-      <div class="sc-front"><span class="sc-ic">📁</span><div class="sc-n">List Files</div><div class="sc-h">See files in a directory</div></div>
-      <div class="sc-back">import os<br><br>files = os.listdir('.')<br>for f in files:<br>&nbsp;&nbsp;print(f)</div>
-    </div>
-    <div class="sc-card" onclick="toggleSc(this)">
-      <div class="sc-front"><span class="sc-ic">🔍</span><div class="sc-n">Check Exists</div><div class="sc-h">File or folder exists?</div></div>
-      <div class="sc-back">import os<br><br>if os.path.exists("data.csv"):<br>&nbsp;&nbsp;print("File found!")<br>else:<br>&nbsp;&nbsp;print("Not found")</div>
-    </div>
-    <div class="sc-card" onclick="toggleSc(this)">
-      <div class="sc-front"><span class="sc-ic">📂</span><div class="sc-n">Create Folder</div><div class="sc-h">Make new directories</div></div>
-      <div class="sc-back">import os<br><br>os.makedirs("reports/2024",<br>&nbsp;&nbsp;exist_ok=True)<br>print("Folder created!")</div>
-    </div>
-    <div class="sc-card" onclick="toggleSc(this)">
-      <div class="sc-front"><span class="sc-ic">🌍</span><div class="sc-n">Env Variables</div><div class="sc-h">Read system environment</div></div>
-      <div class="sc-back">import os<br><br>home = os.environ.get("HOME",<br>&nbsp;&nbsp;"Not set")<br>print(f"Home: {home}")</div>
-    </div>
-  </div>
-
-  <!-- Datetime interactive -->
-  <h3 style="margin:20px 0 10px;font-size:.92rem;">📅 DateTime Playground — Live date calculations</h3>
   <div class="rand-play">
-    <div class="rp-title">⏰ datetime module live demo</div>
-    <div class="rp-controls">
-      <div class="rp-field">
-        <div class="rp-lbl">Operation</div>
-        <select class="rp-sel" id="dtOp" onchange="calcDatetime()">
-          <option value="now">Current datetime</option>
-          <option value="date">Today's date</option>
-          <option value="format">Format date</option>
-          <option value="diff">Days since 2024-01-01</option>
-          <option value="add">Date + 30 days</option>
-        </select>
-      </div>
-      <button class="rbtn" onclick="calcDatetime()">📅 Calculate</button>
-    </div>
-    <div class="rp-out" id="dtOut" style="font-size:.88rem;">Click Calculate to see the result</div>
+    <div class="rp-controls"><div class="rp-field"><div class="rp-lbl">Operation</div><select class="rp-sel" id="dtOp" onchange="updateDateTime()"><option value="now">Current datetime</option><option value="format">Format date</option><option value="diff">Days since 2024</option></select></div><button class="btn btn-primary" onclick="updateDateTime()">📅 Calculate</button></div>
+    <div class="rp-out" id="dtOut">Click Calculate to see the result</div>
   </div>
 
-  <div class="cb stg">
-    <div class="cb-h"><div class="cbd"><span></span><span></span><span></span></div><span class="cbf">os_datetime.py</span></div>
-    <div class="cb-b"><pre><span class="imp">import</span> <span class="lib">os</span>
-<span class="imp">from</span> <span class="lib">datetime</span> <span class="imp">import</span> datetime, timedelta
-
-<span class="cm"># OS examples</span>
-<span class="fn">print</span>(<span class="lib">os</span>.getcwd())              <span class="cm"># current directory</span>
-<span class="fn">print</span>(<span class="lib">os</span>.path.exists(<span class="st">"app.py"</span>)) <span class="cm"># True/False</span>
-files = <span class="lib">os</span>.listdir(<span class="st">"."</span>)        <span class="cm"># list files</span>
-
-<span class="cm"># datetime examples</span>
-now = datetime.now()
-<span class="fn">print</span>(now)                       <span class="cm"># 2024-11-15 14:30:22</span>
-<span class="fn">print</span>(now.strftime(<span class="st">"%d %B %Y"</span>)) <span class="cm"># 15 November 2024</span>
-
-<span class="cm"># Date arithmetic</span>
-deadline = now + timedelta(days=<span class="nm">30</span>)
-<span class="fn">print</span>(<span class="st">f"Deadline: {deadline.date()}"</span>)</pre></div>
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">os_datetime.py</span></div>
+    <span class="imp">import</span> <span class="lib">os</span><br>
+    <span class="imp">from</span> <span class="lib">datetime</span> <span class="imp">import</span> <span class="vr">datetime</span>, <span class="vr">timedelta</span><br><br>
+    <span class="fn">print</span>(<span class="lib">os</span>.getcwd())<br>
+    <span class="fn">print</span>(<span class="vr">datetime</span>.<span class="fn">now</span>())
   </div>
-  <button class="rbtn" onclick="runD('d3',['/home/user/projects  (your path)','False','[\'app.py\', \'data.csv\', ...]','2024-11-15 14:30:22.442381','15 November 2024','Deadline: 2024-12-15'])">▶ Run Demo</button>
-  <div class="obox" id="d3"></div>
+  <button class="btn btn-run" onclick="toggleOutput('out3')">▶ Run Demo</button>
+  <div class="output-block" id="out3">/home/user/projects<br>2024-11-15 14:30:22.442381</div>
 
-  <div class="pbb"><button class="btn-bk" onclick="gp(2)">← math &amp; random</button><button class="btn-nx" onclick="gp(4)">Third-Party →</button></div>
-</div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(2)">← Back</button><button class="btn btn-primary" onclick="goTo(4)">Next →</button></div>
+</section>
 
-<!-- ░░░ PAGE 4 — THIRD-PARTY LIBRARIES ░░░ -->
-<div class="page" id="page-4">
-  <div class="ph">
-    <div class="ptag">Advanced Concept</div>
-    <h2>Third-Party Libraries &amp; pip</h2>
-    <p>Beyond Python's built-in standard library, there are <strong>300,000+ third-party packages</strong> on PyPI — the Python Package Index. Install any of them with a single <code>pip install</code> command.</p>
-  </div>
+<!-- PAGE 4: THIRD-PARTY -->
+<section class="page" id="page-4">
+  <div class="section-tag">⭐ Advanced Concept</div>
+  <div class="page-h2">Third-Party Libraries &amp; pip</div>
+  <div class="page-subtitle">300,000+ packages on PyPI — install any with pip install.</div>
 
-  <div class="analogy stg">
-    <div class="an-ic">🛒</div>
-    <div class="an-b">
-      <h4>Analogy: App Store for Code</h4>
-      <p>PyPI is like an App Store for Python packages. <strong>pip</strong> is the download button. You browse, find what you need, install it, and it's immediately available in your Python environment. Free. Instant. Powerful.</p>
-    </div>
-  </div>
-
-  <!-- Package Map Tabs -->
-  <h3 style="margin:18px 0 10px;font-size:.92rem;">🗺️ Python Package Ecosystem — Explore by category</h3>
   <div class="pkg-map">
-    <div class="pm-title">📦 Browse packages by field</div>
-    <div class="pm-tabs">
-      <button class="pm-tab active" onclick="switchPM(this,'ds')">📊 Data Science</button>
-      <button class="pm-tab" onclick="switchPM(this,'web')">🌐 Web</button>
-      <button class="pm-tab" onclick="switchPM(this,'ml')">🧠 Machine Learning</button>
-      <button class="pm-tab" onclick="switchPM(this,'util')">🔧 Utilities</button>
-    </div>
-    <div class="pm-content active" id="pm-ds">
-      <div class="pm-pkg-grid">
-        <div class="pm-pkg"><div class="pm-pkg-n">NumPy</div><div class="pm-pkg-d">Fast numerical arrays and math</div><div class="pm-pkg-tag tag-pip">pip install numpy</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">Pandas</div><div class="pm-pkg-d">Data manipulation & analysis</div><div class="pm-pkg-tag tag-pip">pip install pandas</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">Matplotlib</div><div class="pm-pkg-d">2D charts and visualizations</div><div class="pm-pkg-tag tag-pip">pip install matplotlib</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">Seaborn</div><div class="pm-pkg-d">Statistical data visualization</div><div class="pm-pkg-tag tag-pip">pip install seaborn</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">SciPy</div><div class="pm-pkg-d">Scientific computing algorithms</div><div class="pm-pkg-tag tag-pip">pip install scipy</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">Plotly</div><div class="pm-pkg-d">Interactive visualizations</div><div class="pm-pkg-tag tag-pip">pip install plotly</div></div>
-      </div>
-    </div>
-    <div class="pm-content" id="pm-web">
-      <div class="pm-pkg-grid">
-        <div class="pm-pkg"><div class="pm-pkg-n">Requests</div><div class="pm-pkg-d">HTTP requests made simple</div><div class="pm-pkg-tag tag-pip">pip install requests</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">Flask</div><div class="pm-pkg-d">Lightweight web framework</div><div class="pm-pkg-tag tag-pip">pip install flask</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">Django</div><div class="pm-pkg-d">Full-featured web framework</div><div class="pm-pkg-tag tag-pip">pip install django</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">FastAPI</div><div class="pm-pkg-d">Modern async API framework</div><div class="pm-pkg-tag tag-pip">pip install fastapi</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">BeautifulSoup</div><div class="pm-pkg-d">HTML/XML parsing & scraping</div><div class="pm-pkg-tag tag-pip">pip install bs4</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">Selenium</div><div class="pm-pkg-d">Browser automation & testing</div><div class="pm-pkg-tag tag-pip">pip install selenium</div></div>
-      </div>
-    </div>
-    <div class="pm-content" id="pm-ml">
-      <div class="pm-pkg-grid">
-        <div class="pm-pkg"><div class="pm-pkg-n">scikit-learn</div><div class="pm-pkg-d">ML algorithms & pipelines</div><div class="pm-pkg-tag tag-ds">Data Science</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">TensorFlow</div><div class="pm-pkg-d">Deep learning framework by Google</div><div class="pm-pkg-tag tag-ds">Data Science</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">PyTorch</div><div class="pm-pkg-d">Deep learning by Meta</div><div class="pm-pkg-tag tag-ds">Data Science</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">Keras</div><div class="pm-pkg-d">High-level neural networks API</div><div class="pm-pkg-tag tag-ds">Data Science</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">XGBoost</div><div class="pm-pkg-d">Gradient boosting champion</div><div class="pm-pkg-tag tag-ds">Data Science</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">Transformers</div><div class="pm-pkg-d">State-of-art NLP models</div><div class="pm-pkg-tag tag-ds">Data Science</div></div>
-      </div>
-    </div>
-    <div class="pm-content" id="pm-util">
-      <div class="pm-pkg-grid">
-        <div class="pm-pkg"><div class="pm-pkg-n">Pillow</div><div class="pm-pkg-d">Image processing library</div><div class="pm-pkg-tag tag-pip">pip install pillow</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">OpenCV</div><div class="pm-pkg-d">Computer vision &amp; video</div><div class="pm-pkg-tag tag-pip">pip install opencv-python</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">SQLAlchemy</div><div class="pm-pkg-d">Database ORM toolkit</div><div class="pm-pkg-tag tag-pip">pip install sqlalchemy</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">PyYAML</div><div class="pm-pkg-d">YAML file parsing</div><div class="pm-pkg-tag tag-pip">pip install pyyaml</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">Click</div><div class="pm-pkg-d">Beautiful CLI apps</div><div class="pm-pkg-tag tag-pip">pip install click</div></div>
-        <div class="pm-pkg"><div class="pm-pkg-n">Rich</div><div class="pm-pkg-d">Rich terminal formatting</div><div class="pm-pkg-tag tag-pip">pip install rich</div></div>
-      </div>
-    </div>
+    <div class="pm-tabs"><span class="pm-tab active" onclick="switchPkgTab('ds')">📊 Data Science</span><span class="pm-tab" onclick="switchPkgTab('web')">🌐 Web</span><span class="pm-tab" onclick="switchPkgTab('ml')">🧠 ML/AI</span></div>
+    <div id="dsPanel" class="pm-content active"><div class="pm-pkg-grid"><div class="pm-pkg"><div class="pm-pkg-n">NumPy</div><div class="pm-pkg-d">Numerical arrays</div><div class="pm-pkg-tag">pip install numpy</div></div><div class="pm-pkg"><div class="pm-pkg-n">Pandas</div><div class="pm-pkg-d">Data analysis</div><div class="pm-pkg-tag">pip install pandas</div></div><div class="pm-pkg"><div class="pm-pkg-n">Matplotlib</div><div class="pm-pkg-d">Visualization</div><div class="pm-pkg-tag">pip install matplotlib</div></div></div></div>
+    <div id="webPanel" class="pm-content"><div class="pm-pkg-grid"><div class="pm-pkg"><div class="pm-pkg-n">Requests</div><div class="pm-pkg-d">HTTP requests</div><div class="pm-pkg-tag">pip install requests</div></div><div class="pm-pkg"><div class="pm-pkg-n">Flask</div><div class="pm-pkg-d">Web framework</div><div class="pm-pkg-tag">pip install flask</div></div><div class="pm-pkg"><div class="pm-pkg-n">Django</div><div class="pm-pkg-d">Full-stack web</div><div class="pm-pkg-tag">pip install django</div></div></div></div>
+    <div id="mlPanel" class="pm-content"><div class="pm-pkg-grid"><div class="pm-pkg"><div class="pm-pkg-n">scikit-learn</div><div class="pm-pkg-d">Machine learning</div><div class="pm-pkg-tag">pip install scikit-learn</div></div><div class="pm-pkg"><div class="pm-pkg-n">TensorFlow</div><div class="pm-pkg-d">Deep learning</div><div class="pm-pkg-tag">pip install tensorflow</div></div><div class="pm-pkg"><div class="pm-pkg-n">PyTorch</div><div class="pm-pkg-d">Deep learning</div><div class="pm-pkg-tag">pip install torch</div></div></div></div>
   </div>
 
-  <div class="cb stg">
-    <div class="cb-h"><div class="cbd"><span></span><span></span><span></span></div><span class="cbf">third_party.py</span></div>
-    <div class="cb-b"><pre><span class="cm"># Install first: pip install requests</span>
-<span class="imp">import</span> <span class="lib">requests</span>
-
-<span class="cm"># Fetch data from the web!</span>
-response = <span class="lib">requests</span>.get(<span class="st">"https://api.github.com"</span>)
-<span class="fn">print</span>(response.status_code)   <span class="cm"># 200 (success)</span>
-<span class="fn">print</span>(response.json().keys())  <span class="cm"># API endpoints</span>
-
-<span class="cm"># Install: pip install pandas</span>
-<span class="imp">import</span> <span class="lib">pandas</span> <span class="imp">as</span> pd
-
-df = pd.DataFrame({
-    <span class="st">"name"</span>: [<span class="st">"Alice"</span>, <span class="st">"Bob"</span>, <span class="st">"Charlie"</span>],
-    <span class="st">"score"</span>: [<span class="nm">92</span>, <span class="nm">87</span>, <span class="nm">95</span>]
-})
-<span class="fn">print</span>(df.describe())</pre></div>
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">third_party.py</span></div>
+    <span class="cm"># pip install requests</span><br>
+    <span class="imp">import</span> <span class="lib">requests</span><br>
+    response = <span class="lib">requests</span>.<span class="fn">get</span>(<span class="st">"https://api.github.com"</span>)<br>
+    <span class="fn">print</span>(response.status_code)
   </div>
-  <button class="rbtn" onclick="runD('d4',['200','dict_keys([\'current_user_url\', \'authorizations_url\', ...])','       score','count   3.000000','mean   91.333333','std     4.163332','min    87.000000'])">▶ Run Demo</button>
-  <div class="obox" id="d4"></div>
+  <button class="btn btn-run" onclick="toggleOutput('out4')">▶ Run Demo</button>
+  <div class="output-block" id="out4">200</div>
 
-  <div class="warn">Always use <strong>virtual environments</strong> (<code>python -m venv env</code>) to isolate project dependencies. This prevents version conflicts between projects!</div>
+  <div class="info-box warn"><span class="info-icon">⚠️</span><div class="info-text">Use virtual environments: <code>python -m venv env</code> to isolate project dependencies!</div></div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(3)">← Back</button><button class="btn btn-primary" onclick="goTo(5)">Next →</button></div>
+</section>
 
-  <div class="pbb"><button class="btn-bk" onclick="gp(3)">← os &amp; datetime</button><button class="btn-nx" onclick="gp(5)">Exercises →</button></div>
-</div>
+<!-- PAGE 5: EXERCISES -->
+<section class="page" id="page-5">
+  <div class="section-tag">💻 Practice</div>
+  <div class="page-h2">Coding Exercises</div>
 
-<!-- ░░░ PAGE 5 — EXERCISES ░░░ -->
-<div class="page" id="page-5">
-  <div class="ph">
-    <div class="ptag">Practice</div>
-    <h2>Coding Exercises</h2>
-    <p>Try each exercise yourself before revealing the solution. Real learning happens in the struggle!</p>
-  </div>
+  <div class="ex-card"><div class="ex-badge">⭐ Exercise 1</div><div class="ex-title">Math Statistics</div><div class="ex-desc">Write a function that takes a list of numbers and returns the mean, standard deviation, and square root of the mean using math and statistics.</div><button class="sol-toggle" onclick="toggleSolution(this,'sol1')">▼ Show Solution</button><div class="solution" id="sol1"><div class="code-block">import math, statistics<br>def analyze(nums):<br>&nbsp;&nbsp;&nbsp;&nbsp;mean = statistics.mean(nums)<br>&nbsp;&nbsp;&nbsp;&nbsp;stdev = statistics.stdev(nums)<br>&nbsp;&nbsp;&nbsp;&nbsp;sqrt_mean = math.sqrt(mean)<br>&nbsp;&nbsp;&nbsp;&nbsp;return mean, stdev, sqrt_mean</div></div></div>
 
-  <div class="exc-card stg">
-    <div class="exch"><span class="exc-num">Exercise 01</span><span class="exc-ttl">Math Statistics Calculator</span></div>
-    <div class="excb">
-      <p>Using the <code>math</code> and <code>statistics</code> libraries, write a function <code>analyze(numbers)</code> that takes a list and returns: mean, standard deviation, min, max, and the square root of the mean. Test with <code>[4, 9, 16, 25, 36]</code>.</p>
-      <div class="tip" style="margin-bottom:10px;"><code>import statistics</code> gives you <code>statistics.mean()</code>, <code>statistics.stdev()</code> etc.</div>
-      <button class="sol-btn" onclick="toggleSol(this)">▼ Show Solution</button>
-      <div class="sol-box">
-        <div class="cb"><div class="cb-h"><div class="cbd"><span></span><span></span><span></span></div><span class="cbf">solution.py</span></div>
-        <div class="cb-b"><pre><span class="imp">import</span> <span class="lib">math</span>
-<span class="imp">import</span> <span class="lib">statistics</span>
+  <div class="ex-card"><div class="ex-badge">⭐ Exercise 2</div><div class="ex-title">Password Generator</div><div class="ex-desc">Create a random password generator using random and string modules with letters, digits, and symbols.</div><button class="sol-toggle" onclick="toggleSolution(this,'sol2')">▼ Show Solution</button><div class="solution" id="sol2"><div class="code-block">import random, string<br>def generate_pass(length=12, symbols=True):<br>&nbsp;&nbsp;&nbsp;&nbsp;chars = string.ascii_letters + string.digits<br>&nbsp;&nbsp;&nbsp;&nbsp;if symbols: chars += string.punctuation<br>&nbsp;&nbsp;&nbsp;&nbsp;return ''.join(random.choice(chars) for _ in range(length))</div></div></div>
 
-<span class="kw">def</span> <span class="fn">analyze</span>(numbers):
-    mean   = <span class="lib">statistics</span>.mean(numbers)
-    std    = <span class="lib">statistics</span>.stdev(numbers)
-    mn     = <span class="fn">min</span>(numbers)
-    mx     = <span class="fn">max</span>(numbers)
-    sqrt_m = <span class="lib">math</span>.sqrt(mean)
-    <span class="fn">print</span>(<span class="st">f"Mean:   {mean:.2f}"</span>)
-    <span class="fn">print</span>(<span class="st">f"StdDev: {std:.2f}"</span>)
-    <span class="fn">print</span>(<span class="st">f"Min:    {mn} | Max: {mx}"</span>)
-    <span class="fn">print</span>(<span class="st">f"√Mean:  {sqrt_m:.4f}"</span>)
+  <div class="ex-card"><div class="ex-badge">⭐ Exercise 3</div><div class="ex-title">File Organizer</div><div class="ex-desc">Write a function that counts files by extension in a directory using the os module.</div><button class="sol-toggle" onclick="toggleSolution(this,'sol3')">▼ Show Solution</button><div class="solution" id="sol3"><div class="code-block">import os<br>def count_extensions(path='.'):<br>&nbsp;&nbsp;&nbsp;&nbsp;counts = {}<br>&nbsp;&nbsp;&nbsp;&nbsp;for f in os.listdir(path):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if os.path.isfile(f):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ext = os.path.splitext(f)[1][1:]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;counts[ext] = counts.get(ext, 0) + 1<br>&nbsp;&nbsp;&nbsp;&nbsp;return counts</div></div></div>
 
-<span class="fn">analyze</span>([<span class="nm">4</span>, <span class="nm">9</span>, <span class="nm">16</span>, <span class="nm">25</span>, <span class="nm">36</span>])</pre></div></div>
-      </div>
-    </div>
-  </div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(4)">← Back</button><button class="btn btn-primary" onclick="goTo(6)">Take Quiz →</button></div>
+</section>
 
-  <div class="exc-card stg">
-    <div class="exch"><span class="exc-num">Exercise 02</span><span class="exc-ttl">Random Password Generator</span></div>
-    <div class="excb">
-      <p>Using <code>random</code> and <code>string</code> libraries, write a function <code>generate_password(length=12, include_symbols=True)</code> that creates a secure random password. It should include letters, digits, and optionally symbols.</p>
-      <button class="sol-btn" onclick="toggleSol(this)">▼ Show Solution</button>
-      <div class="sol-box">
-        <div class="cb"><div class="cb-h"><div class="cbd"><span></span><span></span><span></span></div><span class="cbf">solution.py</span></div>
-        <div class="cb-b"><pre><span class="imp">import</span> <span class="lib">random</span>
-<span class="imp">import</span> <span class="lib">string</span>
+<!-- PAGE 6: QUIZ -->
+<section class="page" id="page-6">
+  <div class="section-tag">🧠 Quiz Time</div>
+  <div class="page-h2">Test Your Knowledge</div>
+  <div class="quiz-progress"><div class="qp-dot" id="qd0"></div><div class="qp-dot" id="qd1"></div><div class="qp-dot" id="qd2"></div><div class="qp-dot" id="qd3"></div><div class="qp-dot" id="qd4"></div></div>
+  <div id="quizContainer"><div class="q-card" id="qCard"></div><div class="quiz-nav"><button class="qnav-btn" id="qPrevBtn" onclick="quizPrev()" disabled>← Prev</button><span id="qCounter">Question 1 of 5</span><button class="qnav-btn primary" id="qNextBtn" onclick="quizNext()" disabled>Next →</button></div></div>
+  <div class="quiz-result" id="quizResult"><span class="qr-emoji" id="qrEmoji">🎉</span><div class="qr-score" id="qrScore">5/5</div><div class="qr-sub" id="qrSub"></div><div class="qr-breakdown"><div class="qrb-item"><div class="qrb-val c" id="qrCorrect">5</div><div class="qrb-lbl">Correct</div></div><div class="qrb-item"><div class="qrb-val w" id="qrWrong">0</div><div class="qrb-lbl">Wrong</div></div></div><button class="retry-btn" onclick="resetQuiz()">↩ Retry</button><button class="btn btn-primary" onclick="goTo(7)">Complete Module →</button></div>
+</section>
 
-<span class="kw">def</span> <span class="fn">generate_password</span>(length=<span class="nm">12</span>, include_symbols=<span class="kw">True</span>):
-    chars = <span class="lib">string</span>.ascii_letters + <span class="lib">string</span>.digits
-    <span class="kw">if</span> include_symbols:
-        chars += <span class="lib">string</span>.punctuation
-    pwd = <span class="st">""</span>.join(<span class="lib">random</span>.choice(chars) <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(length))
-    <span class="kw">return</span> pwd
-
-<span class="fn">print</span>(<span class="fn">generate_password</span>())           <span class="cm"># 12 chars with symbols</span>
-<span class="fn">print</span>(<span class="fn">generate_password</span>(<span class="nm">8</span>, <span class="kw">False</span>))  <span class="cm"># 8 chars, no symbols</span>
-<span class="fn">print</span>(<span class="fn">generate_password</span>(<span class="nm">20</span>))         <span class="cm"># 20 chars with symbols</span></pre></div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="exc-card stg">
-    <div class="exch"><span class="exc-num">Exercise 03</span><span class="exc-ttl">File Organizer with os</span></div>
-    <div class="excb">
-      <p>Write a function <code>count_files_by_extension(folder_path)</code> using the <code>os</code> module that counts how many files of each extension are in a directory and returns a dictionary like <code>{"py": 5, "txt": 3}</code>.</p>
-      <button class="sol-btn" onclick="toggleSol(this)">▼ Show Solution</button>
-      <div class="sol-box">
-        <div class="cb"><div class="cb-h"><div class="cbd"><span></span><span></span><span></span></div><span class="cbf">solution.py</span></div>
-        <div class="cb-b"><pre><span class="imp">import</span> <span class="lib">os</span>
-
-<span class="kw">def</span> <span class="fn">count_files_by_extension</span>(folder_path=<span class="st">"."</span>):
-    counts = {}
-    <span class="kw">for</span> filename <span class="kw">in</span> <span class="lib">os</span>.listdir(folder_path):
-        <span class="kw">if</span> <span class="lib">os</span>.path.isfile(<span class="lib">os</span>.path.join(folder_path, filename)):
-            <span class="cm"># get extension (e.g. ".py" → "py")</span>
-            ext = <span class="lib">os</span>.path.splitext(filename)[<span class="nm">1</span>].lstrip(<span class="st">"."</span>)
-            ext = ext <span class="kw">if</span> ext <span class="kw">else</span> <span class="st">"no_ext"</span>
-            counts[ext] = counts.get(ext, <span class="nm">0</span>) + <span class="nm">1</span>
-    <span class="kw">return</span> counts
-
-result = <span class="fn">count_files_by_extension</span>()
-<span class="kw">for</span> ext, count <span class="kw">in</span> <span class="fn">sorted</span>(result.items()):
-    <span class="fn">print</span>(<span class="st">f".{ext}: {count} file(s)"</span>)</pre></div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="pbb"><button class="btn-bk" onclick="gp(4)">← Third-Party</button><button class="btn-nx" onclick="gp(6)">Take Quiz →</button></div>
-</div>
-
-<!-- ░░░ PAGE 6 — QUIZ ░░░ -->
-<div class="page" id="page-6">
-  <div class="ph">
-    <div class="ptag">Quiz · 5 Questions</div>
-    <h2>Test Your Knowledge</h2>
-    <p>One question at a time. Instant feedback after every answer!</p>
-  </div>
-  <div class="qprog" id="qprog">
-    <div class="qpd" id="qd0"></div><div class="qpd" id="qd1"></div>
-    <div class="qpd" id="qd2"></div><div class="qpd" id="qd3"></div><div class="qpd" id="qd4"></div>
-  </div>
-  <div id="qcont">
-    <div class="qcard" id="qcard"></div>
-    <div class="qnav">
-      <button class="qnb" id="qprev" onclick="qnav(-1)" disabled>← Prev</button>
-      <span style="font-family:var(--fc);font-size:.71rem;color:var(--t3);" id="qctr">Question 1 of 5</span>
-      <button class="qnb pri" id="qnext" onclick="qnav(1)" disabled>Next →</button>
-    </div>
-  </div>
-  <div class="qres" id="qres">
-    <span class="qre" id="qre">🎉</span>
-    <div class="qrs" id="qrs">5/5</div>
-    <div class="qrsb" id="qrsb"></div>
-    <div class="qrbd">
-      <div><div class="qrv c" id="qrc">5</div><div class="qrl">Correct</div></div>
-      <div><div class="qrv w" id="qrw">0</div><div class="qrl">Wrong</div></div>
-    </div>
-    <button class="rtb" onclick="resetQ()">↩ Retry</button>
-    <button class="btn-nx" onclick="gp(7)" style="padding:10px 22px;">See Completion 🎉</button>
-  </div>
-  <div class="pbb"><button class="btn-bk" onclick="gp(5)">← Exercises</button><div></div></div>
-</div>
-
-<!-- ░░░ PAGE 7 — COMPLETION ░░░ -->
-<div class="page" id="page-7">
-  <div class="cw">
-    <div class="ci">📚</div>
-    <div class="ptag" style="justify-content:center;">Module 11 — Complete!</div>
-    <h1 style="margin-bottom:11px;">Libraries<br><span style="color:var(--G)">Mastered!</span> 🎉</h1>
-    <p style="font-size:.97rem;margin-bottom:18px;">You can now harness the power of Python's ecosystem — from built-in modules to the world's best third-party libraries!</p>
-    <div class="skw stg">
-      <div class="skt"><span class="ck">✓</span>import &amp; from…import</div>
-      <div class="skt"><span class="ck">✓</span>math library</div>
-      <div class="skt"><span class="ck">✓</span>random library</div>
-      <div class="skt"><span class="ck">✓</span>os module</div>
-      <div class="skt"><span class="ck">✓</span>datetime module</div>
-      <div class="skt"><span class="ck">✓</span>pip install</div>
-      <div class="skt"><span class="ck">✓</span>Third-party ecosystem</div>
-      <div class="skt"><span class="ck">✓</span>Virtual environments</div>
-    </div>
-    <button class="comp-btn" onclick="celebrate()">🏆 Claim Completion Badge</button>
-    <br>
-    <button class="rst-btn" onclick="restart()">↺ Restart Module</button>
-    <p style="margin-top:18px;font-size:.86rem;color:var(--t2);">🎓 Course Complete! You've mastered <strong>Python for Beginners!</strong></p>
-    <div class="afoot">
-      <div class="afl">Module created by</div>
-      <div class="afi">
-        <div class="afa">V</div>
-        <div style="text-align:left;">
-          <div style="font-family:var(--fh);font-size:.96rem;font-weight:700;color:var(--G);">Vinodhini</div>
-          <div style="font-family:var(--fc);font-size:.68rem;color:var(--t2);">Data Scientist · HCL GUVI</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- PAGE 7: COMPLETION -->
+<section class="page" id="page-7">
+  <div class="card complete-wrap"><div class="complete-icon">🎉</div><div class="page-tag">Module 11 — Complete</div><h1 style="margin-bottom:12px;">Libraries<br><span style="color:var(--accent)">Mastered!</span></h1><p>You can now harness the power of Python's ecosystem — from built-in modules to third-party packages!</p><div class="skills-learnt"><div class="skill-badge"><span class="check">✓</span> import syntax</div><div class="skill-badge"><span class="check">✓</span> math & random</div><div class="skill-badge"><span class="check">✓</span> os & datetime</div><div class="skill-badge"><span class="check">✓</span> pip install</div><div class="skill-badge"><span class="check">✓</span> Third-party packages</div></div><button class="cert-btn" onclick="celebrate()">🏆 Claim Completion Badge</button><p style="margin-top:20px;">Next up: <strong>Module 12 — Final Project</strong></p></div>
+</section>
 
 </main>
-</div>
 
 <script>
-/* ════════ NAVIGATION ════════ */
-const TP=8; let cp=0, vp=new Set([0]);
+let currentPage = 0, totalPages = 8, visited = new Set([0]);
+let stepIndex = -1;
 
-function gp(n){
-  if(n<0||n>=TP)return;
-  const prev=document.getElementById('page-'+cp);
-  const next=document.getElementById('page-'+n);
-  if(!next)return;
-  prev.classList.add('out'); prev.classList.remove('active');
-  setTimeout(()=>prev.classList.remove('out'),330);
-  next.classList.add('active');
-  cp=n; vp.add(n);
-  document.querySelectorAll('.si').forEach(el=>{
-    const p=parseInt(el.dataset.p);
-    el.classList.toggle('active',p===n);
-    if(vp.has(p)&&p<n)el.classList.add('done');
-  });
-  const pct=Math.round(vp.size/TP*100);
-  document.getElementById('nfill').style.width=pct+'%';
-  document.getElementById('npct').textContent=pct+'%';
-  if(n===6)renderQ();
-  if(n===4)setTimeout(()=>switchPM(document.querySelector('.pm-tab'),'ds'),100);
+function goTo(n) {
+  if (n < 0 || n >= totalPages) return;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + n).classList.add('active');
+  document.getElementById('nav-' + n).classList.add('active');
+  visited.add(currentPage);
+  for (let i = 0; i < n; i++) document.getElementById('nav-' + i).classList.add('done');
+  currentPage = n;
+  let pct = Math.round((visited.size / totalPages) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').innerText = pct + '%';
+  document.getElementById('mainContent').scrollTo({ top: 0 });
+  if (n === 6) renderQuiz();
 }
 
-/* ════════ DEMO RUNNER ════════ */
-function runD(id,lines,err){
-  const b=document.getElementById(id);
-  if(!b)return;
-  b.innerHTML='<span class="oprmt">$ python3 script.py\n</span>';
-  b.classList.add('show');
-  if(err)b.classList.add('err'); else b.classList.remove('err');
-  let i=0;
-  const t=()=>{if(i<lines.length){b.innerHTML+=lines[i++]+'\n';setTimeout(t,155);}};
-  t();
+function toggleOutput(id) { document.getElementById(id).classList.toggle('visible'); }
+function toggleSolution(btn, id) { let sol = document.getElementById(id); sol.classList.toggle('open'); btn.textContent = sol.classList.contains('open') ? '▲ Hide Solution' : '▼ Show Solution'; }
+function celebrate() { let btn = event.target.closest('button'); btn.textContent = '✓ Badge Claimed!'; btn.style.background = 'var(--accent)'; btn.disabled = true; alert('🎉 Congratulations! Module 11 Complete!'); }
+
+async function animateImport() {
+  let steps = document.querySelectorAll('#importSteps .ip-step');
+  steps.forEach((s, i) => { setTimeout(() => s.classList.add('active'), i * 500); setTimeout(() => s.classList.remove('active'), i * 500 + 300); });
 }
 
-/* ════════ IMPORT PIPELINE ANIMATION ════════ */
-async function animImport(){
-  const steps=['ip0','ip1','ip2','ip3','ip4'];
-  const arrs=['ipa0','ipa1','ipa2','ipa3'];
-  steps.forEach(id=>document.getElementById(id).classList.remove('lit'));
-  arrs.forEach(id=>document.getElementById(id).classList.remove('lit'));
-  for(let i=0;i<steps.length;i++){
-    await sleep(450);
-    document.getElementById(steps[i]).classList.add('lit');
-    if(i<arrs.length){await sleep(200);document.getElementById(arrs[i]).classList.add('lit');}
-  }
+let selectedMath = 'sqrt';
+function selectMath(func) {
+  selectedMath = func;
+  document.querySelectorAll('.md-func').forEach(f => f.classList.remove('active'));
+  event.target.classList.add('active');
+  updateMath();
+}
+function updateMath() {
+  let v = parseFloat(document.getElementById('mathInput').value) || 0;
+  let result, eq;
+  if (selectedMath === 'sqrt') { result = Math.sqrt(v).toFixed(4); eq = `math.sqrt(${v}) =`; }
+  else if (selectedMath === 'ceil') { result = Math.ceil(v); eq = `math.ceil(${v}) =`; }
+  else if (selectedMath === 'floor') { result = Math.floor(v); eq = `math.floor(${v}) =`; }
+  else { result = '3.141592653589793'; eq = `math.pi =`; }
+  document.getElementById('mathEq').innerHTML = eq;
+  document.getElementById('mathResult').innerHTML = result;
 }
 
-/* ════════ LIBRARY CARDS ════════ */
-function toggleLib(card){card.classList.toggle('open');}
-function toggleSc(card){card.classList.toggle('open');}
-
-/* ════════ MATH PLAYGROUND ════════ */
-let activeFunc='sqrt';
-function selectMath(el,fn,sym){
-  document.querySelectorAll('.md-func').forEach(e=>e.classList.remove('active'));
-  el.classList.add('active');
-  activeFunc=fn;
-  calcMath();
-}
-function calcMath(){
-  const v=parseFloat(document.getElementById('mathInput').value)||0;
-  let res,eq;
-  try{
-    if(activeFunc==='sqrt'){res=Math.sqrt(v).toFixed(4);eq=`math.sqrt(${v}) =`;}
-    else if(activeFunc==='ceil'){res=Math.ceil(v);eq=`math.ceil(${v}) =`;}
-    else if(activeFunc==='floor'){res=Math.floor(v);eq=`math.floor(${v}) =`;}
-    else if(activeFunc==='log10'){res=v>0?Math.log10(v).toFixed(4):'Error: x must be > 0';eq=`math.log10(${v}) =`;}
-    else if(activeFunc==='factorial'){const n=Math.floor(v);if(n<0||n>20){res='Error: 0-20 only';} else{let f=1;for(let i=2;i<=n;i++)f*=i;res=f;}eq=`math.factorial(${n}) =`;}
-    else if(activeFunc==='pi'){res='3.141592653589793';eq=`math.pi =`;}
-  }catch(e){res='Error';}
-  document.getElementById('mathEq').textContent=eq;
-  document.getElementById('mathResult').textContent=res;
+function updateRandom() {
+  let type = document.getElementById('randSelect').value;
+  let max = parseInt(document.getElementById('randMax').value) || 100;
+  let out = document.getElementById('randOut');
+  if (type === 'int') { out.innerHTML = `random.randint(1, ${max}) → ${Math.floor(Math.random() * max) + 1}`; }
+  else if (type === 'float') { out.innerHTML = `random.random() → ${Math.random().toFixed(6)}`; }
+  else { let items = ['🍎 apple', '🍌 banana', '🍊 orange', '🍇 grapes', '🥭 mango']; out.innerHTML = `random.choice(fruits) → ${items[Math.floor(Math.random() * items.length)]}`; }
 }
 
-/* ════════ RANDOM PLAYGROUND ════════ */
-function genRandom(){
-  const fn=document.getElementById('randFunc').value;
-  const max=parseInt(document.getElementById('randMax').value)||100;
-  const wrap=document.getElementById('randMaxWrap');
-  const out=document.getElementById('randOut');
-  let result,code;
-  if(fn==='int'){wrap.style.display='flex';const r=Math.floor(Math.random()*max)+1;result=`🎲 ${r}`;code=`random.randint(1, ${max}) → ${r}`;}
-  else if(fn==='float'){wrap.style.display='none';const r=Math.random().toFixed(6);result=`💧 ${r}`;code=`random.random() → ${r}`;}
-  else if(fn==='choice'){wrap.style.display='none';const items=['🍎 apple','🍌 banana','🍊 orange','🍇 grapes','🥭 mango'];const r=items[Math.floor(Math.random()*items.length)];result=r;code=`random.choice(fruits) → "${r}"`;}
-  else if(fn==='shuffle'){wrap.style.display='none';const arr=[1,2,3,4,5];for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}result=`🔀 [${arr.join(', ')}]`;code=`After random.shuffle([1,2,3,4,5])`;}
-  out.innerHTML=`<div style="animation:bouncein .4s ease"><span style="font-family:var(--fh);font-size:1.3rem;font-weight:700;">${result}</span><br><span style="font-family:var(--fc);font-size:.76rem;color:var(--t3);">${code}</span></div>`;
+function updateDateTime() {
+  let op = document.getElementById('dtOp').value;
+  let now = new Date();
+  let out = document.getElementById('dtOut');
+  if (op === 'now') out.innerHTML = `datetime.now() → ${now.toISOString().slice(0, 19).replace('T', ' ')}`;
+  else if (op === 'format') out.innerHTML = `now.strftime("%d %B %Y") → ${now.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()]} ${now.getFullYear()}`;
+  else { let start = new Date('2024-01-01'); let diff = Math.floor((now - start) / (1000 * 60 * 60 * 24)); out.innerHTML = `Days since 2024-01-01: ${diff} days`; }
 }
 
-/* ════════ DATETIME DEMO ════════ */
-function calcDatetime(){
-  const op=document.getElementById('dtOp').value;
-  const now=new Date();
-  const out=document.getElementById('dtOut');
-  let result;
-  if(op==='now'){result='datetime.now() → '+now.toISOString().replace('T',' ').slice(0,22);}
-  else if(op==='date'){result='datetime.today().date() → '+now.toISOString().slice(0,10);}
-  else if(op==='format'){result=`now.strftime("%d %B %Y") → ${now.getDate()} ${['January','February','March','April','May','June','July','August','September','October','November','December'][now.getMonth()]} ${now.getFullYear()}`;}
-  else if(op==='diff'){const start=new Date('2024-01-01');const diff=Math.floor((now-start)/(1000*60*60*24));result=`Days since 2024-01-01: ${diff} days`;}
-  else if(op==='add'){const future=new Date(now.getTime()+30*24*60*60*1000);result=`today + timedelta(days=30) → ${future.toISOString().slice(0,10)}`;}
-  out.innerHTML=`<span style="font-family:var(--fh);font-weight:700;font-size:.92rem;">${result}</span>`;
+function switchPkgTab(tab) {
+  document.querySelectorAll('.pm-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.pm-content').forEach(p => p.classList.remove('active'));
+  document.getElementById(tab + 'Panel').classList.add('active');
 }
 
-/* ════════ STEP EXECUTOR ════════ */
-const seData={
-  se1:{step:-1,infos:[
-    'Line 1: Python loads two modules — random (for random choices) and string (for character sets).',
-    'Line 2: string.ascii_letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" + digits. chars = all 62 characters.',
-    'Line 3: pwd starts as an empty string — we\'ll build it character by character.',
-    'Line 4: A for loop runs 8 times. _ means we don\'t need the loop variable.',
-    'Line 5: Each iteration, random.choice(chars) picks 1 random character and appends it to pwd.',
-    'Line 6: Prints the final 8-character random password! 🎉',
-  ]}
-};
-function seNext(id){
-  const s=seData[id];
-  const lines=document.querySelectorAll(`#${id} .se-line`);
-  s.step=Math.min(s.step+1,lines.length-1);
-  lines.forEach((l,i)=>{l.classList.toggle('active',i===s.step);l.classList.toggle('done',i<s.step);});
-  document.getElementById(`${id}-info`).textContent=s.infos[s.step]||'';
-}
-function seReset(id){
-  seData[id].step=-1;
-  document.querySelectorAll(`#${id} .se-line`).forEach(l=>l.classList.remove('active','done'));
-  document.getElementById(`${id}-info`).textContent='Click "Next Step" to trace through the code.';
-}
+function stepNext() { stepIndex = Math.min(stepIndex + 1, 2); document.querySelectorAll('.se-line').forEach((l, i) => l.classList.toggle('active', i === stepIndex)); document.getElementById('stepInfo').innerHTML = stepIndex === 0 ? 'import loads the module' : stepIndex === 1 ? 'assigning characters' : 'random.choice picks one character'; }
+function stepReset() { stepIndex = -1; document.querySelectorAll('.se-line').forEach(l => l.classList.remove('active')); document.getElementById('stepInfo').innerHTML = 'Click Next to trace import execution'; }
 
-/* ════════ PACKAGE MAP TABS ════════ */
-function switchPM(btn,id){
-  document.querySelectorAll('.pm-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.pm-content').forEach(c=>c.classList.remove('active'));
-  if(btn)btn.classList.add('active');
-  const el=document.getElementById('pm-'+id);
-  if(el)el.classList.add('active');
-}
-
-/* ════════ SOLUTION TOGGLE ════════ */
-function toggleSol(btn){
-  const box=btn.nextElementSibling;
-  const open=box.classList.toggle('open');
-  btn.textContent=open?'▲ Hide Solution':'▼ Show Solution';
-}
-
-/* ════════ QUIZ ════════ */
-const QS=[
-  {q:"Which keyword is used to include a library in Python?",opts:["include","require","import","use"],correct:2,exp:"✓ 'import' is Python's keyword to load a library. e.g. import math loads the math module."},
-  {q:"What does 'from math import sqrt' do?",opts:["Imports all of math","Imports only sqrt function","Renames math to sqrt","Installs the math library"],correct:1,exp:"✓ 'from module import name' imports a specific function, so you can call sqrt() directly without math.sqrt()."},
-  {q:"Which command installs a third-party Python package?",opts:["python install","import install","pip install","pkg install"],correct:2,exp:"✓ pip is Python's package installer. 'pip install requests' downloads from PyPI and installs it."},
-  {q:"What does random.choice([1,2,3,4,5]) return?",opts:["Always 3 (middle)","Always 1","A random element from the list","The entire list shuffled"],correct:2,exp:"✓ random.choice(sequence) returns one randomly selected element from the sequence."},
-  {q:"What does os.path.exists('file.txt') return?",opts:["The file contents","True if file exists, False otherwise","The file size","The file path"],correct:1,exp:"✓ os.path.exists() checks whether a file or directory exists and returns True or False."}
+const questions = [
+  { q: "Which keyword imports a library?", opts: ["include", "require", "import", "use"], correct: 2, exp: "'import' is the keyword." },
+  { q: "What does 'from math import sqrt' do?", opts: ["Imports all math", "Imports only sqrt", "Renames math", "Installs math"], correct: 1, exp: "Imports only the sqrt function." },
+  { q: "Which command installs a Python package?", opts: ["python install", "import install", "pip install", "pkg install"], correct: 2, exp: "pip is Python's package installer." },
+  { q: "What does random.randint(1,6) return?", opts: ["Always 3", "Always 6", "Random number 1-6", "Float 0-1"], correct: 2, exp: "Returns a random integer between 1 and 6." },
+  { q: "What does os.path.exists() return?", opts: ["File content", "True/False if file exists", "File size", "File path"], correct: 1, exp: "Returns True if file exists, False otherwise." }
 ];
-let qs={cur:0,ans:new Array(QS.length).fill(null),done:false};
-function renderQ(){
-  if(qs.done)return;
-  const q=QS[qs.cur],a=qs.ans[qs.cur];
-  document.getElementById('qctr').textContent=`Question ${qs.cur+1} of ${QS.length}`;
-  document.getElementById('qprev').disabled=qs.cur===0;
-  const nb=document.getElementById('qnext');
-  nb.disabled=a===null;
-  nb.textContent=qs.cur===QS.length-1?'See Results →':'Next →';
-  document.getElementById('qcard').innerHTML=`
-    <div class="qbg">Question ${qs.cur+1} / ${QS.length}</div>
-    <div class="qtx">${q.q}</div>
-    <div class="qopts">
-      ${'ABCD'.split('').slice(0,q.opts.length).map((l,i)=>{
-        let c='qo';
-        if(a!==null){if(i===q.correct)c+=' ok';else if(i===a&&i!==q.correct)c+=' no';}
-        return`<button class="${c}" onclick="ansQ(${i})" ${a!==null?'disabled':''}><span class="qol">${l}</span>${q.opts[i]}</button>`;
-      }).join('')}
-    </div>
-    <div class="qfb ${a!==null?'show '+(a===q.correct?'ok':'no'):''}">
-      ${a!==null?q.exp:''}
-    </div>`;
-  QS.forEach((_,i)=>{const d=document.getElementById('qd'+i);if(!d)return;d.className='qpd';const an=qs.ans[i];if(an!==null)d.classList.add(an===QS[i].correct?'ok':'no');});
-}
-function ansQ(c){qs.ans[qs.cur]=c;document.getElementById('qnext').disabled=false;renderQ();}
-function qnav(d){
-  if(d===1&&qs.cur===QS.length-1){showQRes();return;}
-  const n=qs.cur+d;
-  if(n>=0&&n<QS.length){qs.cur=n;renderQ();}
-}
-function showQRes(){
-  qs.done=true;
-  document.getElementById('qcont').style.display='none';
-  const r=document.getElementById('qres');r.classList.add('show');
-  const correct=qs.ans.filter((a,i)=>a===QS[i].correct).length;
-  const pct=Math.round(correct/QS.length*100);
-  document.getElementById('qrs').textContent=`${correct}/${QS.length}`;
-  document.getElementById('qrc').textContent=correct;
-  document.getElementById('qrw').textContent=QS.length-correct;
-  document.getElementById('qre').textContent=['😅','🤔','👍','🌟','🎉'][Math.min(correct,4)];
-  document.getElementById('qrsb').textContent=
-    pct===100?'🔥 Perfect! You\'ve mastered Python Libraries!':
-    pct>=80?'⭐ Excellent! Strong understanding of the library ecosystem.':
-    pct>=60?'👍 Good effort! Review import syntax and pip.':
-    '📖 Keep going — re-read the lessons and retry!';
-  if(pct>=80)setTimeout(confetti,300);
-}
-function resetQ(){
-  qs={cur:0,ans:new Array(QS.length).fill(null),done:false};
-  document.getElementById('qres').classList.remove('show');
-  document.getElementById('qcont').style.display='';
-  QS.forEach((_,i)=>{const d=document.getElementById('qd'+i);if(d)d.className='qpd';});
-  renderQ();
-}
+let quizAnswers = new Array(5).fill(null), quizCurrent = 0;
 
-/* ════════ CONFETTI ════════ */
-function confetti(){
-  const cs=['#0e9060','#1458b0','#d48010','#d43030','#7830d8','#009898'];
-  for(let i=0;i<80;i++){
-    const el=document.createElement('div');
-    const s=5+Math.random()*9;
-    el.style.cssText=`position:fixed;top:50%;left:50%;width:${s}px;height:${s}px;
-      background:${cs[i%cs.length]};border-radius:${Math.random()>.5?'50%':'2px'};
-      pointer-events:none;z-index:9999;
-      --cx:${(Math.random()-.5)*700}px;--cy:${-(200+Math.random()*500)}px;--cr:${Math.random()*720-360}deg;
-      animation:confpop 1.5s ease forwards;animation-delay:${Math.random()*.3}s;`;
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),2100);
+function renderQuiz() {
+  let q = questions[quizCurrent], a = quizAnswers[quizCurrent];
+  document.getElementById('qCounter').innerText = `Question ${quizCurrent + 1} of 5`;
+  document.getElementById('qPrevBtn').disabled = quizCurrent === 0;
+  document.getElementById('qNextBtn').disabled = a === null;
+  document.getElementById('qNextBtn').innerText = quizCurrent === 4 ? 'See Results →' : 'Next →';
+  let letters = 'ABCD', html = `<div class="q-badge">Question ${quizCurrent + 1} / 5</div><div class="q-text">${q.q}</div><div class="q-options">`;
+  q.opts.forEach((opt, i) => {
+    let cls = 'q-opt';
+    if (a !== null) { if (i === q.correct) cls += ' correct'; else if (i === a && i !== q.correct) cls += ' wrong'; }
+    html += `<button class="${cls}" onclick="answerQuiz(${i})" ${a !== null ? 'disabled' : ''}><span class="q-opt-letter">${letters[i]}</span>${opt}</button>`;
+  });
+  html += `</div><div class="q-feedback ${a !== null ? 'show ' + (a === q.correct ? 'correct' : 'wrong') : ''}">${a !== null ? q.exp : ''}</div>`;
+  document.getElementById('qCard').innerHTML = html;
+  for (let i = 0; i < 5; i++) {
+    let dot = document.getElementById('qd' + i);
+    dot.classList.remove('correct', 'wrong');
+    if (quizAnswers[i] !== null) dot.classList.add(quizAnswers[i] === questions[i].correct ? 'correct' : 'wrong');
   }
 }
-function celebrate(){
-  confetti();
-  const btn=event.target.closest('button');
-  btn.textContent='✓ Badge Claimed!';
-  btn.style.background='var(--G)';
-  btn.disabled=true;
-  localStorage.setItem('module11_complete','true');
+function answerQuiz(c) { if (quizAnswers[quizCurrent] !== null) return; quizAnswers[quizCurrent] = c; renderQuiz(); document.getElementById('qNextBtn').disabled = false; }
+function quizPrev() { if (quizCurrent > 0) { quizCurrent--; renderQuiz(); } }
+function quizNext() { if (quizAnswers[quizCurrent] === null) return; if (quizCurrent === 4) showQuizResult(); else { quizCurrent++; renderQuiz(); } }
+function showQuizResult() {
+  let correct = quizAnswers.filter((a, i) => a === questions[i].correct).length;
+  document.getElementById('quizContainer').style.display = 'none';
+  document.getElementById('quizResult').classList.add('show');
+  document.getElementById('qrScore').innerText = `${correct}/5`;
+  document.getElementById('qrCorrect').innerText = correct;
+  document.getElementById('qrWrong').innerText = 5 - correct;
+  let emojis = ['😅', '🤔', '👍', '🌟', '🎉'];
+  document.getElementById('qrEmoji').innerText = emojis[Math.min(correct, 4)];
+  if (correct >= 4) launchConfetti();
 }
-function restart(){vp=new Set([0]);gp(0);}
+function resetQuiz() { quizAnswers = new Array(5).fill(null); quizCurrent = 0; document.getElementById('quizResult').classList.remove('show'); document.getElementById('quizContainer').style.display = 'block'; renderQuiz(); }
+function launchConfetti() { let cs = ['#2563eb', '#059669', '#7c3aed', '#eab308']; for (let i = 0; i < 60; i++) { let el = document.createElement('div'); let s = 6 + Math.random() * 8; el.style.cssText = `position:fixed;top:50%;left:50%;width:${s}px;height:${s}px;background:${cs[i % cs.length]};border-radius:${Math.random() > .5 ? '50%' : '2px'};pointer-events:none;z-index:9999;animation:confetti-pop 1.4s ease forwards;`; document.body.appendChild(el); setTimeout(() => el.remove(), 1400); } }
 
-/* ════════ UTILS ════════ */
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-
-/* ════════ INIT ════════ */
-window.addEventListener('load',()=>{
-  calcMath();
-  genRandom();
-  calcDatetime();
-});
+updateMath();
+updateRandom();
+updateDateTime();
 </script>
 </body>
 </html>
