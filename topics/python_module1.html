@@ -1,533 +1,497 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Python Module 1 — Introduction to Python</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Fira+Code:wght@400;500&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
-<img src="logo.png" alt="HCL-GUVI Logo" style="height:40px; object-fit:contain;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 1: Introduction to Python | Python for Beginners</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════
-   DESIGN SYSTEM — Warm Noir + Electric Citrus
-═══════════════════════════════════════════ */
 :root {
-  --bg:      #0c0b09;
-  --surface: #141310;
-  --surface2:#1e1c18;
-  --surface3:#272420;
-  --border:  #2e2b24;
-  --accent:  #e8c547;
-  --accent2: #ff6b35;
-  --accent3: #4ecdc4;
-  --accent4: #a78bfa;
-  --text:    #f2ede4;
-  --text2:   #b8b09e;
-  --text3:   #6b6355;
-  --code-bg: #0a0908;
-  --correct: #4ecdc4;
-  --wrong:   #ff4757;
-  --r:       14px;
-  --fh:      'Cabinet Grotesk', sans-serif;
-  --fb:      'Crimson Pro', serif;
-  --fc:      'Fira Code', monospace;
+  --bg: #f0f4ff;
+  --surface: #ffffff;
+  --surface2: #f7f9fe;
+  --surface3: #eef2fc;
+  --primary: #2563eb;
+  --primary-light: #dbeafe;
+  --primary-dark: #1d4ed8;
+  --accent: #059669;
+  --accent-light: #d1fae5;
+  --accent-dark: #047857;
+  --warn: #d97706;
+  --warn-light: #fef3c7;
+  --purple: #7c3aed;
+  --purple-light: #ede9fe;
+  --coral: #e11d48;
+  --coral-light: #ffe4e6;
+  --text: #0f172a;
+  --text2: #334155;
+  --text3: #64748b;
+  --text4: #94a3b8;
+  --border: #e2e8f0;
+  --border2: #cbd5e1;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+  --shadow-lg: 0 4px 24px rgba(37,99,235,.10), 0 1px 4px rgba(0,0,0,.06);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --sidebar-w: 260px;
+  --header-h: 60px;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --serif: 'Fraunces', serif;
+  --transition: .25s cubic-bezier(.4,0,.2,1);
 }
 
-*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
-html,body { width:100%; height:100%; overflow:hidden; }
-body { background:var(--bg); color:var(--text); font-family:var(--fb); font-size:16px; line-height:1.6; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; overflow: hidden; height: 100vh; }
 
-::-webkit-scrollbar { width:4px; }
-::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
 
-/* ════════ APP SHELL ════════ */
-#app {
-  width:100vw; height:100vh;
-  display:grid;
-  grid-template-rows: 56px 1fr 64px;
-  grid-template-columns: 220px 1fr;
-  grid-template-areas: "topbar topbar" "sidebar main" "bottombar bottombar";
+/* HEADER */
+.app-header {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); z-index: 100;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 24px 0 20px;
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.logo-area { display: flex; align-items: center; gap: 10px; }
+.logo-badge {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb 0%, #059669 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 15px; color: #fff; letter-spacing: -1px;
+}
+.logo-text { font-size: 13px; font-weight: 700; color: var(--text); letter-spacing: -.3px; }
+.logo-sub { font-size: 11px; color: var(--text3); font-weight: 400; }
+.header-divider { width: 1px; height: 28px; background: var(--border); }
+.module-title { font-size: 14px; font-weight: 600; color: var(--text2); }
+.module-badge { font-size: 11px; background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+
+.header-right { display: flex; align-items: center; gap: 20px; }
+.progress-wrap { display: flex; align-items: center; gap: 8px; }
+.progress-label { font-size: 11px; color: var(--text3); font-weight: 500; }
+.progress-track { width: 120px; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+.progress-pct { font-size: 11px; font-weight: 700; color: var(--primary); min-width: 28px; }
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed; top: var(--header-h); left: 0; bottom: 0; width: var(--sidebar-w);
+  background: var(--surface); border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 20px 12px; z-index: 50;
+}
+.sidebar-section { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--text4); text-transform: uppercase; padding: 12px 12px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: 10px; cursor: pointer; transition: all var(--transition);
+  margin-bottom: 2px; font-size: 13px; font-weight: 500; color: var(--text2);
+  border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: var(--surface3); color: var(--text); }
+.nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.nav-item.done { color: var(--accent); }
+.nav-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; background: var(--surface3); }
+.nav-item.active .nav-icon { background: var(--primary); color: #fff; }
+.nav-item.done .nav-icon { background: var(--accent-light); color: var(--accent-dark); }
+.nav-check { margin-left: auto; font-size: 11px; color: var(--accent); display: none; }
+.nav-item.done .nav-check { display: block; }
+
+/* MAIN */
+.main-content {
+  margin-left: var(--sidebar-w); margin-top: var(--header-h);
+  height: calc(100vh - var(--header-h)); overflow-y: auto; padding: 32px 48px 80px;
 }
 
-/* ── Top Bar ── */
-#topbar { grid-area:topbar; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 20px; gap:14px; z-index:10; }
-.tb-logo { display:flex; align-items:center; gap:8px; font-family:var(--fh); font-weight:900; font-size:1rem; color:var(--accent); letter-spacing:-0.02em; white-space:nowrap; }
-.tb-logo .snake { width:28px; height:28px; background:var(--accent); border-radius:8px; display:grid; place-items:center; font-size:1rem; color:var(--bg); }
-.tb-sep { flex:1; }
-.tb-module-info { font-family:var(--fc); font-size:0.72rem; color:var(--text3); white-space:nowrap; }
-.creator-badge { display:flex; align-items:center; gap:10px; background:rgba(232,197,71,0.06); border:1px solid rgba(232,197,71,0.2); border-radius:10px; padding:7px 14px; white-space:nowrap; }
-.creator-avatar { width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:900; color:var(--bg); font-family:var(--fh); flex-shrink:0; }
-.creator-info { display:flex; flex-direction:column; gap:1px; }
-.creator-name { font-family:var(--fh); font-size:0.78rem; font-weight:700; color:var(--accent); line-height:1.2; }
-.creator-role { font-family:var(--fc); font-size:0.62rem; color:var(--text3); line-height:1.2; }
-.tb-progress-wrap { width:110px; flex-shrink:0; }
-.tb-progress-label { font-family:var(--fc); font-size:0.68rem; color:var(--text3); margin-bottom:3px; display:flex; justify-content:space-between; }
-.tb-progress-bar { height:4px; background:var(--surface3); border-radius:2px; overflow:hidden; }
-.tb-progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:2px; transition:width .6s cubic-bezier(.4,0,.2,1); }
+/* PAGES */
+.page { display: none; animation: fadeSlide .35s cubic-bezier(.4,0,.2,1); }
+.page.active { display: block; }
+@keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ── Sidebar ── */
-#sidebar { grid-area:sidebar; background:var(--surface); border-right:1px solid var(--border); padding:20px 0; overflow-y:auto; display:flex; flex-direction:column; }
-.sidebar-section-label { font-family:var(--fc); font-size:0.65rem; color:var(--text3); letter-spacing:0.12em; text-transform:uppercase; padding:0 18px; margin-bottom:8px; margin-top:20px; }
-.sidebar-section-label:first-child { margin-top:0; }
-.nav-item { display:flex; align-items:center; gap:10px; padding:9px 18px; cursor:pointer; font-family:var(--fh); font-size:0.82rem; font-weight:500; color:var(--text2); border-left:3px solid transparent; transition:all .15s; }
-.nav-item:hover { background:var(--surface2); color:var(--text); }
-.nav-item.active { background:rgba(232,197,71,0.08); border-left-color:var(--accent); color:var(--accent); }
-.nav-item.completed .nav-check { opacity:1; color:var(--correct); }
-.nav-check { margin-left:auto; opacity:0; font-size:0.8rem; transition:opacity .3s; }
-.nav-icon { font-size:1rem; min-width:20px; text-align:center; }
-.sidebar-credit { padding:16px 14px 12px; border-top:1px solid var(--border); margin-top:auto; }
-.sidebar-credit-inner { background:rgba(232,197,71,0.05); border:1px solid rgba(232,197,71,0.15); border-radius:10px; padding:12px 14px; }
-.sc-label { font-family:var(--fc); font-size:0.6rem; color:var(--text3); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px; }
-.sc-avatar { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-family:var(--fh); font-size:1rem; font-weight:900; color:var(--bg); margin-bottom:8px; box-shadow:0 4px 12px rgba(232,197,71,0.3); }
-.sc-name { font-family:var(--fh); font-size:0.88rem; font-weight:800; color:var(--accent); margin-bottom:2px; }
-.sc-title { font-family:var(--fc); font-size:0.7rem; color:var(--text2); margin-bottom:2px; }
-.sc-org { display:inline-flex; align-items:center; gap:4px; font-family:var(--fc); font-size:0.65rem; color:var(--text3); background:var(--surface3); border:1px solid var(--border); padding:2px 8px; border-radius:50px; margin-top:6px; }
+/* NAV BUTTONS */
+.page-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 600; font-size: 13px; cursor: pointer; transition: all var(--transition); border: none; font-family: var(--font); }
+.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,.3); }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,99,235,.35); }
+.btn-ghost { background: var(--surface); color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { background: var(--surface3); }
+.btn-run { background: #1e1e2e; color: #a6e3a1; border: 1px solid #313244; font-family: var(--mono); font-size: 12px; }
+.btn-run:hover { background: #11111b; }
 
-/* ── Main ── */
-#main { grid-area:main; overflow:hidden; position:relative; }
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow); }
+.card-blue { border-left: 4px solid var(--primary); }
+.card-green { border-left: 4px solid var(--accent); }
+.card-purple { border-left: 4px solid var(--purple); }
 
-.page {
-  position:absolute; inset:0; overflow-y:auto;
-  padding:40px 48px;
-  opacity:0; transform:translateX(40px);
-  transition:opacity .35s ease, transform .35s ease;
-  pointer-events:none;
+/* HERO */
+.hero { background: linear-gradient(135deg, #1e3a8a 0%, #0c4a6e 50%, #134e4a 100%); border-radius: 20px; padding: 48px 40px; margin-bottom: 28px; color: #fff; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+.hero-tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15); border-radius: 99px; padding: 4px 12px; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,.8); margin-bottom: 16px; }
+.hero h1 { font-family: var(--serif); font-size: 42px; font-weight: 700; line-height: 1.15; margin-bottom: 12px; }
+.hero h1 em { font-style: italic; color: #86efac; }
+.hero p { font-size: 15px; color: rgba(255,255,255,.75); max-width: 520px; line-height: 1.7; }
+.hero-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+.chip-blue { background: rgba(96,165,250,.2); color: #93c5fd; border: 1px solid rgba(96,165,250,.25); }
+.chip-green { background: rgba(52,211,153,.2); color: #6ee7b7; border: 1px solid rgba(52,211,153,.25); }
+.chip-purple { background: rgba(167,139,250,.2); color: #c4b5fd; border: 1px solid rgba(167,139,250,.25); }
+.hero-deco { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); font-size: 100px; opacity: .07; user-select: none; }
+
+/* SECTION TITLES */
+.section-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); margin-bottom: 8px; }
+.page-h2 { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -.5px; }
+.page-subtitle { font-size: 14px; color: var(--text3); margin-bottom: 24px; line-height: 1.6; }
+.concept-h { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+
+/* CODE BLOCKS */
+.code-block {
+  background: #1e1e2e; border-radius: var(--radius-sm); padding: 20px;
+  font-family: var(--mono); font-size: 13px; line-height: 1.8;
+  border: 1px solid #313244; position: relative; overflow: auto;
 }
-.page.active { opacity:1; transform:translateX(0); pointer-events:all; }
-.page.exit-left { opacity:0; transform:translateX(-40px); }
+.code-header { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.code-dot { width: 10px; height: 10px; border-radius: 50%; }
+.code-dot:nth-child(1) { background: #f38ba8; }
+.code-dot:nth-child(2) { background: #f9e2af; }
+.code-dot:nth-child(3) { background: #a6e3a1; }
+.code-fname { font-size: 11px; color: #6c7086; margin-left: 6px; font-family: var(--mono); }
+.kw { color: #cba6f7; } .fn { color: #89b4fa; } .st { color: #a6e3a1; }
+.cm { color: #6c7086; font-style: italic; } .nu { color: #fab387; } .vr { color: #cdd6f4; }
+.op { color: #89dceb; }
 
-/* ── Bottom Bar ── */
-#bottombar { grid-area:bottombar; background:var(--surface); border-top:1px solid var(--border); display:flex; align-items:center; padding:0 24px; gap:12px; }
-.bb-btn { display:flex; align-items:center; gap:7px; padding:10px 22px; border-radius:10px; font-family:var(--fh); font-size:0.85rem; font-weight:700; cursor:pointer; transition:all .15s; border:none; }
-.bb-btn.prev { background:var(--surface2); border:1px solid var(--border); color:var(--text); }
-.bb-btn.prev:hover { border-color:var(--text3); }
-.bb-btn.next { background:var(--accent); color:var(--bg); margin-left:auto; }
-.bb-btn.next:hover { opacity:.88; transform:translateY(-1px); }
-.bb-btn:disabled { opacity:.3; cursor:not-allowed; transform:none !important; }
-.bb-page-indicator { font-family:var(--fc); font-size:0.75rem; color:var(--text3); flex:1; text-align:center; }
-.bb-dots { display:flex; gap:6px; align-items:center; }
-.bb-dot { width:6px; height:6px; border-radius:50%; background:var(--surface3); cursor:pointer; transition:all .2s; }
-.bb-dot.active { background:var(--accent); width:18px; border-radius:3px; }
-.bb-dot.done { background:var(--correct); }
+.output-block {
+  background: #11111b; border: 1px solid #1e1e2e; border-top: 2px solid var(--accent); border-radius: var(--radius-sm); padding: 14px 18px;
+  font-family: var(--mono); font-size: 13px; color: #a6e3a1; line-height: 1.8; margin-top: 10px; display: none;
+}
+.output-block.visible { display: block; animation: revealOut .3s ease; }
+@keyframes revealOut { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ════════ TYPOGRAPHY ════════ */
-h1 { font-family:var(--fh); font-size:clamp(1.8rem,3vw,2.6rem); font-weight:900; line-height:1.1; letter-spacing:-0.03em; }
-h2 { font-family:var(--fh); font-size:clamp(1.3rem,2.5vw,1.8rem); font-weight:800; line-height:1.2; letter-spacing:-0.02em; }
-h3 { font-family:var(--fh); font-size:1.1rem; font-weight:700; }
-p  { margin-bottom:1em; color:var(--text2); }
-strong { color:var(--text); font-weight:600; }
-code { font-family:var(--fc); font-size:0.85em; background:var(--surface3); border:1px solid var(--border); padding:2px 7px; border-radius:5px; color:var(--accent); }
+/* ANALOGY */
+.analogy-card { background: linear-gradient(135deg, var(--warn-light), #fff7e6); border: 1px solid #fde68a; border-radius: var(--radius); padding: 20px; margin-bottom: 18px; }
+.analogy-icon { font-size: 28px; margin-bottom: 8px; }
+.analogy-title { font-size: 13px; font-weight: 700; color: var(--warn); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+.analogy-text { font-size: 14px; color: #78350f; line-height: 1.7; }
 
-.page-tag { display:inline-flex; align-items:center; gap:6px; font-family:var(--fc); font-size:0.7rem; color:var(--accent); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px; }
-.page-tag::before { content:''; display:inline-block; width:20px; height:2px; background:var(--accent); }
-.page-header { margin-bottom:32px; }
-.page-header p { font-size:1.05rem; max-width:600px; }
+/* INFO BOX */
+.info-box { display: flex; gap: 12px; padding: 14px 16px; border-radius: var(--radius-sm); margin-bottom: 14px; }
+.info-box.blue { background: var(--primary-light); border: 1px solid #bfdbfe; }
+.info-box.green { background: var(--accent-light); border: 1px solid #bbf7d0; }
+.info-box.purple { background: var(--purple-light); border: 1px solid #ddd6fe; }
+.info-box.warn { background: var(--warn-light); border: 1px solid #fde68a; }
+.info-icon { font-size: 16px; flex-shrink: 0; padding-top: 1px; }
+.info-text { font-size: 13px; line-height: 1.6; }
+.info-box.blue .info-text { color: #1e40af; }
+.info-box.green .info-text { color: var(--accent-dark); }
+.info-box.purple .info-text { color: #5b21b6; }
 
-.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:24px; }
-.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+/* TIMELINE */
+.timeline { position: relative; padding-left: 24px; margin: 20px 0; }
+.timeline::before { content: ''; position: absolute; left: 8px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(180deg, var(--primary), var(--accent)); border-radius: 1px; }
+.tl-item { display: flex; gap: 16px; margin-bottom: 20px; position: relative; }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); position: absolute; left: -20px; top: 6px; border: 2px solid var(--surface); }
+.tl-year { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--primary); min-width: 45px; }
+.tl-text { font-size: 13px; color: var(--text2); flex: 1; }
 
-.tip { background:rgba(232,197,71,0.07); border:1px solid rgba(232,197,71,0.25); border-radius:10px; padding:14px 18px; font-size:0.9rem; color:var(--accent); margin:16px 0; }
-.tip::before { content:'💡 '; }
+/* GRID LAYOUTS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
 
-/* ── Code Block ── */
-.code-block { background:var(--code-bg); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; margin:16px 0; }
-.cb-header { background:var(--surface2); border-bottom:1px solid var(--border); padding:8px 14px; display:flex; align-items:center; gap:8px; }
-.cb-dots { display:flex; gap:5px; }
-.cb-dots span { width:10px; height:10px; border-radius:50%; }
-.cb-dots span:nth-child(1){background:#ff5f57;} .cb-dots span:nth-child(2){background:#ffbd2e;} .cb-dots span:nth-child(3){background:#28ca41;}
-.cb-lang { margin-left:auto; font-family:var(--fc); font-size:0.7rem; color:var(--text3); }
-.cb-body { padding:20px 22px; overflow-x:auto; }
-.cb-body pre { font-family:var(--fc); font-size:0.88rem; line-height:1.9; color:#d4cfca; white-space:pre; }
-.kw{color:#ff6b35;} .fn{color:#e8c547;} .st{color:#4ecdc4;} .cm{color:#4a4540;font-style:italic;} .nm{color:#a78bfa;}
+.use-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; margin: 16px 0; }
+.use-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 10px; text-align: center; transition: all var(--transition); cursor: default; }
+.use-card:hover { transform: translateY(-2px); border-color: var(--primary); background: var(--primary-light); }
+.use-card .uc-icon { font-size: 24px; display: block; margin-bottom: 6px; }
+.use-card .uc-name { font-family: var(--mono); font-size: 11px; color: var(--text3); }
 
-.run-btn { display:inline-flex; align-items:center; gap:8px; background:var(--accent2); color:white; border:none; border-radius:9px; padding:9px 22px; font-family:var(--fh); font-size:0.85rem; font-weight:700; cursor:pointer; transition:all .15s; }
-.run-btn:hover { opacity:.85; transform:translateY(-1px); }
-.output-box { background:#080706; border:1px solid var(--border); border-radius:10px; padding:16px 18px; font-family:var(--fc); font-size:0.85rem; line-height:1.9; color:var(--accent3); min-height:52px; white-space:pre-wrap; display:none; margin-top:12px; }
-.output-box.show { display:block; animation:fadeIn .3s ease; }
-.out-prompt { color:var(--text3); }
+/* PIPELINE */
+.pipeline { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 20px; margin: 20px 0; flex-wrap: wrap; }
+.pipe-step { text-align: center; min-width: 120px; flex: 1; }
+.pipe-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 10px; background: var(--surface); border: 2px solid var(--border); }
+.pipe-icon.c1 { border-color: var(--primary); background: var(--primary-light); }
+.pipe-icon.c2 { border-color: var(--accent); background: var(--accent-light); animation: pulse 2s infinite; }
+.pipe-icon.c3 { border-color: var(--purple); background: var(--purple-light); }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.pipe-step h4 { font-family: var(--font); font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.pipe-step p { font-size: 11px; color: var(--text3); margin: 0; }
+.pipe-arrow { color: var(--text4); font-size: 20px; }
 
-.solution-toggle { background:transparent; border:1px solid var(--accent); border-radius:8px; color:var(--accent); font-family:var(--fc); font-size:0.78rem; padding:7px 16px; cursor:pointer; transition:background .2s; }
-.solution-toggle:hover { background:rgba(232,197,71,0.1); }
-.solution-box { display:none; margin-top:14px; }
-.solution-box.open { display:block; animation:fadeIn .3s ease; }
+/* INTERACTIVE ELEMENTS */
+.try-box { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin: 20px 0; }
+.try-textarea { width: 100%; background: #1e1e2e; border: 1px solid #313244; border-radius: 8px; padding: 12px 14px; font-family: var(--mono); font-size: 12px; color: #cdd6f4; resize: vertical; outline: none; }
+.try-textarea:focus { border-color: var(--primary); }
+.try-actions { display: flex; gap: 10px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
 
-.exercise-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; margin-bottom:16px; }
-.ex-header { padding:14px 20px; background:var(--surface2); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
-.ex-num { font-family:var(--fc); font-size:0.7rem; color:var(--text3); }
-.ex-title { font-family:var(--fh); font-size:0.9rem; font-weight:700; }
-.ex-body { padding:20px; }
-.ex-body p { font-size:0.9rem; color:var(--text2); margin-bottom:12px; }
+/* EXERCISE */
+.ex-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 18px; }
+.ex-badge { display: inline-flex; gap: 6px; align-items: center; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
+.ex-easy { background: var(--accent-light); color: var(--accent-dark); }
+.ex-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.ex-desc { font-size: 13px; color: var(--text2); margin-bottom: 16px; line-height: 1.7; }
+.sol-toggle { font-size: 12px; font-weight: 600; color: var(--primary); cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 0; border: none; background: none; font-family: var(--font); }
+.sol-toggle:hover { color: var(--primary-dark); }
+.solution { display: none; margin-top: 12px; }
+.solution.open { display: block; animation: revealOut .25s ease; }
 
-/* Quiz */
-.quiz-progress { display:flex; gap:6px; margin-bottom:28px; }
-.qp-dot { flex:1; height:4px; background:var(--surface3); border-radius:2px; transition:background .3s; }
-.qp-dot.correct { background:var(--correct); }
-.qp-dot.wrong { background:var(--wrong); }
-.q-card { background:var(--surface2); border:1px solid var(--border); border-radius:var(--r); padding:28px; min-height:300px; }
-.q-badge { font-family:var(--fc); font-size:0.7rem; color:var(--text3); margin-bottom:10px; }
-.q-text { font-family:var(--fh); font-size:1.1rem; font-weight:700; margin-bottom:24px; line-height:1.4; }
-.q-options { display:flex; flex-direction:column; gap:10px; }
-.q-opt { background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:12px 18px; text-align:left; font-family:var(--fb); font-size:0.95rem; color:var(--text); cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:12px; }
-.q-opt:hover:not(:disabled) { border-color:var(--accent); background:rgba(232,197,71,0.05); transform:translateX(3px); }
-.q-opt-letter { width:26px; height:26px; border-radius:6px; background:var(--surface2); display:flex; align-items:center; justify-content:center; font-family:var(--fc); font-size:0.72rem; color:var(--text3); flex-shrink:0; transition:all .15s; }
-.q-opt.correct { border-color:var(--correct); background:rgba(78,205,196,0.1); color:var(--correct); }
-.q-opt.correct .q-opt-letter { background:var(--correct); color:var(--bg); }
-.q-opt.wrong { border-color:var(--wrong); background:rgba(255,71,87,0.1); color:var(--wrong); }
-.q-opt.wrong .q-opt-letter { background:var(--wrong); color:white; }
-.q-opt:disabled { cursor:default; }
-.q-feedback { margin-top:16px; padding:12px 16px; border-radius:8px; font-family:var(--fc); font-size:0.8rem; display:none; animation:fadeIn .3s ease; }
-.q-feedback.show { display:block; }
-.q-feedback.correct { background:rgba(78,205,196,0.12); color:var(--correct); border:1px solid rgba(78,205,196,0.3); }
-.q-feedback.wrong { background:rgba(255,71,87,0.1); color:var(--wrong); border:1px solid rgba(255,71,87,0.3); }
-.quiz-nav { display:flex; align-items:center; justify-content:space-between; margin-top:20px; }
-.qnav-btn { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:9px 20px; font-family:var(--fh); font-size:0.82rem; font-weight:700; color:var(--text); cursor:pointer; transition:all .15s; }
-.qnav-btn:hover { border-color:var(--text3); }
-.qnav-btn.primary { background:var(--accent); color:var(--bg); border-color:transparent; }
-.qnav-btn:disabled { opacity:.3; cursor:not-allowed; }
-.quiz-result { display:none; text-align:center; padding:40px 20px; animation:fadeIn .5s ease; }
-.quiz-result.show { display:block; }
-.qr-emoji { font-size:4rem; display:block; margin-bottom:16px; animation:bounceIn .6s ease; }
-.qr-score { font-family:var(--fh); font-size:3.5rem; font-weight:900; color:var(--accent); line-height:1; margin-bottom:8px; }
-.qr-sub { color:var(--text2); font-size:1rem; margin-bottom:28px; }
-.qr-breakdown { display:flex; gap:20px; justify-content:center; margin-bottom:28px; }
-.qrb-item { text-align:center; }
-.qrb-val { font-family:var(--fh); font-size:1.6rem; font-weight:900; }
-.qrb-val.c { color:var(--correct); } .qrb-val.w { color:var(--wrong); }
-.qrb-lbl { font-family:var(--fc); font-size:0.7rem; color:var(--text3); }
-.retry-btn { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:11px 28px; font-family:var(--fh); font-size:0.9rem; font-weight:700; color:var(--text); cursor:pointer; transition:all .15s; margin-right:10px; }
-.retry-btn:hover { border-color:var(--accent); color:var(--accent); }
+/* QUIZ */
+.quiz-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.quiz-progress-dots { display: flex; gap: 8px; }
+.quiz-dot { width: 28px; height: 5px; border-radius: 99px; background: var(--border); transition: all .3s; }
+.quiz-dot.active { background: var(--primary); width: 44px; }
+.quiz-dot.correct { background: var(--accent); }
+.quiz-dot.wrong { background: var(--coral); }
+.quiz-q { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 20px; line-height: 1.5; }
+.quiz-code { background: #1e1e2e; border-radius: var(--radius-sm); padding: 14px 18px; font-family: var(--mono); font-size: 12px; color: #cdd6f4; margin-bottom: 18px; line-height: 1.8; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt {
+  padding: 12px 16px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--surface);
+  cursor: pointer; font-size: 14px; font-weight: 500; transition: all var(--transition); display: flex; align-items: center; gap: 10px; font-family: var(--font); color: var(--text); text-align: left;
+}
+.quiz-opt:hover { border-color: var(--primary); background: var(--primary-light); }
+.quiz-opt.selected-correct { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); }
+.quiz-opt.selected-wrong { border-color: var(--coral); background: var(--coral-light); color: var(--coral); }
+.quiz-opt.show-correct { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); }
+.quiz-opt.disabled { pointer-events: none; opacity: .55; }
+.quiz-feedback { margin-top: 16px; padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; display: none; }
+.quiz-feedback.correct { background: var(--accent-light); color: var(--accent-dark); border: 1px solid var(--accent); display: block; }
+.quiz-feedback.wrong { background: var(--coral-light); color: var(--coral); border: 1px solid #fecdd3; display: block; }
+.quiz-score-screen { text-align: center; padding: 40px 20px; }
 
-/* Complete */
-.complete-wrap { text-align:center; max-width:520px; margin:0 auto; padding:20px 0; }
-.complete-icon { width:100px; height:100px; background:rgba(232,197,71,0.1); border:2px solid var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:3rem; margin:0 auto 24px; animation:float 3s ease-in-out infinite; }
-.skills-learnt { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:20px 0 32px; }
-.skill-badge { background:var(--surface2); border:1px solid var(--border); border-radius:50px; padding:6px 16px; font-family:var(--fc); font-size:0.75rem; color:var(--text2); display:flex; align-items:center; gap:6px; animation:bounceIn .5s ease both; }
-.skill-badge .check { color:var(--correct); }
-.cert-btn { background:var(--accent); color:var(--bg); border:none; border-radius:12px; padding:14px 32px; font-family:var(--fh); font-size:1rem; font-weight:900; cursor:pointer; transition:all .15s; display:inline-flex; align-items:center; gap:8px; }
-.cert-btn:hover { opacity:.88; transform:translateY(-2px); }
+/* COMPLETION */
+.completion-hero { text-align: center; padding: 40px 20px; }
+.completion-icon { font-size: 56px; margin-bottom: 16px; animation: bounce 1s cubic-bezier(.36,.07,.19,.97) infinite alternate; }
+@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+.skills-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 24px 0; }
+.skill-tag { padding: 8px 18px; border-radius: 99px; font-size: 13px; font-weight: 700; }
+.st-blue { background: var(--primary-light); color: var(--primary-dark); border: 1px solid #bfdbfe; }
+.st-green { background: var(--accent-light); color: var(--accent-dark); border: 1px solid #bbf7d0; }
+.st-purple { background: var(--purple-light); color: var(--purple); border: 1px solid #ddd6fe; }
+.st-warn { background: var(--warn-light); color: #92400e; border: 1px solid #fde68a; }
+.cert-btn { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: none; border-radius: 12px; padding: 14px 32px; font-family: var(--font); font-size: 14px; font-weight: 700; cursor: pointer; transition: all var(--transition); margin-top: 20px; }
+.cert-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,99,235,.3); }
 
-/* Animations */
-@keyframes fadeIn   { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
-@keyframes slideUp  { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
-@keyframes float    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-@keyframes bounceIn { 0%{transform:scale(0)} 60%{transform:scale(1.1)} 100%{transform:scale(1)} }
-@keyframes blink    { 50%{opacity:0} }
-@keyframes pulse    { 0%,100%{opacity:1} 50%{opacity:.4} }
-@keyframes confetti-pop { 0%{transform:translate(0,0) rotate(0deg);opacity:1} 100%{transform:translate(var(--cx),var(--cy)) rotate(var(--cr));opacity:0} }
+/* WELCOME GRID */
+.welcome-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin: 20px 0; }
+.welcome-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 18px; text-align: center; transition: all var(--transition); cursor: default; }
+.welcome-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+.welcome-card-icon { font-size: 28px; margin-bottom: 8px; }
+.welcome-card-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.welcome-card-desc { font-size: 11px; color: var(--text3); }
+.prereq-list { display: flex; flex-direction: column; gap: 10px; }
+.prereq-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text2); }
+.prereq-check { width: 20px; height: 20px; border-radius: 50%; background: var(--accent-light); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
 
-.stagger > * { animation:slideUp .4s ease both; }
-.stagger > *:nth-child(1){animation-delay:.05s} .stagger > *:nth-child(2){animation-delay:.12s}
-.stagger > *:nth-child(3){animation-delay:.19s} .stagger > *:nth-child(4){animation-delay:.26s}
-.stagger > *:nth-child(5){animation-delay:.33s} .stagger > *:nth-child(6){animation-delay:.40s}
+/* TABS */
+.ptabs { display: flex; gap: 8px; margin: 16px 0 0; flex-wrap: wrap; }
+.ptab { padding: 8px 16px; border-radius: 99px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); background: var(--surface); color: var(--text3); transition: all var(--transition); }
+.ptab.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+.ptab-panel { display: none; margin-top: 14px; }
+.ptab-panel.active { display: block; animation: fadeSlide .25s ease; }
 
-/* ════════ PAGE-SPECIFIC ════════ */
+/* STEP LIST */
+.step-list { margin: 16px 0; }
+.step-row { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+.step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: #fff; font-family: var(--font); font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-content h4 { font-size: 14px; margin-bottom: 4px; }
+.step-content p { font-size: 12px; color: var(--text2); margin: 0; line-height: 1.6; }
 
-/* Hero */
-.hero-icon { font-size:5rem; display:block; margin-bottom:16px; animation:float 3s ease-in-out infinite; line-height:1; }
-.hero-chips { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:36px; }
-.chip { background:var(--surface2); border:1px solid var(--border); border-radius:50px; padding:6px 16px; font-family:var(--fc); font-size:0.75rem; color:var(--text2); display:flex; align-items:center; gap:6px; }
-.hero-stats { display:flex; gap:32px; flex-wrap:wrap; margin-bottom:36px; }
-.stat .val { font-family:var(--fh); font-size:2rem; font-weight:900; color:var(--accent); line-height:1; }
-.stat .lbl { font-family:var(--fc); font-size:0.7rem; color:var(--text3); }
-.author-strip { display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding-top:28px; border-top:1px solid var(--border); }
-.author-avatar-big { width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-family:var(--fh); font-size:1.3rem; font-weight:900; color:var(--bg); box-shadow:0 6px 20px rgba(232,197,71,.35); flex-shrink:0; }
-.author-label { font-family:var(--fc); font-size:0.65rem; color:var(--text3); letter-spacing:.1em; text-transform:uppercase; margin-bottom:4px; }
-.author-name-big { font-family:var(--fh); font-size:1.1rem; font-weight:800; color:var(--accent); }
-.author-role-big { font-family:var(--fc); font-size:0.75rem; color:var(--text2); margin-top:2px; }
-.author-org-tag { display:inline-flex; align-items:center; gap:5px; font-family:var(--fc); font-size:0.68rem; color:var(--text3); background:var(--surface2); border:1px solid var(--border); padding:3px 10px; border-radius:50px; margin-top:5px; }
+/* HELLO LAYOUT */
+.hello-layout { display: flex; gap: 28px; flex-wrap: wrap; margin-bottom: 24px; }
+.hello-code-col { flex: 1; min-width: 260px; }
+.hello-explain-col { flex: 1; min-width: 240px; }
+.line-explain { display: flex; gap: 12px; padding: 10px 14px; border-radius: 8px; margin-bottom: 10px; background: var(--surface2); border: 1px solid var(--border); font-size: 13px; }
+.le-num { font-family: var(--mono); font-size: 11px; color: var(--primary); min-width: 28px; font-weight: 600; }
+.le-text { color: var(--text2); line-height: 1.6; }
 
-/* Timeline */
-.tl-wrap { position:relative; padding-left:24px; margin:20px 0; }
-.tl-wrap::before { content:''; position:absolute; left:0; top:8px; bottom:8px; width:2px; background:linear-gradient(180deg,var(--accent),var(--accent2),var(--accent3)); border-radius:1px; }
-.tl-item { display:flex; gap:14px; margin-bottom:20px; position:relative; animation:slideUp .4s ease both; }
-.tl-dot { width:10px; height:10px; border-radius:50%; background:var(--accent); position:absolute; left:-28px; top:6px; border:2px solid var(--bg); flex-shrink:0; }
-.tl-year { font-family:var(--fc); font-size:0.72rem; color:var(--accent); min-width:42px; padding-top:2px; }
-.tl-text { font-size:0.9rem; color:var(--text2); }
-
-/* Use-case grid */
-.use-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px; margin:16px 0; }
-.use-card { background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:14px 10px; text-align:center; cursor:default; transition:all .2s; }
-.use-card:hover { border-color:var(--accent); transform:translateY(-3px); background:rgba(232,197,71,0.05); }
-.use-card .uc-icon { font-size:1.5rem; display:block; margin-bottom:6px; }
-.use-card .uc-name { font-family:var(--fc); font-size:0.7rem; color:var(--text3); }
-
-/* Pipeline */
-.pipeline { display:flex; align-items:center; justify-content:center; gap:8px; background:var(--surface2); border:1px solid var(--border); border-radius:var(--r); padding:28px 20px; margin:20px 0; flex-wrap:wrap; }
-.pipe-step { text-align:center; min-width:110px; flex:1; }
-.pipe-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin:0 auto 10px; }
-.pipe-icon.c1 { background:rgba(232,197,71,0.15); border:2px solid rgba(232,197,71,0.4); }
-.pipe-icon.c2 { background:rgba(255,107,53,0.15); border:2px solid rgba(255,107,53,0.4); animation:spin 4s linear infinite; }
-.pipe-icon.c3 { background:rgba(78,205,196,0.15); border:2px solid rgba(78,205,196,0.4); }
-.pipe-step h4 { font-family:var(--fh); font-size:0.85rem; font-weight:700; margin-bottom:4px; }
-.pipe-step p  { font-size:0.78rem; color:var(--text3); margin:0; }
-.pipe-arrow { color:var(--text3); font-size:1.4rem; animation:pulse 2s ease-in-out infinite; }
-@keyframes spin { to{ transform:rotate(360deg); } }
-
-/* Terminal */
-.terminal { background:#0d1117; border:1px solid #30363d; border-radius:12px; overflow:hidden; margin:20px 0; }
-.term-bar { background:#161b22; padding:10px 14px; display:flex; align-items:center; gap:7px; }
-.term-dot { width:12px; height:12px; border-radius:50%; }
-.term-dot:nth-child(1){background:#ff5f57;} .term-dot:nth-child(2){background:#ffbd2e;} .term-dot:nth-child(3){background:#28ca41;}
-.term-title { flex:1; text-align:center; font-family:var(--fc); font-size:0.72rem; color:#484f58; }
-.term-body { padding:18px 20px; font-family:var(--fc); font-size:0.88rem; line-height:1.9; }
-.t-prompt { color:#28ca41; }
-.t-cmd { color:#e6edf3; }
-.t-out { color:#ffa657; overflow:hidden; white-space:nowrap; width:0; display:inline-block; transition:width 1.2s ease .5s; }
-.t-out.typed { width:220px; }
-.t-cursor { display:inline-block; width:8px; height:16px; background:var(--accent); animation:blink 1s step-end infinite; vertical-align:text-bottom; margin-left:2px; }
-
-/* Setup steps */
-.step-list { margin:16px 0; }
-.step-row { display:flex; gap:16px; padding:16px 0; border-bottom:1px solid var(--border); animation:slideUp .4s ease both; }
-.step-row:last-child { border-bottom:none; }
-.step-num { width:32px; height:32px; border-radius:50%; background:var(--accent); color:var(--bg); font-family:var(--fh); font-size:0.85rem; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
-.step-content h4 { font-family:var(--fh); font-size:0.95rem; margin-bottom:4px; }
-.step-content p { font-size:0.88rem; color:var(--text2); margin:0; }
-
-/* Platform tabs */
-.ptabs { display:flex; gap:8px; margin:16px 0 0; flex-wrap:wrap; }
-.ptab { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:6px 16px; font-family:var(--fc); font-size:0.78rem; cursor:pointer; color:var(--text2); transition:all .15s; }
-.ptab:hover { border-color:var(--text3); }
-.ptab.active { background:rgba(232,197,71,0.12); border-color:var(--accent); color:var(--accent); }
-.ptab-panel { display:none; margin-top:14px; }
-.ptab-panel.active { display:block; animation:fadeIn .25s ease; }
-
-/* Hello page */
-.hello-layout { display:flex; gap:28px; flex-wrap:wrap; margin-bottom:24px; }
-.hello-code-col { flex:1; min-width:240px; }
-.hello-explain-col { flex:1; min-width:220px; }
-.line-explain { display:flex; gap:10px; padding:10px 14px; border-radius:8px; margin-bottom:8px; background:var(--surface2); border:1px solid var(--border); font-size:0.85rem; }
-.le-num { font-family:var(--fc); font-size:0.72rem; color:var(--accent); min-width:20px; padding-top:2px; }
-.le-text { color:var(--text2); }
-
-/* Try-it box */
-.try-box { background:var(--surface2); border:1px solid var(--border); border-radius:var(--r); padding:20px; margin:20px 0; }
-.try-box h4 { font-family:var(--fh); margin-bottom:12px; font-size:0.9rem; }
-.try-textarea { width:100%; background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:12px 14px; font-family:var(--fc); font-size:0.88rem; color:var(--accent3); resize:none; height:80px; outline:none; transition:border-color .2s; }
-.try-textarea:focus { border-color:var(--accent); }
-.try-actions { display:flex; gap:10px; margin-top:10px; align-items:center; }
-.try-hint { font-family:var(--fc); font-size:0.72rem; color:var(--text3); }
-
-/* Comments annotated */
-.annotated { background:var(--surface2); border:1px solid var(--border); border-radius:var(--r); padding:24px; margin:20px 0; }
-.ann-row { display:flex; align-items:center; gap:12px; margin-bottom:12px; font-family:var(--fc); font-size:0.85rem; flex-wrap:wrap; }
-.ann-code { min-width:260px; }
-.ann-arrow { color:var(--text3); animation:pulse 2s infinite; }
-.ann-label { padding:4px 10px; border-radius:6px; font-size:0.76rem; white-space:nowrap; }
-.ann-label.ignored { background:rgba(232,197,71,0.1); border:1px solid rgba(232,197,71,0.25); color:var(--accent); }
-.ann-label.runs { background:rgba(78,205,196,0.1); border:1px solid rgba(78,205,196,0.25); color:var(--accent3); }
-
-/* Author footer (complete page) */
-.author-footer { margin-top:32px; padding-top:24px; border-top:1px solid var(--border); text-align:center; }
-.author-footer-label { font-family:var(--fc); font-size:0.65rem; color:var(--text3); letter-spacing:.1em; text-transform:uppercase; margin-bottom:10px; }
-.author-footer-inner { display:inline-flex; align-items:center; gap:14px; }
-.af-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-family:var(--fh); font-size:1.2rem; font-weight:900; color:var(--bg); box-shadow:0 4px 16px rgba(232,197,71,.35); }
-.af-name { font-family:var(--fh); font-size:1rem; font-weight:800; color:var(--accent); }
-.af-role { font-family:var(--fc); font-size:0.72rem; color:var(--text2); }
-
-/* Mobile */
-@media(max-width:640px) {
-  #app { grid-template-columns:1fr; grid-template-areas:"topbar" "main" "bottombar"; }
-  #sidebar { display:none; }
-  .page { padding:24px 20px; }
-  .grid-2,.grid-3 { grid-template-columns:1fr; }
-  .creator-badge { display:none; }
-  .tb-module-info { display:none; }
-  .hello-layout { flex-direction:column; }
+/* RESPONSIVE */
+@media (max-width: 800px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; padding: 24px 20px; }
+  .hero h1 { font-size: 32px; }
+  .hero-deco { display: none; }
+  .hero { padding: 32px 24px; }
 }
 </style>
 </head>
 <body>
-<div id="app">
 
-<!-- ══ TOP BAR ══ -->
-<div id="topbar">
-  <div class="tb-logo"><div class="snake">🐍</div>PyLearn</div>
-  <div class="tb-sep"></div>
-  <div class="tb-module-info">Module 01 · Introduction to Python</div>
-  <div class="creator-badge">
-    <div class="creator-avatar">V</div>
-    <div class="creator-info">
-      <div class="creator-name">Vinodhini</div>
-      <div class="creator-role">Data Scientist · HCL GUVI</div>
-    </div>
-  </div>
-  <div class="tb-progress-wrap">
-    <div class="tb-progress-label"><span>Progress</span><span id="tbPct">0%</span></div>
-    <div class="tb-progress-bar"><div class="tb-progress-fill" id="tbFill" style="width:0%"></div></div>
-  </div>
-</div>
-
-<!-- ══ SIDEBAR ══ -->
-<div id="sidebar">
-  <div class="sidebar-section-label">Module 01</div>
-  <div class="nav-item active" data-page="0" onclick="goToPage(0)"><span class="nav-icon">🏠</span>Welcome<span class="nav-check">✓</span></div>
-  <div class="nav-item" data-page="1" onclick="goToPage(1)"><span class="nav-icon">🐍</span>What is Python?<span class="nav-check">✓</span></div>
-  <div class="nav-item" data-page="2" onclick="goToPage(2)"><span class="nav-icon">⚙️</span>How It Works<span class="nav-check">✓</span></div>
-  <div class="nav-item" data-page="3" onclick="goToPage(3)"><span class="nav-icon">💾</span>Setup &amp; Install<span class="nav-check">✓</span></div>
-  <div class="nav-item" data-page="4" onclick="goToPage(4)"><span class="nav-icon">👋</span>Hello, World!<span class="nav-check">✓</span></div>
-  <div class="nav-item" data-page="5" onclick="goToPage(5)"><span class="nav-icon">💬</span>Comments<span class="nav-check">✓</span></div>
-  <div class="sidebar-section-label">Practice</div>
-  <div class="nav-item" data-page="6" onclick="goToPage(6)"><span class="nav-icon">✏️</span>Exercises<span class="nav-check">✓</span></div>
-  <div class="nav-item" data-page="7" onclick="goToPage(7)"><span class="nav-icon">🧠</span>Quiz<span class="nav-check">✓</span></div>
-  <div class="nav-item" data-page="8" onclick="goToPage(8)"><span class="nav-icon">🎉</span>Complete!<span class="nav-check">✓</span></div>
-  <div class="sidebar-credit">
-    <div class="sidebar-credit-inner">
-      <div class="sc-label">Created by</div>
-      <div class="sc-avatar">V</div>
-      <div class="sc-name">Vinodhini</div>
-      <div class="sc-title">Data Scientist</div>
-      <div class="sc-org">🏢 HCL GUVI</div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ MAIN ══ -->
-<div id="main">
-
-<!-- PAGE 0 — Welcome -->
-<div class="page active" id="page-0">
-  <span class="hero-icon">🐍</span>
-  <div class="page-tag">Module 01 of 12</div>
-  <h1>Introduction to<br><span style="color:var(--accent)">Python</span></h1>
-  <p style="font-size:1.1rem;max-width:540px;margin:16px 0 28px;">The world's most beginner-friendly programming language. No prior experience needed — just curiosity.</p>
-  <div class="hero-chips stagger">
-    <div class="chip">📖 6 Lessons</div>
-    <div class="chip">✏️ 3 Exercises</div>
-    <div class="chip">🧠 5-Question Quiz</div>
-    <div class="chip">⏱️ ~20 min</div>
-    <div class="chip">🆓 100% Free</div>
-  </div>
-  <div class="hero-stats stagger">
-    <div class="stat"><div class="val">1991</div><div class="lbl">Year created</div></div>
-    <div class="stat"><div class="val">#1</div><div class="lbl">Most popular language</div></div>
-    <div class="stat"><div class="val">∞</div><div class="lbl">What you can build</div></div>
-  </div>
-  <div class="author-strip stagger">
-    <div class="author-avatar-big">V</div>
-    <div>
-      <div class="author-label">Course Author</div>
-      <div class="author-name-big">Vinodhini</div>
-      <div class="author-role-big">Data Scientist</div>
-      <div class="author-org-tag">🏢 HCL GUVI</div>
-    </div>
-  </div>
-</div>
-
-<!-- PAGE 1 — What is Python -->
-<div class="page" id="page-1">
-  <div class="page-header">
-    <div class="page-tag">Lesson 1</div>
-    <h2>What is Python?</h2>
-    <p>Python is a <strong>high-level, general-purpose programming language</strong> designed to be easy to read and write. Its syntax looks almost like plain English.</p>
-  </div>
-
-  <div class="grid-2" style="gap:24px;margin-bottom:24px;">
-    <div>
-      <h3 style="margin-bottom:14px;font-size:0.95rem;color:var(--text2);">🕐 A Brief History</h3>
-      <div class="tl-wrap stagger">
-        <div class="tl-item">
-          <div class="tl-dot"></div>
-          <div class="tl-year">1989</div>
-          <div class="tl-text">Guido van Rossum begins designing Python as a hobby project</div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot" style="background:var(--accent2);"></div>
-          <div class="tl-year">1991</div>
-          <div class="tl-text">Python 0.9.0 is published — the very first public version</div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot" style="background:var(--accent3);"></div>
-          <div class="tl-year">2008</div>
-          <div class="tl-text">Python 3.0 released — the modern version used today</div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot" style="background:var(--accent4);"></div>
-          <div class="tl-year">Today</div>
-          <div class="tl-text">World's #1 most popular language, powering AI, web &amp; science</div>
-        </div>
+<header class="app-header">
+  <div class="header-left">
+    <div class="logo-area">
+      <img src="logo.png" alt="HCL-GUVI Logo" style="height:36px; width:auto; object-fit:contain;">
+      <div class="logo-badge">🐍</div>
+      <div>
+        <div class="logo-text">Python for Beginners</div>
+        <div class="logo-sub">HCL · GUVI</div>
       </div>
-      <div class="tip">Python was named after <strong>Monty Python's Flying Circus</strong> — a British comedy show, not the snake! 🎭</div>
     </div>
-    <div>
-      <h3 style="margin-bottom:14px;font-size:0.95rem;color:var(--text2);">🌍 What Can Python Do?</h3>
-      <div class="use-grid stagger">
-        <div class="use-card"><span class="uc-icon">🤖</span><div class="uc-name">AI / ML</div></div>
+    <div class="header-divider"></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="module-badge">Module 1</div>
+      <div class="module-title">Introduction to Python</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="progress-wrap">
+      <span class="progress-label">Progress</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+  </div>
+</header>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-section">Module 1</div>
+  <button class="nav-item active" onclick="goTo(0)" id="nav-0"><span class="nav-icon">🏠</span>Welcome<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(1)" id="nav-1"><span class="nav-icon">🐍</span>What is Python?<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(2)" id="nav-2"><span class="nav-icon">⚙️</span>How It Works<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(3)" id="nav-3"><span class="nav-icon">💾</span>Setup & Install<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(4)" id="nav-4"><span class="nav-icon">👋</span>Hello World!<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(5)" id="nav-5"><span class="nav-icon">💬</span>Comments<span class="nav-check">✓</span></button>
+  <div class="sidebar-section">Practice</div>
+  <button class="nav-item" onclick="goTo(6)" id="nav-6"><span class="nav-icon">✏️</span>Exercises<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(7)" id="nav-7"><span class="nav-icon">🧠</span>Quiz<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(8)" id="nav-8"><span class="nav-icon">🎉</span>Complete!<span class="nav-check">✓</span></button>
+</nav>
+
+<main class="main-content" id="mainContent">
+
+<!-- PAGE 0: WELCOME -->
+<section class="page active" id="page-0">
+  <div class="hero">
+    <div class="hero-deco">🐍</div>
+    <div class="hero-tag">⭐ Module 1 of 12 · Python for Beginners</div>
+    <h1>Introduction to<br><em>Python</em></h1>
+    <p>The world's most beginner-friendly programming language. No prior experience needed — just curiosity.</p>
+    <div class="hero-chips">
+      <span class="chip chip-blue">📖 6 Lessons</span>
+      <span class="chip chip-green">✏️ 3 Exercises</span>
+      <span class="chip chip-purple">🧠 5 Quiz Questions</span>
+      <span class="chip chip-blue">⏱ ~20 min</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-tag">🎯 What You'll Learn</div>
+    <div class="welcome-grid">
+      <div class="welcome-card"><div class="welcome-card-icon">🐍</div><div class="welcome-card-title">Python Basics</div><div class="welcome-card-desc">What makes Python special</div></div>
+      <div class="welcome-card"><div class="welcome-card-icon">⚙️</div><div class="welcome-card-title">How It Runs</div><div class="welcome-card-desc">Interpreter magic</div></div>
+      <div class="welcome-card"><div class="welcome-card-icon">💾</div><div class="welcome-card-title">Installation</div><div class="welcome-card-desc">Get Python running</div></div>
+      <div class="welcome-card"><div class="welcome-card-icon">👋</div><div class="welcome-card-title">First Program</div><div class="welcome-card-desc">Hello, World!</div></div>
+      <div class="welcome-card"><div class="welcome-card-icon">💬</div><div class="welcome-card-title">Comments</div><div class="welcome-card-desc">Document your code</div></div>
+    </div>
+  </div>
+
+  <div class="card card-green">
+    <div class="section-tag">✅ Prerequisites</div>
+    <div class="prereq-list">
+      <div class="prereq-item"><div class="prereq-check">✓</div> No prior coding experience required</div>
+      <div class="prereq-item"><div class="prereq-check">✓</div> A computer (Windows, Mac, or Linux)</div>
+      <div class="prereq-item"><div class="prereq-check">✓</div> Willingness to learn and practice!</div>
+    </div>
+  </div>
+
+  <div class="info-box blue">
+    <span class="info-icon">💡</span>
+    <div class="info-text"><strong>Did you know?</strong> Python is named after Monty Python's Flying Circus — a British comedy show, not the snake! 🎭</div>
+  </div>
+
+  <div class="page-nav">
+    <span></span>
+    <button class="btn btn-primary" onclick="goTo(1)">Start Learning →</button>
+  </div>
+</section>
+
+<!-- PAGE 1: WHAT IS PYTHON -->
+<section class="page" id="page-1">
+  <div class="section-tag">📘 Lesson 1</div>
+  <div class="page-h2">What is Python?</div>
+  <div class="page-subtitle">Python is a high-level, general-purpose programming language designed to be easy to read and write.</div>
+
+  <div class="analogy-card">
+    <div class="analogy-icon">🗣️</div>
+    <div class="analogy-title">🌍 Real-World Analogy</div>
+    <div class="analogy-text">Python is like learning English with simple grammar rules. Instead of saying "The quick brown fox jumps over the lazy dog," Python lets you say "print('Hello')" — simple and natural!</div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:20px;">
+    <div class="card">
+      <div class="concept-h">🕐 A Brief History</div>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1989</div><div class="tl-text">Guido van Rossum begins designing Python</div></div>
+        <div class="tl-item"><div class="tl-dot" style="background:var(--accent);"></div><div class="tl-year">1991</div><div class="tl-text">Python 0.9.0 first public release</div></div>
+        <div class="tl-item"><div class="tl-dot" style="background:var(--purple);"></div><div class="tl-year">2008</div><div class="tl-text">Python 3.0 released — modern version</div></div>
+        <div class="tl-item"><div class="tl-dot" style="background:var(--warn);"></div><div class="tl-year">Today</div><div class="tl-text">World's #1 most popular language</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="concept-h">🌍 What Can Python Do?</div>
+      <div class="use-grid">
+        <div class="use-card"><span class="uc-icon">🤖</span><div class="uc-name">AI/ML</div></div>
         <div class="use-card"><span class="uc-icon">🌐</span><div class="uc-name">Web Dev</div></div>
         <div class="use-card"><span class="uc-icon">📊</span><div class="uc-name">Data Science</div></div>
         <div class="use-card"><span class="uc-icon">🔬</span><div class="uc-name">Science</div></div>
         <div class="use-card"><span class="uc-icon">🤝</span><div class="uc-name">Automation</div></div>
         <div class="use-card"><span class="uc-icon">🎮</span><div class="uc-name">Games</div></div>
-        <div class="use-card"><span class="uc-icon">🔒</span><div class="uc-name">Security</div></div>
-        <div class="use-card"><span class="uc-icon">☁️</span><div class="uc-name">Cloud</div></div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- PAGE 2 — How It Works -->
-<div class="page" id="page-2">
-  <div class="page-header">
-    <div class="page-tag">Lesson 2</div>
-    <h2>How Python Works</h2>
-    <p>When you run a Python program, your code travels through a simple pipeline before you see the output on screen.</p>
+  <div class="info-box purple">
+    <span class="info-icon">🏆</span>
+    <div class="info-text"><strong>Python is #1</strong> — According to the TIOBE Index and IEEE Spectrum, Python is the most popular programming language in the world!</div>
   </div>
 
-  <div class="pipeline stagger">
-    <div class="pipe-step">
-      <div class="pipe-icon c1">📝</div>
-      <h4>Your Code</h4>
-      <p>You write Python in a .py file or the terminal</p>
-    </div>
+  <div class="page-nav">
+    <button class="btn btn-ghost" onclick="goTo(0)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(2)">Next: How It Works →</button>
+  </div>
+</section>
+
+<!-- PAGE 2: HOW IT WORKS -->
+<section class="page" id="page-2">
+  <div class="section-tag">📘 Lesson 2</div>
+  <div class="page-h2">How Python Works</div>
+  <div class="page-subtitle">When you run Python code, it travels through a simple pipeline before you see the output.</div>
+
+  <div class="pipeline">
+    <div class="pipe-step"><div class="pipe-icon c1">📝</div><h4>Your Code</h4><p>Write Python in .py file</p></div>
     <div class="pipe-arrow">→</div>
-    <div class="pipe-step">
-      <div class="pipe-icon c2">⚙️</div>
-      <h4>Interpreter</h4>
-      <p>Python reads &amp; runs it line by line</p>
-    </div>
+    <div class="pipe-step"><div class="pipe-icon c2">⚙️</div><h4>Interpreter</h4><p>Reads & runs line by line</p></div>
     <div class="pipe-arrow">→</div>
-    <div class="pipe-step">
-      <div class="pipe-icon c3">🖥️</div>
-      <h4>Output</h4>
-      <p>Results appear on your screen instantly</p>
-    </div>
+    <div class="pipe-step"><div class="pipe-icon c3">🖥️</div><h4>Output</h4><p>Results on screen</p></div>
   </div>
 
-  <p style="text-align:center;font-family:var(--fc);font-size:0.78rem;color:var(--text3);margin-bottom:20px;">Unlike C or Java, Python doesn't need a separate compile step. Write → Run. That's it.</p>
-
-  <h3 style="margin-bottom:12px;font-size:0.95rem;">Watch It Run</h3>
-  <div class="terminal">
-    <div class="term-bar">
-      <div class="term-dot"></div><div class="term-dot"></div><div class="term-dot"></div>
-      <div class="term-title">terminal — python3</div>
-    </div>
-    <div class="term-body">
-      <div><span class="t-prompt">$ </span><span class="t-cmd">python3 hello.py</span></div>
-      <div><span class="t-out" id="termOut">Hello, World! 🐍</span><span class="t-cursor"></span></div>
-    </div>
+  <div class="info-box green">
+    <span class="info-icon">⚡</span>
+    <div class="info-text"><strong>No compile step!</strong> Unlike C or Java, Python doesn't need a separate compile step. Write → Run. That's it.</div>
   </div>
+
+  <div class="code-block">
+    <div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">run_demo.py</span></div>
+    <span class="fn">print</span>(<span class="st">"Hello, World!"</span>)<br>
+    <span class="fn">print</span>(<span class="st">"Python is awesome!"</span>)
+  </div>
+  <button class="btn btn-run" onclick="toggleOutput('out2')">▶ Run Code</button>
+  <div class="output-block" id="out2">Hello, World!<br>Python is awesome!</div>
 
   <div class="grid-2" style="margin-top:20px;">
-    <div class="card">
-      <h4 style="font-family:var(--fh);margin-bottom:8px;font-size:0.9rem;">✅ Python is Interpreted</h4>
-      <p style="font-size:0.85rem;margin:0;">Runs line by line. Errors show exactly where they are. Great for learning!</p>
-    </div>
-    <div class="card">
-      <h4 style="font-family:var(--fh);margin-bottom:8px;font-size:0.9rem;">✅ Python is High-Level</h4>
-      <p style="font-size:0.85rem;margin:0;">You don't manage memory or hardware. Python handles the complex stuff.</p>
-    </div>
+    <div class="card card-blue"><div class="concept-h">✅ Python is Interpreted</div><p style="font-size:13px;color:var(--text2);">Runs line by line. Errors show exactly where they are — great for learning!</p></div>
+    <div class="card card-green"><div class="concept-h">✅ Python is High-Level</div><p style="font-size:13px;color:var(--text2);">No manual memory management — Python handles the complex stuff.</p></div>
   </div>
-</div>
 
-<!-- PAGE 3 — Setup -->
-<div class="page" id="page-3">
-  <div class="page-header">
-    <div class="page-tag">Lesson 3</div>
-    <h2>Installing Python</h2>
-    <p>Get Python running on your machine in under 5 minutes. Choose your operating system below.</p>
+  <div class="page-nav">
+    <button class="btn btn-ghost" onclick="goTo(1)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(3)">Next: Setup →</button>
   </div>
+</section>
+
+<!-- PAGE 3: SETUP -->
+<section class="page" id="page-3">
+  <div class="section-tag">📘 Lesson 3</div>
+  <div class="page-h2">Installing Python</div>
+  <div class="page-subtitle">Get Python running on your machine in under 5 minutes.</div>
 
   <div class="ptabs">
     <button class="ptab active" onclick="switchTab(this,'tab-win')">🪟 Windows</button>
@@ -537,356 +501,283 @@ code { font-family:var(--fc); font-size:0.85em; background:var(--surface3); bord
   </div>
 
   <div class="ptab-panel active" id="tab-win">
-    <div class="step-list stagger">
-      <div class="step-row"><div class="step-num">1</div><div class="step-content"><h4>Download the Installer</h4><p>Visit <strong>python.org/downloads</strong> and click the big yellow "Download Python 3.x.x" button.</p></div></div>
-      <div class="step-row"><div class="step-num">2</div><div class="step-content"><h4>☑️ Check "Add to PATH"</h4><p>At the bottom of the installer screen, tick <strong>"Add Python to PATH"</strong> before clicking Install Now. This step is critical!</p></div></div>
-      <div class="step-row"><div class="step-num">3</div><div class="step-content"><h4>Verify in Command Prompt</h4><p>Open Command Prompt (Win+R → type <code>cmd</code>) and run:</p><div class="code-block" style="margin-top:8px;"><div class="cb-body" style="padding:12px 16px;"><pre style="font-size:.82rem;color:var(--accent3);">python --version<br><span style="color:var(--text3)"># Should print: Python 3.x.x</span></pre></div></div></div></div>
+    <div class="step-list">
+      <div class="step-row"><div class="step-num">1</div><div class="step-content"><h4>Download Installer</h4><p>Visit <strong>python.org/downloads</strong> and click the yellow download button.</p></div></div>
+      <div class="step-row"><div class="step-num">2</div><div class="step-content"><h4>✓ Add to PATH</h4><p>Check <strong>"Add Python to PATH"</strong> before clicking Install Now — this is critical!</p></div></div>
+      <div class="step-row"><div class="step-num">3</div><div class="step-content"><h4>Verify Installation</h4><div class="code-block" style="margin-top:8px;"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><span class="t-prompt">C:\&gt;</span> <span class="st">python --version</span><br><span class="cm"># Should print: Python 3.x.x</span></div></div></div>
     </div>
   </div>
 
   <div class="ptab-panel" id="tab-mac">
-    <div class="step-list stagger">
-      <div class="step-row"><div class="step-num">1</div><div class="step-content"><h4>Check if Python exists</h4><p>Open Terminal (Cmd+Space → "Terminal") and type <code>python3 --version</code>. macOS often has Python pre-installed.</p></div></div>
-      <div class="step-row"><div class="step-num">2</div><div class="step-content"><h4>Install via Homebrew (if needed)</h4><div class="code-block" style="margin-top:8px;"><div class="cb-body" style="padding:12px 16px;"><pre style="font-size:.82rem;color:var(--accent3);">brew install python3</pre></div></div><p style="margin-top:8px;">Or download the installer from <strong>python.org</strong> directly.</p></div></div>
+    <div class="step-list">
+      <div class="step-row"><div class="step-num">1</div><div class="step-content"><h4>Check if Python exists</h4><p>Open Terminal and type <code>python3 --version</code>. macOS often has Python pre-installed.</p></div></div>
+      <div class="step-row"><div class="step-num">2</div><div class="step-content"><h4>Install via Homebrew</h4><div class="code-block" style="margin-top:8px;"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><span class="st">brew install python3</span></div></div></div>
     </div>
   </div>
 
   <div class="ptab-panel" id="tab-linux">
-    <div class="step-list stagger">
-      <div class="step-row"><div class="step-num">1</div><div class="step-content"><h4>Ubuntu / Debian</h4><div class="code-block" style="margin-top:8px;"><div class="cb-body" style="padding:12px 16px;"><pre style="font-size:.82rem;color:var(--accent3);">sudo apt update && sudo apt install python3</pre></div></div></div></div>
-      <div class="step-row"><div class="step-num">2</div><div class="step-content"><h4>Fedora / RHEL</h4><div class="code-block" style="margin-top:8px;"><div class="cb-body" style="padding:12px 16px;"><pre style="font-size:.82rem;color:var(--accent3);">sudo dnf install python3</pre></div></div></div></div>
+    <div class="step-list">
+      <div class="step-row"><div class="step-num">1</div><div class="step-content"><h4>Ubuntu/Debian</h4><div class="code-block" style="margin-top:8px;"><span class="st">sudo apt update && sudo apt install python3</span></div></div></div>
+      <div class="step-row"><div class="step-num">2</div><div class="step-content"><h4>Fedora/RHEL</h4><div class="code-block" style="margin-top:8px;"><span class="st">sudo dnf install python3</span></div></div></div>
     </div>
   </div>
 
   <div class="ptab-panel" id="tab-online">
-    <div class="grid-2 stagger" style="margin-top:12px;">
-      <div class="card" style="border-color:var(--accent);">
-        <div style="font-size:1.5rem;margin-bottom:8px;">🔁</div>
-        <h4 style="font-family:var(--fh);margin-bottom:6px;">Replit.com</h4>
-        <p style="font-size:0.85rem;margin:0;">Full Python environment in your browser. Sign up free, create a new Repl, choose Python. Perfect for this course!</p>
-      </div>
-      <div class="card">
-        <div style="font-size:1.5rem;margin-bottom:8px;">🐍</div>
-        <h4 style="font-family:var(--fh);margin-bottom:6px;">python.org/shell</h4>
-        <p style="font-size:0.85rem;margin:0;">An interactive Python shell right in your browser. No account needed. Great for quick tests.</p>
-      </div>
-      <div class="card">
-        <div style="font-size:1.5rem;margin-bottom:8px;">📓</div>
-        <h4 style="font-family:var(--fh);margin-bottom:6px;">Google Colab</h4>
-        <p style="font-size:0.85rem;margin:0;">Jupyter notebooks in the cloud. Great for data science and running longer scripts.</p>
-      </div>
-      <div class="card">
-        <div style="font-size:1.5rem;margin-bottom:8px;">⚡</div>
-        <h4 style="font-family:var(--fh);margin-bottom:6px;">GitHub Codespaces</h4>
-        <p style="font-size:0.85rem;margin:0;">Full VS Code in the browser with Python. Best for a professional-grade coding environment.</p>
-      </div>
+    <div class="grid-2">
+      <div class="card card-blue"><div>🔁</div><h4>Replit.com</h4><p style="font-size:12px;">Full Python environment in your browser. Free and easy!</p></div>
+      <div class="card card-green"><div>🐍</div><h4>python.org/shell</h4><p style="font-size:12px;">Interactive Python shell — no account needed.</p></div>
     </div>
   </div>
-</div>
 
-<!-- PAGE 4 — Hello World -->
-<div class="page" id="page-4">
-  <div class="page-header">
-    <div class="page-tag">Lesson 4</div>
-    <h2>Your First Program: Hello, World!</h2>
-    <p>The universal tradition in programming — every beginner's first program. In Python, it's delightfully simple.</p>
+  <div class="info-box warn" style="margin-top:16px;">
+    <span class="info-icon">⚠️</span>
+    <div class="info-text"><strong>Pro tip:</strong> After installing, open terminal/command prompt and type <code>python --version</code> to confirm it worked!</div>
   </div>
+
+  <div class="page-nav">
+    <button class="btn btn-ghost" onclick="goTo(2)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(4)">Next: Hello World →</button>
+  </div>
+</section>
+
+<!-- PAGE 4: HELLO WORLD -->
+<section class="page" id="page-4">
+  <div class="section-tag">📘 Lesson 4</div>
+  <div class="page-h2">Your First Program: Hello, World!</div>
+  <div class="page-subtitle">The universal tradition in programming — every beginner's first program.</div>
 
   <div class="hello-layout">
     <div class="hello-code-col">
       <div class="code-block">
-        <div class="cb-header"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">hello.py</span></div>
-        <div class="cb-body"><pre><span class="cm"># My very first Python program</span>
-<span class="fn">print</span>(<span class="st">"Hello, World!"</span>)
-<span class="fn">print</span>(<span class="st">"Python is amazing! 🐍"</span>)
-<span class="fn">print</span>(<span class="nm">2024</span>, <span class="st">"will be your Python year!"</span>)</pre></div>
+        <div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">hello.py</span></div>
+        <span class="cm"># My very first Python program</span><br>
+        <span class="fn">print</span>(<span class="st">"Hello, World!"</span>)<br>
+        <span class="fn">print</span>(<span class="st">"Python is amazing! 🐍"</span>)
       </div>
-      <button class="run-btn" id="helloBtn" onclick="runHello()">▶ Run Program</button>
-      <div class="output-box" id="helloOut"></div>
+      <button class="btn btn-run" onclick="runHello()">▶ Run Program</button>
+      <div class="output-block" id="helloOut"></div>
     </div>
     <div class="hello-explain-col">
-      <h3 style="margin-bottom:12px;font-size:0.9rem;color:var(--text2);">Line by Line</h3>
-      <div class="line-explain"><div class="le-num">L1</div><div class="le-text"><code># My very first…</code> — This is a <strong>comment</strong>. Python ignores it completely.</div></div>
-      <div class="line-explain"><div class="le-num">L2</div><div class="le-text"><code>print("Hello, World!")</code> — Calls the <strong>print function</strong> to show text on screen.</div></div>
-      <div class="line-explain"><div class="le-num">L3</div><div class="le-text">You can print <strong>any text</strong> in quotes — including emoji!</div></div>
-      <div class="line-explain"><div class="le-num">L4</div><div class="le-text">Pass <strong>multiple values</strong> separated by commas — Python adds a space between them.</div></div>
+      <div class="concept-h">Line by Line</div>
+      <div class="line-explain"><div class="le-num">L1</div><div class="le-text"><code># My very first…</code> — This is a <strong>comment</strong>. Python ignores it.</div></div>
+      <div class="line-explain"><div class="le-num">L2</div><div class="le-text"><code>print("Hello, World!")</code> — Calls the <strong>print function</strong> to show text.</div></div>
+      <div class="line-explain"><div class="le-num">L3</div><div class="le-text">You can print any text in quotes — including emoji!</div></div>
     </div>
   </div>
 
   <div class="try-box">
-    <h4>✏️ Try It Yourself</h4>
-    <textarea class="try-textarea" id="tryInput" placeholder='Type: print("Your message here")'></textarea>
+    <div class="concept-h" style="margin-bottom:12px;">✏️ Try It Yourself</div>
+    <textarea class="try-textarea" id="tryInput" placeholder='Type: print("Your message here")' rows="2"></textarea>
     <div class="try-actions">
-      <button class="run-btn" onclick="runTry()">▶ Run</button>
-      <span class="try-hint" id="tryHint">Write a print() statement above and hit Run!</span>
+      <button class="btn btn-run" onclick="runTry()">▶ Run</button>
+      <span style="font-size:11px;color:var(--text3);">Write a print() statement above!</span>
     </div>
-    <div class="output-box" id="tryOut"></div>
-  </div>
-</div>
-
-<!-- PAGE 5 — Comments -->
-<div class="page" id="page-5">
-  <div class="page-header">
-    <div class="page-tag">Lesson 5</div>
-    <h2>Comments in Python</h2>
-    <p>Comments are lines that Python <strong>completely ignores</strong>. They're notes for humans — you, your teammates, or future-you — explaining what the code does.</p>
+    <div class="output-block" id="tryOut"></div>
   </div>
 
-  <div class="annotated stagger">
-    <div class="ann-row">
-      <div class="ann-code"><span class="cm" style="color:#4a4540;font-style:italic;"># This is a comment</span></div>
-      <div class="ann-arrow">→</div>
-      <div class="ann-label ignored">🙈 Python ignores this line</div>
-    </div>
-    <div class="ann-row">
-      <div class="ann-code"><span class="fn">print</span>(<span class="st" style="color:var(--accent3);">"Hello"</span>)</div>
-      <div class="ann-arrow">→</div>
-      <div class="ann-label runs">▶ This line RUNS → outputs: Hello</div>
-    </div>
-    <div class="ann-row">
-      <div class="ann-code"><span class="fn">print</span>(<span class="st" style="color:var(--accent3);">"World"</span>)  <span class="cm" style="color:#4a4540;font-style:italic;"># inline</span></div>
-      <div class="ann-arrow">→</div>
-      <div class="ann-label runs">▶ Runs, then comment ignored</div>
-    </div>
-    <div class="ann-row">
-      <div class="ann-code"><span class="cm" style="color:#4a4540;font-style:italic;"># print("skipped")</span></div>
-      <div class="ann-arrow">→</div>
-      <div class="ann-label ignored">🚫 Commented out — won't run</div>
-    </div>
+  <div class="page-nav">
+    <button class="btn btn-ghost" onclick="goTo(3)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(5)">Next: Comments →</button>
+  </div>
+</section>
+
+<!-- PAGE 5: COMMENTS -->
+<section class="page" id="page-5">
+  <div class="section-tag">📘 Lesson 5</div>
+  <div class="page-h2">Comments in Python</div>
+  <div class="page-subtitle">Comments are lines that Python completely ignores — they're notes for humans.</div>
+
+  <div class="analogy-card">
+    <div class="analogy-icon">📝</div>
+    <div class="analogy-title">🌍 Real-World Analogy</div>
+    <div class="analogy-text">Comments are like sticky notes on a recipe — they explain what each step does, but don't affect the actual cooking!</div>
   </div>
 
   <div class="code-block">
-    <div class="cb-header"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">comments.py</span></div>
-    <div class="cb-body"><pre><span class="cm"># ─────────────────────────────</span>
-<span class="cm"># Program: Grade Checker</span>
-<span class="cm"># Author:  Vinodhini</span>
-<span class="cm"># ─────────────────────────────</span>
-
-score = <span class="nm">87</span>  <span class="cm"># student's exam score out of 100</span>
-
-<span class="cm"># Print the score</span>
-<span class="fn">print</span>(<span class="st">"Score:"</span>, score)</pre></div>
+    <div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">comments.py</span></div>
+    <span class="cm"># This is a comment — Python skips this line</span><br>
+    <span class="fn">print</span>(<span class="st">"This runs!"</span>)  <span class="cm"># Inline comment after code</span><br>
+    <span class="cm"># print("This is commented out — won't run")</span>
   </div>
-  <button class="run-btn" onclick="runDemo('commentsOut',['Score: 87'])">▶ Run Demo</button>
-  <div class="output-box" id="commentsOut"></div>
+  <button class="btn btn-run" onclick="runComments()">▶ Run Demo</button>
+  <div class="output-block" id="commentsOut"></div>
 
-  <div class="tip">Write comments <em>before</em> complex code to plan what you're going to do. This is called "comment-driven development."</div>
-
-  <div class="grid-2" style="margin-top:16px;">
-    <div class="card">
-      <h4 style="font-family:var(--fh);margin-bottom:8px;font-size:0.9rem;">✅ Good Comments</h4>
-      <p style="font-size:0.82rem;color:var(--text2);margin-bottom:6px;"><code># Calculate compound interest</code></p>
-      <p style="font-size:0.82rem;color:var(--text2);margin:0;"><code># Max retries before timeout</code></p>
-    </div>
-    <div class="card">
-      <h4 style="font-family:var(--fh);margin-bottom:8px;font-size:0.9rem;">❌ Useless Comments</h4>
-      <p style="font-size:0.82rem;color:var(--text2);margin-bottom:6px;"><code># print hello</code> ← obvious</p>
-      <p style="font-size:0.82rem;color:var(--text2);margin:0;"><code># x = x + 1</code> ← just restates the code</p>
-    </div>
-  </div>
-</div>
-
-<!-- PAGE 6 — Exercises -->
-<div class="page" id="page-6">
-  <div class="page-header">
-    <div class="page-tag">Practice</div>
-    <h2>Hands-On Exercises</h2>
-    <p>Try each exercise yourself before revealing the solution. Struggling a little is part of learning!</p>
+  <div class="grid-2" style="margin-top:20px;">
+    <div class="card card-blue"><div class="concept-h">✅ Good Comments</div><p style="font-size:12px;"><code># Calculate compound interest</code><br><code># Max retries before timeout</code></p></div>
+    <div class="card card-purple"><div class="concept-h">❌ Useless Comments</div><p style="font-size:12px;"><code># print hello</code> ← obvious<br><code># x = x + 1</code> ← restates the code</p></div>
   </div>
 
-  <div class="exercise-card">
-    <div class="ex-header"><span class="ex-num">Exercise 01</span><span class="ex-title">Print Your Introduction</span></div>
-    <div class="ex-body">
-      <p>Write a Python program that prints 3 lines: your name, your age, and one thing you hope to build with Python.</p>
-      <div class="tip" style="margin-bottom:12px;">Each <code>print()</code> call automatically outputs on a new line.</div>
-      <button class="solution-toggle" onclick="toggleSol(this)">▼ Show Solution</button>
-      <div class="solution-box">
-        <div class="code-block">
-          <div class="cb-header"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">Python</span></div>
-          <div class="cb-body"><pre><span class="cm"># My introduction</span>
-<span class="fn">print</span>(<span class="st">"Name: Alice"</span>)
-<span class="fn">print</span>(<span class="st">"Age: 20"</span>)
-<span class="fn">print</span>(<span class="st">"I want to build: A personal AI assistant!"</span>)</pre></div>
-        </div>
-        <p style="font-size:0.82rem;color:var(--text3);margin-top:8px;">Replace the values with your own information!</p>
-      </div>
-    </div>
+  <div class="page-nav">
+    <button class="btn btn-ghost" onclick="goTo(4)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(6)">Next: Exercises →</button>
   </div>
+</section>
 
-  <div class="exercise-card">
-    <div class="ex-header"><span class="ex-num">Exercise 02</span><span class="ex-title">Python as a Calculator</span></div>
-    <div class="ex-body">
-      <p>Use <code>print()</code> to compute and display: <strong>125 + 375</strong>, <strong>1000 - 237</strong>, and <strong>12 × 15</strong>.</p>
-      <button class="solution-toggle" onclick="toggleSol(this)">▼ Show Solution</button>
-      <div class="solution-box">
-        <div class="code-block">
-          <div class="cb-header"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">Python</span></div>
-          <div class="cb-body"><pre><span class="fn">print</span>(<span class="nm">125</span> + <span class="nm">375</span>)   <span class="cm"># 500</span>
-<span class="fn">print</span>(<span class="nm">1000</span> - <span class="nm">237</span>)  <span class="cm"># 763</span>
-<span class="fn">print</span>(<span class="nm">12</span> * <span class="nm">15</span>)     <span class="cm"># 180</span></pre></div>
-        </div>
-        <p style="font-size:0.82rem;color:var(--text3);margin-top:8px;">Python evaluates the math and prints just the result — no calculator needed!</p>
-      </div>
-    </div>
-  </div>
+<!-- PAGE 6: EXERCISES -->
+<section class="page" id="page-6">
+  <div class="section-tag">💻 Practice</div>
+  <div class="page-h2">Hands-On Exercises</div>
+  <div class="page-subtitle">Try each exercise yourself before revealing the solution.</div>
 
-  <div class="exercise-card">
-    <div class="ex-header"><span class="ex-num">Exercise 03</span><span class="ex-title">Comment Challenge</span></div>
-    <div class="ex-body">
-      <p>Predict which lines print and which are skipped. Then try uncommenting line 2 — what changes?</p>
+  <div class="ex-card">
+    <div class="ex-badge ex-easy">⭐ Exercise 1</div>
+    <div class="ex-title">Print Your Introduction</div>
+    <div class="ex-desc">Write a Python program that prints 3 lines: your name, your age, and one thing you hope to build with Python.</div>
+    <button class="sol-toggle" onclick="toggleSolution(this,'sol1')">▼ Show Solution</button>
+    <div class="solution" id="sol1">
       <div class="code-block">
-        <div class="cb-header"><div class="cb-dots"><span></span><span></span><span></span></div><span class="cb-lang">Python</span></div>
-        <div class="cb-body"><pre><span class="fn">print</span>(<span class="st">"Line 1 runs"</span>)
-<span class="cm"># print("Line 2 is commented out")</span>
-<span class="fn">print</span>(<span class="st">"Line 3 runs"</span>)</pre></div>
-      </div>
-      <button class="solution-toggle" onclick="toggleSol(this)">▼ Show Answer</button>
-      <div class="solution-box">
-        <p style="font-size:0.9rem;color:var(--text2);">Lines 1 and 3 print. Line 2 is commented out so Python skips it. Remove the <code>#</code> from Line 2 and all three lines will print!</p>
+        <div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">solution.py</span></div>
+        <span class="fn">print</span>(<span class="st">"Name: Your Name"</span>)<br>
+        <span class="fn">print</span>(<span class="st">"Age: 20"</span>)<br>
+        <span class="fn">print</span>(<span class="st">"I want to build: An AI assistant!"</span>)
       </div>
     </div>
   </div>
-</div>
 
-<!-- PAGE 7 — Quiz -->
-<div class="page" id="page-7">
-  <div class="page-header">
-    <div class="page-tag">Quiz · 5 Questions</div>
-    <h2>Test Your Knowledge</h2>
-    <p>One question at a time. Instant feedback after every answer!</p>
-  </div>
-  <div class="quiz-progress" id="quizProgress">
-    <div class="qp-dot" id="qd0"></div><div class="qp-dot" id="qd1"></div>
-    <div class="qp-dot" id="qd2"></div><div class="qp-dot" id="qd3"></div>
-    <div class="qp-dot" id="qd4"></div>
-  </div>
-  <div id="quizContainer">
-    <div class="q-card" id="qCard"></div>
-    <div class="quiz-nav">
-      <button class="qnav-btn" id="qPrevBtn" onclick="quizNav(-1)" disabled>← Prev</button>
-      <span style="font-family:var(--fc);font-size:0.75rem;color:var(--text3);" id="qCounter">Question 1 of 5</span>
-      <button class="qnav-btn primary" id="qNextBtn" onclick="quizNav(1)" disabled>Next →</button>
-    </div>
-  </div>
-  <div class="quiz-result" id="quizResult">
-    <span class="qr-emoji" id="qrEmoji">🎉</span>
-    <div class="qr-score" id="qrScore">5/5</div>
-    <div class="qr-sub" id="qrSub"></div>
-    <div class="qr-breakdown">
-      <div class="qrb-item"><div class="qrb-val c" id="qrCorrect">5</div><div class="qrb-lbl">Correct</div></div>
-      <div class="qrb-item"><div class="qrb-val w" id="qrWrong">0</div><div class="qrb-lbl">Wrong</div></div>
-    </div>
-    <button class="retry-btn" onclick="resetQuiz()">↩ Retry</button>
-    <button class="bb-btn next" onclick="goToPage(8)" style="display:inline-flex;">Complete Module →</button>
-  </div>
-</div>
-
-<!-- PAGE 8 — Complete -->
-<div class="page" id="page-8">
-  <div class="complete-wrap">
-    <div class="complete-icon">🐍</div>
-    <div class="page-tag" style="justify-content:center;">Module 01 — Complete</div>
-    <h1 style="margin-bottom:12px;">You Did It! 🎉</h1>
-    <p style="font-size:1.05rem;margin-bottom:24px;">You've successfully completed <strong>Introduction to Python</strong>. You now have the foundation to keep building!</p>
-    <div class="skills-learnt stagger">
-      <div class="skill-badge"><span class="check">✓</span> Python history &amp; purpose</div>
-      <div class="skill-badge"><span class="check">✓</span> How Python works</div>
-      <div class="skill-badge"><span class="check">✓</span> Installing Python</div>
-      <div class="skill-badge"><span class="check">✓</span> The print() function</div>
-      <div class="skill-badge"><span class="check">✓</span> Writing comments</div>
-      <div class="skill-badge"><span class="check">✓</span> Running programs</div>
-    </div>
-    <button class="cert-btn" onclick="celebrate()">🏆 Claim Completion Badge</button>
-    <p style="margin-top:24px;font-size:0.9rem;color:var(--text2);">Next up: <strong>Module 2 — Variables &amp; Data Types</strong></p>
-    <div class="author-footer">
-      <div class="author-footer-label">Course created by</div>
-      <div class="author-footer-inner">
-        <div class="af-avatar">V</div>
-        <div style="text-align:left;">
-          <div class="af-name">Vinodhini</div>
-          <div class="af-role">Data Scientist · HCL GUVI</div>
-        </div>
+  <div class="ex-card">
+    <div class="ex-badge ex-easy">⭐ Exercise 2</div>
+    <div class="ex-title">Python as a Calculator</div>
+    <div class="ex-desc">Use print() to compute: 125 + 375, 1000 - 237, and 12 × 15.</div>
+    <button class="sol-toggle" onclick="toggleSolution(this,'sol2')">▼ Show Solution</button>
+    <div class="solution" id="sol2">
+      <div class="code-block">
+        <span class="fn">print</span>(<span class="nu">125</span> + <span class="nu">375</span>)   <span class="cm"># 500</span><br>
+        <span class="fn">print</span>(<span class="nu">1000</span> - <span class="nu">237</span>)  <span class="cm"># 763</span><br>
+        <span class="fn">print</span>(<span class="nu">12</span> * <span class="nu">15</span>)     <span class="cm"># 180</span>
       </div>
     </div>
   </div>
-</div>
 
-</div><!-- #main -->
+  <div class="ex-card">
+    <div class="ex-badge ex-easy">⭐ Exercise 3</div>
+    <div class="ex-title">Comment Challenge</div>
+    <div class="ex-desc">Predict which lines print. Then try uncommenting line 2 — what changes?</div>
+    <div class="code-block">
+      <span class="fn">print</span>(<span class="st">"Line 1 runs"</span>)<br>
+      <span class="cm"># print("Line 2 is commented out")</span><br>
+      <span class="fn">print</span>(<span class="st">"Line 3 runs"</span>)
+    </div>
+    <button class="sol-toggle" onclick="toggleSolution(this,'sol3')">▼ Show Answer</button>
+    <div class="solution" id="sol3">
+      <div class="info-box green"><span class="info-icon">✅</span><div class="info-text">Lines 1 and 3 print. Line 2 is skipped. Remove the # from Line 2 and all three lines print!</div></div>
+    </div>
+  </div>
 
-<!-- ══ BOTTOM BAR ══ -->
-<div id="bottombar">
-  <button class="bb-btn prev" id="prevBtn" onclick="navigate(-1)" disabled>← Back</button>
-  <div class="bb-dots" id="bbDots"></div>
-  <span class="bb-page-indicator" id="bbIndicator">1 / 9</span>
-  <button class="bb-btn next" id="nextBtn" onclick="navigate(1)">Next →</button>
-</div>
+  <div class="page-nav">
+    <button class="btn btn-ghost" onclick="goTo(5)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(7)">Take the Quiz →</button>
+  </div>
+</section>
 
-</div><!-- #app -->
+<!-- PAGE 7: QUIZ -->
+<section class="page" id="page-7">
+  <div class="section-tag">🧠 Quiz Time</div>
+  <div class="page-h2">Test Your Knowledge</div>
+  <div class="page-subtitle">5 questions · Pick the best answer · Instant feedback</div>
+
+  <div class="card" id="quizCard">
+    <div class="quiz-header">
+      <div>Question <span id="qNum">1</span> of 5</div>
+      <div class="quiz-progress-dots" id="qDots">
+        <div class="quiz-dot active" id="qd0"></div>
+        <div class="quiz-dot" id="qd1"></div>
+        <div class="quiz-dot" id="qd2"></div>
+        <div class="quiz-dot" id="qd3"></div>
+        <div class="quiz-dot" id="qd4"></div>
+      </div>
+    </div>
+    <div id="quizContent"></div>
+  </div>
+
+  <div class="page-nav">
+    <button class="btn btn-ghost" onclick="goTo(6)">← Back</button>
+    <button class="btn btn-primary" id="qNextBtn" onclick="nextQuestion()" style="display:none;">Next Question →</button>
+  </div>
+</section>
+
+<!-- PAGE 8: COMPLETION -->
+<section class="page" id="page-8">
+  <div class="card">
+    <div class="completion-hero">
+      <div class="completion-icon">🎉</div>
+      <div class="page-h2" style="margin-bottom:8px;">Module Complete!</div>
+      <div class="page-subtitle">You've mastered the fundamentals of Python — ready to continue your journey!</div>
+      <div class="skills-grid">
+        <span class="skill-tag st-blue">🐍 Python History</span>
+        <span class="skill-tag st-green">⚙️ How Python Works</span>
+        <span class="skill-tag st-purple">💾 Installation</span>
+        <span class="skill-tag st-warn">👋 print() Function</span>
+        <span class="skill-tag st-blue">💬 Comments</span>
+      </div>
+      <button class="cert-btn" onclick="celebrate()">🏆 Claim Completion Badge</button>
+      <p style="margin-top:24px;font-size:13px;color:var(--text2);">Next up: <strong>Module 2 — Variables & Data Types</strong></p>
+    </div>
+  </div>
+</section>
+
+</main>
 
 <script>
-/* ════════════════════════════════
-   NAVIGATION
-════════════════════════════════ */
-const TOTAL_PAGES = 9;
+// Navigation
 let currentPage = 0;
-let visitedPages = new Set([0]);
+const totalPages = 9;
+const visited = new Set([0]);
 
-function goToPage(n) {
-  if (n < 0 || n >= TOTAL_PAGES) return;
-  const prev = document.getElementById('page-' + currentPage);
-  const next = document.getElementById('page-' + n);
-  if (!next) return;
-  prev.classList.add('exit-left');
-  prev.classList.remove('active');
-  setTimeout(() => prev.classList.remove('exit-left'), 350);
-  next.classList.add('active');
+function goTo(n) {
+  if (n < 0 || n >= totalPages) return;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + n).classList.add('active');
+  document.getElementById('nav-' + n).classList.add('active');
+  document.getElementById('mainContent').scrollTo({top: 0, behavior: 'smooth'});
   currentPage = n;
-  visitedPages.add(n);
-  document.querySelectorAll('.nav-item').forEach(el => {
-    const p = parseInt(el.dataset.page);
-    el.classList.toggle('active', p === n);
-    if (visitedPages.has(p) && p < n) el.classList.add('completed');
-  });
-  updateBottomBar();
+  visited.add(n);
+  for (let i = 0; i < n; i++) {
+    document.getElementById('nav-' + i).classList.add('done');
+  }
   updateProgress();
-  if (n === 2) animTerminal();
-  if (n === 7) renderQuiz();
-}
-
-function navigate(dir) { goToPage(currentPage + dir); }
-
-function updateBottomBar() {
-  document.getElementById('prevBtn').disabled = currentPage === 0;
-  const nxt = document.getElementById('nextBtn');
-  nxt.disabled = currentPage === TOTAL_PAGES - 1;
-  nxt.textContent = currentPage === TOTAL_PAGES - 2 ? '🎉 Finish' : 'Next →';
-  document.getElementById('bbIndicator').textContent = `${currentPage + 1} / ${TOTAL_PAGES}`;
-  document.getElementById('bbDots').innerHTML = Array.from({length: TOTAL_PAGES}, (_, i) => {
-    const cls = i === currentPage ? 'bb-dot active' : visitedPages.has(i) ? 'bb-dot done' : 'bb-dot';
-    return `<div class="${cls}" onclick="goToPage(${i})"></div>`;
-  }).join('');
+  if (n === 7) initQuiz();
 }
 
 function updateProgress() {
-  const pct = Math.round((visitedPages.size / TOTAL_PAGES) * 100);
-  document.getElementById('tbFill').style.width = pct + '%';
-  document.getElementById('tbPct').textContent = pct + '%';
+  const pct = Math.round((visited.size / totalPages) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
 }
 
-/* ════════════════════════════════
-   TERMINAL ANIMATION
-════════════════════════════════ */
-function animTerminal() {
-  const el = document.getElementById('termOut');
-  if (!el) return;
-  el.style.width = '0';
-  void el.offsetWidth;
-  setTimeout(() => el.classList.add('typed'), 200);
+// Utility functions
+function toggleOutput(id) {
+  document.getElementById(id).classList.toggle('visible');
 }
 
-/* ════════════════════════════════
-   PLATFORM TABS
-════════════════════════════════ */
+function runHello() {
+  document.getElementById('helloOut').innerHTML = 'Hello, World!<br>Python is amazing! 🐍';
+  document.getElementById('helloOut').classList.add('visible');
+}
+
+function runTry() {
+  const val = document.getElementById('tryInput').value;
+  const out = document.getElementById('tryOut');
+  if (val.includes('print(')) {
+    out.innerHTML = val.replace(/print\(['"](.+)['"]\)/, '$1');
+    out.classList.add('visible');
+  } else {
+    out.innerHTML = '⚠️ Try: print("your message here")';
+    out.classList.add('visible');
+  }
+}
+
+function runComments() {
+  document.getElementById('commentsOut').innerHTML = 'This runs!';
+  document.getElementById('commentsOut').classList.add('visible');
+}
+
+function toggleSolution(btn, id) {
+  const sol = document.getElementById(id);
+  sol.classList.toggle('open');
+  btn.textContent = sol.classList.contains('open') ? '▲ Hide Solution' : '▼ Show Solution';
+}
+
 function switchTab(btn, panelId) {
   document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.ptab-panel').forEach(p => p.classList.remove('active'));
@@ -894,174 +785,106 @@ function switchTab(btn, panelId) {
   document.getElementById(panelId).classList.add('active');
 }
 
-/* ════════════════════════════════
-   RUN DEMO
-════════════════════════════════ */
-function runDemo(boxId, lines) {
-  const box = document.getElementById(boxId);
-  if (!box) return;
-  box.innerHTML = '<span class="out-prompt">$ python3 script.py\n</span>';
-  box.classList.add('show');
-  let i = 0;
-  const tick = () => { if (i < lines.length) { box.innerHTML += lines[i++] + '\n'; setTimeout(tick, 160); } };
-  tick();
-}
-
-function runHello() {
-  const btn = document.getElementById('helloBtn');
-  btn.textContent = '⏳ Running…';
-  setTimeout(() => {
-    runDemo('helloOut', ['Hello, World!', 'Python is amazing! 🐍', '2024 will be your Python year!']);
-    btn.textContent = '▶ Run Again';
-  }, 400);
-}
-
-function runTry() {
-  const val = document.getElementById('tryInput').value.trim();
-  const hint = document.getElementById('tryHint');
-  const out = document.getElementById('tryOut');
-  out.classList.remove('show');
-  if (!val) { hint.style.color = 'var(--wrong)'; hint.textContent = '⚠️ Please type something first!'; return; }
-  const matches = [...val.matchAll(/print\((.+?)\)/g)];
-  if (!matches.length) { hint.style.color = 'var(--wrong)'; hint.textContent = '⚠️ Try: print("your message")'; return; }
-  hint.style.color = 'var(--correct)'; hint.textContent = '✓ Running…';
-  const lines = matches.map(m => {
-    let a = m[1].trim();
-    if ((a.startsWith('"') && a.endsWith('"')) || (a.startsWith("'") && a.endsWith("'"))) return a.slice(1,-1);
-    try { return String(Function('"use strict";return(' + a + ')')()) } catch { return a; }
-  });
-  out.innerHTML = '<span class="out-prompt">$ python3 script.py\n</span>';
-  out.classList.add('show');
-  let i = 0;
-  const tick = () => { if (i < lines.length) { out.innerHTML += lines[i++] + '\n'; setTimeout(tick, 150); } };
-  tick();
-}
-
-/* ════════════════════════════════
-   SOLUTION TOGGLE
-════════════════════════════════ */
-function toggleSol(btn) {
-  const box = btn.nextElementSibling;
-  const open = box.classList.toggle('open');
-  btn.textContent = open ? '▲ Hide Solution' : '▼ Show Solution';
-}
-
-/* ════════════════════════════════
-   QUIZ
-════════════════════════════════ */
-const QUESTIONS = [
-  { q:"Who created Python?", opts:["Linus Torvalds","Guido van Rossum","Dennis Ritchie","James Gosling"], correct:1, exp:"✓ Guido van Rossum created Python in the late 1980s. He's often called Python's 'Benevolent Dictator For Life'." },
-  { q:"Which function displays output in Python?", opts:["echo()","output()","print()","display()"], correct:2, exp:"✓ print() is Python's built-in function to output text to the screen." },
-  { q:"How do you write a comment in Python?", opts:["// comment","/* comment */","# comment","-- comment"], correct:2, exp:"✓ In Python, # starts a comment. Everything after # on that line is ignored by Python." },
-  { q:"What does print(3 + 4) output?", opts:["3 + 4","\"3 + 4\"","7","Error"], correct:2, exp:"✓ Python evaluates 3 + 4 = 7 and prints the result. You can do math directly inside print()!" },
-  { q:"Python is best described as which type of language?", opts:["Compiled","Assembly","Interpreted","Machine code"], correct:2, exp:"✓ Python is interpreted — it reads and runs code line by line at runtime, unlike C or Java which compile first." }
+// Quiz
+const questions = [
+  { q: "Who created Python?", opts: ["Linus Torvalds", "Guido van Rossum", "Dennis Ritchie", "James Gosling"], ans: 1, explain: "Guido van Rossum created Python in the late 1980s." },
+  { q: "Which function displays output in Python?", opts: ["echo()", "output()", "print()", "display()"], ans: 2, explain: "print() is Python's built-in function to output text." },
+  { q: "How do you write a comment in Python?", opts: ["// comment", "/* comment */", "# comment", "-- comment"], ans: 2, explain: "# starts a comment. Everything after # is ignored." },
+  { q: "What does print(3 + 4) output?", opts: ["3 + 4", "\"3 + 4\"", "7", "Error"], ans: 2, explain: "Python evaluates 3+4=7 and prints the result." },
+  { q: "Python is best described as which type of language?", opts: ["Compiled", "Assembly", "Interpreted", "Machine code"], ans: 2, explain: "Python is interpreted — it reads and runs code line by line." }
 ];
 
-let quizState = { currentQ:0, answers:new Array(QUESTIONS.length).fill(null), finished:false };
+let quizCurrent = 0;
+let quizAnswers = new Array(5).fill(null);
+let quizScore = 0;
 
-function renderQuiz() {
-  if (quizState.finished) return;
-  const q = QUESTIONS[quizState.currentQ];
-  const answered = quizState.answers[quizState.currentQ];
-  document.getElementById('qCounter').textContent = `Question ${quizState.currentQ + 1} of ${QUESTIONS.length}`;
-  document.getElementById('qPrevBtn').disabled = quizState.currentQ === 0;
-  const nxt = document.getElementById('qNextBtn');
-  nxt.disabled = answered === null;
-  nxt.textContent = quizState.currentQ === QUESTIONS.length - 1 ? 'See Results →' : 'Next →';
-  document.getElementById('qCard').innerHTML = `
-    <div class="q-badge">Question ${quizState.currentQ + 1} / ${QUESTIONS.length}</div>
-    <div class="q-text">${q.q}</div>
-    <div class="q-options">
-      ${'ABCD'.split('').slice(0,q.opts.length).map((l,i) => {
-        let cls = 'q-opt';
-        if (answered !== null) { if (i === q.correct) cls += ' correct'; else if (i === answered) cls += ' wrong'; }
-        return `<button class="${cls}" onclick="answerQ(${i})" ${answered!==null?'disabled':''}>
-          <span class="q-opt-letter">${l}</span>${q.opts[i]}
-        </button>`;
-      }).join('')}
-    </div>
-    <div class="q-feedback ${answered !== null ? 'show ' + (answered === q.correct ? 'correct' : 'wrong') : ''}">
-      ${answered !== null ? q.exp : ''}
-    </div>`;
-  QUESTIONS.forEach((_,i) => {
-    const d = document.getElementById('qd'+i);
-    if (!d) return;
-    d.className = 'qp-dot';
-    const a = quizState.answers[i];
-    if (a !== null) d.classList.add(a === QUESTIONS[i].correct ? 'correct' : 'wrong');
+function initQuiz() {
+  quizCurrent = 0;
+  quizAnswers = new Array(5).fill(null);
+  quizScore = 0;
+  for (let i = 0; i < 5; i++) {
+    document.getElementById('qd' + i).className = 'quiz-dot' + (i === 0 ? ' active' : '');
+  }
+  renderQuestion(0);
+  document.getElementById('qNextBtn').style.display = 'none';
+}
+
+function renderQuestion(idx) {
+  const q = questions[idx];
+  document.getElementById('qNum').textContent = idx + 1;
+  let html = `<div class="quiz-q">${q.q}</div><div class="quiz-options">`;
+  q.opts.forEach((opt, i) => {
+    html += `<button class="quiz-opt" onclick="selectAnswer(${idx},${i})">${opt}</button>`;
   });
+  html += '</div><div class="quiz-feedback" id="quizFeedback"></div>';
+  document.getElementById('quizContent').innerHTML = html;
 }
 
-function answerQ(chosen) {
-  quizState.answers[quizState.currentQ] = chosen;
-  document.getElementById('qNextBtn').disabled = false;
-  renderQuiz();
-}
-
-function quizNav(dir) {
-  if (dir === 1 && quizState.currentQ === QUESTIONS.length - 1) { showQuizResult(); return; }
-  const n = quizState.currentQ + dir;
-  if (n >= 0 && n < QUESTIONS.length) { quizState.currentQ = n; renderQuiz(); }
-}
-
-function showQuizResult() {
-  quizState.finished = true;
-  document.getElementById('quizContainer').style.display = 'none';
-  const res = document.getElementById('quizResult');
-  res.classList.add('show');
-  const correct = quizState.answers.filter((a,i) => a === QUESTIONS[i].correct).length;
-  const pct = Math.round((correct / QUESTIONS.length) * 100);
-  document.getElementById('qrScore').textContent = `${correct}/${QUESTIONS.length}`;
-  document.getElementById('qrCorrect').textContent = correct;
-  document.getElementById('qrWrong').textContent = QUESTIONS.length - correct;
-  document.getElementById('qrEmoji').textContent = ['😅','🤔','👍','🌟','🎉'][Math.min(correct,4)];
-  document.getElementById('qrSub').textContent =
-    pct===100 ? '🔥 Perfect score! You nailed every question!' :
-    pct>=80   ? '⭐ Great work! You clearly understood the material.' :
-    pct>=60   ? '👍 Good effort! Review the ones you missed.' :
-                '📖 Keep studying — every expert was once a beginner.';
-  if (pct >= 80) setTimeout(launchConfetti, 300);
-}
-
-function resetQuiz() {
-  quizState = { currentQ:0, answers:new Array(QUESTIONS.length).fill(null), finished:false };
-  document.getElementById('quizResult').classList.remove('show');
-  document.getElementById('quizContainer').style.display = '';
-  QUESTIONS.forEach((_,i) => { const d=document.getElementById('qd'+i); if(d) d.className='qp-dot'; });
-  renderQuiz();
-}
-
-/* ════════════════════════════════
-   CONFETTI & CELEBRATE
-════════════════════════════════ */
-function launchConfetti() {
-  const colours = ['#e8c547','#ff6b35','#4ecdc4','#a78bfa','#ff4757'];
-  for (let i = 0; i < 80; i++) {
-    const el = document.createElement('div');
-    const size = 6 + Math.random() * 8;
-    el.style.cssText = `position:fixed;top:50%;left:50%;width:${size}px;height:${size}px;
-      background:${colours[i%colours.length]};border-radius:${Math.random()>.5?'50%':'2px'};
-      pointer-events:none;z-index:9999;
-      --cx:${(Math.random()-.5)*600}px;--cy:${-(200+Math.random()*400)}px;--cr:${Math.random()*720-360}deg;
-      animation:confetti-pop 1.4s ease forwards;`;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 1500);
+function selectAnswer(qIdx, optIdx) {
+  const q = questions[qIdx];
+  quizAnswers[qIdx] = optIdx;
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((opt, i) => {
+    opt.classList.add('disabled');
+    if (i === q.ans) opt.classList.add('show-correct');
+    if (i === optIdx && optIdx !== q.ans) opt.classList.add('selected-wrong');
+    if (i === optIdx && optIdx === q.ans) opt.classList.add('selected-correct');
+  });
+  const feedback = document.getElementById('quizFeedback');
+  if (optIdx === q.ans) {
+    quizScore++;
+    feedback.className = 'quiz-feedback correct';
+    feedback.innerHTML = '✅ Correct! ' + q.explain;
+    document.getElementById('qd' + qIdx).className = 'quiz-dot correct';
+  } else {
+    feedback.className = 'quiz-feedback wrong';
+    feedback.innerHTML = '❌ Not quite. ' + q.explain;
+    document.getElementById('qd' + qIdx).className = 'quiz-dot wrong';
+  }
+  if (qIdx < 4) {
+    document.getElementById('qNextBtn').style.display = 'inline-flex';
+    document.getElementById('qNextBtn').textContent = 'Next Question →';
+  } else {
+    document.getElementById('qNextBtn').style.display = 'inline-flex';
+    document.getElementById('qNextBtn').textContent = 'See Results 🎉';
+    document.getElementById('qNextBtn').onclick = showQuizResults;
   }
 }
 
-function celebrate() {
-  launchConfetti();
-  const btn = event.target.closest('button');
-  btn.textContent = '✓ Badge Claimed!';
-  btn.style.background = 'var(--correct)';
-  btn.disabled = true;
-  localStorage.setItem('module1_complete', 'true');
+function nextQuestion() {
+  quizCurrent++;
+  if (quizCurrent >= 5) { showQuizResults(); return; }
+  document.getElementById('qd' + quizCurrent).className = 'quiz-dot active';
+  renderQuestion(quizCurrent);
 }
 
-/* ════════════════════════════════
-   INIT
-════════════════════════════════ */
-updateBottomBar();
+function showQuizResults() {
+  const pct = Math.round((quizScore / 5) * 100);
+  const emoji = pct === 100 ? '🏆' : pct >= 80 ? '🌟' : pct >= 60 ? '👍' : '📖';
+  const msg = pct === 100 ? 'Perfect score! You\'re a Python pro!' : pct >= 80 ? 'Great job!' : pct >= 60 ? 'Good effort!' : 'Keep practicing!';
+  document.getElementById('quizContent').innerHTML = `
+    <div class="quiz-score-screen">
+      <div style="font-size:56px;">${emoji}</div>
+      <div style="font-size:32px;font-weight:800;">${quizScore}/5</div>
+      <div style="font-size:14px;color:var(--text2);margin-top:12px;">${msg}</div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:20px;">
+        ${[0,1,2,3,4].map(i => `<div style="padding:6px 12px;border-radius:99px;background:${quizAnswers[i]===questions[i].ans?'var(--accent-light)':'var(--coral-light)'};font-size:12px;font-weight:700;">Q${i+1}: ${quizAnswers[i]===questions[i].ans?'✓':'✗'}</div>`).join('')}
+      </div>
+    </div>
+  `;
+  document.getElementById('qNum').textContent = '—';
+  document.getElementById('qNextBtn').textContent = 'Continue to Completion 🎉';
+  document.getElementById('qNextBtn').onclick = () => goTo(8);
+}
+
+function celebrate() {
+  const btn = event.target;
+  btn.textContent = '✓ Badge Claimed!';
+  btn.style.background = 'var(--accent)';
+  btn.disabled = true;
+  alert('🎉 Congratulations! You\'ve completed Module 1!');
+}
+
 updateProgress();
 </script>
 </body>
