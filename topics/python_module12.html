@@ -3,1985 +3,658 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module 12 · Projects in Python | HCL-GUVI</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&display=swap" rel="stylesheet">
+<title>Module 12 · Projects in Python</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════
-   ROOT VARIABLES & RESET
-═══════════════════════════════════════════ */
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
 :root {
-  --bg: #f4f6f0;
+  --bg: #f0f4ff;
   --surface: #ffffff;
-  --surface2: #f8faf5;
-  --surface3: #eef2e8;
-  --border: #dde5d4;
-  --border2: #c8d5bc;
-
-  --forest: #1a3a2a;
-  --forest2: #254535;
-  --moss: #3d6b4f;
-  --sage: #5c8f6e;
-  --mint: #8bbf9e;
-  --foam: #c8e6d4;
-  --mist: #e8f3ec;
-
-  --gold: #c4933f;
-  --gold-l: #f5e6c8;
-  --coral: #d4614a;
-  --coral-l: #fae8e4;
-  --sky: #3d7ab5;
-  --sky-l: #ddeaf8;
-  --plum: #7c4d8a;
-  --plum-l: #f0e6f5;
-
-  --text: #1a2518;
-  --text2: #3a5040;
-  --text3: #7a9080;
-
-  --code-bg: #0e1a12;
-  --code-surface: #152019;
-
-  --sidebar-w: 255px;
-  --nav-h: 66px;
+  --surface2: #f7f9fe;
+  --surface3: #eef2fc;
+  --primary: #2563eb;
+  --primary-light: #dbeafe;
+  --primary-dark: #1d4ed8;
+  --accent: #059669;
+  --accent-light: #d1fae5;
+  --accent-dark: #047857;
+  --warn: #d97706;
+  --warn-light: #fef3c7;
+  --purple: #7c3aed;
+  --purple-light: #ede9fe;
+  --coral: #e11d48;
+  --coral-light: #ffe4e6;
+  --text: #0f172a;
+  --text2: #334155;
+  --text3: #64748b;
+  --text4: #94a3b8;
+  --border: #e2e8f0;
+  --border2: #cbd5e1;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+  --shadow-lg: 0 4px 24px rgba(37,99,235,.10), 0 1px 4px rgba(0,0,0,.06);
   --radius: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
-
-  --shadow-sm: 0 1px 3px rgba(26,58,42,.06), 0 2px 8px rgba(26,58,42,.08);
-  --shadow: 0 2px 8px rgba(26,58,42,.08), 0 8px 24px rgba(26,58,42,.1);
-  --shadow-lg: 0 8px 32px rgba(26,58,42,.15), 0 24px 64px rgba(26,58,42,.12);
-  --shadow-glow: 0 0 0 3px rgba(93,143,110,.2);
-
-  --glow-moss: 0 4px 20px rgba(61,107,79,.35);
-  --glow-gold: 0 4px 20px rgba(196,147,63,.35);
+  --radius-sm: 8px;
+  --sidebar-w: 260px;
+  --header-h: 60px;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --serif: 'Fraunces', serif;
+  --transition: .25s cubic-bezier(.4,0,.2,1);
 }
 
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  overflow-x: hidden;
-  line-height: 1.6;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; overflow: hidden; height: 100vh; }
 
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
 
-/* ═══════════════════════════════════════════
-   TOP NAVIGATION
-═══════════════════════════════════════════ */
-.top-nav {
-  position: fixed; top: 0; left: 0; right: 0;
-  height: var(--nav-h);
-  background: rgba(255,255,255,.94);
-  backdrop-filter: blur(20px);
+/* HEADER */
+.app-header {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); z-index: 100;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
-  display: flex; align-items: center;
-  padding: 0 28px; gap: 18px; z-index: 500;
-  box-shadow: 0 1px 12px rgba(26,58,42,.06);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 24px 0 20px;
 }
-
-.nav-brand {
-  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
-}
-.brand-badge {
-  background: linear-gradient(135deg, var(--forest), var(--moss));
-  color: #fff; font-size: 10px; font-weight: 700;
-  letter-spacing: .08em; text-transform: uppercase;
-  padding: 4px 11px; border-radius: 20px;
-}
-.nav-sep { width: 1px; height: 32px; background: var(--border); flex-shrink: 0; }
-
-.nav-module-info { display: flex; flex-direction: column; gap: 1px; }
-.nav-module-tag {
-  font-size: 9.5px; font-weight: 700; color: var(--moss);
-  text-transform: uppercase; letter-spacing: .09em;
-}
-.nav-module-name { font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: -.2px; }
-
-.nav-progress { flex: 1; max-width: 290px; padding: 0 4px; }
-.nav-prog-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
-.nav-prog-lbl { font-size: 9.5px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; }
-.nav-prog-pct { font-size: 9.5px; font-weight: 800; color: var(--moss); }
-.nav-prog-track { height: 5px; background: var(--surface3); border-radius: 6px; overflow: hidden; }
-.nav-prog-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--moss), var(--gold));
-  border-radius: 6px;
-  transition: width .7s cubic-bezier(.4,0,.2,1);
-}
-
-.nav-user { display: flex; align-items: center; gap: 10px; margin-left: auto; }
-.nav-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--moss), var(--gold));
+.header-left { display: flex; align-items: center; gap: 14px; }
+.logo-area { display: flex; align-items: center; gap: 10px; }
+.logo-badge {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb 0%, #059669 100%);
   display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 12px; font-weight: 800; flex-shrink: 0;
-  box-shadow: 0 0 0 3px var(--foam);
+  font-weight: 800; font-size: 15px; color: #fff; letter-spacing: -1px;
 }
-.nav-user-name { font-size: 13px; font-weight: 600; color: var(--text); }
-.nav-user-role { font-size: 10px; color: var(--text3); }
+.logo-text { font-size: 13px; font-weight: 700; color: var(--text); letter-spacing: -.3px; }
+.logo-sub { font-size: 11px; color: var(--text3); font-weight: 400; }
+.header-divider { width: 1px; height: 28px; background: var(--border); }
+.module-title { font-size: 14px; font-weight: 600; color: var(--text2); }
+.module-badge { font-size: 11px; background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 99px; font-weight: 600; }
 
-/* ═══════════════════════════════════════════
-   SIDEBAR
-═══════════════════════════════════════════ */
+.header-right { display: flex; align-items: center; gap: 20px; }
+.progress-wrap { display: flex; align-items: center; gap: 8px; }
+.progress-label { font-size: 11px; color: var(--text3); font-weight: 500; }
+.progress-track { width: 120px; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+.progress-pct { font-size: 11px; font-weight: 700; color: var(--primary); min-width: 28px; }
+
+/* SIDEBAR */
 .sidebar {
-  position: fixed; top: var(--nav-h); left: 0; bottom: 0;
-  width: var(--sidebar-w);
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  overflow-y: auto; padding: 20px 10px; z-index: 400;
+  position: fixed; top: var(--header-h); left: 0; bottom: 0; width: var(--sidebar-w);
+  background: var(--surface); border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 20px 12px; z-index: 50;
 }
-.sb-section-label {
-  font-size: 9px; font-weight: 800; letter-spacing: .12em;
-  text-transform: uppercase; color: var(--text3);
-  padding: 4px 12px 8px;
+.sidebar-section { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--text4); text-transform: uppercase; padding: 12px 12px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: 10px; cursor: pointer; transition: all var(--transition);
+  margin-bottom: 2px; font-size: 13px; font-weight: 500; color: var(--text2);
+  border: none; background: none; width: 100%; text-align: left;
 }
-.sb-item {
-  display: flex; align-items: center; gap: 11px;
-  padding: 10px 12px; border-radius: 11px;
-  cursor: pointer; transition: all .22s;
-  margin-bottom: 2px; position: relative;
-}
-.sb-item:hover { background: var(--surface3); }
-.sb-item.active {
-  background: linear-gradient(135deg, rgba(61,107,79,.1), rgba(196,147,63,.06));
-}
-.sb-item.active::before {
-  content: ''; position: absolute; left: 0; top: 6px; bottom: 6px;
-  width: 3px; border-radius: 0 3px 3px 0;
-  background: linear-gradient(180deg, var(--moss), var(--gold));
-}
-.sb-icon {
-  width: 30px; height: 30px; border-radius: 8px;
-  background: var(--surface3); display: flex; align-items: center;
-  justify-content: center; font-size: 14px; flex-shrink: 0;
-  transition: all .22s;
-}
-.sb-item.active .sb-icon {
-  background: linear-gradient(135deg, var(--moss), var(--sage));
-  box-shadow: var(--glow-moss);
-}
-.sb-item.completed .sb-icon { background: var(--foam); }
-.sb-label { font-size: 12.5px; font-weight: 500; color: var(--text2); }
-.sb-item.active .sb-label { color: var(--moss); font-weight: 600; }
-.sb-check { margin-left: auto; display: none; }
-.sb-item.completed .sb-check { display: block; }
+.nav-item:hover { background: var(--surface3); color: var(--text); }
+.nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.nav-item.done { color: var(--accent); }
+.nav-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; background: var(--surface3); }
+.nav-item.active .nav-icon { background: var(--primary); color: #fff; }
+.nav-item.done .nav-icon { background: var(--accent-light); color: var(--accent-dark); }
+.nav-check { margin-left: auto; font-size: 11px; color: var(--accent); display: none; }
+.nav-item.done .nav-check { display: block; }
 
-/* ═══════════════════════════════════════════
-   MAIN CONTENT
-═══════════════════════════════════════════ */
-.main {
-  margin-left: var(--sidebar-w);
-  padding-top: var(--nav-h);
+/* MAIN */
+.main-content {
+  margin-left: var(--sidebar-w); margin-top: var(--header-h);
+  height: calc(100vh - var(--header-h)); overflow-y: auto; padding: 32px 48px 80px;
 }
-.page {
-  display: none; padding: 38px 46px 72px;
-  max-width: 980px;
-  animation: pageSlideIn .38s cubic-bezier(.4,0,.2,1);
-}
+
+/* PAGES */
+.page { display: none; animation: fadeSlide .35s cubic-bezier(.4,0,.2,1); }
 .page.active { display: block; }
+@keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-@keyframes pageSlideIn {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+/* BUTTONS */
+.page-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 600; font-size: 13px; cursor: pointer; transition: all var(--transition); border: none; font-family: var(--font); }
+.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,.3); }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,99,235,.35); }
+.btn-ghost { background: var(--surface); color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { background: var(--surface3); }
+.btn-run { background: #1e1e2e; color: #a6e3a1; border: 1px solid #313244; font-family: var(--mono); font-size: 12px; }
+.btn-run:hover { background: #11111b; }
 
-/* ═══════════════════════════════════════════
-   TYPOGRAPHY
-═══════════════════════════════════════════ */
-.eyebrow {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 10px; font-weight: 700; letter-spacing: .1em;
-  text-transform: uppercase; padding: 4px 12px;
-  border-radius: 20px; margin-bottom: 12px;
-}
-.ey-green { background: var(--foam); color: var(--forest); }
-.ey-gold { background: var(--gold-l); color: #8a5f1a; }
-.ey-coral { background: var(--coral-l); color: #8a2a18; }
-.ey-sky { background: var(--sky-l); color: #1e4a80; }
-.ey-plum { background: var(--plum-l); color: #4a1f5a; }
-.ey-pink { background: #fce7f3; color: #be185d; }
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow); }
+.card-blue { border-left: 4px solid var(--primary); }
+.card-green { border-left: 4px solid var(--accent); }
+.card-purple { border-left: 4px solid var(--purple); }
 
-.page-title {
-  font-family: 'Fraunces', serif;
-  font-size: 34px; font-weight: 700;
-  letter-spacing: -.8px; line-height: 1.15;
-  color: var(--text); margin-bottom: 10px;
-}
-.page-subtitle {
-  font-size: 15px; color: var(--text2);
-  line-height: 1.75; max-width: 640px;
-}
-.section-heading {
-  font-family: 'Fraunces', serif;
-  font-size: 20px; font-weight: 700;
-  color: var(--text); margin-bottom: 12px;
-  letter-spacing: -.3px;
-}
-p.body-text { font-size: 14px; color: var(--text2); line-height: 1.8; }
+/* HERO */
+.hero { background: linear-gradient(135deg, #1e3a8a 0%, #0c4a6e 50%, #134e4a 100%); border-radius: 20px; padding: 48px 40px; margin-bottom: 28px; color: #fff; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+.hero-tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15); border-radius: 99px; padding: 4px 12px; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,.8); margin-bottom: 16px; }
+.hero h1 { font-family: var(--serif); font-size: 42px; font-weight: 700; line-height: 1.15; margin-bottom: 12px; }
+.hero h1 em { font-style: italic; color: #86efac; }
+.hero p { font-size: 15px; color: rgba(255,255,255,.75); max-width: 520px; line-height: 1.7; }
+.hero-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+.chip-blue { background: rgba(96,165,250,.2); color: #93c5fd; border: 1px solid rgba(96,165,250,.25); }
+.chip-green { background: rgba(52,211,153,.2); color: #6ee7b7; border: 1px solid rgba(52,211,153,.25); }
+.chip-purple { background: rgba(167,139,250,.2); color: #c4b5fd; border: 1px solid rgba(167,139,250,.25); }
 
-/* ═══════════════════════════════════════════
-   CARDS
-═══════════════════════════════════════════ */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 28px 30px;
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 22px;
-  transition: box-shadow .25s, transform .25s;
-}
-.card:hover { box-shadow: var(--shadow); }
-.card-green { border-top: 3px solid var(--moss); }
-.card-gold { border-top: 3px solid var(--gold); }
-.card-coral { border-top: 3px solid var(--coral); }
-.card-sky { border-top: 3px solid var(--sky); }
+/* SECTION TITLES */
+.section-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); margin-bottom: 8px; }
+.page-h2 { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -.5px; }
+.page-subtitle { font-size: 14px; color: var(--text3); margin-bottom: 24px; line-height: 1.6; }
 
-/* ═══════════════════════════════════════════
-   CODE BLOCKS
-═══════════════════════════════════════════ */
+/* ============================================ */
+/* FIXED: CODE BLOCKS - LIGHT BLUE BACKGROUND */
+/* ============================================ */
 .code-block {
-  background: var(--code-bg);
-  border-radius: var(--radius);
-  overflow: hidden; margin: 16px 0;
-  box-shadow: 0 4px 24px rgba(0,0,0,.4);
+  background: #b8d8fc !important;
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.8;
+  border: 1px solid #89b9e8;
+  position: relative;
+  overflow: auto;
+  color: #0a0a2a;
 }
-.code-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 18px;
-  background: var(--code-surface);
-  border-bottom: 1px solid rgba(255,255,255,.05);
-}
-.code-dots { display: flex; gap: 6px; }
-.dot { width: 12px; height: 12px; border-radius: 50%; }
-.dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
-.code-filename { font-family: 'DM Mono', monospace; font-size: 11px; color: #6e7681; }
-.code-body {
-  padding: 20px 22px;
-  font-family: 'DM Mono', monospace;
-  font-size: 12.5px; color: #e6edf3;
-  line-height: 1.9; overflow-x: auto;
-}
-.kw { color: #ff7b72; } .fn { color: #79c0ff; } .cl { color: #ffa657; }
-.st { color: #a5d6ff; } .cm { color: #8b949e; font-style: italic; }
-.nm { color: #f0883e; } .pr { color: #7ee787; } .dc { color: #d2a8ff; }
+.code-header { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.code-dot { width: 10px; height: 10px; border-radius: 50%; }
+.code-dot:nth-child(1) { background: #f38ba8; }
+.code-dot:nth-child(2) { background: #f9e2af; }
+.code-dot:nth-child(3) { background: #a6e3a1; }
+.code-fname { font-size: 11px; color: #1e3a5f; margin-left: 6px; font-family: var(--mono); font-weight: bold; }
 
-/* ═══════════════════════════════════════════
-   OUTPUT BLOCKS
-═══════════════════════════════════════════ */
+/* Syntax highlighting colors for light blue background */
+.kw { color: #7c3aed; font-weight: bold; }
+.fn { color: #2563eb; font-weight: bold; }
+.st { color: #059669; font-weight: bold; }
+.cm { color: #6c7086; font-style: italic; }
+.nu { color: #d97706; font-weight: bold; }
+.vr { color: #0f172a; font-weight: bold; }
+.op { color: #0891b2; }
+.cl { color: #7c3aed; font-weight: bold; }
+
 .output-block {
-  background: #010409;
-  border: 1px solid #21262d;
-  border-radius: 10px;
+  background: #e6f3ff;
+  border: 1px solid #89b9e8;
+  border-top: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
   padding: 14px 18px;
-  font-family: 'DM Mono', monospace;
-  font-size: 12.5px; color: #3fb950;
-  line-height: 1.9; display: none;
-  animation: fadeUp .3s ease; margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: #0a0a2a;
+  line-height: 1.8;
+  margin-top: 10px;
+  display: none;
 }
-.output-block.show { display: block; }
-.out-label {
-  font-size: 9.5px; font-weight: 700; color: #8b949e;
-  letter-spacing: .1em; text-transform: uppercase;
-  margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
-}
-.out-label::before {
-  content: ''; width: 6px; height: 6px;
-  border-radius: 50%; background: #3fb950;
-}
+.output-block.visible { display: block; animation: revealOut .3s ease; }
+@keyframes revealOut { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ═══════════════════════════════════════════
-   BUTTONS
-═══════════════════════════════════════════ */
-.btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 10px 20px; border-radius: 10px;
-  font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif;
-  cursor: pointer; border: none; transition: all .22s; letter-spacing: -.1px;
-}
-.btn-primary {
-  background: linear-gradient(135deg, var(--moss), var(--forest));
-  color: #fff; box-shadow: 0 2px 12px rgba(61,107,79,.35);
-}
-.btn-primary:hover { transform: translateY(-2px); box-shadow: var(--glow-moss); }
-.btn-gold {
-  background: linear-gradient(135deg, var(--gold), #a8722c);
-  color: #fff; box-shadow: 0 2px 12px rgba(196,147,63,.35);
-}
-.btn-gold:hover { transform: translateY(-2px); box-shadow: var(--glow-gold); }
-.btn-ghost {
-  background: var(--surface3); color: var(--text2);
-  border: 1px solid var(--border);
-}
-.btn-ghost:hover { background: var(--border); color: var(--text); }
-.btn-outline {
-  background: transparent; color: var(--moss);
-  border: 1.5px solid var(--moss);
-}
-.btn-outline:hover { background: var(--foam); }
-.btn-run {
-  background: linear-gradient(135deg, #238636, #2ea043);
-  color: #fff; font-size: 12.5px; padding: 8px 16px;
-  font-weight: 600; font-family: 'DM Sans', sans-serif;
-  display: inline-flex; align-items: center; gap: 7px;
-  cursor: pointer; border: none; border-radius: 8px;
-  transition: all .2s;
-}
-.btn-run:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(46,160,67,.4); }
-.btn-sm { padding: 7px 15px; font-size: 12px; }
+/* INFO BOX */
+.info-box { display: flex; gap: 12px; padding: 14px 16px; border-radius: var(--radius-sm); margin-bottom: 14px; }
+.info-box.blue { background: var(--primary-light); border: 1px solid #bfdbfe; }
+.info-box.green { background: var(--accent-light); border: 1px solid #bbf7d0; }
+.info-box.warn { background: var(--warn-light); border: 1px solid #fde68a; }
+.info-icon { font-size: 16px; flex-shrink: 0; padding-top: 1px; }
+.info-text { font-size: 13px; line-height: 1.6; }
 
-/* ═══════════════════════════════════════════
-   ANALOGY BOX
-═══════════════════════════════════════════ */
-.analogy-box {
-  background: linear-gradient(135deg, #fffbeb, #fefce8);
-  border: 1px solid #fde68a;
-  border-radius: var(--radius);
-  padding: 18px 22px; display: flex; gap: 14px; margin: 16px 0;
-}
-.analogy-icon { font-size: 26px; flex-shrink: 0; margin-top: 2px; }
-.analogy-text { font-size: 13.5px; color: #78350f; line-height: 1.75; }
-.analogy-text strong { color: #451a03; }
+/* ANALOGY CARD */
+.analogy-card { background: linear-gradient(135deg, var(--warn-light), #fff7e6); border: 1px solid #fde68a; border-radius: var(--radius); padding: 20px; margin-bottom: 18px; display: flex; gap: 14px; align-items: flex-start; }
+.analogy-icon { font-size: 28px; flex-shrink: 0; }
+.analogy-title { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--warn); margin-bottom: 4px; }
 
-/* ═══════════════════════════════════════════
-   WELCOME PAGE
-═══════════════════════════════════════════ */
-.welcome-hero {
-  background: linear-gradient(135deg, var(--forest), var(--forest2));
-  border-radius: var(--radius-xl); padding: 46px 50px;
-  color: #fff; margin-bottom: 26px;
-  position: relative; overflow: hidden;
-}
-.welcome-hero::before {
-  content: '{ }';
-  position: absolute; right: 44px; bottom: 16px;
-  font-family: 'DM Mono', monospace; font-size: 90px; font-weight: 400;
-  color: rgba(255,255,255,.04); pointer-events: none;
-}
-.welcome-hero::after {
-  content: '';
-  position: absolute; top: -60px; right: -60px;
-  width: 220px; height: 220px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(92,143,110,.2), transparent 70%);
-}
-.hero-badge {
-  display: inline-flex; align-items: center; gap: 7px;
-  background: rgba(139,191,158,.2); border: 1px solid rgba(139,191,158,.35);
-  color: #a8d8bc; border-radius: 20px; padding: 5px 15px;
-  font-size: 10.5px; font-weight: 700; letter-spacing: .08em;
-  text-transform: uppercase; margin-bottom: 20px;
-}
-.hero-title {
-  font-family: 'Fraunces', serif;
-  font-size: 42px; font-weight: 900; letter-spacing: -1.5px;
-  line-height: 1.08; margin-bottom: 16px;
-}
-.hero-title .hl {
-  background: linear-gradient(135deg, #8bbf9e, #c4933f);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-}
-.hero-subtitle { font-size: 15px; opacity: .75; line-height: 1.75; max-width: 520px; }
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
 
-.welcome-stats {
-  display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px;
-}
-.wstat {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 18px; text-align: center;
-  transition: all .25s;
-}
-.wstat:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-.wstat-icon { font-size: 22px; margin-bottom: 8px; }
-.wstat-value { font-size: 24px; font-weight: 800; color: var(--text); font-family: 'Fraunces', serif; }
-.wstat-label { font-size: 10.5px; color: var(--text3); margin-top: 2px; }
+/* WELCOME GRID */
+.welcome-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin: 20px 0; }
+.welcome-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 18px; text-align: center; transition: all var(--transition); cursor: pointer; }
+.welcome-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+.welcome-card-icon { font-size: 28px; margin-bottom: 8px; }
+.welcome-card-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 
-.project-cards-grid {
-  display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; margin: 18px 0;
-}
-.project-preview-card {
-  border-radius: var(--radius); padding: 20px; cursor: pointer;
-  border: 1.5px solid transparent; transition: all .25s;
-  position: relative; overflow: hidden;
-}
-.project-preview-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-.ppc-number {
-  font-family: 'Fraunces', serif; font-size: 42px; font-weight: 900;
-  opacity: .08; position: absolute; top: 10px; right: 16px;
-}
+/* REVEAL CARDS */
+.reveal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 18px 0; }
+.reveal-card { background: var(--surface2); border-radius: 12px; padding: 16px; cursor: pointer; border: 1px solid var(--border); transition: all .25s; }
+.reveal-card:hover { border-color: var(--primary); background: rgba(37,99,235,.04); transform: translateY(-2px); }
+.reveal-card .rc-front { font-size: 13px; font-weight: 700; color: var(--text); text-align: center; }
+.reveal-card .rc-back { font-size: 12px; color: var(--text2); margin-top: 8px; display: none; line-height: 1.6; }
+.reveal-card.flipped .rc-back { display: block; animation: fadein .3s; }
+.reveal-card.flipped { background: var(--primary-light); border-color: var(--primary); }
+@keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-/* ═══════════════════════════════════════════
-   INTERACTIVE: STEP VISUALIZER
-═══════════════════════════════════════════ */
-.step-viz { display: flex; flex-direction: column; gap: 6px; }
-.step-line {
-  display: flex; align-items: flex-start; gap: 14px;
-  padding: 11px 15px; border-radius: 10px;
-  border: 1px solid transparent; transition: all .3s; opacity: .45;
-}
-.step-line.active {
-  border-color: var(--moss);
-  background: rgba(61,107,79,.05); opacity: 1;
-}
-.step-line.done {
-  border-color: var(--sage);
-  background: rgba(92,143,110,.04); opacity: .8;
-}
-.step-num {
-  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
-  background: var(--surface3); display: flex; align-items: center;
-  justify-content: center; font-size: 11px; font-weight: 700;
-  color: var(--text3);
-}
-.step-line.active .step-num { background: var(--moss); color: #fff; }
-.step-line.done .step-num { background: var(--sage); color: #fff; }
-.step-code { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text2); }
-.step-note { font-size: 11.5px; color: var(--moss); margin-top: 4px; display: none; }
-.step-line.active .step-note { display: block; }
+/* STEP VISUALIZER */
+.step-viz { margin: 16px 0; }
+.step { display: flex; gap: 14px; padding: 12px 0; cursor: pointer; border-bottom: 1px solid var(--border); }
+.step-dot { width: 32px; height: 32px; border-radius: 50%; background: var(--surface2); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; transition: all .3s; }
+.step.active .step-dot { background: var(--primary); color: #fff; border-color: var(--primary); }
+.step-content { flex: 1; }
+.step-title { font-weight: 700; margin-bottom: 4px; }
+.step-desc { display: none; font-size: 12px; color: var(--text2); margin-top: 6px; }
+.step.active .step-desc { display: block; }
 
-/* ═══════════════════════════════════════════
-   INTERACTIVE: PROJECT BUILDER (FLOWCHART)
-═══════════════════════════════════════════ */
-.flowchart-wrap {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 20px; overflow: hidden;
-}
-.flow-node {
-  padding: 10px 22px; border-radius: 10px;
-  font-size: 13px; font-weight: 600; text-align: center;
-  min-width: 180px; transition: all .3s; cursor: pointer;
-}
-.flow-node:hover { transform: scale(1.03); }
-.flow-arrow {
-  width: 2px; height: 22px; margin: 2px auto; position: relative;
-}
-.flow-arrow::after {
-  content: '▼'; position: absolute; bottom: -12px; left: -6px;
-  font-size: 12px;
-}
+/* PROJECT CARDS */
+.project-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 20px 0; }
+.project-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; cursor: pointer; transition: all .25s; }
+.project-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+.project-card .project-icon { font-size: 32px; margin-bottom: 10px; }
+.project-card .project-name { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.project-card .project-desc { font-size: 12px; color: var(--text3); }
+.project-badge { display: inline-block; font-size: 10px; padding: 2px 10px; border-radius: 12px; margin-top: 10px; }
+.badge-easy { background: var(--accent-light); color: var(--accent-dark); }
+.badge-med { background: var(--warn-light); color: #92400e; }
+.badge-hard { background: var(--coral-light); color: var(--coral); }
 
-/* ═══════════════════════════════════════════
-   INTERACTIVE: CLICK-TO-REVEAL CARDS
-═══════════════════════════════════════════ */
-.reveal-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 13px; }
-.reveal-card {
-  border: 1.5px solid var(--border); border-radius: var(--radius);
-  overflow: hidden; cursor: pointer; transition: all .25s;
-}
-.reveal-card:hover { border-color: var(--moss); transform: translateY(-3px); box-shadow: var(--shadow); }
-.rc-front {
-  padding: 22px 16px; background: var(--surface3); text-align: center;
-  min-height: 95px; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 8px;
-}
-.rc-back { display: none; padding: 15px; background: var(--surface); font-size: 12.5px; color: var(--text2); line-height: 1.7; }
-.reveal-card.open .rc-front { display: none; }
-.reveal-card.open .rc-back { display: block; }
+/* FLOWCHART */
+.flowchart { background: var(--surface2); border-radius: var(--radius); padding: 24px; text-align: center; margin: 16px 0; }
+.flow-node { padding: 12px 20px; border-radius: 10px; display: inline-block; margin: 4px; cursor: pointer; transition: all .2s; }
+.flow-node-primary { background: var(--primary); color: #fff; }
+.flow-node-secondary { background: var(--accent); color: #fff; }
+.flow-node-warn { background: var(--warn); color: #fff; }
+.flow-arrow { font-size: 20px; color: var(--text3); display: inline-block; margin: 0 4px; }
+.flow-info { margin-top: 16px; padding: 12px; background: var(--surface); border-radius: 10px; display: none; }
 
-/* ═══════════════════════════════════════════
-   INTERACTIVE: PROJECT SELECTOR
-═══════════════════════════════════════════ */
-.project-selector { display: flex; flex-direction: column; gap: 10px; }
-.ps-item {
-  display: flex; align-items: center; gap: 14px;
-  padding: 14px 18px; border: 1.5px solid var(--border);
-  border-radius: var(--radius); cursor: pointer; transition: all .25s;
-}
-.ps-item:hover { border-color: var(--moss); background: var(--mist); }
-.ps-item.selected {
-  border-color: var(--moss);
-  background: rgba(61,107,79,.06);
-  box-shadow: var(--shadow-glow);
-}
-.ps-icon {
-  width: 44px; height: 44px; border-radius: 10px; display: flex;
-  align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
-}
-.ps-info { flex: 1; }
-.ps-name { font-size: 14px; font-weight: 600; color: var(--text); }
-.ps-desc { font-size: 12px; color: var(--text3); margin-top: 2px; }
-.ps-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-left: auto; }
-
-/* ═══════════════════════════════════════════
-   INTERACTIVE: TERMINAL SIMULATOR
-═══════════════════════════════════════════ */
-.terminal {
-  background: #0e1a12; border-radius: var(--radius);
-  overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,.4);
-}
-.terminal-header {
-  background: #1a2d1e; padding: 10px 16px;
-  display: flex; align-items: center; gap: 8px;
-  border-bottom: 1px solid rgba(255,255,255,.06);
-}
-.terminal-body {
-  padding: 18px 20px; font-family: 'DM Mono', monospace;
-  font-size: 12.5px; color: #a8d8bc; line-height: 2; min-height: 180px;
-}
-.t-prompt { color: #5c8f6e; }
-.t-output { color: #c8e6d4; }
-.t-error { color: #ff7b72; }
-.t-input {
-  background: transparent; border: none; outline: none;
-  font-family: 'DM Mono', monospace; font-size: 12.5px;
-  color: #a8d8bc; width: calc(100% - 120px);
-}
-.t-cursor::after {
-  content: '|'; animation: blink 1s step-end infinite; color: #5c8f6e;
-}
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-/* ═══════════════════════════════════════════
-   INTERACTIVE: FEATURE TOGGLE BUILDER
-═══════════════════════════════════════════ */
-.feature-builder {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 20px;
-}
-.feature-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 11px 14px; background: var(--surface);
-  border: 1px solid var(--border); border-radius: 9px;
-  margin-bottom: 8px; transition: all .25s;
-}
-.feature-row:hover { border-color: var(--moss); }
-.feature-name { font-size: 13.5px; font-weight: 500; color: var(--text); }
-.feature-desc { font-size: 11.5px; color: var(--text3); margin-top: 2px; }
-.toggle-switch {
-  width: 44px; height: 24px; border-radius: 12px;
-  background: var(--border); cursor: pointer;
-  transition: background .25s; position: relative; flex-shrink: 0;
-}
-.toggle-switch.on { background: var(--moss); }
-.toggle-switch::after {
-  content: ''; position: absolute; top: 3px; left: 3px;
-  width: 18px; height: 18px; border-radius: 50%; background: #fff;
-  transition: transform .25s; box-shadow: 0 1px 4px rgba(0,0,0,.2);
-}
+/* FEATURE TOGGLE */
+.feature-builder { background: var(--surface2); border-radius: var(--radius); padding: 20px; margin: 16px 0; }
+.feature-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid var(--border); }
+.feature-name { font-weight: 600; margin-bottom: 4px; }
+.feature-desc { font-size: 11px; color: var(--text3); }
+.toggle-switch { width: 44px; height: 24px; border-radius: 12px; background: var(--border); cursor: pointer; position: relative; transition: background .2s; }
+.toggle-switch.on { background: var(--accent); }
+.toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .2s; }
 .toggle-switch.on::after { transform: translateX(20px); }
+.complexity-bar { height: 8px; background: var(--border); border-radius: 6px; margin: 12px 0; overflow: hidden; }
+.complexity-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--primary)); width: 0%; transition: width .3s; }
 
-/* ═══════════════════════════════════════════
-   INTERACTIVE: CODE DIFF VIEWER
-═══════════════════════════════════════════ */
-.diff-wrap {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0;
-}
-.diff-panel { background: var(--code-bg); border-radius: var(--radius); overflow: hidden; }
-.diff-header {
-  padding: 9px 14px; background: var(--code-surface);
-  font-family: 'DM Mono', monospace; font-size: 11px; color: #6e7681;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.diff-body { padding: 14px 16px; font-family: 'DM Mono', monospace; font-size: 12px; color: #e6edf3; line-height: 1.9; }
-.diff-add { background: rgba(46,160,67,.12); color: #7ee787; border-left: 3px solid #3fb950; padding-left: 8px; margin-left: -3px; display: block; border-radius: 0 4px 4px 0; }
+/* VIRTUAL FILE SYSTEM */
+.vfs { background: #b8d8fc; border-radius: 10px; padding: 16px; font-family: var(--mono); font-size: 12px; color: #0a0a2a; margin: 16px 0; min-height: 180px; line-height: 1.8; border: 1px solid #89b9e8; }
+.vfs-controls { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.vfs-input { flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid #89b9e8; background: var(--surface); font-family: var(--mono); font-size: 12px; outline: none; }
+.vfs-log { margin-top: 10px; font-size: 11px; color: var(--accent); min-height: 20px; }
 
-/* ═══════════════════════════════════════════
-   EXERCISES
-═══════════════════════════════════════════ */
-.exercise-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); padding: 26px 28px;
-  margin-bottom: 22px; position: relative; overflow: hidden;
-}
-.exercise-card::before {
-  content: ''; position: absolute; top: 0; left: 0;
-  width: 4px; height: 100%;
-  background: linear-gradient(180deg, var(--moss), var(--gold));
-}
-.ex-number {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 30px; height: 30px;
-  background: linear-gradient(135deg, var(--moss), var(--sage));
-  color: #fff; border-radius: 50%; font-size: 12px;
-  font-weight: 700; margin-bottom: 12px;
-}
+/* TO-DO SIMULATOR */
+.todo-list { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
+.todo-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; transition: all .2s; }
+.todo-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border2); cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; }
+.todo-check.done { background: var(--accent); border-color: var(--accent); color: #fff; }
+.todo-text { flex: 1; font-size: 13px; font-weight: 500; }
+.todo-text.done { text-decoration: line-through; color: var(--text3); }
+.todo-delete { background: none; border: none; font-size: 14px; cursor: pointer; color: var(--text3); padding: 4px 8px; border-radius: 6px; }
+.todo-delete:hover { background: var(--coral-light); color: var(--coral); }
+
+/* CALCULATOR DEMO */
+.calc-demo { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 16px 0; }
+.calc-input { padding: 10px 14px; border: 1px solid #89b9e8; border-radius: 10px; font-size: 14px; width: 120px; outline: none; background: #b8d8fc; color: #0a0a2a; }
+.calc-sym { font-size: 20px; font-weight: 700; color: var(--primary); }
+.calc-result { margin-top: 12px; padding: 12px; background: #e6f3ff; border-radius: 10px; font-family: var(--mono); font-size: 13px; display: none; border: 1px solid #89b9e8; }
+
+/* SCORE SIMULATOR */
+.score-sim { margin: 16px 0; }
+.slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.slider-row label { font-size: 13px; font-weight: 600; min-width: 120px; }
+.slider-val { font-size: 13px; font-weight: 700; color: var(--primary); min-width: 36px; }
+.score-result { margin-top: 16px; padding: 16px; background: #e6f3ff; border-radius: var(--radius); border: 1px solid #89b9e8; }
+
+/* QUIZ */
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 28px; }
+.qp-dot { flex: 1; height: 4px; background: var(--border); border-radius: 2px; transition: background .3s; }
+.qp-dot.correct { background: var(--accent); }
+.qp-dot.wrong { background: var(--coral); }
+.q-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; min-height: 320px; }
+.q-badge { font-family: var(--mono); font-size: 0.7rem; color: var(--text3); margin-bottom: 10px; }
+.q-text { font-family: var(--font); font-size: 1.1rem; font-weight: 700; margin-bottom: 24px; line-height: 1.4; }
+.q-options { display: flex; flex-direction: column; gap: 10px; }
+.q-opt { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 18px; text-align: left; font-size: 0.95rem; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 12px; }
+.q-opt:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-light); transform: translateX(3px); }
+.q-opt-letter { width: 26px; height: 26px; border-radius: 6px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.7rem; color: var(--text3); flex-shrink: 0; }
+.q-opt.correct { border-color: var(--accent); background: rgba(5,150,105,0.1); color: var(--accent-dark); }
+.q-opt.correct .q-opt-letter { background: var(--accent); color: #fff; }
+.q-opt.wrong { border-color: var(--coral); background: rgba(225,29,72,0.1); color: var(--coral); }
+.q-opt.wrong .q-opt-letter { background: var(--coral); color: #fff; }
+.q-opt:disabled { cursor: default; }
+.q-feedback { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-family: var(--mono); font-size: 0.8rem; display: none; }
+.q-feedback.show { display: block; }
+.q-feedback.correct { background: rgba(5,150,105,0.12); color: var(--accent-dark); border: 1px solid rgba(5,150,105,0.3); }
+.q-feedback.wrong { background: rgba(225,29,72,0.1); color: var(--coral); border: 1px solid #fecdd3; }
+.quiz-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; }
+.qnav-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 20px; font-family: var(--font); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all .15s; color: var(--text2); }
+.qnav-btn:hover { border-color: var(--text3); }
+.qnav-btn.primary { background: var(--primary); color: #fff; border-color: transparent; }
+.qnav-btn:disabled { opacity: .3; cursor: not-allowed; }
+.quiz-result { display: none; text-align: center; padding: 40px 20px; }
+.quiz-result.show { display: block; }
+.qr-emoji { font-size: 4rem; display: block; margin-bottom: 16px; }
+.qr-score { font-family: var(--font); font-size: 3rem; font-weight: 800; color: var(--primary); line-height: 1; margin-bottom: 8px; }
+.qr-sub { color: var(--text2); font-size: 0.9rem; margin-bottom: 28px; }
+.qr-breakdown { display: flex; gap: 20px; justify-content: center; margin-bottom: 28px; }
+.qrb-item { text-align: center; }
+.qrb-val { font-family: var(--font); font-size: 1.5rem; font-weight: 800; }
+.qrb-val.c { color: var(--accent); }
+.qrb-val.w { color: var(--coral); }
+.retry-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 11px 28px; font-family: var(--font); font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all .15s; margin-right: 10px; }
+.retry-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+/* EXERCISE CARD */
+.ex-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 18px; }
+.ex-badge { display: inline-flex; gap: 6px; align-items: center; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; background: var(--accent-light); color: var(--accent-dark); }
 .ex-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-.ex-desc { font-size: 13.5px; color: var(--text2); line-height: 1.75; margin-bottom: 18px; }
-.solution-wrap { display: none; margin-top: 16px; animation: fadeUp .3s ease; }
-.solution-wrap.show { display: block; }
-.hint-chip {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 11.5px; font-weight: 700; color: var(--gold);
-  background: var(--gold-l); border-radius: 20px; padding: 3px 11px; margin-bottom: 12px;
-}
+.ex-desc { font-size: 13px; color: var(--text2); margin-bottom: 16px; line-height: 1.7; }
+.sol-toggle { font-size: 12px; font-weight: 600; color: var(--primary); cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 0; border: none; background: none; font-family: var(--font); }
+.sol-toggle:hover { color: var(--primary-dark); }
+.solution { display: none; margin-top: 12px; }
+.solution.open { display: block; animation: revealOut .25s ease; }
 
-/* ═══════════════════════════════════════════
-   QUIZ
-═══════════════════════════════════════════ */
-.quiz-progress { display: flex; gap: 5px; margin-bottom: 28px; }
-.qp-dot {
-  flex: 1; height: 5px; border-radius: 4px; background: var(--border);
-  transition: all .35s;
-}
-.qp-dot.done { background: var(--moss); }
-.qp-dot.active { background: var(--gold); }
+/* COMPLETE */
+.complete-wrap { text-align: center; max-width: 520px; margin: 0 auto; padding: 20px 0; }
+.complete-icon { width: 100px; height: 100px; background: rgba(37,99,235,0.1); border: 2px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 24px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.skills-learnt { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0 32px; }
+.skill-badge { background: var(--surface2); border: 1px solid var(--border); border-radius: 50px; padding: 6px 16px; font-family: var(--mono); font-size: 0.75rem; color: var(--text2); display: flex; align-items: center; gap: 6px; }
+.skill-badge .check { color: var(--accent); }
+.cert-btn { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: none; border-radius: 12px; padding: 14px 32px; font-family: var(--font); font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; }
+.cert-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,99,235,.3); }
 
-.quiz-question {
-  font-family: 'Fraunces', serif;
-  font-size: 19px; font-weight: 700; color: var(--text);
-  line-height: 1.5; margin-bottom: 22px; letter-spacing: -.2px;
-}
-.quiz-options { display: flex; flex-direction: column; gap: 10px; }
-.quiz-opt {
-  padding: 14px 20px; border: 1.5px solid var(--border);
-  border-radius: 11px; cursor: pointer; font-size: 13.5px;
-  font-weight: 500; color: var(--text2);
-  transition: all .22s; display: flex; align-items: center; gap: 13px;
-}
-.quiz-opt:hover:not(.disabled) { border-color: var(--moss); background: var(--mist); color: var(--forest); }
-.quiz-opt.correct { border-color: var(--moss); background: var(--foam); color: var(--forest); }
-.quiz-opt.wrong { border-color: var(--coral); background: var(--coral-l); color: #8a2a18; }
-.quiz-opt.disabled { cursor: default; }
-.opt-radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border2); flex-shrink: 0; transition: all .2s; }
-.quiz-opt.correct .opt-radio { border-color: var(--moss); background: var(--moss); }
-.quiz-opt.wrong .opt-radio { border-color: var(--coral); background: var(--coral); }
-
-.quiz-feedback {
-  border-radius: 11px; padding: 14px 18px; font-size: 13.5px;
-  font-weight: 500; margin-top: 16px; display: none; line-height: 1.65;
-}
-.quiz-feedback.show { display: flex; gap: 10px; }
-.fb-correct { background: var(--foam); border: 1px solid var(--mint); color: var(--forest); }
-.fb-wrong { background: var(--coral-l); border: 1px solid #f4a695; color: #8a2a18; }
-
-.score-circle {
-  width: 130px; height: 130px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 24px; position: relative;
-}
-.score-inner {
-  width: 96px; height: 96px; border-radius: 50%;
-  background: var(--surface); display: flex; align-items: center;
-  justify-content: center; flex-direction: column;
-}
-.score-num { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 900; color: var(--text); }
-.score-label { font-size: 11px; color: var(--text3); }
-
-/* ═══════════════════════════════════════════
-   COMPLETION
-═══════════════════════════════════════════ */
-.completion-hero { text-align: center; padding: 44px 20px 32px; }
-.trophy-anim { font-size: 72px; display: block; animation: trophyFloat 1.4s ease infinite alternate; }
-@keyframes trophyFloat { from { transform: translateY(0) rotate(-3deg); } to { transform: translateY(-14px) rotate(3deg); } }
-.confetti-strip { display: flex; justify-content: center; gap: 22px; font-size: 26px; animation: confettiSpin 2.5s ease infinite; }
-@keyframes confettiSpin { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.7;transform:scale(.92)} }
-.skills-wrap { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 22px 0; }
-.skill-chip {
-  padding: 8px 18px; background: var(--foam); color: var(--forest);
-  border-radius: 20px; font-size: 12px; font-weight: 600;
-  border: 1.5px solid var(--mint); display: flex; align-items: center; gap: 5px;
-}
-
-.cert-block {
-  background: linear-gradient(135deg, var(--forest), var(--forest2));
-  border-radius: var(--radius-lg); padding: 30px; text-align: center;
-  color: #fff; position: relative; overflow: hidden; margin: 20px 0;
-}
-.cert-block::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 30% 50%,rgba(92,143,110,.2),transparent),
-              radial-gradient(ellipse at 70% 50%,rgba(196,147,63,.15),transparent);
-}
-.cert-content { position: relative; }
-
-/* ═══════════════════════════════════════════
-   BOTTOM NAV
-═══════════════════════════════════════════ */
-.bottom-nav {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 24px 0 8px; border-top: 1px solid var(--border); margin-top: 20px;
-}
-
-/* ═══════════════════════════════════════════
-   UTILITY
-═══════════════════════════════════════════ */
-@keyframes fadeUp { from { opacity:0;transform:translateY(8px) } to { opacity:1;transform:translateY(0) } }
-input[type=range] {
-  -webkit-appearance: none; height: 5px; border-radius: 5px;
-  background: var(--border); outline: none; cursor: pointer;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 19px; height: 19px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--moss), var(--sage));
-  border: 2.5px solid #fff; box-shadow: 0 2px 8px rgba(61,107,79,.3); cursor: pointer;
-}
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.tag {
-  display: inline-flex; align-items: center; padding: 3px 10px;
-  border-radius: 20px; font-size: 11px; font-weight: 600;
-}
-.tag-green { background: var(--foam); color: var(--forest); }
-.tag-gold { background: var(--gold-l); color: #8a5f1a; }
-.tag-coral { background: var(--coral-l); color: #8a2a18; }
-.tag-sky { background: var(--sky-l); color: #1e4a80; }
-.divider { height: 1px; background: var(--border); margin: 20px 0; }
-
-/* Project difficulty badges */
-.diff-easy { background: var(--foam); color: var(--forest); padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-.diff-med { background: var(--gold-l); color: #8a5f1a; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-.diff-hard { background: var(--coral-l); color: #8a2a18; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-
-/* highlight box */
-.highlight-box {
-  background: var(--mist); border: 1px solid var(--mint);
-  border-radius: var(--radius); padding: 14px 18px; margin: 12px 0;
+@media (max-width: 800px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; padding: 24px 20px; }
+  .hero h1 { font-size: 32px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .reveal-grid { grid-template-columns: 1fr; }
+  .project-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════
-     TOP NAVIGATION
-════════════════════════════════════════ -->
-<nav class="top-nav">
-  <div class="nav-brand">
-    <div class="brand-badge">HCL · GUVI</div>
-  </div>
-  <div class="nav-sep"></div>
-  <div class="nav-module-info">
-    <div class="nav-module-tag">Python for Beginners · Module 12</div>
-    <div class="nav-module-name">Projects in Python</div>
-  </div>
-  <div class="nav-progress">
-    <div class="nav-prog-row">
-      <span class="nav-prog-lbl">Progress</span>
-      <span class="nav-prog-pct" id="prog-pct">0%</span>
+<header class="app-header">
+  <div class="header-left">
+    <div class="logo-area">
+      <img src="logo.png" alt="Logo" style="height:36px; width:auto; object-fit:contain;">
+      <div class="logo-badge">🏗️</div>
+      <div>
+        <div class="logo-text">Python for Beginners</div>
+        <div class="logo-sub">Projects</div>
+      </div>
     </div>
-    <div class="nav-prog-track">
-      <div class="nav-prog-fill" id="prog-fill" style="width:0%"></div>
+    <div class="header-divider"></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="module-badge">Module 12</div>
+      <div class="module-title">Projects in Python</div>
     </div>
   </div>
-  <div class="nav-user">
-    <div style="text-align:right">
-      <div class="nav-user-name">Vinodhini</div>
-      <div class="nav-user-role">Data Scientist · HCL GUVI</div>
+  <div class="header-right">
+    <div class="progress-wrap">
+      <span class="progress-label">Progress</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <span class="progress-pct" id="progressPct">0%</span>
     </div>
-    <div class="nav-avatar">Vi</div>
   </div>
+</header>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-section">Module 12</div>
+  <button class="nav-item active" onclick="goTo(0)" id="nav-0"><span class="nav-icon">🏠</span>Welcome<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(1)" id="nav-1"><span class="nav-icon">🧮</span>Calculator<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(2)" id="nav-2"><span class="nav-icon">📝</span>To-Do App<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(3)" id="nav-3"><span class="nav-icon">🎯</span>Quiz Game<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(4)" id="nav-4"><span class="nav-icon">🚀</span>File Manager<span class="nav-check">✓</span></button>
+  <div class="sidebar-section">Practice</div>
+  <button class="nav-item" onclick="goTo(5)" id="nav-5"><span class="nav-icon">✏️</span>Exercises<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(6)" id="nav-6"><span class="nav-icon">🧠</span>Quiz<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo(7)" id="nav-7"><span class="nav-icon">🎉</span>Complete!<span class="nav-check">✓</span></button>
 </nav>
 
-<!-- ════════════════════════════════════════
-     SIDEBAR
-════════════════════════════════════════ -->
-<aside class="sidebar">
-  <div class="sb-section-label">Module 12</div>
+<main class="main-content" id="mainContent">
 
-  <div class="sb-item active" onclick="goPage(0)" id="sb-0">
-    <div class="sb-icon">🏠</div>
-    <span class="sb-label">Welcome</span>
-    <svg class="sb-check" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#3d6b4f"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
-  </div>
-  <div class="sb-item" onclick="goPage(1)" id="sb-1">
-    <div class="sb-icon">🧮</div>
-    <span class="sb-label">Project 1: Calculator</span>
-    <svg class="sb-check" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#3d6b4f"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
-  </div>
-  <div class="sb-item" onclick="goPage(2)" id="sb-2">
-    <div class="sb-icon">📝</div>
-    <span class="sb-label">Project 2: To-Do App</span>
-    <svg class="sb-check" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#3d6b4f"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
-  </div>
-  <div class="sb-item" onclick="goPage(3)" id="sb-3">
-    <div class="sb-icon">🎯</div>
-    <span class="sb-label">Project 3: Quiz Game</span>
-    <svg class="sb-check" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#3d6b4f"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
-  </div>
-  <div class="sb-item" onclick="goPage(4)" id="sb-4">
-    <div class="sb-icon">🚀</div>
-    <span class="sb-label">Advanced: File Manager</span>
-    <svg class="sb-check" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#3d6b4f"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
-  </div>
-  <div class="sb-item" onclick="goPage(5)" id="sb-5">
-    <div class="sb-icon">✏️</div>
-    <span class="sb-label">Exercises</span>
-    <svg class="sb-check" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#3d6b4f"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
-  </div>
-  <div class="sb-item" onclick="goPage(6)" id="sb-6">
-    <div class="sb-icon">🧠</div>
-    <span class="sb-label">Quiz</span>
-    <svg class="sb-check" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#3d6b4f"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
-  </div>
-  <div class="sb-item" onclick="goPage(7)" id="sb-7">
-    <div class="sb-icon">🎓</div>
-    <span class="sb-label">Completion</span>
-    <svg class="sb-check" width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#3d6b4f"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
-  </div>
-</aside>
-
-<!-- ════════════════════════════════════════
-     MAIN CONTENT
-════════════════════════════════════════ -->
-<main class="main">
-
-<!-- ════ PAGE 0: WELCOME ════ -->
-<div class="page active" id="page-0">
-  <div class="welcome-hero">
-    <div class="hero-badge">🐍 Python for Beginners · Module 12</div>
-    <div class="hero-title">Projects in<br><span class="hl">Python</span></div>
-    <div class="hero-subtitle">Apply everything you've learned to build real, working applications. From a smart calculator to a file manager — you'll code complete projects from scratch.</div>
+<!-- PAGE 0: WELCOME -->
+<section class="page active" id="page-0">
+  <div class="hero">
+    <div class="hero-deco" style="position:absolute; right:40px; top:50%; font-size:100px; opacity:.07;">🏗️</div>
+    <div class="hero-tag">⭐ Module 12 of 12 · Python for Beginners</div>
+    <h1>Projects<br><em>in Python</em></h1>
+    <p>Apply everything you've learned to build real, working applications. From a smart calculator to a file manager — you'll code complete projects from scratch.</p>
+    <div class="hero-chips">
+      <span class="chip chip-blue">🏗️ 4 Projects</span>
+      <span class="chip chip-green">✏️ 3 Exercises</span>
+      <span class="chip chip-purple">🧠 5 Questions</span>
+      <span class="chip chip-blue">⏱️ ~60 min</span>
+    </div>
   </div>
 
-  <div class="welcome-stats">
-    <div class="wstat"><div class="wstat-icon">🏗️</div><div class="wstat-value">4</div><div class="wstat-label">Full Projects</div></div>
-    <div class="wstat"><div class="wstat-icon">💻</div><div class="wstat-value">150+</div><div class="wstat-label">Lines of Code</div></div>
-    <div class="wstat"><div class="wstat-icon">✏️</div><div class="wstat-value">3</div><div class="wstat-label">Exercises</div></div>
-    <div class="wstat"><div class="wstat-icon">⏱️</div><div class="wstat-value">60</div><div class="wstat-label">Minutes</div></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-tag">🎯 Projects You'll Build</div>
+      <div class="project-grid">
+        <div class="project-card" onclick="goTo(1)"><div class="project-icon">🧮</div><div class="project-name">Calculator App</div><div class="project-desc">Functions · Input handling · Error checking</div><span class="project-badge badge-easy">Easy</span></div>
+        <div class="project-card" onclick="goTo(2)"><div class="project-icon">📝</div><div class="project-name">To-Do List App</div><div class="project-desc">Lists · CRUD · File persistence</div><span class="project-badge badge-med">Medium</span></div>
+        <div class="project-card" onclick="goTo(3)"><div class="project-icon">🎯</div><div class="project-name">Quiz Game</div><div class="project-desc">Dictionaries · Loops · Score tracking</div><span class="project-badge badge-med">Medium</span></div>
+        <div class="project-card" onclick="goTo(4)"><div class="project-icon">🚀</div><div class="project-name">File Manager</div><div class="project-desc">OS module · OOP · Advanced</div><span class="project-badge badge-hard">Advanced</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-tag">💡 Why Projects Matter</div>
+      <p>Building real projects is the fastest way to cement Python skills. Each project introduces new concepts while reinforcing everything you've learned. By the end, you'll have a mini portfolio to show off!</p>
+      <div class="info-box blue" style="margin-top:16px;"><span class="info-icon">🏆</span><div class="info-text">You'll write <strong>150+ lines of code</strong> across these 4 projects!</div></div>
+    </div>
   </div>
 
+  <div class="info-box green"><span class="info-icon">💡</span><div class="info-text"><strong>Project-Based Learning:</strong> The best way to learn is by building. Each project introduces a new challenge while applying concepts you already know.</div></div>
+  <div class="page-nav"><span></span><button class="btn btn-primary" onclick="goTo(1)">Start Building →</button></div>
+</section>
+
+<!-- PAGE 1: CALCULATOR -->
+<section class="page" id="page-1">
+  <div class="section-tag">🏗️ Project 1</div>
+  <div class="page-h2">Build a Python Calculator</div>
+  <div class="page-subtitle">A command-line calculator that handles +, -, ×, ÷ operations with input validation.</div>
+
+  <div class="analogy-card"><div class="analogy-icon">🏗️</div><div><div class="analogy-title">Think of it like a vending machine</div><div class="info-text">The machine (main loop) keeps running. Each button (function) does one specific job. If you press an invalid button, the machine says "Invalid choice" rather than crashing — that's how we design our calculator!</div></div></div>
+
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">calculator.py</span></div>
+    <span class="kw">def</span> <span class="fn">add</span>(a, b): <span class="kw">return</span> a + b<br>
+    <span class="kw">def</span> <span class="fn">subtract</span>(a, b): <span class="kw">return</span> a - b<br>
+    <span class="kw">def</span> <span class="fn">multiply</span>(a, b): <span class="kw">return</span> a * b<br>
+    <span class="kw">def</span> <span class="fn">divide</span>(a, b):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> b == <span class="nu">0</span>: <span class="kw">raise</span> <span class="cl">ValueError</span>(<span class="st">"Cannot divide by zero!"</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> a / b<br><br>
+    <span class="kw">def</span> <span class="fn">main</span>():<br>&nbsp;&nbsp;&nbsp;&nbsp;ops = {<span class="st">'1'</span>: (<span class="st">'Add'</span>, add), <span class="st">'2'</span>: (<span class="st">'Subtract'</span>, subtract), <span class="st">'3'</span>: (<span class="st">'Multiply'</span>, multiply), <span class="st">'4'</span>: (<span class="st">'Divide'</span>, divide)}<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> <span class="kw">True</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"\n=== Calculator ==="</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> k, (n, _) <span class="kw">in</span> ops.items(): <span class="fn">print</span>(<span class="st">f"  {k}. {n}"</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"  5. Exit"</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;choice = <span class="fn">input</span>(<span class="st">"Choose: "</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> choice == <span class="st">'5'</span>: <span class="kw">break</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> choice <span class="kw">not in</span> ops: <span class="fn">print</span>(<span class="st">"Invalid choice!"</span>); <span class="kw">continue</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">try</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a = <span class="fn">float</span>(<span class="fn">input</span>(<span class="st">"First number: "</span>))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b = <span class="fn">float</span>(<span class="fn">input</span>(<span class="st">"Second number: "</span>))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_, func = ops[choice]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">f"Result: {func(a, b)}"</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">except</span> <span class="cl">ValueError</span> <span class="kw">as</span> e: <span class="fn">print</span>(<span class="st">f"Error: {e}"</span>)<br><br>
+    <span class="fn">main</span>()
+  </div>
+  <button class="btn btn-run" onclick="toggleOutput('out1')">▶ Run Demo</button>
+  <div class="output-block" id="out1">=== Calculator ===<br>&nbsp;&nbsp;1. Add<br>&nbsp;&nbsp;2. Subtract<br>&nbsp;&nbsp;3. Multiply<br>&nbsp;&nbsp;4. Divide<br>&nbsp;&nbsp;5. Exit<br>Choose: 1<br>First number: 15<br>Second number: 8<br>Result: 23.0</div>
+
+  <!-- Live Calculator Demo -->
   <div class="card">
-    <h2 class="section-heading">🗂️ Projects You'll Build</h2>
-    <p class="body-text" style="margin-bottom:18px;">Click any project to jump directly to it.</p>
-    <div class="project-cards-grid">
-      <div class="project-preview-card" style="background:var(--mist);border-color:var(--mint);" onclick="goPage(1)">
-        <div class="ppc-number" style="color:var(--moss);">01</div>
-        <div style="font-size:28px;margin-bottom:10px;">🧮</div>
-        <div style="font-size:14px;font-weight:700;color:var(--forest);margin-bottom:4px;">Calculator App</div>
-        <div style="font-size:12px;color:var(--text3);">Functions · Input handling · Error checking</div>
-        <div style="margin-top:10px;"><span class="diff-easy">Easy</span></div>
-      </div>
-      <div class="project-preview-card" style="background:#fefbf0;border-color:#f5e6c8;" onclick="goPage(2)">
-        <div class="ppc-number" style="color:var(--gold);">02</div>
-        <div style="font-size:28px;margin-bottom:10px;">📝</div>
-        <div style="font-size:14px;font-weight:700;color:var(--forest);margin-bottom:4px;">To-Do List App</div>
-        <div style="font-size:12px;color:var(--text3);">Lists · CRUD operations · Persistence</div>
-        <div style="margin-top:10px;"><span class="diff-med">Medium</span></div>
-      </div>
-      <div class="project-preview-card" style="background:#fef4f2;border-color:#f4a695;" onclick="goPage(3)">
-        <div class="ppc-number" style="color:var(--coral);">03</div>
-        <div style="font-size:28px;margin-bottom:10px;">🎯</div>
-        <div style="font-size:14px;font-weight:700;color:var(--forest);margin-bottom:4px;">Quiz Game</div>
-        <div style="font-size:12px;color:var(--text3);">Dictionaries · Loops · Score tracking</div>
-        <div style="margin-top:10px;"><span class="diff-med">Medium</span></div>
-      </div>
-      <div class="project-preview-card" style="background:var(--sky-l);border-color:#b0c9e8;" onclick="goPage(4)">
-        <div class="ppc-number" style="color:var(--sky);">04</div>
-        <div style="font-size:28px;margin-bottom:10px;">🚀</div>
-        <div style="font-size:14px;font-weight:700;color:var(--forest);margin-bottom:4px;">File Manager</div>
-        <div style="font-size:12px;color:var(--text3);">OS module · File I/O · OOP principles</div>
-        <div style="margin-top:10px;"><span class="diff-hard">Advanced</span></div>
-      </div>
+    <div class="section-tag">🎮 Try It Yourself</div>
+    <div class="calc-demo">
+      <button class="btn btn-ghost btn-sm" onclick="setCalcOp(1)">+ Add</button>
+      <button class="btn btn-ghost btn-sm" onclick="setCalcOp(2)">− Subtract</button>
+      <button class="btn btn-ghost btn-sm" onclick="setCalcOp(3)">× Multiply</button>
+      <button class="btn btn-ghost btn-sm" onclick="setCalcOp(4)">÷ Divide</button>
     </div>
-  </div>
-
-  <div class="card" style="background:linear-gradient(135deg,var(--forest),var(--forest2));border:none;color:#fff;">
-    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-      <div style="font-size:40px;">💡</div>
-      <div>
-        <div style="font-size:15px;font-weight:700;margin-bottom:5px;">The Project-Based Learning Approach</div>
-        <div style="font-size:13.5px;opacity:.75;line-height:1.75;">Building real projects is the <strong style="color:#8bbf9e;">fastest way</strong> to cement Python skills. Each project introduces a new concept while reinforcing everything you've already learned. By the end, you'll have a mini portfolio to show off!</div>
-      </div>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <input type="number" id="calcA" class="calc-input" placeholder="First number" value="15">
+      <span id="calcSym" class="calc-sym">+</span>
+      <input type="number" id="calcB" class="calc-input" placeholder="Second number" value="8">
+      <button class="btn btn-primary" onclick="runCalcDemo()">Calculate</button>
     </div>
+    <div id="calcResultDemo" class="calc-result"></div>
   </div>
 
-  <div class="bottom-nav">
-    <div></div>
-    <button class="btn btn-primary" onclick="goPage(1)">Start Building →</button>
-  </div>
-</div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(0)">← Back</button><button class="btn btn-primary" onclick="goTo(2)">Next →</button></div>
+</section>
 
-<!-- ════ PAGE 1: CALCULATOR ════ -->
-<div class="page" id="page-1">
-  <div style="margin-bottom:28px;">
-    <div class="eyebrow ey-green">Project 1 · Calculator App</div>
-    <div class="page-title">Build a Python Calculator</div>
-    <div class="page-subtitle">Create a fully functional calculator using functions, error handling, and a menu-driven loop.</div>
-  </div>
+<!-- PAGE 2: TO-DO APP -->
+<section class="page" id="page-2">
+  <div class="section-tag">🏗️ Project 2</div>
+  <div class="page-h2">Build a To-Do List App</div>
+  <div class="page-subtitle">Master CRUD operations (Create, Read, Update, Delete) with file persistence.</div>
 
-  <div class="card card-green">
-    <h2 class="section-heading">What We're Building</h2>
-    <p class="body-text">A command-line calculator that handles +, −, ×, ÷ operations with input validation and an infinite loop until the user chooses to quit.</p>
-    <div class="analogy-box">
-      <div class="analogy-icon">🏗️</div>
-      <div class="analogy-text"><strong>Think of it like building a vending machine:</strong> The machine (main loop) keeps running. Each button (function) does one specific job. If you press an invalid button (bad input), the machine says "Invalid choice" rather than crashing. That's how we design our calculator!</div>
-    </div>
-  </div>
+  <div class="analogy-card"><div class="analogy-icon">📱</div><div><div class="analogy-title">Think of it like a physical notebook</div><div class="info-text">You add tasks, check them off when done, and tear out completed pages. The file saving is like the notebook remembering your tasks even after you close it!</div></div></div>
 
-  <!-- INTERACTIVE 1: Project Architecture Flowchart -->
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">todo.py</span></div>
+    <span class="kw">import</span> <span class="vr">json</span><br>
+    <span class="kw">def</span> <span class="fn">load_tasks</span>():<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">try</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"tasks.json"</span>) <span class="kw">as</span> f: <span class="kw">return</span> <span class="vr">json</span>.<span class="fn">load</span>(f)<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">except</span> <span class="cl">FileNotFoundError</span>: <span class="kw">return</span> []<br><br>
+    <span class="kw">def</span> <span class="fn">save_tasks</span>(tasks):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"tasks.json"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f: <span class="vr">json</span>.<span class="fn">dump</span>(tasks, f, indent=<span class="nu">2</span>)<br><br>
+    <span class="kw">def</span> <span class="fn">add_task</span>(tasks, name):<br>&nbsp;&nbsp;&nbsp;&nbsp;tasks.<span class="fn">append</span>({<span class="st">"name"</span>: name, <span class="st">"done"</span>: <span class="kw">False</span>})<br><br>
+    <span class="kw">def</span> <span class="fn">view_tasks</span>(tasks):<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> i, t <span class="kw">in</span> <span class="fn">enumerate</span>(tasks, <span class="nu">1</span>):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;status = <span class="st">"✅"</span> <span class="kw">if</span> t[<span class="st">"done"</span>] <span class="kw">else</span> <span class="st">"⬜"</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">f"  {i}. {status} {t['name']}"</span>)<br>
+    <span class="kw">def</span> <span class="fn">complete_task</span>(tasks, idx):<br>&nbsp;&nbsp;&nbsp;&nbsp;tasks[idx<span class="op">-</span><span class="nu">1</span>][<span class="st">"done"</span>] = <span class="kw">True</span><br>
+    <span class="kw">def</span> <span class="fn">delete_task</span>(tasks, idx):<br>&nbsp;&nbsp;&nbsp;&nbsp;tasks.<span class="fn">pop</span>(idx <span class="op">-</span> <span class="nu">1</span>)
+  </div>
+  <button class="btn btn-run" onclick="toggleOutput('out2')">▶ Run Demo</button>
+  <div class="output-block" id="out2">&nbsp;&nbsp;1. ⬜ Learn Python<br>&nbsp;&nbsp;2. ✅ Build Calculator<br>&nbsp;&nbsp;3. ⬜ Complete Module 12</div>
+
+  <!-- Live To-Do Simulator -->
   <div class="card">
-    <h2 class="section-heading">🗺️ Project Architecture — Click to Explore</h2>
-    <p class="body-text" style="margin-bottom:16px;">Click each component to understand what it does in the project.</p>
-    <div class="flowchart-wrap">
-      <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
-        <div class="flow-node" style="background:linear-gradient(135deg,var(--moss),var(--sage));color:#fff;box-shadow:var(--glow-moss);" onclick="showFlowInfo('start')">▶ Program Starts</div>
-        <div class="flow-arrow" style="background:var(--border2);"><div style="color:var(--text3);"></div></div>
-        <div class="flow-node" style="background:var(--gold-l);border:2px solid var(--gold);color:#8a5f1a;" onclick="showFlowInfo('menu')">📋 Show Menu</div>
-        <div class="flow-arrow" style="background:var(--border2);"></div>
-        <div class="flow-node" style="background:var(--sky-l);border:2px solid var(--sky);color:#1e4a80;" onclick="showFlowInfo('input')">⌨️ Get User Input</div>
-        <div class="flow-arrow" style="background:var(--border2);"></div>
-        <div style="display:flex;gap:16px;align-items:flex-start;">
-          <div style="display:flex;flex-direction:column;align-items:center;">
-            <div style="font-size:11px;font-weight:700;color:var(--moss);margin-bottom:4px;">Valid choice</div>
-            <div class="flow-node" style="background:var(--mist);border:1.5px solid var(--mint);color:var(--forest);font-size:12px;" onclick="showFlowInfo('calc')">➕ Calculate Result</div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:center;">
-            <div style="font-size:11px;font-weight:700;color:var(--coral);margin-bottom:4px;">Quit (5)</div>
-            <div class="flow-node" style="background:var(--coral-l);border:1.5px solid var(--coral);color:#8a2a18;font-size:12px;" onclick="showFlowInfo('quit')">🛑 Exit Program</div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:center;">
-            <div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:4px;">Invalid</div>
-            <div class="flow-node" style="background:var(--gold-l);border:1.5px solid var(--gold);color:#8a5f1a;font-size:12px;" onclick="showFlowInfo('error')">⚠️ Error Message</div>
-          </div>
-        </div>
-      </div>
+    <div class="section-tag">📋 Live To-Do Simulator</div>
+    <div style="display:flex; gap:8px; margin-bottom:16px;">
+      <input type="text" id="todoInput" placeholder="Enter a new task..." style="flex:1; padding:10px; border:1px solid #89b9e8; border-radius:8px; outline:none; background:#b8d8fc; color:#0a0a2a;">
+      <button class="btn btn-primary btn-sm" onclick="addTodo()">+ Add Task</button>
     </div>
-    <div id="flow-info" style="margin-top:14px;padding:14px 18px;background:var(--mist);border:1px solid var(--mint);border-radius:var(--radius);font-size:13px;color:var(--forest);display:none;"></div>
+    <div id="todoList" class="todo-list"></div>
+    <div style="display:flex; gap:8px; margin-top:10px;">
+      <span id="todoStats" style="font-size:12px; color:var(--text3);"></span>
+      <button class="btn btn-ghost btn-sm" onclick="clearCompleted()">🗑️ Clear Completed</button>
+    </div>
   </div>
 
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(1)">← Back</button><button class="btn btn-primary" onclick="goTo(3)">Next →</button></div>
+</section>
+
+<!-- PAGE 3: QUIZ GAME -->
+<section class="page" id="page-3">
+  <div class="section-tag">🏗️ Project 3</div>
+  <div class="page-h2">Build a Python Quiz Game</div>
+  <div class="page-subtitle">Use dictionaries, loops, and score tracking to create an engaging quiz engine.</div>
+
+  <div class="analogy-card"><div class="analogy-icon">🎮</div><div><div class="analogy-title">Think of it like a game show host</div><div class="info-text">The host reads each question card, shows options, waits for your answer, checks if it's right, and keeps score. Our Python code IS the game show host!</div></div></div>
+
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">quiz.py</span></div>
+    <span class="vr">questions</span> = [<br>&nbsp;&nbsp;&nbsp;&nbsp;{<span class="st">"q"</span>: <span class="st">"What keyword creates a function?"</span>, <span class="st">"options"</span>: [<span class="st">"func"</span>, <span class="st">"def"</span>, <span class="st">"fn"</span>, <span class="st">"define"</span>], <span class="st">"answer"</span>: <span class="st">"def"</span>},<br>&nbsp;&nbsp;&nbsp;&nbsp;{<span class="st">"q"</span>: <span class="st">"Which data type is mutable?"</span>, <span class="st">"options"</span>: [<span class="st">"tuple"</span>, <span class="st">"string"</span>, <span class="st">"list"</span>, <span class="st">"int"</span>], <span class="st">"answer"</span>: <span class="st">"list"</span>}<br>]<br><br>
+    <span class="kw">def</span> <span class="fn">run_quiz</span>(questions):<br>&nbsp;&nbsp;&nbsp;&nbsp;score = <span class="nu">0</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> i, q <span class="kw">in</span> <span class="fn">enumerate</span>(questions, <span class="nu">1</span>):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">f"\nQ{i}: {q['q']}"</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> j, opt <span class="kw">in</span> <span class="fn">enumerate</span>(q[<span class="st">'options'</span>], <span class="nu">1</span>): <span class="fn">print</span>(<span class="st">f"  {j}. {opt}"</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ans = <span class="fn">input</span>(<span class="st">"Your answer: "</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> ans == q[<span class="st">"answer"</span>]:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">"✅ Correct!"</span>); score += <span class="nu">1</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">else</span>: <span class="fn">print</span>(<span class="st">f"❌ Wrong! Answer: {q['answer']}"</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;pct = score / <span class="fn">len</span>(questions) * <span class="nu">100</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">f"\n🎯 Score: {score}/{len(questions)} ({pct:.0f}%)"</span>)
+  </div>
+  <button class="btn btn-run" onclick="toggleOutput('out3')">▶ Run Demo</button>
+  <div class="output-block" id="out3">Q1: What keyword creates a function?<br>&nbsp;&nbsp;1. func &nbsp;2. def &nbsp;3. fn &nbsp;4. define<br>Your answer: def<br>✅ Correct!<br><br>🎯 Score: 1/2 (50%)</div>
+
+  <!-- Score Simulator -->
   <div class="card">
-    <h2 class="section-heading">Complete Calculator Code</h2>
-    <div class="code-block">
-      <div class="code-header"><div class="code-dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span class="code-filename">calculator.py</span></div>
-      <div class="code-body"><span class="kw">def</span> <span class="fn">add</span>(a, b): <span class="kw">return</span> a + b
-<span class="kw">def</span> <span class="fn">subtract</span>(a, b): <span class="kw">return</span> a - b
-<span class="kw">def</span> <span class="fn">multiply</span>(a, b): <span class="kw">return</span> a * b
-<span class="kw">def</span> <span class="fn">divide</span>(a, b):
-    <span class="kw">if</span> b == <span class="nm">0</span>: <span class="kw">raise</span> <span class="cl">ValueError</span>(<span class="st">"Cannot divide by zero!"</span>)
-    <span class="kw">return</span> a / b
-
-<span class="kw">def</span> <span class="fn">main</span>():
-    <span class="pr">operations</span> = {<span class="st">'1'</span>: (<span class="st">'Add'</span>, add), <span class="st">'2'</span>: (<span class="st">'Subtract'</span>, subtract),
-                  <span class="st">'3'</span>: (<span class="st">'Multiply'</span>, multiply), <span class="st">'4'</span>: (<span class="st">'Divide'</span>, divide)}
-    <span class="kw">while</span> <span class="kw">True</span>:
-        <span class="fn">print</span>(<span class="st">"\n=== Calculator ==="</span>)
-        <span class="kw">for</span> k, (name, _) <span class="kw">in</span> operations.<span class="fn">items</span>():
-            <span class="fn">print</span>(<span class="st">f"  {k}. {name}"</span>)
-        <span class="fn">print</span>(<span class="st">"  5. Exit"</span>)
-        <span class="pr">choice</span> = <span class="fn">input</span>(<span class="st">"Choose operation: "</span>)
-        <span class="kw">if</span> choice == <span class="st">'5'</span>: <span class="kw">break</span>
-        <span class="kw">if</span> choice <span class="kw">not in</span> operations:
-            <span class="fn">print</span>(<span class="st">"Invalid choice!"</span>); <span class="kw">continue</span>
-        <span class="kw">try</span>:
-            a = <span class="fn">float</span>(<span class="fn">input</span>(<span class="st">"Enter first number: "</span>))
-            b = <span class="fn">float</span>(<span class="fn">input</span>(<span class="st">"Enter second number: "</span>))
-            _, <span class="pr">func</span> = operations[choice]
-            <span class="fn">print</span>(<span class="st">f"Result: {func(a, b)}"</span>)
-        <span class="kw">except</span> (<span class="cl">ValueError</span>, <span class="cl">TypeError</span>) <span class="kw">as</span> e:
-            <span class="fn">print</span>(<span class="st">f"Error: {e}"</span>)
-
-<span class="fn">main</span>()</div>
-    </div>
-    <button class="btn-run" onclick="toggleOutput('out-calc')">▶ Run Demo</button>
-    <div class="output-block" id="out-calc">
-      <div class="out-label">Output</div>
-=== Calculator ===<br>
-&nbsp;&nbsp;1. Add<br>
-&nbsp;&nbsp;2. Subtract<br>
-&nbsp;&nbsp;3. Multiply<br>
-&nbsp;&nbsp;4. Divide<br>
-&nbsp;&nbsp;5. Exit<br>
-Choose operation: <span style="color:#a5d6ff;">1</span><br>
-Enter first number: <span style="color:#a5d6ff;">15</span><br>
-Enter second number: <span style="color:#a5d6ff;">8</span><br>
-Result: <span style="color:#ffa657;">23.0</span>
+    <div class="section-tag">📊 Score Simulator</div>
+    <div class="score-sim">
+      <div class="slider-row"><label>Total questions:</label><input type="range" id="quizTotal" min="1" max="20" value="10" oninput="updateScoreSim()"><span id="quizTotalVal" class="slider-val">10</span></div>
+      <div class="slider-row"><label>Correct answers:</label><input type="range" id="quizCorrect" min="0" max="20" value="7" oninput="updateScoreSim()"><span id="quizCorrectVal" class="slider-val">7</span></div>
+      <div id="scoreSimResult" class="score-result"></div>
     </div>
   </div>
 
-  <!-- INTERACTIVE 2: Live Calculator Demo -->
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(2)">← Back</button><button class="btn btn-primary" onclick="goTo(4)">Next →</button></div>
+</section>
+
+<!-- PAGE 4: FILE MANAGER -->
+<section class="page" id="page-4">
+  <div class="section-tag">🚀 Advanced Project</div>
+  <div class="page-h2">Build a Python File Manager</div>
+  <div class="page-subtitle">Use the os module and OOP to create a powerful file management tool.</div>
+
+  <div class="analogy-card"><div class="analogy-icon">🗃️</div><div><div class="analogy-title">Think of it like macOS Finder or Windows Explorer</div><div class="info-text">Those GUI apps interact with your file system. We're building the same functionality in Python code, using the os module — Python's bridge to your operating system.</div></div></div>
+
+  <div class="code-block"><div class="code-header"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div><span class="code-fname">file_manager.py</span></div>
+    <span class="kw">import</span> <span class="vr">os</span>, <span class="vr">glob</span><br>
+    <span class="kw">class</span> <span class="cl">FileManager</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">def</span> <span class="fn">__init__</span>(<span class="vr">self</span>, path=<span class="st">"."</span>):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="vr">self</span>.<span class="vr">path</span> = <span class="vr">os</span>.path.<span class="fn">abspath</span>(path)<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">def</span> <span class="fn">list_files</span>(<span class="vr">self</span>):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> item <span class="kw">in</span> <span class="fn">sorted</span>(<span class="vr">os</span>.<span class="fn">listdir</span>(<span class="vr">self</span>.<span class="vr">path</span>)):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;full = <span class="vr">os</span>.path.<span class="fn">join</span>(<span class="vr">self</span>.<span class="vr">path</span>, item)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kind = <span class="st">"📁"</span> <span class="kw">if</span> <span class="vr">os</span>.path.<span class="fn">isdir</span>(full) <span class="kw">else</span> <span class="st">"📄"</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="st">f"  {kind} {item}"</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">def</span> <span class="fn">create_file</span>(<span class="vr">self</span>, name, content=<span class="st">""</span>):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filepath = <span class="vr">os</span>.path.<span class="fn">join</span>(<span class="vr">self</span>.<span class="vr">path</span>, name)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">with</span> <span class="fn">open</span>(filepath, <span class="st">'w'</span>) <span class="kw">as</span> f: f.<span class="fn">write</span>(content)<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">def</span> <span class="fn">search_files</span>(<span class="vr">self</span>, pattern):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matches = <span class="vr">glob</span>.<span class="fn">glob</span>(<span class="vr">os</span>.path.<span class="fn">join</span>(<span class="vr">self</span>.<span class="vr">path</span>, <span class="st">f"*{pattern}*"</span>))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> [<span class="vr">os</span>.path.<span class="fn">basename</span>(m) <span class="kw">for</span> m <span class="kw">in</span> matches]
+  </div>
+  <button class="btn btn-run" onclick="toggleOutput('out4')">▶ Run Demo</button>
+  <div class="output-block" id="out4">&nbsp;&nbsp;📁 Documents<br>&nbsp;&nbsp;📄 hello.py<br>&nbsp;&nbsp;📄 tasks.json</div>
+
+  <!-- Virtual File System Simulator -->
   <div class="card">
-    <h2 class="section-heading">🎮 Interactive Calculator Demo</h2>
-    <p class="body-text" style="margin-bottom:16px;">Try the calculator right here! Select an operation and enter two numbers.</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
-      <button class="btn btn-ghost btn-sm" id="calc-op-1" onclick="setCalcOp(1)">+ Add</button>
-      <button class="btn btn-ghost btn-sm" id="calc-op-2" onclick="setCalcOp(2)">− Subtract</button>
-      <button class="btn btn-ghost btn-sm" id="calc-op-3" onclick="setCalcOp(3)">× Multiply</button>
-      <button class="btn btn-ghost btn-sm" id="calc-op-4" onclick="setCalcOp(4)">÷ Divide</button>
-    </div>
-    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-      <input type="number" id="calc-a" placeholder="First number" value="15" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;width:150px;transition:border .2s;" onfocus="this.style.borderColor='var(--moss)'" onblur="this.style.borderColor='var(--border)'">
-      <span id="calc-sym" style="font-size:20px;font-weight:700;color:var(--moss);">+</span>
-      <input type="number" id="calc-b" placeholder="Second number" value="8" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;width:150px;transition:border .2s;" onfocus="this.style.borderColor='var(--moss)'" onblur="this.style.borderColor='var(--border)'">
-      <span style="font-size:18px;font-weight:700;color:var(--text3);">=</span>
-      <button class="btn btn-primary btn-sm" onclick="runCalc()">Calculate</button>
-    </div>
-    <div id="calc-result" style="margin-top:14px;font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--forest);padding:12px 16px;background:var(--mist);border-radius:10px;display:none;"></div>
-    <div id="calc-error" style="margin-top:10px;font-size:13px;font-weight:600;color:var(--coral);display:none;"></div>
-  </div>
-
-  <!-- INTERACTIVE 3: Step Visualizer -->
-  <div class="card">
-    <h2 class="section-heading">🔬 Step-by-Step: How the Code Executes</h2>
-    <p class="body-text" style="margin-bottom:16px;">Click <strong>Step</strong> to trace through calculator execution for "Add 10 + 5".</p>
-    <div class="step-viz" id="sv-calc">
-      <div class="step-line active" id="sv-c0"><span class="step-num">1</span><div><div class="step-code"><span style="color:#ff7b72;">while</span> <span style="color:#ff7b72;">True</span>:</div><div class="step-note">Enter infinite loop — calculator keeps running until "Exit"</div></div></div>
-      <div class="step-line" id="sv-c1"><span class="step-num">2</span><div><div class="step-code"><span style="color:#ff7b72;">print</span>(<span style="color:#a5d6ff;">"=== Calculator ==="</span>)</div><div class="step-note">Display menu to user. Each option maps to a function.</div></div></div>
-      <div class="step-line" id="sv-c2"><span class="step-num">3</span><div><div class="step-code"><span style="color:#7ee787;">choice</span> = <span style="color:#ff7b72;">input</span>(<span style="color:#a5d6ff;">"Choose: "</span>)  <span style="color:#8b949e;"># user types "1"</span></div><div class="step-note">choice = "1" (Add). Validated against operations dict.</div></div></div>
-      <div class="step-line" id="sv-c3"><span class="step-num">4</span><div><div class="step-code">a = <span style="color:#ff7b72;">float</span>(<span style="color:#ff7b72;">input</span>())  <span style="color:#8b949e;"># a = 10.0</span></div><div class="step-note">float() converts string input "10" → 10.0</div></div></div>
-      <div class="step-line" id="sv-c4"><span class="step-num">5</span><div><div class="step-code">_, func = operations[choice]</div><div class="step-note">Unpacks tuple: name="Add", func=add function</div></div></div>
-      <div class="step-line" id="sv-c5"><span class="step-num">6</span><div><div class="step-code"><span style="color:#ff7b72;">print</span>(<span style="color:#a5d6ff;">f"Result: {func(a, b)}"</span>)</div><div class="step-note">✅ Calls add(10.0, 5.0) → prints "Result: 15.0"</div></div></div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:16px;align-items:center;">
-      <button class="btn btn-primary btn-sm" onclick="stepViz('sv-calc','sv-c',6,'sv-msg-calc')">→ Step</button>
-      <button class="btn btn-ghost btn-sm" onclick="resetViz('sv-calc','sv-c',6,'sv-msg-calc')">↺ Reset</button>
-      <span id="sv-msg-calc" style="font-size:13px;font-weight:600;color:var(--moss);"></span>
-    </div>
-  </div>
-
-  <div class="bottom-nav">
-    <button class="btn btn-ghost" onclick="goPage(0)">← Back</button>
-    <button class="btn btn-primary" onclick="goPage(2)">Next: To-Do App →</button>
-  </div>
-</div>
-
-<!-- ════ PAGE 2: TO-DO APP ════ -->
-<div class="page" id="page-2">
-  <div style="margin-bottom:28px;">
-    <div class="eyebrow ey-gold">Project 2 · To-Do App</div>
-    <div class="page-title">Build a To-Do List App</div>
-    <div class="page-subtitle">Master CRUD operations (Create, Read, Update, Delete) and data persistence with a file-backed to-do manager.</div>
-  </div>
-
-  <div class="card card-gold">
-    <h2 class="section-heading">What We're Building</h2>
-    <p class="body-text">A command-line to-do list that stores tasks, marks them complete, deletes them, and saves everything to a text file so data persists between runs.</p>
-    <div class="analogy-box">
-      <div class="analogy-icon">📱</div>
-      <div class="analogy-text"><strong>Think of it like a physical notebook:</strong> You add tasks, check them off when done, and tear out completed pages. The file saving is like the notebook actually remembering your tasks after you close it — unlike a list that disappears when Python stops!</div>
-    </div>
-  </div>
-
-  <!-- INTERACTIVE 4: Feature Toggle Builder -->
-  <div class="card">
-    <h2 class="section-heading">⚙️ Feature Planner — Design Your App</h2>
-    <p class="body-text" style="margin-bottom:16px;">Toggle features on/off to plan your To-Do app. See the code complexity change!</p>
-    <div class="feature-builder">
-      <div class="feature-row" id="fr-add">
-        <div><div class="feature-name">➕ Add Tasks</div><div class="feature-desc">append new tasks to list</div></div>
-        <div class="toggle-switch on" onclick="toggleFeature('add')"></div>
-      </div>
-      <div class="feature-row" id="fr-view">
-        <div><div class="feature-name">📋 View All Tasks</div><div class="feature-desc">print numbered task list</div></div>
-        <div class="toggle-switch on" onclick="toggleFeature('view')"></div>
-      </div>
-      <div class="feature-row" id="fr-complete">
-        <div><div class="feature-name">✅ Mark Complete</div><div class="feature-desc">checkbox status per task</div></div>
-        <div class="toggle-switch" onclick="toggleFeature('complete')"></div>
-      </div>
-      <div class="feature-row" id="fr-delete">
-        <div><div class="feature-name">🗑️ Delete Tasks</div><div class="feature-desc">remove by index number</div></div>
-        <div class="toggle-switch" onclick="toggleFeature('delete')"></div>
-      </div>
-      <div class="feature-row" id="fr-save">
-        <div><div class="feature-name">💾 Save to File</div><div class="feature-desc">persist tasks between sessions</div></div>
-        <div class="toggle-switch" onclick="toggleFeature('save')"></div>
-      </div>
-    </div>
-    <div style="margin-top:14px;padding:12px 16px;background:var(--mist);border-radius:10px;">
-      <div style="font-size:11.5px;font-weight:700;color:var(--forest);margin-bottom:4px;">Estimated code complexity:</div>
-      <div id="complexity-bar" style="height:8px;background:var(--border);border-radius:6px;overflow:hidden;"><div id="complexity-fill" style="height:100%;background:linear-gradient(90deg,var(--moss),var(--gold));border-radius:6px;transition:width .4s ease;width:40%;"></div></div>
-      <div id="complexity-label" style="font-size:12px;color:var(--moss);margin-top:4px;font-weight:600;">~40 lines (Basic)</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2 class="section-heading">Complete To-Do App Code</h2>
-    <div class="code-block">
-      <div class="code-header"><div class="code-dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span class="code-filename">todo_app.py</span></div>
-      <div class="code-body"><span class="kw">import</span> json
-
-<span class="kw">def</span> <span class="fn">load_tasks</span>(filename=<span class="st">"tasks.json"</span>):
-    <span class="kw">try</span>:
-        <span class="kw">with</span> <span class="fn">open</span>(filename) <span class="kw">as</span> f: <span class="kw">return</span> json.<span class="fn">load</span>(f)
-    <span class="kw">except</span> <span class="cl">FileNotFoundError</span>: <span class="kw">return</span> []
-
-<span class="kw">def</span> <span class="fn">save_tasks</span>(tasks, filename=<span class="st">"tasks.json"</span>):
-    <span class="kw">with</span> <span class="fn">open</span>(filename, <span class="st">'w'</span>) <span class="kw">as</span> f: json.<span class="fn">dump</span>(tasks, f, indent=<span class="nm">2</span>)
-
-<span class="kw">def</span> <span class="fn">add_task</span>(tasks, name):
-    tasks.<span class="fn">append</span>({<span class="st">"name"</span>: name, <span class="st">"done"</span>: <span class="kw">False</span>})
-
-<span class="kw">def</span> <span class="fn">view_tasks</span>(tasks):
-    <span class="kw">if not</span> tasks: <span class="fn">print</span>(<span class="st">"No tasks yet!"</span>); <span class="kw">return</span>
-    <span class="kw">for</span> i, t <span class="kw">in</span> <span class="fn">enumerate</span>(tasks, <span class="nm">1</span>):
-        status = <span class="st">"✅"</span> <span class="kw">if</span> t[<span class="st">"done"</span>] <span class="kw">else</span> <span class="st">"⬜"</span>
-        <span class="fn">print</span>(<span class="st">f"  {i}. {status} {t['name']}"</span>)
-
-<span class="kw">def</span> <span class="fn">complete_task</span>(tasks, idx):
-    tasks[idx - <span class="nm">1</span>][<span class="st">"done"</span>] = <span class="kw">True</span>
-
-<span class="kw">def</span> <span class="fn">delete_task</span>(tasks, idx):
-    tasks.<span class="fn">pop</span>(idx - <span class="nm">1</span>)
-
-<span class="cm"># Main loop — try it yourself!</span>
-tasks = <span class="fn">load_tasks</span>()
-<span class="fn">add_task</span>(tasks, <span class="st">"Learn Python Projects"</span>)
-<span class="fn">add_task</span>(tasks, <span class="st">"Build Calculator"</span>)
-<span class="fn">complete_task</span>(tasks, <span class="nm">2</span>)
-<span class="fn">view_tasks</span>(tasks)
-<span class="fn">save_tasks</span>(tasks)</div>
-    </div>
-    <button class="btn-run" onclick="toggleOutput('out-todo')">▶ Run Demo</button>
-    <div class="output-block" id="out-todo">
-      <div class="out-label">Output</div>
-&nbsp;&nbsp;1. ⬜ Learn Python Projects<br>
-&nbsp;&nbsp;2. ✅ Build Calculator
-    </div>
-  </div>
-
-  <!-- INTERACTIVE 5: Live To-Do Simulator -->
-  <div class="card">
-    <h2 class="section-heading">📋 Live To-Do Simulator</h2>
-    <p class="body-text" style="margin-bottom:16px;">Add, complete, and delete tasks just like the real Python app would behave!</p>
-    <div style="display:flex;gap:10px;margin-bottom:14px;">
-      <input type="text" id="todo-input" placeholder="Enter a new task..." style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13.5px;font-family:'DM Sans',sans-serif;outline:none;transition:border .2s;" onfocus="this.style.borderColor='var(--moss)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter')addTodoItem()">
-      <button class="btn btn-primary btn-sm" onclick="addTodoItem()">+ Add Task</button>
-    </div>
-    <div id="todo-list" style="display:flex;flex-direction:column;gap:6px;min-height:60px;"></div>
-    <div style="margin-top:12px;display:flex;gap:10px;align-items:center;">
-      <span id="todo-count" style="font-size:12px;color:var(--text3);">0 tasks</span>
-      <button class="btn btn-ghost btn-sm" onclick="clearDoneTodos()">🗑️ Clear Completed</button>
-    </div>
-    <div id="todo-json" style="margin-top:12px;background:var(--code-bg);border-radius:10px;padding:14px 16px;font-family:'DM Mono',monospace;font-size:11.5px;color:#7ee787;display:none;"></div>
-    <button class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="showTodoJson()">💾 Show JSON (file simulation)</button>
-  </div>
-
-  <div class="bottom-nav">
-    <button class="btn btn-ghost" onclick="goPage(1)">← Back</button>
-    <button class="btn btn-primary" onclick="goPage(3)">Next: Quiz Game →</button>
-  </div>
-</div>
-
-<!-- ════ PAGE 3: QUIZ GAME ════ -->
-<div class="page" id="page-3">
-  <div style="margin-bottom:28px;">
-    <div class="eyebrow ey-coral">Project 3 · Quiz Game</div>
-    <div class="page-title">Build a Python Quiz Game</div>
-    <div class="page-subtitle">Use dictionaries, loops, and score tracking to create an engaging command-line quiz engine.</div>
-  </div>
-
-  <div class="card card-coral">
-    <h2 class="section-heading">What We're Building</h2>
-    <p class="body-text">A quiz game that loads questions from a dictionary, presents multiple-choice options, tracks the score, and shows a final result with percentage.</p>
-    <div class="analogy-box">
-      <div class="analogy-icon">🎮</div>
-      <div class="analogy-text"><strong>Think of it like a game show host:</strong> The host (main loop) reads each question card (dictionary entry), shows options, waits for your answer, checks if it's right, and keeps score. At the end, reveals your result. Our Python code IS the game show host!</div>
-    </div>
-  </div>
-
-  <!-- INTERACTIVE 6: Quiz Data Structure Explorer -->
-  <div class="card">
-    <h2 class="section-heading">🗃️ Data Structure — Click to Reveal</h2>
-    <p class="body-text" style="margin-bottom:16px;">The quiz uses a list of dictionaries. Click each card to understand the structure.</p>
-    <div class="reveal-grid">
-      <div class="reveal-card" onclick="this.classList.toggle('open')">
-        <div class="rc-front"><div style="font-size:26px;margin-bottom:6px;">📋</div><div style="font-size:13px;font-weight:700;color:var(--text);">Question Dict</div></div>
-        <div class="rc-back"><strong>Each question is a dictionary:</strong><br><code style="font-family:'DM Mono',monospace;font-size:11px;color:var(--plum);">{<br>&nbsp;&nbsp;"q": "What is 2+2?",<br>&nbsp;&nbsp;"options": ["1","3","4","5"],<br>&nbsp;&nbsp;"answer": "4"<br>}</code></div>
-      </div>
-      <div class="reveal-card" onclick="this.classList.toggle('open')">
-        <div class="rc-front"><div style="font-size:26px;margin-bottom:6px;">📦</div><div style="font-size:13px;font-weight:700;color:var(--text);">Questions List</div></div>
-        <div class="rc-back"><strong>All questions in a list:</strong><br><code style="font-family:'DM Mono',monospace;font-size:11px;color:var(--plum);">questions = [<br>&nbsp;&nbsp;{...question 1},<br>&nbsp;&nbsp;{...question 2},<br>&nbsp;&nbsp;{...question N}<br>]</code></div>
-      </div>
-      <div class="reveal-card" onclick="this.classList.toggle('open')">
-        <div class="rc-front"><div style="font-size:26px;margin-bottom:6px;">🔄</div><div style="font-size:13px;font-weight:700;color:var(--text);">Loop Logic</div></div>
-        <div class="rc-back"><strong>For-loop iterates questions:</strong><br><code style="font-family:'DM Mono',monospace;font-size:11px;color:var(--plum);">for q in questions:<br>&nbsp;&nbsp;show_question(q)<br>&nbsp;&nbsp;ans = get_answer()<br>&nbsp;&nbsp;if ans == q["answer"]:<br>&nbsp;&nbsp;&nbsp;&nbsp;score += 1</code></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2 class="section-heading">Complete Quiz Game Code</h2>
-    <div class="code-block">
-      <div class="code-header"><div class="code-dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span class="code-filename">quiz_game.py</span></div>
-      <div class="code-body"><span class="pr">questions</span> = [
-    {<span class="st">"q"</span>: <span class="st">"What keyword creates a function in Python?"</span>,
-     <span class="st">"options"</span>: [<span class="st">"func"</span>, <span class="st">"def"</span>, <span class="st">"function"</span>, <span class="st">"lambda"</span>],
-     <span class="st">"answer"</span>: <span class="st">"def"</span>},
-    {<span class="st">"q"</span>: <span class="st">"Which data type is mutable?"</span>,
-     <span class="st">"options"</span>: [<span class="st">"tuple"</span>, <span class="st">"string"</span>, <span class="st">"list"</span>, <span class="st">"int"</span>],
-     <span class="st">"answer"</span>: <span class="st">"list"</span>},
-]
-
-<span class="kw">def</span> <span class="fn">run_quiz</span>(questions):
-    <span class="pr">score</span> = <span class="nm">0</span>
-    <span class="kw">for</span> i, q <span class="kw">in</span> <span class="fn">enumerate</span>(questions, <span class="nm">1</span>):
-        <span class="fn">print</span>(<span class="st">f"\nQ{i}: {q['q']}"</span>)
-        <span class="kw">for</span> j, opt <span class="kw">in</span> <span class="fn">enumerate</span>(q[<span class="st">'options'</span>], <span class="nm">1</span>):
-            <span class="fn">print</span>(<span class="st">f"  {j}. {opt}"</span>)
-        <span class="pr">ans</span> = <span class="fn">input</span>(<span class="st">"Your answer: "</span>).<span class="fn">strip</span>()
-        <span class="kw">if</span> ans == q[<span class="st">"answer"</span>]:
-            <span class="fn">print</span>(<span class="st">"✅ Correct!"</span>); score += <span class="nm">1</span>
-        <span class="kw">else</span>:
-            <span class="fn">print</span>(<span class="st">f"❌ Wrong! Answer: {q['answer']}"</span>)
-    pct = score / <span class="fn">len</span>(questions) * <span class="nm">100</span>
-    <span class="fn">print</span>(<span class="st">f"\n🎯 Score: {score}/{len(questions)} ({pct:.0f}%)"</span>)
-
-<span class="fn">run_quiz</span>(questions)</div>
-    </div>
-    <button class="btn-run" onclick="toggleOutput('out-quiz')">▶ Run Demo</button>
-    <div class="output-block" id="out-quiz">
-      <div class="out-label">Output</div>
-Q1: What keyword creates a function in Python?<br>
-&nbsp;&nbsp;1. func &nbsp; 2. def &nbsp; 3. function &nbsp; 4. lambda<br>
-Your answer: <span style="color:#a5d6ff;">def</span><br>
-✅ Correct!<br><br>
-Q2: Which data type is mutable?<br>
-&nbsp;&nbsp;1. tuple &nbsp; 2. string &nbsp; 3. list &nbsp; 4. int<br>
-Your answer: <span style="color:#a5d6ff;">list</span><br>
-✅ Correct!<br><br>
-🎯 Score: 2/2 (100%)
-    </div>
-  </div>
-
-  <!-- INTERACTIVE 7: Score Calculator Slider -->
-  <div class="card">
-    <h2 class="section-heading">📊 Score Calculator Simulator</h2>
-    <p class="body-text" style="margin-bottom:16px;">Drag sliders to simulate different quiz outcomes and see how the scoring formula works.</p>
-    <div style="display:flex;flex-direction:column;gap:14px;">
-      <div style="display:flex;align-items:center;gap:14px;">
-        <span style="font-size:13px;font-weight:500;color:var(--text2);min-width:150px;">Total questions (n)</span>
-        <input type="range" min="1" max="20" value="10" id="quiz-total" oninput="updateScoreSim()" style="flex:1;">
-        <span id="quiz-total-v" style="font-size:13px;font-weight:700;color:var(--moss);min-width:30px;">10</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:14px;">
-        <span style="font-size:13px;font-weight:500;color:var(--text2);min-width:150px;">Correct answers</span>
-        <input type="range" min="0" max="20" value="7" id="quiz-correct" oninput="updateScoreSim()" style="flex:1;">
-        <span id="quiz-correct-v" style="font-size:13px;font-weight:700;color:var(--moss);min-width:30px;">7</span>
-      </div>
-    </div>
-    <div id="score-sim-result" style="margin-top:16px;padding:18px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);"></div>
-    <div style="margin-top:10px;background:var(--code-bg);border-radius:10px;padding:12px 16px;font-family:'DM Mono',monospace;font-size:12px;color:#e6edf3;">
-      <span style="color:#7ee787;">pct</span> = (<span style="color:#7ee787;">score</span> / <span style="color:#7ee787;">total</span>) * <span style="color:#f0883e;">100</span>  <span id="sim-code-out" style="color:#8b949e;"># → 70.0%</span>
-    </div>
-  </div>
-
-  <div class="bottom-nav">
-    <button class="btn btn-ghost" onclick="goPage(2)">← Back</button>
-    <button class="btn btn-primary" onclick="goPage(4)">Next: File Manager →</button>
-  </div>
-</div>
-
-<!-- ════ PAGE 4: FILE MANAGER (ADVANCED) ════ -->
-<div class="page" id="page-4">
-  <div style="margin-bottom:28px;">
-    <div class="eyebrow ey-sky">Advanced Project · File Manager</div>
-    <div class="page-title">Build a Python File Manager</div>
-    <div class="page-subtitle">Use the <code style="font-family:'DM Mono',monospace;font-size:14px;background:var(--foam);padding:2px 7px;border-radius:6px;">os</code> module, file I/O, and OOP to create a powerful command-line file management tool.</div>
-  </div>
-
-  <div class="card card-sky">
-    <h2 class="section-heading">What We're Building</h2>
-    <p class="body-text">A class-based file manager that can list directory contents, create/delete files, search by pattern, and display file metadata — all from the command line.</p>
-    <div class="analogy-box">
-      <div class="analogy-icon">🗃️</div>
-      <div class="analogy-text"><strong>Think of it like macOS Finder or Windows Explorer:</strong> Those GUI apps interact with your file system. We're building the same functionality but in Python code, using the <code style="font-family:'DM Mono',monospace;">os</code> module which acts as Python's bridge to your operating system.</div>
-    </div>
-  </div>
-
-  <!-- INTERACTIVE 8: Code Comparison (Basic vs Class-based) -->
-  <div class="card">
-    <h2 class="section-heading">⚡ Basic vs Class-Based Approach</h2>
-    <p class="body-text" style="margin-bottom:14px;">See how wrapping code in a class makes it more organised and reusable.</p>
-    <div class="diff-wrap">
-      <div class="diff-panel">
-        <div class="diff-header"><span>❌ Without OOP</span><span class="diff-easy">Basic</span></div>
-        <div class="diff-body"><span style="color:#ff7b72;">import</span> os<br>
-<br>
-<span style="color:#7ee787;">path</span> = <span style="color:#a5d6ff;">"."</span><br>
-<span style="color:#7ee787;">files</span> = os.listdir(path)<br>
-<span style="color:#ff7b72;">for</span> f <span style="color:#ff7b72;">in</span> files:<br>
-&nbsp;&nbsp;<span style="color:#79c0ff;">print</span>(f)<br>
-<br>
-<span style="color:#8b949e;"># Hard to reuse, messy</span><br>
-<span style="color:#8b949e;"># globals everywhere</span></div>
-      </div>
-      <div class="diff-panel">
-        <div class="diff-header"><span>✅ With OOP (Class)</span><span class="diff-easy">Better</span></div>
-        <div class="diff-body"><span style="color:#ff7b72;">class</span> <span style="color:#ffa657;">FileManager</span>:<br>
-&nbsp;&nbsp;<span class="diff-add"><span style="color:#ff7b72;">def</span> <span style="color:#79c0ff;">__init__</span>(self, path):</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="diff-add">self.path = path</span>
-&nbsp;&nbsp;<span class="diff-add"><span style="color:#ff7b72;">def</span> <span style="color:#79c0ff;">list_files</span>(self):</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="diff-add"><span style="color:#ff7b72;">return</span> os.listdir(self.path)</span>
-<br>
-<span style="color:#8b949e;"># Clean, reusable, scalable</span></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2 class="section-heading">Complete File Manager Code</h2>
-    <div class="code-block">
-      <div class="code-header"><div class="code-dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span class="code-filename">file_manager.py</span></div>
-      <div class="code-body"><span class="kw">import</span> os
-<span class="kw">import</span> glob
-
-<span class="kw">class</span> <span class="cl">FileManager</span>:
-    <span class="kw">def</span> <span class="fn">__init__</span>(self, base_path=<span class="st">"."</span>):
-        self.<span class="pr">path</span> = os.path.<span class="fn">abspath</span>(base_path)
-
-    <span class="kw">def</span> <span class="fn">list_files</span>(self):
-        <span class="pr">items</span> = os.<span class="fn">listdir</span>(self.<span class="pr">path</span>)
-        <span class="kw">for</span> item <span class="kw">in</span> <span class="fn">sorted</span>(items):
-            <span class="pr">full</span> = os.path.<span class="fn">join</span>(self.<span class="pr">path</span>, item)
-            kind = <span class="st">"📁"</span> <span class="kw">if</span> os.path.<span class="fn">isdir</span>(full) <span class="kw">else</span> <span class="st">"📄"</span>
-            size = os.path.<span class="fn">getsize</span>(full)
-            <span class="fn">print</span>(<span class="st">f"  {kind} {item} ({size} bytes)"</span>)
-
-    <span class="kw">def</span> <span class="fn">create_file</span>(self, name, content=<span class="st">""</span>):
-        <span class="pr">filepath</span> = os.path.<span class="fn">join</span>(self.<span class="pr">path</span>, name)
-        <span class="kw">with</span> <span class="fn">open</span>(filepath, <span class="st">'w'</span>) <span class="kw">as</span> f: f.<span class="fn">write</span>(content)
-        <span class="fn">print</span>(<span class="st">f"✅ Created: {name}"</span>)
-
-    <span class="kw">def</span> <span class="fn">search_files</span>(self, pattern):
-        <span class="pr">matches</span> = <span class="fn">glob</span>.glob(os.path.<span class="fn">join</span>(self.<span class="pr">path</span>, <span class="st">f"*{pattern}*"</span>))
-        <span class="kw">return</span> [os.path.<span class="fn">basename</span>(m) <span class="kw">for</span> m <span class="kw">in</span> matches]
-
-    <span class="kw">def</span> <span class="fn">delete_file</span>(self, name):
-        <span class="pr">filepath</span> = os.path.<span class="fn">join</span>(self.<span class="pr">path</span>, name)
-        <span class="kw">if</span> os.path.<span class="fn">exists</span>(filepath):
-            os.<span class="fn">remove</span>(filepath)
-            <span class="fn">print</span>(<span class="st">f"🗑️ Deleted: {name}"</span>)
-
-<span class="cm"># Usage</span>
-fm = <span class="cl">FileManager</span>(<span class="st">"/home/vinodhini"</span>)
-fm.<span class="fn">list_files</span>()
-fm.<span class="fn">create_file</span>(<span class="st">"notes.txt"</span>, <span class="st">"Hello Python!"</span>)
-<span class="fn">print</span>(fm.<span class="fn">search_files</span>(<span class="st">".txt"</span>))</div>
-    </div>
-    <button class="btn-run" onclick="toggleOutput('out-fm')">▶ Run Demo</button>
-    <div class="output-block" id="out-fm">
-      <div class="out-label">Output</div>
-&nbsp;&nbsp;📁 Documents (0 bytes)<br>
-&nbsp;&nbsp;📁 Downloads (0 bytes)<br>
-&nbsp;&nbsp;📄 hello.py (48 bytes)<br>
-&nbsp;&nbsp;📄 todo.json (124 bytes)<br>
-✅ Created: notes.txt<br>
-['notes.txt', 'report.txt']
-    </div>
-  </div>
-
-  <!-- INTERACTIVE 9: Virtual File System -->
-  <div class="card">
-    <h2 class="section-heading">🖥️ Virtual File System Simulator</h2>
-    <p class="body-text" style="margin-bottom:16px;">Interact with a simulated file system. Create, delete, and search files — just like the Python class would!</p>
-    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
-      <input type="text" id="fs-input" placeholder="filename.txt" style="padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:'DM Mono',monospace;outline:none;width:160px;transition:border .2s;" onfocus="this.style.borderColor='var(--sky)'" onblur="this.style.borderColor='var(--border)'">
-      <button class="btn btn-primary btn-sm" onclick="fsCreate()" style="background:linear-gradient(135deg,var(--sky),#2d6a9f);">📄 Create</button>
+    <div class="section-tag">🖥️ Virtual File System Simulator</div>
+    <div class="vfs-controls">
+      <input type="text" id="fsInput" class="vfs-input" placeholder="filename.txt">
+      <button class="btn btn-primary btn-sm" onclick="fsCreate()">📄 Create</button>
       <button class="btn btn-ghost btn-sm" onclick="fsDelete()">🗑️ Delete</button>
       <button class="btn btn-ghost btn-sm" onclick="fsSearch()">🔍 Search</button>
     </div>
-    <div id="virtual-fs" style="background:var(--code-bg);border-radius:var(--radius);padding:16px 18px;font-family:'DM Mono',monospace;font-size:12.5px;color:#c8e6d4;min-height:140px;line-height:2;"></div>
-    <div id="fs-log" style="margin-top:10px;font-size:12.5px;font-weight:600;color:var(--moss);min-height:18px;"></div>
+    <div id="vfsDisplay" class="vfs"></div>
+    <div id="vfsLog" class="vfs-log"></div>
   </div>
 
-  <div class="bottom-nav">
-    <button class="btn btn-ghost" onclick="goPage(3)">← Back</button>
-    <button class="btn btn-primary" onclick="goPage(5)">Exercises →</button>
-  </div>
-</div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(3)">← Back</button><button class="btn btn-primary" onclick="goTo(5)">Next →</button></div>
+</section>
 
-<!-- ════ PAGE 5: EXERCISES ════ -->
-<div class="page" id="page-5">
-  <div style="margin-bottom:28px;">
-    <div class="eyebrow ey-pink">✏️ Exercises</div>
-    <div class="page-title">Coding Challenges</div>
-    <div class="page-subtitle">Extend the projects with these hands-on coding exercises.</div>
-  </div>
+<!-- PAGE 5: EXERCISES -->
+<section class="page" id="page-5">
+  <div class="section-tag">💻 Practice</div>
+  <div class="page-h2">Coding Exercises</div>
 
-  <div class="exercise-card">
-    <div class="ex-number">1</div>
-    <div class="ex-title">Enhance the Calculator with History</div>
-    <div class="ex-desc">Modify the calculator to maintain a <strong>history</strong> of the last 5 calculations. Add a new menu option "6. View History" that prints each past calculation in the format <code style="font-family:'DM Mono',monospace;background:var(--surface3);padding:2px 6px;border-radius:5px;">10 + 5 = 15</code>. Use a list with <code style="font-family:'DM Mono',monospace;background:var(--surface3);padding:2px 6px;border-radius:5px;">append()</code> and slice to keep only the last 5 entries.</div>
-    <div class="hint-chip">💡 Hint: history.append(f"{a} {op} {b} = {result}") then history[-5:]</div>
-    <button class="btn btn-outline btn-sm" onclick="toggleSolution('sol-1', this)">👁 Show Solution</button>
-    <div class="solution-wrap" id="sol-1">
-      <div class="code-block">
-        <div class="code-header"><div class="code-dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span class="code-filename">solution_1.py</span></div>
-        <div class="code-body"><span class="pr">history</span> = []
+  <div class="ex-card"><div class="ex-badge">⭐ Exercise 1</div><div class="ex-title">Enhance Calculator with History</div><div class="ex-desc">Add a history feature that stores the last 5 calculations.</div><button class="sol-toggle" onclick="toggleSolution(this,'sol1')">▼ Show Solution</button><div class="solution" id="sol1"><div class="code-block">history = []<br>def add_to_history(a, op, b, res):<br>&nbsp;&nbsp;&nbsp;&nbsp;history.append(f"{a} {op} {b} = {res}")<br>&nbsp;&nbsp;&nbsp;&nbsp;if len(history) > 5: history.pop(0)</div></div></div>
 
-<span class="kw">def</span> <span class="fn">add_to_history</span>(a, op, b, result):
-    <span class="pr">entry</span> = <span class="st">f"{a} {op} {b} = {result}"</span>
-    history.<span class="fn">append</span>(entry)
-    <span class="kw">if</span> <span class="fn">len</span>(history) > <span class="nm">5</span>:
-        history.<span class="fn">pop</span>(<span class="nm">0</span>)  <span class="cm"># Remove oldest entry</span>
+  <div class="ex-card"><div class="ex-badge">⭐ Exercise 2</div><div class="ex-title">Add Priority to Tasks</div><div class="ex-desc">Add priority levels (High, Medium, Low) to to-do tasks and sort by priority.</div><button class="sol-toggle" onclick="toggleSolution(this,'sol2')">▼ Show Solution</button><div class="solution" id="sol2"><div class="code-block">PRIORITY = {"High": 0, "Medium": 1, "Low": 2}<br>def view_tasks(tasks):<br>&nbsp;&nbsp;&nbsp;&nbsp;sorted_tasks = sorted(tasks, key=lambda t: PRIORITY.get(t.get("priority","Medium"), 1))<br>&nbsp;&nbsp;&nbsp;&nbsp;for i, t in enumerate(sorted_tasks, 1):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"{i}. {t['name']} [{t.get('priority','Medium')}]")</div></div></div>
 
-<span class="kw">def</span> <span class="fn">view_history</span>():
-    <span class="kw">if not</span> history:
-        <span class="fn">print</span>(<span class="st">"No history yet!"</span>)
-        <span class="kw">return</span>
-    <span class="fn">print</span>(<span class="st">"\n=== Last 5 Calculations ==="</span>)
-    <span class="kw">for</span> i, entry <span class="kw">in</span> <span class="fn">enumerate</span>(history, <span class="nm">1</span>):
-        <span class="fn">print</span>(<span class="st">f"  {i}. {entry}"</span>)
+  <div class="ex-card"><div class="ex-badge">⭐ Exercise 3</div><div class="ex-title">Add Difficulty to Quiz</div><div class="ex-desc">Add difficulty levels (Easy=1pt, Medium=2pt, Hard=3pt) to score calculation.</div><button class="sol-toggle" onclick="toggleSolution(this,'sol3')">▼ Show Solution</button><div class="solution" id="sol3"><div class="code-block">questions = [{"q": "...", "difficulty": "Hard", "points": 3}]<br>def run_quiz(questions):<br>&nbsp;&nbsp;&nbsp;&nbsp;score = 0<br>&nbsp;&nbsp;&nbsp;&nbsp;for q in questions:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if answer correct: score += q["points"]</div></div></div>
 
-<span class="cm"># In your main loop, after calculating:</span>
-<span class="cm"># add_to_history(a, "+", b, result)</span>
-<span class="cm"># Or for option "6": view_history()</span>
-<span class="fn">add_to_history</span>(<span class="nm">10</span>, <span class="st">"+"</span>, <span class="nm">5</span>, <span class="nm">15</span>)
-<span class="fn">add_to_history</span>(<span class="nm">20</span>, <span class="st">"*"</span>, <span class="nm">3</span>, <span class="nm">60</span>)
-<span class="fn">view_history</span>()
-<span class="cm"># Output:</span>
-<span class="cm"># === Last 5 Calculations ===</span>
-<span class="cm">#   1. 10 + 5 = 15</span>
-<span class="cm">#   2. 20 * 3 = 60</span></div>
-      </div>
-    </div>
-  </div>
+  <div class="page-nav"><button class="btn btn-ghost" onclick="goTo(4)">← Back</button><button class="btn btn-primary" onclick="goTo(6)">Take Quiz →</button></div>
+</section>
 
-  <div class="exercise-card">
-    <div class="ex-number">2</div>
-    <div class="ex-title">Add Priority to To-Do Tasks</div>
-    <div class="ex-desc">Extend the To-Do app so each task has a <strong>priority level</strong> (High, Medium, Low). When adding a task, prompt for priority. Modify <code style="font-family:'DM Mono',monospace;background:var(--surface3);padding:2px 6px;border-radius:5px;">view_tasks()</code> to show tasks sorted by priority (High first) and display a coloured emoji prefix: 🔴 High, 🟡 Medium, 🟢 Low.</div>
-    <div class="hint-chip">💡 Hint: Add "priority" key to each task dict, sort with key=lambda t: priority_order[t["priority"]]</div>
-    <button class="btn btn-outline btn-sm" onclick="toggleSolution('sol-2', this)">👁 Show Solution</button>
-    <div class="solution-wrap" id="sol-2">
-      <div class="code-block">
-        <div class="code-header"><div class="code-dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span class="code-filename">solution_2.py</span></div>
-        <div class="code-body"><span class="pr">PRIORITY_ORDER</span> = {<span class="st">"High"</span>: <span class="nm">0</span>, <span class="st">"Medium"</span>: <span class="nm">1</span>, <span class="st">"Low"</span>: <span class="nm">2</span>}
-<span class="pr">PRIORITY_ICONS</span> = {<span class="st">"High"</span>: <span class="st">"🔴"</span>, <span class="st">"Medium"</span>: <span class="st">"🟡"</span>, <span class="st">"Low"</span>: <span class="st">"🟢"</span>}
+<!-- PAGE 6: QUIZ -->
+<section class="page" id="page-6">
+  <div class="section-tag">🧠 Quiz Time</div>
+  <div class="page-h2">Test Your Knowledge</div>
+  <div class="quiz-progress"><div class="qp-dot" id="qd0"></div><div class="qp-dot" id="qd1"></div><div class="qp-dot" id="qd2"></div><div class="qp-dot" id="qd3"></div><div class="qp-dot" id="qd4"></div></div>
+  <div id="quizContainer"><div class="q-card" id="qCard"></div><div class="quiz-nav"><button class="qnav-btn" id="qPrevBtn" onclick="quizPrev()" disabled>← Prev</button><span id="qCounter">Question 1 of 5</span><button class="qnav-btn primary" id="qNextBtn" onclick="quizNext()" disabled>Next →</button></div></div>
+  <div class="quiz-result" id="quizResult"><span class="qr-emoji" id="qrEmoji">🎉</span><div class="qr-score" id="qrScore">5/5</div><div class="qr-sub" id="qrSub"></div><div class="qr-breakdown"><div class="qrb-item"><div class="qrb-val c" id="qrCorrect">5</div><div class="qrb-lbl">Correct</div></div><div class="qrb-item"><div class="qrb-val w" id="qrWrong">0</div><div class="qrb-lbl">Wrong</div></div></div><button class="retry-btn" onclick="resetQuiz()">↩ Retry</button><button class="btn btn-primary" onclick="goTo(7)">Complete Module →</button></div>
+</section>
 
-<span class="kw">def</span> <span class="fn">add_task</span>(tasks, name, priority=<span class="st">"Medium"</span>):
-    tasks.<span class="fn">append</span>({
-        <span class="st">"name"</span>: name,
-        <span class="st">"done"</span>: <span class="kw">False</span>,
-        <span class="st">"priority"</span>: priority
-    })
-
-<span class="kw">def</span> <span class="fn">view_tasks</span>(tasks):
-    <span class="pr">sorted_tasks</span> = <span class="fn">sorted</span>(
-        tasks,
-        key=<span class="kw">lambda</span> t: PRIORITY_ORDER.<span class="fn">get</span>(t[<span class="st">"priority"</span>], <span class="nm">1</span>)
-    )
-    <span class="kw">for</span> i, t <span class="kw">in</span> <span class="fn">enumerate</span>(sorted_tasks, <span class="nm">1</span>):
-        done = <span class="st">"✅"</span> <span class="kw">if</span> t[<span class="st">"done"</span>] <span class="kw">else</span> <span class="st">"⬜"</span>
-        icon = PRIORITY_ICONS[t[<span class="st">"priority"</span>]]
-        <span class="fn">print</span>(<span class="st">f"  {i}. {done} {icon} {t['name']}"</span>)</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="exercise-card">
-    <div class="ex-number">3</div>
-    <div class="ex-title">Add Difficulty Levels to Quiz Game</div>
-    <div class="ex-desc">Extend the quiz game to support <strong>difficulty levels</strong> (Easy / Medium / Hard). Each question should have a <code style="font-family:'DM Mono',monospace;background:var(--surface3);padding:2px 6px;border-radius:5px;">"difficulty"</code> key and a <code style="font-family:'DM Mono',monospace;background:var(--surface3);padding:2px 6px;border-radius:5px;">"points"</code> key (Easy=1, Medium=2, Hard=3). Calculate a <strong>total points</strong> score instead of just counting correct answers. Display both correct count and total points at the end.</div>
-    <div class="hint-chip">💡 Hint: if ans == q["answer"]: score += q["points"]</div>
-    <button class="btn btn-outline btn-sm" onclick="toggleSolution('sol-3', this)">👁 Show Solution</button>
-    <div class="solution-wrap" id="sol-3">
-      <div class="code-block">
-        <div class="code-header"><div class="code-dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span class="code-filename">solution_3.py</span></div>
-        <div class="code-body"><span class="pr">questions</span> = [
-    {<span class="st">"q"</span>: <span class="st">"What does len() return?"</span>,
-     <span class="st">"answer"</span>: <span class="st">"length"</span>, <span class="st">"difficulty"</span>: <span class="st">"Easy"</span>, <span class="st">"points"</span>: <span class="nm">1</span>},
-    {<span class="st">"q"</span>: <span class="st">"What is list comprehension?"</span>,
-     <span class="st">"answer"</span>: <span class="st">"compact loop"</span>, <span class="st">"difficulty"</span>: <span class="st">"Medium"</span>, <span class="st">"points"</span>: <span class="nm">2</span>},
-    {<span class="st">"q"</span>: <span class="st">"Explain decorators"</span>,
-     <span class="st">"answer"</span>: <span class="st">"wrapper"</span>, <span class="st">"difficulty"</span>: <span class="st">"Hard"</span>, <span class="st">"points"</span>: <span class="nm">3</span>},
-]
-
-<span class="kw">def</span> <span class="fn">run_quiz</span>(questions):
-    <span class="pr">correct</span>, <span class="pr">total_pts</span> = <span class="nm">0</span>, <span class="nm">0</span>
-    <span class="pr">max_pts</span> = <span class="fn">sum</span>(q[<span class="st">"points"</span>] <span class="kw">for</span> q <span class="kw">in</span> questions)
-    <span class="kw">for</span> q <span class="kw">in</span> questions:
-        <span class="fn">print</span>(<span class="st">f"[{q['difficulty']}] {q['q']}"</span>)
-        ans = <span class="fn">input</span>(<span class="st">"Answer: "</span>).<span class="fn">lower</span>()
-        <span class="kw">if</span> ans <span class="kw">in</span> q[<span class="st">"answer"</span>]:
-            <span class="fn">print</span>(<span class="st">f"✅ +{q['points']} pts"</span>)
-            correct += <span class="nm">1</span>; total_pts += q[<span class="st">"points"</span>]
-    <span class="fn">print</span>(<span class="st">f"\nCorrect: {correct}/{len(questions)}"</span>)
-    <span class="fn">print</span>(<span class="st">f"Points: {total_pts}/{max_pts}"</span>)</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="bottom-nav">
-    <button class="btn btn-ghost" onclick="goPage(4)">← Back</button>
-    <button class="btn btn-primary" onclick="goPage(6)">Take the Quiz →</button>
-  </div>
-</div>
-
-<!-- ════ PAGE 6: QUIZ ════ -->
-<div class="page" id="page-6">
-  <div style="margin-bottom:28px;">
-    <div class="eyebrow ey-plum">🧠 Quiz</div>
-    <div class="page-title">Test Your Knowledge</div>
-    <div class="page-subtitle">5 questions on Python Projects</div>
-  </div>
-
-  <div class="card" id="quiz-body">
-    <div class="quiz-progress">
-      <div class="qp-dot active" id="qpd-0"></div>
-      <div class="qp-dot" id="qpd-1"></div>
-      <div class="qp-dot" id="qpd-2"></div>
-      <div class="qp-dot" id="qpd-3"></div>
-      <div class="qp-dot" id="qpd-4"></div>
-    </div>
-    <div id="quiz-content"></div>
-    <div class="quiz-feedback" id="quiz-fb"></div>
-    <div style="margin-top:20px;display:flex;justify-content:flex-end;">
-      <button class="btn btn-primary" id="quiz-next" style="display:none;" onclick="nextQuestion()">Next →</button>
-    </div>
-  </div>
-
-  <div class="card" id="quiz-score-screen" style="display:none;text-align:center;padding:46px;">
-    <div class="score-circle" id="score-ring">
-      <div class="score-inner">
-        <div class="score-num" id="score-num">0/5</div>
-        <div class="score-label">Score</div>
-      </div>
-    </div>
-    <h2 class="section-heading" id="score-msg" style="text-align:center;"></h2>
-    <p class="body-text" style="text-align:center;margin:8px 0 24px;" id="score-sub"></p>
-    <div style="display:flex;gap:12px;justify-content:center;">
-      <button class="btn btn-ghost" onclick="restartQuiz()">↺ Retry Quiz</button>
-      <button class="btn btn-primary" onclick="goPage(7)">Finish Module →</button>
-    </div>
-  </div>
-
-  <div class="bottom-nav">
-    <button class="btn btn-ghost" onclick="goPage(5)">← Back</button>
-    <div></div>
-  </div>
-</div>
-
-<!-- ════ PAGE 7: COMPLETION ════ -->
-<div class="page" id="page-7">
-  <div class="card">
-    <div class="completion-hero">
-      <div class="confetti-strip">🎊 ✨ 🎉 ✨ 🎊</div>
-      <div style="height:14px;"></div>
-      <span class="trophy-anim">🏆</span>
-      <h2 style="font-family:'Fraunces',serif;font-size:32px;font-weight:900;letter-spacing:-1px;margin:20px 0 10px;">Module 12 Complete!</h2>
-      <p style="font-size:15px;color:var(--text2);max-width:500px;margin:0 auto;line-height:1.75;">Outstanding work, <strong>Vinodhini</strong>! You've built 4 real Python projects from scratch — that's a mini portfolio to be proud of!</p>
-      <div style="display:flex;gap:14px;justify-content:center;margin:28px 0 8px;flex-wrap:wrap;">
-        <div style="background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:18px 26px;text-align:center;">
-          <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;color:var(--moss);" id="comp-score">5/5</div>
-          <div style="font-size:10.5px;color:var(--text3);">Quiz Score</div>
-        </div>
-        <div style="background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:18px 26px;text-align:center;">
-          <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;color:var(--gold);">4</div>
-          <div style="font-size:10.5px;color:var(--text3);">Projects Built</div>
-        </div>
-        <div style="background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:18px 26px;text-align:center;">
-          <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;color:var(--sky);">+90</div>
-          <div style="font-size:10.5px;color:var(--text3);">XP Earned</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2 class="section-heading">🏅 Skills Mastered</h2>
-    <div class="skills-wrap">
-      <div class="skill-chip">✅ Functions & modules</div>
-      <div class="skill-chip">✅ Error handling (try/except)</div>
-      <div class="skill-chip">✅ File I/O & JSON</div>
-      <div class="skill-chip">✅ CRUD operations</div>
-      <div class="skill-chip">✅ Dictionaries & lists</div>
-      <div class="skill-chip">✅ while/for loops</div>
-      <div class="skill-chip">✅ OOP class design</div>
-      <div class="skill-chip">✅ os module</div>
-      <div class="skill-chip">✅ Score calculation</div>
-      <div class="skill-chip">✅ Menu-driven programs</div>
-      <div class="skill-chip">✅ Data persistence</div>
-      <div class="skill-chip">✅ Project architecture</div>
-    </div>
-  </div>
-
-  <div class="cert-block">
-    <div class="cert-content">
-      <div style="font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#8bbf9e;margin-bottom:10px;">Completed</div>
-      
-      <div style="font-size:13.5px;opacity:.65;margin-top:8px;line-height:1.7;">You have successfully completed Module 12: Projects in Python<br>Python for Beginners · HCL-GUVI · 2025</div>
-      <div style="font-size:30px;margin-top:16px;">🐍 🏗️ 🐍</div>
-    </div>
-  </div>
-
-  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding:8px 0 24px;">
-    <button class="btn btn-ghost" onclick="restartModule()">↺ Restart Module</button>
-    <button class="btn btn-primary">Continue to Next Module →</button>
-  </div>
-</div>
+<!-- PAGE 7: COMPLETION -->
+<section class="page" id="page-7">
+  <div class="card complete-wrap"><div class="complete-icon">🎉</div><div class="page-tag">Module 12 — Complete</div><h1 style="margin-bottom:12px;">Projects<br><span style="color:var(--accent)">Mastered!</span></h1><p>You've built 4 real Python projects from scratch — that's a mini portfolio to be proud of!</p><div class="skills-learnt"><div class="skill-badge"><span class="check">✓</span> Calculator App</div><div class="skill-badge"><span class="check">✓</span> To-Do App</div><div class="skill-badge"><span class="check">✓</span> Quiz Game</div><div class="skill-badge"><span class="check">✓</span> File Manager</div><div class="skill-badge"><span class="check">✓</span> CRUD Operations</div><div class="skill-badge"><span class="check">✓</span> File Persistence</div></div><button class="cert-btn" onclick="celebrate()">🏆 Claim Completion Badge</button><p style="margin-top:20px;">🎓 Course Complete! You've mastered Python for Beginners!</p></div>
+</section>
 
 </main>
 
-<!-- ════════════════════════════════════════
-     JAVASCRIPT
-════════════════════════════════════════ -->
 <script>
-/* ─────────────────────────────────────────
-   CORE STATE & NAVIGATION
-───────────────────────────────────────── */
-let currentPage = 0;
-const totalPages = 8;
-const completed = new Array(totalPages).fill(false);
+let currentPage = 0, totalPages = 8, visited = new Set([0]);
+let todos = [{ name: "Learn Python", done: true }, { name: "Build Calculator", done: true }, { name: "Complete Module 12", done: false }];
+let vFiles = ['hello.py', 'todo.json', 'notes.txt', 'calculator.py'];
+let quizAnswers = new Array(5).fill(null), quizCurrent = 0;
 
-function goPage(n) {
-  document.getElementById('page-' + currentPage).classList.remove('active');
-  document.getElementById('sb-' + currentPage).classList.remove('active');
-  completed[currentPage] = true;
-  document.getElementById('sb-' + currentPage).classList.add('completed');
-  currentPage = n;
-  document.getElementById('page-' + n).classList.add('active');
-  document.getElementById('sb-' + n).classList.remove('completed');
-  document.getElementById('sb-' + n).classList.add('active');
-  updateProgress();
-  window.scrollTo(0,0);
-  if (n === 6) { qIdx = 0; qScore = 0; renderQuestion(); }
-  if (n === 1) initVFS();
-  if (n === 2) { updateComplexity(); renderTodo(); }
-}
+const questions = [
+  { q: "In the calculator, why use a dictionary to store operations?", opts: ["It's faster", "Maps keys to functions cleanly, eliminates if/elif chains", "Required syntax", "Only way to store functions"], correct: 1, exp: "Dictionary maps input keys directly to functions, avoiding repetitive if/elif checks." },
+  { q: "Why use try/except when loading tasks.json?", opts: ["JSON is unreliable", "Handles first run where file doesn't exist", "Required for JSON", "Makes code faster"], correct: 1, exp: "On first run, tasks.json doesn't exist. try/except gracefully returns empty list instead of crashing." },
+  { q: "What does enumerate(questions, 1) do?", opts: ["Counts questions", "Starts index at 1 for user-friendly numbering", "Sorts questions", "Converts to list"], correct: 1, exp: "enumerate with start=1 makes question numbers start at 1 — better for user output." },
+  { q: "Why store path in self.path in FileManager?", opts: ["Python requires it", "All methods share state without repeating path parameter", "Faster", "Only way to use os"], correct: 1, exp: "Instance attributes allow all methods to access the path without passing it every time." },
+  { q: "Which module does File Manager use for file operations?", opts: ["sys", "platform", "os", "filesystem"], correct: 2, exp: "The os module provides functions like listdir, path.join, remove for file system interaction." }
+];
 
-function updateProgress() {
-  const done = completed.filter(Boolean).length;
-  const pct = Math.round(done / (totalPages - 1) * 100);
-  document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('prog-pct').textContent = pct + '%';
-}
+function goTo(n) { if (n<0||n>=totalPages) return; document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active')); document.getElementById('page-'+n).classList.add('active'); document.getElementById('nav-'+n).classList.add('active'); visited.add(currentPage); for(let i=0;i<n;i++) document.getElementById('nav-'+i).classList.add('done'); currentPage=n; let pct=Math.round((visited.size/totalPages)*100); document.getElementById('progressFill').style.width=pct+'%'; document.getElementById('progressPct').innerText=pct+'%'; if(n===6) renderQuiz(); if(n===2) renderTodo(); if(n===4) renderVFS(); }
+function toggleOutput(id){ document.getElementById(id).classList.toggle('visible'); }
+function toggleSolution(btn,id){ let sol=document.getElementById(id); sol.classList.toggle('open'); btn.textContent=sol.classList.contains('open')?'▲ Hide Solution':'▼ Show Solution'; }
+function celebrate(){ let btn=event.target.closest('button'); btn.textContent='✓ Badge Claimed!'; btn.style.background='var(--accent)'; btn.disabled=true; alert('🎉 Congratulations! You completed the Python for Beginners course!'); }
 
-/* ─────────────────────────────────────────
-   OUTPUT TOGGLE
-───────────────────────────────────────── */
-function toggleOutput(id) {
-  const el = document.getElementById(id);
-  el.classList.toggle('show');
-}
-
-/* ─────────────────────────────────────────
-   FLOWCHART INFO
-───────────────────────────────────────── */
-const flowInfoData = {
-  start: '▶ <strong>Program Start:</strong> Python loads the calculator.py file, defines all functions (add, subtract, multiply, divide), then calls main() to start the interactive session.',
-  menu: '📋 <strong>Show Menu:</strong> print() statements display the numbered options. The operations dictionary maps keys "1"–"4" to (name, function) tuples — very clean design!',
-  input: '⌨️ <strong>User Input:</strong> input() pauses execution and waits for keyboard input. The returned string is validated against operations.keys() before proceeding.',
-  calc: '➕ <strong>Calculate:</strong> After both numbers are collected as floats, we unpack the tuple to get the function, then call func(a, b) — polymorphic design!',
-  quit: '🛑 <strong>Exit:</strong> When choice == "5", break exits the while loop, Python reaches the end of main(), and the program terminates cleanly.',
-  error: '⚠️ <strong>Error Handling:</strong> The try/except block catches ValueError (division by zero, non-numeric input) and TypeError, prints a friendly message, then loops back.'
-};
-function showFlowInfo(key) {
-  const el = document.getElementById('flow-info');
-  el.innerHTML = flowInfoData[key];
-  el.style.display = 'block';
-  el.style.animation = 'fadeUp .3s ease';
-}
-
-/* ─────────────────────────────────────────
-   STEP VISUALIZER
-───────────────────────────────────────── */
-const stepState = {};
-function stepViz(wrapId, prefix, total, msgId) {
-  if (!stepState[wrapId]) stepState[wrapId] = 0;
-  const i = stepState[wrapId];
-  if (i > 0) {
-    const prev = document.getElementById(prefix + (i-1));
-    if (prev) { prev.classList.remove('active'); prev.classList.add('done'); }
-  }
-  if (i < total) {
-    const cur = document.getElementById(prefix + i);
-    if (cur) cur.classList.add('active');
-    stepState[wrapId]++;
-    const msgs = { 5: '✅ Complete! Result printed to console.' };
-    if (document.getElementById(msgId)) document.getElementById(msgId).textContent = msgs[i] || '';
-  }
-}
-function resetViz(wrapId, prefix, total, msgId) {
-  stepState[wrapId] = 0;
-  for (let i = 0; i < total; i++) {
-    const el = document.getElementById(prefix + i);
-    if (el) { el.classList.remove('active', 'done'); if (i === 0) el.classList.add('active'); }
-  }
-  if (document.getElementById(msgId)) document.getElementById(msgId).textContent = '';
-}
-
-/* ─────────────────────────────────────────
-   INTERACTIVE CALCULATOR
-───────────────────────────────────────── */
 let calcOp = 1;
-const calcSymbols = {1:'+', 2:'−', 3:'×', 4:'÷'};
+function setCalcOp(op){ calcOp=op; document.getElementById('calcSym').innerHTML=op===1?'+':op===2?'−':op===3?'×':'÷'; }
+function runCalcDemo(){ let a=parseFloat(document.getElementById('calcA').value),b=parseFloat(document.getElementById('calcB').value),res,err; if(isNaN(a)||isNaN(b)){err='Enter valid numbers';} else if(calcOp===1) res=a+b; else if(calcOp===2) res=a-b; else if(calcOp===3) res=a*b; else if(calcOp===4&&b===0) err='Cannot divide by zero'; else if(calcOp===4) res=a/b; let resultDiv=document.getElementById('calcResultDemo'); if(err){resultDiv.innerHTML=err;resultDiv.style.display='block';resultDiv.style.color='var(--coral)';}else{resultDiv.innerHTML=`Result: ${a} ${calcOp===1?'+':calcOp===2?'−':calcOp===3?'×':'÷'} ${b} = ${res}`;resultDiv.style.display='block';resultDiv.style.color='var(--accent)';} }
 
-function setCalcOp(op) {
-  calcOp = op;
-  document.getElementById('calc-sym').textContent = calcSymbols[op];
-  document.querySelectorAll('[id^="calc-op-"]').forEach((b,i) => {
-    b.className = 'btn btn-sm ' + (i+1 === op ? 'btn-primary' : 'btn-ghost');
-  });
-}
+function renderTodo(){ let div=document.getElementById('todoList'); if(!div)return; div.innerHTML=''; todos.forEach((t,i)=>{ let item=document.createElement('div');item.className='todo-item';item.innerHTML=`<div class="todo-check ${t.done?'done':''}" onclick="toggleTodo(${i})">${t.done?'✓':''}</div><div class="todo-text ${t.done?'done':''}">${t.name}</div><button class="todo-delete" onclick="deleteTodo(${i})">🗑️</button>`;div.appendChild(item); }); let stats=document.getElementById('todoStats'); if(stats)stats.textContent=`${todos.length} tasks · ${todos.filter(t=>t.done).length} completed`; }
+function addTodo(){ let inp=document.getElementById('todoInput'); if(!inp.value.trim())return; todos.push({name:inp.value.trim(),done:false}); inp.value=''; renderTodo(); }
+function toggleTodo(i){ todos[i].done=!todos[i].done; renderTodo(); }
+function deleteTodo(i){ todos.splice(i,1); renderTodo(); }
+function clearCompleted(){ todos=todos.filter(t=>!t.done); renderTodo(); }
 
-function runCalc() {
-  const a = parseFloat(document.getElementById('calc-a').value);
-  const b = parseFloat(document.getElementById('calc-b').value);
-  const res = document.getElementById('calc-result');
-  const err = document.getElementById('calc-error');
-  err.style.display = 'none'; res.style.display = 'none';
-  if (isNaN(a) || isNaN(b)) { err.textContent = 'Error: Please enter valid numbers!'; err.style.display = 'block'; return; }
-  let result;
-  if (calcOp === 1) result = a + b;
-  else if (calcOp === 2) result = a - b;
-  else if (calcOp === 3) result = a * b;
-  else if (calcOp === 4) {
-    if (b === 0) { err.textContent = 'Error: Cannot divide by zero!'; err.style.display = 'block'; return; }
-    result = a / b;
-  }
-  const sym = calcSymbols[calcOp];
-  res.textContent = `>>> ${a} ${sym} ${b} = ${parseFloat(result.toFixed(10))}`;
-  res.style.display = 'block';
-  res.style.animation = 'fadeUp .3s ease';
-}
+function renderVFS(){ let div=document.getElementById('vfsDisplay'); if(!div)return; if(vFiles.length===0){div.innerHTML='<span style="color:#8b949e;">(empty directory)</span>';return;} div.innerHTML=vFiles.map(f=>{let ext=f.split('.').pop();let icon=ext==='py'?'🐍':ext==='json'?'📦':'📄';return`<span>  ${icon} ${f}</span>`;}).join('<br>'); }
+function fsCreate(){ let inp=document.getElementById('fsInput'); let name=inp.value.trim(); if(!name)return; if(!vFiles.includes(name))vFiles.push(name); renderVFS(); document.getElementById('vfsLog').innerHTML=`✅ Created: ${name}`; inp.value=''; setTimeout(()=>document.getElementById('vfsLog').innerHTML='',3000); }
+function fsDelete(){ let inp=document.getElementById('fsInput'); let name=inp.value.trim(); if(vFiles.includes(name)){vFiles=vFiles.filter(f=>f!==name);renderVFS();document.getElementById('vfsLog').innerHTML=`🗑️ Deleted: ${name}`;} else{document.getElementById('vfsLog').innerHTML=`❌ File not found: ${name}`;} setTimeout(()=>document.getElementById('vfsLog').innerHTML='',3000);inp.value=''; }
+function fsSearch(){ let inp=document.getElementById('fsInput'); let pattern=inp.value.trim(); let matches=vFiles.filter(f=>f.includes(pattern)); document.getElementById('vfsLog').innerHTML=`🔍 Found ${matches.length} matching: ${matches.join(', ')||'none'}`; inp.value=''; }
 
-/* ─────────────────────────────────────────
-   FEATURE TOGGLE BUILDER
-───────────────────────────────────────── */
-const featureState = { add: true, view: true, complete: false, delete: false, save: false };
-function toggleFeature(name) {
-  featureState[name] = !featureState[name];
-  const toggle = document.getElementById('fr-' + name)?.querySelector('.toggle-switch');
-  if (toggle) toggle.classList.toggle('on', featureState[name]);
-  updateComplexity();
-}
-function updateComplexity() {
-  const count = Object.values(featureState).filter(Boolean).length;
-  const pct = count * 20;
-  const labels = ['', 'Minimal (~15 lines)', 'Basic (~40 lines)', 'Standard (~65 lines)', 'Full-featured (~90 lines)', 'Complete (~120 lines)'];
-  const el = document.getElementById('complexity-fill');
-  const lbl = document.getElementById('complexity-label');
-  if (el) el.style.width = pct + '%';
-  if (lbl) lbl.textContent = labels[count] || '';
-}
+function updateScoreSim(){ let total=parseInt(document.getElementById('quizTotal').value); let correct=Math.min(parseInt(document.getElementById('quizCorrect').value),total); document.getElementById('quizTotalVal').innerText=total; document.getElementById('quizCorrectVal').innerText=correct; let pct=(correct/total*100).toFixed(1); let grade=pct>=90?'🏆 Excellent!':pct>=70?'🎯 Good Job!':pct>=50?'📚 Keep Practising':'💪 Need Review'; document.getElementById('scoreSimResult').innerHTML=`<div style="font-size:28px;font-weight:800;color:var(--primary);">${pct}%</div><div>${grade}</div><div style="font-size:12px;color:var(--text3);">${correct} correct out of ${total}</div>`; }
 
-/* ─────────────────────────────────────────
-   TO-DO SIMULATOR
-───────────────────────────────────────── */
-let todos = [
-  { name: 'Learn Python basics', done: true },
-  { name: 'Build Calculator project', done: true },
-  { name: 'Complete Module 12', done: false }
-];
-
-function renderTodo() {
-  const list = document.getElementById('todo-list');
-  if (!list) return;
-  list.innerHTML = '';
-  if (todos.length === 0) {
-    list.innerHTML = '<div style="text-align:center;font-size:13px;color:var(--text3);padding:20px;">No tasks yet — add one above!</div>';
-  }
-  todos.forEach((t, i) => {
-    const item = document.createElement('div');
-    item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:11px 15px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;transition:all .25s;';
-    item.onmouseenter = () => item.style.borderColor = 'var(--moss)';
-    item.onmouseleave = () => item.style.borderColor = 'var(--border)';
-    item.innerHTML = `
-      <div onclick="toggleTodo(${i})" style="width:20px;height:20px;border-radius:50%;border:2px solid ${t.done?'var(--moss)':'var(--border2)'};background:${t.done?'var(--moss)':'transparent'};cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;">${t.done?'<span style="color:#fff;font-size:10px;">✓</span>':''}</div>
-      <span style="flex:1;font-size:13.5px;font-weight:500;color:var(--text);text-decoration:${t.done?'line-through':'none'};opacity:${t.done?.6:1};">${t.name}</span>
-      <button onclick="deleteTodo(${i})" style="background:none;border:none;cursor:pointer;font-size:14px;color:var(--text3);padding:2px 6px;border-radius:6px;transition:all .2s;" onmouseenter="this.style.background='var(--coral-l)'" onmouseleave="this.style.background='none'">🗑️</button>
-    `;
-    list.appendChild(item);
-  });
-  const count = document.getElementById('todo-count');
-  if (count) count.textContent = `${todos.length} task${todos.length !== 1 ? 's' : ''} · ${todos.filter(t=>t.done).length} completed`;
-}
-
-function addTodoItem() {
-  const inp = document.getElementById('todo-input');
-  if (!inp.value.trim()) return;
-  todos.push({ name: inp.value.trim(), done: false });
-  inp.value = '';
-  renderTodo();
-}
-function toggleTodo(i) { todos[i].done = !todos[i].done; renderTodo(); }
-function deleteTodo(i) { todos.splice(i, 1); renderTodo(); }
-function clearDoneTodos() { todos = todos.filter(t => !t.done); renderTodo(); }
-function showTodoJson() {
-  const el = document.getElementById('todo-json');
-  if (el.style.display === 'none') {
-    el.textContent = JSON.stringify(todos, null, 2);
-    el.style.display = 'block';
-  } else el.style.display = 'none';
-}
-
-/* ─────────────────────────────────────────
-   SCORE SIMULATOR
-───────────────────────────────────────── */
-function updateScoreSim() {
-  const total = parseInt(document.getElementById('quiz-total').value);
-  let correct = parseInt(document.getElementById('quiz-correct').value);
-  if (correct > total) { correct = total; document.getElementById('quiz-correct').value = total; }
-  document.getElementById('quiz-total-v').textContent = total;
-  document.getElementById('quiz-correct-v').textContent = correct;
-  const pct = (correct / total * 100).toFixed(1);
-  const grade = pct >= 90 ? '🏆 Excellent!' : pct >= 70 ? '🎯 Good Job!' : pct >= 50 ? '📚 Keep Practising' : '💪 Need More Review';
-  const color = pct >= 90 ? 'var(--moss)' : pct >= 70 ? 'var(--gold)' : pct >= 50 ? 'var(--sky)' : 'var(--coral)';
-  document.getElementById('score-sim-result').innerHTML = `
-    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-      <div style="text-align:center;"><div style="font-family:'Fraunces',serif;font-size:36px;font-weight:900;color:${color};">${pct}%</div><div style="font-size:11px;color:var(--text3);">Percentage</div></div>
-      <div style="flex:1;">
-        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;">${grade}</div>
-        <div style="height:8px;background:var(--border);border-radius:6px;overflow:hidden;"><div style="height:100%;background:${color};border-radius:6px;transition:width .5s ease;width:${pct}%;"></div></div>
-        <div style="font-size:12px;color:var(--text3);margin-top:5px;">${correct} correct out of ${total}</div>
-      </div>
-    </div>
-  `;
-  document.getElementById('sim-code-out').textContent = `# → ${pct}%`;
-}
-
-/* ─────────────────────────────────────────
-   VIRTUAL FILE SYSTEM
-───────────────────────────────────────── */
-let vFiles = ['hello.py', 'todo.json', 'notes.txt', 'calculator.py', 'README.md'];
-function initVFS() { renderVFS(); }
-function renderVFS() {
-  const el = document.getElementById('virtual-fs');
-  if (!el) return;
-  if (vFiles.length === 0) { el.innerHTML = '<span style="color:#8b949e;">  (empty directory)</span>'; return; }
-  el.innerHTML = '<span style="color:#5c8f6e;">$ ls -la /home/vinodhini/projects</span><br>' +
-    vFiles.map(f => {
-      const ext = f.split('.').pop();
-      const icon = ext === 'py' ? '🐍' : ext === 'json' ? '📦' : ext === 'md' ? '📄' : '📝';
-      const size = Math.floor(Math.random() * 200 + 50);
-      return `<span style="color:#c8e6d4;">  ${icon} ${f}</span> <span style="color:#6e7681;">(${size} bytes)</span>`;
-    }).join('<br>');
-}
-function fsCreate() {
-  const inp = document.getElementById('fs-input');
-  const name = inp.value.trim() || 'untitled.txt';
-  if (!vFiles.includes(name)) { vFiles.push(name); renderVFS(); }
-  document.getElementById('fs-log').textContent = `✅ Created: ${name}`;
-  inp.value = '';
-  setTimeout(() => { document.getElementById('fs-log').textContent = ''; }, 3000);
-}
-function fsDelete() {
-  const inp = document.getElementById('fs-input');
-  const name = inp.value.trim();
-  if (vFiles.includes(name)) {
-    vFiles = vFiles.filter(f => f !== name); renderVFS();
-    document.getElementById('fs-log').textContent = `🗑️ Deleted: ${name}`;
-  } else {
-    document.getElementById('fs-log').style.color = 'var(--coral)';
-    document.getElementById('fs-log').textContent = `❌ File not found: ${name}`;
-  }
-  setTimeout(() => { document.getElementById('fs-log').textContent = ''; document.getElementById('fs-log').style.color = 'var(--moss)'; }, 3000);
-  inp.value = '';
-}
-function fsSearch() {
-  const inp = document.getElementById('fs-input');
-  const pattern = inp.value.trim();
-  const matches = vFiles.filter(f => f.includes(pattern));
-  document.getElementById('fs-log').textContent = `🔍 Found ${matches.length} file(s) matching "${pattern}": ${matches.join(', ') || 'none'}`;
-  inp.value = '';
-}
-
-/* ─────────────────────────────────────────
-   EXERCISES
-───────────────────────────────────────── */
-function toggleSolution(id, btn) {
-  const el = document.getElementById(id);
-  el.classList.toggle('show');
-  btn.textContent = el.classList.contains('show') ? '🙈 Hide Solution' : '👁 Show Solution';
-}
-
-/* ─────────────────────────────────────────
-   QUIZ
-───────────────────────────────────────── */
-const quizData = [
-  {
-    q: "In the calculator project, why do we store operations in a dictionary ({\'1\': (\'Add\', add)}) instead of using if/elif chains?",
-    opts: ["Dictionaries are faster to type", "It's more Pythonic — maps keys to functions cleanly, avoids repetitive if/elif, and is easy to extend", "Dictionaries are always faster than if statements", "Python doesn't support elif"],
-    ans: 1,
-    exp: "Storing operations in a dictionary is the 'Pythonic' way — it maps input keys directly to (name, function) tuples, eliminates repetitive if/elif checks, and makes adding new operations trivial."
-  },
-  {
-    q: "In the To-Do app, why do we use json.load() wrapped in a try/except FileNotFoundError?",
-    opts: ["JSON files are unreliable", "To handle the case where tasks.json doesn't exist yet (first run) — gracefully returning an empty list", "try/except is required for all file operations", "FileNotFoundError is a syntax error"],
-    ans: 1,
-    exp: "On the first run, tasks.json doesn't exist yet. Without try/except, the program would crash. Catching FileNotFoundError lets us gracefully return [] (empty list) so the app starts fresh."
-  },
-  {
-    q: "In the Quiz Game, what does enumerate(questions, 1) do?",
-    opts: ["Counts the total number of questions", "Iterates over questions and provides an index starting at 1 (so Q1, Q2... not Q0, Q1...)", "Sorts questions by number", "Converts questions to a numbered dictionary"],
-    ans: 1,
-    exp: "enumerate(iterable, start) returns (index, item) pairs. Using start=1 means the first question is Q1 not Q0 — much better for user-facing output!"
-  },
-  {
-    q: "Why does the FileManager class store self.path in __init__() instead of passing path to every method?",
-    opts: ["Python requires it", "Instance attributes let all methods share state — avoids repeating the path parameter in every method call, making code cleaner", "self.path is faster than a parameter", "Methods can't accept parameters"],
-    ans: 1,
-    exp: "This is the core benefit of OOP — storing shared state in instance attributes. Instead of passing path to list_files(path), create_file(path, name), delete_file(path, name), all methods automatically use self.path."
-  },
-  {
-    q: "Which Python module does the File Manager use to interact with the operating system?",
-    opts: ["sys", "platform", "os", "filesystem"],
-    ans: 2,
-    exp: "The os module provides functions for interacting with the operating system — os.listdir(), os.path.join(), os.path.exists(), os.remove() etc. It's Python's bridge to the underlying OS file system."
-  }
-];
-
-let qIdx = 0, qScore = 0, qAnswered = false;
-
-function renderQuestion() {
-  if (qIdx >= quizData.length) return;
-  const q = quizData[qIdx];
-  qAnswered = false;
-  document.getElementById('quiz-fb').className = 'quiz-feedback';
-  document.getElementById('quiz-next').style.display = 'none';
-  let html = `<div class="quiz-question">Q${qIdx + 1}. ${q.q}</div><div class="quiz-options">`;
-  q.opts.forEach((opt, i) => {
-    html += `<div class="quiz-opt" id="qopt-${i}" onclick="answerQuestion(${i})"><div class="opt-radio"></div>${opt}</div>`;
-  });
-  html += '</div>';
-  document.getElementById('quiz-content').innerHTML = html;
-  for (let i = 0; i < 5; i++) {
-    const dot = document.getElementById('qpd-' + i);
-    if (dot) dot.className = 'qp-dot' + (i < qIdx ? ' done' : i === qIdx ? ' active' : '');
-  }
-}
-
-function answerQuestion(chosen) {
-  if (qAnswered) return;
-  qAnswered = true;
-  const q = quizData[qIdx];
-  const correct = chosen === q.ans;
-  if (correct) qScore++;
-  document.querySelectorAll('.quiz-opt').forEach((el, i) => {
-    el.classList.add('disabled');
-    if (i === q.ans) el.classList.add('correct');
-    else if (i === chosen && !correct) el.classList.add('wrong');
-  });
-  const fb = document.getElementById('quiz-fb');
-  fb.className = 'quiz-feedback show ' + (correct ? 'fb-correct' : 'fb-wrong');
-  fb.innerHTML = (correct ? '✅ Correct! ' : '❌ Not quite. ') + q.exp;
-  document.getElementById('quiz-next').style.display = 'inline-flex';
-}
-
-function nextQuestion() {
-  qIdx++;
-  if (qIdx >= quizData.length) showScoreScreen();
-  else renderQuestion();
-}
-
-function showScoreScreen() {
-  document.getElementById('quiz-body').style.display = 'none';
-  document.getElementById('quiz-score-screen').style.display = 'block';
-  document.getElementById('score-num').textContent = qScore + '/5';
-  document.getElementById('comp-score').textContent = qScore + '/5';
-  const deg = Math.round(qScore / 5 * 360);
-  document.getElementById('score-ring').style.background = `conic-gradient(var(--moss) ${deg}deg, var(--border) ${deg}deg)`;
-  const msgs = ['Keep practising!', 'Good effort!', 'Well done!', 'Almost perfect!', 'Perfect score! 🏆'];
-  const subs = ['Review the project concepts and try again.', 'A little more practice on the project patterns.', 'Solid understanding of Python projects!', 'Just one slip — you know this material well!', 'Exceptional understanding of Python projects!'];
-  document.getElementById('score-msg').textContent = msgs[qScore - 1] || msgs[0];
-  document.getElementById('score-sub').textContent = subs[qScore - 1] || subs[0];
-}
-
-function restartQuiz() {
-  qIdx = 0; qScore = 0; qAnswered = false;
-  document.getElementById('quiz-body').style.display = 'block';
-  document.getElementById('quiz-score-screen').style.display = 'none';
-  renderQuestion();
-}
-
-function restartModule() {
-  completed.fill(false);
-  qIdx = 0; qScore = 0;
-  document.querySelectorAll('.sb-item').forEach(el => el.classList.remove('completed', 'active'));
-  goPage(0);
-}
-
-/* ─────────────────────────────────────────
-   INIT
-───────────────────────────────────────── */
-setCalcOp(1);
-updateComplexity();
-updateScoreSim();
-renderTodo();
-initVFS();
+function renderQuiz(){ let q=questions[quizCurrent]; let a=quizAnswers[quizCurrent]; document.getElementById('qCounter').innerText=`Question ${quizCurrent+1} of 5`; document.getElementById('qPrevBtn').disabled=quizCurrent===0; document.getElementById('qNextBtn').disabled=a===null; document.getElementById('qNextBtn').innerText=quizCurrent===4?'See Results →':'Next →'; let letters='ABCD',html=`<div class="q-badge">Question ${quizCurrent+1}/5</div><div class="q-text">${q.q}</div><div class="q-options">`; q.opts.forEach((opt,i)=>{ let cls='q-opt'; if(a!==null){if(i===q.correct)cls+=' correct'; else if(i===a&&i!==q.correct)cls+=' wrong';} html+=`<button class="${cls}" onclick="answerQuiz(${i})" ${a!==null?'disabled':''}><span class="q-opt-letter">${letters[i]}</span>${opt}</button>`; }); html+=`</div><div class="q-feedback ${a!==null?'show '+(a===q.correct?'correct':'wrong'):''}">${a!==null?q.exp:''}</div>`; document.getElementById('qCard').innerHTML=html; for(let i=0;i<5;i++){ let d=document.getElementById('qd'+i); if(d){ d.className='qp-dot'; let an=quizAnswers[i]; if(an!==null) d.classList.add(an===questions[i].correct?'correct':'wrong'); } } }
+function answerQuiz(c){ if(quizAnswers[quizCurrent]!==null)return; quizAnswers[quizCurrent]=c; renderQuiz(); document.getElementById('qNextBtn').disabled=false; }
+function quizPrev(){ if(quizCurrent>0){ quizCurrent--; renderQuiz(); } }
+function quizNext(){ if(quizAnswers[quizCurrent]===null)return; if(quizCurrent===4){ showQuizResult(); }else{ quizCurrent++; renderQuiz(); } }
+function showQuizResult(){ let c=quizAnswers.filter((a,i)=>a===questions[i].correct).length; document.getElementById('quizContainer').style.display='none'; let r=document.getElementById('quizResult'); r.classList.add('show'); document.getElementById('qrScore').innerText=`${c}/5`; document.getElementById('qrCorrect').innerText=c; document.getElementById('qrWrong').innerText=5-c; let emojis=['😅','🤔','👍','🌟','🎉']; document.getElementById('qrEmoji').innerText=emojis[Math.min(c,4)]; if(c>=4) launchConfetti(); }
+function resetQuiz(){ quizAnswers=new Array(5).fill(null); quizCurrent=0; document.getElementById('quizResult').classList.remove('show'); document.getElementById('quizContainer').style.display='block'; renderQuiz(); }
+function launchConfetti(){ let cs=['#2563eb','#059669','#7c3aed','#eab308']; for(let i=0;i<60;i++){ let el=document.createElement('div'); let s=6+Math.random()*8; el.style.cssText=`position:fixed;top:50%;left:50%;width:${s}px;height:${s}px;background:${cs[i%cs.length]};border-radius:${Math.random()>.5?'50%':'2px'};pointer-events:none;z-index:9999;animation:confetti-pop 1.4s ease forwards;`; document.body.appendChild(el); setTimeout(()=>el.remove(),1400); } }
+renderTodo(); renderVFS(); updateScoreSim();
 </script>
 </body>
 </html>
