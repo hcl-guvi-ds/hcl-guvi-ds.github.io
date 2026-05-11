@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Cleaning — Interactive Session Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:       #0062a8;
+      --primary-dark:  #004d84;
+      --primary-light: #e8f3fc;
+      --navy:          #333f70;
+      --bg:            #f4f7fb;
+      --surface:       #ffffff;
+      --border:        #dde3ef;
+      --text:          #1e2a4a;
+      --muted:         #64748b;
+      --faint:         #94a3b8;
+      --keep:          #059669;
+      --keep-bg:       #ecfdf5;
+      --keep-bd:       #a7f3d0;
+      --drop:          #dc2626;
+      --drop-bg:       #fef2f2;
+      --drop-bd:       #fecaca;
+      --warn:          #b45309;
+      --warn-bg:       #fffbeb;
+      --warn-bd:       #fde68a;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 17px; }
+    h1,h2,h3,h4 { font-family: 'Sora', sans-serif; }
+
+    /* ── HEADER ─────────────────────────────────── */
+    header {
+      background: var(--navy);
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(51,63,112,.2);
+      flex-wrap: wrap;
+    }
+    .logo {
+      font-family: 'Sora', sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: .05em;
+      color: #fff;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 6px;
+      margin-right: 10px;
+      transition: background .15s;
+    }
+    .logo:hover { background: rgba(255,255,255,.08); }
+    .logo span  { color: #7ec8f0; }
+    .nav-div    { width: 1px; height: 20px; background: rgba(255,255,255,.12); margin: 0 6px; }
+    .nav-btn {
+      padding: 10px 14px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      color: rgba(255,255,255,.6);
+      cursor: pointer;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .nav-btn:hover  { background: rgba(255,255,255,.08); color: #fff; }
+    .nav-btn.active { background: rgba(255,255,255,.16); color: #fff; }
+    .nav-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── HOME HERO ──────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--primary) 60%, #0086d4 100%);
+      color: #fff;
+      padding: 56px 48px 52px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after  { content:''; position:absolute; top:-40px; right:-40px; width:280px; height:280px; background:rgba(255,255,255,.04); border-radius:50%; }
+    .hero::before { content:''; position:absolute; bottom:-60px; right:100px; width:160px; height:160px; background:rgba(255,255,255,.03); border-radius:50%; }
+    .hero-eyebrow { font-size:13px; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.5); margin-bottom:14px; }
+    .hero-title   { font-size:46px; font-weight:800; line-height:1.15; margin-bottom:18px; position:relative; }
+    .hero-title em { font-style:normal; color:#7ec8f0; }
+    .hero-desc    { font-size:18px; line-height:1.75; max-width:600px; color:rgba(255,255,255,.82); position:relative; }
+
+    /* ── HOME BODY ──────────────────────────────── */
+    .home-body    { padding: 48px 32px 56px; max-width: 1120px; margin: 0 auto; width: 100%; }
+    .eyebrow { font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--primary); margin-bottom:10px; }
+    .why-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 32px;
+      margin-bottom: 36px;
+    }
+    .why-card h2  { font-size:22px; font-weight:700; color:var(--navy); margin-bottom:12px; }
+    .why-card p   { font-size:17px; color:var(--muted); line-height:1.75; margin-bottom:10px; }
+    .why-card p:last-child { margin-bottom:0; }
+
+    .steps-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px; align-items:stretch; }
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      cursor: pointer;
+      transition: all .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .step-card:hover { border-color:var(--primary); box-shadow:0 6px 20px rgba(0,98,168,.1); transform:translateY(-2px); }
+    .step-card .bar  { position:absolute; top:0; left:0; right:0; height:3px; border-radius:14px 14px 0 0; }
+    .step-num-label  { font-size:12px; font-weight:700; letter-spacing:.12em; color:var(--faint); margin-bottom:12px; }
+    .step-emoji      { font-size:32px; display:block; margin-bottom:11px; }
+    .step-title      { font-family:'Sora',sans-serif; font-size:18px; font-weight:700; color:var(--navy); margin-bottom:6px; }
+    .step-desc-text  { font-size:15px; color:var(--muted); line-height:1.5; }
+    .step-link       { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; color:var(--primary); margin-top:14px; opacity:0; transition:opacity .2s; }
+    .step-card:hover .step-link { opacity:1; }
+
+    /* ── SECTION PAGE ───────────────────────────── */
+    .sec-page { max-width: 1040px; margin: 0 auto; padding: 40px 44px; }
+    .sec-header { display:flex; align-items:flex-start; gap:14px; margin-bottom:24px; padding-bottom:22px; border-bottom:1px solid var(--border); }
+    .sec-badge  { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+    .sec-title  { font-size:28px; font-weight:800; color:var(--navy); line-height:1.2; }
+    .sec-sub    { font-size:18px; color:var(--muted); margin-top:6px; line-height:1.6; }
+
+    /* ── TABS ───────────────────────────────────── */
+    .tabs     { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:28px; border-bottom:2px solid var(--border); }
+    .tab-btn  { padding:12px 18px; background:transparent; border:none; border-bottom:2px solid transparent; color:var(--muted); cursor:pointer; font-size:15px; font-family:'DM Sans',sans-serif; font-weight:700; letter-spacing:.08em; text-transform:uppercase; transition:all .15s; margin-bottom:-2px; }
+    .tab-btn:hover { color:var(--navy); }
+
+    /* ── OVERVIEW ───────────────────────────────── */
+    .ov-intro { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px 26px; margin-bottom:20px; }
+    .ov-intro p { font-size:17px; color:var(--text); line-height:1.8; }
+    .ov-2col    { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+    .ov-box     { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 22px; }
+    .ov-box.identify { border-top:3px solid var(--primary); }
+    .ov-box.treat    { border-top:3px solid var(--keep); }
+    .ov-box-title    { font-size:14px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; margin-bottom:16px; }
+    .identify .ov-box-title { color:var(--primary); }
+    .treat    .ov-box-title { color:var(--keep); }
+    .ov-item  { display:flex; gap:9px; margin-bottom:10px; align-items:flex-start; }
+    .ov-dot   { width:5px; height:5px; border-radius:50%; margin-top:7px; flex-shrink:0; }
+    .identify .ov-dot { background:var(--primary); }
+    .treat    .ov-dot { background:var(--keep); }
+    .ov-text  { font-size:16px; color:var(--text); line-height:1.7; }
+    .ov-text code {
+      font-family:'JetBrains Mono',monospace;
+      font-size:13px;
+      background:var(--primary-light);
+      color:var(--primary);
+      padding:2px 6px;
+      border-radius:3px;
+      border:1px solid #bfdbfe;
+      display:inline-block;
+      margin-top:4px;
+    }
+    .ov-bold { font-weight:600; color:var(--navy); }
+    .ov-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(148px,1fr)); gap:10px; margin-bottom:20px; }
+    .ov-card  { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px; transition:border-color .15s; }
+    .ov-card:hover { border-color:var(--primary); }
+    .ov-card-emoji { font-size:20px; margin-bottom:7px; }
+    .ov-card-title { font-size:14px; font-weight:700; color:var(--navy); margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em; }
+    .ov-card-desc  { font-size:15px; color:var(--muted); line-height:1.6; }
+    .rule-box { background:var(--primary-light); border:1px solid #bfdbfe; border-left:4px solid var(--primary); border-radius:8px; padding:14px 18px; display:flex; align-items:flex-start; gap:10px; }
+    .rule-label { font-size:12px; font-weight:700; letter-spacing:.12em; color:var(--primary); white-space:nowrap; padding-top:2px; text-transform:uppercase; }
+    .rule-text  { font-size:16px; color:var(--navy); line-height:1.7; }
+
+    /* ── DECISION TREE ──────────────────────────── */
+    .tree-wrap { max-width:580px; }
+    .tree-bc   { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; min-height:24px; }
+    .tree-crumb { font-size:13px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:5px 12px; color:var(--muted); }
+    .c-yes { color:var(--keep); font-weight:600; }
+    .c-no  { color:var(--drop); font-weight:600; }
+    .tree-card { background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:28px; margin-bottom:14px; transition:border-color .25s,background .25s; }
+    .tree-card.r-keep   { border-color:var(--keep-bd); background:var(--keep-bg); }
+    .tree-card.r-drop   { border-color:var(--drop-bd); background:var(--drop-bg); }
+    .tree-card.r-warn   { border-color:var(--warn-bd); background:var(--warn-bg); }
+    .tree-card.r-danger { border-color:var(--drop-bd); background:var(--drop-bg); }
+    .tree-step { font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin-bottom:10px; }
+    .tree-q    { font-family:'Sora',sans-serif; font-size:22px; font-weight:700; color:var(--navy); line-height:1.5; margin-bottom:10px; }
+    .tree-hint { font-size:15px; color:var(--muted); font-style:italic; margin-bottom:24px; padding:10px 14px; background:var(--bg); border-radius:6px; border-left:2px solid var(--border); line-height:1.7; }
+    .tree-btns { display:flex; gap:10px; }
+    .tree-btn  { flex:1; padding:14px; border-radius:9px; border:1.5px solid; font-size:16px; font-family:'DM Sans',sans-serif; font-weight:700; cursor:pointer; transition:all .15s; }
+    .tree-btn.yes { background:var(--keep-bg); border-color:var(--keep-bd); color:var(--keep); }
+    .tree-btn.yes:hover { background:#d1fae5; }
+    .tree-btn.no  { background:var(--surface); border-color:var(--border); color:var(--text); }
+    .tree-btn.no:hover  { background:var(--bg); }
+    .r-label  { font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin-bottom:10px; }
+    .r-title  { font-family:'Sora',sans-serif; font-size:28px; font-weight:800; margin-bottom:14px; }
+    .r-keep   .r-title { color:var(--keep); }
+    .r-drop   .r-title, .r-danger .r-title { color:var(--drop); }
+    .r-warn   .r-title { color:var(--warn); }
+    .r-msg    { font-size:17px; color:var(--muted); line-height:1.8; margin-bottom:16px; }
+    .v-pill   { display:inline-block; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700; letter-spacing:.07em; }
+    .vp-keep   { background:#d1fae5; color:#065f46; }
+    .vp-drop   { background:#fee2e2; color:#991b1b; }
+    .vp-warn   { background:#fef3c7; color:#92400e; }
+    .vp-danger { background:#fee2e2; color:#991b1b; }
+    .tree-ctrls { display:flex; gap:8px; }
+    .ctrl-btn { padding:9px 16px; background:var(--surface); border:1px solid var(--border); border-radius:7px; color:var(--muted); cursor:pointer; font-size:14px; font-family:'DM Sans',sans-serif; font-weight:500; transition:all .15s; }
+    .ctrl-btn:hover { border-color:var(--primary); color:var(--primary); }
+
+    /* ── COMPARE ────────────────────────────────── */
+    .cmp-title { font-size:14px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
+    .cmp-table { display:grid; gap:8px; }
+    .cmp-header { display:grid; gap:12px; padding:6px 16px; }
+    .cmp-head { font-size:12px; font-weight:700; letter-spacing:.1em; color:var(--faint); text-transform:uppercase; }
+    .cmp-row { display:grid; gap:12px; padding:13px 16px; background:var(--surface); border:1px solid var(--border); border-radius:9px; align-items:center; transition:border-color .15s; }
+    .cmp-row:hover { border-color:#bfdbfe; }
+    .cmp-tech   { font-size:15px; font-weight:700; color:var(--navy); line-height:1.5; }
+    .cmp-when   { font-size:15px; color:var(--text); line-height:1.6; }
+    .cmp-risk   { font-size:15px; color:var(--muted); font-style:italic; line-height:1.6; }
+    .cmp-verd   { font-size:12px; font-weight:700; padding:5px 10px; border-radius:20px; text-align:center; white-space:nowrap; }
+    .cv-keep   { background:#d1fae5; color:#065f46; }
+    .cv-drop   { background:#fee2e2; color:#991b1b; }
+    .cv-warn   { background:#fef3c7; color:#92400e; }
+    .cv-danger { background:#fee2e2; color:#991b1b; }
+
+    /* ── QUIZ ───────────────────────────────────── */
+    .quiz-wrap  { max-width:640px; }
+    .q-card     { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px 24px; margin-bottom:14px; }
+    .q-num      { font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); margin-bottom:10px; }
+    .q-text     { font-family:'Sora',sans-serif; font-size:20px; font-weight:600; color:var(--navy); line-height:1.65; margin-bottom:16px; }
+    .q-options  { display:flex; flex-direction:column; gap:7px; }
+    .q-opt      { display:flex; align-items:center; gap:10px; padding:12px 16px; border-radius:8px; font-size:16px; font-family:'DM Sans',sans-serif; cursor:pointer; border:1.5px solid var(--border); background:var(--bg); color:var(--text); transition:all .15s; text-align:left; width:100%; line-height:1.6; }
+    .q-opt:hover:not(:disabled) { border-color:var(--primary); background:var(--primary-light); }
+    .q-opt.selected { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+    .q-opt.correct  { border-color:var(--keep-bd); background:var(--keep-bg); color:var(--keep); }
+    .q-opt.wrong    { border-color:var(--drop-bd); background:var(--drop-bg); color:var(--drop); }
+    .q-opt:disabled { cursor:default; }
+    .q-marker   { font-size:14px; flex-shrink:0; width:18px; }
+    .q-explain  { margin-top:12px; padding:14px 16px; background:var(--primary-light); border-radius:7px; border-left:3px solid var(--primary); font-size:15px; color:var(--navy); line-height:1.7; }
+    .q-explain::before { content:'💡  '; }
+    .submit-btn { padding:13px 30px; background:var(--primary); border:none; border-radius:9px; color:#fff; font-weight:700; font-size:16px; font-family:'DM Sans',sans-serif; cursor:pointer; transition:background .15s; }
+    .submit-btn:hover   { background:var(--primary-dark); }
+    .submit-btn:disabled { background:#cbd5e1; cursor:not-allowed; }
+    .score-row  { display:flex; align-items:center; gap:14px; }
+    .score-num  { font-family:'Sora',sans-serif; font-size:28px; font-weight:800; color:var(--navy); }
+    .score-sub  { font-size:16px; color:var(--muted); }
+    .retry-btn  { padding:10px 20px; background:var(--surface); border:1.5px solid var(--primary); border-radius:7px; color:var(--primary); cursor:pointer; font-size:14px; font-family:'DM Sans',sans-serif; font-weight:700; transition:all .15s; }
+    .retry-btn:hover { background:var(--primary-light); }
+
+    /* ── UTILS ──────────────────────────────────── */
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    .fade-in { animation:fadeIn .25s ease forwards; }
+    #main-nav { display:flex; align-items:center; gap:8px; flex-wrap:wrap; flex:1; }
+    @media(min-width:1200px) {
+      .hero, .sec-page { max-width: 1200px; margin: 0 auto; }
+    }
+    @media(max-width:680px) {
+      header { padding: 12px 16px; }
+      .nav-div { display:none; }
+      #main-nav { width:100%; }
+      .ov-2col { grid-template-columns:1fr; }
+      .steps-grid { grid-template-columns:1fr; }
+      .hero { padding:36px 20px; }
+      .hero-title { font-size:32px; }
+      .hero-desc { font-size:16px; }
+      .home-body, .sec-page { padding:20px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="logo.png" alt="HCL-GUVI Logo"
+         style="height:40px; object-fit:contain;">
+  <div class="logo" onclick="navigate('home')">Data <span>Cleaning</span></div>
+  <div class="nav-div"></div>
+  <nav id="main-nav"></nav>
+</header>
+<div id="app"></div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  SECTION METADATA
+// ════════════════════════════════════════════════════════
+const SECTIONS = [
+  { id:'drop',       title:'Drop Columns',   emoji:'⊘', accent:'#f59e0b', accentBg:'#fffbeb', sub:'Remove columns that add noise rather than signal' },
+  { id:'duplicates', title:'Duplicates',     emoji:'⧉', accent:'#059669', accentBg:'#ecfdf5', sub:'Identify and resolve repeated records correctly' },
+  { id:'missing',    title:'Missing Values', emoji:'?', accent:'#0062a8', accentBg:'#e8f3fc', sub:'Understand why values are missing before filling them' },
+  { id:'outliers',   title:'Outliers',       emoji:'◈', accent:'#7c3aed', accentBg:'#f5f3ff', sub:'Decide whether extreme values are errors or signals' },
+];
+
+// ════════════════════════════════════════════════════════
+//  OVERVIEW DATA
+// ════════════════════════════════════════════════════════
+const OVERVIEW = {
+  drop: {
+    intro: 'Not every column deserves to be in your model. Some add pure noise, some carry the risk of leaking your target variable, and some are simply too broken to trust. Identifying and removing these columns early makes your entire pipeline cleaner, faster, and more reliable.',
+    identify: [
+      { text:'Check missing % per column', code:'df.isnull().mean() * 100' },
+      { text:'Check variance and unique count', code:'df.nunique()  |  df.var()' },
+      { text:'Check correlation with target', code:"df.corr()['target'].abs().sort_values()" },
+      { text:'Flag high-cardinality columns', code:'df.nunique().sort_values(ascending=False)' },
+      { text:'Domain review: Was this column available before the target was known? (leakage check)' },
+    ],
+    treat: [
+      { label:'Missing > 70%',            action:'Drop — imputing would mean fabricating most of the data' },
+      { label:'Near-zero variance',        action:'Drop — model has nothing to learn from it' },
+      { label:'Irrelevant to the problem', action:'Drop — reduces noise and training time' },
+      { label:'High-cardinality raw ID',   action:'Frequency/target encode, or Drop if it\'s just an identifier' },
+      { label:'Target-derived column',     action:'Drop immediately — this causes data leakage in production' },
+      { label:'High multicollinearity',    action:'Drop one column from the correlated pair' },
+    ],
+    cards: [
+      { emoji:'📉', title:'Too Many Missing',   desc:'>70% null → unreliable to impute' },
+      { emoji:'🎯', title:'Irrelevant Feature', desc:'No signal for the target variable' },
+      { emoji:'📌', title:'Zero Variance',      desc:'All same value → nothing to learn' },
+      { emoji:'🔗', title:'Multicollinearity',  desc:'Duplicate signal → hurts linear models' },
+      { emoji:'🚨', title:'Target Leakage',     desc:'Derived from label → data leakage' },
+      { emoji:'🆔', title:'Raw ID Column',      desc:'Thousands of unique values → encode or drop' },
+    ],
+    rule: 'Before dropping anything — ask if the column has signal, not just if it has problems.',
+  },
+  duplicates: {
+    intro: 'Duplicate rows can silently inflate your counts, bias your model, and distort statistics — but not all repeated rows are errors. A customer making two purchases on the same day is real data. Understanding the type of duplication determines the right action.',
+    identify: [
+      { text:'Count exact duplicates (all fields match)', code:'df.duplicated().sum()' },
+      { text:'Check key-field duplicates (same entity)', code:"df.duplicated(subset=['name','email']).sum()" },
+      { text:'Spot casing/whitespace inconsistencies', code:"df['city'].value_counts()  →  Chennai / chennai" },
+      { text:'Domain review: Can this entity legitimately appear multiple times in real life?' },
+    ],
+    treat: [
+      { label:'Exact duplicates',     action:'Drop — df.drop_duplicates(). These are data entry errors.' },
+      { label:'Format duplicates',    action:'Normalize first (str.lower().str.strip()), then deduplicate' },
+      { label:'Partial duplicates',   action:'Investigate — reconcile by domain rules or merge records' },
+      { label:'Business duplicates',  action:'Keep as-is — they represent real, valid repeated events' },
+    ],
+    cards: [
+      { emoji:'🔁', title:'Exact Duplicate',    desc:'All fields match → likely data entry error' },
+      { emoji:'✏️', title:'Format Duplicate',   desc:'Chennai vs chennai → normalize first' },
+      { emoji:'🧩', title:'Partial Duplicate',  desc:'Same entity, minor diffs → investigate' },
+      { emoji:'💼', title:'Business Duplicate', desc:'Real repeated event → valuable data' },
+    ],
+    rule: 'Define what a row represents before deciding whether repetition is an error or expected behavior.',
+  },
+  missing: {
+    intro: 'Missing data is one of the most commonly mishandled challenges. The mistake most practitioners make is jumping straight to a method — mean imputation, KNN — without first asking why the data is missing. The mechanism behind missingness completely determines the right treatment.',
+    identify: [
+      { text:'Count nulls per column', code:'df.isnull().sum()' },
+      { text:'Get missing percentage per column', code:'df.isnull().mean() * 100' },
+      { text:'Visualize patterns across the dataset', code:'import missingno as msno\nmsno.heatmap(df)' },
+      { text:'MCAR: Missingness appears random, unrelated to any other column' },
+      { text:'MAR: Missingness correlates with another observable column (e.g., property_type explains missing sq_ft)' },
+      { text:'MNAR: Missingness depends on the missing value itself — requires domain knowledge (e.g., high earners don\'t report income)' },
+    ],
+    treat: [
+      { label:'MCAR + small %',           action:'Mean (normal dist) / Median (skewed) / Mode (categorical)' },
+      { label:'MAR + related column',     action:'Segment-based imputation — compute stats per group' },
+      { label:'MAR + strong relationships',action:'KNN Imputation or Regression Imputation' },
+      { label:'MNAR',                     action:"Add binary missing indicator flag — don't pretend the value is known" },
+      { label:'>70–80% missing',          action:'Consider dropping the column entirely' },
+    ],
+    cards: [
+      { emoji:'🎲', title:'MCAR', desc:'Completely random — simpler methods OK' },
+      { emoji:'🔍', title:'MAR',  desc:'Depends on other features — use them' },
+      { emoji:'🚩', title:'MNAR', desc:'Absence = signal — add indicator flag' },
+    ],
+    rule: 'Understand why values are missing before deciding how to fill them. Method follows mechanism.',
+  },
+  outliers: {
+    intro: "An outlier is any value that sits far from the rest of the distribution — but 'far' isn't always wrong. In fraud detection, outliers are your signal. In house price modeling, one extreme value can collapse your regression. The first question is always: is this a real event or a data error?",
+    identify: [
+      { text:'IQR Method (works for any distribution)', code:'Q1, Q3 = df.quantile([0.25, 0.75])\nIQR = Q3 - Q1\nOutlier: x < Q1-1.5×IQR  or  x > Q3+1.5×IQR' },
+      { text:'Z-Score (only for roughly normal distributions)', code:'from scipy import stats\nz = stats.zscore(df[\'col\'])\noutliers = df[abs(z) > 3]' },
+      { text:'Visual inspection: Boxplot shows outliers vs IQR; Histogram reveals skew and gaps' },
+      { text:'Domain rules: Age > 120, Salary < 0, negative inventory — business logic defines impossible values' },
+    ],
+    treat: [
+      { label:'Clear data error',          action:'Remove or fix with domain knowledge — these are mistakes' },
+      { label:'Rare but meaningful',        action:'Keep — especially in anomaly or fraud detection problems' },
+      { label:'Skewing model performance',  action:'Cap via Winsorization (95th/5th %) or apply log/sqrt transform' },
+      { label:'Model-level solution',       action:'Use tree-based models (XGBoost, RF) — naturally robust to outliers' },
+    ],
+    cards: [
+      { emoji:'❌', title:'Data Error',        desc:'Age=999, Salary=−500 → fix or remove' },
+      { emoji:'🏦', title:'Rare Real Event',   desc:'Fraud, flash sale spike → preserve it' },
+      { emoji:'📐', title:'Distribution Skew', desc:'Right-skewed → transform to compress' },
+      { emoji:'📊', title:'Model Sensitivity', desc:'Linear = sensitive, Tree = tolerant' },
+    ],
+    rule: "Never remove an outlier just because it looks extreme. Always ask: is it a real event or a data error?",
+  },
+};
+
+// ════════════════════════════════════════════════════════
+//  DECISION TREES
+// ════════════════════════════════════════════════════════
+const TREES = {
+  drop: {
+    start: 'q1',
+    nodes: {
+      q1: { q:'Is missing % > 70%?',                  hint:'Run df.isnull().mean() — columns above 0.70 are candidates',           yes:'r_miss',  no:'q2' },
+      q2: { q:'Is it relevant to the problem?',        hint:'Does it correlate with the target or have domain meaning?',             yes:'q3',      no:'r_irr' },
+      q3: { q:'Near-zero or single-value variance?',   hint:'Almost all rows have the same value — check df.nunique()',              yes:'r_var',   no:'q4' },
+      q4: { q:'High-cardinality raw identifier?',      hint:'e.g., customer_id with 50k unique values — no real pattern to learn',  yes:'r_card',  no:'q5' },
+      q5: { q:'Derived from the target variable?',     hint:'e.g., loan_approved_flag derived from the loan outcome — leakage!',    yes:'r_leak',  no:'r_keep' },
+      r_miss: { result:true, verdict:'drop',   title:'Drop Column',       msg:'Too many missing values (>70%). Imputing would mean fabricating most of the data — unreliable.' },
+      r_irr:  { result:true, verdict:'drop',   title:'Drop Column',       msg:'Irrelevant to the problem. It only adds noise and can degrade model performance.' },
+      r_var:  { result:true, verdict:'drop',   title:'Drop Column',       msg:"Near-zero variance means the model can't learn anything discriminative from it." },
+      r_card: { result:true, verdict:'warn',   title:'Encode or Drop',    msg:'High-cardinality raw ID. Frequency encode or target encode if meaningful — otherwise drop.' },
+      r_leak: { result:true, verdict:'danger', title:'Drop Immediately!', msg:'Target-derived feature = data leakage. Model will look perfect in training but fail in production.' },
+      r_keep: { result:true, verdict:'keep',   title:'Keep Column',       msg:'Passes all checks. Retain this column for modeling.' },
+    },
+  },
+  duplicates: {
+    start: 'q1',
+    nodes: {
+      q1: { q:'Should this entity naturally repeat in real life?',  hint:'e.g., same customer making multiple transactions is expected',           yes:'r_biz',     no:'q2' },
+      q2: { q:'Are all fields in both rows exactly identical?',     hint:'Character-for-character match across every column — run df.duplicated()', yes:'r_exact',   no:'q3' },
+      q3: { q:'Differences only in format or casing?',             hint:'e.g., "Chennai" vs "chennai", extra whitespace, different date formats',  yes:'r_fmt',     no:'q4' },
+      q4: { q:'Same entity but slight value differences?',         hint:'Possible data entry variation for the same real-world record',            yes:'r_partial', no:'r_keep' },
+      r_biz:     { result:true, verdict:'keep', title:'Keep (Business Duplicate)',  msg:'Real repeated events are valuable data. Removing them means losing information about actual behavior.' },
+      r_exact:   { result:true, verdict:'drop', title:'Remove Duplicate',           msg:'Exact duplicates are almost always data entry errors. Safe to call df.drop_duplicates().' },
+      r_fmt:     { result:true, verdict:'warn', title:'Normalize → Deduplicate',    msg:"Apply str.lower().str.strip() to fix formatting, then deduplicate. Don't drop before cleaning." },
+      r_partial: { result:true, verdict:'warn', title:'Investigate',                msg:'Partial duplicates need domain-based reconciliation before you can decide to merge or remove.' },
+      r_keep:    { result:true, verdict:'keep', title:'Keep',                       msg:'Not a duplicate — this is a unique, valid record.' },
+    },
+  },
+  missing: {
+    start: 'q1',
+    nodes: {
+      q1: { q:'Is missing % > 70–80%?',                                  hint:'Check df.isnull().mean() — columns above 0.70 are usually not worth imputing',       yes:'r_drop',    no:'q2' },
+      q2: { q:'Is this feature relevant to the problem?',                 hint:'Domain knowledge or feature importance — low importance may not be worth imputing',  yes:'q3',        no:'r_dropcol' },
+      q3: { q:'Is this MNAR? (missingness depends on the value itself)',   hint:'e.g., high earners not reporting income — being missing tells you about the value',  yes:'r_mnar',    no:'q4' },
+      q4: { q:'Related column explains the missingness? (MAR)',           hint:'e.g., property_type explains why sq_ft is missing for certain records',              yes:'q5',        no:'q6' },
+      q5: { q:'Are feature relationships strong enough for prediction?',  hint:'Strong correlation or domain logic linking missing column to predictors',            yes:'r_adv',     no:'r_seg' },
+      q6: { q:'Small, random, and scattered missingness? (MCAR)',         hint:'Roughly <5–10%, no visible pattern when inspecting against other columns',           yes:'r_simple',  no:'r_adv' },
+      r_drop:    { result:true, verdict:'drop', title:'Drop Column',                  msg:'Too many missing values. Even advanced imputation would mostly be fabricating data.' },
+      r_dropcol: { result:true, verdict:'drop', title:'Drop Column',                  msg:"Low importance + high missing = imputing this feature isn't worth the effort or distortion." },
+      r_mnar:    { result:true, verdict:'warn', title:'Keep + Add Missing Indicator', msg:"Don't impute. The fact that it's missing IS the signal. Add a binary is_missing flag. Use -1 or 'Unknown' as placeholder." },
+      r_seg:     { result:true, verdict:'warn', title:'Segment-Based Imputation',     msg:'Group by the related column, compute mean/median per group, and fill accordingly. Far better than a global average.' },
+      r_simple:  { result:true, verdict:'keep', title:'Simple Imputation',            msg:'Mean (normal dist) / Median (skewed dist) / Mode (categorical). Fast baseline — appropriate for MCAR with small missing %.' },
+      r_adv:     { result:true, verdict:'keep', title:'Advanced Imputation',          msg:'Use KNN Imputation (similar rows fill the gap) or Regression Imputation (predict from other features). Captures real relationships.' },
+    },
+  },
+  outliers: {
+    start: 'q1',
+    nodes: {
+      q1: { q:'Is it a clear data error?',                         hint:'e.g., Age = 999, Salary = −5000, Temperature = 9999 — impossible in real life',       yes:'r_fix',       no:'q2' },
+      q2: { q:'Is this outlier rare but domain-meaningful?',       hint:'e.g., a fraud transaction, a record-breaking sale — extreme but real',                yes:'r_keep',      no:'q3' },
+      q3: { q:'Is it skewing model performance significantly?',    hint:'Check if metrics shift meaningfully when you remove or cap the outliers',             yes:'q4',          no:'r_model' },
+      q4: { q:'Need to preserve the original data scale?',        hint:'Business reporting, regulatory requirements, or interpretability constraints',        yes:'r_cap',       no:'r_transform' },
+      r_fix:       { result:true, verdict:'drop', title:'Remove / Fix',        msg:'Clear data error. Correct it with domain knowledge, or remove the row. Do not keep it.' },
+      r_keep:      { result:true, verdict:'keep', title:'Keep As-Is',          msg:"Meaningful outlier. In fraud detection and anomaly problems, these extreme values are exactly what you're trying to model." },
+      r_model:     { result:true, verdict:'keep', title:'Use a Robust Model',  msg:'Switch to tree-based models (XGBoost, Random Forest). They handle outliers naturally — no treatment needed.' },
+      r_cap:       { result:true, verdict:'warn', title:'Cap / Winsorize',     msg:'Clip to 95th / 5th percentile. Reduces extreme impact while keeping all data rows. Common in production pipelines.' },
+      r_transform: { result:true, verdict:'warn', title:'Log / Sqrt Transform',msg:'Compresses the right tail. Great for salary, price, and count columns. Apply before modeling.' },
+    },
+  },
+};
+
+// ════════════════════════════════════════════════════════
+//  COMPARE DATA
+// ════════════════════════════════════════════════════════
+const COMPARE = {
+  drop: {
+    cols:'1.5fr 2fr 2fr 1.2fr',
+    heads:['Technique','When','Risk','Verdict'],
+    rows:[
+      { t:'Drop — High Missing',      w:'Missing > 70%',                       r:'Losing a potentially useful feature',        v:'Drop',             vc:'drop'   },
+      { t:'Drop — Irrelevant',         w:'Low correlation with target',          r:'Adds noise, slows training',                 v:'Drop',             vc:'drop'   },
+      { t:'Drop — Zero Variance',      w:'All values the same',                  r:'None — it\'s useless',                       v:'Always Drop',      vc:'drop'   },
+      { t:'Drop — Target Leakage',     w:'Derived from label/target',            r:'Looks great in training, fails in prod',     v:'Drop Immediately', vc:'danger' },
+      { t:'Encode or Drop',            w:'High-cardinality raw ID',              r:'No real pattern if left as-is',              v:'Encode or Drop',   vc:'warn'   },
+      { t:'Drop — Multicollinearity',  w:'Strong correlation with another col',  r:'Inflates coefficients in linear models',     v:'Drop One of Pair', vc:'warn'   },
+    ],
+  },
+  duplicates: {
+    cols:'1.5fr 2fr 2fr 1.2fr',
+    heads:['Type','When','Risk','Verdict'],
+    rows:[
+      { t:'Exact Duplicate',     w:'All fields identical',                      r:'Biases counts and distributions',    v:'Remove',           vc:'drop' },
+      { t:'Format Duplicate',    w:'Chennai vs chennai',                        r:'Inflates category counts',           v:'Normalize First',  vc:'warn' },
+      { t:'Partial Duplicate',   w:'Same entity, minor value differences',      r:'Misleads aggregations',              v:'Investigate',      vc:'warn' },
+      { t:'Business Duplicate',  w:'Same customer, multiple real events',       r:'Removing = losing valid event data', v:'Keep',             vc:'keep' },
+    ],
+  },
+  missing: {
+    cols:'1.6fr 2fr 2fr 1.4fr',
+    heads:['Method','When to Use','Risk','Verdict'],
+    rows:[
+      { t:'Mean Imputation',         w:'MCAR, roughly normal distribution',    r:'Reduces variance, distorts distribution', v:'Baseline Only',    vc:'warn' },
+      { t:'Median Imputation',       w:'MCAR, skewed distribution',            r:'Safer than mean for skewed data',         v:'Robust Baseline',  vc:'warn' },
+      { t:'Mode Imputation',         w:'Categorical columns (MCAR)',           r:'Over-represents one category',            v:'Cat. Baseline',    vc:'warn' },
+      { t:'forward fill Imputation',         w:'Time-series, sequential dependency exists',           r:'Artificial repetition, stale values',            v:'Sequence-Based',    vc:'warn' },
+      { t:'Backward fill Imputation',         w:'Time-series, next value is logically valid',           r:'Future leakage risk',            v:'Use Carefully',    vc:'warn' },
+      { t:'Segment-Based',           w:'MAR — related column available',       r:'Group errors propagate',                  v:'Good Choice',      vc:'keep' },
+      { t:'KNN Imputation',          w:'MAR, meaningful row similarity',       r:'Slow on large data, scale-sensitive',     v:'Mid-size Data',    vc:'keep' },
+      { t:'Regression Imputation',   w:'Strong linear relationships exist',    r:'Overfitting, underestimates variance',    v:'Clear Relations',  vc:'keep' },
+      { t:'MNAR → Indicator Flag',   w:'Missingness is informative',           r:'None — preserves the signal',             v:'Best for MNAR',    vc:'keep' },
+    ],
+  },
+  outliers: {
+    cols:'1.5fr 2fr 2fr 1.2fr',
+    heads:['Treatment','When','Risk','Verdict'],
+    rows:[
+      { t:'Remove',               w:'Clear data error (Age=999)',        r:'May delete real rare events',         v:'Errors Only',      vc:'drop' },
+      { t:'Cap / Winsorize',      w:'Skewed, bounded range needed',      r:'Loses extreme signal',                v:'Safe & Common',    vc:'warn' },
+      { t:'Log / Sqrt Transform', w:'Right-skewed (salary, price, ct.)', r:'Changes scale interpretation',        v:'Great for Skew',   vc:'keep' },
+      { t:'Keep As-Is',           w:'Fraud, anomaly detection',          r:'Breaks linear model assumptions',     v:'Use Robust Model', vc:'keep' },
+    ],
+  },
+};
+
+// ════════════════════════════════════════════════════════
+//  QUIZ DATA
+// ════════════════════════════════════════════════════════
+const QUIZZES = {
+  drop: [
+    { q:'A column has 85% missing values but is strongly correlated with the target. What do you do?',
+      opts:['Impute with mean — the correlation justifies it','Drop — missing % is too high regardless','KNN impute regardless of missing %','Weigh signal vs recoverability — likely drop, but assess first'],
+      ans:3, exp:'Even with signal, >70–80% missing is typically too high to impute reliably. Assess recoverability and model sensitivity — it\'s not always a blind rule to drop.' },
+    { q:'A "customer_id" column has 80,000 unique values in a 100,000 row dataset. Best action?',
+      opts:['One-hot encode it','Use it as a numeric feature','Drop or use as index — raw IDs aren\'t features','Frequency encode it always'],
+      ans:2, exp:'Raw high-cardinality IDs have no real predictive signal for most problems. They should be dropped or used as a row identifier, not fed directly as a feature.' },
+    { q:'Which model type is MORE sensitive to irrelevant or noisy columns?',
+      opts:['Random Forest','XGBoost','Linear Regression','Decision Tree'],
+      ans:2, exp:'Linear models assume every feature contributes to predictions and are sensitive to irrelevant features and multicollinearity. Tree-based models can naturally ignore uninformative splits.' },
+  ],
+  duplicates: [
+    { q:'In a transaction dataset, the same customer bought the same product twice in one day. Is this a duplicate?',
+      opts:['Yes — remove one row','No — this is a valid business duplicate','Yes — merge into one row with a count column','Depends on the data entry system'],
+      ans:1, exp:'A real repeated transaction is not a duplicate — it\'s meaningful behavioral data. Always ask first: "Should repetition exist in real life for this entity type?"' },
+    { q:'"John | Chennai" and "John | chennai" appear in your dataset. How do you handle it?',
+      opts:['Drop both rows','Keep both — they\'re clearly different records','Normalize casing first, then deduplicate','Flag them as missing values'],
+      ans:2, exp:'Format duplicates must be cleaned (normalize casing, trim whitespace) before deduplication. Dropping without cleaning risks losing valid records.' },
+    { q:'What\'s the FIRST question to ask before removing duplicates?',
+      opts:['What % of rows are duplicates?','What does one row represent in this dataset?','Which column has the most duplicates?','Is the dataset large enough to handle removal?'],
+      ans:1, exp:'"What does one row represent?" defines whether repetition is expected or an error. Without this foundation, you might delete perfectly valid data.' },
+  ],
+  missing: [
+    { q:'Higher income earners tend not to report their income in a survey. This missingness is:',
+      opts:['MCAR — missing completely at random','MAR — depends on other observable features','MNAR — missingness depends on the unreported value itself','Random noise with no pattern'],
+      ans:2, exp:'MNAR — the probability of being missing is related to the value itself (high income → more likely to not report). Simple imputation would badly distort the income distribution.' },
+    { q:'You have missing "square_feet" in a property dataset, and you also have "property_type" (1BHK, 2BHK...). Best approach?',
+      opts:['Global mean imputation','Drop the missing rows','Segment-based imputation by property type','KNN Imputation'],
+      ans:2, exp:'Segment-based imputation is ideal — compute the median sq_ft per property type and fill accordingly. It leverages a real domain relationship rather than a global average that ignores the structure.' },
+    { q:'When should you NOT impute and instead add a missing indicator flag?',
+      opts:['When missing % is less than 5%','When the data is MCAR','When MNAR — the absence itself carries signal about the target','When the dataset is very large'],
+      ans:2, exp:'For MNAR, the fact that a value is missing is informative. Imputing destroys that signal. Add a binary is_missing column and use a placeholder like -1 or "Unknown".' },
+  ],
+  outliers: [
+    { q:'In a fraud detection dataset, a $50,000 transaction appears once across 100,000 rows. How should you treat it?',
+      opts:['Remove — it\'s an outlier that will distort the model','Cap it at the 95th percentile','Keep — extreme values are the signal in fraud detection','Apply log transformation'],
+      ans:2, exp:'In fraud detection, extreme values are exactly what you\'re trying to find. Removing or capping them destroys the very signal you need to detect.' },
+    { q:'A salary column has extreme right skew. You want to reduce impact without losing data. Best approach?',
+      opts:['Remove rows beyond 3 standard deviations','Replace all extremes with the column mean','Apply log or sqrt transformation','Cap at the maximum observed value'],
+      ans:2, exp:'Log/sqrt transformation compresses the right tail and is ideal for salary, price, and count distributions. It reduces outlier impact while keeping all data points.' },
+    { q:'Which model type is LEAST sensitive to outliers?',
+      opts:['Linear Regression','Logistic Regression','K-Nearest Neighbors (KNN)','Random Forest'],
+      ans:3, exp:'Tree-based models split data on feature values — a single extreme point rarely affects the majority of splits. Linear models minimize squared error, so outliers can heavily shift coefficients.' },
+  ],
+};
+
+// ════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════
+const S = {
+  page: 'home',
+  tabs: { drop:'overview', duplicates:'overview', missing:'overview', outliers:'overview' },
+  trees: {
+    drop:       { cur: TREES.drop.start,       hist:[] },
+    duplicates: { cur: TREES.duplicates.start, hist:[] },
+    missing:    { cur: TREES.missing.start,    hist:[] },
+    outliers:   { cur: TREES.outliers.start,   hist:[] },
+  },
+  quiz: {
+    drop:       { ans:{}, done:false },
+    duplicates: { ans:{}, done:false },
+    missing:    { ans:{}, done:false },
+    outliers:   { ans:{}, done:false },
+  },
+};
+
+// ════════════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════════════
+function navigate(page) {
+  S.page = page;
+  render();
+}
+function setTab(id, tab) {
+  S.tabs[id] = tab;
+  updateSection(id);
+}
+
+// ════════════════════════════════════════════════════════
+//  RENDER ENGINE
+// ════════════════════════════════════════════════════════
+function render() {
+  renderNav();
+  const app = document.getElementById('app');
+  if (S.page === 'home') {
+    app.innerHTML = buildHome();
+  } else {
+    app.innerHTML = `<div class="sec-page fade-in" id="sec-page"></div>`;
+    updateSection(S.page);
+  }
+}
+
+function renderNav() {
+  const el = document.getElementById('main-nav');
+  el.innerHTML = SECTIONS.map(s => {
+    const active = S.page === s.id ? 'active' : '';
+    return `<button class="nav-btn ${active}" onclick="navigate('${s.id}')">
+      <span class="nav-dot" style="background:${s.accent}"></span>${s.title}
+    </button>`;
+  }).join('');
+}
+
+// ── HOME PAGE ────────────────────────────────────────────
+function buildHome() {
+  const cards = SECTIONS.map((s, i) => `
+    <div class="step-card" onclick="navigate('${s.id}')">
+      <div class="bar" style="background:${s.accent}"></div>
+      <div class="step-num-label">SECTION ${String(i+1).padStart(2,'0')}</div>
+      <span class="step-emoji">${s.emoji}</span>
+      <div class="step-title">${s.title}</div>
+      <div class="step-desc-text">${s.sub}</div>
+      <div class="step-link">Explore →</div>
+    </div>`).join('');
+
+  return `
+    <div class="hero fade-in">
+      <div class="hero-eyebrow">Data Science · Session Guide</div>
+      <h1 class="hero-title">Data <em>Cleaning</em><br>Interactive Guide</h1>
+      <p class="hero-desc">Raw data is never perfect. Data cleaning is the process of identifying and correcting issues in your dataset so your models learn from signal — not noise, errors, or artifacts.</p>
+    </div>
+    <div class="home-body">
+      <div class="why-card">
+        <div class="eyebrow">What is Data Cleaning?</div>
+        <h2>The most important step no one talks about enough</h2>
+        <p>In real-world data science, 60–80% of the work happens before you train a single model. Raw data arrives with missing values, duplicate records, erroneous outliers, and columns that shouldn't be there at all.</p>
+        <p>Data cleaning is systematic. For each type of issue, there is a decision framework that guides whether to remove, repair, or preserve — and the answer always depends on context: the data, the problem, and the model you plan to use.</p>
+        <p>This guide covers the four most critical cleaning operations. Each section gives you how to identify the issue, how to treat it, an interactive decision tree, a technique comparison, and a scenario-based quiz.</p>
+      </div>
+      <div class="eyebrow" style="margin-bottom:14px;">Four Key Operations</div>
+      <div class="steps-grid">${cards}</div>
+    </div>`;
+}
+
+// ── SECTION PAGE ─────────────────────────────────────────
+function updateSection(id) {
+  const el = document.getElementById('sec-page');
+  if (!el) return;
+  const s     = SECTIONS.find(x => x.id === id);
+  const tab   = S.tabs[id];
+  const TMAP  = { overview:'Overview', 'decision-tree':'Decision Tree', compare:'Compare', quiz:'Quiz' };
+
+  const tabBtns = Object.entries(TMAP).map(([k, label]) => {
+    const style = tab === k ? `color:${s.accent};border-bottom-color:${s.accent};` : '';
+    return `<button class="tab-btn" style="${style}" onclick="setTab('${id}','${k}')">${label}</button>`;
+  }).join('');
+
+  const content =
+    tab === 'overview'      ? buildOverview(id) :
+    tab === 'decision-tree' ? buildTree(id)     :
+    tab === 'compare'       ? buildCompare(id)  :
+                              buildQuiz(id);
+
+  el.innerHTML = `
+    <div class="sec-header">
+      <div class="sec-badge" style="background:${s.accentBg}">${s.emoji}</div>
+      <div>
+        <div class="sec-title">${s.title}</div>
+        <div class="sec-sub">${s.sub}</div>
+      </div>
+    </div>
+    <div class="tabs">${tabBtns}</div>
+    <div class="fade-in">${content}</div>`;
+}
+
+// ── OVERVIEW ─────────────────────────────────────────────
+function buildOverview(id) {
+  const d = OVERVIEW[id];
+
+  const idItems = d.identify.map(item => `
+    <div class="ov-item">
+      <div class="ov-dot"></div>
+      <div class="ov-text">${item.text}${item.code ? `<br><code>${item.code.replace(/\n/g,'<br>')}</code>` : ''}</div>
+    </div>`).join('');
+
+  const trItems = d.treat.map(item => `
+    <div class="ov-item">
+      <div class="ov-dot"></div>
+      <div class="ov-text"><span class="ov-bold">${item.label}</span> — ${item.action}</div>
+    </div>`).join('');
+
+  const cards = d.cards.map(c => `
+    <div class="ov-card">
+      <div class="ov-card-emoji">${c.emoji}</div>
+      <div class="ov-card-title">${c.title}</div>
+      <div class="ov-card-desc">${c.desc}</div>
+    </div>`).join('');
+
+  return `
+    <div class="ov-intro"><p>${d.intro}</p></div>
+    <div class="ov-2col">
+      <div class="ov-box identify">
+        <div class="ov-box-title">🔍 How to Identify</div>${idItems}
+      </div>
+      <div class="ov-box treat">
+        <div class="ov-box-title">🔧 How to Treat</div>${trItems}
+      </div>
+    </div>
+    <div class="ov-cards">${cards}</div>
+    <div class="rule-box">
+      <span class="rule-label">Key Rule</span>
+      <span class="rule-text">${d.rule}</span>
+    </div>`;
+}
+
+// ── DECISION TREE ─────────────────────────────────────────
+function buildTree(id) {
+  const ts   = S.trees[id];
+  const node = TREES[id].nodes[ts.cur];
+
+  const crumbs = ts.hist.map((h, i) =>
+    `<span class="tree-crumb">Q${i+1}: <span class="${h.a==='Yes'?'c-yes':'c-no'}">${h.a}</span></span>`
+  ).join('');
+
+  let cls = '', body = '';
+  if (!node.result) {
+    body = `
+      <div class="tree-step">STEP ${ts.hist.length + 1}</div>
+      <div class="tree-q">${node.q}</div>
+      <div class="tree-hint">💡 ${node.hint}</div>
+      <div class="tree-btns">
+        <button class="tree-btn yes" onclick="treeGo('${id}','${node.yes}','Yes')">✓  Yes</button>
+        <button class="tree-btn no"  onclick="treeGo('${id}','${node.no}','No')">✗  No</button>
+      </div>`;
+  } else {
+    cls = `r-${node.verdict}`;
+    const pillClass = `vp-${node.verdict}`;
+    const pillTxt   = node.verdict==='keep' ? 'KEEP' : node.verdict==='warn' ? 'REVIEW' : 'DROP';
+    body = `
+      <div class="r-label">RESULT</div>
+      <div class="r-title">${node.title}</div>
+      <div class="r-msg">${node.msg}</div>
+      <span class="v-pill ${pillClass}">${pillTxt}</span>`;
+  }
+
+  const backBtn = ts.hist.length
+    ? `<button class="ctrl-btn" onclick="treeBack('${id}')">← Back</button>` : '';
+
+  return `
+    <div class="tree-wrap">
+      <div class="tree-bc">${crumbs}</div>
+      <div class="tree-card ${cls}">${body}</div>
+      <div class="tree-ctrls">
+        ${backBtn}
+        <button class="ctrl-btn" onclick="treeReset('${id}')">↺ Reset</button>
+      </div>
+    </div>`;
+}
+
+function treeGo(id, next, ans) {
+  S.trees[id].hist.push({ n: S.trees[id].cur, a: ans });
+  S.trees[id].cur = next;
+  setTab(id, 'decision-tree');
+}
+function treeBack(id) {
+  if (!S.trees[id].hist.length) return;
+  S.trees[id].cur = S.trees[id].hist.pop().n;
+  setTab(id, 'decision-tree');
+}
+function treeReset(id) {
+  S.trees[id] = { cur: TREES[id].start, hist: [] };
+  setTab(id, 'decision-tree');
+}
+
+// ── COMPARE ───────────────────────────────────────────────
+function buildCompare(id) {
+  const c = COMPARE[id];
+  const heads = c.heads.map(h => `<div class="cmp-head">${h}</div>`).join('');
+  const rows  = c.rows.map(r => `
+    <div class="cmp-row" style="grid-template-columns:${c.cols}">
+      <div class="cmp-tech">${r.t}</div>
+      <div class="cmp-when">${r.w}</div>
+      <div class="cmp-risk">${r.r}</div>
+      <div class="cmp-verd cv-${r.vc}">${r.v}</div>
+    </div>`).join('');
+
+  return `
+    <p class="cmp-title">Quick Reference — When to Use Each Approach</p>
+    <div class="cmp-table">
+      <div class="cmp-header" style="grid-template-columns:${c.cols}">${heads}</div>
+      ${rows}
+    </div>`;
+}
+
+// ── QUIZ ──────────────────────────────────────────────────
+function buildQuiz(id) {
+  const qs  = QUIZZES[id];
+  const qst = S.quiz[id];
+  const allDone = Object.keys(qst.ans).length === qs.length;
+
+  const questions = qs.map((q, qi) => {
+    const opts = q.opts.map((opt, oi) => {
+      let cls = '';
+      const sel = qst.ans[qi] === oi;
+      if (qst.done) {
+        if (oi === q.ans) cls = 'correct';
+        else if (sel)     cls = 'wrong';
+      } else if (sel) cls = 'selected';
+      const mark = qst.done ? (oi===q.ans ? '✓' : sel ? '✗' : '○') : (sel ? '●' : '○');
+      const dis  = qst.done ? 'disabled' : '';
+      return `<button class="q-opt ${cls}" onclick="qSelect('${id}',${qi},${oi})" ${dis}>
+        <span class="q-marker">${mark}</span>${opt}
+      </button>`;
+    }).join('');
+    const expl = qst.done ? `<div class="q-explain">${q.exp}</div>` : '';
+    return `
+      <div class="q-card">
+        <div class="q-num">QUESTION ${qi+1}</div>
+        <div class="q-text">${q.q}</div>
+        <div class="q-options">${opts}</div>
+        ${expl}
+      </div>`;
+  }).join('');
+
+  let actions = '';
+  if (!qst.done) {
+    actions = `<button class="submit-btn" onclick="qSubmit('${id}')" ${allDone?'':'disabled'}>Submit Answers</button>`;
+  } else {
+    const score = qs.filter((q,i) => qst.ans[i] === q.ans).length;
+    actions = `<div class="score-row">
+      <div class="score-num">${score}/${qs.length}</div>
+      <div class="score-sub">correct</div>
+      <button class="retry-btn" onclick="qRetry('${id}')">Try Again</button>
+    </div>`;
+  }
+
+  return `<div class="quiz-wrap">${questions}<div style="margin-top:4px">${actions}</div></div>`;
+}
+
+function qSelect(id, qi, oi) {
+  if (S.quiz[id].done) return;
+  S.quiz[id].ans[qi] = oi;
+  setTab(id, 'quiz');
+}
+function qSubmit(id) {
+  S.quiz[id].done = true;
+  setTab(id, 'quiz');
+}
+function qRetry(id) {
+  S.quiz[id] = { ans:{}, done:false };
+  setTab(id, 'quiz');
+}
+
+// ════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════
+render();
+</script>
+</body>
+</html>
