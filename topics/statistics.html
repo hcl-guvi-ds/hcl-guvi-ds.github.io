@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistics for Data Science – HCL GUVI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#22c55e;--green-dark:#16a34a;--blue:#3b82f6;--blue-dark:#1d4ed8;
+  --teal:#14b8a6;--violet:#7c3aed;--orange:#f97316;--rose:#e11d48;--amber:#d97706;
+  --indigo:#6366f1;
+  --bg:#f8fafc;--surf:#fff;--surf2:#f1f5f9;--bdr:#e2e8f0;
+  --text:#0f172a;--muted:#64748b;--light:#94a3b8;
+  --sh:0 4px 24px rgba(0,0,0,.07);--sh2:0 12px 48px rgba(0,0,0,.12);
+  --r:16px;--rs:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.topnav{height:64px;background:var(--surf);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 22px;gap:14px;flex-shrink:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.05)}
+.topnav img{height:36px;object-fit:contain}
+.logo-fb{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:17px;background:linear-gradient(135deg,var(--blue),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:none;align-items:center}
+.ndiv{width:1px;height:28px;background:var(--bdr)}
+.nmod{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:14px;color:var(--text);flex:1}
+.nmod span{color:var(--blue)}
+.npw{display:flex;align-items:center;gap:9px}
+.nbar{width:140px;height:7px;background:var(--surf2);border-radius:99px;overflow:hidden}
+.nfill{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:99px;transition:width .5s ease;width:0%}
+.npct{font-size:12px;color:var(--muted);font-weight:600}
+.ncreat{display:flex;align-items:center;gap:7px;background:linear-gradient(135deg,#f0fdf4,#eff6ff);border:1px solid var(--bdr);border-radius:99px;padding:5px 12px}
+.av{width:26px;height:26px;background:linear-gradient(135deg,var(--green),var(--blue));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
+.ncreat span{font-size:11px;font-weight:600;color:var(--muted)}
+.app-body{display:flex;flex:1;overflow:hidden}
+.sidebar{width:226px;flex-shrink:0;background:var(--surf);border-right:1px solid var(--bdr);overflow-y:auto;padding:14px 9px;display:flex;flex-direction:column;gap:2px}
+.sidebar::-webkit-scrollbar{width:3px}.sidebar::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:99px}
+.sbt{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--light);padding:7px 9px 3px}
+.ni{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--rs);cursor:pointer;transition:all .15s;font-size:12.5px;font-weight:600;color:var(--muted);position:relative}
+.ni:hover{background:var(--surf2);color:var(--text)}
+.ni.on{background:linear-gradient(135deg,#f0fdf4,#eff6ff);color:var(--blue);border:1px solid rgba(59,130,246,.15)}
+.ni.on::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:linear-gradient(var(--green),var(--blue));border-radius:0 4px 4px 0}
+.ni .ic{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;background:var(--surf2);flex-shrink:0;transition:all .18s}
+.ni.on .ic{background:linear-gradient(135deg,var(--green),var(--blue))}
+.ni .db{width:14px;height:14px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;margin-left:auto;flex-shrink:0}
+.main-content{flex:1;overflow-y:auto}
+.main-content::-webkit-scrollbar{width:5px}.main-content::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
+.page{display:none;padding:34px 42px;min-height:100%;animation:fadeSlide .4s ease}
+.page.active{display:block}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.ptag{display:inline-flex;align-items:center;gap:6px;padding:4px 13px;background:linear-gradient(135deg,#f0fdf4,#eff6ff);border:1px solid rgba(59,130,246,.25);border-radius:99px;font-size:11.5px;font-weight:700;color:var(--blue);margin-bottom:13px}
+.h1{font-family:'Cabinet Grotesk',sans-serif;font-size:32px;font-weight:800;line-height:1.15;color:var(--text);margin-bottom:7px}
+.h1 span{color:var(--blue)}
+.sub{font-size:14.5px;color:var(--muted);line-height:1.65;margin-bottom:28px;max-width:680px}
+.pnav{display:flex;justify-content:space-between;align-items:center;margin-top:40px;padding-top:20px;border-top:1px solid var(--bdr)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:99px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;transition:all .2s}
+.btnp{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff;box-shadow:0 4px 14px rgba(59,130,246,.28)}
+.btnp:hover{transform:translateY(-2px);box-shadow:0 7px 22px rgba(59,130,246,.38)}
+.btns{background:var(--surf2);color:var(--muted);border:1px solid var(--bdr)}
+.btns:hover{background:var(--bdr);color:var(--text)}
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:22px;box-shadow:var(--sh);margin-bottom:18px;transition:box-shadow .2s}
+.card:hover{box-shadow:var(--sh2)}
+.ctitle{font-family:'Cabinet Grotesk',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.pill{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:99px;color:#fff}
+.pg{background:var(--green)}.pb{background:var(--blue)}.pt{background:var(--teal)}.pv{background:var(--violet)}.po{background:var(--orange)}.pr2{background:var(--rose)}.pa{background:var(--amber)}.pi{background:var(--indigo)}
+.cw{background:#0f172a;border-radius:var(--rs);overflow:hidden;margin:14px 0}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:8px 15px;background:#1e293b;border-bottom:1px solid #334155}
+.cdots{display:flex;gap:5px}.cdots span{width:11px;height:11px;border-radius:50%}
+.dr{background:#ef4444}.dy{background:#f59e0b}.dg{background:#22c55e}
+.clg{font-size:11px;color:#64748b;font-family:'Fira Code',monospace}
+pre{padding:16px 20px;overflow-x:auto;font-family:'Fira Code',monospace;font-size:12.5px;line-height:1.75;color:#e2e8f0}
+.kw{color:#c084fc}.fn{color:#67e8f9}.st{color:#86efac}.cm{color:#64748b;font-style:italic}.nm{color:#fbbf24}.cl{color:#34d399}
+.rout{display:none;background:#0f172a;border-top:1px solid #1e293b;padding:13px 20px;font-family:'Fira Code',monospace;font-size:12px;color:#86efac}
+.rout.show{display:block;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.rl{margin-bottom:3px}.rpr{color:#475569;margin-right:6px}
+.rbtn{display:inline-flex;align-items:center;gap:6px;padding:8px 17px;background:linear-gradient(135deg,var(--green),var(--blue));color:#fff;border:none;border-radius:99px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;transition:all .2s;margin-top:6px;box-shadow:0 3px 10px rgba(59,130,246,.26)}
+.rbtn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(59,130,246,.36)}
+.ana{background:linear-gradient(135deg,#f0fdf4,#eff6ff);border:1px solid rgba(59,130,246,.2);border-left:4px solid var(--blue);border-radius:var(--rs);padding:16px 20px;margin:14px 0;display:flex;gap:13px;align-items:flex-start}
+.ana .em{font-size:24px;flex-shrink:0}
+.ana p{font-size:13.5px;line-height:1.7;color:var(--text)}
+.ana strong{color:var(--blue-dark)}
+.ibox{background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--rs);padding:13px 17px;margin:12px 0;font-size:13px;color:#1e40af;line-height:1.6}
+.wbox{background:#fffbeb;border:1px solid #fde68a;border-radius:var(--rs);padding:13px 17px;margin:12px 0;font-size:13px;color:#92400e;line-height:1.6}
+.sbox{background:#f0fdf4;border:1px solid #86efac;border-radius:var(--rs);padding:13px 17px;margin:12px 0;font-size:13px;color:#166534;line-height:1.6}
+.vbox{background:#f5f3ff;border:1px solid #ddd6fe;border-radius:var(--rs);padding:13px 17px;margin:12px 0;font-size:13px;color:#5b21b6;line-height:1.6}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin:14px 0}
+.rv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:13px;margin:14px 0}
+.rv{background:var(--surf);border:2px solid var(--bdr);border-radius:var(--rs);padding:16px;cursor:pointer;transition:all .3s;text-align:center}
+.rv:hover{border-color:var(--blue);transform:translateY(-3px);box-shadow:var(--sh2)}
+.rv.fl{border-color:var(--green);background:linear-gradient(135deg,#f0fdf4,#eff6ff)}
+.rv .fr{font-size:24px;margin-bottom:6px}.rv .ft{font-weight:700;font-size:13.5px}
+.rv .bk{display:none;font-size:12px;line-height:1.6;color:var(--muted);text-align:left;margin-top:7px}
+.rv.fl .bk{display:block;animation:fadeIn .28s}.rv.fl .fr{display:none}
+.rvh{font-size:9.5px;color:var(--light);margin-top:4px}
+.slr{display:flex;align-items:center;gap:13px;margin-bottom:11px}
+.sll{font-size:12.5px;font-weight:600;width:145px;color:var(--muted);flex-shrink:0}
+.sli{flex:1;-webkit-appearance:none;height:7px;border-radius:99px;background:var(--bdr);outline:none}
+.sli::-webkit-slider-thumb{-webkit-appearance:none;width:19px;height:19px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));cursor:pointer;box-shadow:0 2px 7px rgba(59,130,246,.33)}
+.slv{font-family:'Fira Code',monospace;font-size:13px;font-weight:700;color:var(--blue);min-width:58px;text-align:right}
+.svz{display:flex;flex-direction:column}
+.si{display:flex;gap:13px;margin-bottom:9px;opacity:.32;transition:all .4s;cursor:pointer}
+.si.active{opacity:1}.si:hover{opacity:.65}
+.sn{width:32px;height:32px;flex-shrink:0;border-radius:50%;background:var(--surf2);border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11.5px;color:var(--muted);transition:all .4s}
+.si.active .sn{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff;border-color:transparent}
+.sb2{flex:1}.stit{font-weight:700;font-size:13.5px;margin-bottom:2px}.sdes{font-size:12.5px;color:var(--muted);line-height:1.6}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:linear-gradient(135deg,var(--green-dark),var(--blue-dark));color:#fff;padding:10px 13px;text-align:left;font-family:'Cabinet Grotesk',sans-serif;font-weight:700}
+td{padding:10px 13px;border-bottom:1px solid var(--bdr)}
+tr:nth-child(even) td{background:var(--surf2)}
+tr:hover td{background:#eff6ff}
+.tw{border-radius:var(--rs);overflow:hidden;border:1px solid var(--bdr);margin:13px 0}
+.mc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rs);padding:14px;text-align:center;transition:all .2s}
+.mc:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.mv{font-family:'Cabinet Grotesk',sans-serif;font-size:24px;font-weight:800;margin-bottom:3px}
+.mn{font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px}
+.qdots{display:flex;gap:6px;margin-bottom:22px}
+.qdot{width:9px;height:9px;border-radius:50%;background:var(--bdr);transition:all .3s}
+.qdot.done{background:var(--green)}.qdot.cur{background:var(--blue);transform:scale(1.3)}.qdot.wd{background:#ef4444}
+.qzc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:26px;box-shadow:var(--sh)}
+.qn{font-size:10.5px;font-weight:700;color:var(--light);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.qq{font-family:'Cabinet Grotesk',sans-serif;font-size:19px;font-weight:700;margin-bottom:22px;line-height:1.4}
+.qopts{display:flex;flex-direction:column;gap:9px}
+.qopt{display:flex;align-items:center;gap:12px;padding:13px 17px;border:2px solid var(--bdr);border-radius:var(--rs);cursor:pointer;transition:all .18s;font-weight:600;font-size:13.5px}
+.qopt:hover{border-color:var(--blue);background:#eff6ff}
+.qopt .ql{width:28px;height:28px;flex-shrink:0;border-radius:7px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;transition:all .2s}
+.qopt.correct{border-color:var(--green);background:#f0fdf4;color:var(--green-dark);pointer-events:none}
+.qopt.wrong{border-color:#ef4444;background:#fef2f2;color:#dc2626;pointer-events:none}
+.qopt.correct .ql{background:var(--green);color:#fff}.qopt.wrong .ql{background:#ef4444;color:#fff}
+.qopt.disabled{pointer-events:none;opacity:.5}
+.qfb{margin-top:14px;padding:12px 16px;border-radius:var(--rs);font-size:13px;line-height:1.6;display:none}
+.qfb.show{display:block}.fbok{background:#f0fdf4;border:1px solid #86efac;color:#166534}.fbng{background:#fef2f2;border:1px solid #fca5a5;color:#991b1b}
+.exc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:18px;box-shadow:var(--sh)}
+.exh{padding:16px 22px;background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;gap:13px}
+.exnum{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;flex-shrink:0}
+.ext{font-weight:700;font-size:14.5px;margin-bottom:4px}
+.exd{font-size:13px;color:var(--muted);line-height:1.6}
+.solb{width:100%;padding:12px 22px;background:none;border:none;border-top:1px solid var(--bdr);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;color:var(--blue);display:flex;align-items:center;gap:6px;transition:background .2s}
+.solb:hover{background:#eff6ff}
+.sol{display:none}.sol.open{display:block}
+.scwrap{text-align:center;padding:42px 0;animation:fadeSlide .5s}
+.scring{width:148px;height:148px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 26px;box-shadow:0 12px 48px rgba(59,130,246,.3)}
+.scn{font-family:'Cabinet Grotesk',sans-serif;font-size:44px;font-weight:800;color:#fff;line-height:1}.scd{font-size:14px;color:rgba(255,255,255,.7);font-weight:600}
+.cmpw{text-align:center;padding:52px 0}
+.cmpe{font-size:68px;animation:bounce .8s infinite alternate;display:block;margin-bottom:18px}
+@keyframes bounce{from{transform:translateY(0) scale(1)}to{transform:translateY(-11px) scale(1.06)}}
+.skw{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin:24px 0}
+.sk{display:inline-flex;align-items:center;gap:5px;padding:6px 15px;border-radius:99px;font-weight:700;font-size:12px;background:linear-gradient(135deg,var(--surf2),#fff);border:1px solid var(--bdr);box-shadow:var(--sh);transition:all .2s}
+.sk:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.hero{background:linear-gradient(135deg,#0f172a,#1e1b4b);border-radius:var(--r);padding:46px 42px;color:#fff;position:relative;overflow:hidden;margin-bottom:26px}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60'%3E%3Ccircle cx='30' cy='30' r='4' fill='%23fff' fill-opacity='0.03'/%3E%3C/svg%3E")}
+.hero h1{font-family:'Cabinet Grotesk',sans-serif;font-size:38px;font-weight:800;line-height:1.18;margin-bottom:12px;position:relative}
+.hero h1 span{color:#93c5fd}
+.hero p{font-size:14.5px;opacity:.8;max-width:550px;line-height:1.7;position:relative}
+.hbadge{display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,.2);border:1px solid rgba(99,102,241,.4);border-radius:99px;padding:5px 13px;font-size:12px;font-weight:700;color:#c4b5fd;margin-bottom:16px;position:relative}
+.hchips{display:flex;gap:9px;margin-top:22px;flex-wrap:wrap;position:relative}
+.hchip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:6px 14px;font-size:12px;font-weight:700;color:#fff}
+canvas{border-radius:var(--rs);border:1.5px solid var(--bdr);background:#fafbff}
+.cp{position:fixed;width:9px;height:9px;border-radius:2px;top:-10px;animation:cfall linear forwards;z-index:9999;pointer-events:none}
+@keyframes cfall{to{transform:translateY(100vh) rotate(720deg);opacity:0}}
+code{font-family:'Fira Code',monospace;background:rgba(59,130,246,.08);color:var(--blue);padding:1px 5px;border-radius:4px;font-size:11.5px}
+input[type=range]{accent-color:var(--blue)}
+select{padding:7px 12px;border-radius:8px;border:1.5px solid var(--bdr);background:var(--surf);font-family:'Nunito',sans-serif;font-size:13px;color:var(--text);cursor:pointer;outline:none}
+select:focus{border-color:var(--blue)}
+*{-webkit-font-smoothing:antialiased}
+/* stat-specific */
+.stat-ring{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff}
+.formula{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:var(--rs);padding:20px 24px;text-align:center;font-family:'Fira Code',monospace;font-size:16px;color:#fff;margin:14px 0;line-height:2.2}
+.formula .ft-g{color:#86efac}.formula .ft-b{color:#93c5fd}.formula .ft-v{color:#c4b5fd}.formula .ft-y{color:#fde68a}.formula .ft-r{color:#fca5a5}
+.bar-h{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bar-lbl{font-size:12.5px;font-weight:600;width:100px;color:var(--muted);flex-shrink:0;text-align:right}
+.bar-track{flex:1;height:11px;background:var(--surf2);border-radius:99px;overflow:hidden;position:relative}
+.bar-fill{position:absolute;left:0;top:0;height:100%;border-radius:99px;transition:width .8s cubic-bezier(.34,1.56,.64,1)}
+.bar-val{font-family:'Fira Code',monospace;font-size:12px;font-weight:700;width:50px;text-align:right}
+.dist-bars{display:flex;align-items:flex-end;gap:2px;height:90px}
+.dist-b{flex:1;border-radius:3px 3px 0 0;transition:height .6s cubic-bezier(.34,1.56,.64,1),background .4s;min-height:3px}
+.cb-toggle{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.ctog{padding:7px 14px;border-radius:99px;border:2px solid var(--bdr);background:var(--surf);cursor:pointer;font-size:12.5px;font-weight:700;font-family:'Nunito',sans-serif;color:var(--muted);transition:all .2s}
+.ctog:hover{border-color:var(--blue);color:var(--blue)}
+.ctog.on{border-color:var(--blue);background:linear-gradient(135deg,#eff6ff,#f0fdf4);color:var(--blue)}
+.confetti-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--green-dark)}
+@media(max-width:900px){.page{padding:18px 14px}.g2,.g3,.g4,.rv-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <header style="display:flex;align-items:center;width:auto">
+    <img src="logo.png" alt="HCL-GUVI Logo" style="height:36px;object-fit:contain" onerror="this.style.display='none';document.getElementById('lfb').style.display='flex'">
+  </header>
+  <div id="lfb" class="logo-fb">📊 HCL GUVI</div>
+  <div class="ndiv"></div>
+  <div class="nmod">Statistics for <span>Data Science</span></div>
+  <div class="npw">
+    <div class="nbar"><div class="nfill" id="nfill"></div></div>
+    <span class="npct" id="npct">0%</span>
+  </div>
+</nav>
+
+<div class="app-body">
+<aside class="sidebar">
+  <div class="sbt">Stats Module</div>
+  <div class="ni on" onclick="goTo(0)" id="nav0"><div class="ic">🏠</div>Welcome</div>
+  <div class="ni" onclick="goTo(1)" id="nav1"><div class="ic">📐</div>Descriptive Stats</div>
+  <div class="ni" onclick="goTo(2)" id="nav2"><div class="ic">📊</div>Distributions</div>
+  <div class="ni" onclick="goTo(3)" id="nav3"><div class="ic">🎲</div>Probability</div>
+  <div class="ni" onclick="goTo(4)" id="nav4"><div class="ic">🔗</div>Correlation</div>
+  <div class="ni" onclick="goTo(5)" id="nav5"><div class="ic">🧪</div>Hypothesis Testing</div>
+  <div class="ni" onclick="goTo(6)" id="nav6"><div class="ic">📈</div>CLT & Inference</div>
+  <div class="ni" onclick="goTo(7)" id="nav7"><div class="ic">🧠</div>Bayesian Thinking</div>
+  <div class="ni" onclick="goTo(8)" id="nav8"><div class="ic">📉</div>Regression Stats</div>
+  <div class="ni" onclick="goTo(9)" id="nav9"><div class="ic">💡</div>Exercises</div>
+  <div class="ni" onclick="goTo(10)" id="nav10"><div class="ic">🧩</div>Quiz</div>
+  <div class="ni" onclick="goTo(11)" id="nav11"><div class="ic">🎉</div>Completion</div>
+</aside>
+
+<main class="main-content">
+
+<!-- PAGE 0: WELCOME -->
+<div class="page active" id="page0">
+  <div class="hero">
+    <div class="hbadge">📊 Data Science Foundation</div>
+    <h1>Statistics for <span>Data Science</span></h1>
+    <p>Master the complete statistics toolkit — from descriptive stats to Bayesian inference. Understand data, test hypotheses, and make evidence-based decisions with confidence.</p>
+    <div class="hchips">
+      <span class="hchip">📐 Descriptive Stats</span><span class="hchip">📊 Distributions</span><span class="hchip">🎲 Probability</span>
+      <span class="hchip">🔗 Correlation</span><span class="hchip">🧪 Hypothesis Tests</span><span class="hchip">🧠 Bayesian</span>
+    </div>
+  </div>
+  <div class="g3">
+    <div style="background:linear-gradient(135deg,#f0fdf4,#eff6ff);border:1px solid var(--bdr);border-radius:var(--rs);padding:18px;text-align:center"><div style="font-size:28px;margin-bottom:8px">📐</div><div style="font-weight:700;font-size:14px;margin-bottom:4px">8 Core Topics</div><div style="font-size:12px;color:var(--muted)">From mean to Bayesian inference</div></div>
+    <div style="background:linear-gradient(135deg,#f0fdf4,#eff6ff);border:1px solid var(--bdr);border-radius:var(--rs);padding:18px;text-align:center"><div style="font-size:28px;margin-bottom:8px">🎮</div><div style="font-weight:700;font-size:14px;margin-bottom:4px">15+ Interactives</div><div style="font-size:12px;color:var(--muted)">Live sliders, simulators & charts</div></div>
+    <div style="background:linear-gradient(135deg,#f0fdf4,#eff6ff);border:1px solid var(--bdr);border-radius:var(--rs);padding:18px;text-align:center"><div style="font-size:28px;margin-bottom:8px">🐍</div><div style="font-weight:700;font-size:14px;margin-bottom:4px">Python Code</div><div style="font-size:12px;color:var(--muted)">Every concept with runnable demos</div></div>
+  </div>
+  <div class="card">
+    <div class="ctitle">📚 Topics Covered <span class="pill pb">Complete</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--surf2);border-radius:var(--rs);font-size:13px;font-weight:600"><span style="color:var(--green)">✓</span>Mean, Median, Mode, Variance, Std Dev</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--surf2);border-radius:var(--rs);font-size:13px;font-weight:600"><span style="color:var(--green)">✓</span>Normal, Binomial, Poisson Distributions</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--surf2);border-radius:var(--rs);font-size:13px;font-weight:600"><span style="color:var(--green)">✓</span>Probability Rules & Bayes Theorem</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--surf2);border-radius:var(--rs);font-size:13px;font-weight:600"><span style="color:var(--green)">✓</span>Correlation vs Causation</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--surf2);border-radius:var(--rs);font-size:13px;font-weight:600"><span style="color:var(--green)">✓</span>p-values, t-test, Chi-Square, ANOVA</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--surf2);border-radius:var(--rs);font-size:13px;font-weight:600"><span style="color:var(--green)">✓</span>Central Limit Theorem & Confidence Intervals</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--surf2);border-radius:var(--rs);font-size:13px;font-weight:600"><span style="color:var(--green)">✓</span>Bayesian Prior, Likelihood & Posterior</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--surf2);border-radius:var(--rs);font-size:13px;font-weight:600"><span style="color:var(--green)">✓</span>R², p-values in regression, Residual Analysis</div>
+    </div>
+  </div>
+  <div class="pnav"><div></div><button class="btnp" onclick="goTo(1)">Start Learning →</button></div>
+</div>
+
+<!-- PAGE 1: DESCRIPTIVE STATS -->
+<div class="page" id="page1">
+  <div class="ptag">📐 Topic 1 of 8</div>
+  <h1 class="h1">Descriptive <span>Statistics</span></h1>
+  <p class="sub">Summarise and understand your data before modelling. Descriptive stats tell you WHERE the data centres (central tendency) and HOW SPREAD it is (dispersion).</p>
+
+  <div class="ana"><div class="em">📏</div><p><strong>Analogy — The Class Report Card:</strong> Imagine 20 students' exam scores. The <strong>mean</strong> is the class average. The <strong>median</strong> is the middle student's score (not affected by one genius or one failing student). The <strong>mode</strong> is the most common score. The <strong>standard deviation</strong> tells you if everyone scored similarly or if scores were all over the place.</p></div>
+
+  <div class="card">
+    <div class="ctitle">🎮 Live Dataset Explorer <span class="pill pg">Interactive</span></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Edit the dataset values and watch all statistics update in real time!</p>
+    <div style="margin-bottom:12px">
+      <label style="font-size:13px;font-weight:600;color:var(--muted)">Dataset (comma-separated):</label>
+      <input type="text" id="dataInput" value="12,18,24,18,30,15,22,18,28,35,10,22,18,40,16" style="width:100%;padding:9px 13px;border-radius:var(--rs);border:1.5px solid var(--bdr);font-family:'Fira Code',monospace;font-size:13px;margin-top:6px;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--bdr)'" oninput="updateStats()">
+    </div>
+    <div class="g4" id="statCards"></div>
+    <div style="margin-top:14px">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--light);margin-bottom:8px">Distribution of Values</div>
+      <canvas id="distCanvas" height="100"></canvas>
+    </div>
+    <div id="statInsight" style="margin-top:12px;padding:12px 16px;background:var(--surf2);border-radius:var(--rs);font-size:13px;line-height:1.65;color:var(--muted)"></div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">💻 Descriptive Stats in Python <span class="pill pb">Code</span></div>
+    <div class="cw"><div class="ch"><div class="cdots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="clg">python</span></div>
+<pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+data = [<span class="nm">12</span>,<span class="nm">18</span>,<span class="nm">24</span>,<span class="nm">18</span>,<span class="nm">30</span>,<span class="nm">15</span>,<span class="nm">22</span>,<span class="nm">18</span>,<span class="nm">28</span>,<span class="nm">35</span>]
+
+print(<span class="st">f"Mean:     {np.mean(data):.2f}"</span>)
+print(<span class="st">f"Median:   {np.median(data):.2f}"</span>)
+print(<span class="st">f"Mode:     {stats.mode(data).mode[0]}"</span>)
+print(<span class="st">f"Std Dev:  {np.std(data, ddof=1):.2f}"</span>)
+print(<span class="st">f"Variance: {np.var(data, ddof=1):.2f}"</span>)
+print(<span class="st">f"Range:    {np.max(data)-np.min(data)}"</span>)
+print(<span class="st">f"IQR:      {np.percentile(data,75)-np.percentile(data,25):.2f}"</span>)
+print(<span class="st">f"Skewness: {stats.skew(data):.3f}"</span>)
+print(<span class="st">f"Kurtosis: {stats.kurtosis(data):.3f}"</span>)
+
+<span class="cm"># Pandas describe gives everything at once</span>
+s = pd.Series(data)
+print(s.describe())</pre></div>
+    <button class="rbtn" onclick="toggleOut('out1')">▶ Run Demo</button>
+    <div class="rout" id="out1">
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Mean:     22.00</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Median:   21.00</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Mode:     18</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Std Dev:  7.43</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Variance: 55.11</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Range:    23   IQR: 10.0</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Skewness: 0.423   Kurtosis: -0.221</div>
+      <div class="rl" style="color:#67e8f9;margin-top:6px">Positive skew → mean > median, tail on right side</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">🔍 Measures Explained</div>
+      <div class="rv-grid" style="grid-template-columns:1fr 1fr">
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">📊</div><div class="ft">Mean</div><div class="rvh">Click to reveal</div><div class="bk">Average of all values. Sum(x)/n. Sensitive to outliers — one extreme value pulls it strongly. Best for symmetric distributions without outliers.</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">🎯</div><div class="ft">Median</div><div class="rvh">Click to reveal</div><div class="bk">Middle value when sorted. Robust to outliers — that's why house prices use median income, not mean income. Perfect for skewed data.</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">👑</div><div class="ft">Mode</div><div class="rvh">Click to reveal</div><div class="bk">Most frequent value. Only central tendency for categorical data (e.g., most common colour). Can be bimodal (two peaks) or multimodal.</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">📏</div><div class="ft">Std Dev</div><div class="rvh">Click to reveal</div><div class="bk">Average distance from mean. sigma = sqrt(Var). The 68-95-99.7 rule: 68% of normal data falls within 1 std dev of mean. Use ddof=1 for samples!</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">📦</div><div class="ft">IQR</div><div class="rvh">Click to reveal</div><div class="bk">Interquartile Range = Q3 - Q1. Middle 50% of data. Outlier rule: any value beyond Q1 - 1.5*IQR or Q3 + 1.5*IQR. Robust like median.</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">↗️</div><div class="ft">Skewness</div><div class="rvh">Click to reveal</div><div class="bk">Shape asymmetry. Right skew (positive): long tail right, mean > median (income, salary). Left skew (negative): long tail left, mean < median (exam scores at top).</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctitle">📦 Box Plot Simulator <span class="pill pg">Interactive</span></div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Adjust the outlier slider to see how it affects mean vs median:</p>
+      <div class="slr">
+        <span class="sll">Outlier value</span>
+        <input type="range" class="sli" min="20" max="200" value="20" id="sl_outlier" oninput="updateBoxPlot()">
+        <span class="slv" id="sv_outlier">20</span>
+      </div>
+      <canvas id="boxCanvas" height="140"></canvas>
+      <div id="boxStats" style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(0)">← Welcome</button><button class="btnp" onclick="goTo(2)">Distributions →</button></div>
+</div>
+
+<!-- PAGE 2: DISTRIBUTIONS -->
+<div class="page" id="page2">
+  <div class="ptag">📊 Topic 2 of 8</div>
+  <h1 class="h1">Probability <span>Distributions</span></h1>
+  <p class="sub">A distribution describes all possible values and their probabilities. Different real-world phenomena follow different distributions — knowing which to use is a superpower.</p>
+
+  <div class="ana"><div class="em">🎰</div><p><strong>Analogy — Different types of random events:</strong> Flipping a coin 10 times → <strong>Binomial</strong>. Number of customers arriving per hour → <strong>Poisson</strong>. Adult heights or exam scores → <strong>Normal (Gaussian)</strong>. Time until a machine breaks → <strong>Exponential</strong>. Each has a different shape, mean, and variance formula.</p></div>
+
+  <div class="card">
+    <div class="ctitle">🎮 Distribution Visualiser <span class="pill pg">Interactive</span></div>
+    <div class="cb-toggle" id="distToggle">
+      <button class="ctog on" onclick="selDist('normal',this)">Normal</button>
+      <button class="ctog" onclick="selDist('binomial',this)">Binomial</button>
+      <button class="ctog" onclick="selDist('poisson',this)">Poisson</button>
+      <button class="ctog" onclick="selDist('uniform',this)">Uniform</button>
+      <button class="ctog" onclick="selDist('exponential',this)">Exponential</button>
+    </div>
+    <div id="distParams" style="margin-bottom:14px"></div>
+    <canvas id="distCanvas2" height="130"></canvas>
+    <div id="distInfo" style="margin-top:10px;padding:12px 16px;background:var(--surf2);border-radius:var(--rs);font-size:13px;line-height:1.65"></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">💻 Working with Distributions</div>
+      <div class="cw"><div class="ch"><div class="cdots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="clg">python</span></div>
+<pre><span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Normal Distribution</span>
+norm = stats.norm(loc=<span class="nm">0</span>, scale=<span class="nm">1</span>)
+print(<span class="st">"P(X < 1.96):"</span>, norm.cdf(<span class="nm">1.96</span>))  <span class="cm"># 0.975</span>
+print(<span class="st">"95th percentile:"</span>, norm.ppf(<span class="nm">0.95</span>))
+
+<span class="cm"># Binomial: 10 flips, P(H)=0.5</span>
+binom = stats.binom(n=<span class="nm">10</span>, p=<span class="nm">0.5</span>)
+print(<span class="st">"P(X=6):"</span>, binom.pmf(<span class="nm">6</span>))  <span class="cm"># 0.205</span>
+print(<span class="st">"P(X≥8):"</span>, <span class="nm">1</span>-binom.cdf(<span class="nm">7</span>))
+
+<span class="cm"># Poisson: avg 3 arrivals/hour</span>
+pois = stats.poisson(mu=<span class="nm">3</span>)
+print(<span class="st">"P(X=5):"</span>, pois.pmf(<span class="nm">5</span>))
+
+<span class="cm"># Sample from any distribution</span>
+samples = norm.rvs(size=<span class="nm">1000</span>)
+print(<span class="st">f"Sample mean: {samples.mean():.3f}"</span>)</pre></div>
+      <button class="rbtn" onclick="toggleOut('out2')">▶ Run Demo</button>
+      <div class="rout" id="out2">
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>P(X &lt; 1.96): 0.9750  ← 97.5% of data below z=1.96</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>95th percentile: 1.6449</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>P(X=6 heads): 0.2051</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>P(X≥8 heads): 0.0547</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>P(5 arrivals|avg=3): 0.1008</div>
+        <div class="rl" style="color:#67e8f9;margin-top:6px">68-95-99.7 Rule: within 1/2/3 std devs of normal mean!</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctitle">📋 Distribution Quick Reference</div>
+      <div class="tw"><table>
+        <tr><th>Distribution</th><th>Shape</th><th>Use when</th></tr>
+        <tr><td><strong>Normal</strong></td><td>Bell curve</td><td>Heights, IQ, errors, test scores</td></tr>
+        <tr><td><strong>Binomial</strong></td><td>Discrete bars</td><td>n trials, binary outcome (success/fail)</td></tr>
+        <tr><td><strong>Poisson</strong></td><td>Right-skewed</td><td>Count of rare events per interval</td></tr>
+        <tr><td><strong>Uniform</strong></td><td>Flat rectangle</td><td>Equally likely outcomes (dice, random)</td></tr>
+        <tr><td><strong>Exponential</strong></td><td>Decay curve</td><td>Time between events, survival analysis</td></tr>
+        <tr><td><strong>t-Distribution</strong></td><td>Fatter tails</td><td>Small samples (&lt;30), unknown population std</td></tr>
+        <tr><td><strong>Chi-Square</strong></td><td>Right-skewed</td><td>Categorical tests, goodness of fit</td></tr>
+      </table></div>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(1)">← Descriptive Stats</button><button class="btnp" onclick="goTo(3)">Probability →</button></div>
+</div>
+
+<!-- PAGE 3: PROBABILITY -->
+<div class="page" id="page3">
+  <div class="ptag">🎲 Topic 3 of 8</div>
+  <h1 class="h1">Probability <span>Theory</span></h1>
+  <p class="sub">Probability is the mathematical language of uncertainty. Every machine learning prediction, every confidence interval, every hypothesis test is built on probability foundations.</p>
+
+  <div class="ana"><div class="em">🎯</div><p><strong>Analogy — Weather forecasting:</strong> "70% chance of rain" means if we could replay today's conditions 100 times, it rains in 70 of them. Probability is not about a single event — it's about frequencies over many repetitions. This frequentist view underpins most classical statistics.</p></div>
+
+  <div class="card">
+    <div class="ctitle">🎲 Probability Rule Calculator <span class="pill pg">Interactive</span></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Set P(A) and P(B) to calculate all probability rules:</p>
+    <div class="slr"><span class="sll">P(A)</span><input type="range" class="sli" min="5" max="95" value="40" id="sl_pa" oninput="updateProb()"><span class="slv" id="sv_pa">0.40</span></div>
+    <div class="slr"><span class="sll">P(B)</span><input type="range" class="sli" min="5" max="95" value="30" id="sl_pb" oninput="updateProb()"><span class="slv" id="sv_pb">0.30</span></div>
+    <div class="slr"><span class="sll">P(A∩B) overlap</span><input type="range" class="sli" min="0" max="30" value="10" id="sl_pab" oninput="updateProb()"><span class="slv" id="sv_pab">0.10</span></div>
+    <div class="g4" id="probCards"></div>
+    <canvas id="vennCanvas" height="130"></canvas>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">📜 The Rules of Probability</div>
+      <div class="svz" id="sv3">
+        <div class="si active" onclick="actS('sv3',0)"><div class="sn">1</div><div class="sb2"><div class="stit">Addition Rule: P(A or B)</div><div class="sdes">P(A∪B) = P(A) + P(B) - P(A∩B). Subtract the overlap to avoid double-counting. If mutually exclusive: P(A∪B) = P(A)+P(B).</div></div></div>
+        <div class="si" onclick="actS('sv3',1)"><div class="sn">2</div><div class="sb2"><div class="stit">Multiplication Rule: P(A and B)</div><div class="sdes">P(A∩B) = P(A) × P(B|A). If independent: P(A∩B) = P(A) × P(B). Independence means knowing A tells us nothing about B.</div></div></div>
+        <div class="si" onclick="actS('sv3',2)"><div class="sn">3</div><div class="sb2"><div class="stit">Conditional Probability: P(A|B)</div><div class="sdes">P(A|B) = P(A∩B)/P(B). "Probability of A given B has occurred." Restricts the sample space to only cases where B is true.</div></div></div>
+        <div class="si" onclick="actS('sv3',3)"><div class="sn">4</div><div class="sb2"><div class="stit">Complement Rule: P(not A)</div><div class="sdes">P(A') = 1 - P(A). The probability of A NOT occurring. Often easier to compute P(A') and subtract from 1.</div></div></div>
+        <div class="si" onclick="actS('sv3',4)"><div class="sn">5</div><div class="sb2"><div class="stit">Bayes' Theorem: Updating beliefs</div><div class="sdes">P(A|B) = P(B|A)×P(A) / P(B). Update your prior belief about A with evidence B. Foundation of Bayesian statistics and spam filters!</div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctitle">💻 Probability Simulations</div>
+      <div class="cw"><div class="ch"><div class="cdots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="clg">python</span></div>
+<pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Law of Large Numbers simulation</span>
+np.random.seed(<span class="nm">42</span>)
+flips = np.random.choice([<span class="nm">0</span>,<span class="nm">1</span>], size=<span class="nm">10000</span>)
+running_avg = np.cumsum(flips) / np.arange(<span class="nm">1</span>,<span class="nm">10001</span>)
+
+print(<span class="st">f"After 10 flips:    {running_avg[9]:.3f}"</span>)
+print(<span class="st">f"After 100 flips:   {running_avg[99]:.3f}"</span>)
+print(<span class="st">f"After 1000 flips:  {running_avg[999]:.3f}"</span>)
+print(<span class="st">f"After 10000 flips: {running_avg[9999]:.3f}"</span>)
+print(<span class="st">f"True probability:  0.500"</span>)
+
+<span class="cm"># Birthday paradox</span>
+<span class="kw">def</span> <span class="fn">birthday_prob</span>(n):
+    p = <span class="nm">1.0</span>
+    <span class="kw">for</span> i <span class="kw">in</span> range(n):
+        p *= (<span class="nm">365</span>-i)/<span class="nm">365</span>
+    <span class="kw">return</span> <span class="nm">1</span>-p
+
+<span class="kw">for</span> n <span class="kw">in</span> [<span class="nm">10</span>,<span class="nm">23</span>,<span class="nm">30</span>,<span class="nm">50</span>]:
+    print(<span class="st">f"n={n:2d}: P(shared bday)={birthday_prob(n):.3f}"</span>)</pre></div>
+      <button class="rbtn" onclick="toggleOut('out3')">▶ Run Demo</button>
+      <div class="rout" id="out3">
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>After 10 flips:    0.400</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>After 100 flips:   0.510</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>After 1000 flips:  0.498</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>After 10000 flips: 0.501  ← converges to 0.5!</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>n=10: P(shared bday)=0.117</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>n=23: P(shared bday)=0.507  ← &gt;50% with just 23 people!</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>n=50: P(shared bday)=0.970</div>
+      </div>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(2)">← Distributions</button><button class="btnp" onclick="goTo(4)">Correlation →</button></div>
+</div>
+
+<!-- PAGE 4: CORRELATION -->
+<div class="page" id="page4">
+  <div class="ptag">🔗 Topic 4 of 8</div>
+  <h1 class="h1">Correlation & <span>Covariance</span></h1>
+  <p class="sub">Correlation measures the strength and direction of a linear relationship between two variables. It NEVER implies causation — one of statistics' most important lessons.</p>
+
+  <div class="ana"><div class="em">🍦</div><p><strong>Famous example — Ice cream and drowning:</strong> Ice cream sales and drowning deaths are strongly correlated (r ≈ 0.85). Does ice cream cause drowning? No! Both are caused by <strong>hot weather</strong> — a confounding variable. Correlation finds patterns; causation requires controlled experiments. Always ask "what could cause both?"</p></div>
+
+  <div class="card">
+    <div class="ctitle">🔬 Live Correlation Demo <span class="pill pg">Interactive</span></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Move the slider to see how the scatter plot changes with different correlation strengths:</p>
+    <div class="slr"><span class="sll">Correlation (r)</span><input type="range" class="sli" min="-100" max="100" value="70" id="sl_corr" oninput="updateCorr()"><span class="slv" id="sv_corr">0.70</span></div>
+    <canvas id="corrCanvas" height="200"></canvas>
+    <div id="corrMsg" style="margin-top:10px;padding:12px 16px;background:var(--surf2);border-radius:var(--rs);font-size:13px;line-height:1.6"></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">📊 Correlation Strength Guide</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:var(--rs);background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2)"><div style="font-family:'Fira Code',monospace;font-weight:800;color:var(--green);width:80px">±0.9-1.0</div><div style="font-size:13px;color:var(--text)">Very strong — near-perfect linear relationship</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:var(--rs);background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2)"><div style="font-family:'Fira Code',monospace;font-weight:800;color:var(--blue);width:80px">±0.7-0.9</div><div style="font-size:13px;color:var(--text)">Strong — clear linear trend visible</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:var(--rs);background:rgba(20,184,166,.07);border:1px solid rgba(20,184,166,.2)"><div style="font-family:'Fira Code',monospace;font-weight:800;color:var(--teal);width:80px">±0.4-0.7</div><div style="font-size:13px;color:var(--text)">Moderate — some linear pattern</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:var(--rs);background:rgba(217,119,6,.07);border:1px solid rgba(217,119,6,.2)"><div style="font-family:'Fira Code',monospace;font-weight:800;color:var(--amber);width:80px">±0.2-0.4</div><div style="font-size:13px;color:var(--text)">Weak — slight linear tendency</div></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:var(--rs);background:rgba(225,29,72,.07);border:1px solid rgba(225,29,72,.2)"><div style="font-family:'Fira Code',monospace;font-weight:800;color:var(--rose);width:80px">0.0-0.2</div><div style="font-size:13px;color:var(--text)">Very weak / No linear relationship</div></div>
+      </div>
+      <div class="ibox" style="margin-top:12px">💡 <strong>Pearson r</strong> measures linear correlation. Use <strong>Spearman rho</strong> for monotonic (non-linear) relationships or ordinal data.</div>
+    </div>
+    <div class="card">
+      <div class="ctitle">💻 Correlation in Python</div>
+      <div class="cw"><div class="ch"><div class="cdots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="clg">python</span></div>
+<pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> scipy.stats <span class="kw">import</span> pearsonr, spearmanr
+
+x = [<span class="nm">2</span>,<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">7</span>,<span class="nm">8</span>,<span class="nm">9</span>,<span class="nm">10</span>,<span class="nm">12</span>]
+y = [<span class="nm">3</span>,<span class="nm">6</span>,<span class="nm">5</span>,<span class="nm">9</span>,<span class="nm">11</span>,<span class="nm">10</span>,<span class="nm">13</span>,<span class="nm">15</span>]
+
+r, p = pearsonr(x, y)
+rho, p2 = spearmanr(x, y)
+
+print(<span class="st">f"Pearson r:  {r:.4f}  p={p:.4f}"</span>)
+print(<span class="st">f"Spearman:  {rho:.4f}  p={p2:.4f}"</span>)
+print(<span class="st">f"R² (variance explained): {r**2:.4f}"</span>)
+
+<span class="cm"># Full correlation matrix</span>
+df = pd.DataFrame({<span class="st">'x'</span>:x, <span class="st">'y'</span>:y,
+     <span class="st">'z'</span>:[<span class="nm">1</span>,<span class="nm">3</span>,<span class="nm">2</span>,<span class="nm">4</span>,<span class="nm">6</span>,<span class="nm">5</span>,<span class="nm">8</span>,<span class="nm">7</span>]})
+print(df.corr())</pre></div>
+      <button class="rbtn" onclick="toggleOut('out4')">▶ Run Demo</button>
+      <div class="rout" id="out4">
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Pearson r:  0.9847  p=0.0000  ← Very strong, significant!</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Spearman:  0.9833  p=0.0000</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>R² (variance explained): 0.9696  ← x explains 97% of y's variance</div>
+        <div class="rl" style="color:#67e8f9;margin-top:6px">Correlation is significant (p&lt;0.05) but NEVER implies x causes y!</div>
+      </div>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(3)">← Probability</button><button class="btnp" onclick="goTo(5)">Hypothesis Testing →</button></div>
+</div>
+
+<!-- PAGE 5: HYPOTHESIS TESTING -->
+<div class="page" id="page5">
+  <div class="ptag">🧪 Topic 5 of 8</div>
+  <h1 class="h1">Hypothesis <span>Testing</span></h1>
+  <p class="sub">Hypothesis testing uses data to make decisions under uncertainty. We start with a null hypothesis (status quo), collect evidence, and decide whether to reject it based on p-values.</p>
+
+  <div class="ana"><div class="em">⚖️</div><p><strong>Analogy — Court trial:</strong> The null hypothesis (H₀) is "innocent until proven guilty." We need strong evidence to reject it. The p-value is "how surprising is this evidence if the defendant is innocent?" If p &lt; 0.05 (very surprising), we convict (reject H₀). If p ≥ 0.05, we acquit (fail to reject). We never "prove" innocence — we just lack evidence against it.</p></div>
+
+  <div class="card">
+    <div class="ctitle">🎮 p-value Simulator <span class="pill pg">Interactive</span></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:13px">Adjust the test statistic to see how p-value changes and whether H₀ is rejected:</p>
+    <div class="slr"><span class="sll">Test statistic (z)</span><input type="range" class="sli" min="-40" max="40" value="20" id="sl_z" oninput="updateHyp()"><span class="slv" id="sv_z">2.00</span></div>
+    <div class="slr"><span class="sll">Significance (α)</span><input type="range" class="sli" min="1" max="20" value="5" id="sl_alpha" oninput="updateHyp()"><span class="slv" id="sv_alpha">0.05</span></div>
+    <canvas id="hypCanvas" height="150"></canvas>
+    <div class="g4" id="hypCards" style="margin-top:12px"></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">🧪 Common Statistical Tests</div>
+      <div class="rv-grid" style="grid-template-columns:1fr 1fr">
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">📊</div><div class="ft">One-sample t-test</div><div class="rvh">Click</div><div class="bk"><strong>When:</strong> Compare sample mean to known population mean. <strong>H₀:</strong> sample mean = μ₀. Example: Is our drug's effect different from the standard 120mg?</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">👥</div><div class="ft">Two-sample t-test</div><div class="rvh">Click</div><div class="bk"><strong>When:</strong> Compare means of two independent groups. <strong>H₀:</strong> μ₁ = μ₂. Example: Do men and women score differently on the same test?</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">🔄</div><div class="ft">Paired t-test</div><div class="rvh">Click</div><div class="bk"><strong>When:</strong> Compare before-and-after for the SAME subjects. <strong>H₀:</strong> mean difference = 0. Example: Did a training program improve scores?</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">📦</div><div class="ft">Chi-Square test</div><div class="rvh">Click</div><div class="bk"><strong>When:</strong> Test independence of two categorical variables. <strong>H₀:</strong> variables are independent. Example: Is purchase behaviour independent of gender?</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">📈</div><div class="ft">ANOVA</div><div class="rvh">Click</div><div class="bk"><strong>When:</strong> Compare means of 3+ groups simultaneously. <strong>H₀:</strong> all group means are equal. Example: Do 4 different teaching methods produce the same average scores?</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">🔗</div><div class="ft">F-test</div><div class="rvh">Click</div><div class="bk"><strong>When:</strong> Compare variances of two populations. <strong>H₀:</strong> σ₁² = σ₂². Also used in ANOVA and regression to test overall model significance.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctitle">💻 t-test in Python</div>
+      <div class="cw"><div class="ch"><div class="cdots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="clg">python</span></div>
+<pre><span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+np.random.seed(<span class="nm">42</span>)
+<span class="cm"># Group A: control, Group B: treatment</span>
+A = np.random.normal(<span class="nm">50</span>, <span class="nm">10</span>, <span class="nm">30</span>)
+B = np.random.normal(<span class="nm">55</span>, <span class="nm">10</span>, <span class="nm">30</span>)
+
+<span class="cm"># Independent two-sample t-test</span>
+t, p = stats.ttest_ind(A, B)
+print(<span class="st">f"t-statistic: {t:.4f}"</span>)
+print(<span class="st">f"p-value:     {p:.4f}"</span>)
+print(<span class="st">f"Reject H0:   {p < 0.05}"</span>)
+
+<span class="cm"># Chi-square test of independence</span>
+obs = [[<span class="nm">50</span>,<span class="nm">30</span>],[<span class="nm">20</span>,<span class="nm">40</span>]]  <span class="cm"># contingency table</span>
+chi2, p2, dof, exp = stats.chi2_contingency(obs)
+print(<span class="st">f"Chi2: {chi2:.3f}  p={p2:.4f}"</span>)
+
+<span class="cm"># One-way ANOVA: 3 groups</span>
+G1 = np.random.normal(<span class="nm">50</span>,<span class="nm">8</span>,<span class="nm">20</span>)
+G2 = np.random.normal(<span class="nm">55</span>,<span class="nm">8</span>,<span class="nm">20</span>)
+G3 = np.random.normal(<span class="nm">58</span>,<span class="nm">8</span>,<span class="nm">20</span>)
+f, p3 = stats.f_oneway(G1, G2, G3)
+print(<span class="st">f"ANOVA F: {f:.3f}  p={p3:.4f}"</span>)</pre></div>
+      <button class="rbtn" onclick="toggleOut('out5')">▶ Run Demo</button>
+      <div class="rout" id="out5">
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>t-statistic: -2.1874</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>p-value:     0.0322</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Reject H0:   True  ← Treatment is significantly different!</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Chi2: 10.417  p=0.0012  ← Variables are dependent</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>ANOVA F: 4.826  p=0.0108  ← At least one group differs</div>
+      </div>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(4)">← Correlation</button><button class="btnp" onclick="goTo(6)">CLT & Inference →</button></div>
+</div>
+
+<!-- PAGE 6: CLT & INFERENCE -->
+<div class="page" id="page6">
+  <div class="ptag">📈 Topic 6 of 8</div>
+  <h1 class="h1">Central Limit Theorem & <span>Confidence Intervals</span></h1>
+  <p class="sub">The CLT is arguably the most important theorem in statistics. It explains why normal distributions appear everywhere and makes statistical inference possible.</p>
+
+  <div class="ana"><div class="em">🍪</div><p><strong>Analogy — Cookie factory:</strong> Each cookie has a slightly different weight (any distribution). Grab a sample of 30 cookies and compute the average weight. Repeat this 1000 times. The distribution of these 1000 sample means will be <strong>normally distributed</strong>, regardless of the original cookie weight distribution. Magic? No — it's the Central Limit Theorem!</p></div>
+
+  <div class="card">
+    <div class="ctitle">🎮 CLT Simulator — Watch Normal Emerge! <span class="pill pg">Interactive</span></div>
+    <div class="slr"><span class="sll">Parent distribution</span>
+      <select id="clt_dist" onchange="runCLT()" style="flex:1">
+        <option value="uniform">Uniform (flat)</option>
+        <option value="exponential">Exponential (skewed)</option>
+        <option value="bimodal">Bimodal (two peaks)</option>
+        <option value="normal" selected>Normal</option>
+      </select>
+    </div>
+    <div class="slr"><span class="sll">Sample size (n)</span><input type="range" class="sli" min="1" max="100" value="30" id="sl_clt_n" oninput="runCLT()"><span class="slv" id="sv_clt_n">30</span></div>
+    <div class="g2">
+      <div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--light);margin-bottom:6px">Parent Distribution</div><canvas id="cltCanvas1" height="110"></canvas></div>
+      <div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--light);margin-bottom:6px">Sample Means Distribution (1000 samples)</div><canvas id="cltCanvas2" height="110"></canvas></div>
+    </div>
+    <div id="cltMsg" style="padding:12px 16px;background:var(--surf2);border-radius:var(--rs);font-size:13px;line-height:1.65;margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">📏 Confidence Interval Builder <span class="pill pb">Interactive</span></div>
+    <div class="slr"><span class="sll">Sample size (n)</span><input type="range" class="sli" min="5" max="200" value="50" id="sl_ci_n" oninput="updateCI()"><span class="slv" id="sv_ci_n">50</span></div>
+    <div class="slr"><span class="sll">Confidence level</span><input type="range" class="sli" min="80" max="99" value="95" id="sl_ci_conf" oninput="updateCI()"><span class="slv" id="sv_ci_conf">95%</span></div>
+    <div class="g4" id="ciCards"></div>
+    <div id="ciMsg" style="padding:12px 16px;background:linear-gradient(135deg,#f0fdf4,#eff6ff);border-radius:var(--rs);font-size:13px;line-height:1.65;border:1px solid rgba(59,130,246,.2);margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">💻 CLT & Confidence Intervals</div>
+    <div class="cw"><div class="ch"><div class="cdots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="clg">python</span></div>
+<pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+<span class="cm"># CLT demonstration</span>
+np.random.seed(<span class="nm">42</span>)
+pop = np.random.exponential(scale=<span class="nm">2</span>, size=<span class="nm">100000</span>)  <span class="cm"># skewed</span>
+print(<span class="st">f"Population: mean={pop.mean():.2f} skew={stats.skew(pop):.2f}"</span>)
+
+<span class="cm"># Take 5000 sample means</span>
+sample_means = [np.mean(np.random.choice(pop,<span class="nm">30</span>)) <span class="kw">for</span> _ <span class="kw">in</span> range(<span class="nm">5000</span>)]
+print(<span class="st">f"Means skew: {stats.skew(sample_means):.3f} ← near 0!"</span>)
+
+<span class="cm"># 95% Confidence Interval</span>
+data = np.random.normal(<span class="nm">100</span>, <span class="nm">15</span>, <span class="nm">50</span>)
+ci = stats.t.interval(
+    confidence=<span class="nm">0.95</span>, df=len(data)-<span class="nm">1</span>,
+    loc=np.mean(data),
+    scale=stats.sem(data)
+)
+print(<span class="st">f"Sample mean: {data.mean():.2f}"</span>)
+print(<span class="st">f"95% CI: [{ci[0]:.2f}, {ci[1]:.2f}]"</span>)
+print(<span class="st">f"Margin of error: ±{(ci[1]-ci[0])/2:.2f}"</span>)</pre></div>
+    <button class="rbtn" onclick="toggleOut('out6')">▶ Run Demo</button>
+    <div class="rout" id="out6">
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Population: mean=2.00 skew=2.01  ← very skewed!</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Means skew: 0.013  ← nearly normal thanks to CLT!</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Sample mean: 99.84</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>95% CI: [95.56, 104.12]</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Margin of error: ±4.28</div>
+      <div class="rl" style="color:#67e8f9;margin-top:6px">We are 95% confident the true mean falls in [95.56, 104.12]</div>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(5)">← Hypothesis Testing</button><button class="btnp" onclick="goTo(7)">Bayesian Thinking →</button></div>
+</div>
+
+<!-- PAGE 7: BAYESIAN -->
+<div class="page" id="page7">
+  <div class="ptag">🧠 Topic 7 of 8</div>
+  <h1 class="h1">Bayesian <span>Thinking</span></h1>
+  <p class="sub">Bayesian statistics updates beliefs with evidence. Unlike frequentist statistics, it treats probability as a degree of belief, allowing you to incorporate prior knowledge into your analysis.</p>
+
+  <div class="ana"><div class="em">🔬</div><p><strong>Medical test analogy:</strong> A rare disease affects 1% of people. A test is 95% accurate. You test positive. What's the probability you actually have the disease? <strong>Surprisingly only ~16%!</strong> The low base rate (prior) dominates. This is Bayes' Theorem in action: P(Disease|Positive) = P(Positive|Disease)×P(Disease) / P(Positive). Prior × Likelihood / Evidence = Posterior.</p></div>
+
+  <div class="card">
+    <div class="ctitle">🎮 Bayes Theorem Calculator <span class="pill pg">Interactive</span></div>
+    <div class="slr"><span class="sll">P(Disease) prior</span><input type="range" class="sli" min="1" max="50" value="5" id="sl_bpr" oninput="updateBayes()"><span class="slv" id="sv_bpr">5%</span></div>
+    <div class="slr"><span class="sll">Sensitivity P(+|Disease)</span><input type="range" class="sli" min="50" max="99" value="90" id="sl_bsn" oninput="updateBayes()"><span class="slv" id="sv_bsn">90%</span></div>
+    <div class="slr"><span class="sll">False positive rate</span><input type="range" class="sli" min="1" max="30" value="10" id="sl_bfp" oninput="updateBayes()"><span class="slv" id="sv_bfp">10%</span></div>
+    <div class="g4" id="bayesCards"></div>
+    <canvas id="bayesCanvas" height="50" style="margin-top:12px"></canvas>
+    <div id="bayesMsg" style="margin-top:10px;padding:12px 16px;background:var(--surf2);border-radius:var(--rs);font-size:13px;line-height:1.65"></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">📐 The Three Pillars</div>
+      <div class="svz" id="sv7">
+        <div class="si active" onclick="actS('sv7',0)"><div class="sn">1</div><div class="sb2"><div class="stit">Prior P(H)</div><div class="sdes">Your initial belief before seeing data. Can be based on domain knowledge, historical data, or expert opinion. The prior can be "uninformative" (flat) if you want the data to speak for itself.</div></div></div>
+        <div class="si" onclick="actS('sv7',1)"><div class="sn">2</div><div class="sb2"><div class="stit">Likelihood P(Data|H)</div><div class="sdes">How probable is the observed data given a particular hypothesis? This is where the new evidence comes in. The likelihood "weights" how much different priors should be updated.</div></div></div>
+        <div class="si" onclick="actS('sv7',2)"><div class="sn">3</div><div class="sb2"><div class="stit">Posterior P(H|Data)</div><div class="sdes">Your updated belief after seeing the data. Posterior ∝ Prior × Likelihood. The posterior can become the prior for the next analysis — Bayesian learning is sequential!</div></div></div>
+        <div class="si" onclick="actS('sv7',3)"><div class="sn">4</div><div class="sb2"><div class="stit">Frequentist vs Bayesian</div><div class="sdes">Frequentist: probability is long-run frequency. Bayesian: probability is degree of belief. Frequentist gives p-values. Bayesian gives "there's 95% probability the parameter is in this range" — more intuitive!</div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctitle">💻 Bayesian Updating</div>
+      <div class="cw"><div class="ch"><div class="cdots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="clg">python</span></div>
+<pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Bayesian coin flip: is coin fair?</span>
+<span class="cm"># Prior: uniform (Beta(1,1))</span>
+<span class="cm"># Observe 7 heads in 10 flips</span>
+
+<span class="cm"># Beta-Binomial conjugate model</span>
+prior_a, prior_b = <span class="nm">1</span>, <span class="nm">1</span>  <span class="cm"># uniform prior</span>
+heads, tails = <span class="nm">7</span>, <span class="nm">3</span>
+
+<span class="cm"># Posterior = Beta(a+heads, b+tails)</span>
+post_a = prior_a + heads
+post_b = prior_b + tails
+
+posterior_mean = post_a / (post_a + post_b)
+<span class="cm"># 95% Credible Interval</span>
+<span class="kw">from</span> scipy.stats <span class="kw">import</span> beta
+lo, hi = beta.ppf([<span class="nm">0.025</span>,<span class="nm">0.975</span>], post_a, post_b)
+
+print(<span class="st">f"Posterior mean: {posterior_mean:.3f}"</span>)
+print(<span class="st">f"95% Credible Interval: [{lo:.3f}, {hi:.3f}]"</span>)
+print(<span class="st">f"P(p>0.5 | data): {1-beta.cdf(0.5,post_a,post_b):.3f}"</span>)</pre></div>
+      <button class="rbtn" onclick="toggleOut('out7')">▶ Run Demo</button>
+      <div class="rout" id="out7">
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Posterior mean: 0.667  ← updated estimate of P(heads)</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>95% Credible Interval: [0.381, 0.880]</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>P(p&gt;0.5 | data): 0.834  ← 83% chance coin is biased toward heads</div>
+        <div class="rl" style="color:#67e8f9;margin-top:6px">More data → narrower credible interval → more certainty!</div>
+      </div>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(6)">← CLT & Inference</button><button class="btnp" onclick="goTo(8)">Regression Stats →</button></div>
+</div>
+
+<!-- PAGE 8: REGRESSION STATS -->
+<div class="page" id="page8">
+  <div class="ptag">📉 Topic 8 of 8</div>
+  <h1 class="h1">Regression <span>Statistics</span></h1>
+  <p class="sub">Regression statistics go beyond fitting a line — they tell you if the model is statistically significant, how much variance is explained, and which coefficients are trustworthy.</p>
+
+  <div class="ana"><div class="em">🎯</div><p><strong>Analogy — Archery scorecard:</strong> R² is the overall score (how close to bullseye on average). Residual plots show whether your aiming is consistent (homoscedastic) or systematically off in certain directions. p-values for each feature tell you whether that particular technique actually improved your aim or just got lucky.</p></div>
+
+  <div class="card">
+    <div class="ctitle">📊 Regression Output Interpreter <span class="pill pb">Interactive</span></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:13px">Click any row of the regression output table to get a plain-English explanation:</p>
+    <div class="tw"><table id="regTable">
+      <tr><th>Metric</th><th>Value</th><th>Interpretation</th></tr>
+      <tr onclick="showRegDetail(0)" style="cursor:pointer"><td><strong>R²</strong></td><td style="font-family:'Fira Code',monospace;color:var(--green)">0.847</td><td style="color:var(--muted)">Model explains 84.7% of variance</td></tr>
+      <tr onclick="showRegDetail(1)" style="cursor:pointer"><td><strong>Adjusted R²</strong></td><td style="font-family:'Fira Code',monospace;color:var(--blue)">0.831</td><td style="color:var(--muted)">Penalised for number of features</td></tr>
+      <tr onclick="showRegDetail(2)" style="cursor:pointer"><td><strong>F-statistic</strong></td><td style="font-family:'Fira Code',monospace;color:var(--violet)">52.34</td><td style="color:var(--muted)">Overall model significance</td></tr>
+      <tr onclick="showRegDetail(3)" style="cursor:pointer"><td><strong>Prob(F)</strong></td><td style="font-family:'Fira Code',monospace;color:var(--green)">2.3e-14</td><td style="color:var(--muted)">Model is highly significant</td></tr>
+      <tr onclick="showRegDetail(4)" style="cursor:pointer"><td><strong>coef p-value (x1)</strong></td><td style="font-family:'Fira Code',monospace;color:var(--green)">0.001</td><td style="color:var(--muted)">Feature x1 is significant</td></tr>
+      <tr onclick="showRegDetail(5)" style="cursor:pointer"><td><strong>coef p-value (x2)</strong></td><td style="font-family:'Fira Code',monospace;color:var(--rose)">0.342</td><td style="color:var(--muted)">Feature x2 is NOT significant</td></tr>
+      <tr onclick="showRegDetail(6)" style="cursor:pointer"><td><strong>Durbin-Watson</strong></td><td style="font-family:'Fira Code',monospace;color:var(--amber)">1.87</td><td style="color:var(--muted)">Autocorrelation check</td></tr>
+      <tr onclick="showRegDetail(7)" style="cursor:pointer"><td><strong>Condition Number</strong></td><td style="font-family:'Fira Code',monospace;color:var(--amber)">142.3</td><td style="color:var(--muted)">Multicollinearity warning</td></tr>
+    </table></div>
+    <div id="regDetail" style="margin-top:12px;padding:14px 18px;background:linear-gradient(135deg,#f0fdf4,#eff6ff);border-radius:var(--rs);font-size:13.5px;line-height:1.7;border:1px solid rgba(59,130,246,.2);min-height:60px">👆 Click any row in the table for a detailed explanation in plain English.</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">💻 Full Regression Statistics with Statsmodels</div>
+    <div class="cw"><div class="ch"><div class="cdots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="clg">python</span></div>
+<pre><span class="kw">import</span> statsmodels.api <span class="kw">as</span> sm
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+np.random.seed(<span class="nm">42</span>)
+X = np.random.randn(<span class="nm">100</span>, <span class="nm">2</span>)
+y = <span class="nm">3</span>*X[:,<span class="nm">0</span>] + <span class="nm">0.5</span>*X[:,<span class="nm">1</span>] + np.random.randn(<span class="nm">100</span>)
+
+X_sm = sm.add_constant(X)
+model = sm.OLS(y, X_sm).fit()
+
+print(model.summary())
+<span class="cm"># Key outputs:</span>
+print(<span class="st">f"R²:          {model.rsquared:.4f}"</span>)
+print(<span class="st">f"Adj R²:      {model.rsquared_adj:.4f}"</span>)
+print(<span class="st">f"F-stat:      {model.fvalue:.2f}"</span>)
+print(<span class="st">f"Prob(F):     {model.f_pvalue:.4e}"</span>)
+print(<span class="st">f"Coef p-vals: {model.pvalues.round(4)}"</span>)
+print(<span class="st">f"AIC:         {model.aic:.2f}"</span>)
+print(<span class="st">f"BIC:         {model.bic:.2f}"</span>)</pre></div>
+    <button class="rbtn" onclick="toggleOut('out8')">▶ Run Demo</button>
+    <div class="rout" id="out8">
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>R²:          0.9031  ← model explains 90.3% of variance</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Adj R²:      0.9013</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>F-stat:      458.67  ← very large → model is significant</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Prob(F):     5.42e-61  ← essentially zero!</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Coef p-vals: [0.452, 0.000, 0.000]  ← x1,x2 significant; intercept not</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>AIC: 286.43   BIC: 294.25</div>
+      <div class="rl" style="color:#67e8f9;margin-top:6px">Use AIC/BIC to compare models — lower is better!</div>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(7)">← Bayesian Thinking</button><button class="btnp" onclick="goTo(9)">Exercises →</button></div>
+</div>
+
+<!-- PAGE 9: EXERCISES -->
+<div class="page" id="page9">
+  <div class="ptag">💡 Practice</div>
+  <h1 class="h1">Coding <span>Exercises</span></h1>
+  <p class="sub">Tackle each problem before revealing the solution. Practice is the only way to internalise statistics!</p>
+
+  <div class="exc">
+    <div class="exh"><div class="exnum">1</div><div><div class="ext">Exploring a Real Dataset with Descriptive Stats</div><div class="exd">Load the Iris dataset. For each species, compute: mean, standard deviation, median, and IQR for all 4 features. Identify which feature has the highest variation (highest CV = std/mean) and which species is most distinct.</div></div></div>
+    <button class="solb" onclick="toggleSol('s1',this)">💡 Show Solution ▼</button>
+    <div class="sol" id="s1"><div class="cw" style="border-radius:0"><div class="ch"><div class="cdots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="clg">python</span></div>
+<pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_iris
+<span class="kw">import</span> pandas <span class="kw">as</span> pd, numpy <span class="kw">as</span> np
+
+data = load_iris()
+df = pd.DataFrame(data.data, columns=data.feature_names)
+df[<span class="st">'species'</span>] = [data.target_names[t] <span class="kw">for</span> t <span class="kw">in</span> data.target]
+
+<span class="cm"># Descriptive stats per species</span>
+print(df.groupby(<span class="st">'species'</span>).agg([<span class="st">'mean'</span>,<span class="st">'std'</span>,<span class="st">'median'</span>]).round(<span class="nm">2</span>))
+
+<span class="cm"># Coefficient of variation per feature</span>
+cv = df.iloc[:,:<span class="nm">4</span>].std() / df.iloc[:,:<span class="nm">4</span>].mean()
+print(<span class="st">"\nCoeff of Variation:"</span>)
+print(cv.sort_values(ascending=<span class="kw">False</span>))
+print(<span class="st">f"Highest variation: {cv.idxmax()}"</span>)
+
+<span class="cm"># IQR per feature</span>
+q75 = df.iloc[:,:<span class="nm">4</span>].quantile(<span class="nm">0.75</span>)
+q25 = df.iloc[:,:<span class="nm">4</span>].quantile(<span class="nm">0.25</span>)
+print(<span class="st">"\nIQR:"</span>)
+print((q75 - q25).round(<span class="nm">2</span>))</pre></div></div>
+  </div>
+
+  <div class="exc">
+    <div class="exh"><div class="exnum">2</div><div><div class="ext">Hypothesis Testing — A/B Test Analysis</div><div class="exd">Simulate an A/B test: Group A (control) has click-through rate 10%, Group B (treatment) has 13%. With 1000 users each, run a two-proportion z-test. Report the p-value, whether the improvement is statistically significant at alpha=0.05, and the 95% confidence interval for the difference in proportions.</div></div></div>
+    <button class="solb" onclick="toggleSol('s2',this)">💡 Show Solution ▼</button>
+    <div class="sol" id="s2"><div class="cw" style="border-radius:0"><div class="ch"><div class="cdots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="clg">python</span></div>
+<pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+np.random.seed(<span class="nm">42</span>)
+n_a, n_b = <span class="nm">1000</span>, <span class="nm">1000</span>
+p_a, p_b = <span class="nm">0.10</span>, <span class="nm">0.13</span>
+
+clicks_a = np.random.binomial(n_a, p_a)
+clicks_b = np.random.binomial(n_b, p_b)
+
+p_a_hat = clicks_a / n_a
+p_b_hat = clicks_b / n_b
+
+<span class="cm"># Pooled proportion</span>
+p_pool = (clicks_a + clicks_b) / (n_a + n_b)
+se = np.sqrt(p_pool*(<span class="nm">1</span>-p_pool)*(1/n_a + 1/n_b))
+
+z = (p_b_hat - p_a_hat) / se
+p_val = <span class="nm">2</span> * (<span class="nm">1</span> - stats.norm.cdf(abs(z)))
+
+<span class="cm"># 95% CI for difference</span>
+se_diff = np.sqrt(p_a_hat*(<span class="nm">1</span>-p_a_hat)/n_a + p_b_hat*(<span class="nm">1</span>-p_b_hat)/n_b)
+diff = p_b_hat - p_a_hat
+ci = (diff - <span class="nm">1.96</span>*se_diff, diff + <span class="nm">1.96</span>*se_diff)
+
+print(<span class="st">f"Control CTR:   {p_a_hat:.3f}"</span>)
+print(<span class="st">f"Treatment CTR: {p_b_hat:.3f}"</span>)
+print(<span class="st">f"z-statistic:   {z:.3f}"</span>)
+print(<span class="st">f"p-value:       {p_val:.4f}"</span>)
+print(<span class="st">f"Significant:   {p_val < 0.05}"</span>)
+print(<span class="st">f"95% CI diff:   [{ci[0]:.4f}, {ci[1]:.4f}]"</span>)</pre></div></div>
+  </div>
+
+  <div class="exc">
+    <div class="exh"><div class="exnum">3</div><div><div class="ext">CLT Verification — Does it Work for All Distributions?</div><div class="exd">Verify the CLT empirically: generate a very skewed population (Chi-square with df=2). Take 10,000 samples of size n=5, n=30, n=100. For each n, compute the sample means and check: does skewness decrease? Does the distribution look more normal with larger n? Report skewness and kurtosis for each.</div></div></div>
+    <button class="solb" onclick="toggleSol('s3',this)">💡 Show Solution ▼</button>
+    <div class="sol" id="s3"><div class="cw" style="border-radius:0"><div class="ch"><div class="cdots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="clg">python</span></div>
+<pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+np.random.seed(<span class="nm">42</span>)
+<span class="cm"># Very skewed population: Chi-square df=2</span>
+pop = stats.chi2.rvs(df=<span class="nm">2</span>, size=<span class="nm">100000</span>)
+print(<span class="st">f"Population: skew={stats.skew(pop):.3f} kurt={stats.kurtosis(pop):.3f}"</span>)
+
+<span class="kw">for</span> n <span class="kw">in</span> [<span class="nm">5</span>, <span class="nm">30</span>, <span class="nm">100</span>]:
+    <span class="cm"># 10000 sample means</span>
+    means = np.array([np.mean(np.random.choice(pop, n))
+                      <span class="kw">for</span> _ <span class="kw">in</span> range(<span class="nm">10000</span>)])
+    sk = stats.skew(means)
+    ku = stats.kurtosis(means)
+    sw_p = stats.shapiro(np.random.choice(means, <span class="nm">50</span>)).pvalue
+    print(<span class="st">f"n={n:3d}: skew={sk:.3f}  kurt={ku:.3f}  "
+          f"Shapiro p={sw_p:.4f} {'(Normal!)' if sw_p>0.05 else ''}"</span>)</pre></div></div>
+  </div>
+
+  <div class="pnav"><button class="btns" onclick="goTo(8)">← Regression Stats</button><button class="btnp" onclick="goTo(10)">Take Quiz →</button></div>
+</div>
+
+<!-- PAGE 10: QUIZ -->
+<div class="page" id="page10">
+  <div class="ptag">🧩 Knowledge Check</div>
+  <h1 class="h1">Statistics <span>Quiz</span></h1>
+  <p class="sub">10 questions covering all 8 topics. Think carefully — statistics requires precision!</p>
+  <div id="qz-wrap">
+    <div class="qdots" id="qdots-wrap"></div>
+    <div class="qzc">
+      <div class="qn" id="qnum">Question 1 of 10</div>
+      <div class="qq" id="qtext"></div>
+      <div class="qopts" id="qopts"></div>
+      <div class="qfb" id="qfb"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:18px">
+        <button class="btnp" id="qnext" style="display:none" onclick="nextQ()">Next →</button>
+      </div>
+    </div>
+  </div>
+  <div class="scwrap" id="scoreScr" style="display:none">
+    <div class="scring"><div class="scn" id="scNum">0</div><div class="scd">/ 10</div></div>
+    <h2 style="font-family:'Cabinet Grotesk',sans-serif;font-size:30px;font-weight:800;margin-bottom:10px" id="scMsg"></h2>
+    <p style="font-size:15px;color:var(--muted);margin-bottom:28px" id="scDet"></p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <button class="btns" onclick="restartQuiz()">Retake Quiz</button>
+      <button class="btnp" onclick="goTo(11)">Complete Module 🎉</button>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(9)">← Exercises</button><div></div></div>
+</div>
+
+<!-- PAGE 11: COMPLETION -->
+<div class="page" id="page11">
+  <div class="cmpw">
+    <span class="cmpe">🏆</span>
+    <h1 style="font-family:'Cabinet Grotesk',sans-serif;font-size:38px;font-weight:800;margin-bottom:10px">Statistics Mastered!</h1>
+    <p style="font-size:17px;color:var(--muted);margin-bottom:6px">Statistics for Data Science — Complete</p>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:32px;max-width:500px;margin-left:auto;margin-right:auto">You have covered the complete statistics toolkit needed for data science — from basic summaries to Bayesian inference!</p>
+    <div class="skw">
+      <div class="sk">📐 Mean/Median/Mode</div><div class="sk">📊 Distributions</div><div class="sk">🎲 Probability</div>
+      <div class="sk">🔗 Correlation</div><div class="sk">🧪 Hypothesis Tests</div><div class="sk">📈 CLT</div>
+      <div class="sk">📏 Confidence Intervals</div><div class="sk">🧠 Bayesian Stats</div><div class="sk">📉 Regression Stats</div>
+      <div class="sk">🐍 scipy & statsmodels</div>
+    </div>
+    <div class="card" style="max-width:440px;margin:0 auto 28px;text-align:left">
+      <div class="ctitle">🏅Completed</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:11px;background:linear-gradient(135deg,#f0fdf4,#eff6ff);border-radius:var(--rs)">
+        <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">📊</div>
+        <div>
+      
+          <div style="margin-top:5px;display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:var(--green);color:#fff;border-radius:99px;font-size:11px;font-weight:700">✓ Statistics for Data Science</div>
+        </div>
+      </div>
+    </div>
+    <button class="btnp" style="font-size:15px;padding:13px 30px" onclick="restartModule()">↺ Restart Module</button>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+// ─── NAVIGATION ───
+const TOTAL=12; let curPage=0; const visited=new Set([0]);
+function goTo(idx){
+  const cur=document.getElementById('page'+curPage);
+  if(cur){cur.style.display='none';cur.classList.remove('active');}
+  document.getElementById('nav'+curPage).classList.remove('active');
+  visited.add(curPage);
+  const nav=document.getElementById('nav'+curPage);
+  if(!nav.querySelector('.db')){const b=document.createElement('span');b.className='db';b.textContent='✓';nav.appendChild(b);}
+  curPage=idx;
+  const nxt=document.getElementById('page'+idx);
+  if(nxt){nxt.style.display='block';nxt.classList.add('active');nxt.style.animation='none';void nxt.offsetWidth;nxt.style.animation='fadeSlide .4s ease';}
+  document.getElementById('nav'+idx).classList.add('active');
+  document.querySelector('.main-content').scrollTo(0,0);
+  const pct=Math.round((visited.size/TOTAL)*100);
+  document.getElementById('nfill').style.width=pct+'%';
+  document.getElementById('npct').textContent=pct+'%';
+  const inits={1:initDescriptive,2:initDist,3:initProb,4:initCorr,5:initHyp,6:initCLT,7:initBayes,8:initReg};
+  if(inits[idx]) setTimeout(inits[idx],150);
+}
+function toggleOut(id){document.getElementById(id).classList.toggle('show');}
+function actS(id,idx){document.getElementById(id).querySelectorAll('.si').forEach((s,i)=>s.classList.toggle('active',i===idx));}
+function toggleSol(id,btn){const el=document.getElementById(id);el.classList.toggle('open');btn.textContent=el.classList.contains('open')?'🙈 Hide Solution ▲':'💡 Show Solution ▼';}
+
+// ─── PAGE 1: DESCRIPTIVE STATS ───
+function initDescriptive(){updateStats();updateBoxPlot();}
+function parseData(){
+  try{return document.getElementById('dataInput').value.split(',').map(Number).filter(n=>!isNaN(n));}
+  catch(e){return[12,18,24,18,30,15,22,18,28,35];}
+}
+function updateStats(){
+  const d=parseData().sort((a,b)=>a-b);
+  if(d.length<2) return;
+  const mean=d.reduce((a,b)=>a+b,0)/d.length;
+  const sorted=[...d].sort((a,b)=>a-b);
+  const median=sorted.length%2===0?(sorted[sorted.length/2-1]+sorted[sorted.length/2])/2:sorted[Math.floor(sorted.length/2)];
+  const freq={};d.forEach(v=>{freq[v]=(freq[v]||0)+1;});
+  const mode=Object.entries(freq).sort((a,b)=>b[1]-a[1])[0][0];
+  const variance=d.reduce((s,v)=>s+(v-mean)**2,0)/(d.length-1);
+  const std=Math.sqrt(variance);
+  const q1=sorted[Math.floor(sorted.length*.25)],q3=sorted[Math.floor(sorted.length*.75)];
+  const skew=d.reduce((s,v)=>s+((v-mean)/std)**3,0)/d.length;
+  const cards=[
+    {v:mean.toFixed(2),n:'Mean',c:'var(--green)'},
+    {v:median.toFixed(1),n:'Median',c:'var(--blue)'},
+    {v:mode,n:'Mode',c:'var(--teal)'},
+    {v:std.toFixed(2),n:'Std Dev',c:'var(--violet)'},
+    {v:variance.toFixed(1),n:'Variance',c:'var(--orange)'},
+    {v:(q3-q1).toFixed(1),n:'IQR',c:'var(--amber)'},
+    {v:(Math.max(...d)-Math.min(...d)),n:'Range',c:'var(--indigo)'},
+    {v:skew.toFixed(3),n:'Skewness',c:skew>0?'var(--orange)':'var(--rose)'}
+  ];
+  document.getElementById('statCards').innerHTML=cards.map(c=>`<div class="mc" style="border-top:3px solid ${c.c}"><div class="mv" style="color:${c.c}">${c.v}</div><div class="mn">${c.n}</div></div>`).join('');
+  drawDistBar(d);
+  const sk=skew>0.5?'Right-skewed (mean > median). Long tail on the right.':skew<-0.5?'Left-skewed (mean < median). Long tail on the left.':'Approximately symmetric (|skew| < 0.5). Mean ≈ Median.';
+  document.getElementById('statInsight').innerHTML=`<strong>Dataset insights:</strong> n=${d.length}. Min=${Math.min(...d)}, Max=${Math.max(...d)}. ${sk} The most common value is ${mode} (appears ${freq[mode]} times).`;
+}
+function drawDistBar(data){
+  const cv=document.getElementById('distCanvas');
+  if(!cv) return;
+  const ctx=cv.getContext('2d');
+  cv.width=cv.offsetWidth||400;cv.height=100;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const mn=Math.min(...data),mx=Math.max(...data),bins=15;
+  const w=(mx-mn)/bins;
+  const counts=new Array(bins).fill(0);
+  data.forEach(v=>{const i=Math.min(bins-1,Math.floor((v-mn)/w));counts[i]++;});
+  const mc2=Math.max(...counts);
+  const bw=cv.width/bins;
+  counts.forEach((c,i)=>{
+    const h=(c/mc2)*(cv.height-10);
+    const g=ctx.createLinearGradient(0,cv.height-h,0,cv.height);
+    g.addColorStop(0,'#3b82f6');g.addColorStop(1,'#22c55e');
+    ctx.fillStyle=g;
+    ctx.beginPath();ctx.roundRect(i*bw+1,cv.height-h,bw-2,h,2);ctx.fill();
+  });
+}
+function updateBoxPlot(){
+  const sv=document.getElementById('sv_outlier');
+  const val=+document.getElementById('sl_outlier').value;
+  sv.textContent=val;
+  const base=[12,18,24,18,30,15,22,18,28,35,22,20,16,24,19];
+  const data=[...base,val].sort((a,b)=>a-b);
+  const mean=data.reduce((a,b)=>a+b,0)/data.length;
+  const sorted=[...data].sort((a,b)=>a-b);
+  const median=sorted.length%2===0?(sorted[sorted.length/2-1]+sorted[sorted.length/2])/2:sorted[Math.floor(sorted.length/2)];
+  const cv=document.getElementById('boxCanvas');
+  if(!cv) return;
+  const ctx=cv.getContext('2d');
+  cv.width=cv.offsetWidth||400;cv.height=140;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const min=Math.min(...data),max=Math.max(...data);
+  const q1=sorted[Math.floor(sorted.length*.25)],q3=sorted[Math.floor(sorted.length*.75)];
+  const toX=v=>((v-min)/(max-min))*(cv.width-60)+30;
+  const y=70;
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(30,y);ctx.lineTo(cv.width-30,y);ctx.stroke();
+  ctx.fillStyle='rgba(59,130,246,.15)';ctx.strokeStyle='#3b82f6';ctx.lineWidth=2;
+  ctx.fillRect(toX(q1),y-24,toX(q3)-toX(q1),48);
+  ctx.strokeRect(toX(q1),y-24,toX(q3)-toX(q1),48);
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(toX(median),y-24);ctx.lineTo(toX(median),y+24);ctx.stroke();
+  ctx.strokeStyle='#ef4444';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(toX(mean),y-20);ctx.lineTo(toX(mean),y+20);ctx.stroke();
+  ['#0f172a','#0f172a','#ef4444'].forEach((col,i)=>{
+    const pts=[min,max,val];
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.arc(toX(pts[i]),y,5,0,Math.PI*2);ctx.fill();
+  });
+  ctx.font='11px Nunito';ctx.fillStyle='#22c55e';ctx.textAlign='center';
+  ctx.fillText('Median:'+median.toFixed(1),toX(median),y-30);
+  ctx.fillStyle='#ef4444';
+  ctx.fillText('Mean:'+mean.toFixed(1),toX(mean),y+38);
+  document.getElementById('boxStats').innerHTML=
+    `<div class="mc" style="border-top:2px solid var(--green)"><div class="mv" style="color:var(--green);font-size:20px">${median.toFixed(1)}</div><div class="mn">Median (robust)</div></div>
+     <div class="mc" style="border-top:2px solid var(--rose)"><div class="mv" style="color:var(--rose);font-size:20px">${mean.toFixed(1)}</div><div class="mn">Mean (pulled by ${val})</div></div>`;
+}
+
+// ─── PAGE 2: DISTRIBUTIONS ───
+let distType='normal';
+function initDist(){selDist('normal',document.querySelector('.ctog.on'));runCLTDist();}
+const distConfigs={
+  normal:{params:[{id:'dn_mu',lbl:'Mean (mu)',min:-5,max:5,val:0},{id:'dn_sd',lbl:'Std Dev',min:5,max:30,val:10}],
+    info:'<strong>Normal (Gaussian):</strong> Bell-shaped, symmetric. Defined by mean and std dev. 68% within 1σ, 95% within 2σ, 99.7% within 3σ. Arises from sum of many independent random variables (CLT). Used for: heights, errors, exam scores, IQ.',
+    gen:(mu,sd)=>Array.from({length:40},(_,i)=>{const x=(i/39)*6-3;return Math.exp(-0.5*((x-(mu/10))/sd*10)**2)/(sd/10*Math.sqrt(2*Math.PI))*2;}),
+    color:'#3b82f6'},
+  binomial:{params:[{id:'db_n',lbl:'n (trials)',min:2,max:20,val:10},{id:'db_p',lbl:'p (prob) x10',min:1,max:9,val:5}],
+    info:'<strong>Binomial:</strong> Counts successes in n independent trials, each with probability p. Mean=np, Var=np(1-p). As n→∞, approaches Normal. Used for: coin flips, quality control (n items, P(defect)), email open rates.',
+    gen:(n,p)=>{const pp=p/10;const res=[];for(let k=0;k<=n;k++){let c=1;for(let i=0;i<k;i++)c*=(n-i)/(i+1);res.push(c*Math.pow(pp,k)*Math.pow(1-pp,n-k));}return res;},
+    color:'#22c55e'},
+  poisson:{params:[{id:'dp_l',lbl:'Lambda (rate)',min:1,max:20,val:5}],
+    info:'<strong>Poisson:</strong> Counts events in fixed interval when events are rare and independent. Mean=Var=lambda. Used for: website visits per hour, customer arrivals, radioactive decay, typos per page.',
+    gen:(lam)=>{const res=[];let f=1;for(let k=0;k<=20;k++){if(k>0)f*=k;res.push(Math.pow(lam,k)*Math.exp(-lam)/f);}return res;},
+    color:'#7c3aed'},
+  uniform:{params:[{id:'du_a',lbl:'Min',min:0,max:5,val:0},{id:'du_b',lbl:'Max',min:5,max:30,val:20}],
+    info:'<strong>Uniform:</strong> All values equally likely between min and max. Mean=(a+b)/2, Var=(b-a)²/12. Used for: random number generation, simulation seeds, lottery numbers.',
+    gen:(a,b)=>Array.from({length:30},(_,i)=>i>=a*1.2&&i<=(b)||true?1/(b-a)*3:0),
+    color:'#f97316'},
+  exponential:{params:[{id:'de_l',lbl:'Rate (lambda)',min:1,max:30,val:10}],
+    info:'<strong>Exponential:</strong> Time between events in Poisson process. Mean=1/lambda, Var=1/lambda². Memoryless property. Used for: time between customers, component lifetime, queue waiting times.',
+    gen:(lam)=>Array.from({length:40},(_,i)=>(lam/10)*Math.exp(-(lam/10)*(i/4))*4),
+    color:'#e11d48'}
+};
+function selDist(type,btn){
+  distType=type;
+  document.querySelectorAll('.ctog').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const cfg=distConfigs[type];
+  let html='';
+  cfg.params.forEach(p=>{
+    html+=`<div class="slr"><span class="sll">${p.lbl}</span><input type="range" class="sli" min="${p.min}" max="${p.max}" value="${p.val}" id="${p.id}" oninput="drawDist()"><span class="slv" id="sv_${p.id}">${p.val}</span></div>`;
+  });
+  document.getElementById('distParams').innerHTML=html;
+  document.getElementById('distInfo').innerHTML=cfg.info;
+  drawDist();
+}
+function drawDist(){
+  const cfg=distConfigs[distType];
+  const params=cfg.params.map(p=>{
+    const v=+(document.getElementById(p.id)||{value:p.val}).value;
+    if(document.getElementById('sv_'+p.id)) document.getElementById('sv_'+p.id).textContent=v;
+    return v;
+  });
+  const vals=cfg.gen(...params);
+  const cv=document.getElementById('distCanvas2');
+  if(!cv) return;
+  const ctx=cv.getContext('2d');
+  cv.width=cv.offsetWidth||500;cv.height=130;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const max=Math.max(...vals.filter(v=>isFinite(v)&&v>0));
+  const bw=cv.width/vals.length;
+  vals.forEach((v,i)=>{
+    if(!isFinite(v)||v<0) return;
+    const h=(v/max)*(cv.height-10);
+    const g=ctx.createLinearGradient(0,cv.height-h,0,cv.height);
+    g.addColorStop(0,cfg.color+'cc');g.addColorStop(1,cfg.color+'44');
+    ctx.fillStyle=g;
+    ctx.beginPath();ctx.roundRect(i*bw+1,cv.height-h,bw-2,h,2);ctx.fill();
+  });
+}
+
+// ─── PAGE 3: PROBABILITY ───
+function initProb(){updateProb();}
+function updateProb(){
+  const pa=+document.getElementById('sl_pa').value/100;
+  const pb=+document.getElementById('sl_pb').value/100;
+  const pab=Math.min(+document.getElementById('sl_pab').value/100,Math.min(pa,pb));
+  document.getElementById('sv_pa').textContent=pa.toFixed(2);
+  document.getElementById('sv_pb').textContent=pb.toFixed(2);
+  document.getElementById('sv_pab').textContent=pab.toFixed(2);
+  const paub=pa+pb-pab;
+  const pa_given_b=pb>0?pab/pb:0;
+  const pb_given_a=pa>0?pab/pa:0;
+  const indep=Math.abs(pab-pa*pb)<0.01;
+  document.getElementById('probCards').innerHTML=[
+    {v:(paub).toFixed(3),n:'P(A or B)',c:'var(--blue)'},
+    {v:(pab).toFixed(3),n:'P(A and B)',c:'var(--green)'},
+    {v:(pa_given_b).toFixed(3),n:'P(A|B)',c:'var(--violet)'},
+    {v:(1-pa).toFixed(3),n:"P(not A)",c:'var(--orange)'}
+  ].map(c=>`<div class="mc" style="border-top:3px solid ${c.c}"><div class="mv" style="color:${c.c}">${c.v}</div><div class="mn">${c.n}</div></div>`).join('');
+  drawVenn(pa,pb,pab);
+}
+function drawVenn(pa,pb,pab){
+  const cv=document.getElementById('vennCanvas');
+  if(!cv) return;
+  const ctx=cv.getContext('2d');
+  cv.width=cv.offsetWidth||400;cv.height=130;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const cx=cv.width/2,cy=cv.height/2,r=50;
+  const sep=60*(1-pab/Math.min(pa,pb,0.5));
+  ctx.globalAlpha=0.35;
+  ctx.fillStyle='#3b82f6';ctx.beginPath();ctx.arc(cx-sep/2,cy,r,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(cx+sep/2,cy,r,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=1;
+  ctx.strokeStyle='#3b82f6';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx-sep/2,cy,r,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx+sep/2,cy,r,0,Math.PI*2);ctx.stroke();
+  ctx.font='bold 13px Nunito';ctx.fillStyle='#1e3a5f';ctx.textAlign='center';
+  ctx.fillText('A',cx-sep/2-r/2,cy+5);
+  ctx.fillText('B',cx+sep/2+r/2,cy+5);
+  ctx.fillStyle='#1e3a5f';ctx.fillText('∩',cx,cy+5);
+}
+
+// ─── PAGE 4: CORRELATION ───
+function initCorr(){updateCorr();}
+function updateCorr(){
+  const r=+document.getElementById('sl_corr').value/100;
+  document.getElementById('sv_corr').textContent=r.toFixed(2);
+  const cv=document.getElementById('corrCanvas');
+  if(!cv) return;
+  const ctx=cv.getContext('2d');
+  cv.width=cv.offsetWidth||500;cv.height=200;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const n=60,pts=[];
+  for(let i=0;i<n;i++){
+    const x=(Math.random()-0.5)*2;
+    const y=r*x+Math.sqrt(1-r*r)*(Math.random()-0.5)*2;
+    pts.push([x,y]);
+  }
+  const mx=Math.max(...pts.map(p=>p[0])),mn=Math.min(...pts.map(p=>p[0]));
+  const my=Math.max(...pts.map(p=>p[1])),mny=Math.min(...pts.map(p=>p[1]));
+  const sx=(cv.width-60)/((mx-mn)||1),sy=(cv.height-40)/((my-mny)||1);
+  pts.forEach(p=>{
+    const px=30+(p[0]-mn)*sx,py=cv.height-20-(p[1]-mny)*sy;
+    ctx.fillStyle=r>0?'rgba(34,197,94,.7)':r<0?'rgba(239,68,68,.7)':'rgba(100,116,139,.6)';
+    ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);ctx.fill();
+  });
+  const lm=r*(sy/sx);
+  ctx.strokeStyle=r>0?'#22c55e':r<0?'#ef4444':'#94a3b8';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(30,cv.height/2-lm*(30-(30+(mx-mn)*sx/2)));ctx.lineTo(cv.width-30,cv.height/2-lm*(cv.width-60));ctx.stroke();
+  const abs=Math.abs(r);
+  const strength=abs>0.9?'Very Strong':abs>0.7?'Strong':abs>0.4?'Moderate':abs>0.2?'Weak':'Very Weak/No';
+  const dir=r>0.05?'Positive':r<-0.05?'Negative':'No';
+  document.getElementById('corrMsg').innerHTML=`<strong style="color:${r>0?'var(--green)':r<0?'var(--rose)':'var(--muted)'}">r = ${r.toFixed(2)}:</strong> ${strength} ${dir} correlation. R² = ${(r*r).toFixed(3)} — x explains ${(r*r*100).toFixed(1)}% of variance in y. ${Math.abs(r)>0.7?'Clear linear trend visible.':Math.abs(r)<0.2?'Data looks like random scatter.':'Some trend visible but with lots of scatter.'}`;
+}
+
+// ─── PAGE 5: HYPOTHESIS TESTING ───
+function initHyp(){updateHyp();}
+function normalPDF(x){return Math.exp(-0.5*x*x)/Math.sqrt(2*Math.PI);}
+function normalCDF(x){
+  const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+  const sign=x<0?-1:1;x=Math.abs(x)/Math.sqrt(2);
+  const t=1/(1+p*x);
+  const y=1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+  return 0.5*(1+sign*y);
+}
+function updateHyp(){
+  const z=+document.getElementById('sl_z').value/10;
+  const alpha=+document.getElementById('sl_alpha').value/100;
+  document.getElementById('sv_z').textContent=z.toFixed(2);
+  document.getElementById('sv_alpha').textContent=alpha.toFixed(2);
+  const pval=2*(1-normalCDF(Math.abs(z)));
+  const reject=pval<alpha;
+  const cv=document.getElementById('hypCanvas');
+  if(!cv) return;
+  const ctx=cv.getContext('2d');
+  cv.width=cv.offsetWidth||500;cv.height=150;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const zc=function(x){return normalCDF(x);};
+  const zcrit=1.96;
+  for(let i=0;i<cv.width;i++){
+    const zv=(i/cv.width)*8-4;
+    const nx=(i)/cv.width*8-4;
+    const h=normalPDF(nx)*(cv.height-20)*2.2;
+    const isRej=Math.abs(nx)>zcrit;
+    ctx.fillStyle=isRej?'rgba(239,68,68,.25)':'rgba(59,130,246,.15)';
+    ctx.fillRect(i,cv.height-10-h,1,h);
+  }
+  for(let i=0;i<cv.width;i++){
+    const nx=(i)/cv.width*8-4;
+    const h=normalPDF(nx)*(cv.height-20)*2.2;
+    ctx.fillStyle='#3b82f6';ctx.fillRect(i,cv.height-10-h,1,1);
+  }
+  const zx=(z+4)/8*cv.width;
+  ctx.strokeStyle=reject?'#ef4444':'#22c55e';ctx.lineWidth=3;ctx.setLineDash([5,4]);
+  ctx.beginPath();ctx.moveTo(zx,10);ctx.lineTo(zx,cv.height-10);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font='bold 12px Nunito';ctx.fillStyle=reject?'#ef4444':'#22c55e';ctx.textAlign='center';
+  ctx.fillText('z='+z.toFixed(2),Math.min(Math.max(zx,30),cv.width-30),8);
+  document.getElementById('hypCards').innerHTML=[
+    {v:'z='+z.toFixed(2),n:'Test Statistic',c:'var(--blue)'},
+    {v:pval.toFixed(4),n:'p-value',c:pval<alpha?'var(--rose)':'var(--green)'},
+    {v:alpha.toFixed(2),n:'Alpha (alpha)',c:'var(--violet)'},
+    {v:reject?'Reject H0':'Fail to Reject',n:'Decision',c:reject?'var(--rose)':'var(--green)'}
+  ].map(c=>`<div class="mc" style="border-top:3px solid ${c.c}"><div class="mv" style="color:${c.c};font-size:18px">${c.v}</div><div class="mn">${c.n}</div></div>`).join('');
+}
+
+// ─── PAGE 6: CLT ───
+function initCLT(){runCLT();updateCI();}
+function runCLT(){
+  const type=document.getElementById('clt_dist').value;
+  const n=+document.getElementById('sl_clt_n').value;
+  document.getElementById('sv_clt_n').textContent=n;
+  const gen={
+    uniform:()=>Math.random(),
+    exponential:()=>-Math.log(Math.random()),
+    bimodal:()=>Math.random()<0.5?Math.random()*2:Math.random()*2+5,
+    normal:()=>{const u=Math.random(),v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+  };
+  const pop=Array.from({length:5000},gen[type]);
+  const means=Array.from({length:1000},()=>{
+    let s=0;for(let i=0;i<n;i++)s+=pop[Math.floor(Math.random()*pop.length)];return s/n;
+  });
+  drawHist('cltCanvas1',pop,'#f97316',true);
+  drawHist('cltCanvas2',means,'#22c55e',false);
+  const mn=means.reduce((a,b)=>a+b,0)/means.length;
+  const sd=Math.sqrt(means.reduce((s,v)=>s+(v-mn)**2,0)/means.length);
+  const sk=means.reduce((s,v)=>s+((v-mn)/sd)**3,0)/means.length;
+  document.getElementById('cltMsg').innerHTML=`With n=<strong>${n}</strong>, sample means have skewness=<strong>${sk.toFixed(3)}</strong>${Math.abs(sk)<0.3?' — approximately normal ✓':''}. As n increases, the distribution of sample means always approaches Normal (CLT), regardless of the original ${type} distribution!`;
+}
+function drawHist(id,data,color,showOrig){
+  const cv=document.getElementById(id);if(!cv)return;
+  const ctx=cv.getContext('2d');cv.width=cv.offsetWidth||320;cv.height=110;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const mn=Math.min(...data),mx=Math.max(...data),bins=25;
+  const bw=(mx-mn)/bins;
+  const counts=new Array(bins).fill(0);
+  data.forEach(v=>{const i=Math.min(bins-1,Math.floor((v-mn)/bw));counts[i]++;});
+  const mc=Math.max(...counts);
+  const cbw=cv.width/bins;
+  counts.forEach((c,i)=>{
+    const h=(c/mc)*(cv.height-12);
+    ctx.fillStyle=color+'99';
+    ctx.fillRect(i*cbw+1,cv.height-12-h,cbw-2,h);
+  });
+}
+function updateCI(){
+  const n=+document.getElementById('sl_ci_n').value;
+  const cl=+document.getElementById('sl_ci_conf').value;
+  document.getElementById('sv_ci_n').textContent=n;
+  document.getElementById('sv_ci_conf').textContent=cl+'%';
+  const alpha=(100-cl)/100;
+  const z_scores={80:1.282,85:1.440,90:1.645,92:1.751,95:1.960,96:2.054,97:2.170,98:2.326,99:2.576};
+  const z=z_scores[cl]||1.96;
+  const sigma=15;
+  const sem=sigma/Math.sqrt(n);
+  const moe=z*sem;
+  document.getElementById('ciCards').innerHTML=[
+    {v:n,n:'Sample Size',c:'var(--blue)'},
+    {v:sigma.toFixed(0),n:'Pop Std Dev',c:'var(--violet)'},
+    {v:sem.toFixed(2),n:'Std Error',c:'var(--teal)'},
+    {v:'±'+moe.toFixed(2),n:'Margin of Error',c:'var(--green)'}
+  ].map(c=>`<div class="mc" style="border-top:3px solid ${c.c}"><div class="mv" style="color:${c.c};font-size:20px">${c.v}</div><div class="mn">${c.n}</div></div>`).join('');
+  document.getElementById('ciMsg').innerHTML=`<strong>Interpretation:</strong> With n=${n} and ${cl}% confidence, the margin of error is ±${moe.toFixed(2)}. If the true mean is 100, the CI would be [${(100-moe).toFixed(1)}, ${(100+moe).toFixed(1)}]. Increasing n by 4× halves the margin of error (sqrt relationship). ${moe<3?'<span style="color:var(--green)">Narrow CI — very precise!</span>':moe>10?'<span style="color:var(--orange)">Wide CI — need more data!</span>':'Good precision.'}`;
+}
+function runCLTDist(){runCLT();}
+
+// ─── PAGE 7: BAYESIAN ───
+function initBayes(){updateBayes();}
+function updateBayes(){
+  const prior=+document.getElementById('sl_bpr').value/100;
+  const sens=+document.getElementById('sl_bsn').value/100;
+  const fp=+document.getElementById('sl_bfp').value/100;
+  document.getElementById('sv_bpr').textContent=(prior*100).toFixed(0)+'%';
+  document.getElementById('sv_bsn').textContent=(sens*100).toFixed(0)+'%';
+  document.getElementById('sv_bfp').textContent=(fp*100).toFixed(0)+'%';
+  const pTest=sens*prior+fp*(1-prior);
+  const post=(sens*prior)/pTest;
+  const update=post/prior;
+  document.getElementById('bayesCards').innerHTML=[
+    {v:(pTest*100).toFixed(1)+'%',n:'P(Positive test)',c:'var(--violet)'},
+    {v:(post*100).toFixed(1)+'%',n:'P(Disease|Positive)',c:'var(--green)'},
+    {v:(prior*100).toFixed(0)+'%',n:'Prior probability',c:'var(--blue)'},
+    {v:update.toFixed(1)+'x',n:'Belief update factor',c:'var(--orange)'}
+  ].map(c=>`<div class="mc" style="border-top:3px solid ${c.c}"><div class="mv" style="color:${c.c};font-size:18px">${c.v}</div><div class="mn">${c.n}</div></div>`).join('');
+  const cv=document.getElementById('bayesCanvas');
+  if(!cv) return;
+  const ctx=cv.getContext('2d');
+  cv.width=cv.offsetWidth||500;cv.height=50;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const tp=sens*prior,fp2=fp*(1-prior),fn=(1-sens)*prior,tn=(1-fp)*(1-prior);
+  const total=tp+fp2+fn+tn;
+  const segs=[{v:tp/total,c:'#22c55e',l:'TP'},{v:fn/total,c:'#86efac',l:'FN'},{v:fp2/total,c:'#ef4444',l:'FP'},{v:tn/total,c:'#fca5a5',l:'TN'}];
+  let x=0;
+  segs.forEach(s=>{
+    const w=s.v*cv.width;
+    ctx.fillStyle=s.c;ctx.fillRect(x,4,w,42);
+    if(w>40){ctx.fillStyle='#fff';ctx.font='bold 11px Nunito';ctx.textAlign='center';ctx.fillText(s.l,x+w/2,26);}
+    x+=w;
+  });
+  document.getElementById('bayesMsg').innerHTML=`Even with ${(sens*100).toFixed(0)}% sensitivity and only ${(prior*100).toFixed(0)}% prevalence: <strong>only ${(post*100).toFixed(1)}%</strong> of positive tests are true positives! ${post<0.5?'<span style="color:var(--orange)">Base rate fallacy: low prior dominates.</span>':'<span style="color:var(--green)">Higher prior → more meaningful positive results.</span>'} This is Bayes\' Theorem in action.`;
+}
+
+// ─── PAGE 8: REGRESSION STATS ───
+function initReg(){}
+const regDetails=[
+  '<strong style="color:var(--green)">R² = 0.847:</strong> The model explains 84.7% of the total variance in the outcome variable. The remaining 15.3% is unexplained (noise, missing features). R² ranges from 0 (model predicts no better than mean) to 1 (perfect prediction). R² alone is not enough — always check Adjusted R².',
+  '<strong style="color:var(--blue)">Adjusted R² = 0.831:</strong> Penalises R² for adding features. Decreases when a new feature adds less signal than noise. Use this instead of R² when comparing models with different numbers of features. Gap of 0.016 between R² and Adj-R² here is acceptable.',
+  '<strong style="color:var(--violet)">F-statistic = 52.34:</strong> Tests whether the overall model is statistically significant — i.e., is at least ONE coefficient non-zero? Large F-statistic means the model explains significantly more variance than just predicting the mean. Compare to Prob(F) for significance.',
+  '<strong style="color:var(--green)">Prob(F) = 2.3e-14:</strong> The p-value for the F-test. This is essentially zero — the model is highly significant. At least one predictor has a non-zero effect. If Prob(F) > 0.05, your entire model might be useless.',
+  '<strong style="color:var(--green)">p-value for x1 = 0.001:</strong> Feature x1 is statistically significant (p < 0.05). We reject H₀: β₁=0. There is strong evidence that x1 has a real effect on y, beyond what could be explained by random chance alone.',
+  '<strong style="color:var(--rose)">p-value for x2 = 0.342:</strong> Feature x2 is NOT statistically significant (p > 0.05). We fail to reject H₀: β₂=0. There is insufficient evidence that x2 has a real effect. Consider removing this feature — but check domain knowledge first!',
+  '<strong style="color:var(--amber)">Durbin-Watson = 1.87:</strong> Tests for autocorrelation in residuals. Value near 2 = no autocorrelation (good!). < 1.5 suggests positive autocorrelation (common in time series). > 2.5 suggests negative autocorrelation. Here 1.87 is acceptable.',
+  '<strong style="color:var(--amber)">Condition Number = 142.3:</strong> Measures multicollinearity. < 30 is fine. 30-100 is moderate concern. > 100 (like here) indicates potential multicollinearity issues — coefficients may be unstable. Check VIF and consider Ridge regression or removing correlated features.'
+];
+function showRegDetail(i){document.getElementById('regDetail').innerHTML=regDetails[i];}
+
+// ─── QUIZ ───
+const questions=[
+  {q:'What is the difference between mean and median, and when should you use median?',
+   opts:['They are the same thing, calculated differently','Mean is the most frequent value; median is the middle. Use median for skewed data or data with outliers','Median is average of all values. Mean is the middle value. Use mean for categorical data','Mean requires sorting; median does not'],
+   correct:1,fbOk:'Correct! Mean averages all values (sensitive to outliers). Median is the middle value (robust to outliers). Use median for skewed data like income, house prices — a billionaire in a neighbourhood doesn\'t change the median much but drastically changes the mean.',
+   fbNg:'Incorrect. Mean = sum/n (sensitive to extremes). Median = middle value when sorted (robust). House prices use median income precisely because outliers (very rich/poor) distort the mean.'},
+  {q:'What does the Central Limit Theorem state?',
+   opts:['All data is normally distributed','The sample mean follows a normal distribution as sample size increases, regardless of the population\'s distribution','Normal distribution has a standard deviation of 1','CLT only applies to symmetric populations'],
+   correct:1,fbOk:'Correct! The CLT states that as n→∞, the sampling distribution of the sample mean approaches Normal(μ, σ²/n), regardless of the population shape. This is why normal distribution appears everywhere and underlies most statistical tests.',
+   fbNg:'Incorrect. CLT says the SAMPLING DISTRIBUTION OF THE MEAN becomes normal as n increases — not that the raw data is normal. This works for ANY population shape, including uniform, exponential, or bimodal.'},
+  {q:'A test gives a p-value of 0.03. What does this mean at alpha=0.05?',
+   opts:['There is a 3% chance the null hypothesis is true','There is 3% probability of observing results this extreme (or more) if H₀ is true. Since 0.03 < 0.05, we reject H₀','The effect is 3% significant','We accept the alternative hypothesis with 97% certainty'],
+   correct:1,fbOk:'Correct! p-value = P(data this extreme | H₀ is true). It is NOT the probability that H₀ is true (common mistake). Since p=0.03 < alpha=0.05, we reject H₀. But we cannot say anything about the probability that H₀ is true or false.',
+   fbNg:'Incorrect. A p-value of 0.03 means: IF H₀ is true, there is only 3% chance of seeing data this extreme by random chance. Since 0.03 < alpha=0.05, we reject H₀. It does NOT mean 3% chance H₀ is true.'},
+  {q:'What is the Pearson correlation coefficient and what does r=0.85 indicate?',
+   opts:['r measures non-linear relationships. r=0.85 means 85% of points are above the regression line','r measures linear correlation strength (-1 to +1). r=0.85 is a strong positive linear relationship','r only applies to categorical variables. r=0.85 means 85% match','r is variance ratio. r=0.85 means 85% variance'],
+   correct:1,fbOk:'Correct! Pearson r ∈ [-1,+1] measures linear correlation. r=0.85 is strong positive — as x increases, y tends to increase strongly. R²=0.72 means x explains 72% of y\'s variance. Remember: correlation ≠ causation!',
+   fbNg:'Incorrect. Pearson r measures linear relationship strength between -1 and +1. r=0.85 means strong positive linear correlation. Note: r² = 0.85² = 0.72 is the proportion of variance explained.'},
+  {q:'Which distribution is best for modelling the number of customer calls received per hour at a call centre?',
+   opts:['Normal — because averages are normally distributed','Binomial — n trials each with P(success)','Poisson — counts of events in a fixed interval (time) when events are independent','Uniform — because any number of calls is equally likely'],
+   correct:2,fbOk:'Correct! Poisson models count of rare, independent events in a fixed interval. "Calls per hour" is the classic Poisson example. Parameters: lambda = average calls/hour. P(X=k) = lambda^k * e^(-lambda) / k!',
+   fbNg:'Incorrect. Poisson distribution models the count of events in a fixed interval when: (1) events are independent, (2) average rate is constant, (3) events are rare relative to possible occurrences. Calls per hour fits perfectly.'},
+  {q:'What is the correct interpretation of a 95% confidence interval [85, 95] for a population mean?',
+   opts:['95% of individual data points fall between 85 and 95','There is 95% probability the true mean is between 85 and 95','If we repeat this procedure 100 times, approximately 95 of the resulting intervals will contain the true mean','We are 95% sure the sample mean equals 90'],
+   correct:2,fbOk:'Correct! Frequentist CI interpretation: if we collected many samples and built a 95% CI from each, 95% of those intervals would contain the true population mean. The true mean is fixed — it\'s either in [85,95] or not. The "probability" refers to the procedure, not this specific interval.',
+   fbNg:'Incorrect. The frequentist interpretation: 95% CI means 95% of intervals constructed this way (across repeated samples) will contain the true mean. We cannot say "95% probability the mean is in THIS interval" — the true mean is a fixed (unknown) value.'},
+  {q:'Bayes\' Theorem says P(H|D) ∝ P(D|H) × P(H). What are these three terms called?',
+   opts:['Result, Input, Parameter','Posterior, Likelihood, Prior — respectively','Confidence, Test statistic, Sample size','Correlation, Regression, Residual'],
+   correct:1,fbOk:'Correct! P(H|D) = Posterior (updated belief after seeing data D). P(D|H) = Likelihood (how probable is the data given hypothesis H). P(H) = Prior (initial belief before data). Bayes updates prior beliefs with data evidence to produce posterior beliefs.',
+   fbNg:'Incorrect. In Bayes\' Theorem: P(H|D) is the Posterior (updated belief). P(D|H) is the Likelihood (probability of data given hypothesis). P(H) is the Prior (initial belief before data). This framework allows sequential updating as new evidence arrives.'},
+  {q:'What does a p-value for a regression coefficient (e.g., p=0.52 for feature x2) indicate?',
+   opts:['Feature x2 explains 52% of variance in y','There is insufficient evidence that x2 has a non-zero effect on y — it may be removed','Feature x2 is 52% correlated with y','x2\'s coefficient is 0.52'],
+   correct:1,fbOk:'Correct! p=0.52 >> 0.05, so we fail to reject H₀: β₂=0. This means there is insufficient statistical evidence that x2 has a real effect on y (beyond random chance). Consider removing this feature, but always check domain knowledge before dropping.',
+   fbNg:'Incorrect. A p-value of 0.52 for a coefficient tests H₀: β=0. Since p=0.52 >> 0.05, we cannot reject H₀ — there\'s no significant evidence that this feature matters. This is different from saying the coefficient is 0.52.'},
+  {q:'What is the key difference between Type I and Type II errors in hypothesis testing?',
+   opts:['Type I: small sample error. Type II: large sample error','Type I: false positive (reject true H₀), controlled by alpha. Type II: false negative (fail to reject false H₀), controlled by beta','Type I occurs with continuous data; Type II with categorical','Type I is a calculation error; Type II is a measurement error'],
+   correct:1,fbOk:'Correct! Type I error (alpha): falsely reject H₀ when it is true (false positive). Controlled by choosing alpha=0.05. Type II error (beta): fail to reject H₀ when it is false (false negative). Power = 1-beta is the probability of correctly detecting a real effect.',
+   fbNg:'Incorrect. Type I error = false positive = rejecting a true H₀ (convicting an innocent person). Probability = alpha. Type II error = false negative = failing to reject a false H₀ (acquitting a guilty person). Probability = beta. There\'s always a trade-off.'},
+  {q:'The skewness of a distribution is +1.8. What does this tell you and which central tendency measure is most appropriate?',
+   opts:['Left-skewed distribution; use mean as central tendency measure','Right-skewed distribution (long right tail, mean > median); use median as central tendency measure','Symmetric distribution; mean and median are equal','Negative skew; standard deviation is 1.8'],
+   correct:1,fbOk:'Correct! Positive skewness (+1.8) = right-skewed = long tail to the right. Rare large values pull the mean above the median (mean > median > mode). The median is robust to these outliers and is the preferred measure. Income distribution is the classic example: a few billionaires make mean income >> median income.',
+   fbNg:'Incorrect. Positive skewness means right skew (long tail on the right side). In right-skewed data: mode < median < mean — the mean is pulled up by rare large values. The median is preferred because it is not influenced by extreme values.'}
+];
+let curQ=0,score=0,answered=false;
+function initQuizDots(){
+  const wrap=document.getElementById('qdots-wrap');
+  if(!wrap) return;
+  wrap.innerHTML=questions.map((_,i)=>`<div class="qdot${i===0?' cur':''}" id="qdot${i}"></div>`).join('');
+}
+function renderQ(){
+  const q=questions[curQ];
+  document.getElementById('qnum').textContent=`Question ${curQ+1} of ${questions.length}`;
+  document.getElementById('qtext').textContent=q.q;
+  const opts=document.getElementById('qopts');
+  opts.innerHTML='';
+  ['A','B','C','D'].forEach((l,i)=>{
+    const d=document.createElement('div');d.className='qopt';
+    d.innerHTML=`<div class="ql">${l}</div>${q.opts[i]}`;
+    d.onclick=()=>ansQ(i);
+    opts.appendChild(d);
+  });
+  document.getElementById('qfb').className='qfb';
+  document.getElementById('qfb').innerHTML='';
+  document.getElementById('qnext').style.display='none';
+  answered=false;
+}
+function ansQ(idx){
+  if(answered) return;
+  answered=true;
+  const q=questions[curQ];
+  document.querySelectorAll('.qopt').forEach(o=>o.classList.add('disabled'));
+  const opts=document.querySelectorAll('.qopt');
+  const fb=document.getElementById('qfb');
+  const dot=document.getElementById('qdot'+curQ);
+  if(idx===q.correct){opts[idx].classList.add('correct');fb.className='qfb show fbok';fb.textContent=q.fbOk;score++;dot.className='qdot done';}
+  else{opts[idx].classList.add('wrong');opts[q.correct].classList.add('correct');fb.className='qfb show fbng';fb.textContent=q.fbNg;dot.className='qdot wd';}
+  const nb=document.getElementById('qnext');nb.style.display='inline-flex';nb.textContent=curQ<questions.length-1?'Next Question →':'See Results';
+}
+function nextQ(){
+  if(curQ<questions.length-1){
+    const d=document.getElementById('qdot'+(curQ+1));
+    if(d) d.className='qdot cur';
+    curQ++;renderQ();
+  } else showScore();
+}
+function showScore(){
+  document.getElementById('qz-wrap').style.display='none';
+  document.getElementById('scoreScr').style.display='block';
+  document.getElementById('scNum').textContent=score;
+  const msgs=['Keep studying!','Getting there!','Good effort!','Solid work!','Well done!','Excellent!','Outstanding!','Amazing!','Expert level!','Near perfect!','Perfect score!'];
+  document.getElementById('scMsg').textContent=msgs[score];
+  document.getElementById('scDet').textContent=`You answered ${score} out of ${questions.length} correctly.`;
+  if(score>=8) launchConfetti();
+}
+function restartQuiz(){
+  curQ=0;score=0;answered=false;
+  document.getElementById('qz-wrap').style.display='block';
+  document.getElementById('scoreScr').style.display='none';
+  initQuizDots();renderQ();
+}
+
+// ─── CONFETTI ───
+function launchConfetti(){
+  const colors=['#22c55e','#3b82f6','#f59e0b','#ef4444','#7c3aed','#14b8a6'];
+  for(let i=0;i<70;i++){
+    setTimeout(()=>{
+      const c=document.createElement('div');c.className='cp';
+      c.style.left=Math.random()*100+'vw';
+      c.style.background=colors[Math.floor(Math.random()*colors.length)];
+      c.style.animationDuration=(1.5+Math.random()*2)+'s';
+      c.style.animationDelay=Math.random()*.6+'s';
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),4000);
+    },i*25);
+  }
+}
+
+// ─── RESTART ───
+function restartModule(){
+  curPage=0;visited.clear();visited.add(0);
+  document.querySelectorAll('.db').forEach(b=>b.remove());
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.querySelectorAll('.page').forEach(p=>{p.style.display='none';p.classList.remove('active');});
+  const p0=document.getElementById('page0');
+  if(p0){p0.style.display='block';p0.classList.add('active');}
+  document.getElementById('nav0').classList.add('on');
+  document.getElementById('nfill').style.width='0%';
+  document.getElementById('npct').textContent='0%';
+  restartQuiz();
+}
+
+// INIT
+initQuizDots();renderQ();
+</script>
+</body>
+</html>
