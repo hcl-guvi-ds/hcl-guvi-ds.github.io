@@ -74,10 +74,30 @@ p{font-size:13.5px;line-height:1.7;color:var(--text2)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
 
-/* ── CODE ── */
-.cb{background:var(--code);border-radius:12px;padding:18px 20px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;line-height:1.88;color:#e2e8f0;margin:13px 0;overflow-x:auto;position:relative;border:1px solid rgba(255,255,255,.04)}
-.cb .cl{position:absolute;top:10px;right:13px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#374151;font-family:'Sora',sans-serif}
-.cb .n{color:#61afef}.cb .s{color:#98c379}.cb .k{color:#c678dd}.cb .c{color:#5c6370;font-style:italic}.cb .m{color:#e5c07b}.cb .f{color:#56b6c2}.cb .op{color:#abb2bf}.cb .cl2{color:#e06c75}
+/* ACE EDITOR STYLES */
+.cb-wrapper {
+  margin: 13px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.cb {
+  display: block;
+  position: relative;
+  height: auto;
+  min-height: 200px;
+  width: 100%;
+}
+.ace_editor {
+  border-radius: 12px !important;
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 12.5px !important;
+  line-height: 1.88 !important;
+}
+.ace_editor.ace-monokai {
+  background-color: #0d1117 !important;
+}
+
 .run{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:99px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-size:12.5px;font-weight:700;border:none;cursor:pointer;transition:all .2s;box-shadow:0 3px 14px rgba(79,110,247,.3);font-family:'Sora',sans-serif}
 .run:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(79,110,247,.4)}
 .out{background:#080d16;border-radius:10px;padding:13px 18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#4ade80;margin-top:9px;display:none;border:1px solid rgba(74,222,128,.13);line-height:1.9}
@@ -258,8 +278,6 @@ code{font-family:'IBM Plex Mono',monospace;background:rgba(79,110,247,.08);color
     <span class="t-pct" id="tp">0%</span>
   </div>
   <div class="t-user">
-    <div class="t-av">V</div>
-    <div><div class="t-uname">Vinodhini</div><div class="t-urole">Data Scientist · HCL GUVI</div></div>
   </div>
 </div>
 
@@ -358,29 +376,32 @@ code{font-family:'IBM Plex Mono',monospace;background:rgba(79,110,247,.08);color
   <div class="g2">
     <div class="card">
       <h3 class="s">💻 KNN from Scratch</h3>
-      <div class="cb"><span class="cl">Python</span>
-<span class="k">import</span> numpy <span class="k">as</span> <span class="n">np</span>
-<span class="k">from</span> collections <span class="k">import</span> Counter
+      <div class="cb-wrapper">
+        <div id="editor0" class="cb">import numpy as np
+from collections import Counter
 
-<span class="k">def</span> <span class="f">knn_classify</span>(X_train, y_train, x_new, k=<span class="m">3</span>):
-  <span class="c"># Calculate Euclidean distances</span>
+def knn_classify(X_train, y_train, x_new, k=3):
+  # Calculate Euclidean distances
   distances = [
-    np.<span class="f">sqrt</span>(np.<span class="f">sum</span>((x - x_new)**<span class="m">2</span>))
-    <span class="k">for</span> x <span class="k">in</span> X_train
+    np.sqrt(np.sum((x - x_new)**2))
+    for x in X_train
   ]
-  <span class="c"># Get k nearest indices</span>
-  k_idx = np.<span class="f">argsort</span>(distances)[:k]
-  k_labels = [y_train[i] <span class="k">for</span> i <span class="k">in</span> k_idx]
-  <span class="c"># Majority vote</span>
-  <span class="k">return</span> Counter(k_labels).<span class="f">most_common</span>(<span class="m">1</span>)[<span class="m">0</span>][<span class="m">0</span>]
+  # Get k nearest indices
+  k_idx = np.argsort(distances)[:k]
+  k_labels = [y_train[i] for i in k_idx]
+  # Majority vote
+  return Counter(k_labels).most_common(1)[0][0]
+
+# Test the function
+X_train = [[1,2],[3,1],[5,3],[6,5],[4,4]]
+y_train = ['A','A','B','B','A']
+result = knn_classify(X_train, y_train, [3,3], k=3)
+print(f"Prediction: {result}")</div>
       </div>
       <button class="run" onclick="showOut('o1')">▶ Run Demo</button>
       <div class="out" id="o1">
-<span class="op2">&gt;&gt;&gt; </span>X_train = [[1,2],[3,1],[5,3],[6,5],[4,4]]
-<span class="op2">&gt;&gt;&gt; </span>y_train = ['A','A','B','B','A']
-<span class="op2">&gt;&gt;&gt; </span>knn_classify(X_train, y_train, [3,3], k=3)
-<span style="color:#4ade80">→ Prediction: 'A'
-  Nearest neighbours: A(×2), B(×1)
+<span class="op2">&gt;&gt;&gt; </span>Prediction: 'A'
+<span style="color:#4ade80">→ Nearest neighbours: A(×2), B(×1)
   Majority vote wins! ✓</span>
       </div>
     </div>
@@ -472,24 +493,27 @@ code{font-family:'IBM Plex Mono',monospace;background:rgba(79,110,247,.08);color
   <div class="g2">
     <div class="card">
       <h3 class="s">💻 scikit-learn KNN</h3>
-      <div class="cb"><span class="cl">Python</span>
-<span class="k">from</span> sklearn.neighbors <span class="k">import</span> KNeighborsClassifier
-<span class="k">from</span> sklearn.datasets <span class="k">import</span> load_iris
-<span class="k">from</span> sklearn.model_selection <span class="k">import</span> train_test_split
-<span class="k">from</span> sklearn.metrics <span class="k">import</span> accuracy_score
+      <div class="cb-wrapper">
+        <div id="editor1" class="cb">from sklearn.neighbors import KNeighborsClassifier
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
-<span class="c"># Load data</span>
-X, y = load_iris(return_X_y=<span class="k">True</span>)
-X_train, X_test, y_train, y_test = <span class="f">train_test_split</span>(
-  X, y, test_size=<span class="m">0.2</span>, random_state=<span class="m">42</span>
+# Load data
+X, y = load_iris(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+  X, y, test_size=0.2, random_state=42
 )
-<span class="c"># Euclidean (default) vs Manhattan</span>
-knn_e = <span class="cl2">KNeighborsClassifier</span>(n_neighbors=<span class="m">5</span>, metric=<span class="s">'euclidean'</span>)
-knn_m = <span class="cl2">KNeighborsClassifier</span>(n_neighbors=<span class="m">5</span>, metric=<span class="s">'manhattan'</span>)
-knn_e.<span class="f">fit</span>(X_train, y_train)
-knn_m.<span class="f">fit</span>(X_train, y_train)
-<span class="f">print</span>(<span class="s">f"Euclidean: {accuracy_score(y_test, knn_e.predict(X_test)):.3f}"</span>)
-<span class="f">print</span>(<span class="s">f"Manhattan: {accuracy_score(y_test, knn_m.predict(X_test)):.3f}"</span>)
+
+# Euclidean (default) vs Manhattan
+knn_e = KNeighborsClassifier(n_neighbors=5, metric='euclidean')
+knn_m = KNeighborsClassifier(n_neighbors=5, metric='manhattan')
+
+knn_e.fit(X_train, y_train)
+knn_m.fit(X_train, y_train)
+
+print(f"Euclidean: {accuracy_score(y_test, knn_e.predict(X_test)):.3f}")
+print(f"Manhattan: {accuracy_score(y_test, knn_m.predict(X_test)):.3f}")</div>
       </div>
       <button class="run" onclick="showOut('o2')">▶ Run Demo</button>
       <div class="out" id="o2">
@@ -619,24 +643,32 @@ Distance metric choice matters more on noisy, high-dimensional data.</span>
   <div class="g2">
     <div class="card">
       <h3 class="s">💻 Finding Best K with Cross-Validation</h3>
-      <div class="cb"><span class="cl">Python</span>
-<span class="k">from</span> sklearn.neighbors <span class="k">import</span> KNeighborsClassifier
-<span class="k">from</span> sklearn.model_selection <span class="k">import</span> cross_val_score
-<span class="k">import</span> numpy <span class="k">as</span> <span class="n">np</span>
+      <div class="cb-wrapper">
+        <div id="editor2" class="cb">from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import cross_val_score
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+import numpy as np
 
-k_range = <span class="f">range</span>(<span class="m">1</span>, <span class="m">21</span>, <span class="m">2</span>)  <span class="c"># odd values only</span>
+# Load data
+X, y = load_iris(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+  X, y, test_size=0.2, random_state=42
+)
+
+k_range = range(1, 21, 2)  # odd values only
 scores = {}
 
-<span class="k">for</span> k <span class="k">in</span> k_range:
-  knn = <span class="cl2">KNeighborsClassifier</span>(n_neighbors=k)
-  cv_scores = <span class="f">cross_val_score</span>(
-    knn, X_train, y_train, cv=<span class="m">5</span>
+for k in k_range:
+  knn = KNeighborsClassifier(n_neighbors=k)
+  cv_scores = cross_val_score(
+    knn, X_train, y_train, cv=5
   )
-  scores[k] = cv_scores.<span class="f">mean</span>()
+  scores[k] = cv_scores.mean()
 
-best_k = <span class="f">max</span>(scores, key=scores.<span class="f">get</span>)
-<span class="f">print</span>(<span class="s">f"Best K: {best_k}"</span>)
-<span class="f">print</span>(<span class="s">f"Best CV Score: {scores[best_k]:.4f}"</span>)
+best_k = max(scores, key=scores.get)
+print(f"Best K: {best_k}")
+print(f"Best CV Score: {scores[best_k]:.4f}")</div>
       </div>
       <button class="run" onclick="showOut('o3')">▶ Run Demo</button>
       <div class="out" id="o3">
@@ -690,24 +722,31 @@ Best CV Score: 0.9750
         <div class="ana-ico">🏋️</div>
         <div><div class="ana-lbl">Analogy</div><p>Your closest friend's opinion counts more than a distant acquaintance. Weighted KNN applies the same logic — <strong>closer = more vote weight!</strong></p></div>
       </div>
-      <div class="cb"><span class="cl">Python</span>
-<span class="c"># Standard KNN — equal votes</span>
-knn_std = <span class="cl2">KNeighborsClassifier</span>(
-  n_neighbors=<span class="m">5</span>,
-  weights=<span class="s">'uniform'</span>   <span class="c"># default</span>
-)
-<span class="c"># Weighted KNN — closer = more weight</span>
-knn_w = <span class="cl2">KNeighborsClassifier</span>(
-  n_neighbors=<span class="m">5</span>,
-  weights=<span class="s">'distance'</span>  <span class="c"># 1/distance</span>
-)
-<span class="c"># Custom weight function</span>
-<span class="k">def</span> <span class="f">my_weights</span>(dists):
-  <span class="k">return</span> np.<span class="f">exp</span>(-dists**<span class="m">2</span>)  <span class="c"># Gaussian</span>
+      <div class="cb-wrapper">
+        <div id="editor3" class="cb">from sklearn.neighbors import KNeighborsClassifier
+import numpy as np
 
-knn_gaus = <span class="cl2">KNeighborsClassifier</span>(
-  n_neighbors=<span class="m">5</span>, weights=my_weights
+# Standard KNN — equal votes
+knn_std = KNeighborsClassifier(
+  n_neighbors=5,
+  weights='uniform'   # default
 )
+
+# Weighted KNN — closer = more weight
+knn_w = KNeighborsClassifier(
+  n_neighbors=5,
+  weights='distance'  # 1/distance
+)
+
+# Custom weight function (Gaussian)
+def my_weights(dists):
+  return np.exp(-dists**2 / 10)
+
+knn_gaus = KNeighborsClassifier(
+  n_neighbors=5, weights=my_weights
+)
+
+print("Weighted KNN gives closer neighbours more influence!")</div>
       </div>
       <button class="run" onclick="showOut('o4')">▶ Run Demo</button>
       <div class="out" id="o4">
@@ -812,37 +851,35 @@ Especially useful near decision boundaries.</span>
       <p style="margin-bottom:10px">Write a complete KNN classifier class with <code>fit()</code> and <code>predict()</code> methods using only NumPy. Include Euclidean distance and majority vote.</p>
       <button class="sol-btn" onclick="toggleSol(this,'s1')">💡 Show Solution</button>
       <div class="sol" id="s1">
-        <div class="cb">
-<span class="k">import</span> numpy <span class="k">as</span> <span class="n">np</span>
-<span class="k">from</span> collections <span class="k">import</span> Counter
+        <div class="cb-wrapper"><div id="editor_ex1" class="cb">import numpy as np
+from collections import Counter
 
-<span class="k">class</span> <span class="cl2">KNNClassifier</span>:
-  <span class="k">def</span> <span class="f">__init__</span>(self, k=<span class="m">3</span>):
+class KNNClassifier:
+  def __init__(self, k=3):
     self.k = k
 
-  <span class="k">def</span> <span class="f">fit</span>(self, X, y):
-    self.X_train = np.<span class="f">array</span>(X)
-    self.y_train = np.<span class="f">array</span>(y)
-    <span class="k">return</span> self
+  def fit(self, X, y):
+    self.X_train = np.array(X)
+    self.y_train = np.array(y)
+    return self
 
-  <span class="k">def</span> <span class="f">_euclidean</span>(self, a, b):
-    <span class="k">return</span> np.<span class="f">sqrt</span>(np.<span class="f">sum</span>((a - b)**<span class="m">2</span>))
+  def _euclidean(self, a, b):
+    return np.sqrt(np.sum((a - b)**2))
 
-  <span class="k">def</span> <span class="f">predict</span>(self, X):
-    <span class="k">return</span> [self.<span class="f">_predict_one</span>(x) <span class="k">for</span> x <span class="k">in</span> X]
+  def predict(self, X):
+    return [self._predict_one(x) for x in X]
 
-  <span class="k">def</span> <span class="f">_predict_one</span>(self, x):
-    dists = [self.<span class="f">_euclidean</span>(x, xt)
-             <span class="k">for</span> xt <span class="k">in</span> self.X_train]
-    k_idx = np.<span class="f">argsort</span>(dists)[:self.k]
+  def _predict_one(self, x):
+    dists = [self._euclidean(x, xt)
+             for xt in self.X_train]
+    k_idx = np.argsort(dists)[:self.k]
     votes = Counter(self.y_train[k_idx])
-    <span class="k">return</span> votes.<span class="f">most_common</span>(<span class="m">1</span>)[<span class="m">0</span>][<span class="m">0</span>]
+    return votes.most_common(1)[0][0]
 
-<span class="c"># Test it!</span>
-knn = <span class="cl2">KNNClassifier</span>(k=<span class="m">3</span>)
-knn.<span class="f">fit</span>([[<span class="m">1</span>,<span class="m">2</span>],[<span class="m">3</span>,<span class="m">1</span>],[<span class="m">5</span>,<span class="m">4</span>]], [<span class="s">'A'</span>,<span class="s">'A'</span>,<span class="s">'B'</span>])
-<span class="f">print</span>(knn.<span class="f">predict</span>([[<span class="m">2</span>,<span class="m">2</span>]]))  <span class="c"># ['A']</span>
-        </div>
+# Test it!
+knn = KNNClassifier(k=3)
+knn.fit([[1,2],[3,1],[5,4]], ['A','A','B'])
+print(knn.predict([[2,2]]))  # ['A']</div></div>
       </div>
     </div>
   </div>
@@ -857,31 +894,29 @@ knn.<span class="f">fit</span>([[<span class="m">1</span>,<span class="m">2</spa
       <p style="margin-bottom:10px">Using the Breast Cancer dataset, iterate over K=1 to 20, compute cross-validation accuracy for each K, and identify the optimal K using the elbow method.</p>
       <button class="sol-btn" onclick="toggleSol(this,'s2')">💡 Show Solution</button>
       <div class="sol" id="s2">
-        <div class="cb">
-<span class="k">from</span> sklearn.datasets <span class="k">import</span> load_breast_cancer
-<span class="k">from</span> sklearn.neighbors <span class="k">import</span> KNeighborsClassifier
-<span class="k">from</span> sklearn.model_selection <span class="k">import</span> cross_val_score
-<span class="k">from</span> sklearn.preprocessing <span class="k">import</span> StandardScaler
-<span class="k">import</span> numpy <span class="k">as</span> <span class="n">np</span>
+        <div class="cb-wrapper"><div id="editor_ex2" class="cb">from sklearn.datasets import load_breast_cancer
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import StandardScaler
+import numpy as np
 
-X, y = <span class="f">load_breast_cancer</span>(return_X_y=<span class="k">True</span>)
-scaler = <span class="cl2">StandardScaler</span>()
-X_scaled = scaler.<span class="f">fit_transform</span>(X)
+X, y = load_breast_cancer(return_X_y=True)
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
 
 cv_scores = []
-k_range = <span class="f">range</span>(<span class="m">1</span>, <span class="m">21</span>)
+k_range = range(1, 21)
 
-<span class="k">for</span> k <span class="k">in</span> k_range:
-  knn = <span class="cl2">KNeighborsClassifier</span>(n_neighbors=k)
-  scores = <span class="f">cross_val_score</span>(
-    knn, X_scaled, y, cv=<span class="m">5</span>, scoring=<span class="s">'accuracy'</span>
+for k in k_range:
+  knn = KNeighborsClassifier(n_neighbors=k)
+  scores = cross_val_score(
+    knn, X_scaled, y, cv=5, scoring='accuracy'
   )
-  cv_scores.<span class="f">append</span>(scores.<span class="f">mean</span>())
+  cv_scores.append(scores.mean())
 
-best_k = np.<span class="f">argmax</span>(cv_scores) + <span class="m">1</span>
-<span class="f">print</span>(<span class="s">f"Optimal K: {best_k}"</span>)
-<span class="f">print</span>(<span class="s">f"Best Accuracy: {max(cv_scores):.4f}"</span>)
-        </div>
+best_k = np.argmax(cv_scores) + 1
+print(f"Optimal K: {best_k}")
+print(f"Best Accuracy: {max(cv_scores):.4f}")</div></div>
       </div>
     </div>
   </div>
@@ -896,28 +931,26 @@ best_k = np.<span class="f">argmax</span>(cv_scores) + <span class="m">1</span>
       <p style="margin-bottom:10px">Implement KNN regression to predict house prices. Use features: size (sqft), bedrooms, age. Evaluate using RMSE and compare K=3 vs K=7.</p>
       <button class="sol-btn" onclick="toggleSol(this,'s3')">💡 Show Solution</button>
       <div class="sol" id="s3">
-        <div class="cb">
-<span class="k">from</span> sklearn.neighbors <span class="k">import</span> KNeighborsRegressor
-<span class="k">from</span> sklearn.preprocessing <span class="k">import</span> StandardScaler
-<span class="k">from</span> sklearn.metrics <span class="k">import</span> mean_squared_error
-<span class="k">import</span> numpy <span class="k">as</span> <span class="n">np</span>
+        <div class="cb-wrapper"><div id="editor_ex3" class="cb">from sklearn.neighbors import KNeighborsRegressor
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error
+import numpy as np
 
-<span class="c"># Simulated house data</span>
-X = [[<span class="m">1200</span>,<span class="m">2</span>,<span class="m">10</span>],[<span class="m">1800</span>,<span class="m">3</span>,<span class="m">5</span>],[<span class="m">900</span>,<span class="m">1</span>,<span class="m">20</span>],
-     [<span class="m">2200</span>,<span class="m">4</span>,<span class="m">3</span>],[<span class="m">1500</span>,<span class="m">3</span>,<span class="m">8</span>],[<span class="m">2800</span>,<span class="m">5</span>,<span class="m">1</span>]]
-y = [<span class="m">250000</span>,<span class="m">380000</span>,<span class="m">180000</span>,
-     <span class="m">490000</span>,<span class="m">320000</span>,<span class="m">650000</span>]
+# Simulated house data
+X = [[1200,2,10],[1800,3,5],[900,1,20],
+     [2200,4,3],[1500,3,8],[2800,5,1]]
+y = [250000,380000,180000,
+     490000,320000,650000]
 
-scaler = <span class="cl2">StandardScaler</span>()
-X_scaled = scaler.<span class="f">fit_transform</span>(X)
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
 
-<span class="k">for</span> k <span class="k">in</span> [<span class="m">3</span>, <span class="m">7</span>]:
-  knn = <span class="cl2">KNeighborsRegressor</span>(n_neighbors=k)
-  knn.<span class="f">fit</span>(X_scaled, y)
-  pred = knn.<span class="f">predict</span>(X_scaled)
-  rmse = np.<span class="f">sqrt</span>(<span class="f">mean_squared_error</span>(y, pred))
-  <span class="f">print</span>(<span class="s">f"K={k} → RMSE: ${rmse:,.0f}"</span>)
-        </div>
+for k in [3, 7]:
+  knn = KNeighborsRegressor(n_neighbors=k)
+  knn.fit(X_scaled, y)
+  pred = knn.predict(X_scaled)
+  rmse = np.sqrt(mean_squared_error(y, pred))
+  print(f"K={k} → RMSE: ${rmse:,.0f}")</div></div>
       </div>
     </div>
   </div>
@@ -1040,24 +1073,52 @@ X_scaled = scaler.<span class="f">fit_transform</span>(X)
       <span class="sk" style="border-color:#8b5cf6;color:#8b5cf6;animation-delay:.48s">🔬 Cross-Validation</span>
       <span class="sk" style="border-color:var(--g);color:var(--g);animation-delay:.56s">🐍 scikit-learn</span>
     </div>
-    <div class="card" style="max-width:460px;margin:0 auto 24px;text-align:left">
-      <h3 class="s" style="margin-bottom:11px">🏅 Achievement Unlocked</h3>
-      <div style="display:flex;align-items:center;gap:14px">
-        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--p2));display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">🔍</div>
-        <div>
-          <div style="font-size:15px;font-weight:800;color:var(--text)">Vinodhini</div>
-          <div style="font-size:12px;color:var(--text2)">Data Scientist · HCL GUVI</div>
-          <div style="margin-top:6px"><span class="tag tgg">✅ Supervised ML — KNN Module</span></div>
-        </div>
-      </div>
-    </div>
     <button class="rbtn" onclick="restart()">↺ Restart Module</button>
   </div>
 </div>
 
 </main>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.43.3/ace.js" integrity="sha512-T2otaV2NuxAJAOCoj8ijyy+eAAadZlpvdLmakrIGVFbBkthgIFqLTXd+T8Z+S+kf4V7Ib5+6f6r4D4IdS9Ey4A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
+// ACE Editor initialization for all code blocks
+function initAceEditors() {
+  const editorIds = ['editor0', 'editor1', 'editor2', 'editor3', 'editor_ex1', 'editor_ex2', 'editor_ex3'];
+  for (let id of editorIds) {
+    const element = document.getElementById(id);
+    if (element) {
+      // Make sure the element is visible
+      element.style.display = 'block';
+      element.style.height = 'auto';
+      element.style.minHeight = '200px';
+      
+      // Initialize the editor
+      const editor = ace.edit(id);
+      editor.setTheme("ace/theme/monokai");
+      editor.session.setMode("ace/mode/python");
+      editor.setOptions({
+        fontSize: "12px",
+        fontFamily: "'IBM Plex Mono', monospace",
+        lineHeight: 1.88,
+        showPrintMargin: false,
+        highlightActiveLine: true,
+        readOnly: true,
+        maxLines: 30,
+        minLines: 15
+      });
+      editor.setReadOnly(true);
+      editor.renderer.setShowGutter(true);
+      
+      // Force resize to ensure proper rendering
+      setTimeout(() => editor.resize(), 100);
+    }
+  }
+}
+
+// Call initialization when DOM is ready
+document.addEventListener('DOMContentLoaded', initAceEditors);
+setTimeout(initAceEditors, 500);
+
 // ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
@@ -1362,10 +1423,6 @@ function cmExplain(key) {
 }
 
 // ══════════════════════════════════════════
-// SCENARIO SLIDER (page 4)
-// ══════════════════════════════════════════
-
-// ══════════════════════════════════════════
 // QUIZ
 // ══════════════════════════════════════════
 const qCorrect = [2, 3, 1, 2, 0];
@@ -1447,6 +1504,9 @@ function restart() {
   document.querySelectorAll('.sol-btn').forEach(b => b.textContent = '💡 Show Solution');
   go(0);
 }
+
+// Re-initialize ACE editors after any dynamic content changes
+setTimeout(initAceEditors, 1000);
 </script>
 </body>
 </html>
