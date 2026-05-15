@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Random Forest Regressor | HCL-GUVI Machine Learning Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f4ff;
+  --surface: #ffffff;
+  --surface2: #f7f9fe;
+  --surface3: #eef2fc;
+  --p: #4f6ef7;
+  --p2: #6c3ff5;
+  --g: #00c896;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --sky: #0ea5e9;
+  --text: #0f172a;
+  --text2: #334155;
+  --text3: #64748b;
+  --text4: #94a3b8;
+  --border: #e2e8f0;
+  --border2: #cbd5e1;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+  --shadow-lg: 0 4px 24px rgba(79,110,247,.10), 0 1px 4px rgba(0,0,0,.06);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --sidebar-w: 260px;
+  --header-h: 60px;
+  --font: 'Sora', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+  --transition: .25s cubic-bezier(.4,0,.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; overflow: hidden; height: 100vh; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+/* HEADER */
+.app-header {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); z-index: 100;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 24px 0 20px;
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.logo-area { display: flex; align-items: center; gap: 8px; }
+.logo-badge {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--p) 0%, var(--p2) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 15px; color: #fff; letter-spacing: -1px;
+}
+.logo-text { font-size: 13px; font-weight: 700; color: var(--text); letter-spacing: -.3px; }
+.logo-sub { font-size: 11px; color: var(--text3); font-weight: 400; }
+.header-divider { width: 1px; height: 28px; background: var(--border); }
+.module-title { font-size: 14px; font-weight: 600; color: var(--text2); }
+.module-badge { font-size: 11px; background: rgba(79,110,247,.15); color: var(--p); padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+
+.header-right { display: flex; align-items: center; gap: 20px; }
+.progress-wrap { display: flex; align-items: center; gap: 8px; }
+.progress-label { font-size: 11px; color: var(--text3); font-weight: 500; }
+.progress-track { width: 120px; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--p), var(--g)); border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+.progress-pct { font-size: 11px; font-weight: 700; color: var(--p); min-width: 28px; }
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed; top: var(--header-h); left: 0; bottom: 0; width: var(--sidebar-w);
+  background: var(--surface); border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 20px 12px; z-index: 50;
+}
+.sidebar-section { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--text4); text-transform: uppercase; padding: 12px 12px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: 10px; cursor: pointer; transition: all var(--transition);
+  margin-bottom: 2px; font-size: 13px; font-weight: 500; color: var(--text2);
+  border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: var(--surface3); color: var(--text); }
+.nav-item.active { background: rgba(79,110,247,.12); color: var(--p); font-weight: 600; }
+.nav-item.done { color: var(--g); }
+.nav-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; background: var(--surface3); }
+.nav-item.active .nav-icon { background: linear-gradient(135deg, var(--p), var(--p2)); color: #fff; }
+.nav-item.done .nav-icon { background: rgba(0,200,150,.15); color: var(--g); }
+.nav-check { margin-left: auto; font-size: 11px; color: var(--g); display: none; }
+.nav-item.done .nav-check { display: block; }
+
+/* MAIN */
+.main-content {
+  margin-left: var(--sidebar-w); margin-top: var(--header-h);
+  height: calc(100vh - var(--header-h)); overflow-y: auto; padding: 32px 48px 80px;
+}
+
+/* PAGES */
+.page { display: none; animation: fadeSlide .35s cubic-bezier(.4,0,.2,1); }
+.page.active { display: block; }
+@keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* BUTTONS */
+.pgf { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); }
+.bp { background: var(--surface); color: var(--text2); border: 1px solid var(--border2); padding: 9px 20px; border-radius: 99px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
+.bp:hover { background: var(--surface3); }
+.bn { background: linear-gradient(135deg, var(--p), var(--p2)); color: #fff; padding: 9px 20px; border-radius: 99px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s; border: none; }
+.bn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(79,110,247,.35); }
+.btn-primary { background: linear-gradient(135deg, var(--p), var(--p2)); color: #fff; padding: 9px 20px; border-radius: 99px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s; border: none; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(79,110,247,.35); }
+.btn-secondary { background: var(--surface); color: var(--text2); border: 1px solid var(--border2); padding: 9px 20px; border-radius: 99px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
+.btn-secondary:hover { background: var(--surface3); }
+.btn-outline { background: transparent; border: 2px solid var(--p); color: var(--p); padding: 8px 18px; border-radius: 99px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s; }
+.btn-outline:hover { background: rgba(79,110,247,.1); }
+
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow); }
+
+/* HERO */
+.hero { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%); border-radius: 20px; padding: 48px 40px; margin-bottom: 28px; color: #fff; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+.hero-tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15); border-radius: 99px; padding: 4px 12px; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,.8); margin-bottom: 16px; }
+.hero h1 { font-family: var(--font); font-size: 42px; font-weight: 700; line-height: 1.15; margin-bottom: 12px; }
+.hero h1 em { font-style: italic; color: #86efac; }
+.hero p { font-size: 15px; color: rgba(255,255,255,.75); max-width: 520px; line-height: 1.7; }
+.hero-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+.chip-blue { background: rgba(79,110,247,.2); color: #a5b4fc; border: 1px solid rgba(79,110,247,.25); }
+.chip-green { background: rgba(0,200,150,.2); color: #6ee7b7; border: 1px solid rgba(0,200,150,.25); }
+.chip-purple { background: rgba(108,63,245,.2); color: #c4b5fd; border: 1px solid rgba(108,63,245,.25); }
+.hero-deco { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); font-size: 100px; opacity: .07; user-select: none; }
+
+/* SECTION TITLES */
+.ey { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--p); margin-bottom: 8px; }
+.h1 { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -.5px; }
+.sub { font-size: 14px; color: var(--text3); margin-bottom: 24px; line-height: 1.6; }
+
+/* ============================================ */
+/* CODE BLOCKS - BRIGHT VISIBLE COLORS */
+/* ============================================ */
+.cb {
+  background: #1a1a2e;
+  border-radius: 12px;
+  padding: 20px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.8;
+  border: 1px solid #2a2a3e;
+  position: relative;
+  overflow: auto;
+  margin: 13px 0;
+  color: #e0e0e0;
+}
+.cb .cl { 
+  position: absolute; 
+  top: 10px; 
+  right: 13px; 
+  font-size: 9px; 
+  letter-spacing: 1px; 
+  text-transform: uppercase; 
+  color: #89b4fa; 
+  font-family: var(--font); 
+  background: #2a2a3e;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.cb .k { color: #cba6f7; font-weight: bold; }
+.cb .f { color: #89b4fa; font-weight: bold; }
+.cb .s { color: #a6e3a1; font-weight: bold; }
+.cb .c { color: #f9e2af; font-style: italic; }
+.cb .m { color: #fab387; font-weight: bold; }
+.cb .n { color: #cdd6f4; }
+.cb .cl2 { color: #ffa657; font-weight: bold; }
+
+.run { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 99px; background: linear-gradient(135deg, var(--p), var(--p2)); color: #fff; font-size: 12.5px; font-weight: 700; border: none; cursor: pointer; transition: all .2s; font-family: var(--font); margin: 8px 0; }
+.run:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(79,110,247,.4); }
+
+.out { background: #1a1a2e; border-radius: 10px; padding: 13px 18px; font-family: var(--mono); font-size: 12px; color: #a6e3a1; margin-top: 9px; display: none; border: 1px solid #2a2a3e; line-height: 1.9; }
+.out.show { display: block; animation: outIn .3s ease; }
+@keyframes outIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+
+/* ANALOGY CARD */
+.ana { background: linear-gradient(135deg, rgba(0,200,150,.07), rgba(79,110,247,.04)); border: 1px solid rgba(0,200,150,.18); border-radius: var(--radius); padding: 15px 19px; display: flex; gap: 12px; align-items: flex-start; margin-bottom: 17px; }
+.ana-ico { font-size: 26px; flex-shrink: 0; }
+.ana-lbl { font-size: 9.5px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--g); margin-bottom: 3px; }
+
+/* GRID */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 800px) { .g2, .g3 { grid-template-columns: 1fr; } }
+
+/* WELCOME GRID */
+.welcome-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin: 20px 0; }
+.welcome-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 18px; text-align: center; transition: all var(--transition); cursor: pointer; }
+.welcome-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--p); }
+.welcome-card-icon { font-size: 28px; margin-bottom: 8px; }
+.welcome-card-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.welcome-card-desc { font-size: 11px; color: var(--text3); }
+
+/* INTERACTIVE COMPONENTS */
+.interactive-section { background: var(--surface2); border-radius: var(--radius); padding: 20px; margin: 18px 0; border: 1px solid var(--border); }
+.interactive-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+
+.kslider-wrap { display: flex; flex-direction: column; gap: 12px; }
+.sr { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.sr label { font-size: 12px; font-weight: 700; color: var(--text2); width: 80px; }
+input[type=range] { flex: 1; accent-color: var(--p); height: 5px; }
+.sv { font-size: 13px; font-weight: 800; color: var(--p); width: 50px; text-align: right; }
+
+/* REVEAL CARDS */
+.rv-g { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.rv { background: var(--bg); border-radius: 12px; padding: 16px; cursor: pointer; border: 2px solid var(--border); transition: all .22s; }
+.rv:hover { border-color: var(--p); background: rgba(79,110,247,.04); }
+.rv.fl { background: rgba(79,110,247,.08); border-color: var(--p); }
+.rv-f { font-size: 13.5px; font-weight: 700; }
+.rv-b { font-size: 12.5px; color: var(--text2); margin-top: 7px; display: none; line-height: 1.6; }
+.rv.fl .rv-b { display: block; animation: fi .28s; }
+.rv-h { font-size: 10px; color: var(--text3); margin-top: 5px; }
+@keyframes fi { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* BOOLEAN TESTER */
+.boolean-tester { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+.boolean-btn { padding: 8px 18px; border-radius: 8px; border: 2px solid var(--border); background: var(--surface); cursor: pointer; font-size: 12px; font-weight: 700; transition: all .18s; }
+.boolean-btn:hover { border-color: var(--p); color: var(--p); background: rgba(79,110,247,.04); }
+.boolean-btn.active { border-color: var(--p); background: rgba(79,110,247,.09); color: var(--p); }
+
+/* EXERCISE CARD */
+.exc { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 15px; box-shadow: var(--shadow); }
+.exh { padding: 14px 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+.exn { width: 27px; height: 27px; border-radius: 8px; background: linear-gradient(135deg, var(--p), var(--p2)); color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.ext { font-size: 13.5px; font-weight: 700; }
+.exb { padding: 16px 20px; }
+.sol-btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: 8px; background: var(--bg); border: 1px solid var(--border); font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all .18s; margin-top: 9px; }
+.sol-btn:hover { background: var(--border); }
+.sol { display: none; margin-top: 9px; }
+.sol.op { display: block; animation: fi .3s; }
+
+/* QUIZ */
+.qdots { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; }
+.qd { width: 28px; height: 4px; border-radius: 99px; background: var(--border); transition: all .3s; }
+.qd.correct { background: var(--g); width: 40px; }
+.qd.wrong { background: var(--rose); width: 40px; }
+.qd.cur { background: var(--p); width: 40px; }
+
+.qcard { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; display: none; box-shadow: var(--shadow); }
+.qcard.on { display: block; animation: fadeSlide .35s ease; }
+.qn { font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--p); margin-bottom: 8px; }
+.qt { font-size: 15px; font-weight: 700; margin-bottom: 18px; }
+.qopts { display: flex; flex-direction: column; gap: 8px; }
+.qopt { padding: 10px 14px; border-radius: 8px; border: 2px solid var(--border); cursor: pointer; font-size: 13px; font-weight: 600; transition: all .18s; display: flex; align-items: center; gap: 10px; background: var(--surface); }
+.qopt:hover:not(.dis) { border-color: var(--p); background: rgba(79,110,247,.04); }
+.qopt.ok { border-color: var(--g); background: rgba(0,200,150,.08); color: var(--g); }
+.qopt.ng { border-color: var(--rose); background: rgba(244,63,94,.06); color: var(--rose); }
+.qlet { width: 22px; height: 22px; border-radius: 6px; background: var(--bg); font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.qfb { margin-top: 10px; padding: 10px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700; display: none; }
+.qfb.show { display: block; animation: fi .28s; }
+.qfb.ok { background: rgba(0,200,150,.09); color: var(--g); }
+.qfb.ng { background: rgba(244,63,94,.07); color: var(--rose); }
+
+/* COMPLETE */
+.cmp { text-align: center; padding: 38px 20px; }
+.cmp-ico { font-size: 64px; animation: bce 1s infinite alternate; display: block; margin-bottom: 14px; }
+@keyframes bce { from { transform: scale(1) translateY(0); } to { transform: scale(1.1) translateY(-7px); } }
+.cmp-title { font-size: 34px; font-weight: 800; color: var(--text); letter-spacing: -.6px; margin-bottom: 7px; }
+.cmp-sub { font-size: 14.5px; color: var(--text2); margin-bottom: 28px; }
+.sk-wrap { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 28px; }
+.sk { padding: 7px 15px; border-radius: 99px; font-size: 12.5px; font-weight: 700; border: 2px solid; animation: pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* TREE VISUALIZATION */
+.tree-viz { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin: 20px 0; }
+.tree-node { background: linear-gradient(135deg, var(--primary-light), var(--secondary-light)); border: 2px solid var(--p); border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all .3s; }
+.tree-node:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.tree-node.active { background: linear-gradient(135deg, var(--p), var(--p2)); color: #fff; box-shadow: 0 10px 25px rgba(79,110,247,.4); }
+.tree-node.active .tree-label { color: #fff; }
+.tree-label { font-weight: 700; font-size: 13px; }
+
+/* FLOWCHART */
+.flowchart { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 20px 0; }
+.flow-step { background: var(--surface2); border: 2px solid var(--border); border-radius: 12px; padding: 14px 20px; text-align: center; font-weight: 600; width: 100%; max-width: 380px; }
+.flow-arrow { color: var(--p); font-size: 20px; }
+
+/* STEP CONTAINER */
+.step-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 20px 0; }
+.step-box { background: var(--surface2); border: 2px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; transition: all .3s; }
+.step-box.active { background: linear-gradient(135deg, rgba(79,110,247,.1), rgba(108,63,245,.1)); border-color: var(--p); transform: scale(1.02); }
+.step-number { font-size: 28px; font-weight: 800; color: var(--p); margin-bottom: 8px; }
+.step-label { font-weight: 700; }
+
+@media (max-width: 800px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; padding: 24px 20px; }
+  .hero h1 { font-size: 32px; }
+  .g2 { grid-template-columns: 1fr; }
+  .tree-viz { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-left">
+    <div class="logo-area">
+      <img src="logo.png" alt="Logo" style="height:36px; width:auto; object-fit:contain;" onerror="this.style.display='none'">
+      <div class="logo-badge">🌲</div>
+      <div>
+        <div class="logo-text">Python for ML</div>
+        <div class="logo-sub">Random Forest Regressor</div>
+      </div>
+    </div>
+    <div class="header-divider"></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="module-badge">Module RF</div>
+      <div class="module-title">Random Forest Regressor</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="progress-wrap">
+      <span class="progress-label">Progress</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+  </div>
+</header>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-section">Module RF</div>
+  <button class="nav-item active" onclick="goTo('welcome')" id="nav-welcome"><span class="nav-icon">🏠</span>Welcome<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo('concept1')" id="nav-concept1"><span class="nav-icon">🌳</span>Decision Trees<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo('concept2')" id="nav-concept2"><span class="nav-icon">⚡</span>Ensemble Learning<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo('concept3')" id="nav-concept3"><span class="nav-icon">🌲</span>Random Forest<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo('advanced')" id="nav-advanced"><span class="nav-icon">🔮</span>Advanced Topics<span class="nav-check">✓</span></button>
+  <div class="sidebar-section">Practice</div>
+  <button class="nav-item" onclick="goTo('exercises')" id="nav-exercises"><span class="nav-icon">✏️</span>Exercises<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo('quiz')" id="nav-quiz"><span class="nav-icon">🧠</span>Quiz<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo('completion')" id="nav-completion"><span class="nav-icon">🎉</span>Complete!<span class="nav-check">✓</span></button>
+</nav>
+
+<main class="main-content" id="mainContent">
+
+<!-- WELCOME PAGE -->
+<div id="welcome" class="page active">
+  <div class="hero">
+    <div class="hero-deco">🌲</div>
+    <div class="hero-tag">⭐ Random Forest · Ensemble Learning Algorithm</div>
+    <h1>Random Forest<br><em>Regressor</em></h1>
+    <p>Master one of the most powerful ensemble methods for regression tasks. Combine many decision trees to create robust, high-performance models.</p>
+    <div class="hero-chips">
+      <span class="chip chip-blue">🌳 Decision Trees</span>
+      <span class="chip chip-green">⚡ Ensemble Learning</span>
+      <span class="chip chip-purple">🌲 Random Forest</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ey">WHAT YOU'LL LEARN</div>
+    <div class="welcome-grid">
+      <div class="welcome-card" onclick="goTo('concept1')"><div class="welcome-card-icon">🌳</div><div class="welcome-card-title">Decision Trees</div><div class="welcome-card-desc">Building blocks of Random Forest</div></div>
+      <div class="welcome-card" onclick="goTo('concept2')"><div class="welcome-card-icon">⚡</div><div class="welcome-card-title">Ensemble Learning</div><div class="welcome-card-desc">Combining models effectively</div></div>
+      <div class="welcome-card" onclick="goTo('concept3')"><div class="welcome-card-icon">🌲</div><div class="welcome-card-title">Random Forest</div><div class="welcome-card-desc">Architecture & implementation</div></div>
+      <div class="welcome-card" onclick="goTo('advanced')"><div class="welcome-card-icon">🔮</div><div class="welcome-card-title">Advanced Topics</div><div class="welcome-card-desc">Tuning & interpretation</div></div>
+    </div>
+  </div>
+
+  <div class="ana">
+    <div class="ana-ico">💡</div>
+    <div><div class="ana-lbl">Why Random Forest?</div><p>Powerful, robust, and works out-of-the-box on many problems. Random Forest reduces overfitting through ensemble averaging and handles non-linear relationships naturally.</p></div>
+  </div>
+
+  <div class="pgf"><span></span><button class="bn" onclick="goTo('concept1')">Start Learning →</button></div>
+</div>
+
+<!-- PAGE 1: DECISION TREES -->
+<div id="concept1" class="page">
+  <div class="ey">CONCEPT 1 OF 3</div>
+  <div class="h1">Decision Trees Foundation</div>
+  <div class="sub">Understanding the building blocks of Random Forest.</div>
+
+  <div class="ana">
+    <div class="ana-ico">🏠</div>
+    <div><div class="ana-lbl">Real-Life Analogy</div><p>Imagine a flowchart for house buying: "Is price < $300k?" → "Is location good?" → "Has 3+ bedrooms?" Each yes/no question splits buyers into groups. Decision trees work exactly like this!</p></div>
+  </div>
+
+  <div class="card">
+    <div class="ey">🌳 TREE STRUCTURE</div>
+    <div class="tree-viz">
+      <div class="tree-node" onclick="this.classList.toggle('active')"><div class="tree-label">Root Node</div><div style="font-size:11px; margin-top:5px;">All data</div></div>
+      <div class="tree-node" onclick="this.classList.toggle('active')"><div class="tree-label">Split Node</div><div style="font-size:11px; margin-top:5px;">Feature ≤ threshold</div></div>
+      <div class="tree-node" onclick="this.classList.toggle('active')"><div class="tree-label">Split Node</div><div style="font-size:11px; margin-top:5px;">Feature > threshold</div></div>
+      <div class="tree-node" onclick="this.classList.toggle('active')"><div class="tree-label">Leaf Node</div><div style="font-size:11px; margin-top:5px;">Prediction: 42.5</div></div>
+    </div>
+  </div>
+
+  <div class="interactive-section">
+    <div class="ey">⚙️ CONTROL TREE DEPTH</div>
+    <div class="kslider-wrap">
+      <div class="sr"><label>Tree Depth:</label><input type="range" id="depthSlider" min="1" max="10" value="3" oninput="updateDepth(this.value)"><span class="sv" id="depthVal">3</span></div>
+    </div>
+    <div style="padding:12px; background:var(--surface); border-radius:10px; margin-top:12px;">
+      <span id="depthMsg">Depth 3: Balanced complexity — good for generalization</span>
+    </div>
+  </div>
+
+  <div class="cb"><span class="cl">Python</span>
+<span class="k">from</span> sklearn.tree <span class="k">import</span> <span class="f">DecisionTreeRegressor</span>
+<span class="k">import</span> numpy <span class="k">as</span> <span class="n">np</span>
+
+<span class="c"># Create and train decision tree</span>
+dt_model = <span class="cl2">DecisionTreeRegressor</span>(max_depth=<span class="m">5</span>, random_state=<span class="m">42</span>)
+dt_model.fit(X_train, y_train)
+
+<span class="c"># Make predictions</span>
+predictions = dt_model.predict(X_test)
+mse = np.<span class="f">mean</span>((predictions - y_test)**<span class="m">2</span>)
+  </div>
+  <button class="run" onclick="runDemo('out1','dt')">▶ Run Demo</button>
+  <div class="out" id="out1"></div>
+
+  <div class="pgf"><button class="bp" onclick="goTo('welcome')">← Back</button><button class="bn" onclick="goTo('concept2')">Next →</button></div>
+</div>
+
+<!-- PAGE 2: ENSEMBLE LEARNING -->
+<div id="concept2" class="page">
+  <div class="ey">CONCEPT 2 OF 3</div>
+  <div class="h1">Ensemble Learning</div>
+  <div class="sub">Combining weak learners into powerful models.</div>
+
+  <div class="ana">
+    <div class="ana-ico">⚖️</div>
+    <div><div class="ana-lbl">Real-Life Analogy</div><p>Like a jury making a verdict: One person might be biased, but multiple jury members vote and reach consensus. Ensemble methods work the same way—multiple models vote to make better decisions!</p></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ey">🎮 ENSEMBLE STRATEGIES</div>
+      <div class="boolean-tester">
+        <div class="boolean-btn" onclick="selectEnsemble(this,'bagging')">Bagging</div>
+        <div class="boolean-btn" onclick="selectEnsemble(this,'boosting')">Boosting</div>
+        <div class="boolean-btn" onclick="selectEnsemble(this,'stacking')">Stacking</div>
+      </div>
+      <div id="ensInfo" style="margin-top:16px; padding:12px; background:var(--surface2); border-radius:10px;">
+        <div style="font-weight:700; margin-bottom:6px;">Bagging (Bootstrap Aggregating)</div>
+        <div>Creates multiple subsets through random sampling WITH replacement. Trains separate models on each subset and averages predictions. Reduces variance.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ey">📊 ENSEMBLE PROCESS</div>
+      <div class="flowchart">
+        <div class="flow-step">📥 Original Dataset</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">🎲 Create Bootstrap Samples</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">🌳 Train Individual Models</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">⚖️ Average Predictions</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cb"><span class="cl">Python</span>
+<span class="k">from</span> sklearn.ensemble <span class="k">import</span> <span class="f">BaggingRegressor</span>
+<span class="k">from</span> sklearn.tree <span class="k">import</span> <span class="f">DecisionTreeRegressor</span>
+
+<span class="c"># Create bagging ensemble</span>
+base_tree = <span class="cl2">DecisionTreeRegressor</span>(max_depth=<span class="m">5</span>)
+bagging_model = <span class="cl2">BaggingRegressor</span>(
+    estimator=base_tree,
+    n_estimators=<span class="m">10</span>,
+    bootstrap=<span class="k">True</span>
+)
+bagging_model.fit(X_train, y_train)
+predictions = bagging_model.predict(X_test)
+  </div>
+  <button class="run" onclick="runDemo('out2','ens')">▶ Run Demo</button>
+  <div class="out" id="out2"></div>
+
+  <div class="pgf"><button class="bp" onclick="goTo('concept1')">← Back</button><button class="bn" onclick="goTo('concept3')">Next →</button></div>
+</div>
+
+<!-- PAGE 3: RANDOM FOREST -->
+<div id="concept3" class="page">
+  <div class="ey">CONCEPT 3 OF 3</div>
+  <div class="h1">Random Forest Regressor</div>
+  <div class="sub">The ultimate ensemble method for regression tasks.</div>
+
+  <div class="ana">
+    <div class="ana-ico">🌲</div>
+    <div><div class="ana-lbl">Real-Life Analogy</div><p>Like a forest of independent weather forecasters: Each forecaster has different experiences and focuses on different weather patterns. When they all predict together, the forest is more accurate than any single forecaster!</p></div>
+  </div>
+
+  <div class="card">
+    <div class="ey">🎛️ MODEL PARAMETERS</div>
+    <div class="kslider-wrap">
+      <div class="sr"><label>n_estimators:</label><input type="range" id="treesSlider" min="10" max="500" step="10" value="100" oninput="updateForest('trees',this.value)"><span class="sv" id="treesVal">100</span></div>
+      <div class="sr"><label>max_depth:</label><input type="range" id="mdSlider" min="5" max="30" value="15" oninput="updateForest('depth',this.value)"><span class="sv" id="mdVal">15</span></div>
+    </div>
+    <div id="forestMsg" style="margin-top:16px; padding:12px; background:rgba(79,110,247,.08); border-radius:10px;">
+      A Random Forest with 100 trees and max depth 15 — Excellent balance!
+    </div>
+  </div>
+
+  <div class="flowchart">
+    <div class="flow-step">📊 Original Dataset</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">🎲 Bootstrap + Random Features</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">🌳 Train 100+ Independent Trees</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">📈 Average Predictions → Final</div>
+  </div>
+
+  <div class="cb"><span class="cl">Python</span>
+<span class="k">from</span> sklearn.ensemble <span class="k">import</span> <span class="f">RandomForestRegressor</span>
+
+<span class="c"># Create Random Forest model</span>
+rf_model = <span class="cl2">RandomForestRegressor</span>(
+    n_estimators=<span class="m">100</span>,
+    max_depth=<span class="m">15</span>,
+    random_state=<span class="m">42</span>,
+    n_jobs=-<span class="m">1</span>
+)
+
+rf_model.fit(X_train, y_train)
+predictions = rf_model.predict(X_test)
+score = rf_model.score(X_test, y_test)
+  </div>
+  <button class="run" onclick="runDemo('out3','rf')">▶ Run Demo</button>
+  <div class="out" id="out3"></div>
+
+  <div class="pgf"><button class="bp" onclick="goTo('concept2')">← Back</button><button class="bn" onclick="goTo('advanced')">Next →</button></div>
+</div>
+
+<!-- PAGE 4: ADVANCED TOPICS -->
+<div id="advanced" class="page">
+  <div class="ey">ADVANCED CONCEPT</div>
+  <div class="h1">Feature Importance &amp; Hyperparameter Tuning</div>
+  <div class="sub">Optimization, interpretation, and production techniques.</div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ey">📊 FEATURE IMPORTANCE</div>
+      <div style="display:flex; flex-direction:column; gap:8px; margin-top:12px;">
+        <div><span style="display:inline-block; width:100px;">Age</span><div style="display:inline-block; width:70%; background:var(--border); border-radius:99px; overflow:hidden;"><div style="width:95%; height:12px; background:linear-gradient(90deg,var(--p),var(--g)); border-radius:99px;"></div></div><span style="margin-left:8px;">95%</span></div>
+        <div><span style="display:inline-block; width:100px;">Income</span><div style="display:inline-block; width:70%; background:var(--border); border-radius:99px; overflow:hidden;"><div style="width:78%; height:12px; background:linear-gradient(90deg,var(--p),var(--g)); border-radius:99px;"></div></div><span style="margin-left:8px;">78%</span></div>
+        <div><span style="display:inline-block; width:100px;">Education</span><div style="display:inline-block; width:70%; background:var(--border); border-radius:99px; overflow:hidden;"><div style="width:62%; height:12px; background:linear-gradient(90deg,var(--p),var(--g)); border-radius:99px;"></div></div><span style="margin-left:8px;">62%</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ey">🔧 KEY PARAMETERS</div>
+      <div class="rv-g">
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="rv-f">🎯 n_estimators</div><div class="rv-b">Number of trees. More = better but slower. Typical range: 100-500.</div><div class="rv-h">👆 Click to reveal</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="rv-f">📏 max_depth</div><div class="rv-b">Tree depth limit. Prevents overfitting. Typical: 10-20.</div><div class="rv-h">👆 Click to reveal</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="rv-f">🌿 min_samples_split</div><div class="rv-b">Minimum samples to split a node. Larger values = simpler trees.</div><div class="rv-h">👆 Click to reveal</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="rv-f">🎲 max_features</div><div class="rv-b">Features considered per split. 'sqrt' or 'log2' are standard.</div><div class="rv-h">👆 Click to reveal</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cb"><span class="cl">Python</span>
+<span class="k">from</span> sklearn.model_selection <span class="k">import</span> <span class="f">GridSearchCV</span>
+
+param_grid = {
+    <span class="s">'n_estimators'</span>: [<span class="m">100</span>, <span class="m">200</span>, <span class="m">300</span>],
+    <span class="s">'max_depth'</span>: [<span class="m">10</span>, <span class="m">15</span>, <span class="m">20</span>]
+}
+grid_search = <span class="cl2">GridSearchCV</span>(
+    RandomForestRegressor(),
+    param_grid,
+    cv=<span class="m">5</span>,
+    n_jobs=-<span class="m">1</span>
+)
+grid_search.fit(X_train, y_train)
+best_model = grid_search.best_estimator_
+  </div>
+  <button class="run" onclick="runDemo('out4','adv')">▶ Run Demo</button>
+  <div class="out" id="out4"></div>
+
+  <div class="pgf"><button class="bp" onclick="goTo('concept3')">← Back</button><button class="bn" onclick="goTo('exercises')">Next →</button></div>
+</div>
+
+<!-- PAGE 5: EXERCISES -->
+<div id="exercises" class="page">
+  <div class="ey">PRACTICE</div>
+  <div class="h1">Coding Exercises</div>
+  <div class="sub">Apply Random Forest with hands-on coding challenges.</div>
+
+  <div class="exc">
+    <div class="exh"><div class="exn">1</div><div class="ext">Build a Basic Random Forest</div></div>
+    <div class="exb"><p>Create a Random Forest regressor with appropriate hyperparameters for a house price prediction task.</p>
+    <button class="sol-btn" onclick="toggleSol(this,'sol1')">💡 Show Solution</button>
+    <div class="sol" id="sol1"><div class="cb"><span class="k">from</span> sklearn.ensemble <span class="k">import</span> <span class="f">RandomForestRegressor</span><br><span class="k">from</span> sklearn.model_selection <span class="k">import</span> <span class="f">train_test_split</span><br><br>rf_model = <span class="cl2">RandomForestRegressor</span>(<br>    n_estimators=<span class="m">100</span>,<br>    max_depth=<span class="m">15</span>,<br>    random_state=<span class="m">42</span><br>)<br>rf_model.fit(X_train, y_train)<br>score = rf_model.score(X_test, y_test)</div></div></div>
+  </div>
+
+  <div class="exc">
+    <div class="exh"><div class="exn">2</div><div class="ext">Compare with Single Tree</div></div>
+    <div class="exb"><p>Train both a Decision Tree and a Random Forest. Compare their R² scores.</p>
+    <button class="sol-btn" onclick="toggleSol(this,'sol2')">💡 Show Solution</button>
+    <div class="sol" id="sol2"><div class="cb"><span class="k">from</span> sklearn.tree <span class="k">import</span> <span class="f">DecisionTreeRegressor</span><br><br>dt = <span class="cl2">DecisionTreeRegressor</span>(max_depth=<span class="m">15</span>)<br>dt.fit(X_train, y_train)<br>rf = <span class="cl2">RandomForestRegressor</span>(n_estimators=<span class="m">100</span>)<br>rf.fit(X_train, y_train)<br><span class="f">print</span>(<span class="s">f"Decision Tree R²: {dt.score(X_test, y_test):.4f}"</span>)<br><span class="f">print</span>(<span class="s">f"Random Forest R²: {rf.score(X_test, y_test):.4f}"</span>)</div></div></div>
+  </div>
+
+  <div class="exc">
+    <div class="exh"><div class="exn">3</div><div class="ext">Hyperparameter Tuning</div></div>
+    <div class="exb"><p>Use GridSearchCV to find optimal parameters for Random Forest.</p>
+    <button class="sol-btn" onclick="toggleSol(this,'sol3')">💡 Show Solution</button>
+    <div class="sol" id="sol3"><div class="cb"><span class="k">from</span> sklearn.model_selection <span class="k">import</span> <span class="f">GridSearchCV</span><br><br>param_grid = {<span class="s">'n_estimators'</span>: [<span class="m">50</span>, <span class="m">100</span>, <span class="m">200</span>], <span class="s">'max_depth'</span>: [<span class="m">10</span>, <span class="m">15</span>, <span class="m">20</span>]}<br>grid = <span class="cl2">GridSearchCV</span>(RandomForestRegressor(), param_grid, cv=<span class="m">5</span>)<br>grid.fit(X_train, y_train)<br><span class="f">print</span>(<span class="s">f"Best params: {grid.best_params_}"</span>)</div></div></div>
+  </div>
+
+  <div class="pgf"><button class="bp" onclick="goTo('advanced')">← Back</button><button class="bn" onclick="goTo('quiz')">Take Quiz →</button></div>
+</div>
+
+<!-- PAGE 6: QUIZ -->
+<div id="quiz" class="page">
+  <div class="ey">KNOWLEDGE CHECK</div>
+  <div class="h1">Module Quiz 🧠</div>
+  <div class="sub">5 questions to test your Random Forest mastery.</div>
+
+  <div class="qdots"><div class="qd cur" id="qd0"></div><div class="qd" id="qd1"></div><div class="qd" id="qd2"></div><div class="qd" id="qd3"></div><div class="qd" id="qd4"></div></div>
+
+  <div class="qcard on" id="q0"><div class="qn">Question 1 of 5</div><div class="qt">What is the main advantage of Random Forest over a single Decision Tree?</div><div class="qopts"><div class="qopt" onclick="ansQ(this,0,1)"><span class="qlet">①</span>It trains faster</div><div class="qopt" onclick="ansQ(this,0,1)"><span class="qlet">②</span>It reduces overfitting through ensemble averaging</div><div class="qopt" onclick="ansQ(this,0,1)"><span class="qlet">③</span>It requires less data</div><div class="qopt" onclick="ansQ(this,0,1)"><span class="qlet">④</span>It eliminates feature scaling</div></div><div class="qfb" id="qf0"></div><div style="margin-top:12px;"><button class="bn" style="display:none" id="qn0" onclick="nextQ(1)">Next →</button></div></div>
+
+  <div class="qcard" id="q1"><div class="qn">Question 2 of 5</div><div class="qt">Which sampling technique does Random Forest use?</div><div class="qopts"><div class="qopt" onclick="ansQ(this,1,1)"><span class="qlet">①</span>Stratified sampling</div><div class="qopt" onclick="ansQ(this,1,1)"><span class="qlet">②</span>Bootstrap sampling with replacement</div><div class="qopt" onclick="ansQ(this,1,1)"><span class="qlet">③</span>Systematic sampling</div><div class="qopt" onclick="ansQ(this,1,1)"><span class="qlet">④</span>Cluster sampling</div></div><div class="qfb" id="qf1"></div><div style="margin-top:12px;"><button class="bn" style="display:none" id="qn1" onclick="nextQ(2)">Next →</button></div></div>
+
+  <div class="qcard" id="q2"><div class="qn">Question 3 of 5</div><div class="qt">What does max_depth control in Random Forest?</div><div class="qopts"><div class="qopt" onclick="ansQ(this,2,0)"><span class="qlet">①</span>Tree complexity (prevents overfitting)</div><div class="qopt" onclick="ansQ(this,2,0)"><span class="qlet">②</span>Number of features per split</div><div class="qopt" onclick="ansQ(this,2,0)"><span class="qlet">③</span>Learning rate</div><div class="qopt" onclick="ansQ(this,2,0)"><span class="qlet">④</span>Number of bootstrap samples</div></div><div class="qfb" id="qf2"></div><div style="margin-top:12px;"><button class="bn" style="display:none" id="qn2" onclick="nextQ(3)">Next →</button></div></div>
+
+  <div class="qcard" id="q3"><div class="qn">Question 4 of 5</div><div class="qt">How does Random Forest make final predictions for regression?</div><div class="qopts"><div class="qopt" onclick="ansQ(this,3,1)"><span class="qlet">①</span>Best tree prediction</div><div class="qopt" onclick="ansQ(this,3,1)"><span class="qlet">②</span>Averages predictions from all trees</div><div class="qopt" onclick="ansQ(this,3,1)"><span class="qlet">③</span>Weighted voting</div><div class="qopt" onclick="ansQ(this,3,1)"><span class="qlet">④</span>Random selection</div></div><div class="qfb" id="qf3"></div><div style="margin-top:12px;"><button class="bn" style="display:none" id="qn3" onclick="nextQ(4)">Next →</button></div></div>
+
+  <div class="qcard" id="q4"><div class="qn">Question 5 of 5</div><div class="qt">What does feature importance measure in Random Forest?</div><div class="qopts"><div class="qopt" onclick="ansQ(this,4,1)"><span class="qlet">①</span>Feature correlation</div><div class="qopt" onclick="ansQ(this,4,1)"><span class="qlet">②</span>How much each feature decreases impurity</div><div class="qopt" onclick="ansQ(this,4,1)"><span class="qlet">③</span>Feature appearance count</div><div class="qopt" onclick="ansQ(this,4,1)"><span class="qlet">④</span>Computational cost</div></div><div class="qfb" id="qf4"></div><div style="margin-top:12px;"><button class="bn" style="display:none" id="qn4" onclick="showResult()">See Results 🎉</button></div></div>
+
+  <div class="pgf"><button class="bp" onclick="goTo('exercises')">← Back</button><span></span></div>
+</div>
+
+<!-- PAGE 7: COMPLETION -->
+<div id="completion" class="page">
+  <div class="cmp">
+    <span class="cmp-ico">🎊</span>
+    <div class="cmp-title">Module Complete!</div>
+    <div class="cmp-sub">You've mastered Random Forest Regressor!</div>
+    <div class="sk-wrap">
+      <span class="sk" style="border-color:var(--p);color:var(--p);animation-delay:.00s">🌳 Decision Trees</span>
+      <span class="sk" style="border-color:var(--g);color:var(--g);animation-delay:.08s">⚡ Ensemble Learning</span>
+      <span class="sk" style="border-color:var(--p2);color:var(--p2);animation-delay:.16s">🌲 Random Forest</span>
+      <span class="sk" style="border-color:var(--amber);color:var(--amber);animation-delay:.24s">🔧 Hyperparameter Tuning</span>
+      <span class="sk" style="border-color:var(--rose);color:var(--rose);animation-delay:.32s">📈 Feature Importance</span>
+    </div>
+    <button class="btn btn-primary" onclick="celebrate()">🏆 Claim Completion Badge</button>
+  </div>
+  <div class="pgf"><button class="bp" onclick="goTo('welcome')">← Back to Start</button><span></span></div>
+</div>
+
+</main>
+
+<script>
+let currentPage = 'welcome';
+const pages = ['welcome','concept1','concept2','concept3','advanced','exercises','quiz','completion'];
+const visited = new Set(['welcome']);
+let quizAnswers = [null,null,null,null,null];
+let quizCorrect = [1,1,0,1,1];
+
+function goTo(page) {
+  let idx = pages.indexOf(page);
+  if (idx < 0) return;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-' + page).classList.add('active');
+  visited.add(currentPage);
+  for (let i = 0; i < idx; i++) document.getElementById('nav-' + pages[i]).classList.add('done');
+  currentPage = page;
+  let pct = Math.round((visited.size / pages.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').innerText = pct + '%';
+  document.getElementById('mainContent').scrollTo({top:0});
+  if (page === 'quiz') initQuiz();
+}
+
+function runDemo(id, type) {
+  let out = document.getElementById(id);
+  out.classList.add('show');
+  if (type === 'dt') out.innerHTML = `<span style="color:#a6e3a1">✓ Decision Tree Trained</span><br>MSE: 0.0956 | R²: 0.8734<br>⚠️ Note: Single trees can overfit!`;
+  else if (type === 'ens') out.innerHTML = `<span style="color:#a6e3a1">✓ Bagging Ensemble Trained</span><br>10 bootstrap samples | Average predictions<br>R²: 0.9156 | ✅ Ensemble beats individual trees!`;
+  else if (type === 'rf') out.innerHTML = `<span style="color:#a6e3a1">✓ Random Forest Trained</span><br>100 trees | max_depth=15<br>R² Score: 0.9234 | ✅ Strong predictions!`;
+  else out.innerHTML = `<span style="color:#a6e3a1">✓ GridSearchCV Complete</span><br>Best params found | Cross-validation score: 0.9189`;
+}
+
+function updateDepth(val) { document.getElementById('depthVal').innerText=val; let msg=val<=3?'Conservative (good for generalization)':val<=7?'Balanced complexity':val<=10?'Deep (captures complex patterns)':'Very deep (risk of overfitting)'; document.getElementById('depthMsg').innerHTML=`Depth ${val}: ${msg}`; }
+
+function selectEnsemble(btn,type) { document.querySelectorAll('.boolean-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); let title,desc;
+  if(type==='bagging'){title='Bagging (Bootstrap Aggregating)';desc='Creates multiple subsets through random sampling WITH replacement. Trains separate models on each subset and averages predictions. Reduces variance.';}
+  else if(type==='boosting'){title='Boosting';desc='Sequentially trains models where each focuses on correcting previous mistakes. Assigns higher weights to misclassified samples. Reduces bias.';}
+  else{title='Stacking';desc='Trains multiple diverse models, then uses a meta-model to learn optimal weights. Most complex but can achieve best results.';}
+  document.getElementById('ensInfo').innerHTML=`<div style="font-weight:700; margin-bottom:6px;">${title}</div><div>${desc}</div>`;
+}
+
+function updateForest(param,val) { if(param==='trees') document.getElementById('treesVal').innerText=val; else document.getElementById('mdVal').innerText=val; let t=parseInt(document.getElementById('treesVal').innerText); let d=parseInt(document.getElementById('mdVal').innerText); let msg=t>=100&&d>=15?'Excellent balance!':t>=50&&d>=10?'Good configuration.':t>=100?'More trees = better but slower':'Conservative, good for avoiding overfitting.'; document.getElementById('forestMsg').innerHTML=`A Random Forest with ${t} trees and max depth ${d} — ${msg}`; }
+
+function toggleSol(btn,id){ let el=document.getElementById(id); el.classList.toggle('op'); btn.textContent=el.classList.contains('op')?'🙈 Hide Solution':'💡 Show Solution'; }
+
+function initQuiz() { quizAnswers=[null,null,null,null,null]; for(let i=0;i<5;i++) document.getElementById(`qd${i}`).className='qd'+(i===0?' cur':''); document.getElementById('q0').classList.add('on'); }
+
+function ansQ(el,qIdx,corr){ if(quizAnswers[qIdx]!==null) return; let opts=document.querySelectorAll(`#q${qIdx} .qopt`); let chosen=Array.from(opts).indexOf(el); let fb=document.getElementById(`qf${qIdx}`); let dot=document.getElementById(`qd${qIdx}`);
+  if(chosen===corr){el.classList.add('ok');fb.className='qfb show ok';fb.innerHTML='✓ Correct!';dot.classList.add('correct');quizAnswers[qIdx]=corr;}
+  else{el.classList.add('ng');opts[corr].classList.add('ok');fb.className='qfb show ng';fb.innerHTML='✗ Incorrect.';dot.classList.add('wrong');quizAnswers[qIdx]=chosen;}
+  document.getElementById(`qn${qIdx}`).style.display='inline-block'; if(qIdx<4) document.getElementById(`qd${qIdx+1}`).classList.add('cur');
+}
+function nextQ(idx){ document.getElementById(`q${idx-1}`).classList.remove('on'); document.getElementById(`q${idx}`).classList.add('on'); }
+function showResult(){ let c=0; for(let i=0;i<5;i++) if(quizAnswers[i]===quizCorrect[i]) c++; let msg=c===5?'Perfect Score! 🏆':c>=4?'Excellent Work! 🌟':c>=3?'Good Job! 👍':'Keep Practicing! 💪'; alert(`You scored ${c}/5!\n${msg}`); goTo('completion'); }
+function celebrate(){ alert('🎉 Congratulations! Random Forest Module Complete!'); }
+
+updateForest('trees',100); updateDepth(3); selectEnsemble(document.querySelector('.boolean-btn'),'bagging');
+</script>
+</body>
+</html>
