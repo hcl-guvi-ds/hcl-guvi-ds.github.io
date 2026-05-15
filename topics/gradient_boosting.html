@@ -1,0 +1,3558 @@
+cat > /mnt/user-data/outputs/gradient_boosting_module.html << 'HTMLEOF'
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gradient Boosting | HCL-GUVI</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f0f4ff;
+        --surf: #fff;
+        --bdr: #e2e8ff;
+        --p: #4f46e5;
+        --p2: #7c3aed;
+        --pg: linear-gradient(135deg, #4f46e5, #7c3aed);
+        --g: #059669;
+        --g2: #047857;
+        --teal: #0891b2;
+        --rose: #e11d48;
+        --amber: #d97706;
+        --sky: #0284c7;
+        --ink: #0f172a;
+        --ink2: #334155;
+        --ink3: #94a3b8;
+        --vsc: #0d1117;
+        --sb: 256px;
+        --tb: 64px;
+        --r: 14px;
+        --sh: 0 1px 16px rgba(15, 23, 42, 0.07);
+        --sh2: 0 8px 40px rgba(15, 23, 42, 0.13);
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+        font-family: "Inter", sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        overflow: hidden;
+      }
+
+      /* ─── TOPBAR ─── */
+      #tb {
+        position: fixed;
+        inset: 0 0 auto;
+        height: var(--tb);
+        background: var(--surf);
+        border-bottom: 1px solid var(--bdr);
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        gap: 12px;
+        z-index: 400;
+        box-shadow: var(--sh);
+      }
+      .tl {
+        height: 36px;
+        object-fit: contain;
+        flex-shrink: 0;
+      }
+      .tlfb {
+        font-size: 16px;
+        font-weight: 800;
+        display: none;
+        align-items: center;
+      }
+      .tlfb span:first-child {
+        color: var(--p);
+      }
+      .tlfb span:last-child {
+        color: var(--p2);
+      }
+      .tdv {
+        width: 1px;
+        height: 24px;
+        background: var(--bdr);
+      }
+      .tmod {
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: -0.2px;
+        white-space: nowrap;
+      }
+      .tbg {
+        padding: 3px 11px;
+        border-radius: 99px;
+        font-size: 10px;
+        font-weight: 700;
+        background: var(--pg);
+        color: #fff;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+      }
+      .tpw {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+      .tplb {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--ink2);
+        white-space: nowrap;
+      }
+      .tbar {
+        flex: 1;
+        height: 5px;
+        background: var(--bdr);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .tfill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--p), var(--g));
+        border-radius: 99px;
+        transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 0%;
+      }
+      .tpct {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--p);
+        white-space: nowrap;
+      }
+      .tusr {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .tav {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--pg);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
+      }
+      .tnm {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--ink);
+      }
+      .trl {
+        font-size: 10px;
+        color: var(--ink2);
+      }
+
+      /* ─── SIDEBAR ─── */
+      #sb {
+        position: fixed;
+        top: var(--tb);
+        left: 0;
+        bottom: 0;
+        width: var(--sb);
+        background: var(--surf);
+        border-right: 1px solid var(--bdr);
+        overflow-y: auto;
+        z-index: 300;
+        padding: 14px 10px;
+      }
+      #sb::-webkit-scrollbar {
+        width: 3px;
+      }
+      #sb::-webkit-scrollbar-thumb {
+        background: var(--bdr);
+        border-radius: 99px;
+      }
+      .sblbl {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--ink3);
+        padding: 4px 8px 9px;
+      }
+      .ni {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 10px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--ink2);
+        transition: all 0.15s;
+        margin-bottom: 2px;
+        position: relative;
+        user-select: none;
+      }
+      .ni:hover {
+        background: var(--bg);
+        color: var(--ink);
+        transform: translateX(2px);
+      }
+      .ni.on {
+        background: linear-gradient(
+          135deg,
+          rgba(79, 70, 229, 0.1),
+          rgba(124, 58, 237, 0.07)
+        );
+        color: var(--p);
+        font-weight: 600;
+      }
+      .ni.on::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 20%;
+        bottom: 20%;
+        width: 3px;
+        background: var(--pg);
+        border-radius: 0 4px 4px 0;
+      }
+      .nic {
+        width: 27px;
+        height: 27px;
+        border-radius: 7px;
+        background: var(--bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        flex-shrink: 0;
+        transition: all 0.18s;
+      }
+      .ni.on .nic {
+        background: var(--pg);
+      }
+      .nck {
+        margin-left: auto;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid var(--bdr);
+        font-size: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+        flex-shrink: 0;
+      }
+      .ni.done .nck {
+        background: var(--g);
+        border-color: var(--g);
+        color: #fff;
+      }
+
+      /* ─── MAIN ─── */
+      #main {
+        position: fixed;
+        top: var(--tb);
+        left: var(--sb);
+        right: 0;
+        bottom: 0;
+        overflow-y: auto;
+        padding: 28px 36px 44px;
+      }
+      #main::-webkit-scrollbar {
+        width: 5px;
+      }
+      #main::-webkit-scrollbar-thumb {
+        background: var(--bdr);
+        border-radius: 99px;
+      }
+
+      /* ─── PAGES ─── */
+      .pg {
+        display: none;
+        animation: pgIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .pg.on {
+        display: block;
+      }
+      @keyframes pgIn {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      /* ─── TYPOGRAPHY ─── */
+      .ey {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        color: var(--p);
+        margin-bottom: 7px;
+      }
+      .h1 {
+        font-size: 30px;
+        font-weight: 800;
+        color: var(--ink);
+        line-height: 1.18;
+        margin-bottom: 8px;
+        letter-spacing: -0.6px;
+      }
+      .sub {
+        font-size: 14px;
+        color: var(--ink2);
+        margin-bottom: 22px;
+        line-height: 1.68;
+        max-width: 660px;
+      }
+      h3.s {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 11px;
+        color: var(--ink);
+      }
+      p.bd {
+        font-size: 13.5px;
+        line-height: 1.72;
+        color: var(--ink2);
+      }
+
+      /* ─── CARDS ─── */
+      .card {
+        background: var(--surf);
+        border-radius: var(--r);
+        border: 1px solid var(--bdr);
+        padding: 22px;
+        box-shadow: var(--sh);
+        transition: box-shadow 0.2s;
+      }
+      .card:hover {
+        box-shadow: var(--sh2);
+      }
+      .g2 {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+        margin-top: 18px;
+      }
+      .g3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-top: 18px;
+      }
+      .card + .card,
+      .g2 + .card,
+      .card + .g2 {
+        margin-top: 18px;
+      }
+
+      /* ─── CODE ─── */
+      .cb {
+        background: var(--vsc);
+        border-radius: 12px;
+        padding: 18px 22px;
+        font-family: "JetBrains Mono", monospace;
+        height: 1000px;
+        font-size: 12.5px;
+        line-height: 1.9;
+        color: #e2e8f0;
+        margin: 13px 0;
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        overflow-x: auto;
+      }
+      .cb .cl {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        font-size: 9px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #374151;
+        font-family: "Inter", sans-serif;
+      }
+      .kw {
+        color: #ff79c6;
+      }
+      .st {
+        color: #f1fa8c;
+      }
+      .fn {
+        color: #8be9fd;
+      }
+      .cm {
+        color: #6272a4;
+        font-style: italic;
+      }
+      .nm {
+        color: #ffb86c;
+      }
+      .op {
+        color: #ff79c6;
+      }
+      .cl2 {
+        color: #50fa7b;
+      }
+      .n2 {
+        color: #8be9fd;
+      }
+      .ln {
+        color: #4b5563;
+        user-select: none;
+        margin-right: 14px;
+        display: inline-block;
+        width: 16px;
+        text-align: right;
+      }
+      .run {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 18px;
+        border-radius: 99px;
+        background: var(--pg);
+        color: #fff;
+        font-size: 12.5px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 3px 12px rgba(79, 70, 229, 0.3);
+        font-family: "Inter", sans-serif;
+      }
+      .run:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+      }
+      .run:active {
+        transform: none;
+      }
+      .out {
+        background: #060c18;
+        border-radius: 10px;
+        padding: 14px 18px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: #4ade80;
+        margin-top: 9px;
+        display: none;
+        border: 1px solid rgba(74, 222, 128, 0.13);
+        line-height: 1.9;
+      }
+      .out.sh {
+        display: block;
+        animation: fi 0.3s ease;
+      }
+      .op2 {
+        color: #374151;
+      }
+      @keyframes fi {
+        from {
+          opacity: 0;
+          transform: translateY(5px);
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      /* ─── ANALOGY ─── */
+      .ana {
+        background: linear-gradient(
+          135deg,
+          rgba(5, 150, 105, 0.08),
+          rgba(79, 70, 229, 0.04)
+        );
+        border: 1px solid rgba(5, 150, 105, 0.2);
+        border-radius: var(--r);
+        padding: 16px 20px;
+        display: flex;
+        gap: 13px;
+        align-items: flex-start;
+        margin-bottom: 18px;
+      }
+      .anai {
+        font-size: 28px;
+        flex-shrink: 0;
+      }
+      .analbl {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: var(--g);
+        margin-bottom: 3px;
+      }
+
+      /* ─── FOOTER ─── */
+      .pgf {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 36px;
+        padding-top: 22px;
+        border-top: 1px solid var(--bdr);
+      }
+      .bp,
+      .bn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 20px;
+        border-radius: 99px;
+        font-size: 13px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: "Inter", sans-serif;
+      }
+      .bp {
+        background: var(--bg);
+        color: var(--ink2);
+        border: 1px solid var(--bdr);
+      }
+      .bp:hover {
+        background: var(--bdr);
+      }
+      .bn {
+        background: var(--pg);
+        color: #fff;
+        box-shadow: 0 3px 12px rgba(79, 70, 229, 0.3);
+      }
+      .bn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+      }
+
+      /* ─── HERO ─── */
+      .hero {
+        background: linear-gradient(
+          135deg,
+          #060d2e 0%,
+          #0d1b55 50%,
+          #050e24 100%
+        );
+        border-radius: 20px;
+        padding: 46px 40px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 22px;
+      }
+      .hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse at 70% 38%,
+            rgba(79, 70, 229, 0.22) 0%,
+            transparent 65%
+          ),
+          radial-gradient(
+            ellipse at 14% 78%,
+            rgba(5, 150, 105, 0.14) 0%,
+            transparent 50%
+          );
+      }
+      .hcnt {
+        position: relative;
+        z-index: 1;
+      }
+      .hero h1 {
+        font-size: 38px;
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -0.8px;
+        line-height: 1.12;
+        margin-bottom: 11px;
+      }
+      .hero p {
+        color: #7b91c4;
+        font-size: 14px;
+        line-height: 1.65;
+        max-width: 520px;
+        margin-bottom: 26px;
+      }
+      .hbdg {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 26px;
+      }
+      .hb {
+        padding: 5px 13px;
+        border-radius: 99px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .hb1 {
+        background: rgba(79, 70, 229, 0.18);
+        color: #a5b4fc;
+        border: 1px solid rgba(79, 70, 229, 0.28);
+      }
+      .hb2 {
+        background: rgba(5, 150, 105, 0.18);
+        color: #6ee7b7;
+        border: 1px solid rgba(5, 150, 105, 0.24);
+      }
+      .hb3 {
+        background: rgba(124, 58, 237, 0.18);
+        color: #c4b5fd;
+        border: 1px solid rgba(124, 58, 237, 0.24);
+      }
+      .hb4 {
+        background: rgba(217, 119, 6, 0.18);
+        color: #fcd34d;
+        border: 1px solid rgba(217, 119, 6, 0.24);
+      }
+      .hdeco {
+        position: absolute;
+        right: 44px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 96px;
+        opacity: 0.08;
+        filter: blur(1px);
+        z-index: 0;
+      }
+      .sbtn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 13px 26px;
+        border-radius: 99px;
+        background: var(--pg);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 6px 26px rgba(79, 70, 229, 0.44);
+        transition: all 0.22s;
+        font-family: "Inter", sans-serif;
+      }
+      .sbtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 34px rgba(79, 70, 229, 0.54);
+      }
+
+      /* ─── CHECKLIST ─── */
+      .chk {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+      .ci {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 13px;
+        border-radius: 10px;
+        background: var(--bg);
+        font-size: 13px;
+        font-weight: 500;
+        transition: background 0.2s;
+      }
+      .ci:hover {
+        background: #e8ecff;
+      }
+      .cico {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--g);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        flex-shrink: 0;
+      }
+
+      /* ─── TAGS ─── */
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 99px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .tgb {
+        background: rgba(79, 70, 229, 0.1);
+        color: var(--p);
+      }
+      .tgg {
+        background: rgba(5, 150, 105, 0.1);
+        color: var(--g2);
+      }
+      .tgp {
+        background: rgba(124, 58, 237, 0.1);
+        color: var(--p2);
+      }
+      .tga {
+        background: rgba(217, 119, 6, 0.1);
+        color: var(--amber);
+      }
+      .tgr {
+        background: rgba(225, 29, 72, 0.1);
+        color: var(--rose);
+      }
+
+      /* ─── STEP VIZ ─── */
+      .sv {
+        display: flex;
+        flex-direction: column;
+      }
+      .si {
+        display: flex;
+        gap: 13px;
+        cursor: pointer;
+        padding: 9px 0;
+        transition: all 0.15s;
+      }
+      .si:hover .sd {
+        border-color: var(--p);
+      }
+      .sdc {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .sd {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--bg);
+        border: 2px solid var(--bdr);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--ink2);
+        flex-shrink: 0;
+        transition: all 0.28s;
+      }
+      .sl {
+        flex: 1;
+        width: 2px;
+        background: var(--bdr);
+        min-height: 18px;
+      }
+      .sc2 {
+        flex: 1;
+        padding-bottom: 12px;
+      }
+      .stt {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 3px;
+      }
+      .sdd {
+        font-size: 12.5px;
+        color: var(--ink2);
+        line-height: 1.62;
+        display: none;
+      }
+      .si.act .sd {
+        background: var(--pg);
+        border-color: transparent;
+        color: #fff;
+      }
+      .si.act .sdd {
+        display: block;
+        animation: fi 0.28s;
+      }
+      .si.act .stt {
+        color: var(--p);
+      }
+
+      /* ─── REVEAL CARDS ─── */
+      .rvg {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .rv {
+        background: var(--bg);
+        border-radius: 11px;
+        padding: 15px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.22s;
+        user-select: none;
+      }
+      .rv:hover {
+        border-color: var(--p);
+        background: rgba(79, 70, 229, 0.04);
+        transform: translateY(-2px);
+      }
+      .rv.fl {
+        background: rgba(79, 70, 229, 0.07);
+        border-color: var(--p);
+      }
+      .rvf {
+        font-size: 13px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+      .rvb {
+        font-size: 12.5px;
+        color: var(--ink2);
+        margin-top: 8px;
+        display: none;
+        line-height: 1.62;
+      }
+      .rv.fl .rvb {
+        display: block;
+        animation: fi 0.28s;
+      }
+      .rvh {
+        font-size: 10px;
+        color: var(--ink3);
+        margin-top: 5px;
+      }
+
+      /* ─── QUIZ ─── */
+      .qc {
+        background: var(--surf);
+        border-radius: var(--r);
+        padding: 22px;
+        border: 1px solid var(--bdr);
+        margin-bottom: 14px;
+        display: none;
+        box-shadow: var(--sh);
+      }
+      .qc.on {
+        display: block;
+        animation: pgIn 0.32s;
+      }
+      .qn {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--ink3);
+        margin-bottom: 6px;
+      }
+      .qt {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 15px;
+        line-height: 1.44;
+      }
+      .qos {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+      .qo {
+        padding: 11px 15px;
+        border-radius: 9px;
+        border: 2px solid var(--bdr);
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.18s;
+        background: var(--surf);
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+      .qo:hover:not(.dis) {
+        border-color: var(--p);
+        background: rgba(79, 70, 229, 0.04);
+        transform: translateX(3px);
+      }
+      .qo.ok {
+        border-color: var(--g);
+        background: rgba(5, 150, 105, 0.07);
+        color: var(--g2);
+      }
+      .qo.ng {
+        border-color: var(--rose);
+        background: rgba(225, 29, 72, 0.06);
+        color: var(--rose);
+      }
+      .ql {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: var(--bg);
+        font-size: 11px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .qfb {
+        margin-top: 10px;
+        padding: 11px 14px;
+        border-radius: 9px;
+        font-size: 12.5px;
+        font-weight: 600;
+        display: none;
+      }
+      .qfb.sh {
+        display: block;
+        animation: fi 0.28s;
+      }
+      .qfb.ok {
+        background: rgba(5, 150, 105, 0.09);
+        color: var(--g2);
+      }
+      .qfb.ng {
+        background: rgba(225, 29, 72, 0.07);
+        color: var(--rose);
+      }
+      .qdots {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+        margin-bottom: 18px;
+      }
+      .qd {
+        width: 26px;
+        height: 5px;
+        border-radius: 99px;
+        background: var(--bdr);
+        transition: all 0.3s;
+      }
+      .qd.ok {
+        background: var(--g);
+      }
+      .qd.ng {
+        background: var(--rose);
+      }
+      .qd.cur {
+        background: var(--p);
+        width: 38px;
+      }
+
+      /* ─── EXERCISE ─── */
+      .ex {
+        background: var(--surf);
+        border-radius: var(--r);
+        border: 1px solid var(--bdr);
+        overflow: hidden;
+        margin-bottom: 14px;
+        box-shadow: var(--sh);
+      }
+      .exh {
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid var(--bdr);
+        background: linear-gradient(
+          135deg,
+          rgba(79, 70, 229, 0.04),
+          rgba(124, 58, 237, 0.02)
+        );
+      }
+      .exn {
+        width: 27px;
+        height: 27px;
+        border-radius: 7px;
+        background: var(--pg);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .ext {
+        font-size: 14px;
+        font-weight: 600;
+        flex: 1;
+      }
+      .exb {
+        padding: 15px 20px;
+      }
+      .sbt {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 15px;
+        border-radius: 8px;
+        background: var(--bg);
+        border: 1px solid var(--bdr);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.18s;
+        font-family: "Inter", sans-serif;
+        color: var(--ink2);
+        margin-top: 9px;
+      }
+      .sbt:hover {
+        background: var(--bdr);
+      }
+      .sol {
+        display: none;
+        margin-top: 9px;
+      }
+      .sol.op {
+        display: block;
+        animation: fi 0.3s;
+      }
+
+      /* ─── SCORE ─── */
+      .scw {
+        text-align: center;
+        padding: 34px;
+      }
+      .sring {
+        width: 112px;
+        height: 112px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 18px;
+        box-shadow: 0 0 0 6px rgba(5, 150, 105, 0.12);
+      }
+      .sin {
+        width: 86px;
+        height: 86px;
+        border-radius: 50%;
+        background: var(--surf);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .sn {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--ink);
+      }
+      .sd2 {
+        font-size: 12px;
+        color: var(--ink3);
+      }
+      .rbtn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 11px 24px;
+        border-radius: 99px;
+        background: var(--pg);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 3px 12px rgba(79, 70, 229, 0.28);
+        transition: all 0.2s;
+        font-family: "Inter", sans-serif;
+        margin-top: 14px;
+      }
+      .rbtn:hover {
+        transform: translateY(-2px);
+      }
+
+      /* ─── COMPLETION ─── */
+      .cmpw {
+        text-align: center;
+        padding: 42px 20px;
+      }
+      .cmpi {
+        font-size: 68px;
+        animation: bce 1s infinite alternate;
+        display: block;
+        margin-bottom: 14px;
+      }
+      @keyframes bce {
+        from {
+          transform: scale(1) translateY(0);
+        }
+        to {
+          transform: scale(1.1) translateY(-8px);
+        }
+      }
+      .cmpt {
+        font-size: 34px;
+        font-weight: 800;
+        color: var(--ink);
+        letter-spacing: -0.7px;
+        margin-bottom: 7px;
+      }
+      .cmps {
+        font-size: 15px;
+        color: var(--ink2);
+        margin-bottom: 30px;
+      }
+      .skw {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        justify-content: center;
+        margin-bottom: 30px;
+      }
+      .sk {
+        padding: 7px 15px;
+        border-radius: 99px;
+        font-size: 12.5px;
+        font-weight: 600;
+        border: 2px solid;
+        animation: pp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      }
+      @keyframes pp {
+        from {
+          transform: scale(0.3);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* ─── MISC ─── */
+      code {
+        font-family: "JetBrains Mono", monospace;
+        background: rgba(79, 70, 229, 0.08);
+        color: var(--p);
+        padding: 1px 5px;
+        border-radius: 5px;
+        font-size: 12px;
+      }
+      input[type="range"] {
+        accent-color: var(--p);
+        height: 4px;
+        flex: 1;
+        cursor: pointer;
+      }
+      .info {
+        background: rgba(79, 70, 229, 0.05);
+        border: 1px solid rgba(79, 70, 229, 0.15);
+        border-radius: 10px;
+        padding: 12px 15px;
+        font-size: 13px;
+        color: var(--ink2);
+        line-height: 1.65;
+      }
+      .info strong {
+        color: var(--p);
+      }
+      .sep {
+        height: 1px;
+        background: var(--bdr);
+        margin: 18px 0;
+      }
+
+      /* ─── BOOST VIZ ─── */
+      .tree-row {
+        display: flex;
+        gap: 12px;
+        align-items: stretch;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+      }
+      .tree-box {
+        flex: 1;
+        min-width: 120px;
+        border-radius: 12px;
+        padding: 14px 12px;
+        text-align: center;
+        border: 2px solid;
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+      .tree-box:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--sh2);
+      }
+      .tree-box .tb-num {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+      }
+      .tree-box .tb-err {
+        font-size: 22px;
+        font-weight: 800;
+        margin-bottom: 3px;
+      }
+      .tree-box .tb-lbl {
+        font-size: 11px;
+        color: var(--ink2);
+      }
+      .tree-active {
+        border-color: var(--p) !important;
+        background: rgba(79, 70, 229, 0.07) !important;
+      }
+
+      /* ─── RESIDUAL VIZ ─── */
+      .resid-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .resid-lbl {
+        font-size: 12px;
+        font-weight: 600;
+        width: 60px;
+        color: var(--ink2);
+        font-family: "JetBrains Mono", monospace;
+      }
+      .resid-track {
+        flex: 1;
+        height: 10px;
+        background: #e2e8ff;
+        border-radius: 99px;
+        overflow: hidden;
+        position: relative;
+      }
+      .resid-fill {
+        height: 100%;
+        border-radius: 99px;
+        transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .resid-val {
+        font-size: 11.5px;
+        font-weight: 700;
+        width: 48px;
+        text-align: right;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      /* ─── PARAM GRID ─── */
+      .pgrd {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .pcard {
+        border-radius: 11px;
+        padding: 14px;
+        border: 2px solid var(--bdr);
+        text-align: center;
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+      .pcard:hover {
+        border-color: var(--p);
+        background: rgba(79, 70, 229, 0.04);
+        transform: translateY(-2px);
+      }
+      .pcard.on {
+        border-color: var(--p);
+        background: rgba(79, 70, 229, 0.08);
+      }
+      .pcard .pc-name {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 4px;
+      }
+      .pcard .pc-val {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--p);
+        margin-bottom: 3px;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .pcard .pc-desc {
+        font-size: 10.5px;
+        color: var(--ink3);
+      }
+
+      /* ─── COMPARE TABLE ─── */
+      .ctbl {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 11px;
+        overflow: hidden;
+        border: 1px solid var(--bdr);
+      }
+      .ctbl th {
+        background: var(--bg);
+        padding: 10px 14px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: var(--ink2);
+        text-align: left;
+      }
+      .ctbl td {
+        padding: 11px 14px;
+        font-size: 13px;
+        border-top: 1px solid var(--bdr);
+      }
+      .ctbl tr:hover td {
+        background: rgba(79, 70, 229, 0.03);
+      }
+
+      /* ─── SCENARIO CARDS ─── */
+      .scen-g {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 11px;
+        margin-top: 12px;
+      }
+      .scen {
+        border-radius: 12px;
+        padding: 16px;
+        border: 2px solid var(--bdr);
+        cursor: pointer;
+        transition: all 0.22s;
+        background: var(--surf);
+      }
+      .scen:hover {
+        border-color: var(--p);
+        transform: translateY(-3px);
+        box-shadow: var(--sh2);
+      }
+      .scen.sel {
+        border-color: var(--p);
+        background: rgba(79, 70, 229, 0.06);
+      }
+      .scen-ico {
+        font-size: 26px;
+        margin-bottom: 7px;
+      }
+      .scen-t {
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .scen-s {
+        font-size: 11px;
+        color: var(--ink3);
+      }
+      .scen-detail {
+        font-size: 12.5px;
+        color: var(--ink2);
+        margin-top: 9px;
+        line-height: 1.6;
+        display: none;
+      }
+      .scen.sel .scen-detail {
+        display: block;
+        animation: fi 0.28s;
+      }
+
+      /* ─── FLOW DIAGRAM ─── */
+      .flow-node {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 16px;
+        border-radius: 10px;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        user-select: none;
+      }
+      .flow-node:hover {
+        transform: scale(1.04);
+      }
+      .flow-arr {
+        color: var(--ink3);
+        font-size: 22px;
+        padding: 0 4px;
+      }
+
+      /* ─── SLIDER DISPLAY ─── */
+      .slw {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .slr {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .slr label {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--ink2);
+        min-width: 120px;
+      }
+      .slv {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--p);
+        min-width: 40px;
+        text-align: right;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .slout {
+        background: var(--vsc);
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12.5px;
+        color: #4ade80;
+        min-height: 34px;
+        transition: all 0.22s;
+      }
+
+      @media (max-width: 900px) {
+        #sb {
+          display: none;
+        }
+        #main {
+          left: 0;
+          padding: 16px 12px;
+        }
+        .g2,
+        .g3,
+        .rvg,
+        .pgrd,
+        .scen-g {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ═══ TOPBAR ═══ -->
+    <div id="tb">
+      <img
+        src="logo.png"
+        alt="HCL-GUVI Logo"
+        class="tl"
+        onerror="
+          this.style.display = 'none';
+          document.getElementById('lfb').style.display = 'flex';
+        "
+      />
+      <div id="lfb" class="tlfb"><span>HCL</span><span>GUVI</span></div>
+      <div class="tdv"></div>
+      <span class="tmod">Gradient Boosting Classification</span>
+      <span class="tbg">Supervised ML</span>
+      <div class="tpw">
+        <span class="tplb">Progress</span>
+        <div class="tbar"><div class="tfill" id="tf"></div></div>
+        <span class="tpct" id="tpct">0%</span>
+      </div>
+    </div>
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <nav id="sb">
+      <div class="sblbl">GB Module</div>
+      <div class="ni on" onclick="go(0)" id="nv0">
+        <div class="nic">🏠</div>
+        Welcome
+        <div class="nck" id="nc0"></div>
+      </div>
+      <div class="ni" onclick="go(1)" id="nv1">
+        <div class="nic">🌳</div>
+        Boosting Basics
+        <div class="nck" id="nc1"></div>
+      </div>
+      <div class="ni" onclick="go(2)" id="nv2">
+        <div class="nic">📉</div>
+        Residuals & Loss
+        <div class="nck" id="nc2"></div>
+      </div>
+      <div class="ni" onclick="go(3)" id="nv3">
+        <div class="nic">⚙️</div>
+        Hyperparameters
+        <div class="nck" id="nc3"></div>
+      </div>
+      <div class="ni" onclick="go(4)" id="nv4">
+        <div class="nic">⚡</div>
+        Advanced: XGBoost
+        <div class="nck" id="nc4"></div>
+      </div>
+      <div class="ni" onclick="go(5)" id="nv5">
+        <div class="nic">🧪</div>
+        Exercises
+        <div class="nck" id="nc5"></div>
+      </div>
+      <div class="ni" onclick="go(6)" id="nv6">
+        <div class="nic">🧠</div>
+        Quiz
+        <div class="nck" id="nc6"></div>
+      </div>
+      <div class="ni" onclick="go(7)" id="nv7">
+        <div class="nic">🎉</div>
+        Completion
+        <div class="nck" id="nc7"></div>
+      </div>
+    </nav>
+
+    <!-- ═══ MAIN ═══ -->
+    <main id="main">
+      <!-- ══ PAGE 0: WELCOME ══ -->
+      <div class="pg on" id="pg0">
+        <div class="hero">
+          <div class="hcnt">
+            <div
+              style="
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 2.5px;
+                text-transform: uppercase;
+                color: #818cf8;
+                margin-bottom: 11px;
+              "
+            >
+              SUPERVISED ML · HCL-GUVI
+            </div>
+            <h1>Gradient Boosting<br />Classification</h1>
+            <p>
+              Master one of ML's most powerful ensemble techniques. Gradient
+              Boosting builds an army of weak learners that sequentially correct
+              each other's mistakes — achieving state-of-the-art results.
+            </p>
+            <div class="hbdg">
+              <span class="hb hb1">🌳 Ensemble Learning</span>
+              <span class="hb hb2">📉 Residual Fitting</span>
+              <span class="hb hb3">⚙️ Hyperparameter Tuning</span>
+              <span class="hb hb4">⚡ XGBoost</span>
+            </div>
+            <button class="sbtn" onclick="go(1)">Start Learning →</button>
+          </div>
+          <div class="hdeco">🚀</div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <h3 class="s">📚 What You'll Master</h3>
+            <div class="chk">
+              <div class="ci">
+                <div class="cico">✓</div>
+                How Gradient Boosting works step by step
+              </div>
+              <div class="ci">
+                <div class="cico">✓</div>
+                Residuals, loss functions and gradient descent
+              </div>
+              <div class="ci">
+                <div class="cico">✓</div>
+                Key hyperparameters: n_estimators, learning_rate, max_depth
+              </div>
+              <div class="ci">
+                <div class="cico">✓</div>
+                Sklearn GradientBoostingClassifier in practice
+              </div>
+              <div class="ci">
+                <div class="cico">✓</div>
+                XGBoost vs LightGBM vs CatBoost
+              </div>
+              <div class="ci">
+                <div class="cico">✓</div>
+                Overfitting prevention strategies
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="s">🌍 Where GB Wins</h3>
+            <div
+              style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px"
+            >
+              <div
+                style="
+                  background: var(--bg);
+                  border-radius: 10px;
+                  padding: 12px;
+                  text-align: center;
+                  transition: background 0.2s;
+                "
+                onmouseover="this.style.background = '#e8ecff'"
+                onmouseout="this.style.background = ''"
+              >
+                <div style="font-size: 22px; margin-bottom: 4px">🏆</div>
+                <div
+                  style="font-size: 11px; font-weight: 600; color: var(--ink2)"
+                >
+                  Kaggle Competitions
+                </div>
+              </div>
+              <div
+                style="
+                  background: var(--bg);
+                  border-radius: 10px;
+                  padding: 12px;
+                  text-align: center;
+                  transition: background 0.2s;
+                "
+                onmouseover="this.style.background = '#e8ecff'"
+                onmouseout="this.style.background = ''"
+              >
+                <div style="font-size: 22px; margin-bottom: 4px">💳</div>
+                <div
+                  style="font-size: 11px; font-weight: 600; color: var(--ink2)"
+                >
+                  Fraud Detection
+                </div>
+              </div>
+              <div
+                style="
+                  background: var(--bg);
+                  border-radius: 10px;
+                  padding: 12px;
+                  text-align: center;
+                  transition: background 0.2s;
+                "
+                onmouseover="this.style.background = '#e8ecff'"
+                onmouseout="this.style.background = ''"
+              >
+                <div style="font-size: 22px; margin-bottom: 4px">🏥</div>
+                <div
+                  style="font-size: 11px; font-weight: 600; color: var(--ink2)"
+                >
+                  Medical Diagnosis
+                </div>
+              </div>
+              <div
+                style="
+                  background: var(--bg);
+                  border-radius: 10px;
+                  padding: 12px;
+                  text-align: center;
+                  transition: background 0.2s;
+                "
+                onmouseover="this.style.background = '#e8ecff'"
+                onmouseout="this.style.background = ''"
+              >
+                <div style="font-size: 22px; margin-bottom: 4px">📊</div>
+                <div
+                  style="font-size: 11px; font-weight: 600; color: var(--ink2)"
+                >
+                  Risk Scoring
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pgf">
+          <span></span
+          ><button class="bn" onclick="go(1)">Next: Boosting Basics →</button>
+        </div>
+      </div>
+
+      <!-- ══ PAGE 1: BOOSTING BASICS ══ -->
+      <div class="pg" id="pg1">
+        <div class="ey">Concept 1 of 3</div>
+        <div class="h1">How Gradient Boosting Works 🌳</div>
+        <div class="sub">
+          Gradient Boosting builds trees <em>sequentially</em>. Each new tree
+          corrects the errors of all previous trees — transforming many weak
+          learners into one powerful ensemble.
+        </div>
+
+        <div class="ana">
+          <div class="anai">🎯</div>
+          <div>
+            <div class="analbl">Real-Life Analogy</div>
+            <p class="bd">
+              <strong
+                >Imagine a team of doctors consulting on a diagnosis.</strong
+              >
+              Doctor 1 makes their best guess. Doctor 2 looks only at what
+              Doctor 1 got wrong and tries to correct those cases. Doctor 3
+              focuses on what Doctors 1 & 2 still missed. Each doctor is a "weak
+              learner" but together they achieve expert-level accuracy.
+            </p>
+          </div>
+        </div>
+
+        <!-- INTERACTIVE BOOST SEQUENCER -->
+        <div class="card" style="margin-bottom: 18px">
+          <h3 class="s">
+            🎮 Watch the Boosting Process — Step Through Each Tree
+          </h3>
+          <p class="bd" style="margin-bottom: 14px">
+            Click each tree to see how errors shrink with every iteration. The
+            ensemble gets smarter step by step!
+          </p>
+          <div class="tree-row" id="boostRow">
+            <div
+              class="tree-box"
+              id="tb0"
+              style="border-color: #e2e8ff; background: rgba(79, 70, 229, 0.04)"
+              onclick="selectTree(0)"
+            >
+              <div class="tb-num" style="color: var(--p)">Tree 1</div>
+              <div class="tb-err" style="color: var(--rose)">32%</div>
+              <div class="tb-lbl">Error Rate</div>
+            </div>
+            <div
+              class="tree-box"
+              style="border-color: #e2e8ff; background: rgba(217, 119, 6, 0.04)"
+              onclick="selectTree(1)"
+            >
+              <div class="tb-num" style="color: var(--amber)">Tree 2</div>
+              <div class="tb-err" style="color: var(--amber)">21%</div>
+              <div class="tb-lbl">Error Rate</div>
+            </div>
+            <div
+              class="tree-box"
+              style="border-color: #e2e8ff; background: rgba(8, 145, 178, 0.04)"
+              onclick="selectTree(2)"
+            >
+              <div class="tb-num" style="color: var(--teal)">Tree 3</div>
+              <div class="tb-err" style="color: var(--teal)">14%</div>
+              <div class="tb-lbl">Error Rate</div>
+            </div>
+            <div
+              class="tree-box"
+              style="border-color: #e2e8ff; background: rgba(5, 150, 105, 0.04)"
+              onclick="selectTree(3)"
+            >
+              <div class="tb-num" style="color: var(--g)">Tree 4</div>
+              <div class="tb-err" style="color: var(--g)">9%</div>
+              <div class="tb-lbl">Error Rate</div>
+            </div>
+            <div
+              class="tree-box"
+              style="border-color: #e2e8ff; background: rgba(5, 150, 105, 0.08)"
+              onclick="selectTree(4)"
+            >
+              <div class="tb-num" style="color: var(--g2)">Ensemble</div>
+              <div class="tb-err" style="color: var(--g2)">5%</div>
+              <div class="tb-lbl">Error Rate ✓</div>
+            </div>
+          </div>
+          <div
+            id="boostInfo"
+            style="
+              padding: 14px 18px;
+              background: var(--bg);
+              border-radius: 11px;
+              font-size: 13px;
+              color: var(--ink2);
+              min-height: 58px;
+              transition: all 0.3s;
+              line-height: 1.65;
+            "
+          >
+            👆 Click any tree above to understand its role in the boosting
+            process.
+          </div>
+        </div>
+
+        <div class="g2">
+          <div class="card">
+            <h3 class="s">💻 Gradient Boosting in Python</h3>
+            <div class="cb" id="editor0">
+# -----------------------------------------------------------
+# Import required libraries
+# -----------------------------------------------------------
+
+# Gradient Boosting classifier
+from sklearn.ensemble import GradientBoostingClassifier
+
+# Breast cancer dataset
+from sklearn.datasets import load_breast_cancer
+
+# Function to split dataset into training and testing sets
+from sklearn.model_selection import train_test_split
+
+# Evaluation metrics
+from sklearn.metrics import accuracy_score, classification_report
+
+
+# -----------------------------------------------------------
+# Load dataset
+# -----------------------------------------------------------
+# return_X_y=True returns:
+#   X -> feature matrix
+#   y -> target labels
+
+X, y = load_breast_cancer(return_X_y=True)
+
+
+# -----------------------------------------------------------
+# Split data into training and testing sets
+# -----------------------------------------------------------
+# test_size=0.2  -> 20% data used for testing
+# random_state=42 -> ensures reproducible results
+
+X_tr, X_te, y_tr, y_te = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+
+# -----------------------------------------------------------
+# Create Gradient Boosting model
+# -----------------------------------------------------------
+# n_estimators  -> Number of boosting stages (trees)
+# learning_rate -> Shrinks contribution of each tree
+# max_depth     -> Maximum depth of individual trees
+# random_state  -> Reproducibility
+
+gb = GradientBoostingClassifier(
+    n_estimators=100,
+    learning_rate=0.1,
+    max_depth=3,
+    random_state=42
+)
+
+
+# -----------------------------------------------------------
+# Train the model
+# -----------------------------------------------------------
+
+gb.fit(X_tr, y_tr)
+
+
+# -----------------------------------------------------------
+# Make predictions on test data
+# -----------------------------------------------------------
+
+y_pred = gb.predict(X_te)
+
+
+# -----------------------------------------------------------
+# Evaluate model performance
+# -----------------------------------------------------------
+
+# Print accuracy
+print(f"Accuracy: {accuracy_score(y_te, y_pred):.4f}")
+
+# Print detailed classification report
+print("\nClassification Report:")
+print(classification_report(y_te, y_pred))
+            </div>
+            <button class="run" onclick="showOut('o1')">▶ Run Demo</button>
+            <div class="out" id="o1">
+              <span class="op2">&gt;&gt;&gt; </span>Accuracy: 0.9737
+              <span class="op2">&gt;&gt;&gt; </span> precision recall f1
+              <span class="op2">&gt;&gt;&gt; </span>malignant 0.97 0.95 0.96
+              <span class="op2">&gt;&gt;&gt; </span>benign 0.97 0.98 0.98
+              <span style="color: #4ade80"
+                >✓ 100 trees, 97.37% accuracy! Training time: ~0.4 seconds</span
+              >
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="s">🪜 Step-by-Step Algorithm</h3>
+            <div class="sv" id="sv1">
+              <div class="si act" onclick="actS(0, 'sv1')">
+                <div class="sdc">
+                  <div class="sd">1</div>
+                  <div class="sl"></div>
+                </div>
+                <div class="sc2">
+                  <div class="stt">Start with a constant prediction</div>
+                  <div class="sdd">
+                    GB starts by predicting the mean (regression) or majority
+                    class log-odds (classification) for all samples. This is the
+                    initial weak model F₀(x).
+                  </div>
+                </div>
+              </div>
+              <div class="si" onclick="actS(1, 'sv1')">
+                <div class="sdc">
+                  <div class="sd">2</div>
+                  <div class="sl"></div>
+                </div>
+                <div class="sc2">
+                  <div class="stt">Calculate pseudo-residuals</div>
+                  <div class="sdd">
+                    Compute the negative gradient of the loss function — these
+                    are the residuals (errors) that show the model where it's
+                    wrong and by how much.
+                  </div>
+                </div>
+              </div>
+              <div class="si" onclick="actS(2, 'sv1')">
+                <div class="sdc">
+                  <div class="sd">3</div>
+                  <div class="sl"></div>
+                </div>
+                <div class="sc2">
+                  <div class="stt">Fit a new tree to the residuals</div>
+                  <div class="sdd">
+                    Train a shallow decision tree (max_depth=3 typically) to
+                    predict these residuals — not the original targets. This
+                    tree corrects the existing model's mistakes.
+                  </div>
+                </div>
+              </div>
+              <div class="si" onclick="actS(3, 'sv1')">
+                <div class="sdc">
+                  <div class="sd">4</div>
+                  <div class="sl"></div>
+                </div>
+                <div class="sc2">
+                  <div class="stt">Update model with learning rate</div>
+                  <div class="sdd">
+                    Add the new tree multiplied by learning_rate (η): F_m(x) =
+                    F_{m-1}(x) + η × h_m(x). Small η means many small steps
+                    toward the optimum.
+                  </div>
+                </div>
+              </div>
+              <div class="si" onclick="actS(4, 'sv1')">
+                <div class="sdc"><div class="sd">5</div></div>
+                <div class="sc2">
+                  <div class="stt">Repeat until n_estimators</div>
+                  <div class="sdd">
+                    Repeat steps 2–4 for n_estimators iterations. Final
+                    prediction = sum of all trees × learning_rate + initial
+                    prediction.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pgf">
+          <button class="bp" onclick="go(0)">← Welcome</button>
+          <button class="bn" onclick="go(2)">Next: Residuals & Loss →</button>
+        </div>
+      </div>
+
+      <!-- ══ PAGE 2: RESIDUALS & LOSS ══ -->
+      <div class="pg" id="pg2">
+        <div class="ey">Concept 2 of 3</div>
+        <div class="h1">Residuals, Loss Functions & Gradients 📉</div>
+        <div class="sub">
+          Gradient Boosting doesn't just fit errors — it moves in the direction
+          of the <em>negative gradient of the loss function</em>. This is
+          gradient descent in function space.
+        </div>
+
+        <div class="ana">
+          <div class="anai">⛰️</div>
+          <div>
+            <div class="analbl">Real-Life Analogy</div>
+            <p class="bd">
+              <strong>Like finding the lowest valley blindfolded.</strong> Each
+              step you take (each tree) moves you downhill by following the
+              steepest descent direction (the gradient). The learning rate
+              controls your step size — too large and you overshoot, too small
+              and you crawl. Gradient Boosting does this in prediction space,
+              not physical space.
+            </p>
+          </div>
+        </div>
+
+        <!-- RESIDUAL VISUALIZER -->
+        <div class="card" style="margin-bottom: 18px">
+          <h3 class="s">📊 Live Residual Shrinkage — Watch Errors Vanish</h3>
+          <p class="bd" style="margin-bottom: 14px">
+            Click "Add Tree" to watch how each new tree reduces the residuals.
+            Observe how the errors shrink iteration by iteration.
+          </p>
+          <div
+            style="
+              display: flex;
+              gap: 10px;
+              margin-bottom: 16px;
+              flex-wrap: wrap;
+            "
+          >
+            <button
+              class="run"
+              style="padding: 9px 16px; font-size: 12px"
+              onclick="addBoostTree()"
+            >
+              + Add Tree
+            </button>
+            <button
+              onclick="resetBoost()"
+              style="
+                padding: 9px 16px;
+                border-radius: 99px;
+                background: var(--bg);
+                border: 1px solid var(--bdr);
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                font-family: &quot;Inter&quot;, sans-serif;
+                color: var(--ink2);
+              "
+            >
+              ↺ Reset
+            </button>
+            <div
+              style="
+                margin-left: auto;
+                background: rgba(79, 70, 229, 0.06);
+                border-radius: 9px;
+                padding: 8px 14px;
+                font-size: 13px;
+                color: var(--ink2);
+              "
+            >
+              Trees added:
+              <strong style="color: var(--p)" id="treeCount">0</strong>
+            </div>
+          </div>
+          <div id="residBars">
+            <div class="resid-bar">
+              <span class="resid-lbl">Sample 1</span>
+              <div class="resid-track">
+                <div
+                  class="resid-fill"
+                  id="r0"
+                  style="width: 80%; background: var(--rose)"
+                ></div>
+              </div>
+              <span class="resid-val" id="rv0" style="color: var(--rose)"
+                >0.80</span
+              >
+            </div>
+            <div class="resid-bar">
+              <span class="resid-lbl">Sample 2</span>
+              <div class="resid-track">
+                <div
+                  class="resid-fill"
+                  id="r1"
+                  style="width: 65%; background: var(--rose)"
+                ></div>
+              </div>
+              <span class="resid-val" id="rv1" style="color: var(--rose)"
+                >0.65</span
+              >
+            </div>
+            <div class="resid-bar">
+              <span class="resid-lbl">Sample 3</span>
+              <div class="resid-track">
+                <div
+                  class="resid-fill"
+                  id="r2"
+                  style="width: 90%; background: var(--rose)"
+                ></div>
+              </div>
+              <span class="resid-val" id="rv2" style="color: var(--rose)"
+                >0.90</span
+              >
+            </div>
+            <div class="resid-bar">
+              <span class="resid-lbl">Sample 4</span>
+              <div class="resid-track">
+                <div
+                  class="resid-fill"
+                  id="r3"
+                  style="width: 45%; background: var(--amber)"
+                ></div>
+              </div>
+              <span class="resid-val" id="rv3" style="color: var(--amber)"
+                >0.45</span
+              >
+            </div>
+            <div class="resid-bar">
+              <span class="resid-lbl">Sample 5</span>
+              <div class="resid-track">
+                <div
+                  class="resid-fill"
+                  id="r4"
+                  style="width: 70%; background: var(--rose)"
+                ></div>
+              </div>
+              <span class="resid-val" id="rv4" style="color: var(--rose)"
+                >0.70</span
+              >
+            </div>
+          </div>
+          <div
+            id="residMsg"
+            style="
+              margin-top: 12px;
+              padding: 11px 15px;
+              background: var(--bg);
+              border-radius: 9px;
+              font-size: 13px;
+              color: var(--ink2);
+            "
+          >
+            👆 Start adding trees to see residuals shrink!
+          </div>
+        </div>
+
+        <div class="g2">
+          <div class="card">
+            <h3 class="s">💻 Loss Functions in GB</h3>
+            <div class="cb" id="editor1">
+from sklearn.ensemble import GradientBoostingClassifier
+
+# loss='log_loss' (default) — binary/multi-class
+# Minimises log loss (cross-entropy)
+gb_log = GradientBoostingClassifier(
+    loss='log_loss',  # default
+    n_estimators=100,
+    learning_rate=0.1
+)
+
+# loss='exponential' — AdaBoost-like
+# More sensitive to outliers
+gb_exp = GradientBoostingClassifier(
+    loss='exponential',
+    n_estimators=100
+)
+
+# Monitor staged predictions
+for i, pred in enumerate(gb_log.staged_predict(X_te)):
+    if i % 20 == 0:
+        acc = accuracy_score(y_te, pred)
+        print(f"Tree {i+1:3d}: {acc:.4f}")
+            </div>
+            <button class="run" onclick="showOut('o2')">▶ Run Demo</button>
+            <div class="out" id="o2">
+              <span class="op2">&gt;&gt;&gt; </span>Tree 1: 0.8947
+              <span class="op2">&gt;&gt;&gt; </span>Tree 21: 0.9386
+              <span class="op2">&gt;&gt;&gt; </span>Tree 41: 0.9561
+              <span class="op2">&gt;&gt;&gt; </span>Tree 61: 0.9649
+              <span class="op2">&gt;&gt;&gt; </span>Tree 81: 0.9649
+              <span class="op2">&gt;&gt;&gt; </span>Tree 100: 0.9737
+              <span style="color: #4ade80"
+                >Accuracy improves monotonically ✓ Each tree adds marginal
+                improvement</span
+              >
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="s">🔍 Loss Function Cards — Click to Reveal</h3>
+            <div class="rvg">
+              <div class="rv" onclick="this.classList.toggle('fl')">
+                <div class="rvf">📉 Log Loss (Binary)</div>
+                <div class="rvb">
+                  L = -[y·log(p) + (1-y)·log(1-p)]. Default for classification.
+                  Gradient = y_pred - y_true (probability minus actual). Ideal
+                  for binary classification tasks like spam/not-spam.
+                </div>
+                <div class="rvh">👆 Click to reveal</div>
+              </div>
+              <div class="rv" onclick="this.classList.toggle('fl')">
+                <div class="rvf">⚡ Exponential Loss</div>
+                <div class="rvb">
+                  L = exp(-y·F(x)). Used by AdaBoost. More aggressive —
+                  penalises misclassified samples exponentially. Very sensitive
+                  to outliers and noisy data. Use when data is clean.
+                </div>
+                <div class="rvh">👆 Click to reveal</div>
+              </div>
+              <div class="rv" onclick="this.classList.toggle('fl')">
+                <div class="rvf">🎯 Pseudo-Residuals</div>
+                <div class="rvb">
+                  The negative gradient of the loss = r_i = -∂L/∂F(x_i). For
+                  log-loss this equals (y_true - y_pred). Each new tree is fit
+                  to these residuals, not the original labels.
+                </div>
+                <div class="rvh">👆 Click to reveal</div>
+              </div>
+              <div class="rv" onclick="this.classList.toggle('fl')">
+                <div class="rvf">🌊 Gradient Descent Link</div>
+                <div class="rvb">
+                  GB is gradient descent in function space. Instead of updating
+                  parameters θ, we update the prediction function F(x). Each
+                  tree h_m(x) is a "step" in the negative gradient direction.
+                </div>
+                <div class="rvh">👆 Click to reveal</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pgf">
+          <button class="bp" onclick="go(1)">← Boosting Basics</button>
+          <button class="bn" onclick="go(3)">Next: Hyperparameters →</button>
+        </div>
+      </div>
+
+      <!-- ══ PAGE 3: HYPERPARAMETERS ══ -->
+      <div class="pg" id="pg3">
+        <div class="ey">Concept 3 of 3</div>
+        <div class="h1">Tuning Gradient Boosting ⚙️</div>
+        <div class="sub">
+          Three hyperparameters control almost everything in GB. Getting them
+          right is the difference between an average model and a
+          competition-winning one.
+        </div>
+
+        <div class="ana">
+          <div class="anai">🎛️</div>
+          <div>
+            <div class="analbl">Real-Life Analogy</div>
+            <p class="bd">
+              <strong>Like tuning a race car:</strong> n_estimators is how many
+              laps you train (more = slower but better). learning_rate is how
+              aggressively you steer (too aggressive = spinout = overfitting).
+              max_depth is how complex each decision is (deeper = more
+              specialised but risk of over-engineering). The art is finding the
+              perfect balance.
+            </p>
+          </div>
+        </div>
+
+        <!-- INTERACTIVE PARAM SLIDER -->
+        <div class="card" style="margin-bottom: 18px">
+          <h3 class="s">🎛️ Interactive Hyperparameter Lab — See the Impact</h3>
+          <p class="bd" style="margin-bottom: 14px">
+            Adjust the sliders and instantly see how each parameter affects
+            model performance:
+          </p>
+          <div class="slw" style="margin-bottom: 14px">
+            <div class="slr">
+              <label>n_estimators</label>
+              <input
+                type="range"
+                min="10"
+                max="300"
+                value="100"
+                id="sl_n"
+                oninput="updateHPSim()"
+              />
+              <span class="slv" id="sv_n">100</span>
+            </div>
+            <div class="slr">
+              <label>learning_rate</label>
+              <input
+                type="range"
+                min="1"
+                max="30"
+                value="10"
+                id="sl_lr"
+                oninput="updateHPSim()"
+              />
+              <span class="slv" id="sv_lr">0.10</span>
+            </div>
+            <div class="slr">
+              <label>max_depth</label>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                value="3"
+                id="sl_md"
+                oninput="updateHPSim()"
+              />
+              <span class="slv" id="sv_md">3</span>
+            </div>
+            <div class="slr">
+              <label>subsample</label>
+              <input
+                type="range"
+                min="3"
+                max="10"
+                value="10"
+                id="sl_ss"
+                oninput="updateHPSim()"
+              />
+              <span class="slv" id="sv_ss">1.0</span>
+            </div>
+          </div>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 10px;
+            "
+            id="hpResults"
+          >
+            <div
+              style="
+                background: rgba(79, 70, 229, 0.06);
+                border-radius: 11px;
+                padding: 13px;
+                text-align: center;
+                border: 1.5px solid rgba(79, 70, 229, 0.15);
+              "
+            >
+              <div
+                style="
+                  font-size: 10px;
+                  font-weight: 700;
+                  text-transform: uppercase;
+                  letter-spacing: 1px;
+                  color: var(--ink3);
+                  margin-bottom: 5px;
+                "
+              >
+                Train Acc
+              </div>
+              <div
+                style="font-size: 22px; font-weight: 800; color: var(--p)"
+                id="hp_train"
+              >
+                97.8%
+              </div>
+            </div>
+            <div
+              style="
+                background: rgba(5, 150, 105, 0.06);
+                border-radius: 11px;
+                padding: 13px;
+                text-align: center;
+                border: 1.5px solid rgba(5, 150, 105, 0.15);
+              "
+            >
+              <div
+                style="
+                  font-size: 10px;
+                  font-weight: 700;
+                  text-transform: uppercase;
+                  letter-spacing: 1px;
+                  color: var(--ink3);
+                  margin-bottom: 5px;
+                "
+              >
+                Val Acc
+              </div>
+              <div
+                style="font-size: 22px; font-weight: 800; color: var(--g)"
+                id="hp_val"
+              >
+                94.2%
+              </div>
+            </div>
+            <div
+              style="
+                background: rgba(217, 119, 6, 0.06);
+                border-radius: 11px;
+                padding: 13px;
+                text-align: center;
+                border: 1.5px solid rgba(217, 119, 6, 0.15);
+              "
+            >
+              <div
+                style="
+                  font-size: 10px;
+                  font-weight: 700;
+                  text-transform: uppercase;
+                  letter-spacing: 1px;
+                  color: var(--ink3);
+                  margin-bottom: 5px;
+                "
+              >
+                Status
+              </div>
+              <div
+                style="font-size: 16px; font-weight: 800"
+                id="hp_status"
+                style="color: var(--g)"
+              >
+                ✓ Good Fit
+              </div>
+            </div>
+            <div
+              style="
+                background: rgba(8, 145, 178, 0.06);
+                border-radius: 11px;
+                padding: 13px;
+                text-align: center;
+                border: 1.5px solid rgba(8, 145, 178, 0.15);
+              "
+            >
+              <div
+                style="
+                  font-size: 10px;
+                  font-weight: 700;
+                  text-transform: uppercase;
+                  letter-spacing: 1px;
+                  color: var(--ink3);
+                  margin-bottom: 5px;
+                "
+              >
+                Train Time
+              </div>
+              <div
+                style="font-size: 22px; font-weight: 800; color: var(--teal)"
+                id="hp_time"
+              >
+                0.4s
+              </div>
+            </div>
+          </div>
+          <div
+            id="hpMsg"
+            style="
+              margin-top: 12px;
+              padding: 12px 15px;
+              background: var(--bg);
+              border-radius: 10px;
+              font-size: 13px;
+              color: var(--ink2);
+              line-height: 1.65;
+              min-height: 44px;
+            "
+          >
+            Adjust any slider to see real-time feedback on model behaviour.
+          </div>
+        </div>
+
+        <div class="g2">
+          <div class="card">
+            <h3 class="s">💻 GridSearchCV for GB</h3>
+            <div class="cb" id="editor2">
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import GradientBoostingClassifier
+
+# Assuming X_tr and y_tr are already defined (your training data)
+# If not, you would load/prepare your data here
+
+param_grid = {
+    'n_estimators': [50, 100, 200],
+    'learning_rate': [0.05, 0.1, 0.2],
+    'max_depth': [2, 3, 4],
+    'subsample': [0.8, 1.0]
+}
+
+gb = GradientBoostingClassifier(random_state=42)
+gs = GridSearchCV(
+    gb, param_grid,
+    cv=5,
+    scoring='accuracy',
+    n_jobs=-1
+)
+
+gs.fit(X_tr, y_tr)
+
+print("Best params:", gs.best_params_)
+print("Best CV acc:", gs.best_score_)
+            </div>
+            <button class="run" onclick="showOut('o3')">▶ Run Demo</button>
+            <div class="out" id="o3">
+              <span class="op2">&gt;&gt;&gt; </span>Best params: {
+              <span class="op2">&gt;&gt;&gt; </span> 'learning_rate': 0.1,
+              <span class="op2">&gt;&gt;&gt; </span> 'max_depth': 3,
+              <span class="op2">&gt;&gt;&gt; </span> 'n_estimators': 200,
+              <span class="op2">&gt;&gt;&gt; </span> 'subsample': 0.8
+              <span class="op2">&gt;&gt;&gt; </span>}
+              <span class="op2">&gt;&gt;&gt; </span>Best CV acc: 0.9780
+              <span style="color: #4ade80"
+                >Tuned: 97.80% vs baseline 97.37%</span
+              >
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="s">📋 Hyperparameter Quick Reference</h3>
+            <table class="ctbl">
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Default</th>
+                  <th>Effect</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>n_estimators</code></td>
+                  <td>100</td>
+                  <td>↑ More trees = better (until overfit)</td>
+                </tr>
+                <tr>
+                  <td><code>learning_rate</code></td>
+                  <td>0.1</td>
+                  <td>↓ Smaller = more trees needed</td>
+                </tr>
+                <tr>
+                  <td><code>max_depth</code></td>
+                  <td>3</td>
+                  <td>↑ Deeper = more complex, risk overfit</td>
+                </tr>
+                <tr>
+                  <td><code>subsample</code></td>
+                  <td>1.0</td>
+                  <td>< 1.0 = stochastic GB, reduces overfit</td>
+                </tr>
+                <tr>
+                  <td><code>min_samples_leaf</code></td>
+                  <td>1</td>
+                  <td>↑ Higher = more regularisation</td>
+                </tr>
+                <tr>
+                  <td><code>max_features</code></td>
+                  <td>'sqrt'</td>
+                  <td>Feature randomness, like RF</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="info" style="margin-top: 12px">
+              <strong>Golden rule:</strong> Lower learning_rate + higher
+              n_estimators always wins — but costs more compute time. Start with
+              lr=0.1, n=100, depth=3.
+            </div>
+          </div>
+        </div>
+
+        <div class="pgf">
+          <button class="bp" onclick="go(2)">← Residuals & Loss</button>
+          <button class="bn" onclick="go(4)">Next: XGBoost →</button>
+        </div>
+      </div>
+
+      <!-- ══ PAGE 4: ADVANCED — XGBOOST ══ -->
+      <div class="pg" id="pg4">
+        <div class="ey">Advanced Concept</div>
+        <div class="h1">XGBoost, LightGBM & CatBoost ⚡</div>
+        <div class="sub">
+          The modern boosting algorithms that dominate Kaggle and production ML.
+          Each improves upon vanilla Gradient Boosting in speed, memory, and
+          accuracy.
+        </div>
+
+        <!-- SCENARIO CARDS -->
+        <div class="card" style="margin-bottom: 18px">
+          <h3 class="s">🌍 Real-World Use Cases — Click to Explore</h3>
+          <div class="scen-g">
+            <div class="scen" onclick="selScen(this, 'fraud')">
+              <div class="scen-ico">💳</div>
+              <div class="scen-t">Fraud Detection</div>
+              <div class="scen-s">Imbalanced binary classification</div>
+              <div class="scen-detail">
+                XGBoost with <code>scale_pos_weight</code> handles class
+                imbalance perfectly. Use AUC-ROC as metric, not accuracy. Early
+                stopping on validation set prevents overfitting on rare fraud
+                patterns.
+              </div>
+            </div>
+            <div class="scen" onclick="selScen(this, 'churn')">
+              <div class="scen-ico">📱</div>
+              <div class="scen-t">Customer Churn</div>
+              <div class="scen-s">
+                Binary classification with mixed features
+              </div>
+              <div class="scen-detail">
+                LightGBM excels here — it handles categorical features natively
+                and trains 10x faster than sklearn GB on large datasets. Use
+                <code>categorical_feature</code> param for encoding-free
+                pipeline.
+              </div>
+            </div>
+            <div class="scen" onclick="selScen(this, 'medical')">
+              <div class="scen-ico">🏥</div>
+              <div class="scen-t">Medical Diagnosis</div>
+              <div class="scen-s">Multi-class classification</div>
+              <div class="scen-detail">
+                CatBoost handles categorical medical codes (ICD-10) without
+                one-hot encoding. Its ordered boosting prevents target leakage.
+                Feature importance helps explain predictions to doctors.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="g2">
+          <div class="card">
+            <h3 class="s">💻 XGBoost in Practice</h3>
+            <div class="cb" id="editor3">
+import xgboost as xgb
+from sklearn.metrics import classification_report
+
+# Assuming X_tr, y_tr, X_te, y_te are already defined (your train/test data)
+# If not, you would load/prepare your data here
+
+model = xgb.XGBClassifier(
+    n_estimators=200,
+    learning_rate=0.05,
+    max_depth=4,
+    subsample=0.8,
+    colsample_bytree=0.8,
+    reg_alpha=0.1,  # L1 reg
+    reg_lambda=1.0,  # L2 reg
+    use_label_encoder=False,
+    eval_metric='logloss',
+    random_state=42
+)
+
+model.fit(
+    X_tr, y_tr,
+    eval_set=[(X_te, y_te)],
+    early_stopping_rounds=20,
+    verbose=False
+)
+
+print(f"Best: {model.best_iteration} trees")
+print(f"Accuracy: {model.score(X_te, y_te):.4f}")
+
+# Optional: Print detailed classification report
+y_pred = model.predict(X_te)
+print("\nClassification Report:")
+print(classification_report(y_te, y_pred))
+            </div>
+            <button class="run" onclick="showOut('o4')">▶ Run Demo</button>
+            <div class="out" id="o4">
+              <span class="op2">&gt;&gt;&gt; </span>Best: 147 trees (early stop
+              at 167) <span class="op2">&gt;&gt;&gt; </span>Accuracy: 0.9825
+              <span class="op2">&gt;&gt;&gt; </span>XGBoost outperforms sklearn
+              GB!
+              <span style="color: #4ade80"
+                >✓ Regularisation (L1+L2) prevents overfit Training time: 0.8s
+                (GPU: 0.12s)</span
+              >
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="s">⚔️ Algorithm Comparison</h3>
+            <table class="ctbl">
+              <thead>
+                <tr>
+                  <th>Feature</th>
+                  <th>Sklearn GB</th>
+                  <th>XGBoost</th>
+                  <th>LightGBM</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Speed</td>
+                  <td>🐢 Slow</td>
+                  <td>⚡ Fast</td>
+                  <td>🚀 Fastest</td>
+                </tr>
+                <tr>
+                  <td>L1/L2 Reg</td>
+                  <td>❌ No</td>
+                  <td>✅ Yes</td>
+                  <td>✅ Yes</td>
+                </tr>
+                <tr>
+                  <td>Cats native</td>
+                  <td>❌ No</td>
+                  <td>❌ No</td>
+                  <td>✅ Yes</td>
+                </tr>
+                <tr>
+                  <td>GPU support</td>
+                  <td>❌ No</td>
+                  <td>✅ Yes</td>
+                  <td>✅ Yes</td>
+                </tr>
+                <tr>
+                  <td>Missing data</td>
+                  <td>❌ No</td>
+                  <td>✅ Auto</td>
+                  <td>✅ Auto</td>
+                </tr>
+                <tr>
+                  <td>Early stop</td>
+                  <td>❌ No</td>
+                  <td>✅ Yes</td>
+                  <td>✅ Yes</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="info" style="margin-top: 12px">
+              <strong>Recommendation:</strong> Start with XGBoost for
+              reliability. Switch to LightGBM for large datasets (>1M rows). Use
+              CatBoost when you have many categorical features.
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 18px">
+          <h3 class="s">🏆 GB vs Other Ensembles — Click to Reveal</h3>
+          <div class="rvg">
+            <div class="rv" onclick="this.classList.toggle('fl')">
+              <div class="rvf">🌳 GB vs Random Forest</div>
+              <div class="rvb">
+                RF builds trees in parallel (independent, full depth). GB builds
+                sequentially (each corrects previous). RF is faster to train and
+                more robust to overfitting. GB achieves higher accuracy but
+                needs careful tuning. Use RF when you need speed/simplicity; GB
+                when you need maximum accuracy.
+              </div>
+              <div class="rvh">👆 Click to reveal</div>
+            </div>
+            <div class="rv" onclick="this.classList.toggle('fl')">
+              <div class="rvf">🔄 GB vs AdaBoost</div>
+              <div class="rvb">
+                AdaBoost reweights misclassified samples. GB fits trees to
+                pseudo-residuals (gradients). GB is more general — it works with
+                any differentiable loss function. AdaBoost only uses exponential
+                loss. GB handles regression/ranking too; AdaBoost is mostly
+                classification only.
+              </div>
+              <div class="rvh">👆 Click to reveal</div>
+            </div>
+            <div class="rv" onclick="this.classList.toggle('fl')">
+              <div class="rvf">🤔 When NOT to use GB</div>
+              <div class="rvb">
+                Avoid GB when: (1) you need real-time predictions (GB is slow to
+                predict with 1000s of trees), (2) data is very small (<1000
+                samples — overfit risk), (3) you need a simple interpretable
+                model (use LR or DT instead), (4) training time is critical (use
+                LightGBM at minimum).
+              </div>
+              <div class="rvh">👆 Click to reveal</div>
+            </div>
+            <div class="rv" onclick="this.classList.toggle('fl')">
+              <div class="rvf">📊 Feature Importance</div>
+              <div class="rvb">
+                GB provides <code>feature_importances_</code> based on how often
+                features are used in splits and their total gain. XGBoost offers
+                3 types: weight (count), gain (improvement), cover (samples).
+                SHAP values give the most accurate and interpretable
+                importances.
+              </div>
+              <div class="rvh">👆 Click to reveal</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pgf">
+          <button class="bp" onclick="go(3)">← Hyperparameters</button>
+          <button class="bn" onclick="go(5)">Next: Exercises →</button>
+        </div>
+      </div>
+
+      <!-- ══ PAGE 5: EXERCISES ══ -->
+      <div class="pg" id="pg5">
+        <div class="ey">Practice</div>
+        <div class="h1">Coding Exercises 🧪</div>
+        <div class="sub">
+          Attempt each exercise before revealing the solution. Struggling first
+          is how deep understanding forms!
+        </div>
+
+        <div class="ex">
+          <div class="exh">
+            <div class="exn">1</div>
+            <div class="ext">Build & Evaluate a GB Classifier</div>
+            <span class="tag tgb" style="margin-left: auto"
+              >Classification</span
+            >
+          </div>
+          <div class="exb">
+            <p class="bd" style="margin-bottom: 10px">
+              Load the diabetes dataset (Pima Indians), train a
+              GradientBoostingClassifier, evaluate with precision/recall/F1, and
+              print the feature importances ranked from highest to lowest.
+            </p>
+            <button class="sbt" onclick="toggleSol(this, 's1')">
+              💡 Show Solution
+            </button>
+            <div class="sol" id="s1">
+              <div class="cb">
+                <span class="kw">from</span> sklearn.ensemble
+                <span class="kw">import</span>
+                <span class="cl2">GradientBoostingClassifier</span>
+                <span class="kw">from</span> sklearn.model_selection
+                <span class="kw">import</span> train_test_split
+                <span class="kw">from</span> sklearn.metrics
+                <span class="kw">import</span> classification_report
+                <span class="kw">from</span> sklearn.datasets
+                <span class="kw">import</span> load_diabetes
+                <span class="kw">import</span> pandas
+                <span class="kw">as</span> pd
+                <span class="kw">import</span> numpy
+                <span class="kw">as</span> np
+
+                <span class="cm"
+                  ># Using breast cancer as diabetes substitute</span
+                >
+                <span class="kw">from</span> sklearn.datasets
+                <span class="kw">import</span> load_breast_cancer X, y =
+                load_breast_cancer(return_X_y=<span class="kw">True</span>)
+                feat_names = load_breast_cancer().feature_names
+                X_tr,X_te,y_tr,y_te = train_test_split( X, y, test_size=<span
+                  class="nm"
+                  >0.2</span
+                >, random_state=<span class="nm">42</span> ) gb =
+                <span class="cl2">GradientBoostingClassifier</span>(
+                n_estimators=<span class="nm">150</span>, learning_rate=<span
+                  class="nm"
+                  >0.1</span
+                >, max_depth=<span class="nm">3</span>, random_state=<span
+                  class="nm"
+                  >42</span
+                >
+                ) gb.<span class="fn">fit</span>(X_tr, y_tr)
+                <span class="fn">print</span>(classification_report(y_te,
+                gb.<span class="fn">predict</span>(X_te)))
+
+                <span class="cm"># Feature importances</span>
+                imp = pd.<span class="cl2">Series</span>(
+                gb.feature_importances_, index=feat_names ).<span class="fn"
+                  >sort_values</span
+                >(ascending=<span class="kw">False</span>)
+                <span class="fn">print</span>(imp.head(<span class="nm">5</span
+                >))
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="exh">
+            <div class="exn">2</div>
+            <div class="ext">Learning Rate vs N_Estimators Trade-off</div>
+            <span class="tag tgp" style="margin-left: auto"
+              >Hyperparameter Tuning</span
+            >
+          </div>
+          <div class="exb">
+            <p class="bd" style="margin-bottom: 10px">
+              Demonstrate the inverse relationship between learning_rate and
+              n_estimators. Train 4 models with different combinations and
+              compare their validation accuracy and training time. Plot the
+              results.
+            </p>
+            <button class="sbt" onclick="toggleSol(this, 's2')">
+              💡 Show Solution
+            </button>
+            <div class="sol" id="s2">
+              <div class="cb">
+                <span class="kw">import</span> time
+                <span class="kw">from</span> sklearn.ensemble
+                <span class="kw">import</span>
+                <span class="cl2">GradientBoostingClassifier</span>
+
+                configs = [ {<span class="st">'lr'</span>:<span class="nm"
+                  >0.5</span
+                >, <span class="st">'n'</span>:<span class="nm">20</span> },
+                <span class="cm"># Fast, aggressive</span> {<span class="st"
+                  >'lr'</span
+                >:<span class="nm">0.2</span>, <span class="st">'n'</span>:<span
+                  class="nm"
+                  >50</span
+                >
+                }, <span class="cm"># Medium</span> {<span class="st">'lr'</span
+                >:<span class="nm">0.1</span>, <span class="st">'n'</span>:<span
+                  class="nm"
+                  >100</span
+                >}, <span class="cm"># Classic default</span> {<span class="st"
+                  >'lr'</span
+                >:<span class="nm">0.05</span>,
+                <span class="st">'n'</span>:<span class="nm">200</span>},
+                <span class="cm"># Slow, careful</span>
+                ]
+                <span class="kw">for</span> cfg
+                <span class="kw">in</span> configs: t0 = time.<span class="fn"
+                  >time</span
+                >() gb = <span class="cl2">GradientBoostingClassifier</span>(
+                learning_rate=cfg[<span class="st">'lr'</span>],
+                n_estimators=cfg[<span class="st">'n'</span>], max_depth=<span
+                  class="nm"
+                  >3</span
+                >, random_state=<span class="nm">42</span> ) gb.<span class="fn"
+                  >fit</span
+                >(X_tr, y_tr) acc = gb.<span class="fn">score</span>(X_te, y_te)
+                elapsed = time.<span class="fn">time</span>() - t0
+                <span class="fn">print</span>(<span class="st"
+                  >f"LR={cfg['lr']:.2f} N={cfg['n']:3d}"</span
+                >
+                <span class="st">f" → Acc={acc:.4f} t={elapsed:.2f}s"</span>)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="exh">
+            <div class="exn">3</div>
+            <div class="ext">Early Stopping to Prevent Overfitting</div>
+            <span class="tag tgg" style="margin-left: auto">XGBoost</span>
+          </div>
+          <div class="exb">
+            <p class="bd" style="margin-bottom: 10px">
+              Use XGBoost with early_stopping_rounds=20 on the breast cancer
+              dataset. Track how validation loss evolves and identify the
+              optimal number of trees. Compare with and without early stopping.
+            </p>
+            <button class="sbt" onclick="toggleSol(this, 's3')">
+              💡 Show Solution
+            </button>
+            <div class="sol" id="s3">
+              <div class="cb">
+                <span class="kw">import</span> xgboost
+                <span class="kw">as</span> xgb
+                <span class="kw">from</span> sklearn.datasets
+                <span class="kw">import</span> load_breast_cancer
+                <span class="kw">from</span> sklearn.model_selection
+                <span class="kw">import</span> train_test_split X, y =
+                load_breast_cancer(return_X_y=<span class="kw">True</span>)
+                X_tr,X_te,y_tr,y_te = train_test_split( X, y, test_size=<span
+                  class="nm"
+                  >0.2</span
+                >, random_state=<span class="nm">42</span>
+                )
+                <span class="cm"># Without early stopping</span>
+                m1 = xgb.<span class="cl2">XGBClassifier</span>(
+                n_estimators=<span class="nm">500</span>, learning_rate=<span
+                  class="nm"
+                  >0.05</span
+                >, max_depth=<span class="nm">4</span>, eval_metric=<span
+                  class="st"
+                  >'logloss'</span
+                >
+                ) m1.<span class="fn">fit</span>(X_tr, y_tr)
+
+                <span class="cm"># With early stopping</span>
+                m2 = xgb.<span class="cl2">XGBClassifier</span>(
+                n_estimators=<span class="nm">500</span>, learning_rate=<span
+                  class="nm"
+                  >0.05</span
+                >, max_depth=<span class="nm">4</span>, eval_metric=<span
+                  class="st"
+                  >'logloss'</span
+                >
+                ) m2.<span class="fn">fit</span>(X_tr, y_tr, eval_set=[(X_te,
+                y_te)], early_stopping_rounds=<span class="nm">20</span>,
+                verbose=<span class="kw">False</span>)
+
+                <span class="fn">print</span>(<span class="st"
+                  >f"No ES (500 trees): {m1.score(X_te,y_te):.4f}"</span
+                >) <span class="fn">print</span>(<span class="st"
+                  >f"Early Stop ({m2.best_iteration}):
+                  {m2.score(X_te,y_te):.4f}"</span
+                >)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pgf">
+          <button class="bp" onclick="go(4)">← XGBoost</button>
+          <button class="bn" onclick="go(6)">Next: Quiz →</button>
+        </div>
+      </div>
+
+      <!-- ══ PAGE 6: QUIZ ══ -->
+      <div class="pg" id="pg6">
+        <div class="ey">Knowledge Check</div>
+        <div class="h1">Module Quiz 🧠</div>
+        <div class="sub">
+          5 questions to test your Gradient Boosting mastery. Think carefully!
+        </div>
+        <div class="qdots">
+          <div class="qd cur" id="qd0"></div>
+          <div class="qd" id="qd1"></div>
+          <div class="qd" id="qd2"></div>
+          <div class="qd" id="qd3"></div>
+          <div class="qd" id="qd4"></div>
+        </div>
+
+        <div class="qc on" id="q0">
+          <div class="qn">Question 1 of 5</div>
+          <div class="qt">
+            What does each new tree in Gradient Boosting learn to predict?
+          </div>
+          <div class="qos">
+            <div class="qo" onclick="ansQ(this, 0, 1)">
+              <span class="ql">A</span>The original target labels directly
+            </div>
+            <div class="qo" onclick="ansQ(this, 0, 1)">
+              <span class="ql">B</span>The pseudo-residuals (negative gradient
+              of the loss) from previous trees
+            </div>
+            <div class="qo" onclick="ansQ(this, 0, 1)">
+              <span class="ql">C</span>A random subset of the original training
+              data
+            </div>
+            <div class="qo" onclick="ansQ(this, 0, 1)">
+              <span class="ql">D</span>The majority class label to reduce bias
+            </div>
+          </div>
+          <div class="qfb" id="qfb0"></div>
+          <div style="margin-top: 11px; text-align: right">
+            <button
+              class="bn"
+              style="display: none"
+              id="qnxt0"
+              onclick="nxtQ(1)"
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+
+        <div class="qc" id="q1">
+          <div class="qn">Question 2 of 5</div>
+          <div class="qt">
+            What happens if you set learning_rate too high in Gradient Boosting?
+          </div>
+          <div class="qos">
+            <div class="qo" onclick="ansQ(this, 1, 0)">
+              <span class="ql">A</span>The model overshoots the optimum and may
+              overfit or diverge
+            </div>
+            <div class="qo" onclick="ansQ(this, 1, 0)">
+              <span class="ql">B</span>Training becomes slower but more accurate
+            </div>
+            <div class="qo" onclick="ansQ(this, 1, 0)">
+              <span class="ql">C</span>Each tree becomes deeper and more complex
+            </div>
+            <div class="qo" onclick="ansQ(this, 1, 0)">
+              <span class="ql">D</span>Fewer trees are needed with the same
+              accuracy
+            </div>
+          </div>
+          <div class="qfb" id="qfb1"></div>
+          <div style="margin-top: 11px; text-align: right">
+            <button
+              class="bn"
+              style="display: none"
+              id="qnxt1"
+              onclick="nxtQ(2)"
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+
+        <div class="qc" id="q2">
+          <div class="qn">Question 3 of 5</div>
+          <div class="qt">
+            How does Gradient Boosting differ from Random Forest in tree
+            construction?
+          </div>
+          <div class="qos">
+            <div class="qo" onclick="ansQ(this, 2, 0)">
+              <span class="ql">A</span>GB builds trees sequentially, each
+              correcting the previous; RF builds trees in parallel independently
+            </div>
+            <div class="qo" onclick="ansQ(this, 2, 0)">
+              <span class="ql">B</span>GB uses deeper trees; RF uses only stumps
+              (depth=1)
+            </div>
+            <div class="qo" onclick="ansQ(this, 2, 0)">
+              <span class="ql">C</span>GB uses bagging; RF uses boosting
+            </div>
+            <div class="qo" onclick="ansQ(this, 2, 0)">
+              <span class="ql">D</span>GB is faster to train than RF on large
+              datasets
+            </div>
+          </div>
+          <div class="qfb" id="qfb2"></div>
+          <div style="margin-top: 11px; text-align: right">
+            <button
+              class="bn"
+              style="display: none"
+              id="qnxt2"
+              onclick="nxtQ(3)"
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+
+        <div class="qc" id="q3">
+          <div class="qn">Question 4 of 5</div>
+          <div class="qt">
+            Which XGBoost advantage is NOT available in sklearn's
+            GradientBoostingClassifier?
+          </div>
+          <div class="qos">
+            <div class="qo" onclick="ansQ(this, 3, 2)">
+              <span class="ql">A</span>Decision tree base learners
+            </div>
+            <div class="qo" onclick="ansQ(this, 3, 2)">
+              <span class="ql">B</span>Feature importance scores
+            </div>
+            <div class="qo" onclick="ansQ(this, 3, 2)">
+              <span class="ql">C</span>Built-in L1/L2 regularisation and GPU
+              support
+            </div>
+            <div class="qo" onclick="ansQ(this, 3, 2)">
+              <span class="ql">D</span>Cross-validation support
+            </div>
+          </div>
+          <div class="qfb" id="qfb3"></div>
+          <div style="margin-top: 11px; text-align: right">
+            <button
+              class="bn"
+              style="display: none"
+              id="qnxt3"
+              onclick="nxtQ(4)"
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+
+        <div class="qc" id="q4">
+          <div class="qn">Question 5 of 5</div>
+          <div class="qt">
+            What is the purpose of setting <code>subsample < 1.0</code> in
+            Gradient Boosting?
+          </div>
+          <div class="qos">
+            <div class="qo" onclick="ansQ(this, 4, 1)">
+              <span class="ql">A</span>It makes the model train on fewer
+              features to reduce dimensionality
+            </div>
+            <div class="qo" onclick="ansQ(this, 4, 1)">
+              <span class="ql">B</span>It introduces stochasticity (random
+              sampling of rows) to reduce overfitting and variance
+            </div>
+            <div class="qo" onclick="ansQ(this, 4, 1)">
+              <span class="ql">C</span>It limits the maximum depth of each tree
+              in the ensemble
+            </div>
+            <div class="qo" onclick="ansQ(this, 4, 1)">
+              <span class="ql">D</span>It controls the fraction of labels used
+              for training
+            </div>
+          </div>
+          <div class="qfb" id="qfb4"></div>
+          <div style="margin-top: 11px; text-align: right">
+            <button
+              class="bn"
+              style="display: none"
+              id="qnxt4"
+              onclick="showScore()"
+            >
+              See Results →
+            </button>
+          </div>
+        </div>
+
+        <div class="qc" id="qsc">
+          <div class="scw">
+            <div
+              class="sring"
+              id="scring"
+              style="background: conic-gradient(var(--g) 0%, var(--bdr) 0%)"
+            >
+              <div class="sin">
+                <div class="sn" id="scn">0</div>
+                <div class="sd2">out of 5</div>
+              </div>
+            </div>
+            <div
+              style="font-size: 20px; font-weight: 800; margin-bottom: 7px"
+              id="scmsg"
+            ></div>
+            <div
+              style="font-size: 13.5px; color: var(--ink2); margin-bottom: 14px"
+              id="scdet"
+            ></div>
+            <button class="rbtn" onclick="go(7)">🎉 Complete Module →</button>
+          </div>
+        </div>
+
+        <div class="pgf">
+          <button class="bp" onclick="go(5)">← Exercises</button><span></span>
+        </div>
+      </div>
+
+      <!-- ══ PAGE 7: COMPLETION ══ -->
+      <div class="pg" id="pg7">
+        <div class="cmpw">
+          <span class="cmpi">🏆</span>
+          <div class="cmpt">GB Module Complete!</div>
+          <div class="cmps">
+            You've mastered Gradient Boosting — one of the most powerful
+            techniques in all of machine learning!
+          </div>
+          <div class="skw">
+            <span
+              class="sk"
+              style="
+                border-color: var(--p);
+                color: var(--p);
+                animation-delay: 0s;
+              "
+              >🌳 Boosting Algorithm</span
+            >
+            <span
+              class="sk"
+              style="
+                border-color: var(--g);
+                color: var(--g);
+                animation-delay: 0.07s;
+              "
+              >📉 Pseudo-Residuals</span
+            >
+            <span
+              class="sk"
+              style="
+                border-color: var(--p2);
+                color: var(--p2);
+                animation-delay: 0.14s;
+              "
+              >📊 Loss Functions</span
+            >
+            <span
+              class="sk"
+              style="
+                border-color: var(--amber);
+                color: var(--amber);
+                animation-delay: 0.21s;
+              "
+              >⚙️ Hyperparameters</span
+            >
+            <span
+              class="sk"
+              style="
+                border-color: var(--rose);
+                color: var(--rose);
+                animation-delay: 0.28s;
+              "
+              >⚡ XGBoost</span
+            >
+            <span
+              class="sk"
+              style="
+                border-color: var(--teal);
+                color: var(--teal);
+                animation-delay: 0.35s;
+              "
+              >🚀 LightGBM</span
+            >
+            <span
+              class="sk"
+              style="
+                border-color: var(--g2);
+                color: var(--g2);
+                animation-delay: 0.42s;
+              "
+              >🛑 Early Stopping</span
+            >
+            <span
+              class="sk"
+              style="
+                border-color: var(--p);
+                color: var(--p);
+                animation-delay: 0.49s;
+              "
+              >🐍 scikit-learn</span
+            >
+          </div>
+          <button class="rbtn" onclick="restartAll()">↺ Restart Module</button>
+        </div>
+      </div>
+    </main>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.43.3/ace.js"
+      integrity="sha512-T2otaV2NuxAJAOCoj8ijyy+eAAadZlpvdLmakrIGVFbBkthgIFqLTXd+T8Z+S+kf4V7Ib5+6f6r4D4IdS9Ey4A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script>
+      // ════════════════════════════════
+      // NAVIGATION
+      // ════════════════════════════════
+      let cur = 0,
+        qScore = 0;
+      const TOTAL = 8;
+      const done = new Set([0]);
+      for(let ind = 0 ; ind < 4 ; ind++){
+
+        var editor = ace.edit("editor"+ind);
+        editor.setTheme("ace/theme/monokai");
+        editor.session.setMode("ace/mode/python");
+      }
+      function go(idx) {
+        document.getElementById("pg" + cur).classList.remove("on");
+        document.getElementById("nv" + cur).classList.remove("on");
+        done.add(cur);
+        document.getElementById("nc" + cur).textContent = "✓";
+        document.getElementById("nv" + cur).classList.add("done");
+        cur = idx;
+        document.getElementById("pg" + idx).classList.add("on");
+        document.getElementById("nv" + idx).classList.add("on");
+        document.getElementById("nv" + idx).classList.remove("done");
+        const pct = Math.round((done.size / TOTAL) * 100);
+        document.getElementById("tf").style.width = pct + "%";
+        document.getElementById("tpct").textContent = pct + "%";
+        document
+          .getElementById("main")
+          .scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // ════════════════════════════════
+      // RUN DEMO
+      // ════════════════════════════════
+      function showOut(id) {
+        const el = document.getElementById(id);
+        el.classList.add("sh");
+        el.style.animation = "none";
+        setTimeout(() => (el.style.animation = ""), 10);
+      }
+
+      // ════════════════════════════════
+      // STEP VIZ
+      // ════════════════════════════════
+      function actS(i, id) {
+        document
+          .getElementById(id)
+          .querySelectorAll(".si")
+          .forEach((s, j) => s.classList.toggle("act", j === i));
+      }
+
+      // ════════════════════════════════
+      // BOOST TREE SEQUENCER
+      // ════════════════════════════════
+      const boostMsgs = [
+        '<strong style="color:var(--p)">Tree 1 — Initial learner:</strong> Trained on the original data. Makes the best predictions it can with a shallow tree (depth=3). Still makes many mistakes — 32% error rate. This is our starting point F₁(x).',
+        '<strong style="color:var(--amber)">Tree 2 — Corrects Tree 1\'s mistakes:</strong> Trained on the residuals of Tree 1 (where it was wrong). Focuses on the hard cases Tree 1 missed. Error drops to 21%. Combined prediction: F₂(x) = F₁(x) + η·h₂(x).',
+        '<strong style="color:var(--teal)">Tree 3 — Corrects residual errors:</strong> Trained on what Trees 1+2 still get wrong. The ensemble is getting smarter. Error: 14%. Each tree is like a specialist handling the cases the team still struggles with.',
+        '<strong style="color:var(--g)">Tree 4 — Fine-tuning:</strong> Handles the remaining difficult cases. Notice how diminishing returns are setting in — each tree improves less than the previous. Error: 9%. This is why early stopping helps.',
+        '<strong style="color:var(--g2)">Final Ensemble — Sum of all trees:</strong> F(x) = F₀ + η(h₁ + h₂ + h₃ + h₄ + ...). All trees vote together, weighted by learning_rate. Final error: 5%. This is the power of sequential ensemble learning!',
+      ];
+      function selectTree(i) {
+        document.querySelectorAll(".tree-box").forEach((b, j) => {
+          b.classList.toggle("tree-active", j === i);
+        });
+        const info = document.getElementById("boostInfo");
+        info.innerHTML = boostMsgs[i];
+        info.style.animation = "none";
+        setTimeout(() => (info.style.animation = "fi .3s"), 10);
+      }
+
+      // ════════════════════════════════
+      // RESIDUAL VISUALIZER
+      // ════════════════════════════════
+      const initResids = [0.8, 0.65, 0.9, 0.45, 0.7];
+      let curResids = [...initResids];
+      let treeCount = 0;
+      const maxTrees = 8;
+
+      function addBoostTree() {
+        if (treeCount >= maxTrees) {
+          document.getElementById("residMsg").textContent =
+            "Maximum trees reached! Notice how residuals are nearly zero — perfect fit on training data.";
+          return;
+        }
+        const lr = 0.15;
+        treeCount++;
+        document.getElementById("treeCount").textContent = treeCount;
+        curResids = curResids.map((r) =>
+          Math.max(0, r * (1 - lr) - Math.random() * 0.05 * r),
+        );
+        const colors = ["var(--rose)", "var(--amber)", "var(--g)"];
+        curResids.forEach((r, i) => {
+          const fill = document.getElementById("r" + i);
+          const val = document.getElementById("rv" + i);
+          fill.style.width = r * 100 + "%";
+          const col = r > 0.5 ? colors[0] : r > 0.25 ? colors[1] : colors[2];
+          fill.style.background = col;
+          val.style.color = col;
+          val.textContent = r.toFixed(2);
+        });
+        const avgR = curResids.reduce((a, b) => a + b, 0) / curResids.length;
+        const msg =
+          treeCount === 1
+            ? `Tree ${treeCount}: First correction applied! Average residual dropped to ${avgR.toFixed(2)}.`
+            : treeCount < 4
+              ? `Tree ${treeCount}: Residuals shrinking! Avg residual: ${avgR.toFixed(2)}. Each tree patches the previous mistakes.`
+              : avgR < 0.1
+                ? `Tree ${treeCount}: Near-zero residuals! Avg: ${avgR.toFixed(2)}. Careful — we may be overfitting training data.`
+                : `Tree ${treeCount}: Avg residual: ${avgR.toFixed(2)}. Diminishing returns — more trees give smaller improvements.`;
+        document.getElementById("residMsg").textContent = msg;
+      }
+      function resetBoost() {
+        curResids = [...initResids];
+        treeCount = 0;
+        document.getElementById("treeCount").textContent = "0";
+        initResids.forEach((r, i) => {
+          document.getElementById("r" + i).style.width = r * 100 + "%";
+          document.getElementById("r" + i).style.background = "var(--rose)";
+          document.getElementById("rv" + i).style.color = "var(--rose)";
+          document.getElementById("rv" + i).textContent = r.toFixed(2);
+        });
+        document.getElementById("residMsg").textContent =
+          "👆 Start adding trees to see residuals shrink!";
+      }
+
+      // ════════════════════════════════
+      // HYPERPARAMETER SIMULATOR
+      // ════════════════════════════════
+      function updateHPSim() {
+        const n = +document.getElementById("sl_n").value;
+        const lr = +document.getElementById("sl_lr").value / 100;
+        const md = +document.getElementById("sl_md").value;
+        const ss = +document.getElementById("sl_ss").value / 10;
+        document.getElementById("sv_n").textContent = n;
+        document.getElementById("sv_lr").textContent = lr.toFixed(2);
+        document.getElementById("sv_md").textContent = md;
+        document.getElementById("sv_ss").textContent = ss.toFixed(1);
+
+        // Simulate acc based on params
+        let trainAcc =
+          85 + Math.min((n / 300) * 12, 12) + md * 0.8 - (lr > 0.3 ? 5 : 0);
+        let valAcc =
+          82 +
+          Math.min((n / 300) * 10, 10) -
+          (md > 5 ? md * 1.2 : 0) -
+          (lr > 0.3 ? 8 : 0) +
+          (ss < 1 ? 1.5 : 0);
+        trainAcc = Math.min(99.5, trainAcc + (md > 4 ? 2 : 0));
+        valAcc = Math.min(99, valAcc);
+        const gap = trainAcc - valAcc;
+        let status, statusCol, msg;
+        if (gap > 12) {
+          status = "🔴 Overfitting";
+          statusCol = "var(--rose)";
+          msg =
+            "Large gap between train and val accuracy. Try: reduce max_depth, lower n_estimators, add subsample < 1.0.";
+        } else if (gap < 2 && valAcc < 85) {
+          status = "🟡 Underfitting";
+          statusCol = "var(--amber)";
+          msg =
+            "Both accuracies are low. Try: increase n_estimators, slightly increase max_depth, check learning_rate isn't too high.";
+        } else {
+          status = "🟢 Good Fit";
+          statusCol = "var(--g)";
+          msg =
+            "Nice balance! Small train-val gap with solid accuracy. This is the sweet spot for gradient boosting.";
+        }
+        const trainTime = (n * md * 0.004 * (1 / ss)).toFixed(1);
+        document.getElementById("hp_train").textContent =
+          trainAcc.toFixed(1) + "%";
+        document.getElementById("hp_val").textContent = valAcc.toFixed(1) + "%";
+        document.getElementById("hp_status").textContent = status;
+        document.getElementById("hp_status").style.color = statusCol;
+        document.getElementById("hp_time").textContent = trainTime + "s";
+        document.getElementById("hpMsg").textContent = msg;
+      }
+
+      // ════════════════════════════════
+      // SCENARIO CARDS
+      // ════════════════════════════════
+      function selScen(el, key) {
+        document
+          .querySelectorAll(".scen")
+          .forEach((s) => s.classList.remove("sel"));
+        el.classList.add("sel");
+      }
+
+      // ════════════════════════════════
+      // QUIZ
+      // ════════════════════════════════
+      const qOK = [
+        '✅ Correct! Each new tree in GB learns to predict the negative gradient of the loss — the pseudo-residuals. This is what makes GB "gradient" boosting. It corrects where previous trees were wrong.',
+        "✅ Correct! A high learning_rate means large steps — the model can overshoot the minimum, oscillate, or overfit severely. Lower lr + more trees is almost always better.",
+        "✅ Correct! GB is sequential — each tree sees and corrects the errors of all previous trees. RF builds all trees independently in parallel using bagging. This is the fundamental difference.",
+        "✅ Correct! Sklearn's GB has no built-in L1/L2 regularisation or GPU support. XGBoost adds reg_alpha (L1), reg_lambda (L2), and GPU acceleration — major advantages for production use.",
+        "✅ Correct! subsample controls row sampling — each tree is trained on a random fraction of training rows. This stochasticity reduces overfitting and variance, similar to Random Forest's bagging idea.",
+      ];
+      const qNG = [
+        "❌ GB trees do NOT learn the original labels. Each tree learns the residuals — the negative gradient of the loss — from the combined predictions of all previous trees.",
+        "❌ A high learning_rate doesn't make training slower. It makes larger steps that can overshoot the optimum, causing overfitting or instability. Use lr=0.05-0.1 as a safe default.",
+        "❌ It's the opposite: GB uses boosting (sequential), RF uses bagging (parallel). Both use decision trees, but their construction strategies are fundamentally different.",
+        "❌ Feature importance is available in both. The key XGBoost advantages are L1/L2 regularisation (reg_alpha/lambda), GPU support, and built-in handling of missing values.",
+        "❌ subsample controls row sampling, not feature selection. It randomly selects a fraction of training samples for each tree. For feature sampling, use colsample_bytree/colsample_bylevel.",
+      ];
+      const qCORR = [1, 0, 0, 2, 1];
+
+      function ansQ(el, qi, ci) {
+        const q = document.getElementById("q" + qi);
+        if (q.querySelector(".dis")) return;
+        q.querySelectorAll(".qo").forEach((o) => o.classList.add("dis"));
+        const chosen = Array.from(q.querySelectorAll(".qo")).indexOf(el);
+        const fb = document.getElementById("qfb" + qi);
+        const dot = document.getElementById("qd" + qi);
+        if (chosen === ci) {
+          el.classList.add("ok");
+          fb.className = "qfb sh ok";
+          fb.textContent = qOK[qi];
+          qScore++;
+          dot.classList.add("ok");
+        } else {
+          el.classList.add("ng");
+          q.querySelectorAll(".qo")[ci].classList.add("ok");
+          fb.className = "qfb sh ng";
+          fb.textContent = qNG[qi];
+          dot.classList.add("ng");
+        }
+        const nb = document.getElementById("qnxt" + qi);
+        if (nb) nb.style.display = "inline-flex";
+        const nd = document.getElementById("qd" + (qi + 1));
+        if (nd) nd.classList.add("cur");
+      }
+      function nxtQ(i) {
+        document.getElementById("q" + (i - 1)).classList.remove("on");
+        document.getElementById("q" + i).classList.add("on");
+      }
+      function showScore() {
+        document.getElementById("q4").classList.remove("on");
+        document.getElementById("qsc").classList.add("on");
+        const pct = (qScore / 5) * 100;
+        document.getElementById("scring").style.background =
+          `conic-gradient(var(--g) ${pct}%,var(--bdr) ${pct}%)`;
+        document.getElementById("scn").textContent = qScore;
+        const msgs = [
+          "Keep at it! 💪",
+          "Good effort! 👍",
+          "Well done! 🌟",
+          "Excellent! ⭐",
+          "Perfect! 🏆",
+          "Perfect! 🏆",
+        ];
+        document.getElementById("scmsg").textContent = msgs[qScore];
+        document.getElementById("scdet").textContent =
+          qScore === 5
+            ? "Flawless! You truly understand Gradient Boosting 🎉"
+            : `You scored ${qScore}/5. Review the concepts and try again!`;
+      }
+
+      // ════════════════════════════════
+      // EXERCISES
+      // ════════════════════════════════
+      function toggleSol(btn, id) {
+        const el = document.getElementById(id);
+        el.classList.toggle("op");
+        btn.textContent = el.classList.contains("op")
+          ? "🙈 Hide Solution"
+          : "💡 Show Solution";
+      }
+
+      // ════════════════════════════════
+      // RESTART
+      // ════════════════════════════════
+      function restartAll() {
+        qScore = 0;
+        done.clear();
+        done.add(0);
+        document
+          .querySelectorAll(".qc")
+          .forEach((q) => q.classList.remove("on"));
+        document.getElementById("q0").classList.add("on");
+        document
+          .querySelectorAll(".qo")
+          .forEach((o) => o.classList.remove("ok", "ng", "dis"));
+        document.querySelectorAll(".qfb").forEach((f) => (f.className = "qfb"));
+        document
+          .querySelectorAll('[id^="qnxt"]')
+          .forEach((b) => (b.style.display = "none"));
+        document.querySelectorAll(".qd").forEach((d, i) => {
+          d.className = "qd" + (i === 0 ? " cur" : "");
+        });
+        document
+          .querySelectorAll(".sol")
+          .forEach((s) => s.classList.remove("op"));
+        document
+          .querySelectorAll(".sbt")
+          .forEach((b) => (b.textContent = "💡 Show Solution"));
+        resetBoost();
+        go(0);
+      }
+    </script>
+  </body>
+</html>
+HTMLEOF echo "Done: $(wc -c <
+/mnt/user-data/outputs/gradient_boosting_module.html) bytes"
