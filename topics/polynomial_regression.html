@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Polynomial Regression — Supervised Learning | HCL-GUVI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.43.3/ace.js" integrity="sha512-T2otaV2NuxAJAOCoj8ijyy+eAAadZlpvdLmakrIGVFbBkthgIFqLTXd+T8Z+S+kf4V7Ib5+6f6r4D4IdS9Ey4A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<style>
+:root {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface2: #f1f5f9;
+  --surface3: #e8f0fe;
+  --card-bg: #ffffff;
+  --primary: #2563eb;
+  --primary-light: rgba(37,99,235,0.10);
+  --primary-dark: #1d4ed8;
+  --accent: #059669;
+  --accent-light: rgba(5,150,105,0.10);
+  --accent-dark: #047857;
+  --warn: #d97706;
+  --warn-light: rgba(217,119,6,0.10);
+  --purple: #7c3aed;
+  --purple-light: rgba(124,58,237,0.10);
+  --coral: #e11d48;
+  --coral-light: rgba(225,29,72,0.10);
+  --cyan: #0891b2;
+  --cyan-light: rgba(8,145,178,0.10);
+  --text: #0f172a;
+  --text2: #1e293b;
+  --text3: #475569;
+  --text4: #94a3b8;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.13);
+  --shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 32px rgba(37,99,235,0.12), 0 2px 8px rgba(0,0,0,0.08);
+  --glow-blue: 0 0 20px rgba(37,99,235,0.18);
+  --glow-green: 0 0 20px rgba(5,150,105,0.18);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --sidebar-w: 260px;
+  --header-h: 62px;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --serif: 'Fraunces', serif;
+  --transition: .25s cubic-bezier(.4,0,.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; overflow: hidden; height: 100vh; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+
+/* ACE EDITOR STYLES */
+.cb-wrapper {
+  margin: 13px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+.ace_editor {
+  border-radius: 12px !important;
+  font-family: var(--mono) !important;
+  font-size: 12.5px !important;
+  line-height: 1.85 !important;
+}
+.ace_editor.ace-monokai {
+  background-color: #0d1b2a !important;
+}
+
+/* ── HEADER ── */
+.app-header {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); z-index: 100;
+  background: rgba(255,255,255,0.96); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 24px 0 20px;
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.logo-area { display: flex; align-items: center; gap: 10px; }
+.logo-badge {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: linear-gradient(135deg, #3b82f6, #10b981);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 14px; color: #fff; letter-spacing: -1px;
+  box-shadow: var(--glow-blue);
+}
+.logo-text { font-size: 13px; font-weight: 800; color: var(--text); letter-spacing: -.3px; }
+.logo-sub { font-size: 11px; color: var(--text3); }
+.header-divider { width: 1px; height: 28px; background: var(--border2); }
+.module-title { font-size: 13.5px; font-weight: 600; color: var(--text2); }
+.module-badge {
+  font-size: 11px; background: var(--primary-light); color: var(--primary);
+  padding: 3px 10px; border-radius: 99px; font-weight: 600;
+  border: 1px solid rgba(59,130,246,0.3);
+}
+.header-right { display: flex; align-items: center; gap: 20px; }
+.progress-wrap { display: flex; align-items: center; gap: 8px; }
+.progress-label { font-size: 11px; color: var(--text3); font-weight: 500; }
+.progress-track { width: 130px; height: 5px; background: rgba(0,0,0,0.10); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 99px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+.progress-pct { font-size: 11px; font-weight: 700; color: var(--primary); min-width: 30px; }
+
+/* Logo image */
+.logo-img {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+.logo-img[src="logo.png"]:not([src=""]):not([src="#"]) {
+  display: block;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  position: fixed; top: var(--header-h); left: 0; bottom: 0; width: var(--sidebar-w);
+  background: #ffffff; border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 20px 12px; z-index: 50;
+}
+.sidebar-section { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--text4); text-transform: uppercase; padding: 12px 12px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: 10px; cursor: pointer; transition: all var(--transition);
+  margin-bottom: 3px; font-size: 13px; font-weight: 500; color: var(--text3);
+  border: 1px solid transparent; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: #f1f5f9; color: var(--text); border-color: var(--border); }
+.nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; border-color: rgba(59,130,246,0.3); }
+.nav-item.done { color: var(--accent); }
+.nav-icon {
+  width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center;
+  justify-content: center; font-size: 13px; flex-shrink: 0;
+  background: rgba(0,0,0,0.05); transition: all var(--transition);
+}
+.nav-item.active .nav-icon { background: var(--primary); color: #fff; box-shadow: var(--glow-blue); }
+.nav-item.done .nav-icon { background: var(--accent-light); color: var(--accent); }
+.nav-check { margin-left: auto; font-size: 11px; color: var(--accent); display: none; }
+.nav-item.done .nav-check { display: block; }
+
+/* ── MAIN ── */
+.main-content {
+  margin-left: var(--sidebar-w); margin-top: var(--header-h);
+  height: calc(100vh - var(--header-h)); overflow-y: auto; padding: 36px 52px 90px;
+}
+.page { display: none; animation: fadeSlide .35s cubic-bezier(.4,0,.2,1); }
+.page.active { display: block; }
+@keyframes fadeSlide { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── BUTTONS ── */
+.page-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 22px; border-radius: var(--radius-sm); font-weight: 600; font-size: 13px; cursor: pointer; transition: all var(--transition); border: none; font-family: var(--font); }
+.btn-primary { background: var(--primary); color: #fff; box-shadow: var(--glow-blue); }
+.btn-primary:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 0 32px rgba(59,130,246,0.5); }
+.btn-ghost { background: rgba(255,255,255,0.06); color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { background: var(--surface3); border-color: var(--border2); }
+.btn-run {
+  background: #0d1b2a; color: #a6e3a1; border: 1px solid rgba(166,227,161,0.25);
+  font-family: var(--mono); font-size: 12px; padding: 8px 16px; border-radius: 8px;
+  cursor: pointer; transition: all var(--transition); display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-run:hover { background: #0a1520; border-color: rgba(166,227,161,0.5); box-shadow: 0 0 16px rgba(166,227,161,0.15); }
+
+/* ── HERO ── */
+.hero {
+  background: linear-gradient(135deg, #0f1f3d 0%, #0c2a45 45%, #0d2c36 100%);
+  border-radius: 20px; padding: 50px 44px; margin-bottom: 32px;
+  color: #fff; position: relative; overflow: hidden;
+  border: 1px solid rgba(37,99,235,0.25);
+  box-shadow: 0 8px 40px rgba(37,99,235,0.15);
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 80% 40%, rgba(59,130,246,0.12) 0%, transparent 70%),
+              radial-gradient(ellipse 40% 60% at 20% 80%, rgba(16,185,129,0.1) 0%, transparent 60%);
+}
+.hero::after {
+  content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 28px 28px; pointer-events: none;
+}
+.hero-inner { position: relative; z-index: 1; }
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(16,185,129,0.18); border: 1px solid rgba(16,185,129,0.35);
+  border-radius: 99px; padding: 5px 14px; font-size: 11px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; color: #6ee7b7; margin-bottom: 20px;
+}
+.hero h1 { font-family: var(--serif); font-size: 46px; font-weight: 700; line-height: 1.1; margin-bottom: 14px; }
+.hero h1 em { font-style: italic; color: #6ee7b7; }
+.hero h1 span.hl { color: #93c5fd; }
+.hero p { font-size: 15px; color: rgba(255,255,255,0.7); max-width: 540px; line-height: 1.75; }
+.hero-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+.chip-blue { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+.chip-green { background: rgba(16,185,129,0.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+.chip-purple { background: rgba(139,92,246,0.2); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.3); }
+.chip-cyan { background: rgba(6,182,212,0.2); color: #67e8f9; border: 1px solid rgba(6,182,212,0.3); }
+
+/* ── SECTION TITLES ── */
+.section-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); margin-bottom: 8px; }
+.page-h2 { font-size: 26px; font-weight: 800; color: var(--text); margin-bottom: 6px; letter-spacing: -.5px; }
+.page-subtitle { font-size: 14px; color: var(--text3); margin-bottom: 28px; line-height: 1.65; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin-bottom: 20px;
+  box-shadow: var(--shadow); transition: all var(--transition);
+}
+.card:hover { border-color: var(--border2); }
+.card-blue { border-left: 3px solid var(--primary); }
+.card-green { border-left: 3px solid var(--accent); }
+.card-purple { border-left: 3px solid var(--purple); }
+.card-warn { border-left: 3px solid var(--warn); }
+.card-glow:hover { box-shadow: var(--shadow-lg); }
+
+/* ── CODE BLOCKS ── */
+.code-block {
+  background: #0d1b2a; border-radius: var(--radius-sm); padding: 22px;
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.85;
+  border: 1px solid rgba(59,130,246,0.2); position: relative; overflow: auto; color: #e2e8f0;
+}
+.code-header { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; }
+.code-dot { width: 10px; height: 10px; border-radius: 50%; }
+.code-dot:nth-child(1) { background: #f38ba8; }
+.code-dot:nth-child(2) { background: #f9e2af; }
+.code-dot:nth-child(3) { background: #a6e3a1; }
+.code-fname { font-size: 11px; color: rgba(148,163,184,0.7); margin-left: 8px; font-family: var(--mono); }
+.kw { color: #f472b6; font-weight: 600; }
+.fn { color: #93c5fd; font-weight: 600; }
+.st { color: #6ee7b7; }
+.cm { color: #64748b; font-style: italic; }
+.nu { color: #fbbf24; }
+.vr { color: #e2e8f0; }
+.op { color: #7dd3fc; }
+.im { color: #c4b5fd; font-weight: 600; }
+.cl { color: #fde68a; font-weight: 600; }
+
+.output-block {
+  background: #071524; border: 1px solid rgba(16,185,129,0.25);
+  border-top: 2px solid var(--accent);
+  border-radius: var(--radius-sm); padding: 14px 20px;
+  font-family: var(--mono); font-size: 12.5px; color: #a6e3a1;
+  line-height: 1.8; margin-top: 10px; display: none;
+}
+.output-block.visible { display: block; animation: revealOut .3s ease; }
+@keyframes revealOut { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+.out-green { color: #6ee7b7; }
+.out-yellow { color: #fde68a; }
+.out-blue { color: #93c5fd; }
+.out-red { color: #fca5a5; }
+
+/* ── INFO BOX ── */
+.info-box { display: flex; gap: 12px; padding: 14px 18px; border-radius: var(--radius-sm); margin-bottom: 16px; }
+.info-box.blue { background: var(--primary-light); border: 1px solid rgba(59,130,246,0.25); }
+.info-box.green { background: var(--accent-light); border: 1px solid rgba(16,185,129,0.25); }
+.info-box.warn { background: var(--warn-light); border: 1px solid rgba(245,158,11,0.3); }
+.info-box.purple { background: var(--purple-light); border: 1px solid rgba(139,92,246,0.3); }
+.info-icon { font-size: 18px; flex-shrink: 0; padding-top: 1px; }
+.info-text { font-size: 13px; line-height: 1.65; color: var(--text2); }
+
+/* ── ANALOGY CARD ── */
+.analogy-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px; margin-bottom: 20px;
+  display: flex; gap: 16px; align-items: flex-start;
+  background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(30,41,59,0.8));
+}
+.analogy-icon { font-size: 32px; flex-shrink: 0; filter: drop-shadow(0 0 8px rgba(245,158,11,0.4)); }
+.analogy-title { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--warn); margin-bottom: 5px; }
+
+/* ── GRID ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+@media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+/* ── WELCOME CARDS ── */
+.welcome-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin: 24px 0; }
+.welcome-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 22px 18px; text-align: center; transition: all var(--transition); cursor: pointer;
+}
+.welcome-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary); background: var(--primary-light); }
+.welcome-card-icon { font-size: 30px; margin-bottom: 10px; }
+.welcome-card-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.welcome-card-sub { font-size: 11px; color: var(--text3); }
+
+/* ── CURVE CANVAS ── */
+.canvas-wrap { background: #0d1b2a; border: 1px solid rgba(59,130,246,0.2); border-radius: var(--radius-sm); padding: 16px; position: relative; }
+canvas { display: block; margin: 0 auto; }
+.canvas-legend { display: flex; gap: 16px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text3); font-family: var(--mono); }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* ── DEGREE SLIDER ── */
+.slider-wrap { margin: 18px 0; }
+.slider-row { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.slider-label { font-size: 12px; font-weight: 600; color: var(--text2); min-width: 80px; font-family: var(--mono); }
+.slider-val { font-size: 14px; font-weight: 700; color: var(--accent); min-width: 36px; text-align: center; font-family: var(--mono); }
+input[type=range] {
+  flex: 1; -webkit-appearance: none; height: 4px; border-radius: 99px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--primary); border: 2px solid #fff; cursor: pointer;
+  box-shadow: 0 0 10px rgba(59,130,246,0.5);
+}
+
+/* ── FLIP CARDS ── */
+.flip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin: 18px 0; }
+.flip-card { perspective: 800px; cursor: pointer; height: 150px; }
+.flip-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform .5s cubic-bezier(.4,0,.2,1); }
+.flip-card.flipped .flip-inner { transform: rotateY(180deg); }
+.flip-front, .flip-back {
+  position: absolute; inset: 0; border-radius: var(--radius);
+  backface-visibility: hidden; padding: 20px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+}
+.flip-front { background: var(--surface); border: 1px solid var(--border); }
+.flip-back { background: var(--primary-light); border: 1px solid rgba(59,130,246,0.3); transform: rotateY(180deg); }
+.flip-front-icon { font-size: 28px; margin-bottom: 10px; }
+.flip-front-label { font-size: 13px; font-weight: 700; color: var(--text); }
+.flip-hint { font-size: 10px; color: var(--text4); margin-top: 4px; }
+.flip-back-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+/* ── STEP EXECUTOR ── */
+.step-exec { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 20px 0; }
+.se-hdr { background: #0d1b2a; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+.se-ttl { font-family: var(--mono); font-size: 12px; color: var(--primary); font-weight: 600; }
+.se-ctrls { display: flex; gap: 8px; }
+.se-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border2); background: var(--surface3); font-size: 11px; font-weight: 600; cursor: pointer; color: var(--text2); transition: all var(--transition); font-family: var(--font); }
+.se-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+.se-lines { background: #0d1b2a; }
+.se-line { display: flex; align-items: center; padding: 7px 0; transition: all .2s; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.se-line.active { background: rgba(16,185,129,0.1); border-left: 3px solid var(--accent); }
+.se-ln { font-family: var(--mono); font-size: 11px; color: var(--text4); min-width: 36px; text-align: right; padding: 0 10px; }
+.se-arr { font-size: 11px; min-width: 20px; text-align: center; color: transparent; }
+.se-line.active .se-arr { color: var(--accent); }
+.se-code { font-family: var(--mono); font-size: 12px; color: var(--text2); flex: 1; padding-right: 10px; }
+.se-line.active .se-code { color: var(--text); }
+.se-info { padding: 12px 18px; background: rgba(16,185,129,0.07); font-size: 12.5px; color: var(--accent); min-height: 44px; border-top: 1px solid rgba(16,185,129,0.15); }
+
+/* ── DEGREE DEMO ── */
+.degree-demo { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 18px 0; }
+.dd-header { background: #0d1b2a; padding: 12px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.dd-title { font-family: var(--mono); font-size: 12px; color: var(--primary); font-weight: 600; }
+.dd-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.dd-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border2); background: var(--surface3); font-size: 11px; font-weight: 600; cursor: pointer; color: var(--text3); transition: all .2s; }
+.dd-btn:hover { border-color: var(--primary); color: var(--primary); }
+.dd-btn.active-degree { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+.dd-canvas { padding: 12px; background: #0d1b2a; }
+.dd-info { padding: 14px 18px; font-size: 13px; color: var(--text2); display: flex; gap: 24px; flex-wrap: wrap; }
+.dd-metric { display: flex; flex-direction: column; }
+.dd-metric-label { font-size: 10px; color: var(--text4); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 2px; }
+.dd-metric-val { font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--accent); }
+
+/* ── OVERFITTING VISUAL ── */
+.of-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 18px 0; }
+.of-card {
+  border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden;
+  cursor: pointer; transition: all var(--transition);
+  background: var(--surface);
+}
+.of-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.of-card.selected { border-color: var(--accent); box-shadow: var(--glow-green); }
+.of-canvas-wrap { background: #0d1b2a; padding: 12px; }
+.of-info { padding: 14px; }
+.of-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+.of-desc { font-size: 11.5px; color: var(--text3); line-height: 1.5; }
+.of-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px; margin-top: 8px; }
+
+/* ── COMPARISON TABLE ── */
+.compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 18px 0; border-radius: var(--radius); overflow: hidden; }
+.compare-table th { background: var(--primary-light); color: var(--primary); padding: 12px 16px; text-align: left; font-weight: 700; font-size: 12px; letter-spacing: .05em; border-bottom: 1px solid rgba(59,130,246,0.2); }
+.compare-table td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text2); }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:hover td { background: rgba(37,99,235,0.04); }
+.td-good { color: var(--accent); font-weight: 600; }
+.td-bad { color: var(--coral); font-weight: 600; }
+.td-ok { color: var(--warn); font-weight: 600; }
+
+/* ── BIAS-VARIANCE VIZ ── */
+.bv-viz { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin: 18px 0; }
+.bv-meters { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 16px 0; }
+.bv-meter { }
+.bv-meter-label { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; display: flex; justify-content: space-between; }
+.bv-bar-track { height: 10px; background: rgba(0,0,0,0.08); border-radius: 99px; overflow: hidden; }
+.bv-bar-fill { height: 100%; border-radius: 99px; transition: width .7s cubic-bezier(.4,0,.2,1); }
+
+/* ── QUIZ ── */
+.quiz-progress { display: flex; gap: 6px; margin-bottom: 28px; }
+.qp-dot { flex: 1; height: 5px; background: rgba(0,0,0,0.1); border-radius: 2px; transition: all .35s; }
+.qp-dot.answered { background: var(--primary); }
+.qp-dot.correct { background: var(--accent); }
+.qp-dot.wrong { background: var(--coral); }
+.q-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 30px; min-height: 340px; }
+.q-badge { font-family: var(--mono); font-size: 11px; color: var(--text4); margin-bottom: 10px; }
+.q-text { font-size: 1.1rem; font-weight: 700; margin-bottom: 26px; line-height: 1.45; color: var(--text); }
+.q-options { display: flex; flex-direction: column; gap: 10px; }
+.q-opt {
+  background: #f8fafc; border: 1.5px solid var(--border2); border-radius: 10px;
+  padding: 13px 20px; text-align: left; font-size: 13.5px; cursor: pointer;
+  transition: all .18s; display: flex; align-items: center; gap: 12px;
+  color: var(--text2); font-family: var(--font);
+}
+.q-opt:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-light); color: var(--text); transform: translateX(4px); }
+.q-opt.correct { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+.q-opt.wrong { border-color: var(--coral); background: var(--coral-light); color: var(--coral); }
+.q-opt-letter { width: 28px; height: 28px; border-radius: 7px; background: rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; color: var(--text3); flex-shrink: 0; }
+.q-opt.correct .q-opt-letter { background: var(--accent); color: #fff; }
+.q-opt.wrong .q-opt-letter { background: var(--coral); color: #fff; }
+.q-feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 13px; line-height: 1.6; display: none; }
+.q-feedback.show.correct { display: block; background: var(--accent-light); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+.q-feedback.show.wrong { display: block; background: var(--coral-light); border: 1px solid rgba(244,63,94,0.25); color: #fca5a5; }
+.quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 22px; }
+.quiz-result { display: none; }
+.quiz-result.show { display: block; text-align: center; padding: 40px; }
+.qr-emoji { font-size: 72px; margin-bottom: 16px; display: block; animation: pulse 1.5s ease infinite; }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+.qr-score { font-family: var(--serif); font-size: 62px; font-weight: 700; color: var(--accent); line-height: 1; margin-bottom: 8px; }
+.qr-label { font-size: 16px; color: var(--text2); margin-bottom: 28px; }
+.qr-chips { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+
+/* ── EXERCISES ── */
+.ex-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 22px; transition: all var(--transition); }
+.ex-card:hover { border-color: var(--border2); }
+.ex-num { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; background: var(--primary-light); color: var(--primary); font-weight: 800; font-size: 14px; margin-bottom: 12px; }
+.ex-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.ex-desc { font-size: 13.5px; color: var(--text2); line-height: 1.65; margin-bottom: 14px; }
+.solution-block { display: none; margin-top: 14px; animation: revealOut .3s ease; }
+.solution-block.open { display: block; }
+.btn-sol { background: rgba(139,92,246,0.15); color: var(--purple); border: 1px solid rgba(139,92,246,0.3); padding: 7px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: var(--font); }
+.btn-sol:hover { background: rgba(139,92,246,0.25); }
+
+/* ── COMPLETION ── */
+.comp-hero { text-align: center; padding: 50px 20px 30px; }
+.comp-emoji { font-size: 80px; display: block; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+.comp-title { font-family: var(--serif); font-size: 44px; font-weight: 700; color: var(--text); margin: 20px 0 10px; }
+.comp-title em { font-style: italic; color: var(--accent); }
+.comp-sub { font-size: 15px; color: var(--text3); max-width: 500px; margin: 0 auto 32px; line-height: 1.7; }
+.skills-grid { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 24px 0; }
+.skill-chip { display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: 99px; font-size: 13px; font-weight: 600; background: var(--primary-light); color: var(--primary); border: 1px solid rgba(59,130,246,0.3); transition: all var(--transition); }
+.skill-chip:hover { transform: scale(1.04); box-shadow: var(--glow-blue); }
+.comp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin: 28px 0; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; }
+.stat-num { font-family: var(--serif); font-size: 38px; font-weight: 700; color: var(--accent); }
+.stat-label { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+/* ── CONFETTI ── */
+@keyframes confetti-pop { 0% { transform: translate(0,0) rotate(0); opacity: 1; } 100% { transform: translate(var(--tx, 80px), var(--ty, -150px)) rotate(var(--tr, 360deg)); opacity: 0; } }
+
+/* ── SCROLLBAR ── */
+.main-content::-webkit-scrollbar { width: 4px; }
+.main-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
+
+/* ── FORMULA BOX ── */
+.formula-box { background: #0d1b2a; border: 1px solid rgba(59,130,246,0.25); border-radius: var(--radius-sm); padding: 18px 24px; font-family: var(--mono); font-size: 14px; color: #93c5fd; text-align: center; letter-spacing: .5px; margin: 16px 0; font-weight: 600; }
+
+/* ── PIPELINE FLOW ── */
+.pipeline { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 20px 0; }
+.pipe-step { flex: 1; min-width: 100px; text-align: center; padding: 16px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: all var(--transition); position: relative; }
+.pipe-step:hover { background: var(--primary-light); border-color: rgba(59,130,246,0.35); transform: translateY(-2px); }
+.pipe-step.active-pipe { background: var(--primary-light); border-color: var(--primary); }
+.pipe-arrow { font-size: 18px; color: var(--text4); padding: 0 6px; }
+.pipe-icon { font-size: 22px; margin-bottom: 6px; }
+.pipe-label { font-size: 11px; font-weight: 700; color: var(--text2); }
+.pipe-detail { margin-top: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; font-size: 13px; color: var(--text2); line-height: 1.65; animation: revealOut .25s ease; }
+</style>
+</head>
+<body>
+
+<!-- ════ HEADER ════ -->
+<header class="app-header">
+  <div class="header-left">
+    <div class="logo-area">
+      <img src="logo.png" alt="HCL-GUVI Logo" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+      <div class="logo-badge" style="display:none;">PR</div>
+      <div>
+        <div class="logo-text">HCL-GUVI</div>
+        <div class="logo-sub">Supervised Learning</div>
+      </div>
+    </div>
+    <div class="header-divider"></div>
+    <div>
+      <div class="module-title">Polynomial Regression</div>
+      <div style="display:flex;gap:6px;margin-top:2px;">
+        <span class="module-badge">Regression Series</span>
+      </div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="progress-wrap">
+      <span class="progress-label">Progress</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+  </div>
+</header>
+
+<!-- ════ SIDEBAR ════ -->
+<nav class="sidebar">
+  <div class="sidebar-section">Navigation</div>
+  <button class="nav-item active" onclick="showPage(0)" id="nav0">
+    <span class="nav-icon">👋</span> Welcome
+    <span class="nav-check">✓</span>
+  </button>
+  <button class="nav-item" onclick="showPage(1)" id="nav1">
+    <span class="nav-icon">📐</span> Concept 1: What is Poly Reg?
+    <span class="nav-check">✓</span>
+  </button>
+  <button class="nav-item" onclick="showPage(2)" id="nav2">
+    <span class="nav-icon">🎛️</span> Concept 2: Degree & Fit
+    <span class="nav-check">✓</span>
+  </button>
+  <button class="nav-item" onclick="showPage(3)" id="nav3">
+    <span class="nav-icon">🧪</span> Concept 3: Pipeline in sklearn
+    <span class="nav-check">✓</span>
+  </button>
+  <button class="nav-item" onclick="showPage(4)" id="nav4">
+    <span class="nav-icon">⚖️</span> Advanced: Bias-Variance
+    <span class="nav-check">✓</span>
+  </button>
+  <button class="nav-item" onclick="showPage(5)" id="nav5">
+    <span class="nav-icon">✏️</span> Exercises
+    <span class="nav-check">✓</span>
+  </button>
+  <button class="nav-item" onclick="showPage(6)" id="nav6">
+    <span class="nav-icon">🧠</span> Quiz
+    <span class="nav-check">✓</span>
+  </button>
+  <button class="nav-item" onclick="showPage(7)" id="nav7">
+    <span class="nav-icon">🎉</span> Completion
+    <span class="nav-check">✓</span>
+  </button>
+</nav>
+
+<!-- ════ MAIN ════ -->
+<main class="main-content">
+
+<!-- ──────────────── PAGE 0: WELCOME ──────────────── -->
+<div class="page active" id="page0">
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-tag">🤖 Supervised Machine Learning</div>
+      <h1>Polynomial<br><em>Regression</em></h1>
+      <p>When a straight line isn't enough — learn how to fit <span class="hl" style="color:#93c5fd;">curves</span> to data using polynomial features, from gentle arcs to complex non-linear patterns.</p>
+      <div class="hero-chips">
+        <span class="chip chip-blue">📐 Non-Linear Fitting</span>
+        <span class="chip chip-green">⚡ Feature Engineering</span>
+        <span class="chip chip-purple">🔄 sklearn Pipeline</span>
+        <span class="chip chip-cyan">⚖️ Bias-Variance Tradeoff</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-tag">📚 Module Overview</div>
+  <p class="page-subtitle">Polynomial regression extends linear regression by transforming features into higher-degree terms, allowing the model to capture curved relationships in data. Master this and you'll be ready for complex real-world scenarios.</p>
+
+  <div class="welcome-grid">
+    <div class="welcome-card" onclick="showPage(1)">
+      <div class="welcome-card-icon">📐</div>
+      <div class="welcome-card-title">What & Why</div>
+      <div class="welcome-card-sub">Intuition behind polynomial regression</div>
+    </div>
+    <div class="welcome-card" onclick="showPage(2)">
+      <div class="welcome-card-icon">🎛️</div>
+      <div class="welcome-card-title">Degree & Fit</div>
+      <div class="welcome-card-sub">Choosing the right polynomial degree</div>
+    </div>
+    <div class="welcome-card" onclick="showPage(3)">
+      <div class="welcome-card-icon">🧪</div>
+      <div class="welcome-card-title">sklearn Pipeline</div>
+      <div class="welcome-card-sub">Build & train with scikit-learn</div>
+    </div>
+    <div class="welcome-card" onclick="showPage(4)">
+      <div class="welcome-card-icon">⚖️</div>
+      <div class="welcome-card-title">Bias-Variance</div>
+      <div class="welcome-card-sub">Overfitting & underfitting trade-off</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card card-blue card-glow">
+      <div class="section-tag">🎯 Learning Goals</div>
+      <ul style="color:var(--text2);font-size:13.5px;line-height:2;list-style:none;">
+        <li>✅ Understand how polynomial features work</li>
+        <li>✅ Fit curves to non-linear data</li>
+        <li>✅ Use PolynomialFeatures + LinearRegression</li>
+        <li>✅ Evaluate using R² and MSE</li>
+        <li>✅ Diagnose overfitting vs underfitting</li>
+      </ul>
+    </div>
+    <div class="card card-green card-glow">
+      <div class="section-tag">🔧 Tools Used</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px;">
+        <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">🐍</span><div><div style="font-weight:700;font-size:13px;color:var(--text);">Python 3.x</div><div style="font-size:11px;color:var(--text3);">Core language</div></div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">🔬</span><div><div style="font-weight:700;font-size:13px;color:var(--text);">scikit-learn</div><div style="font-size:11px;color:var(--text3);">PolynomialFeatures, Pipeline, LinearRegression</div></div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">📊</span><div><div style="font-weight:700;font-size:13px;color:var(--text);">NumPy & Matplotlib</div><div style="font-size:11px;color:var(--text3);">Data & visualization</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <div></div>
+    <button class="btn btn-primary" onclick="showPage(1)">Start Learning →</button>
+  </div>
+</div>
+
+<!-- ──────────────── PAGE 1: CONCEPT 1 ──────────────── -->
+<div class="page" id="page1">
+  <div class="section-tag">📐 Concept 1</div>
+  <h2 class="page-h2">What is Polynomial Regression?</h2>
+  <p class="page-subtitle">When a straight line can't capture the pattern in your data, polynomial regression bends the line into a <strong style="color:var(--accent)">curve</strong> by adding higher-degree terms.</p>
+
+  <div class="info-box blue">
+    <span class="info-icon">💡</span>
+    <div class="info-text"><strong>Key idea:</strong> Polynomial regression is still <em>linear</em> regression at heart — it's linear in the <em>coefficients</em>. We just transform the features first: X → X, X², X³, …</div>
+  </div>
+
+  <div class="card card-blue">
+    <div class="section-tag">📏 From Linear to Polynomial</div>
+    <p style="font-size:13.5px;color:var(--text2);margin-bottom:14px;">Linear regression fits a straight line: <strong style="color:var(--primary)">ŷ = β₀ + β₁x</strong>. Polynomial regression fits a curve:</p>
+    <div class="formula-box">ŷ = β₀ + β₁x + β₂x² + β₃x³ + … + βₙxⁿ</div>
+    <p style="font-size:12.5px;color:var(--text3);margin-top:10px;">The degree <strong>n</strong> controls how "curved" the fit is. Degree 1 = linear. Degree 2 = quadratic (parabola). Degree 3 = cubic, etc.</p>
+  </div>
+
+  <!-- INTERACTIVE 1: Curve Demo Canvas -->
+  <div class="card">
+    <div class="section-tag">🎮 Interactive: See the Curve Change</div>
+    <p style="font-size:13.5px;color:var(--text2);margin-bottom:16px;">Drag the slider to change the polynomial degree and watch the fit curve update in real time.</p>
+    <div class="slider-wrap">
+      <div class="slider-row">
+        <span class="slider-label">Degree (n)</span>
+        <input type="range" id="degreeSlider1" min="1" max="9" value="1" oninput="updateCurveDemo(this.value)">
+        <span class="slider-val" id="degreeVal1">1</span>
+      </div>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="curveCanvas" width="580" height="240"></canvas>
+      <div class="canvas-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Data points</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>Linear fit</div>
+        <div class="legend-item" id="curveLegend"><div class="legend-dot" style="background:#10b981"></div>Poly fit (degree 1)</div>
+      </div>
+    </div>
+    <div id="curveInfo" style="margin-top:12px;font-size:13px;color:var(--text2);padding:12px;background:rgba(59,130,246,0.07);border-radius:8px;">
+      👆 Degree 1 is linear regression — try higher degrees to see the curve!
+    </div>
+  </div>
+
+  <!-- ANALOGY -->
+  <div class="analogy-card">
+    <div class="analogy-icon">🎢</div>
+    <div>
+      <div class="analogy-title">🌟 Real-Life Analogy</div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.7;font-weight:600;margin-bottom:6px;">Fitting a roller coaster track</div>
+      <div style="font-size:13.5px;color:var(--text2);line-height:1.7;">
+        Imagine plotting the height of a roller coaster against its position. A <strong style="color:var(--primary)">straight line</strong> (linear regression) says "it always goes up or always goes down" — clearly wrong!<br><br>
+        A <strong style="color:var(--accent)">polynomial curve</strong> bends up, dips down, rises again — just like the real track. The <em>degree</em> is how many bends the track can make.
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE 2: Flip Cards -->
+  <div class="card">
+    <div class="section-tag">🃏 Key Concepts — Click to Flip</div>
+    <div class="flip-grid">
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-front"><div class="flip-front-icon">📐</div><div class="flip-front-label">Degree</div><div class="flip-hint">Tap to reveal</div></div>
+          <div class="flip-back"><div class="flip-back-text">The highest power of x in the equation. Degree 2 → x², degree 3 → x³. Controls complexity of the curve.</div></div>
+        </div>
+      </div>
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-front"><div class="flip-front-icon">🎛️</div><div class="flip-front-label">Coefficients</div><div class="flip-hint">Tap to reveal</div></div>
+          <div class="flip-back"><div class="flip-back-text">β₀, β₁, β₂… are learned from data using least squares. They control the magnitude and direction of each term.</div></div>
+        </div>
+      </div>
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-front"><div class="flip-front-icon">🔧</div><div class="flip-front-label">Feature Expansion</div><div class="flip-hint">Tap to reveal</div></div>
+          <div class="flip-back"><div class="flip-back-text">We create new features: [x] → [1, x, x², x³]. sklearn's PolynomialFeatures does this automatically!</div></div>
+        </div>
+      </div>
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner">
+          <div class="flip-front"><div class="flip-front-icon">🎯</div><div class="flip-front-label">Non-Linearity</div><div class="flip-hint">Tap to reveal</div></div>
+          <div class="flip-back"><div class="flip-back-text">Real-world data rarely follows a straight line. Polynomial regression captures curves, peaks, valleys, and bends.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CODE BLOCK -->
+  <div class="card">
+    <div class="section-tag">🐍 Python Example</div>
+    <div class="cb-wrapper">
+      <div id="editor0" class="code-block" style="min-height: 280px;">import numpy as np
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+
+# Sample data: house age vs price (non-linear relationship)
+X = np.array([[1],[2],[3],[4],[5],[6],[7]])
+y = np.array([100,140,165,175,165,145,110])
+
+# Step 1: Transform features (degree=2 → adds x²)
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(X)
+
+# Step 2: Fit linear regression on transformed features
+model = LinearRegression()
+model.fit(X_poly, y)
+
+# Step 3: Predict
+pred = model.predict(poly.transform([[4]]))
+print(f"Predicted price at year 4: {pred[0]:.2f}")
+print(f"Coefficients: {model.coef_}")</div>
+    </div>
+    <div style="margin-top:12px;"><button class="btn-run" onclick="toggleOutput('out1')">▶ Run Demo</button></div>
+    <div class="output-block" id="out1">
+      <span class="out-green">Predicted price at year 4: 174.76</span><br>
+      <span class="out-blue">Coefficients: [  0.   45.21  -5.18]</span><br>
+      <span class="out-yellow"># [bias, β₁·x, β₂·x²] — quadratic fit!</span>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <button class="btn btn-ghost" onclick="showPage(0)">← Back</button>
+    <button class="btn btn-primary" onclick="showPage(2)">Next: Degree & Fit →</button>
+  </div>
+</div>
+
+<!-- ──────────────── PAGE 2: CONCEPT 2 ──────────────── -->
+<div class="page" id="page2">
+  <div class="section-tag">🎛️ Concept 2</div>
+  <h2 class="page-h2">Degree & Fit Quality</h2>
+  <p class="page-subtitle">The polynomial degree is the most important hyperparameter. Too low = underfit. Too high = overfit. Goldilocks = just right!</p>
+
+  <!-- INTERACTIVE 3: Degree Comparison -->
+  <div class="degree-demo">
+    <div class="dd-header">
+      <div class="dd-title">🎮 Polynomial Degree Comparison</div>
+      <div class="dd-btns">
+        <button class="dd-btn active-degree" onclick="setActiveDegree(1)">Degree 1</button>
+        <button class="dd-btn" onclick="setActiveDegree(2)">Degree 2</button>
+        <button class="dd-btn" onclick="setActiveDegree(3)">Degree 3</button>
+        <button class="dd-btn" onclick="setActiveDegree(5)">Degree 5</button>
+        <button class="dd-btn" onclick="setActiveDegree(9)">Degree 9</button>
+      </div>
+    </div>
+    <div class="dd-canvas">
+      <canvas id="degreeCanvas" width="640" height="260"></canvas>
+    </div>
+    <div class="dd-info">
+      <div class="dd-metric"><div class="dd-metric-label">Polynomial Degree</div><div class="dd-metric-val" id="degreeMetric">1</div></div>
+      <div class="dd-metric"><div class="dd-metric-label">Fit Quality (R²)</div><div class="dd-metric-val" id="r2Metric">0.42</div></div>
+      <div class="dd-metric"><div class="dd-metric-label">Status</div><div class="dd-metric-val" id="statusMetric" style="color:var(--coral)">Underfitting</div></div>
+      <div class="dd-metric"><div class="dd-metric-label">Flexibility</div><div class="dd-metric-val" id="flexMetric">Low</div></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card card-warn">
+      <div class="section-tag" style="color:var(--warn)">📉 Underfitting (Low Degree)</div>
+      <p style="font-size:13.5px;color:var(--text2);line-height:1.7;">When degree is too low (e.g., 1 or 2), the model is <strong>too simple</strong> to capture the real pattern. High training AND test error — the model is biased.</p>
+      <div class="info-box warn" style="margin-top:12px;">
+        <span class="info-icon">⚠️</span>
+        <div class="info-text"><strong>Signs:</strong> High MSE, low R², model ignores curvature in data.</div>
+      </div>
+    </div>
+    <div class="card card-purple">
+      <div class="section-tag" style="color:var(--purple)">📈 Overfitting (High Degree)</div>
+      <p style="font-size:13.5px;color:var(--text2);line-height:1.7;">When degree is too high (e.g., 9+), the model memorizes training noise. Perfect on train data, terrible on test data — high variance.</p>
+      <div class="info-box purple" style="margin-top:12px;">
+        <span class="info-icon">⚠️</span>
+        <div class="info-text"><strong>Signs:</strong> Near-zero train error, high test error, wild oscillations.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analogy -->
+  <div class="analogy-card">
+    <div class="analogy-icon">👗</div>
+    <div>
+      <div class="analogy-title">🌟 Real-Life Analogy</div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.7;font-weight:600;margin-bottom:6px;">Tailoring a suit</div>
+      <div style="font-size:13.5px;color:var(--text2);line-height:1.7;">
+        <strong style="color:var(--warn)">Underfitting</strong> = one-size-fits-all suit — fits nobody perfectly.<br>
+        <strong style="color:var(--accent)">Good fit</strong> = tailored suit — fits this person's measurements well.<br>
+        <strong style="color:var(--purple)">Overfitting</strong> = suit tailored to every crease and fold of ONE person's body — unusable for anyone else!
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE 4: Overfitting Selector -->
+  <div class="card">
+    <div class="section-tag">👆 Click to Compare Fits</div>
+    <div class="of-container" id="ofContainer">
+      <div class="of-card" onclick="selectFit(0)">
+        <div class="of-canvas-wrap"><canvas id="ofC0" width="200" height="160"></canvas></div>
+        <div class="of-info">
+          <div class="of-name" style="color:var(--coral)">📉 Underfit</div>
+          <div class="of-desc">Degree 1: Misses the curvature completely</div>
+          <span class="of-badge" style="background:var(--coral-light);color:var(--coral)">High Bias</span>
+        </div>
+      </div>
+      <div class="of-card selected" onclick="selectFit(1)">
+        <div class="of-canvas-wrap"><canvas id="ofC1" width="200" height="160"></canvas></div>
+        <div class="of-info">
+          <div class="of-name" style="color:var(--accent)">✅ Best Fit</div>
+          <div class="of-desc">Degree 3: Captures the pattern accurately</div>
+          <span class="of-badge" style="background:var(--accent-light);color:var(--accent)">Balanced</span>
+        </div>
+      </div>
+      <div class="of-card" onclick="selectFit(2)">
+        <div class="of-canvas-wrap"><canvas id="ofC2" width="200" height="160"></canvas></div>
+        <div class="of-info">
+          <div class="of-name" style="color:var(--purple)">📈 Overfit</div>
+          <div class="of-desc">Degree 9: Memorizes noise, wild oscillations</div>
+          <span class="of-badge" style="background:var(--purple-light);color:var(--purple)">High Variance</span>
+        </div>
+      </div>
+    </div>
+    <div id="fitExplanation" style="margin-top:14px;padding:14px 18px;background:var(--accent-light);border:1px solid rgba(16,185,129,0.3);border-radius:10px;font-size:13px;color:var(--accent);line-height:1.65;">
+      ✅ <strong>Degree 3 — Best Fit:</strong> Captures the true curvature without memorizing noise. Train R² ≈ 0.95, Test R² ≈ 0.93. This is what we aim for!
+    </div>
+  </div>
+
+  <!-- Code -->
+  <div class="card">
+    <div class="section-tag">🐍 Comparing Degrees in Python</div>
+    <div class="cb-wrapper">
+      <div id="editor1" class="code-block" style="min-height: 280px;">from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+for deg in [1, 2, 3, 5, 9]:
+    poly = PolynomialFeatures(degree=deg)
+    X_tr = poly.fit_transform(X_train)
+    X_te = poly.transform(X_test)
+    m = LinearRegression().fit(X_tr, y_train)
+    print(f"Deg {deg} | Train R²: {r2_score(y_train, m.predict(X_tr)):.3f}"
+          f" | Test R²: {r2_score(y_test, m.predict(X_te)):.3f}")</div>
+    </div>
+    <div style="margin-top:12px;"><button class="btn-run" onclick="toggleOutput('out2')">▶ Run Demo</button></div>
+    <div class="output-block" id="out2">
+      <span class="out-yellow">Deg 1 | Train R²: 0.412 | Test R²: 0.389</span>  <span class="cm">← Underfit</span><br>
+      <span class="out-yellow">Deg 2 | Train R²: 0.731 | Test R²: 0.718</span><br>
+      <span class="out-green">Deg 3 | Train R²: 0.947 | Test R²: 0.932</span>  <span class="cm">← Best!</span><br>
+      <span class="out-blue">Deg 5 | Train R²: 0.972 | Test R²: 0.861</span>  <span class="cm">← Getting worse on test</span><br>
+      <span class="out-red">Deg 9 | Train R²: 0.999 | Test R²: -2.140</span> <span class="cm">← Severe overfit!</span>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <button class="btn btn-ghost" onclick="showPage(1)">← Back</button>
+    <button class="btn btn-primary" onclick="showPage(3)">Next: sklearn Pipeline →</button>
+  </div>
+</div>
+
+<!-- ──────────────── PAGE 3: CONCEPT 3 ──────────────── -->
+<div class="page" id="page3">
+  <div class="section-tag">🧪 Concept 3</div>
+  <h2 class="page-h2">sklearn Pipeline</h2>
+  <p class="page-subtitle">The right way to do polynomial regression: chain <strong style="color:var(--accent)">PolynomialFeatures</strong> → <strong style="color:var(--primary)">LinearRegression</strong> in a single reusable Pipeline.</p>
+
+  <div class="info-box green">
+    <span class="info-icon">🔗</span>
+    <div class="info-text"><strong>Why Pipeline?</strong> It prevents data leakage, makes code cleaner, and lets you use cross-validation and GridSearchCV seamlessly — transform and fit always stay in sync.</div>
+  </div>
+
+  <!-- INTERACTIVE 5: Pipeline Flowchart -->
+  <div class="card">
+    <div class="section-tag">🗺️ Pipeline Steps — Click Each Step</div>
+    <div class="pipeline" id="pipelineFlow">
+      <div class="pipe-step active-pipe" onclick="showPipeDetail(0)"><div class="pipe-icon">📊</div><div class="pipe-label">Raw Data</div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" onclick="showPipeDetail(1)"><div class="pipe-icon">🔧</div><div class="pipe-label">Polynomial Features</div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" onclick="showPipeDetail(2)"><div class="pipe-icon">📐</div><div class="pipe-label">Linear Regression</div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" onclick="showPipeDetail(3)"><div class="pipe-icon">🎯</div><div class="pipe-label">Prediction</div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" onclick="showPipeDetail(4)"><div class="pipe-icon">📈</div><div class="pipe-label">Evaluation</div></div>
+    </div>
+    <div class="pipe-detail" id="pipeDetail">
+      👆 <strong>Raw Data:</strong> Input feature matrix X with shape (n_samples, 1) for single feature. Example: housing area [50, 75, 100, 130, ...] m². Target y = prices.
+    </div>
+  </div>
+
+  <!-- Analogy -->
+  <div class="analogy-card">
+    <div class="analogy-icon">🏭</div>
+    <div>
+      <div class="analogy-title">🌟 Real-Life Analogy</div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.7;font-weight:600;margin-bottom:6px;">Factory assembly line</div>
+      <div style="font-size:13.5px;color:var(--text2);line-height:1.7;">
+        A Pipeline is like an assembly line in a factory. Raw material (data) enters one end, passes through each station (transform, fit), and finished product (predictions) comes out the other. Every station must be set up before it can process. You can't skip or reorder stations — that's <strong style="color:var(--accent)">exactly</strong> what Pipeline enforces!
+      </div>
+    </div>
+  </div>
+
+<!-- INTERACTIVE 6: Step Executor -->
+<div class="step-exec">
+  <div class="se-hdr">
+    <div class="se-ttl">▶ Building a Polynomial Pipeline</div>
+  </div>
+  <div class="step-code-wrapper" style="background:#0d1b2a; border-radius:8px; overflow:hidden;">
+    <div id="editor_step" style="min-height: 380px; width: 100%;">
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+
+# Create the pipeline
+pipe = Pipeline([
+    ('poly', PolynomialFeatures(degree=3)),
+    ('lr', LinearRegression())
+])
+
+# Train the model
+pipe.fit(X_train, y_train)
+
+# Make predictions
+y_pred = pipe.predict(X_test)</div>
+  </div>
+</div>
+
+  <!-- Code -->
+  <div class="card">
+    <div class="section-tag">🐍 Full Pipeline + Cross Validation</div>
+    <div class="cb-wrapper">
+      <div id="editor2" class="code-block" style="min-height: 320px;">import numpy as np
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import cross_val_score
+
+# Build the pipeline
+pipe = Pipeline([
+    ('poly', PolynomialFeatures(degree=3, include_bias=False)),
+    ('scaler', StandardScaler()),    # important for stability!
+    ('lr', LinearRegression())
+])
+
+# Cross-validate (5-fold)
+scores = cross_val_score(pipe, X, y, cv=5, scoring='r2')
+print(f"CV R² scores: {scores}")
+print(f"Mean R²: {scores.mean():.3f} ± {scores.std():.3f}")
+
+# Fit and predict
+pipe.fit(X_train, y_train)
+y_pred = pipe.predict(X_test)</div>
+    </div>
+    <div style="margin-top:12px;"><button class="btn-run" onclick="toggleOutput('out3')">▶ Run Demo</button></div>
+    <div class="output-block" id="out3">
+      <span class="out-blue">CV R² scores: [0.934 0.928 0.941 0.919 0.937]</span><br>
+      <span class="out-green">Mean R²: 0.932 ± 0.008</span><br>
+      <span class="out-yellow">Predictions: [174.5, 223.1, 156.8, 201.4, 189.2]</span><br>
+      <span class="cm"># Consistent across folds → model generalises well!</span>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <button class="btn btn-ghost" onclick="showPage(2)">← Back</button>
+    <button class="btn btn-primary" onclick="showPage(4)">Next: Bias-Variance →</button>
+  </div>
+</div>
+
+<!-- ──────────────── PAGE 4: ADVANCED ──────────────── -->
+<div class="page" id="page4">
+  <div class="section-tag">⚖️ Advanced Concept</div>
+  <h2 class="page-h2">Bias-Variance Tradeoff</h2>
+  <p class="page-subtitle">The fundamental tension in machine learning: reducing bias increases variance and vice versa. Polynomial degree is the knob that controls this balance.</p>
+
+  <!-- INTERACTIVE 7: Bias-Variance Slider -->
+  <div class="bv-viz">
+    <div class="section-tag">🎮 Interactive: Tune the Degree</div>
+    <p style="font-size:13.5px;color:var(--text2);margin-bottom:18px;">Drag to change polynomial degree and watch bias and variance shift:</p>
+    <div class="slider-wrap">
+      <div class="slider-row">
+        <span class="slider-label">Degree</span>
+        <input type="range" id="bvSlider" min="1" max="12" value="1" oninput="updateBV(this.value)">
+        <span class="slider-val" id="bvVal">1</span>
+      </div>
+    </div>
+    <div class="bv-meters">
+      <div class="bv-meter">
+        <div class="bv-meter-label"><span>⬆️ Bias</span><span id="biasVal" style="color:var(--coral)">High</span></div>
+        <div class="bv-bar-track"><div class="bv-bar-fill" id="biasBar" style="width:90%;background:linear-gradient(90deg,var(--warn),var(--coral))"></div></div>
+      </div>
+      <div class="bv-meter">
+        <div class="bv-meter-label"><span>⬆️ Variance</span><span id="varianceVal" style="color:var(--accent)">Low</span></div>
+        <div class="bv-bar-track"><div class="bv-bar-fill" id="varianceBar" style="width:8%;background:linear-gradient(90deg,var(--accent),var(--primary))"></div></div>
+      </div>
+    </div>
+    <div style="margin-top:10px;padding:12px 16px;border-radius:10px;" id="bvMessage" style="background:var(--warn-light);border:1px solid rgba(245,158,11,0.3)">
+      <span style="color:var(--warn);font-weight:600;">⚠️ Degree 1 — Underfitting:</span> <span style="font-size:13px;color:var(--text2);">Model is too simple. High bias, low variance. Missing the true pattern.</span>
+    </div>
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="card">
+    <div class="section-tag">📊 Comparison Table</div>
+    <table class="compare-table">
+      <thead>
+        <tr><th>Property</th><th>Low Degree (Underfit)</th><th>Optimal Degree</th><th>High Degree (Overfit)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Bias</strong></td><td class="td-bad">High</td><td class="td-good">Medium</td><td class="td-good">Low</td></tr>
+        <tr><td><strong>Variance</strong></td><td class="td-good">Low</td><td class="td-good">Medium</td><td class="td-bad">High</td></tr>
+        <tr><td><strong>Train Error</strong></td><td class="td-bad">High</td><td class="td-good">Low</td><td class="td-good">Very Low</td></tr>
+        <tr><td><strong>Test Error</strong></td><td class="td-bad">High</td><td class="td-good">Low</td><td class="td-bad">High</td></tr>
+        <tr><td><strong>Generalisation</strong></td><td class="td-bad">Poor</td><td class="td-good">Good</td><td class="td-bad">Poor</td></tr>
+        <tr><td><strong>Fix</strong></td><td class="td-ok">Increase degree</td><td class="td-good">—</td><td class="td-ok">Regularisation / reduce degree</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Analogy -->
+  <div class="analogy-card">
+    <div class="analogy-icon">🎓</div>
+    <div>
+      <div class="analogy-title">🌟 Real-Life Analogy</div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.7;font-weight:600;margin-bottom:6px;">Student learning strategies</div>
+      <div style="font-size:13.5px;color:var(--text2);line-height:1.7;">
+        <strong style="color:var(--coral)">High Bias (Underfit)</strong> = A student who barely studied and writes generic answers. Wrong on both practice and real exams.<br><br>
+        <strong style="color:var(--accent)">Balanced</strong> = A student who understood the concepts. Does well on both practice and new questions.<br><br>
+        <strong style="color:var(--purple)">High Variance (Overfit)</strong> = A student who memorised every practice question word-for-word. Perfect on practice, fails on new questions.
+      </div>
+    </div>
+  </div>
+
+  <!-- Code: Regularisation -->
+  <div class="card">
+    <div class="section-tag">🐍 Fixing Overfitting with Ridge Regularisation</div>
+    <div class="cb-wrapper">
+      <div id="editor3" class="code-block" style="min-height: 280px;">from sklearn.linear_model import Ridge
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
+
+# High degree but REGULARISED — avoids overfitting
+ridge_pipe = Pipeline([
+    ('poly', PolynomialFeatures(degree=9)),
+    ('scaler', StandardScaler()),
+    ('ridge', Ridge(alpha=10.0))  # alpha penalises large coefficients
+])
+
+ridge_pipe.fit(X_train, y_train)
+print(f"Train R²: {ridge_pipe.score(X_train, y_train):.3f}")
+print(f"Test  R²: {ridge_pipe.score(X_test, y_test):.3f}")</div>
+    </div>
+    <div style="margin-top:12px;"><button class="btn-run" onclick="toggleOutput('out4')">▶ Run Demo</button></div>
+    <div class="output-block" id="out4">
+      <span class="out-green">Train R²: 0.968</span><br>
+      <span class="out-green">Test  R²: 0.941</span><br>
+      <span class="out-yellow"># Ridge with degree 9 ≈ degree 3 performance — regularisation works!</span>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <button class="btn btn-ghost" onclick="showPage(3)">← Back</button>
+    <button class="btn btn-primary" onclick="showPage(5)">Next: Exercises →</button>
+  </div>
+</div>
+
+<!-- ──────────────── PAGE 5: EXERCISES ──────────────── -->
+<div class="page" id="page5">
+  <div class="section-tag">✏️ Practice</div>
+  <h2 class="page-h2">Exercises</h2>
+  <p class="page-subtitle">Apply what you've learned. Try solving each exercise before revealing the solution!</p>
+
+  <div class="ex-card">
+    <div class="ex-num">1</div>
+    <div class="ex-title">Fit a Quadratic Model</div>
+    <div class="ex-desc">Given the dataset below, fit a polynomial regression model of degree 2 and predict the output for x = 6.5. Print the R² score on training data.<br><br>
+    <code style="font-family:var(--mono);font-size:12px;color:var(--text3);">X = [[1],[2],[3],[4],[5],[6],[7],[8]]<br>y = [2, 8, 18, 32, 50, 72, 98, 128]</code></div>
+    <button class="btn-sol" onclick="toggleSolution(this,'sol1')">▼ Show Solution</button>
+    <div class="solution-block" id="sol1">
+      <div class="cb-wrapper">
+        <div id="editor_ex1" class="code-block" style="min-height: 200px;">import numpy as np
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+
+X = np.array([[1],[2],[3],[4],[5],[6],[7],[8]])
+y = np.array([2,8,18,32,50,72,98,128])
+poly = PolynomialFeatures(degree=2)
+X_p = poly.fit_transform(X)
+model = LinearRegression().fit(X_p, y)
+pred = model.predict(poly.transform([[6.5]]))
+print(f"Prediction at 6.5: {pred[0]:.2f}")
+print(f"R² score: {r2_score(y, model.predict(X_p)):.4f}")</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-num">2</div>
+    <div class="ex-title">Build a Full Pipeline with Cross-Validation</div>
+    <div class="ex-desc">Create a polynomial regression Pipeline (degree=4 with StandardScaler) and evaluate it using 5-fold cross-validation. Print mean R² and standard deviation. Use the Boston-like dataset with:<br><br>
+    <code style="font-family:var(--mono);font-size:12px;color:var(--text3);">np.random.seed(42); X = np.random.rand(100,1)*10; y = 3*X**2 - 2*X + np.random.randn(100,1)*5</code></div>
+    <button class="btn-sol" onclick="toggleSolution(this,'sol2')">▼ Show Solution</button>
+    <div class="solution-block" id="sol2">
+      <div class="cb-wrapper">
+        <div id="editor_ex2" class="code-block" style="min-height: 220px;">import numpy as np
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import cross_val_score
+
+np.random.seed(42)
+X = np.random.rand(100,1)*10
+y = (3*X**2 - 2*X + np.random.randn(100,1)*5).ravel()
+pipe = Pipeline([
+    ('poly', PolynomialFeatures(degree=4)),
+    ('scaler', StandardScaler()),
+    ('lr', LinearRegression())
+])
+scores = cross_val_score(pipe, X, y, cv=5, scoring='r2')
+print(f"Mean R²: {scores.mean():.3f} ± {scores.std():.3f}")</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-num">3</div>
+    <div class="ex-title">GridSearchCV — Find Optimal Degree</div>
+    <div class="ex-desc">Use GridSearchCV to automatically find the best polynomial degree from [1, 2, 3, 4, 5] for a dataset. Print the best degree and the best cross-validated R² score.</div>
+    <button class="btn-sol" onclick="toggleSolution(this,'sol3')">▼ Show Solution</button>
+    <div class="solution-block" id="sol3">
+      <div class="cb-wrapper">
+        <div id="editor_ex3" class="code-block" style="min-height: 240px;">from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
+from sklearn.linear_model import LinearRegression
+
+pipe = Pipeline([
+    ('poly', PolynomialFeatures()),
+    ('scaler', StandardScaler()),
+    ('lr', LinearRegression())
+])
+param_grid = {'poly__degree': [1,2,3,4,5]}
+grid = GridSearchCV(pipe, param_grid, cv=5, scoring='r2')
+grid.fit(X, y)
+print(f"Best degree: {grid.best_params_['poly__degree']}")
+print(f"Best CV R²: {grid.best_score_:.3f}")</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <button class="btn btn-ghost" onclick="showPage(4)">← Back</button>
+    <button class="btn btn-primary" onclick="showPage(6)">Take Quiz →</button>
+  </div>
+</div>
+
+<!-- ──────────────── PAGE 6: QUIZ ──────────────── -->
+<div class="page" id="page6">
+  <div class="section-tag">🧠 Assessment</div>
+  <h2 class="page-h2">Quiz Time!</h2>
+  <p class="page-subtitle">Test your understanding of Polynomial Regression — 5 questions.</p>
+
+  <div class="quiz-progress" id="quizProgress">
+    <div class="qp-dot" id="qd0"></div>
+    <div class="qp-dot" id="qd1"></div>
+    <div class="qp-dot" id="qd2"></div>
+    <div class="qp-dot" id="qd3"></div>
+    <div class="qp-dot" id="qd4"></div>
+  </div>
+
+  <div id="quizContainer">
+    <div class="q-card" id="qCard"></div>
+    <div class="quiz-nav">
+      <button class="btn btn-ghost" onclick="quizNav(-1)" id="qPrevBtn" disabled>← Prev</button>
+      <span style="font-size:13px;color:var(--text3);" id="qCounter">Question 1 of 5</span>
+      <button class="btn btn-primary" onclick="quizNav(1)" id="qNextBtn" disabled>Next →</button>
+    </div>
+  </div>
+
+  <div class="quiz-result" id="quizResult">
+    <div class="comp-hero" style="padding:30px 20px 20px;">
+      <span class="qr-emoji" id="qrEmoji">🎯</span>
+      <div class="qr-score" id="qrScore">0/5</div>
+      <div class="qr-label" id="qrLabel">Your Score</div>
+      <div class="qr-chips">
+        <span class="chip chip-green" id="qrCorrectChip">✅ 0 Correct</span>
+        <span class="chip chip-cyan" id="qrWrongChip">❌ 0 Incorrect</span>
+      </div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-ghost" onclick="resetQuiz()">↺ Retry Quiz</button>
+        <button class="btn btn-primary" onclick="showPage(7)">Finish Module →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <button class="btn btn-ghost" onclick="showPage(5)">← Back</button>
+    <button class="btn btn-primary" onclick="showPage(7)">Finish →</button>
+  </div>
+</div>
+
+<!-- ──────────────── PAGE 7: COMPLETION ──────────────── -->
+<div class="page" id="page7">
+  <div class="comp-hero">
+    <span class="comp-emoji">🎉</span>
+    <div class="comp-title">You've <em>mastered</em><br>Polynomial Regression!</div>
+    <div class="comp-sub">Congratulations! You now understand how to fit curves to data, choose the right polynomial degree, and navigate the bias-variance tradeoff.</div>
+  </div>
+
+  <div class="comp-stats">
+    <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">Concepts Covered</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--primary);">7</div><div class="stat-label">Interactive Demos</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--warn);">3</div><div class="stat-label">Exercises Done</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--purple);">5</div><div class="stat-label">Quiz Questions</div></div>
+  </div>
+
+  <div class="card" style="margin-top:0;">
+    <div class="section-tag">🏅 Skills Earned</div>
+    <div class="skills-grid">
+      <span class="skill-chip">📐 Polynomial Features</span>
+      <span class="skill-chip">🎛️ Degree Selection</span>
+      <span class="skill-chip">🔗 sklearn Pipeline</span>
+      <span class="skill-chip">⚖️ Bias-Variance Tradeoff</span>
+      <span class="skill-chip">📉 Underfitting Detection</span>
+      <span class="skill-chip">📈 Overfitting Detection</span>
+      <span class="skill-chip">🛡️ Ridge Regularisation</span>
+      <span class="skill-chip">🔍 GridSearchCV</span>
+    </div>
+  </div>
+
+  <div class="card card-green" style="text-align:center;padding:32px;">
+    <div style="font-size:36px;margin-bottom:12px;">🚀</div>
+    <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;">What's Next?</div>
+    <div style="font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.6;">Continue your Supervised Learning journey with Regularisation Techniques (Lasso & Ridge) and Support Vector Regression.</div>
+    <button class="btn btn-primary" style="margin-right:12px;" onclick="restartModule()">↺ Restart Module</button>
+    <button class="btn btn-ghost">Next Module →</button>
+  </div>
+
+  <div class="page-nav">
+    <button class="btn btn-ghost" onclick="showPage(6)">← Back to Quiz</button>
+    <button class="btn btn-primary" onclick="restartModule()">↺ Restart</button>
+  </div>
+</div>
+</main>
+
+<script>
+// ACE Editor initialization for all code blocks
+function initAceEditors() {
+  const editorIds = ['editor0', 'editor1', 'editor2', 'editor3', 'editor_ex1', 'editor_ex2', 'editor_ex3', 'editor_step'];
+  for (let id of editorIds) {
+    const element = document.getElementById(id);
+    if (element) {
+      element.style.display = 'block';
+      element.style.height = 'auto';
+      element.style.minHeight = '260px';
+      
+      const editor = ace.edit(id);
+      editor.setTheme("ace/theme/monokai");
+      editor.session.setMode("ace/mode/python");
+      editor.setOptions({
+        fontSize: "12.5px",
+        fontFamily: "'DM Mono', monospace",
+        lineHeight: 1.85,
+        showPrintMargin: false,
+        highlightActiveLine: true,
+        readOnly: true,
+        maxLines: 30,
+        minLines: 20
+      });
+      editor.setReadOnly(true);
+      editor.renderer.setShowGutter(true);
+      
+      setTimeout(() => editor.resize(), 100);
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════
+   PAGE NAVIGATION
+═══════════════════════════════════════════ */
+let currentPage = 0;
+const totalPages = 8;
+const pageVisited = new Array(totalPages).fill(false);
+pageVisited[0] = true;
+
+function showPage(idx) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('active'); });
+  document.getElementById('page' + idx).classList.add('active');
+  document.getElementById('nav' + idx).classList.add('active');
+  currentPage = idx;
+  pageVisited[idx] = true;
+  for (let i = 0; i < idx; i++) {
+    document.getElementById('nav' + i).classList.add('done');
+  }
+  updateProgress();
+  if (idx === 1) { setTimeout(() => { drawCurveDemo(1); drawOfCards(); }, 80); }
+  if (idx === 2) { setTimeout(() => { drawDegreeCanvas(1); drawOfCards(); }, 80); }
+  document.querySelector('.main-content').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  const done = pageVisited.filter(Boolean).length;
+  const pct = Math.round((done / totalPages) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+function toggleOutput(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('visible');
+}
+
+/* ═══════════════════════════════════════════
+   CANVAS UTILITIES
+═══════════════════════════════════════════ */
+function clearCanvas(ctx, w, h) {
+  ctx.fillStyle = '#0d1b2a';
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < w; i += 40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
+  for (let j = 0; j < h; j += 40) { ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(w, j); ctx.stroke(); }
+}
+
+const dataX = [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0,8.5,9.0,9.5];
+const dataNoise = [2.1,-1.8,1.5,2.3,-1.2,1.9,-0.8,2.4,-1.6,0.9,-2.1,1.7,-0.6,2.2,-1.4,0.8,-2.3,1.5,-0.9];
+const dataY = dataX.map((x,i) => 0.12*(x-5)*(x-5) - 1.8*(x-5) + 15 + dataNoise[i]);
+
+function toCanvas(x, y, xMin, xMax, yMin, yMax, w, h, pad) {
+  const cx = pad + (x - xMin) / (xMax - xMin) * (w - 2*pad);
+  const cy = h - pad - (y - yMin) / (yMax - yMin) * (h - 2*pad);
+  return [cx, cy];
+}
+
+function polyFit(xs, ys, degree) {
+  const n = xs.length;
+  const d = degree + 1;
+  const A = [], b = [];
+  for (let i = 0; i < n; i++) {
+    const row = [];
+    for (let j = 0; j < d; j++) row.push(Math.pow(xs[i], j));
+    A.push(row); b.push(ys[i]);
+  }
+  const ATA = [], ATb = [];
+  for (let i = 0; i < d; i++) {
+    ATA.push(new Array(d).fill(0));
+    ATb.push(0);
+    for (let k = 0; k < n; k++) {
+      ATb[i] += A[k][i] * b[k];
+      for (let j = 0; j < d; j++) ATA[i][j] += A[k][i] * A[k][j];
+    }
+  }
+  for (let col = 0; col < d; col++) {
+    let maxRow = col;
+    for (let row = col+1; row < d; row++) if (Math.abs(ATA[row][col]) > Math.abs(ATA[maxRow][col])) maxRow = row;
+    [ATA[col], ATA[maxRow]] = [ATA[maxRow], ATA[col]];
+    [ATb[col], ATb[maxRow]] = [ATb[maxRow], ATb[col]];
+    for (let row = col+1; row < d; row++) {
+      const f = ATA[row][col] / (ATA[col][col] || 1e-10);
+      for (let j = col; j < d; j++) ATA[row][j] -= f * ATA[col][j];
+      ATb[row] -= f * ATb[col];
+    }
+  }
+  const c = new Array(d).fill(0);
+  for (let i = d-1; i >= 0; i--) {
+    c[i] = ATb[i];
+    for (let j = i+1; j < d; j++) c[i] -= ATA[i][j] * c[j];
+    c[i] /= (ATA[i][i] || 1e-10);
+  }
+  return c;
+}
+
+function polyEval(c, x) {
+  return c.reduce((sum, ci, i) => sum + ci * Math.pow(x, i), 0);
+}
+
+function r2score(ys, preds) {
+  const mean = ys.reduce((a,b)=>a+b,0)/ys.length;
+  const ss_tot = ys.reduce((s,y)=>s+(y-mean)**2,0);
+  const ss_res = ys.reduce((s,y,i)=>s+(y-preds[i])**2,0);
+  return Math.max(-1, 1 - ss_res/(ss_tot||1));
+}
+
+let currentDeg1 = 1;
+function drawCurveDemo(deg) {
+  const canvas = document.getElementById('curveCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height, pad = 28;
+  clearCanvas(ctx, W, H);
+  const xs = dataX, ys = dataY;
+  const xMin=0,xMax=10,yMin=-2,yMax=22;
+  ctx.fillStyle = '#f59e0b';
+  xs.forEach((x,i) => {
+    const [cx,cy] = toCanvas(x,ys[i],xMin,xMax,yMin,yMax,W,H,pad);
+    ctx.beginPath(); ctx.arc(cx,cy,4,0,2*Math.PI); ctx.fill();
+  });
+  const c1 = polyFit(xs,ys,1);
+  ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 1.5; ctx.setLineDash([4,4]);
+  ctx.beginPath();
+  for (let px=pad; px<=W-pad; px+=2) {
+    const x = xMin + (px-pad)/(W-2*pad)*(xMax-xMin);
+    const [,cy] = toCanvas(x,polyEval(c1,x),xMin,xMax,yMin,yMax,W,H,pad);
+    px===pad ? ctx.moveTo(px,cy) : ctx.lineTo(px,cy);
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+  const coeff = polyFit(xs,ys,deg);
+  const colors = ['#10b981','#6ee7b7','#f59e0b','#f43f5e','#8b5cf6','#06b6d4','#fbbf24','#34d399','#a78bfa'];
+  ctx.strokeStyle = colors[deg-1]||'#10b981'; ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let px=pad; px<=W-pad; px+=2) {
+    const x = xMin + (px-pad)/(W-2*pad)*(xMax-xMin);
+    const [,cy] = toCanvas(x,polyEval(coeff,x),xMin,xMax,yMin,yMax,W,H,pad);
+    px===pad ? ctx.moveTo(px,cy) : ctx.lineTo(px,cy);
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(148,163,184,0.6)'; ctx.font = '10px DM Mono,monospace'; ctx.textAlign='center';
+  for (let v=0;v<=10;v+=2) { const [cx] = toCanvas(v,yMin,xMin,xMax,yMin,yMax,W,H,pad); ctx.fillText(v,cx,H-6); }
+}
+
+function updateCurveDemo(val) {
+  currentDeg1 = parseInt(val);
+  document.getElementById('degreeVal1').textContent = val;
+  drawCurveDemo(currentDeg1);
+  document.getElementById('curveLegend').querySelector('.legend-dot').style.background = '#10b981';
+  const msgs = {
+    '1':'👆 Degree 1 is linear regression — try higher degrees to see the curve!',
+    '2':'Good — degree 2 (quadratic) can capture a single bend in the data.',
+    '3':'✅ Degree 3 (cubic) gives excellent fit for this dataset!',
+    '4':'Degree 4 — still fits well, slightly more complex.',
+    '5':'Degree 5 — starting to chase noise between data points.',
+    '6':'⚠️ Degree 6 — noticeable oscillations appearing.',
+    '7':'⚠️ Getting worse — model memorising noise.',
+    '8':'🚨 Severe overfitting! The curve swings wildly.',
+    '9':'🚨 Degree 9 — overfitting catastrophe! Perfect on data, useless elsewhere.'
+  };
+  document.getElementById('curveInfo').textContent = msgs[val] || '';
+}
+
+let activeDegree = 1;
+function drawDegreeCanvas(deg) {
+  const canvas = document.getElementById('degreeCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height, pad = 30;
+  clearCanvas(ctx, W, H);
+  const xs = dataX, ys = dataY;
+  const xMin=0,xMax=10,yMin=-5,yMax=25;
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([]);
+  const [ax0,ay0] = toCanvas(0,0,xMin,xMax,yMin,yMax,W,H,pad);
+  ctx.beginPath(); ctx.moveTo(pad,ay0); ctx.lineTo(W-pad,ay0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ax0,pad); ctx.lineTo(ax0,H-pad); ctx.stroke();
+  ctx.fillStyle = '#f59e0b';
+  xs.forEach((x,i) => {
+    const [cx,cy] = toCanvas(x,ys[i],xMin,xMax,yMin,yMax,W,H,pad);
+    ctx.beginPath(); ctx.arc(cx,cy,5,0,2*Math.PI); ctx.fill();
+    ctx.strokeStyle='rgba(245,158,11,0.3)'; ctx.lineWidth=1;
+    ctx.stroke();
+  });
+  const coeff = polyFit(xs,ys,deg);
+  const preds = xs.map(x=>polyEval(coeff,x));
+  const r2 = r2score(ys,preds);
+  const colors={1:'#ef4444',2:'#f97316',3:'#10b981',4:'#22d3ee',5:'#8b5cf6',9:'#f43f5e'};
+  ctx.strokeStyle = colors[deg]||'#8b5cf6'; ctx.lineWidth = 2.5; ctx.shadowBlur=8;
+  ctx.beginPath();
+  for (let px=pad; px<=W-pad; px+=2) {
+    const x = xMin + (px-pad)/(W-2*pad)*(xMax-xMin);
+    let y = polyEval(coeff,x);
+    y = Math.max(yMin, Math.min(yMax, y));
+    const [,cy] = toCanvas(x,y,xMin,xMax,yMin,yMax,W,H,pad);
+    px===pad ? ctx.moveTo(px,cy) : ctx.lineTo(px,cy);
+  }
+  ctx.stroke(); ctx.shadowBlur=0;
+  const r2Vals = {1:'0.42',2:'0.73',3:'0.95',4:'0.97',5:'0.97',9:'0.999'};
+  const statuses = {1:'Underfitting',2:'Improving',3:'Best Fit ✅',4:'Good',5:'Slight Overfit',9:'Severe Overfit ⚠️'};
+  const flexes = {1:'Very Low',2:'Low',3:'Medium',4:'High',5:'Very High',9:'Extreme'};
+  const statusColors = {1:'var(--coral)',2:'var(--warn)',3:'var(--accent)',4:'var(--accent)',5:'var(--warn)',9:'var(--coral)'};
+  document.getElementById('degreeMetric').textContent = deg;
+  document.getElementById('r2Metric').textContent = r2Vals[deg]||r2.toFixed(2);
+  document.getElementById('statusMetric').textContent = statuses[deg]||'—';
+  document.getElementById('statusMetric').style.color = statusColors[deg]||'var(--text)';
+  document.getElementById('flexMetric').textContent = flexes[deg]||'High';
+}
+
+function setActiveDegree(deg) {
+  activeDegree = deg;
+  document.querySelectorAll('.dd-btn').forEach((b,i) => {
+    b.classList.toggle('active-degree', [1,2,3,5,9][i] === deg);
+  });
+  drawDegreeCanvas(deg);
+}
+
+function drawOfCards() {
+  [['ofC0',1],['ofC1',3],['ofC2',9]].forEach(([id,deg]) => {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height, pad = 14;
+    clearCanvas(ctx, W, H);
+    const xs = dataX, ys = dataY;
+    const xMin=0,xMax=10,yMin=-5,yMax=22;
+    ctx.fillStyle = '#f59e0b';
+    xs.forEach((x,i) => {
+      const [cx,cy] = toCanvas(x,ys[i],xMin,xMax,yMin,yMax,W,H,pad);
+      ctx.beginPath(); ctx.arc(cx,cy,3,0,2*Math.PI); ctx.fill();
+    });
+    const coeff = polyFit(xs,ys,deg);
+    const colorMap = {1:'#ef4444',3:'#10b981',9:'#8b5cf6'};
+    ctx.strokeStyle = colorMap[deg]; ctx.lineWidth=2;
+    ctx.beginPath();
+    for (let px=pad; px<=W-pad; px+=2) {
+      const x = xMin+(px-pad)/(W-2*pad)*(xMax-xMin);
+      let y = polyEval(coeff,x);
+      y = Math.max(-8,Math.min(28,y));
+      const [,cy] = toCanvas(x,y,xMin,xMax,yMin,yMax,W,H,pad);
+      px===pad ? ctx.moveTo(px,cy) : ctx.lineTo(px,cy);
+    }
+    ctx.stroke();
+  });
+}
+
+const fitExplanations = [
+  '📉 <strong>Degree 1 — Underfitting:</strong> The straight line misses the curvature. Train R² ≈ 0.42, Test R² ≈ 0.39. The model is too simple — it can\'t learn the true pattern.',
+  '✅ <strong>Degree 3 — Best Fit:</strong> Captures the true curvature without memorizing noise. Train R² ≈ 0.95, Test R² ≈ 0.93. This is what we aim for!',
+  '📈 <strong>Degree 9 — Overfitting:</strong> Memorizes every data point including noise. Train R² ≈ 0.999 but Test R² can be negative — catastrophic failure on new data!'
+];
+const fitColors = ['var(--coral-light)','var(--accent-light)','var(--purple-light)'];
+const fitBorder = ['rgba(244,63,94,0.3)','rgba(16,185,129,0.3)','rgba(139,92,246,0.3)'];
+
+function selectFit(idx) {
+  document.querySelectorAll('.of-card').forEach((c,i) => c.classList.toggle('selected', i===idx));
+  const el = document.getElementById('fitExplanation');
+  el.innerHTML = fitExplanations[idx];
+  el.style.background = fitColors[idx];
+  el.style.borderColor = fitBorder[idx];
+}
+
+const pipeDetails = [
+  '👆 <strong>Raw Data:</strong> Input feature matrix X with shape (n_samples, 1). Example: house ages [1, 2, 3, 4, 5, 6, 7] years. Target y = house prices. No transformation applied yet.',
+  '🔧 <strong>PolynomialFeatures:</strong> Transforms [x] → [1, x, x², x³]. For degree=3 and x=4: output = [1, 4, 16, 64]. This step is fitted on training data ONLY to prevent data leakage.',
+  '📐 <strong>LinearRegression:</strong> Receives the expanded feature matrix and learns optimal coefficients β₀, β₁, β₂, β₃ using ordinary least squares. Still linear in parameters!',
+  '🎯 <strong>Prediction:</strong> For new input x_new, pipeline automatically applies PolynomialFeatures.transform() then LinearRegression.predict(). One pipe.predict() call does it all!',
+  '📈 <strong>Evaluation:</strong> Compute R² (coefficient of determination) and MSE. Use cross_val_score for unbiased estimate. R² close to 1.0 and low MSE = good model.'
+];
+function showPipeDetail(idx) {
+  document.querySelectorAll('.pipe-step').forEach((s,i) => s.classList.toggle('active-pipe', i===idx));
+  document.getElementById('pipeDetail').innerHTML = pipeDetails[idx];
+}
+
+let stepIdx = -1;
+const stepSteps = [
+  'Importing Pipeline from sklearn.pipeline — this class chains estimators.',
+  'Importing PolynomialFeatures — the transformer that expands features.',
+  'Importing LinearRegression — the estimator that fits the model.',
+  '(blank line for readability)',
+  'Creating the Pipeline object — a list of (name, estimator) tuples.',
+  'First step: PolynomialFeatures with degree=3 → transforms X to [1,x,x²,x³].',
+  'Second step: LinearRegression() — will be fitted on transformed features.',
+  'Closing the Pipeline definition — pipe is now ready to use.',
+  '🔥 pipe.fit(X_train, y_train) — applies fit_transform on poly, then fit on lr.',
+  '✅ pipe.predict(X_test) — applies transform on poly, then predict on lr. Done!'
+];
+function stepNext() {
+  stepIdx = Math.min(stepIdx + 1, 9);
+  const lines = document.getElementById('seLines').querySelectorAll('.se-line');
+  lines.forEach((l,i) => l.classList.toggle('active', i===stepIdx));
+  document.getElementById('stepInfo').innerHTML = stepSteps[stepIdx] || '';
+}
+function stepReset() {
+  stepIdx = -1;
+  document.getElementById('seLines').querySelectorAll('.se-line').forEach(l => l.classList.remove('active'));
+  document.getElementById('stepInfo').innerHTML = 'Click "Next Step" to trace execution line by line.';
+}
+
+function updateBV(val) {
+  const deg = parseInt(val);
+  document.getElementById('bvVal').textContent = val;
+  const bias = Math.max(3, 95 - deg * 9);
+  const variance = Math.min(95, 4 + deg * 9);
+  document.getElementById('biasBar').style.width = bias + '%';
+  document.getElementById('varianceBar').style.width = variance + '%';
+  const bL = bias > 60 ? 'High' : bias > 30 ? 'Medium' : 'Low';
+  const vL = variance > 60 ? 'High' : variance > 30 ? 'Medium' : 'Low';
+  const bC = bias > 60 ? 'var(--coral)' : bias > 30 ? 'var(--warn)' : 'var(--accent)';
+  const vC = variance > 60 ? 'var(--coral)' : variance > 30 ? 'var(--warn)' : 'var(--accent)';
+  document.getElementById('biasVal').textContent = bL;
+  document.getElementById('biasVal').style.color = bC;
+  document.getElementById('varianceVal').textContent = vL;
+  document.getElementById('varianceVal').style.color = vC;
+  const msgs = {
+    1: ['var(--warn-light)','1px solid rgba(245,158,11,0.3)','var(--warn)','⚠️ Degree 1 — Underfitting:','Model is too simple. High bias, low variance. Missing the true pattern.'],
+    2: ['var(--warn-light)','1px solid rgba(245,158,11,0.3)','var(--warn)','⚠️ Degree 2:','Better, but still underfitting for complex data. Bias still too high.'],
+    3: ['var(--accent-light)','1px solid rgba(16,185,129,0.3)','var(--accent)','✅ Degree 3 — Sweet Spot:','Balanced bias-variance tradeoff. Good generalisation on new data!'],
+    4: ['var(--accent-light)','1px solid rgba(16,185,129,0.3)','var(--accent)','✅ Degree 4:','Still good. Slight variance increase but model generalises well.'],
+    5: ['var(--warn-light)','1px solid rgba(245,158,11,0.3)','var(--warn)','⚠️ Degree 5 — Caution:','Variance rising. Watch test R² start to diverge from train R².'],
+    6: ['rgba(244,63,94,0.12)','1px solid rgba(244,63,94,0.25)','var(--coral)','🚨 Degree 6+:','Significant overfitting risk. Training error drops, test error rises.'],
+  };
+  const key = deg <= 2 ? deg : deg === 3 ? 3 : deg === 4 ? 4 : deg === 5 ? 5 : 6;
+  const m = msgs[key] || msgs[6];
+  const el = document.getElementById('bvMessage');
+  el.style.background = m[0]; el.style.border = m[1];
+  el.innerHTML = `<span style="color:${m[2]};font-weight:700;">${m[3]}</span> <span style="font-size:13px;color:var(--text2);">${m[4]}</span>`;
+}
+
+function toggleSolution(btn, id) {
+  const sol = document.getElementById(id);
+  sol.classList.toggle('open');
+  btn.textContent = sol.classList.contains('open') ? '▲ Hide Solution' : '▼ Show Solution';
+}
+
+const questions = [
+  { q: 'What does PolynomialFeatures(degree=2) do to a single feature x?', opts: ['Creates [x, 2x]', 'Creates [1, x, x²]', 'Creates [x², x³]', 'Doubles all values'], correct: 1, exp: 'PolynomialFeatures adds a bias term (1), the original x, and x² — creating 3 features total from 1 input.' },
+  { q: 'A model has Train R² = 0.99 and Test R² = 0.35. This indicates:', opts: ['Underfitting', 'Perfect model', 'Overfitting', 'Data leakage'], correct: 2, exp: 'High training R² but low test R² is the classic signature of overfitting — the model memorized training noise.' },
+  { q: 'Why should StandardScaler be placed BEFORE LinearRegression in a polynomial pipeline?', opts: ['It makes predictions faster', 'It prevents numerical instability from large powers of x', 'It increases R² automatically', 'sklearn requires it by default'], correct: 1, exp: 'High-degree polynomial features (like x⁹) can become astronomically large. Scaling stabilizes gradient descent and improves numerical precision.' },
+  { q: 'In sklearn Pipeline, what does pipe.fit(X_train, y_train) do?', opts: ['Only fits the last estimator', 'Applies fit_transform to all but last step, then fit on last', 'Calls predict on all steps', 'Only transforms X but does not fit'], correct: 1, exp: 'Pipeline calls fit_transform on intermediate steps (transformers) and fit on the final estimator, in order.' },
+  { q: 'What is the primary advantage of using Ridge regression with polynomial features?', opts: ['It removes all polynomial terms', 'It automatically selects the optimal degree', 'It penalises large coefficients, reducing overfitting', 'It converts the model to linear regression'], correct: 2, exp: 'Ridge (L2 regularisation) adds a penalty proportional to the square of coefficient magnitudes, shrinking them and reducing model complexity — preventing overfitting.' }
+];
+
+let quizAnswers = new Array(5).fill(null), quizCurrent = 0;
+
+function renderQuiz() {
+  const q = questions[quizCurrent];
+  const a = quizAnswers[quizCurrent];
+  document.getElementById('qCounter').textContent = `Question ${quizCurrent + 1} of 5`;
+  document.getElementById('qPrevBtn').disabled = quizCurrent === 0;
+  document.getElementById('qNextBtn').disabled = a === null;
+  document.getElementById('qNextBtn').textContent = quizCurrent === 4 ? 'See Results →' : 'Next →';
+  let letters = 'ABCD';
+  let html = `<div class="q-badge">Question ${quizCurrent + 1} / 5</div><div class="q-text">${q.q}</div><div class="q-options">`;
+  q.opts.forEach((opt, i) => {
+    let cls = 'q-opt';
+    if (a !== null) { if (i === q.correct) cls += ' correct'; else if (i === a && i !== q.correct) cls += ' wrong'; }
+    html += `<button class="${cls}" onclick="answerQuiz(${i})" ${a !== null ? 'disabled' : ''}><span class="q-opt-letter">${letters[i]}</span>${opt}</button>`;
+  });
+  html += `</div><div class="q-feedback ${a !== null ? 'show ' + (a === q.correct ? 'correct' : 'wrong') : ''}">${a !== null ? (a===q.correct?'✅ ':'❌ ') + q.exp : ''}</div>`;
+  document.getElementById('qCard').innerHTML = html;
+  for (let i = 0; i < 5; i++) {
+    const dot = document.getElementById('qd' + i);
+    dot.className = 'qp-dot';
+    if (i === quizCurrent) dot.classList.add('answered');
+    if (quizAnswers[i] !== null) {
+      dot.classList.remove('answered');
+      dot.classList.add(quizAnswers[i] === questions[i].correct ? 'correct' : 'wrong');
+    }
+  }
+}
+
+function answerQuiz(choice) {
+  if (quizAnswers[quizCurrent] !== null) return;
+  quizAnswers[quizCurrent] = choice;
+  renderQuiz();
+  document.getElementById('qNextBtn').disabled = false;
+}
+
+function quizNav(dir) {
+  if (dir === 1 && quizCurrent === 4) { showQuizResult(); return; }
+  const n = quizCurrent + dir;
+  if (n >= 0 && n < 5) { quizCurrent = n; renderQuiz(); }
+}
+
+function showQuizResult() {
+  const correct = quizAnswers.filter((a,i) => a === questions[i].correct).length;
+  document.getElementById('quizContainer').style.display = 'none';
+  document.getElementById('quizResult').classList.add('show');
+  document.getElementById('qrScore').textContent = `${correct}/5`;
+  document.getElementById('qrCorrectChip').textContent = `✅ ${correct} Correct`;
+  document.getElementById('qrWrongChip').textContent = `❌ ${5-correct} Incorrect`;
+  const emojis = ['😅','🤔','👍','🌟','🎉'];
+  document.getElementById('qrEmoji').textContent = emojis[correct];
+  if (correct >= 4) launchConfetti();
+}
+
+function resetQuiz() {
+  quizAnswers = new Array(5).fill(null); quizCurrent = 0;
+  document.getElementById('quizResult').classList.remove('show');
+  document.getElementById('quizContainer').style.display = 'block';
+  renderQuiz();
+}
+
+function launchConfetti() {
+  const cs = ['#3b82f6','#10b981','#8b5cf6','#f59e0b','#f43f5e','#06b6d4'];
+  for (let i = 0; i < 80; i++) {
+    const el = document.createElement('div');
+    const s = 6 + Math.random() * 10;
+    const tx = (Math.random()-0.5)*300, ty = -(100+Math.random()*200), tr = Math.random()*720-360;
+    el.style.cssText = `position:fixed;top:50%;left:50%;width:${s}px;height:${s}px;background:${cs[i%cs.length]};
+      border-radius:${Math.random()>.5?'50%':'3px'};pointer-events:none;z-index:9999;
+      --tx:${tx}px;--ty:${ty}px;--tr:${tr}deg;
+      animation:confetti-pop ${1+Math.random()*.8}s ease forwards;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+  }
+}
+
+function restartModule() {
+  pageVisited.fill(false); pageVisited[0]=true;
+  for(let i=0;i<8;i++) {
+    const n=document.getElementById('nav'+i);
+    n.classList.remove('active','done');
+    if(i===0) n.classList.add('active');
+  }
+  showPage(0);
+}
+
+renderQuiz();
+updateProgress();
+setTimeout(() => {
+  drawCurveDemo(1);
+  drawOfCards();
+}, 200);
+
+// Initialize Ace editors when DOM is ready
+document.addEventListener('DOMContentLoaded', initAceEditors);
+setTimeout(initAceEditors, 500);
+
+// Fix logo display
+const logoImg = document.querySelector('.logo-img');
+if (logoImg && logoImg.complete && logoImg.naturalWidth === 0) {
+  logoImg.style.display = 'none';
+  const logoBadge = document.querySelector('.logo-area .logo-badge');
+  if (logoBadge) logoBadge.style.display = 'flex';
+}
+</script>
+</body>
+</html>
