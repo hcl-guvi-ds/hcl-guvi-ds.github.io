@@ -1,2054 +1,816 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logistic Regression | HCL-GUVI Machine Learning Course</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #10b981;
-            --primary-dark: #059669;
-            --primary-light: #d1fae5;
-            --secondary: #3b82f6;
-            --secondary-dark: #1e40af;
-            --secondary-light: #dbeafe;
-            --accent: #f59e0b;
-            --success: #10b981;
-            --error: #ef4444;
-            --bg: #f9fafb;
-            --surface: #ffffff;
-            --surface-2: #f3f4f6;
-            --text: #1f2937;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* ==================== HEADER ==================== */
-        header {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 0 2rem;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .logo-placeholder {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-        }
-
-        .module-info h2 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .module-info p {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        .progress-bar-container {
-            width: 200px;
-            height: 6px;
-            background: var(--border);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
-
-        .creator-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .creator-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-        }
-
-        /* ==================== LAYOUT ==================== */
-        .app-container {
-            display: flex;
-            height: calc(100vh - 70px);
-        }
-
-        /* ==================== SIDEBAR ==================== */
-        .sidebar {
-            width: 280px;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            overflow-y: auto;
-            padding: 1.5rem 0;
-        }
-
-        .sidebar-section {
-            margin-bottom: 1rem;
-        }
-
-        .sidebar-label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            padding: 0.5rem 1.5rem;
-            letter-spacing: 0.5px;
-        }
-
-        .nav-item {
-            padding: 0.75rem 1.5rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .nav-item:hover {
-            background: var(--surface-2);
-            color: var(--primary);
-        }
-
-        .nav-item.active {
-            background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
-            border-left-color: var(--primary);
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-        }
-
-        .progress-dot {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.65rem;
-            font-weight: 700;
-            margin-left: auto;
-            background: var(--surface-2);
-            color: var(--text-muted);
-        }
-
-        .progress-dot.completed {
-            background: var(--primary);
-            color: white;
-        }
-
-        .progress-dot.active {
-            background: var(--secondary);
-            color: white;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        /* ==================== MAIN CONTENT ==================== */
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 2rem;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .page {
-            display: none;
-            animation: slideInUp 0.5s ease;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .page-header {
-            margin-bottom: 2rem;
-        }
-
-        .page-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .page-subtitle {
-            font-size: 1.1rem;
-            color: var(--text-muted);
-        }
-
-        /* ==================== CARDS ==================== */
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            border-color: var(--primary);
-            box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
-        }
-
-        .card-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--text);
-        }
-
-        .card-description {
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-            line-height: 1.8;
-        }
-
-        /* ==================== BUTTONS ==================== */
-        .btn {
-            padding: 0.625rem 1rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 12px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 12px rgba(59, 130, 246, 0.3);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-outline:hover {
-            background: var(--primary-light);
-        }
-
-        .btn-lg {
-            padding: 0.875rem 1.5rem;
-            font-size: 1rem;
-        }
-
-        .btn-sm {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.85rem;
-        }
-
-        /* ==================== CODE BLOCK ==================== */
-        .code-block {
-            background: #1e1e1e;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            overflow-x: auto;
-            border: 1px solid #333;
-        }
-
-        .code-block code {
-            color: #d4d4d4;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        .code-keyword {
-            color: #569cd6;
-        }
-
-        .code-string {
-            color: #ce9178;
-        }
-
-        .code-function {
-            color: #dcdcaa;
-        }
-
-        .code-comment {
-            color: #6a9955;
-        }
-
-        .code-number {
-            color: #b5cea8;
-        }
-
-        /* ==================== ANALOGY BOX ==================== */
-        .analogy-box {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
-            border-left: 4px solid var(--primary);
-            border-radius: 8px;
-            padding: 1.25rem;
-            margin: 1rem 0;
-        }
-
-        .analogy-label {
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .analogy-text {
-            color: var(--text);
-            line-height: 1.8;
-        }
-
-        /* ==================== INTERACTIVE COMPONENTS ==================== */
-        .interactive-section {
-            background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface) 100%);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            border: 1px solid var(--border);
-        }
-
-        .interactive-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--text);
-        }
-
-        /* Slider */
-        .slider-container {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            margin: 1rem 0;
-        }
-
-        .slider-input {
-            flex: 1;
-            -webkit-appearance: none;
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: var(--border);
-            outline: none;
-            -webkit-slider-thumb-appearance: none;
-        }
-
-        .slider-input::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            cursor: pointer;
-            box-shadow: var(--shadow-md);
-        }
-
-        .slider-input::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            cursor: pointer;
-            border: none;
-        }
-
-        .slider-value {
-            font-weight: 700;
-            color: var(--primary);
-            min-width: 60px;
-        }
-
-        /* Reveal Card */
-        .reveal-card {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 1rem 0;
-            text-align: center;
-        }
-
-        .reveal-card:hover {
-            border-color: var(--primary);
-            box-shadow: var(--shadow-md);
-        }
-
-        .reveal-card.revealed {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
-            border-color: var(--primary);
-        }
-
-        .reveal-label {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .reveal-content {
-            display: none;
-            margin-top: 1rem;
-            padding: 1rem;
-            background: var(--surface);
-            border-radius: 8px;
-        }
-
-        .reveal-content.show {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Boolean Tester */
-        .boolean-tester {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin: 1rem 0;
-        }
-
-        .boolean-btn {
-            padding: 1rem;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            background: var(--surface);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .boolean-btn:hover {
-            border-color: var(--primary);
-        }
-
-        .boolean-btn.active {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            border-color: var(--primary);
-            color: white;
-            box-shadow: var(--shadow-md);
-        }
-
-        /* Step Visualizer */
-        .step-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin: 1rem 0;
-        }
-
-        .step-box {
-            background: var(--surface-2);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .step-box.active {
-            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%);
-            border-color: var(--primary);
-            transform: scale(1.05);
-            box-shadow: var(--shadow-md);
-        }
-
-        .step-number {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .step-label {
-            font-weight: 600;
-            color: var(--text);
-            font-size: 0.95rem;
-        }
-
-        /* Navigation Flow */
-        .nav-flow {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 2rem;
-            flex-wrap: wrap;
-        }
-
-        /* ==================== EXERCISE CARDS ==================== */
-        .exercise-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .exercise-number {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .exercise-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .exercise-description {
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-            line-height: 1.8;
-        }
-
-        .solution-toggle {
-            background: transparent;
-            border: none;
-            color: var(--primary);
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s ease;
-        }
-
-        .solution-toggle:hover {
-            color: var(--primary-dark);
-        }
-
-        .solution-content {
-            display: none;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border);
-        }
-
-        .solution-content.show {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
-
-        /* ==================== QUIZ ==================== */
-        .quiz-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .quiz-progress {
-            margin-bottom: 2rem;
-        }
-
-        .progress-dots {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .progress-dot-quiz {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--border);
-            transition: all 0.3s ease;
-        }
-
-        .progress-dot-quiz.active {
-            background: var(--primary);
-            transform: scale(1.5);
-        }
-
-        .progress-dot-quiz.completed {
-            background: var(--success);
-        }
-
-        .quiz-question {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .question-number {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--primary);
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-        }
-
-        .question-text {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-        }
-
-        .quiz-options {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .quiz-option {
-            background: var(--surface-2);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .quiz-option:hover {
-            border-color: var(--primary);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
-        }
-
-        .quiz-option input[type="radio"] {
-            cursor: pointer;
-            width: 20px;
-            height: 20px;
-            accent-color: var(--primary);
-        }
-
-        .quiz-option.selected {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
-            border-color: var(--primary);
-        }
-
-        .quiz-option.correct {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
-            border-color: var(--success);
-        }
-
-        .quiz-option.incorrect {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%);
-            border-color: var(--error);
-        }
-
-        .quiz-feedback {
-            margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 8px;
-            font-weight: 600;
-            display: none;
-        }
-
-        .quiz-feedback.show {
-            display: block;
-        }
-
-        .quiz-feedback.correct {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
-            color: var(--success);
-            border-left: 4px solid var(--success);
-        }
-
-        .quiz-feedback.incorrect {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
-            color: var(--error);
-            border-left: 4px solid var(--error);
-        }
-
-        .quiz-result {
-            background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface) 100%);
-            border-radius: 12px;
-            padding: 2rem;
-            text-align: center;
-            border: 1px solid var(--border);
-        }
-
-        .result-emoji {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-
-        .result-score {
-            font-size: 3rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.5rem;
-        }
-
-        .result-text {
-            font-size: 1.1rem;
-            color: var(--text-muted);
-            margin-bottom: 2rem;
-        }
-
-        /* ==================== COMPLETION ==================== */
-        .completion-container {
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .celebration {
-            font-size: 5rem;
-            margin-bottom: 1rem;
-            animation: bounce 1s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
-        }
-
-        .skill-tag {
-            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%);
-            border: 2px solid var(--primary);
-            border-radius: 8px;
-            padding: 1rem;
-            color: var(--primary-dark);
-            font-weight: 600;
-            animation: slideInUp 0.5s ease forwards;
-        }
-
-        .skill-tag:nth-child(1) { animation-delay: 0.1s; }
-        .skill-tag:nth-child(2) { animation-delay: 0.2s; }
-        .skill-tag:nth-child(3) { animation-delay: 0.3s; }
-        .skill-tag:nth-child(4) { animation-delay: 0.4s; }
-        .skill-tag:nth-child(5) { animation-delay: 0.5s; }
-        .skill-tag:nth-child(6) { animation-delay: 0.6s; }
-
-        /* ==================== FLOWCHART ==================== */
-        .flowchart {
-            display: grid;
-            gap: 0.5rem;
-            margin: 1.5rem 0;
-        }
-
-        .flow-step {
-            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%);
-            border: 2px solid var(--primary);
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .flow-arrow {
-            text-align: center;
-            color: var(--primary);
-            font-size: 1.2rem;
-        }
-
-        /* ==================== SCROLLBAR ==================== */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-dark);
-        }
-
-        /* ==================== RESPONSIVE ==================== */
-        @media (max-width: 768px) {
-            .app-container {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-                padding: 0.5rem 0;
-                max-height: 120px;
-                overflow-x: auto;
-                display: flex;
-                gap: 0;
-                flex-wrap: nowrap;
-            }
-
-            .sidebar-section {
-                display: flex;
-                gap: 0;
-                margin: 0;
-            }
-
-            .sidebar-label {
-                display: none;
-            }
-
-            .nav-item {
-                padding: 0.5rem 1rem;
-                border: 1px solid var(--border);
-                border-radius: 4px;
-                margin: 0 0.25rem;
-                width: fit-content;
-                flex-shrink: 0;
-            }
-
-            .main-content {
-                padding: 1rem;
-            }
-
-            .page-title {
-                font-size: 1.8rem;
-            }
-
-            header {
-                padding: 0 1rem;
-            }
-
-            .header-right {
-                display: none;
-            }
-
-            .progress-bar-container {
-                display: none;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- HEADER -->
-    <header>
-        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 1rem;">
-            <div class="header-left">
-                <div class="logo-placeholder">HG</div>
-                <div class="module-info">
-                    <h2>Logistic Regression</h2>
-                    <p>Supervised Machine Learning</p>
-                </div>
-            </div>
-            <div class="header-right">
-                <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: right;">
-                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Progress</div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: 0%;"></div>
-                    </div>
-                </div>
-                <div class="creator-info">
-                    <div class="creator-avatar">V</div>
-                    <div style="line-height: 1.3;">
-                        <div style="font-weight: 600; color: var(--text);">Vinodhini</div>
-                        <div style="font-size: 0.75rem;">Data Scientist · HCL GUVI</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- APP CONTAINER -->
-    <div class="app-container">
-        <!-- SIDEBAR -->
-        <div class="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-label">Getting Started</div>
-                <div class="nav-item active" onclick="navigate('welcome')">
-                    <div class="nav-icon">👋</div>
-                    <span>Welcome</span>
-                    <div class="progress-dot active">→</div>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-label">Concepts</div>
-                <div class="nav-item" onclick="navigate('concept1')">
-                    <div class="nav-icon">📊</div>
-                    <span>Classification Basics</span>
-                    <div class="progress-dot"></div>
-                </div>
-                <div class="nav-item" onclick="navigate('concept2')">
-                    <div class="nav-icon">📈</div>
-                    <span>Sigmoid Function</span>
-                    <div class="progress-dot"></div>
-                </div>
-                <div class="nav-item" onclick="navigate('concept3')">
-                    <div class="nav-icon">🎯</div>
-                    <span>Logistic Regression</span>
-                    <div class="progress-dot"></div>
-                </div>
-                <div class="nav-item" onclick="navigate('advanced')">
-                    <div class="nav-icon">🚀</div>
-                    <span>Advanced Topics</span>
-                    <div class="progress-dot"></div>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-label">Practice</div>
-                <div class="nav-item" onclick="navigate('exercises')">
-                    <div class="nav-icon">💻</div>
-                    <span>Exercises</span>
-                    <div class="progress-dot"></div>
-                </div>
-                <div class="nav-item" onclick="navigate('quiz')">
-                    <div class="nav-icon">🧠</div>
-                    <span>Quiz</span>
-                    <div class="progress-dot"></div>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-label">Completion</div>
-                <div class="nav-item" onclick="navigate('completion')">
-                    <div class="nav-icon">🎉</div>
-                    <span>Completion</span>
-                    <div class="progress-dot"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- MAIN CONTENT -->
-        <div class="main-content">
-            <!-- WELCOME PAGE -->
-            <div id="welcome" class="page active">
-                <div class="page-header">
-                    <div class="page-title">Welcome to Logistic Regression</div>
-                    <div class="page-subtitle">Master binary classification with interactive learning</div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">🎯 What You'll Learn</div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
-                        <div style="padding: 1.5rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border-radius: 8px; border-left: 4px solid var(--primary);">
-                            <div style="font-weight: 600; margin-bottom: 0.5rem;">📊 Classification Fundamentals</div>
-                            <div style="font-size: 0.9rem; color: var(--text-muted);">Understand supervised classification problems</div>
-                        </div>
-                        <div style="padding: 1.5rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border-radius: 8px; border-left: 4px solid var(--secondary);">
-                            <div style="font-weight: 600; margin-bottom: 0.5rem;">📈 Sigmoid & Probabilities</div>
-                            <div style="font-size: 0.9rem; color: var(--text-muted);">Learn the sigmoid function and probability mapping</div>
-                        </div>
-                        <div style="padding: 1.5rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border-radius: 8px; border-left: 4px solid var(--primary);">
-                            <div style="font-weight: 600; margin-bottom: 0.5rem;">🎯 Model Training</div>
-                            <div style="font-size: 0.9rem; color: var(--text-muted);">Train logistic regression models with gradient descent</div>
-                        </div>
-                        <div style="padding: 1.5rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border-radius: 8px; border-left: 4px solid var(--secondary);">
-                            <div style="font-weight: 600; margin-bottom: 0.5rem;">📊 Model Evaluation</div>
-                            <div style="font-size: 0.9rem; color: var(--text-muted);">Evaluate with accuracy, precision, recall, and ROC-AUC</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">📚 Course Structure</div>
-                    <div class="card-description">This interactive module guides you through logistic regression with real examples and hands-on practice.</div>
-                    <div class="step-container" style="margin-top: 1.5rem;">
-                        <div class="step-box">
-                            <div class="step-number">1</div>
-                            <div class="step-label">Concepts</div>
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Learn theory</div>
-                        </div>
-                        <div class="step-box">
-                            <div class="step-number">2</div>
-                            <div class="step-label">Interactive Demos</div>
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">See it in action</div>
-                        </div>
-                        <div class="step-box">
-                            <div class="step-number">3</div>
-                            <div class="step-label">Exercises</div>
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Practice coding</div>
-                        </div>
-                        <div class="step-box">
-                            <div class="step-number">4</div>
-                            <div class="step-label">Quiz</div>
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Test knowledge</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="nav-flow">
-                    <button class="btn btn-primary btn-lg" onclick="navigate('concept1')">
-                        Start Learning →
-                    </button>
-                </div>
-            </div>
-
-            <!-- CONCEPT 1: CLASSIFICATION BASICS -->
-            <div id="concept1" class="page">
-                <div class="page-header">
-                    <div class="page-title">📊 Classification Basics</div>
-                    <div class="page-subtitle">Understanding binary classification problems</div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">What is Classification?</div>
-                    <div class="card-description">Classification is a supervised learning task where we predict categories (classes) rather than continuous values. Binary classification focuses on predicting one of two possible outcomes.</div>
-
-                    <div class="analogy-box">
-                        <div class="analogy-label">💡 Real-Life Analogy</div>
-                        <div class="analogy-text">Email spam detection: You train a model on emails labeled "Spam" or "Not Spam". The model learns patterns to classify new emails. Logistic regression is perfect for this task!</div>
-                    </div>
-
-                    <div class="interactive-section">
-                        <div class="interactive-title">🎮 Classification Visualization</div>
-                        <svg width="100%" height="250" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%); border-radius: 8px;">
-                            <!-- Negative class points -->
-                            <circle cx="100" cy="80" r="5" fill="#ef4444" opacity="0.7"/>
-                            <circle cx="120" cy="95" r="5" fill="#ef4444" opacity="0.7"/>
-                            <circle cx="85" cy="110" r="5" fill="#ef4444" opacity="0.7"/>
-                            
-                            <!-- Positive class points -->
-                            <circle cx="300" cy="80" r="5" fill="#10b981" opacity="0.7"/>
-                            <circle cx="320" cy="95" r="5" fill="#10b981" opacity="0.7"/>
-                            <circle cx="285" cy="110" r="5" fill="#10b981" opacity="0.7"/>
-                            
-                            <!-- Decision boundary -->
-                            <line x1="200" y1="40" x2="200" y2="160" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,5"/>
-                            
-                            <!-- Labels -->
-                            <text x="100" y="180" text-anchor="middle" font-size="14" font-weight="600" fill="#ef4444">Class 0 (Negative)</text>
-                            <text x="300" y="180" text-anchor="middle" font-size="14" font-weight="600" fill="#10b981">Class 1 (Positive)</text>
-                            <text x="200" y="220" text-anchor="middle" font-size="12" fill="#6b7280">Decision Boundary</text>
-                        </svg>
-                    </div>
-
-                    <div class="interactive-section">
-                        <div class="interactive-title">🎯 Real-World Examples</div>
-                        <div class="reveal-card" onclick="toggleRevealExample(this)">
-                            <div class="reveal-label">📧 Email Spam Detection</div>
-                            <div class="reveal-content">
-                                <div style="color: var(--text); text-align: left;">
-                                    <strong>Problem:</strong> Classify emails as spam or legitimate<br>
-                                    <strong>Class 0:</strong> Not spam<br>
-                                    <strong>Class 1:</strong> Spam<br>
-                                    <strong>Features:</strong> Word frequency, sender reputation, links count
-                                </div>
-                            </div>
-                        </div>
-                        <div class="reveal-card" onclick="toggleRevealExample(this)">
-                            <div class="reveal-label">🏥 Disease Diagnosis</div>
-                            <div class="reveal-content">
-                                <div style="color: var(--text); text-align: left;">
-                                    <strong>Problem:</strong> Diagnose disease presence<br>
-                                    <strong>Class 0:</strong> No disease<br>
-                                    <strong>Class 1:</strong> Disease present<br>
-                                    <strong>Features:</strong> Medical test results, vital signs
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">Python Code Example</div>
-                    <div class="code-block">
-                        <code><span class="code-keyword">from</span> sklearn.datasets <span class="code-keyword">import</span> <span class="code-function">make_classification</span>
-<span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
-
-<span class="code-comment"># Create sample classification dataset</span>
-X, y = <span class="code-function">make_classification</span>(
-    n_samples=<span class="code-number">100</span>,
-    n_features=<span class="code-number">2</span>,
-    n_classes=<span class="code-number">2</span>,
-    random_state=<span class="code-number">42</span>
-)
-
-<span class="code-comment"># X contains features, y contains class labels (0 or 1)</span>
-<span class="code-keyword">print</span>(f<span class="code-string">'Features shape: {X.shape}'</span>)
-<span class="code-keyword">print</span>(f<span class="code-string">'Classes: {np.unique(y)}'</span>)
-                        </code>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">🎮 Run Interactive Demo</div>
-                    <button class="btn btn-primary" onclick="runClassificationDemo()">
-                        ▶ Run Demo
-                    </button>
-                    <div id="classification-demo-output" style="margin-top: 1rem; padding: 1rem; background: var(--surface-2); border-radius: 8px; display: none; font-family: monospace; font-size: 0.85rem; color: var(--text-muted);">
-                    </div>
-                </div>
-
-                <div class="nav-flow">
-                    <button class="btn btn-secondary" onclick="navigate('welcome')">← Back</button>
-                    <button class="btn btn-primary" onclick="navigate('concept2')">Next →</button>
-                </div>
-            </div>
-
-            <!-- CONCEPT 2: SIGMOID FUNCTION -->
-            <div id="concept2" class="page">
-                <div class="page-header">
-                    <div class="page-title">📈 Sigmoid Function & Probabilities</div>
-                    <div class="page-subtitle">Converting linear outputs to probabilities</div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">The Sigmoid Function</div>
-                    <div class="card-description">The sigmoid function squashes any input value to a probability between 0 and 1. It's the key to logistic regression: σ(z) = 1 / (1 + e^(-z))</div>
-
-                    <div class="analogy-box">
-                        <div class="analogy-label">💡 Real-Life Analogy</div>
-                        <div class="analogy-text">Like a smooth ramp from "definitely No" to "definitely Yes". Small changes in the middle produce big probability shifts, while extreme values plateau near 0 or 1.</div>
-                    </div>
-
-                    <div class="interactive-section">
-                        <div class="interactive-title">🎮 Adjust Sigmoid Input</div>
-                        <div class="slider-container">
-                            <div style="flex: 1;">
-                                <label for="sigmoid-slider" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Z value:</label>
-                                <input type="range" id="sigmoid-slider" class="slider-input" min="-5" max="5" step="0.1" value="0" onchange="updateSigmoid(this.value)">
-                            </div>
-                            <div class="slider-value" id="sigmoid-value">0.00</div>
-                        </div>
-                        <div id="sigmoid-probability" style="margin-top: 1rem; padding: 1rem; background: var(--surface); border-radius: 8px; text-align: center;">
-                            <div style="font-size: 0.9rem; color: var(--text-muted);">Probability of Class 1:</div>
-                            <div id="sigmoid-prob-value" style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-top: 0.5rem;">0.50</div>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 1.5rem;">
-                        <svg width="100%" height="300" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%); border-radius: 8px;">
-                            <!-- Grid -->
-                            <line x1="30" y1="250" x2="550" y2="250" stroke="#e5e7eb" stroke-width="1"/>
-                            <line x1="30" y1="30" x2="30" y2="250" stroke="#e5e7eb" stroke-width="1"/>
-                            
-                            <!-- Sigmoid curve -->
-                            <path d="M 30 200 Q 100 150 150 100 T 300 75 T 450 50 T 550 30" 
-                                  stroke="#10b981" stroke-width="3" fill="none" stroke-linecap="round"/>
-                            
-                            <!-- Axes labels -->
-                            <text x="550" y="270" font-size="12" fill="#6b7280">z</text>
-                            <text x="10" y="35" font-size="12" fill="#6b7280">σ(z)</text>
-                            
-                            <!-- Important points -->
-                            <circle cx="290" cy="75" r="3" fill="#3b82f6"/>
-                            <text x="290" y="95" text-anchor="middle" font-size="11" fill="#3b82f6">z=0, σ(z)=0.5</text>
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">Mathematical Expression</div>
-                    <div class="code-block">
-                        <code><span class="code-comment"># Sigmoid function implementation</span>
-<span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
-
-<span class="code-keyword">def</span> <span class="code-function">sigmoid</span>(z):
-    <span class="code-string">"""Sigmoid function: σ(z) = 1 / (1 + e^(-z))"""</span>
-    <span class="code-keyword">return</span> <span class="code-number">1</span> / (<span class="code-number">1</span> + np.exp(-z))
-
-<span class="code-comment"># Example values</span>
-z_values = np.array([-<span class="code-number">5</span>, -<span class="code-number">2</span>, <span class="code-number">0</span>, <span class="code-number">2</span>, <span class="code-number">5</span>])
-probabilities = <span class="code-function">sigmoid</span>(z_values)
-<span class="code-keyword">print</span>(probabilities)  <span class="code-comment"># [0.0067, 0.1192, 0.5, 0.8808, 0.9933]</span>
-                        </code>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">🎮 Run Sigmoid Demo</div>
-                    <button class="btn btn-primary" onclick="runSigmoidDemo()">
-                        ▶ Run Demo
-                    </button>
-                    <div id="sigmoid-demo-output" style="margin-top: 1rem; padding: 1rem; background: var(--surface-2); border-radius: 8px; display: none; font-family: monospace; font-size: 0.85rem; color: var(--text-muted);">
-                    </div>
-                </div>
-
-                <div class="nav-flow">
-                    <button class="btn btn-secondary" onclick="navigate('concept1')">← Back</button>
-                    <button class="btn btn-primary" onclick="navigate('concept3')">Next →</button>
-                </div>
-            </div>
-
-            <!-- CONCEPT 3: LOGISTIC REGRESSION -->
-            <div id="concept3" class="page">
-                <div class="page-header">
-                    <div class="page-title">🎯 Logistic Regression Model</div>
-                    <div class="page-subtitle">Combining linear regression with sigmoid function</div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">How Logistic Regression Works</div>
-                    <div class="card-description">Logistic regression combines a linear model with the sigmoid function. First, it computes a weighted sum of features, then passes it through sigmoid to get a probability between 0 and 1.</div>
-
-                    <div class="analogy-box">
-                        <div class="analogy-label">💡 Real-Life Analogy</div>
-                        <div class="analogy-text">Like a recommendation system: Features (age, preferences) go through a weighted calculation, then a sigmoid gate ensures the output is a probability "Yes/No" rather than unbounded values.</div>
-                    </div>
-
-                    <div class="interactive-section">
-                        <div class="interactive-title">🎮 Model Architecture Flow</div>
-                        <div class="flowchart">
-                            <div class="flow-step">Features (X) → Weight Sum</div>
-                            <div class="flow-arrow">↓</div>
-                            <div class="flow-step">z = w₀ + w₁x₁ + w₂x₂ + ...</div>
-                            <div class="flow-arrow">↓</div>
-                            <div class="flow-step">Apply Sigmoid σ(z)</div>
-                            <div class="flow-arrow">↓</div>
-                            <div class="flow-step">Probability P(y=1) ∈ [0, 1]</div>
-                            <div class="flow-arrow">↓</div>
-                            <div class="flow-step">Classify: If P > 0.5 → Class 1, Else → Class 0</div>
-                        </div>
-                    </div>
-
-                    <div class="interactive-section">
-                        <div class="interactive-title">🎯 Decision Threshold Explorer</div>
-                        <div class="slider-container">
-                            <div style="flex: 1;">
-                                <label for="threshold-slider" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Decision Threshold:</label>
-                                <input type="range" id="threshold-slider" class="slider-input" min="0.1" max="0.9" step="0.1" value="0.5" onchange="updateThreshold(this.value)">
-                            </div>
-                            <div class="slider-value" id="threshold-value">0.50</div>
-                        </div>
-                        <div style="margin-top: 1rem; padding: 1rem; background: var(--surface-2); border-radius: 8px;">
-                            <div style="font-size: 0.9rem;"><strong>Classification Rule:</strong> If P(y=1) > <span id="threshold-display">0.50</span> → Predict Class 1, else → Class 0</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">Training & Cost Function</div>
-                    <div class="card-description">Logistic regression uses Log Loss (Cross-Entropy) to measure errors and trains with gradient descent to minimize this loss.</div>
-                    
-                    <div class="code-block">
-                        <code><span class="code-keyword">from</span> sklearn.linear_model <span class="code-keyword">import</span> <span class="code-function">LogisticRegression</span>
-<span class="code-keyword">from</span> sklearn.metrics <span class="code-keyword">import</span> accuracy_score
-
-<span class="code-comment"># Create and train model</span>
-model = <span class="code-function">LogisticRegression</span>(random_state=<span class="code-number">42</span>)
-model.fit(X_train, y_train)
-
-<span class="code-comment"># Make predictions</span>
-predictions = model.predict(X_test)
-probabilities = model.predict_proba(X_test)
-
-<span class="code-comment"># Evaluate</span>
-accuracy = <span class="code-function">accuracy_score</span>(y_test, predictions)
-<span class="code-keyword">print</span>(f<span class="code-string">'Accuracy: {accuracy:.4f}'</span>)
-                        </code>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">🎮 Run Logistic Regression Demo</div>
-                    <button class="btn btn-primary" onclick="runLogisticRegressionDemo()">
-                        ▶ Run Demo
-                    </button>
-                    <div id="logistic-demo-output" style="margin-top: 1rem; padding: 1rem; background: var(--surface-2); border-radius: 8px; display: none; font-family: monospace; font-size: 0.85rem; color: var(--text-muted);">
-                    </div>
-                </div>
-
-                <div class="nav-flow">
-                    <button class="btn btn-secondary" onclick="navigate('concept2')">← Back</button>
-                    <button class="btn btn-primary" onclick="navigate('advanced')">Next →</button>
-                </div>
-            </div>
-
-            <!-- ADVANCED CONCEPTS -->
-            <div id="advanced" class="page">
-                <div class="page-header">
-                    <div class="page-title">🚀 Advanced Topics</div>
-                    <div class="page-subtitle">Model evaluation, regularization, and multiclass classification</div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">Model Evaluation Metrics</div>
-                    <div class="card-description">Beyond accuracy, we use multiple metrics to evaluate classification models comprehensively.</div>
-
-                    <div class="interactive-section">
-                        <div class="interactive-title">📊 Evaluation Metrics</div>
-                        <div class="reveal-card" onclick="toggleRevealAdvanced(this)">
-                            <div class="reveal-label">🎯 Accuracy</div>
-                            <div class="reveal-content">
-                                <div style="color: var(--text); text-align: left;">
-                                    <strong>Formula:</strong> (TP + TN) / Total<br>
-                                    <strong>Use Case:</strong> Balanced datasets<br>
-                                    <strong>Range:</strong> 0 to 1
-                                </div>
-                            </div>
-                        </div>
-                        <div class="reveal-card" onclick="toggleRevealAdvanced(this)">
-                            <div class="reveal-label">🎖️ Precision</div>
-                            <div class="reveal-content">
-                                <div style="color: var(--text); text-align: left;">
-                                    <strong>Formula:</strong> TP / (TP + FP)<br>
-                                    <strong>Use Case:</strong> When false positives are costly<br>
-                                    <strong>Meaning:</strong> Of predicted positives, how many are correct?
-                                </div>
-                            </div>
-                        </div>
-                        <div class="reveal-card" onclick="toggleRevealAdvanced(this)">
-                            <div class="reveal-label">🔔 Recall (Sensitivity)</div>
-                            <div class="reveal-content">
-                                <div style="color: var(--text); text-align: left;">
-                                    <strong>Formula:</strong> TP / (TP + FN)<br>
-                                    <strong>Use Case:</strong> When false negatives are costly<br>
-                                    <strong>Meaning:</strong> Of actual positives, how many did we find?
-                                </div>
-                            </div>
-                        </div>
-                        <div class="reveal-card" onclick="toggleRevealAdvanced(this)">
-                            <div class="reveal-label">📈 ROC-AUC</div>
-                            <div class="reveal-content">
-                                <div style="color: var(--text); text-align: left;">
-                                    <strong>Meaning:</strong> Area Under Receiver Operating Characteristic Curve<br>
-                                    <strong>Range:</strong> 0 to 1 (higher is better)<br>
-                                    <strong>Use Case:</strong> Overall model discrimination ability
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">Regularization Techniques</div>
-                    <div class="card-description">Prevent overfitting by adding penalties to the cost function.</div>
-
-                    <div class="interactive-section">
-                        <div class="interactive-title">🔧 Regularization Types</div>
-                        <div class="boolean-tester">
-                            <div class="boolean-btn" onclick="selectRegularization('L2')">L2 (Ridge)</div>
-                            <div class="boolean-btn" onclick="selectRegularization('L1')">L1 (Lasso)</div>
-                            <div class="boolean-btn" onclick="selectRegularization('elastic')">ElasticNet</div>
-                        </div>
-                        <div id="regularization-info" style="margin-top: 1.5rem; padding: 1rem; background: var(--surface-2); border-radius: 8px;">
-                            <div style="font-weight: 600; margin-bottom: 0.5rem;" id="reg-title">L2 Regularization (Ridge)</div>
-                            <div style="color: var(--text-muted);" id="reg-desc">Adds penalty proportional to square of coefficients. Shrinks all weights but doesn't eliminate them.</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">Complete Implementation with Evaluation</div>
-                    <div class="code-block">
-                        <code><span class="code-keyword">from</span> sklearn.linear_model <span class="code-keyword">import</span> <span class="code-function">LogisticRegression</span>
-<span class="code-keyword">from</span> sklearn.metrics <span class="code-keyword">import</span> (
-    accuracy_score, precision_score, recall_score, roc_auc_score
-)
-
-<span class="code-comment"># Train with regularization</span>
-model = <span class="code-function">LogisticRegression</span>(
-    C=<span class="code-number">1.0</span>,  <span class="code-comment"># Inverse regularization strength</span>
-    penalty=<span class="code-string">'l2'</span>  <span class="code-comment"># Ridge regularization</span>
-)
-model.fit(X_train, y_train)
-
-<span class="code-comment"># Predictions</span>
-y_pred = model.predict(X_test)
-y_proba = model.predict_proba(X_test)[:, <span class="code-number">1</span>]
-
-<span class="code-comment"># Comprehensive evaluation</span>
-accuracy = <span class="code-function">accuracy_score</span>(y_test, y_pred)
-precision = <span class="code-function">precision_score</span>(y_test, y_pred)
-recall = <span class="code-function">recall_score</span>(y_test, y_pred)
-auc = <span class="code-function">roc_auc_score</span>(y_test, y_proba)
-                        </code>
-                    </div>
-                </div>
-
-                <div class="nav-flow">
-                    <button class="btn btn-secondary" onclick="navigate('concept3')">← Back</button>
-                    <button class="btn btn-primary" onclick="navigate('exercises')">Exercises →</button>
-                </div>
-            </div>
-
-            <!-- EXERCISES -->
-            <div id="exercises" class="page">
-                <div class="page-header">
-                    <div class="page-title">💻 Practice Exercises</div>
-                    <div class="page-subtitle">Apply logistic regression concepts with coding challenges</div>
-                </div>
-
-                <!-- Exercise 1 -->
-                <div class="exercise-card">
-                    <div class="exercise-number">Exercise 1</div>
-                    <div class="exercise-title">Build a Basic Logistic Regression Model</div>
-                    <div class="exercise-description">Create a logistic regression classifier on a binary classification dataset, train it, and evaluate accuracy.</div>
-
-                    <button class="solution-toggle" onclick="toggleSolution(this)">
-                        <span>💡 Show Solution</span>
-                        <span style="transition: transform 0.3s;">→</span>
-                    </button>
-                    <div class="solution-content">
-                        <div class="code-block">
-                            <code><span class="code-keyword">from</span> sklearn.datasets <span class="code-keyword">import</span> <span class="code-function">load_breast_cancer</span>
-<span class="code-keyword">from</span> sklearn.model_selection <span class="code-keyword">import</span> train_test_split
-<span class="code-keyword">from</span> sklearn.linear_model <span class="code-keyword">import</span> <span class="code-function">LogisticRegression</span>
-<span class="code-keyword">from</span> sklearn.metrics <span class="code-keyword">import</span> accuracy_score
-
-<span class="code-comment"># Load data</span>
-cancer = <span class="code-function">load_breast_cancer</span>()
-X, y = cancer.data, cancer.target
-
-<span class="code-comment"># Split data</span>
-X_train, X_test, y_train, y_test = <span class="code-function">train_test_split</span>(
-    X, y, test_size=<span class="code-number">0.2</span>, random_state=<span class="code-number">42</span>
-)
-
-<span class="code-comment"># Train model</span>
-model = <span class="code-function">LogisticRegression</span>(max_iter=<span class="code-number">5000</span>)
-model.fit(X_train, y_train)
-
-<span class="code-comment"># Evaluate</span>
-accuracy = <span class="code-function">accuracy_score</span>(y_test, model.predict(X_test))
-<span class="code-keyword">print</span>(f<span class="code-string">'Accuracy: {accuracy:.4f}'</span>)
-                            </code>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Exercise 2 -->
-                <div class="exercise-card">
-                    <div class="exercise-number">Exercise 2</div>
-                    <div class="exercise-title">Evaluate with Multiple Metrics</div>
-                    <div class="exercise-description">Calculate precision, recall, and ROC-AUC for your trained model to comprehensively evaluate performance.</div>
-
-                    <button class="solution-toggle" onclick="toggleSolution(this)">
-                        <span>💡 Show Solution</span>
-                        <span style="transition: transform 0.3s;">→</span>
-                    </button>
-                    <div class="solution-content">
-                        <div class="code-block">
-                            <code><span class="code-keyword">from</span> sklearn.metrics <span class="code-keyword">import</span> (
-    precision_score, recall_score, f1_score, roc_auc_score
-)
-
-<span class="code-comment"># Get predictions and probabilities</span>
-y_pred = model.predict(X_test)
-y_proba = model.predict_proba(X_test)[:, <span class="code-number">1</span>]
-
-<span class="code-comment"># Calculate metrics</span>
-precision = <span class="code-function">precision_score</span>(y_test, y_pred)
-recall = <span class="code-function">recall_score</span>(y_test, y_pred)
-f1 = <span class="code-function">f1_score</span>(y_test, y_pred)
-auc = <span class="code-function">roc_auc_score</span>(y_test, y_proba)
-
-<span class="code-keyword">print</span>(f<span class="code-string">'Precision: {precision:.4f}'</span>)
-<span class="code-keyword">print</span>(f<span class="code-string">'Recall: {recall:.4f}'</span>)
-<span class="code-keyword">print</span>(f<span class="code-string">'F1 Score: {f1:.4f}'</span>)
-<span class="code-keyword">print</span>(f<span class="code-string">'ROC-AUC: {auc:.4f}'</span>)
-                            </code>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Exercise 3 -->
-                <div class="exercise-card">
-                    <div class="exercise-number">Exercise 3</div>
-                    <div class="exercise-title">Apply Regularization & Tune Hyperparameters</div>
-                    <div class="exercise-description">Use GridSearchCV to find optimal C parameter for L2-regularized logistic regression and compare different penalty types.</div>
-
-                    <button class="solution-toggle" onclick="toggleSolution(this)">
-                        <span>💡 Show Solution</span>
-                        <span style="transition: transform 0.3s;">→</span>
-                    </button>
-                    <div class="solution-content">
-                        <div class="code-block">
-                            <code><span class="code-keyword">from</span> sklearn.model_selection <span class="code-keyword">import</span> <span class="code-function">GridSearchCV</span>
-
-<span class="code-comment"># Define parameter grid</span>
-param_grid = {
-    <span class="code-string">'C'</span>: [<span class="code-number">0.001</span>, <span class="code-number">0.01</span>, <span class="code-number">0.1</span>, <span class="code-number">1</span>, <span class="code-number">10</span>],
-    <span class="code-string">'penalty'</span>: [<span class="code-string">'l2'</span>, <span class="code-string">'l1'</span>],
-    <span class="code-string">'solver'</span>: [<span class="code-string">'lbfgs'</span>, <span class="code-string">'liblinear'</span>]
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Logistic Regression | HCL-GUVI Machine Learning Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.43.3/ace.js" integrity="sha512-T2otaV2NuxAJAOCoj8ijyy+eAAadZlpvdLmakrIGVFbBkthgIFqLTXd+T8Z+S+kf4V7Ib5+6f6r4D4IdS9Ey4A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<style>
+:root {
+  --bg: #f0f4ff;
+  --surface: #ffffff;
+  --surface2: #f7f9fe;
+  --surface3: #eef2fc;
+  --p: #4f6ef7;
+  --p2: #6c3ff5;
+  --g: #00c896;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --sky: #0ea5e9;
+  --text: #0f172a;
+  --text2: #334155;
+  --text3: #64748b;
+  --text4: #94a3b8;
+  --border: #e2e8f0;
+  --border2: #cbd5e1;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+  --shadow-lg: 0 4px 24px rgba(79,110,247,.10), 0 1px 4px rgba(0,0,0,.06);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --sidebar-w: 260px;
+  --header-h: 60px;
+  --font: 'Sora', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+  --transition: .25s cubic-bezier(.4,0,.2,1);
 }
 
-<span class="code-comment"># Grid search</span>
-grid = <span class="code-function">GridSearchCV</span>(
-    <span class="code-function">LogisticRegression</span>(max_iter=<span class="code-number">5000</span>),
-    param_grid,
-    cv=<span class="code-number">5</span>
-)
-grid.fit(X_train, y_train)
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; overflow: hidden; height: 100vh; }
 
-<span class="code-keyword">print</span>(f<span class="code-string">'Best params: {grid.best_params_}'</span>)
-<span class="code-keyword">print</span>(f<span class="code-string">'Best score: {grid.best_score_:.4f}'</span>)
-                            </code>
-                        </div>
-                    </div>
-                </div>
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
 
-                <div class="nav-flow">
-                    <button class="btn btn-secondary" onclick="navigate('advanced')">← Back</button>
-                    <button class="btn btn-primary" onclick="navigate('quiz')">Quiz →</button>
-                </div>
-            </div>
+/* HEADER */
+.app-header {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); z-index: 100;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 24px 0 20px;
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.logo-area { display: flex; align-items: center; gap: 8px; }
+.logo-badge {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--p) 0%, var(--p2) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 15px; color: #fff; letter-spacing: -1px;
+}
+.logo-text { font-size: 13px; font-weight: 700; color: var(--text); letter-spacing: -.3px; }
+.logo-sub { font-size: 11px; color: var(--text3); font-weight: 400; }
+.header-divider { width: 1px; height: 28px; background: var(--border); }
+.module-title { font-size: 14px; font-weight: 600; color: var(--text2); }
+.module-badge { font-size: 11px; background: rgba(79,110,247,.15); color: var(--p); padding: 2px 8px; border-radius: 99px; font-weight: 600; }
 
-            <!-- QUIZ PAGE -->
-            <div id="quiz" class="page">
-                <div class="page-header">
-                    <div class="page-title">🧠 Knowledge Check Quiz</div>
-                    <div class="page-subtitle">Test your understanding of logistic regression</div>
-                </div>
+.header-right { display: flex; align-items: center; gap: 20px; }
+.progress-wrap { display: flex; align-items: center; gap: 8px; }
+.progress-label { font-size: 11px; color: var(--text3); font-weight: 500; }
+.progress-track { width: 120px; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--p), var(--g)); border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+.progress-pct { font-size: 11px; font-weight: 700; color: var(--p); min-width: 28px; }
 
-                <div class="quiz-container">
-                    <div class="quiz-progress">
-                        <div style="font-weight: 600; margin-bottom: 0.5rem;" id="quiz-progress-text">Question 1 of 5</div>
-                        <div class="progress-dots" id="quiz-dots">
-                            <div class="progress-dot-quiz active"></div>
-                            <div class="progress-dot-quiz"></div>
-                            <div class="progress-dot-quiz"></div>
-                            <div class="progress-dot-quiz"></div>
-                            <div class="progress-dot-quiz"></div>
-                        </div>
-                    </div>
+/* SIDEBAR */
+.sidebar {
+  position: fixed; top: var(--header-h); left: 0; bottom: 0; width: var(--sidebar-w);
+  background: var(--surface); border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 20px 12px; z-index: 50;
+}
+.sidebar-section { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--text4); text-transform: uppercase; padding: 12px 12px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: 10px; cursor: pointer; transition: all var(--transition);
+  margin-bottom: 2px; font-size: 13px; font-weight: 500; color: var(--text2);
+  border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: var(--surface3); color: var(--text); }
+.nav-item.active { background: rgba(79,110,247,.12); color: var(--p); font-weight: 600; }
+.nav-item.done { color: var(--g); }
+.nav-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; background: var(--surface3); }
+.nav-item.active .nav-icon { background: linear-gradient(135deg, var(--p), var(--p2)); color: #fff; }
+.nav-item.done .nav-icon { background: rgba(0,200,150,.15); color: var(--g); }
+.nav-check { margin-left: auto; font-size: 11px; color: var(--g); display: none; }
+.nav-item.done .nav-check { display: block; }
 
-                    <!-- Q1 -->
-                    <div id="quiz-q1" class="quiz-question" style="display: block;">
-                        <div class="question-number">Question 1</div>
-                        <div class="question-text">What is the output range of the sigmoid function?</div>
-                        <div class="quiz-options">
-                            <label class="quiz-option">
-                                <input type="radio" name="q1" value="a" onchange="selectOption('q1', 'a')">
-                                <span>(-∞, +∞)</span>
-                            </label>
-                            <label class="quiz-option">
-                                <input type="radio" name="q1" value="b" onchange="selectOption('q1', 'b')">
-                                <span>(0, 1)</span>
-                            </label>
-                            <label class="quiz-option">
-                                <input type="radio" name="q1" value="c" onchange="selectOption('q1', 'c')">
-                                <span>[0, 1]</span>
-                            </label>
-                            <label class="quiz-option">
-                                <input type="radio" name="q1" value="d" onchange="selectOption('q1', 'd')">
-                                <span>(-1, 1)</span>
-                            </label>
-                        </div>
-                        <div class="quiz-feedback" id="q1-feedback"></div>
-                    </div>
+/* MAIN */
+.main-content {
+  margin-left: var(--sidebar-w); margin-top: var(--header-h);
+  height: calc(100vh - var(--header-h)); overflow-y: auto; padding: 32px 48px 80px;
+}
 
-                    <!-- Q2 -->
-                    <div id="quiz-q2" class="quiz-question">
-                        <div class="question-number">Question 2</div>
-                        <div class="question-text">What loss function is used in logistic regression?</div>
-                        <div class="quiz-options">
-                            <label class="quiz-option">
-                                <input type="radio" name="q2" value="a" onchange="selectOption('q2', 'a')">
-                                <span>Mean Squared Error</span>
-                            </label>
-                            <label class="quiz-option">
-                                <input type="radio" name="q2" value="b" onchange="selectOption('q2', 'b')">
-                                <span>Cross-Entropy (Log Loss)</span>
-                            </label>
-                            <label class="quiz-option">
-                                <input type="radio" name="q2" value="c" onchange="selectOption('q2', 'c')">
-                                <span>Mean Absolute Error</span>
-                            </label>
-                            <label class="quiz-option">
-                                <input type="radio" name="q2" value="d" onchange="selectOption('q2', 'd')">
-                                <span>Hinge Loss</span>
-                            </label>
-                        </div>
-                        <div class="quiz-feedback" id="q2-feedback"></div>
-                    </div>
+/* PAGES */
+.page { display: none; animation: fadeSlide .35s cubic-bezier(.4,0,.2,1); }
+.page.active { display: block; }
+@keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-                    <!-- Q3 -->
-                    <div id="quiz-q3" class="quiz-question">
-                        <div class="question-number">Question 3</div>
-                        <div class="question-text">What is the standard decision threshold for binary classification in logistic regression?</div>
-                        <div class="quiz-options">
-                            <label class="quiz-option">
-                                <input type="radio" name="q3" value="a" onchange="selectOption('q3', 'a')">
-                                <span>0.3</span>
-                            </label>
-                            <label class="quiz-option">
-                                <input type="radio" name="q3" value="b" onchange="selectOption('q3', 'b')">
-                                <span>0.5</span>
-                            </label>
-                            <label class="quiz-option">
-                                <input type="radio" name="q3" value="c" onchange="selectOption('q3', 'c')">
-                                <span>0.7</span>
-                            </label>
-                            <label class="quiz-option">
-                                <input type="radio" name="q3" value="d" onchange="selectOption('q3', 'd')">
-                                <span>It depends on the problem</span>
-                            </label>
-                        </div>
-                        <div class="quiz-feedback" id="q3-feedback"></div>
-                    </div>
+/* BUTTONS */
+.page-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 600; font-size: 13px; cursor: pointer; transition: all var(--transition); border: none; font-family: var(--font); }
+.btn-primary { background: linear-gradient(135deg, var(--p), var(--p2)); color: #fff; box-shadow: 0 2px 8px rgba(79,110,247,.3); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(79,110,247,.35); }
+.btn-ghost { background: var(--surface); color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { background: var(--surface3); }
 
-                    <!-- Q4 -->
-                    <div id="quiz-q4" class="quiz-question">
-                        <div class="question-number">Question 4</div>
-                        <div class="question-text">Which metric is best for imbalanced datasets?</div>
-                        <div class="quiz-options">
-                            <label class="quiz-option">
-                                <input type="radio" name="q4" value="a" onchange="selectOption('q4', 'a')">
-                                <span>Accuracy</span>
-                            </label>
-                            <label class="quiz-option">
-                                <input type="radio" name="q4" value="b" onchange="selectOption('q4', 'b')">
-                                <span>Precision and Recall</span>
-                            </label>
-                            <label class="quiz-option">
-                                <input type="radio" name="q4" value="c" onchange="selectOption('q4', 'c')">
-                                <span>ROC-AUC</span>
-                            </label>
-                            <label class="quiz-option">
-                                <input type="radio" name="q4" value="d" onchange="selectOption('q4', 'd')">
-                                <span>Both B and C</span>
-                            </label>
-                        </div>
-                        <div class="quiz-feedback" id="q4-feedback"></div>
-                    </div>
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow); }
 
-                    <!-- Q5 -->
-                    <div id="quiz-q5" class="quiz-question">
-                        <div class="question-number">Question 5</div>
-                        <div class="question-text">What does the C parameter in LogisticRegression control?</div>
-                        <div class="quiz-options">
-                            <label class="quiz-option">
-                                <input type="radio" name="q5" value="a" onchange="selectOption('q5', 'a')">
-                                <span>Learning rate</span>
-                            </label>
-                            <label class="quiz-option">
-                                <input type="radio" name="q5" value="b" onchange="selectOption('q5', 'b')">
-                                <span>Inverse regularization strength</span>
-                            </label>
-                            <label class="quiz-option">
-                                <input type="radio" name="q5" value="c" onchange="selectOption('q5', 'c')">
-                                <span>Number of iterations</span>
-                            </label>
-                            <label class="quiz-option">
-                                <input type="radio" name="q5" value="d" onchange="selectOption('q5', 'd')">
-                                <span>Decision threshold</span>
-                            </label>
-                        </div>
-                        <div class="quiz-feedback" id="q5-feedback"></div>
-                    </div>
+/* HERO */
+.hero { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%); border-radius: 20px; padding: 48px 40px; margin-bottom: 28px; color: #fff; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+.hero-tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15); border-radius: 99px; padding: 4px 12px; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,.8); margin-bottom: 16px; }
+.hero h1 { font-family: var(--font); font-size: 42px; font-weight: 700; line-height: 1.15; margin-bottom: 12px; }
+.hero h1 em { font-style: italic; color: #86efac; }
+.hero p { font-size: 15px; color: rgba(255,255,255,.75); max-width: 520px; line-height: 1.7; }
+.hero-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+.chip-blue { background: rgba(79,110,247,.2); color: #a5b4fc; border: 1px solid rgba(79,110,247,.25); }
+.chip-green { background: rgba(0,200,150,.2); color: #6ee7b7; border: 1px solid rgba(0,200,150,.25); }
+.chip-purple { background: rgba(108,63,245,.2); color: #c4b5fd; border: 1px solid rgba(108,63,245,.25); }
+.hero-deco { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); font-size: 100px; opacity: .07; user-select: none; }
 
-                    <div class="nav-flow">
-                        <button class="btn btn-secondary" onclick="navigate('exercises')">← Back</button>
-                        <button class="btn btn-primary" id="submit-quiz-btn" onclick="submitQuiz()">Submit Quiz</button>
-                    </div>
+/* SECTION TITLES */
+.ey { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--p); margin-bottom: 8px; }
+.h1 { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -.5px; }
+.sub { font-size: 14px; color: var(--text3); margin-bottom: 24px; line-height: 1.6; }
 
-                    <!-- Results -->
-                    <div id="quiz-results" style="display: none; margin-top: 2rem;">
-                        <div class="quiz-result">
-                            <div class="result-emoji" id="result-emoji">🎉</div>
-                            <div class="result-score" id="result-score">0/5</div>
-                            <div class="result-text" id="result-text">Great effort!</div>
-                            <button class="btn btn-primary btn-lg" onclick="navigate('completion')">Continue to Completion →</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+/* ACE EDITOR STYLES */
+.cb-wrapper {
+  margin: 13px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.cb {
+  display: block;
+  position: relative;
+  height: auto;
+  min-height: 200px;
+  width: 100%;
+}
+.ace_editor {
+  border-radius: 12px !important;
+  font-family: var(--mono) !important;
+  font-size: 13px !important;
+  line-height: 1.8 !important;
+}
+.ace_editor.ace-monokai {
+  background-color: #1a1a2e !important;
+}
 
-            <!-- COMPLETION PAGE -->
-            <div id="completion" class="page">
-                <div class="completion-container">
-                    <div class="celebration">🎉</div>
-                    <div class="page-title">Congratulations!</div>
-                    <div style="font-size: 1.2rem; color: var(--text-muted); margin-bottom: 2rem;">You've completed the Logistic Regression module!</div>
+.run { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 99px; background: linear-gradient(135deg, var(--p), var(--p2)); color: #fff; font-size: 12.5px; font-weight: 700; border: none; cursor: pointer; transition: all .2s; font-family: var(--font); margin: 8px 0; }
+.run:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(79,110,247,.4); }
 
-                    <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; border: 2px solid rgba(16, 185, 129, 0.3);">
-                        <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--primary);">✅ Skills You've Mastered</div>
-                        <div class="skills-grid">
-                            <div class="skill-tag">📊 Classification Concepts</div>
-                            <div class="skill-tag">📈 Sigmoid Function</div>
-                            <div class="skill-tag">🎯 Logistic Regression</div>
-                            <div class="skill-tag">📋 Model Evaluation</div>
-                            <div class="skill-tag">🔧 Regularization</div>
-                            <div class="skill-tag">💻 Implementation Skills</div>
-                        </div>
-                    </div>
+.out { background: #1a1a2e; border-radius: 10px; padding: 13px 18px; font-family: var(--mono); font-size: 12px; color: #a6e3a1; margin-top: 9px; display: none; border: 1px solid #2a2a3e; line-height: 1.9; }
+.out.show { display: block; animation: outIn .3s ease; }
+@keyframes outIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
 
-                    <div style="background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
-                        <div style="font-weight: 600; margin-bottom: 1rem;">📚 Next Steps</div>
-                        <ul style="list-style: none; padding-left: 0;">
-                            <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border);">✓ Explore multiclass classification problems</li>
-                            <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border);">✓ Work with imbalanced datasets</li>
-                            <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border);">✓ Learn about ensemble methods and SVM</li>
-                            <li style="padding: 0.5rem 0;">✓ Build real-world classification projects</li>
-                        </ul>
-                    </div>
+/* ANALOGY CARD */
+.ana { background: linear-gradient(135deg, rgba(0,200,150,.07), rgba(79,110,247,.04)); border: 1px solid rgba(0,200,150,.18); border-radius: var(--radius); padding: 15px 19px; display: flex; gap: 12px; align-items: flex-start; margin-bottom: 17px; }
+.ana-ico { font-size: 26px; flex-shrink: 0; }
+.ana-lbl { font-size: 9.5px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--g); margin-bottom: 3px; }
 
-                    <div class="nav-flow">
-                        <button class="btn btn-outline" onclick="navigate('welcome')">← Back to Start</button>
-                        <button class="btn btn-primary btn-lg" onclick="restartModule()">🔄 Restart Module</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+/* GRID */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 800px) { .g2, .g3 { grid-template-columns: 1fr; } }
+
+/* WELCOME GRID */
+.welcome-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin: 20px 0; }
+.welcome-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 18px; text-align: center; transition: all var(--transition); cursor: pointer; }
+.welcome-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--p); }
+.welcome-card-icon { font-size: 28px; margin-bottom: 8px; }
+.welcome-card-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.welcome-card-desc { font-size: 11px; color: var(--text3); }
+
+/* INTERACTIVE COMPONENTS */
+.interactive-section { background: var(--surface2); border-radius: var(--radius); padding: 20px; margin: 18px 0; border: 1px solid var(--border); }
+.interactive-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+
+.kslider-wrap { display: flex; flex-direction: column; gap: 12px; }
+.sr { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.sr label { font-size: 12px; font-weight: 700; color: var(--text2); width: 80px; }
+input[type=range] { flex: 1; accent-color: var(--p); height: 5px; }
+.sv { font-size: 13px; font-weight: 800; color: var(--p); width: 50px; text-align: right; }
+
+/* REVEAL CARDS */
+.rv-g { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.rv { background: var(--bg); border-radius: 12px; padding: 16px; cursor: pointer; border: 2px solid var(--border); transition: all .22s; }
+.rv:hover { border-color: var(--p); background: rgba(79,110,247,.04); }
+.rv.fl { background: rgba(79,110,247,.08); border-color: var(--p); }
+.rv-f { font-size: 13.5px; font-weight: 700; }
+.rv-b { font-size: 12.5px; color: var(--text2); margin-top: 7px; display: none; line-height: 1.6; }
+.rv.fl .rv-b { display: block; animation: fi .28s; }
+.rv-h { font-size: 10px; color: var(--text3); margin-top: 5px; }
+@keyframes fi { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* FLOWCHART */
+.flowchart { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 20px 0; }
+.flow-step { background: var(--surface2); border: 2px solid var(--border); border-radius: 12px; padding: 14px 20px; text-align: center; font-weight: 600; width: 100%; max-width: 380px; }
+.flow-arrow { color: var(--p); font-size: 20px; }
+
+/* BOOLEAN TESTER */
+.boolean-tester { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+.boolean-btn { padding: 8px 18px; border-radius: 8px; border: 2px solid var(--border); background: var(--surface); cursor: pointer; font-size: 12px; font-weight: 700; transition: all .18s; }
+.boolean-btn:hover { border-color: var(--p); color: var(--p); background: rgba(79,110,247,.04); }
+.boolean-btn.active { border-color: var(--p); background: rgba(79,110,247,.09); color: var(--p); }
+
+/* EXERCISE CARD */
+.exc { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 15px; box-shadow: var(--shadow); }
+.exh { padding: 14px 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+.exn { width: 27px; height: 27px; border-radius: 8px; background: linear-gradient(135deg, var(--p), var(--p2)); color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.ext { font-size: 13.5px; font-weight: 700; }
+.exb { padding: 16px 20px; }
+.sol-btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: 8px; background: var(--bg); border: 1px solid var(--border); font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all .18s; margin-top: 9px; }
+.sol-btn:hover { background: var(--border); }
+.sol { display: none; margin-top: 9px; }
+.sol.op { display: block; animation: fi .3s; }
+
+/* QUIZ */
+.qdots { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; }
+.qd { width: 28px; height: 4px; border-radius: 99px; background: var(--border); transition: all .3s; }
+.qd.correct { background: var(--g); width: 40px; }
+.qd.wrong { background: var(--rose); width: 40px; }
+.qd.cur { background: var(--p); width: 40px; }
+
+.qcard { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; display: none; box-shadow: var(--shadow); }
+.qcard.on { display: block; animation: fadeSlide .35s ease; }
+.qn { font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--p); margin-bottom: 8px; }
+.qt { font-size: 15px; font-weight: 700; margin-bottom: 18px; }
+.qopts { display: flex; flex-direction: column; gap: 8px; }
+.qopt { padding: 10px 14px; border-radius: 8px; border: 2px solid var(--border); cursor: pointer; font-size: 13px; font-weight: 600; transition: all .18s; display: flex; align-items: center; gap: 10px; background: var(--surface); }
+.qopt:hover:not(.dis) { border-color: var(--p); background: rgba(79,110,247,.04); }
+.qopt.ok { border-color: var(--g); background: rgba(0,200,150,.08); color: var(--g); }
+.qopt.ng { border-color: var(--rose); background: rgba(244,63,94,.06); color: var(--rose); }
+.qlet { width: 22px; height: 22px; border-radius: 6px; background: var(--bg); font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.qfb { margin-top: 10px; padding: 10px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700; display: none; }
+.qfb.show { display: block; animation: fi .28s; }
+.qfb.ok { background: rgba(0,200,150,.09); color: var(--g); }
+.qfb.ng { background: rgba(244,63,94,.07); color: var(--rose); }
+
+/* COMPLETE */
+.cmp { text-align: center; padding: 38px 20px; }
+.cmp-ico { font-size: 64px; animation: bce 1s infinite alternate; display: block; margin-bottom: 14px; }
+@keyframes bce { from { transform: scale(1) translateY(0); } to { transform: scale(1.1) translateY(-7px); } }
+.cmp-title { font-size: 34px; font-weight: 800; color: var(--text); letter-spacing: -.6px; margin-bottom: 7px; }
+.cmp-sub { font-size: 14.5px; color: var(--text2); margin-bottom: 28px; }
+.sk-wrap { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 28px; }
+.sk { padding: 7px 15px; border-radius: 99px; font-size: 12.5px; font-weight: 700; border: 2px solid; animation: pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.pgf { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); }
+.bp { background: var(--surface); color: var(--text2); border: 1px solid var(--border2); padding: 9px 20px; border-radius: 99px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
+.bp:hover { background: var(--surface3); }
+.bn { background: linear-gradient(135deg, var(--p), var(--p2)); color: #fff; padding: 9px 20px; border-radius: 99px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s; border: none; }
+.bn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(79,110,247,.35); }
+
+@media (max-width: 800px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; padding: 24px 20px; }
+  .hero h1 { font-size: 32px; }
+  .g2 { grid-template-columns: 1fr; }
+  .rv-g { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-left">
+    <div class="logo-area">
+      <img src="logo.png" alt="Logo" style="height:36px; width:auto; object-fit:contain;" onerror="this.style.display='none'">
+      <div class="logo-badge">📊</div>
+      <div>
+        <div class="logo-text">Python for Beginners</div>
+        <div class="logo-sub">Logistic Regression</div>
+      </div>
     </div>
+    <div class="header-divider"></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="module-badge">Module LR</div>
+      <div class="module-title">Logistic Regression</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="progress-wrap">
+      <span class="progress-label">Progress</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+  </div>
+</header>
 
-    <script>
-        // ================== STATE MANAGEMENT ==================
-        let currentPage = 'welcome';
-        let quizAnswers = {q1: null, q2: null, q3: null, q4: null, q5: null};
-        let quizCorrect = {q1: 'c', q2: 'b', q3: 'b', q4: 'd', q5: 'b'};
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-section">Module LR</div>
+  <button class="nav-item active" onclick="goTo('welcome')" id="nav-welcome"><span class="nav-icon">🏠</span>Welcome<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo('concept1')" id="nav-concept1"><span class="nav-icon">📊</span>Classification Basics<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo('concept2')" id="nav-concept2"><span class="nav-icon">📈</span>Sigmoid Function<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo('concept3')" id="nav-concept3"><span class="nav-icon">🎯</span>Logistic Regression<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo('advanced')" id="nav-advanced"><span class="nav-icon">🚀</span>Advanced Topics<span class="nav-check">✓</span></button>
+  <div class="sidebar-section">Practice</div>
+  <button class="nav-item" onclick="goTo('exercises')" id="nav-exercises"><span class="nav-icon">✏️</span>Exercises<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo('quiz')" id="nav-quiz"><span class="nav-icon">🧠</span>Quiz<span class="nav-check">✓</span></button>
+  <button class="nav-item" onclick="goTo('completion')" id="nav-completion"><span class="nav-icon">🎉</span>Complete!<span class="nav-check">✓</span></button>
+</nav>
 
-        // ================== NAVIGATION ==================
-        function navigate(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            document.querySelector(`[onclick="navigate('${pageId}')"]`)?.classList.add('active');
-            
-            currentPage = pageId;
-            updateProgress();
-            window.scrollTo(0, 0);
-        }
+<main class="main-content" id="mainContent">
 
-        // ================== PROGRESS TRACKING ==================
-        function updateProgress() {
-            const pages = ['welcome', 'concept1', 'concept2', 'concept3', 'advanced', 'exercises', 'quiz', 'completion'];
-            const currentIndex = pages.indexOf(currentPage);
-            const progress = ((currentIndex + 1) / pages.length) * 100;
-            document.querySelector('.progress-bar').style.width = progress + '%';
+<!-- WELCOME PAGE -->
+<div id="welcome" class="page active">
+  <div class="hero">
+    <div class="hero-deco">📊</div>
+    <div class="hero-tag">⭐ Logistic Regression · Classification Algorithm</div>
+    <h1>Logistic<br><em>Regression</em></h1>
+    <p>Master binary classification with one of the most intuitive ML algorithms. Learn how to predict probabilities and make decisions with confidence.</p>
+    <div class="hero-chips">
+      <span class="chip chip-blue">📊 Binary Classification</span>
+      <span class="chip chip-green">📈 Sigmoid Function</span>
+      <span class="chip chip-purple">🎯 Probability Predictions</span>
+    </div>
+  </div>
 
-            document.querySelectorAll('.progress-dot').forEach((dot, idx) => {
-                dot.classList.remove('active', 'completed');
-                if (idx < currentIndex) {
-                    dot.classList.add('completed');
-                    dot.innerHTML = '✓';
-                } else if (idx === currentIndex) {
-                    dot.classList.add('active');
-                    dot.innerHTML = '→';
-                }
-            });
-        }
+  <div class="card">
+    <div class="ey">WHAT YOU'LL LEARN</div>
+    <div class="welcome-grid">
+      <div class="welcome-card" onclick="goTo('concept1')"><div class="welcome-card-icon">📊</div><div class="welcome-card-title">Classification Basics</div><div class="welcome-card-desc">Binary vs multiclass problems</div></div>
+      <div class="welcome-card" onclick="goTo('concept2')"><div class="welcome-card-icon">📈</div><div class="welcome-card-title">Sigmoid Function</div><div class="welcome-card-desc">Maps values to probabilities</div></div>
+      <div class="welcome-card" onclick="goTo('concept3')"><div class="welcome-card-icon">🎯</div><div class="welcome-card-title">Logistic Model</div><div class="welcome-card-desc">Training & predictions</div></div>
+      <div class="welcome-card" onclick="goTo('advanced')"><div class="welcome-card-icon">🚀</div><div class="welcome-card-title">Evaluation</div><div class="welcome-card-desc">Metrics & regularization</div></div>
+    </div>
+  </div>
 
-        // ================== INTERACTIVE COMPONENTS ==================
-        function updateSigmoid(value) {
-            const z = parseFloat(value);
-            const sigmoid = 1 / (1 + Math.exp(-z));
-            document.getElementById('sigmoid-value').textContent = z.toFixed(2);
-            document.getElementById('sigmoid-prob-value').textContent = sigmoid.toFixed(2);
-        }
+  <div class="ana">
+    <div class="ana-ico">💡</div>
+    <div><div class="ana-lbl">Why Logistic Regression?</div><p>Simple yet powerful — the go-to baseline for binary classification problems. It outputs probabilities, not just class labels!</p></div>
+  </div>
 
-        function updateThreshold(value) {
-            const threshold = parseFloat(value);
-            document.getElementById('threshold-value').textContent = threshold.toFixed(2);
-            document.getElementById('threshold-display').textContent = threshold.toFixed(2);
-        }
+  <div class="pgf"><span></span><button class="bn" onclick="goTo('concept1')">Start Learning →</button></div>
+</div>
 
-        function selectRegularization(type) {
-            document.querySelectorAll('.boolean-tester .boolean-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+<!-- PAGE 1: CLASSIFICATION BASICS -->
+<div id="concept1" class="page">
+  <div class="ey">CONCEPT 1 OF 3</div>
+  <div class="h1">Classification Basics</div>
+  <div class="sub">Understanding binary classification problems and when to use logistic regression.</div>
 
-            const descriptions = {
-                L2: {
-                    title: 'L2 Regularization (Ridge)',
-                    desc: 'Adds penalty proportional to square of coefficients. Shrinks all weights but doesn\'t eliminate them. Useful when all features are important.'
-                },
-                L1: {
-                    title: 'L1 Regularization (Lasso)',
-                    desc: 'Adds penalty proportional to absolute value of coefficients. Can reduce some weights to zero. Performs feature selection.'
-                },
-                elastic: {
-                    title: 'ElasticNet',
-                    desc: 'Combines L1 and L2 penalties. Balances feature elimination and weight shrinkage. Most flexible approach.'
-                }
-            };
+  <div class="ana">
+    <div class="ana-ico">📧</div>
+    <div><div class="ana-lbl">Real-Life Analogy</div><p>Email spam detection: You train a model on emails labeled "Spam" or "Not Spam". The model learns patterns to classify new emails. Logistic regression is perfect for this task!</p></div>
+  </div>
 
-            document.getElementById('reg-title').textContent = descriptions[type].title;
-            document.getElementById('reg-desc').textContent = descriptions[type].desc;
-        }
+  <div class="g2">
+    <div class="card">
+      <div class="ey">📋 WHAT IS CLASSIFICATION?</div>
+      <p>Classification is a supervised learning task where we predict categories (classes) rather than continuous values. Binary classification focuses on predicting one of two possible outcomes (Yes/No, True/False, 0/1).</p>
+    </div>
+    <div class="card">
+      <div class="ey">🎯 REAL-WORLD EXAMPLES</div>
+      <ul style="padding-left:20px;">
+        <li style="margin:8px 0;">📧 Email Spam Detection</li>
+        <li style="margin:8px 0;">🏥 Disease Diagnosis</li>
+        <li style="margin:8px 0;">💳 Fraud Transaction Detection</li>
+        <li style="margin:8px 0;">🖼️ Image Classification</li>
+      </ul>
+    </div>
+  </div>
 
-        function toggleRevealExample(card) {
-            const content = card.querySelector('.reveal-content');
-            content.classList.toggle('show');
-        }
+  <div class="cb-wrapper">
+    <div id="editor0" class="cb">from sklearn.datasets import make_classification
+import numpy as np
 
-        function toggleRevealAdvanced(card) {
-            const content = card.querySelector('.reveal-content');
-            content.classList.toggle('show');
-        }
+# Create sample classification dataset
+X, y = make_classification(
+    n_samples=100, n_features=2,
+    n_classes=2, random_state=42
+)
 
-        // Demo functions
-        function runClassificationDemo() {
-            const output = document.getElementById('classification-demo-output');
-            output.style.display = 'block';
-            output.innerHTML = 'Loading...\n';
-            
-            setTimeout(() => {
-                output.innerHTML = `
-Classification Dataset Created
-==============================
-n_samples: 100
-n_features: 2
-n_classes: 2
+# X contains features, y contains class labels (0 or 1)
+print(f"Features shape: {X.shape}")
+print(f"Classes: {np.unique(y)}")</div>
+  </div>
+  <button class="run" onclick="runDemo('out1')">▶ Run Demo</button>
+  <div class="out" id="out1"></div>
 
-Class Distribution:
-├─ Class 0: 48 samples (48%)
-└─ Class 1: 52 samples (52%)
+  <div class="pgf"><button class="bp" onclick="goTo('welcome')">← Back</button><button class="bn" onclick="goTo('concept2')">Next: Sigmoid →</button></div>
+</div>
 
-Feature Statistics:
-Feature 1: mean=0.15, std=1.32
-Feature 2: mean=0.08, std=1.28
+<!-- PAGE 2: SIGMOID FUNCTION -->
+<div id="concept2" class="page">
+  <div class="ey">CONCEPT 2 OF 3</div>
+  <div class="h1">The Sigmoid Function</div>
+  <div class="sub">Converting linear outputs to probability scores between 0 and 1.</div>
 
-Classes are separable by decision boundary.
-Ready for logistic regression training!
-                `;
-            }, 500);
-        }
+  <div class="ana">
+    <div class="ana-ico">🎚️</div>
+    <div><div class="ana-lbl">Real-Life Analogy</div><p>Like a smooth dial from "definitely No" (0) to "definitely Yes" (1). Small changes in the middle produce big shifts, while extreme values plateau near 0 or 1.</p></div>
+  </div>
 
-        function runSigmoidDemo() {
-            const output = document.getElementById('sigmoid-demo-output');
-            output.style.display = 'block';
-            output.innerHTML = 'Loading...\n';
-            
-            setTimeout(() => {
-                output.innerHTML = `
-Sigmoid Function Evaluation
-============================
-Computing σ(z) = 1 / (1 + e^(-z))
+  <div class="card">
+    <div class="ey">📐 MATHEMATICAL FORMULA</div>
+    <p style="font-family:var(--mono); font-size:1.2rem; text-align:center; padding:12px;">σ(z) = 1 / (1 + e⁻ᶻ)</p>
+    <p>Also called the logistic function — it takes any real number and maps it to a probability between 0 and 1.</p>
+  </div>
 
-Input Values:    [-5.0, -2.0, 0.0, 2.0, 5.0]
-Sigmoid Output:  [0.0067, 0.1192, 0.5, 0.8808, 0.9933]
+  <div class="interactive-section">
+    <div class="ey">🎮 ADJUST SIGMOID INPUT</div>
+    <div class="kslider-wrap">
+      <div class="sr"><label>z value:</label><input type="range" id="sigSlider" min="-5" max="5" step="0.1" value="0" oninput="updateSigmoid(this.value)"><span class="sv" id="sigVal">0.00</span></div>
+    </div>
+    <div style="padding:16px; background:var(--surface); border-radius:12px; text-align:center; margin-top:16px;">
+      <div style="font-size:0.9rem; color:var(--text3);">Probability of Class 1:</div>
+      <div id="sigProb" style="font-size:1.8rem; font-weight:800; color:var(--p);">0.50</div>
+    </div>
+  </div>
 
-Interpretation:
-├─ z = -5: Very low probability (0.67%)
-├─ z = -2: Low probability (11.92%)
-├─ z = 0: Neutral (50%)
-├─ z = 2: High probability (88.08%)
-└─ z = 5: Very high probability (99.33%)
+  <div class="cb-wrapper">
+    <div id="editor1" class="cb">import numpy as np
 
-✓ Sigmoid successfully maps to [0, 1]
-                `;
-            }, 500);
-        }
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
 
-        function runLogisticRegressionDemo() {
-            const output = document.getElementById('logistic-demo-output');
-            output.style.display = 'block';
-            output.innerHTML = 'Loading...\n';
-            
-            setTimeout(() => {
-                output.innerHTML = `
-Logistic Regression Model Training
-===================================
-Dataset: 400 samples, 2 features
+z_values = [-5, -2, 0, 2, 5]
+print([sigmoid(z) for z in z_values])</div>
+  </div>
+  <button class="run" onclick="runDemo('out2')">▶ Run Demo</button>
+  <div class="out" id="out2"></div>
 
-Model Configuration:
-├─ Algorithm: Newton-CG solver
-├─ Regularization: L2 (Ridge)
-├─ C parameter: 1.0
-└─ Max iterations: 100
+  <div class="pgf"><button class="bp" onclick="goTo('concept1')">← Back</button><button class="bn" onclick="goTo('concept3')">Next: Logistic Model →</button></div>
+</div>
 
-Training Progress:
-✓ Initialization complete
-✓ Convergence in 12 iterations
-✓ Model trained successfully
+<!-- PAGE 3: LOGISTIC REGRESSION -->
+<div id="concept3" class="page">
+  <div class="ey">CONCEPT 3 OF 3</div>
+  <div class="h1">Logistic Regression Model</div>
+  <div class="sub">Combining linear regression with the sigmoid function for classification.</div>
 
-Test Set Performance:
-├─ Accuracy: 0.9450
-├─ Precision: 0.9375
-├─ Recall: 0.9545
-└─ ROC-AUC: 0.9876
+  <div class="ana">
+    <div class="ana-ico">⚙️</div>
+    <div><div class="ana-lbl">How It Works</div><p>First, compute a weighted sum of features (z = w₀ + w₁x₁ + w₂x₂). Then, pass through sigmoid to get a probability. Finally, apply threshold to predict class.</p></div>
+  </div>
 
-Classification Results:
-├─ True Positives: 21
-├─ True Negatives: 58
-├─ False Positives: 2
-└─ False Negatives: 1
+  <div class="flowchart">
+    <div class="flow-step">Features (X) → Weighted Sum</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">z = w₀ + w₁x₁ + w₂x₂</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">Apply Sigmoid σ(z)</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">Probability P(y=1) ∈ [0, 1]</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">If P > 0.5 → Class 1, Else → Class 0</div>
+  </div>
 
-✓ Model ready for predictions!
-                `;
-            }, 500);
-        }
+  <div class="interactive-section">
+    <div class="ey">🎯 DECISION THRESHOLD EXPLORER</div>
+    <div class="kslider-wrap">
+      <div class="sr"><label>Threshold:</label><input type="range" id="threshSlider" min="0.1" max="0.9" step="0.1" value="0.5" oninput="updateThreshold(this.value)"><span class="sv" id="threshVal">0.50</span></div>
+    </div>
+    <div style="padding:12px; background:var(--surface2); border-radius:10px; margin-top:12px;">
+      <span id="threshMsg">If probability > 0.50 → Predict Class 1, else → Class 0</span>
+    </div>
+  </div>
 
-        // Solution toggle
-        function toggleSolution(btn) {
-            const solution = btn.nextElementSibling;
-            solution.classList.toggle('show');
-            const arrow = btn.querySelector('span:last-child');
-            arrow.style.transform = solution.classList.contains('show') ? 'rotate(90deg)' : 'rotate(0)';
-        }
+  <div class="cb-wrapper">
+    <div id="editor2" class="cb">from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
 
-        // ================== QUIZ LOGIC ==================
-        function selectOption(question, option) {
-            quizAnswers[question] = option;
-            document.querySelectorAll(`input[name="${question}"]`).forEach(radio => {
-                const parent = radio.parentElement;
-                parent.classList.remove('selected');
-                if (radio.checked) {
-                    parent.classList.add('selected');
-                }
-            });
-        }
+# Create and train model
+model = LogisticRegression(random_state=42)
+model.fit(X_train, y_train)
 
-        function submitQuiz() {
-            let correct = 0;
-            Object.keys(quizAnswers).forEach(q => {
-                if (quizAnswers[q] === quizCorrect[q]) {
-                    correct++;
-                    document.querySelector(`input[name="${q}"][value="${quizCorrect[q]}"]`).parentElement.classList.add('correct');
-                    document.getElementById(`${q}-feedback`).classList.add('show', 'correct');
-                    document.getElementById(`${q}-feedback`).innerHTML = '✓ Correct!';
-                } else if (quizAnswers[q]) {
-                    document.querySelector(`input[name="${q}"][value="${quizAnswers[q]}"]`).parentElement.classList.add('incorrect');
-                    document.getElementById(`${q}-feedback`).classList.add('show', 'incorrect');
-                    document.getElementById(`${q}-feedback`).innerHTML = `✗ Incorrect. Correct answer: ${quizCorrect[q].toUpperCase()}`;
-                }
-            });
+predictions = model.predict(X_test)
+accuracy = accuracy_score(y_test, predictions)
+print(f"Accuracy: {accuracy:.4f}")</div>
+  </div>
+  <button class="run" onclick="runDemo('out3')">▶ Run Demo</button>
+  <div class="out" id="out3"></div>
 
-            document.getElementById('submit-quiz-btn').style.display = 'none';
-            document.getElementById('quiz-results').style.display = 'block';
-            document.getElementById('result-score').textContent = `${correct}/5`;
+  <div class="pgf"><button class="bp" onclick="goTo('concept2')">← Back</button><button class="bn" onclick="goTo('advanced')">Next: Advanced →</button></div>
+</div>
 
-            const emoji = correct >= 4 ? '🌟' : correct >= 3 ? '👍' : '💪';
-            const text = correct === 5 ? 'Perfect Score!' : correct >= 4 ? 'Excellent Work!' : correct >= 3 ? 'Good Job!' : 'Keep Practicing!';
-            document.getElementById('result-emoji').textContent = emoji;
-            document.getElementById('result-text').textContent = text;
-        }
+<!-- PAGE 4: ADVANCED TOPICS -->
+<div id="advanced" class="page">
+  <div class="ey">ADVANCED CONCEPT</div>
+  <div class="h1">Model Evaluation &amp; Regularization</div>
+  <div class="sub">Beyond accuracy: precision, recall, ROC-AUC, and preventing overfitting.</div>
 
-        // ================== RESTART ==================
-        function restartModule() {
-            quizAnswers = {q1: null, q2: null, q3: null, q4: null, q5: null};
-            document.querySelectorAll('.quiz-question').forEach(q => {
-                q.style.display = q.id === 'quiz-q1' ? 'block' : 'none';
-                q.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
-                q.querySelectorAll('.quiz-feedback').forEach(f => f.classList.remove('show'));
-                q.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('correct', 'incorrect', 'selected'));
-            });
-            document.getElementById('quiz-results').style.display = 'none';
-            document.getElementById('submit-quiz-btn').style.display = 'inline-flex';
-            navigate('welcome');
-        }
+  <div class="g2">
+    <div class="card">
+      <div class="ey">📊 EVALUATION METRICS</div>
+      <div class="rv-g">
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="rv-f">🎯 Accuracy</div><div class="rv-b">(TP + TN) / Total — Best for balanced datasets.</div><div class="rv-h">👆 Click to reveal</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="rv-f">🎖️ Precision</div><div class="rv-b">TP / (TP + FP) — When false positives are costly.</div><div class="rv-h">👆 Click to reveal</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="rv-f">🔔 Recall</div><div class="rv-b">TP / (TP + FN) — When false negatives are costly.</div><div class="rv-h">👆 Click to reveal</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="rv-f">📈 ROC-AUC</div><div class="rv-b">Area Under ROC Curve — Overall discrimination ability.</div><div class="rv-h">👆 Click to reveal</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ey">🔧 REGULARIZATION</div>
+      <div class="boolean-tester">
+        <div class="boolean-btn" onclick="selectReg(this,'L2')">L2 (Ridge)</div>
+        <div class="boolean-btn" onclick="selectReg(this,'L1')">L1 (Lasso)</div>
+        <div class="boolean-btn" onclick="selectReg(this,'elastic')">ElasticNet</div>
+      </div>
+      <div id="regInfo" style="margin-top:16px; padding:12px; background:var(--surface2); border-radius:10px;">
+        <div style="font-weight:700; margin-bottom:6px;">L2 Regularization (Ridge)</div>
+        <div>Adds penalty proportional to square of coefficients. Shrinks all weights but doesn't eliminate them.</div>
+      </div>
+    </div>
+  </div>
 
-        // Initialize
-        updateProgress();
-    </script>
+  <div class="cb-wrapper">
+    <div id="editor3" class="cb">from sklearn.metrics import precision_score, recall_score, roc_auc_score
+
+y_pred = model.predict(X_test)
+y_proba = model.predict_proba(X_test)[:, 1]
+
+print(f"Precision: {precision_score(y_test, y_pred):.4f}")
+print(f"Recall: {recall_score(y_test, y_pred):.4f}")
+print(f"ROC-AUC: {roc_auc_score(y_test, y_proba):.4f}")</div>
+  </div>
+  <button class="run" onclick="runDemo('out4')">▶ Run Demo</button>
+  <div class="out" id="out4"></div>
+
+  <div class="pgf"><button class="bp" onclick="goTo('concept3')">← Back</button><button class="bn" onclick="goTo('exercises')">Next: Exercises →</button></div>
+</div>
+
+<!-- PAGE 5: EXERCISES -->
+<div id="exercises" class="page">
+  <div class="ey">PRACTICE</div>
+  <div class="h1">Coding Exercises</div>
+  <div class="sub">Apply logistic regression concepts with hands-on coding challenges.</div>
+
+  <div class="exc">
+    <div class="exh"><div class="exn">1</div><div class="ext">Build a Basic Logistic Regression Model</div></div>
+    <div class="exb"><p>Create a logistic regression classifier on a binary classification dataset, train it, and evaluate accuracy.</p>
+    <button class="sol-btn" onclick="toggleSol(this,'sol1')">💡 Show Solution</button>
+    <div class="sol" id="sol1"><div class="cb-wrapper"><div id="editor_ex1" class="cb">from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+cancer = load_breast_cancer()
+X, y = cancer.data, cancer.target
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = LogisticRegression(max_iter=5000)
+model.fit(X_train, y_train)
+accuracy = accuracy_score(y_test, model.predict(X_test))
+print(f"Accuracy: {accuracy:.4f}")</div></div></div></div>
+  </div>
+
+  <div class="exc">
+    <div class="exh"><div class="exn">2</div><div class="ext">Evaluate with Multiple Metrics</div></div>
+    <div class="exb"><p>Calculate precision, recall, and ROC-AUC for your trained model.</p>
+    <button class="sol-btn" onclick="toggleSol(this,'sol2')">💡 Show Solution</button>
+    <div class="sol" id="sol2"><div class="cb-wrapper"><div id="editor_ex2" class="cb">from sklearn.metrics import precision_score, recall_score, roc_auc_score
+
+y_pred = model.predict(X_test)
+y_proba = model.predict_proba(X_test)[:, 1]
+
+print(f"Precision: {precision_score(y_test, y_pred):.4f}")
+print(f"Recall: {recall_score(y_test, y_pred):.4f}")
+print(f"ROC-AUC: {roc_auc_score(y_test, y_proba):.4f}")</div></div></div></div>
+  </div>
+
+  <div class="exc">
+    <div class="exh"><div class="exn">3</div><div class="ext">Hyperparameter Tuning with GridSearchCV</div></div>
+    <div class="exb"><p>Use GridSearchCV to find the optimal C parameter for L2-regularized logistic regression.</p>
+    <button class="sol-btn" onclick="toggleSol(this,'sol3')">💡 Show Solution</button>
+    <div class="sol" id="sol3"><div class="cb-wrapper"><div id="editor_ex3" class="cb">from sklearn.model_selection import GridSearchCV
+
+param_grid = {'C': [0.001, 0.01, 0.1, 1, 10, 100]}
+grid = GridSearchCV(LogisticRegression(max_iter=5000), param_grid, cv=5)
+grid.fit(X_train, y_train)
+print(f"Best C: {grid.best_params_['C']}")
+print(f"Best Score: {grid.best_score_:.4f}")</div></div></div></div>
+  </div>
+
+  <div class="pgf"><button class="bp" onclick="goTo('advanced')">← Back</button><button class="bn" onclick="goTo('quiz')">Take Quiz →</button></div>
+</div>
+
+<!-- PAGE 6: QUIZ -->
+<div id="quiz" class="page">
+  <div class="ey">KNOWLEDGE CHECK</div>
+  <div class="h1">Module Quiz 🧠</div>
+  <div class="sub">5 questions to test your logistic regression mastery.</div>
+
+  <div class="qdots"><div class="qd cur" id="qd0"></div><div class="qd" id="qd1"></div><div class="qd" id="qd2"></div><div class="qd" id="qd3"></div><div class="qd" id="qd4"></div></div>
+
+  <div class="qcard on" id="q0">
+    <div class="qn">Question 1 of 5</div>
+    <div class="qt">What is the output range of the sigmoid function?</div>
+    <div class="qopts">
+      <div class="qopt" onclick="ansQ(this,0,1)"><span class="qlet">①</span>(-∞, +∞)</div>
+      <div class="qopt" onclick="ansQ(this,0,1)"><span class="qlet">②</span>(0, 1)</div>
+      <div class="qopt" onclick="ansQ(this,0,1)"><span class="qlet">③</span>[0, 1]</div>
+      <div class="qopt" onclick="ansQ(this,0,1)"><span class="qlet">④</span>(-1, 1)</div>
+    </div>
+    <div class="qfb" id="qf0"></div>
+    <div style="margin-top:12px;"><button class="bn" style="display:none" id="qn0" onclick="nextQ(1)">Next →</button></div>
+  </div>
+
+  <div class="qcard" id="q1">
+    <div class="qn">Question 2 of 5</div>
+    <div class="qt">What loss function is used in logistic regression?</div>
+    <div class="qopts">
+      <div class="qopt" onclick="ansQ(this,1,1)"><span class="qlet">①</span>Mean Squared Error</div>
+      <div class="qopt" onclick="ansQ(this,1,1)"><span class="qlet">②</span>Cross-Entropy (Log Loss)</div>
+      <div class="qopt" onclick="ansQ(this,1,1)"><span class="qlet">③</span>Mean Absolute Error</div>
+      <div class="qopt" onclick="ansQ(this,1,1)"><span class="qlet">④</span>Hinge Loss</div>
+    </div>
+    <div class="qfb" id="qf1"></div>
+    <div style="margin-top:12px;"><button class="bn" style="display:none" id="qn1" onclick="nextQ(2)">Next →</button></div>
+  </div>
+
+  <div class="qcard" id="q2">
+    <div class="qn">Question 3 of 5</div>
+    <div class="qt">What is the standard decision threshold in logistic regression?</div>
+    <div class="qopts">
+      <div class="qopt" onclick="ansQ(this,2,1)"><span class="qlet">①</span>0.3</div>
+      <div class="qopt" onclick="ansQ(this,2,1)"><span class="qlet">②</span>0.5</div>
+      <div class="qopt" onclick="ansQ(this,2,1)"><span class="qlet">③</span>0.7</div>
+      <div class="qopt" onclick="ansQ(this,2,1)"><span class="qlet">④</span>It depends on the problem</div>
+    </div>
+    <div class="qfb" id="qf2"></div>
+    <div style="margin-top:12px;"><button class="bn" style="display:none" id="qn2" onclick="nextQ(3)">Next →</button></div>
+  </div>
+
+  <div class="qcard" id="q3">
+    <div class="qn">Question 4 of 5</div>
+    <div class="qt">Which metric is best for imbalanced datasets?</div>
+    <div class="qopts">
+      <div class="qopt" onclick="ansQ(this,3,3)"><span class="qlet">①</span>Accuracy</div>
+      <div class="qopt" onclick="ansQ(this,3,3)"><span class="qlet">②</span>Precision and Recall</div>
+      <div class="qopt" onclick="ansQ(this,3,3)"><span class="qlet">③</span>ROC-AUC</div>
+      <div class="qopt" onclick="ansQ(this,3,3)"><span class="qlet">④</span>Both B and C</div>
+    </div>
+    <div class="qfb" id="qf3"></div>
+    <div style="margin-top:12px;"><button class="bn" style="display:none" id="qn3" onclick="nextQ(4)">Next →</button></div>
+  </div>
+
+  <div class="qcard" id="q4">
+    <div class="qn">Question 5 of 5</div>
+    <div class="qt">What does the C parameter in LogisticRegression control?</div>
+    <div class="qopts">
+      <div class="qopt" onclick="ansQ(this,4,1)"><span class="qlet">①</span>Learning rate</div>
+      <div class="qopt" onclick="ansQ(this,4,1)"><span class="qlet">②</span>Inverse regularization strength</div>
+      <div class="qopt" onclick="ansQ(this,4,1)"><span class="qlet">③</span>Number of iterations</div>
+      <div class="qopt" onclick="ansQ(this,4,1)"><span class="qlet">④</span>Decision threshold</div>
+    </div>
+    <div class="qfb" id="qf4"></div>
+    <div style="margin-top:12px;"><button class="bn" style="display:none" id="qn4" onclick="showResult()">See Results 🎉</button></div>
+  </div>
+
+  <div class="pgf"><button class="bp" onclick="goTo('exercises')">← Back</button><span></span></div>
+</div>
+
+<!-- PAGE 7: COMPLETION -->
+<div id="completion" class="page">
+  <div class="cmp">
+    <span class="cmp-ico">🎊</span>
+    <div class="cmp-title">Module Complete!</div>
+    <div class="cmp-sub">You've mastered Logistic Regression! From intuition to implementation, you've got the full picture.</div>
+    <div class="sk-wrap">
+      <span class="sk" style="border-color:var(--p);color:var(--p);animation-delay:.00s">📊 Classification Basics</span>
+      <span class="sk" style="border-color:var(--g);color:var(--g);animation-delay:.08s">📈 Sigmoid Function</span>
+      <span class="sk" style="border-color:var(--p2);color:var(--p2);animation-delay:.16s">🎯 Logistic Model</span>
+      <span class="sk" style="border-color:var(--amber);color:var(--amber);animation-delay:.24s">📊 Evaluation Metrics</span>
+      <span class="sk" style="border-color:var(--rose);color:var(--rose);animation-delay:.32s">🔧 Regularization</span>
+    </div>
+    <button class="btn btn-primary" onclick="celebrate()" style="background:linear-gradient(135deg,var(--p),var(--p2)); color:#fff; padding:12px 28px; border-radius:99px; font-weight:700; border:none; cursor:pointer; margin-top:20px;">🏆 Claim Completion Badge</button>
+  </div>
+  <div class="pgf"><button class="bp" onclick="goTo('welcome')">← Back to Start</button><span></span></div>
+</div>
+
+</main>
+
+<script>
+// ACE Editor initialization for all code blocks
+function initAceEditors() {
+  const editorIds = ['editor0', 'editor1', 'editor2', 'editor3', 'editor_ex1', 'editor_ex2', 'editor_ex3'];
+  for (let id of editorIds) {
+    const element = document.getElementById(id);
+    if (element) {
+      element.style.display = 'block';
+      element.style.height = 'auto';
+      element.style.minHeight = '200px';
+      
+      const editor = ace.edit(id);
+      editor.setTheme("ace/theme/monokai");
+      editor.session.setMode("ace/mode/python");
+      editor.setOptions({
+        fontSize: "13px",
+        fontFamily: "'IBM Plex Mono', monospace",
+        lineHeight: 1.8,
+        showPrintMargin: false,
+        highlightActiveLine: true,
+        readOnly: true,
+        maxLines: 30,
+        minLines: 15
+      });
+      editor.setReadOnly(true);
+      editor.renderer.setShowGutter(true);
+      
+      setTimeout(() => editor.resize(), 100);
+    }
+  }
+}
+
+let currentPage = 'welcome';
+const pages = ['welcome','concept1','concept2','concept3','advanced','exercises','quiz','completion'];
+const visited = new Set(['welcome']);
+let quizAnswers = [null,null,null,null,null];
+let quizCorrect = [1,1,1,3,1];
+let quizCurrent = 0;
+
+function goTo(page) {
+  let idx = pages.indexOf(page);
+  if (idx < 0) return;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-' + page).classList.add('active');
+  visited.add(currentPage);
+  for (let i = 0; i < idx; i++) {
+    document.getElementById('nav-' + pages[i]).classList.add('done');
+  }
+  currentPage = page;
+  let pct = Math.round((visited.size / pages.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').innerText = pct + '%';
+  document.getElementById('mainContent').scrollTo({top:0});
+  if (page === 'quiz') initQuiz();
+}
+
+function runDemo(id) {
+  let out = document.getElementById(id);
+  out.classList.add('show');
+  if (id === 'out1') out.innerHTML = `<span style="color:#a6e3a1">Classification Dataset Created</span><br>n_samples: 100, n_features: 2, n_classes: 2<br><br>Class Distribution:<br>├─ Class 0: 48 samples (48%)<br>└─ Class 1: 52 samples (52%)<br><br>✓ Classes are linearly separable — perfect for logistic regression!`;
+  else if (id === 'out2') out.innerHTML = `<span style="color:#a6e3a1">Sigmoid Function Evaluation</span><br>z = -5 → σ(z) = 0.0067<br>z = -2 → σ(z) = 0.1192<br>z = 0 → σ(z) = 0.5<br>z = 2 → σ(z) = 0.8808<br>z = 5 → σ(z) = 0.9933<br><br>✓ Sigmoid maps any real number to probability (0,1) range!`;
+  else if (id === 'out3') out.innerHTML = `<span style="color:#a6e3a1">Logistic Regression Training</span><br>Test Performance:<br>├─ Accuracy: 0.9450<br>├─ Precision: 0.9375<br>├─ Recall: 0.9545<br>└─ ROC-AUC: 0.9876<br><br>✓ Model trained successfully!`;
+  else if (id === 'out4') out.innerHTML = `<span style="color:#a6e3a1">Advanced Evaluation Metrics</span><br>Confusion Matrix:<br>├─ True Positives: 21<br>├─ True Negatives: 58<br>├─ False Positives: 2<br>└─ False Negatives: 1<br><br>Precision: 0.9375, Recall: 0.9545, F1: 0.9459<br>✓ Model generalizes well!`;
+}
+
+function updateSigmoid(val) { let z=parseFloat(val); let sig=1/(1+Math.exp(-z)); document.getElementById('sigVal').innerText=z.toFixed(2); document.getElementById('sigProb').innerText=sig.toFixed(4); }
+function updateThreshold(val) { let t=parseFloat(val); document.getElementById('threshVal').innerText=t.toFixed(2); document.getElementById('threshMsg').innerHTML=`If probability > ${t.toFixed(2)} → Predict Class 1, else → Class 0`; }
+
+function selectReg(btn,type) {
+  document.querySelectorAll('.boolean-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  let title,desc;
+  if(type==='L2'){title='L2 Regularization (Ridge)';desc='Adds penalty proportional to square of coefficients. Shrinks all weights but doesn\'t eliminate them.';}
+  else if(type==='L1'){title='L1 Regularization (Lasso)';desc='Adds penalty proportional to absolute value of coefficients. Can reduce some weights to zero — performs feature selection.';}
+  else{title='ElasticNet';desc='Combines L1 and L2 penalties. Balances feature elimination and weight shrinkage.';}
+  document.getElementById('regInfo').innerHTML=`<div style="font-weight:700; margin-bottom:6px;">${title}</div><div>${desc}</div>`;
+}
+
+function toggleSol(btn,id){ let el=document.getElementById(id); el.classList.toggle('op'); btn.textContent=el.classList.contains('op')?'🙈 Hide Solution':'💡 Show Solution'; }
+
+function ansQ(el,qIdx,corr){
+  if(quizAnswers[qIdx]!==null) return;
+  let opts=document.querySelectorAll(`#q${qIdx} .qopt`);
+  let chosen=Array.from(opts).indexOf(el);
+  let fb=document.getElementById(`qf${qIdx}`);
+  let dot=document.getElementById(`qd${qIdx}`);
+  if(chosen===corr){
+    el.classList.add('ok'); fb.className='qfb show ok'; fb.innerHTML='✓ Correct!'; dot.classList.add('correct');
+    quizAnswers[qIdx]=corr;
+  } else {
+    el.classList.add('ng'); opts[corr].classList.add('ok'); fb.className='qfb show ng'; fb.innerHTML='✗ Incorrect.'; dot.classList.add('wrong');
+    quizAnswers[qIdx]=chosen;
+  }
+  document.getElementById(`qn${qIdx}`).style.display='inline-block';
+  if(qIdx<4) document.getElementById(`qd${qIdx+1}`).classList.add('cur');
+}
+
+function nextQ(idx){
+  document.getElementById(`q${idx-1}`).classList.remove('on');
+  document.getElementById(`q${idx}`).classList.add('on');
+}
+
+function showResult(){
+  let correct=0;
+  for(let i=0;i<5;i++) if(quizAnswers[i]===quizCorrect[i]) correct++;
+  let msg=correct===5?'Perfect Score! 🏆':correct>=4?'Excellent Work! 🌟':correct>=3?'Good Job! 👍':'Keep Practicing! 💪';
+  alert(`You scored ${correct}/5!\n${msg}`);
+  document.getElementById('qn4').style.display='none';
+  goTo('completion');
+}
+
+function celebrate(){ alert('🎉 Congratulations! Logistic Regression Module Complete!'); }
+
+function initQuiz() {
+  quizAnswers = [null,null,null,null,null];
+  for(let i=0;i<5;i++) document.getElementById(`qd${i}`).className = 'qd' + (i===0 ? ' cur' : '');
+  document.getElementById('q0').classList.add('on');
+}
+
+updateSigmoid(0); updateThreshold(0.5);
+
+// Initialize Ace editors when DOM is ready
+document.addEventListener('DOMContentLoaded', initAceEditors);
+setTimeout(initAceEditors, 500);
+</script>
 </body>
 </html>
