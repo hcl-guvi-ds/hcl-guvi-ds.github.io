@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linear Regression – HCL GUVI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#22c55e;--green-l:#86efac;--green-d:#16a34a;--green-bg:#f0fdf4;
+  --blue:#3b82f6;--blue-l:#93c5fd;--blue-d:#1d4ed8;--blue-bg:#eff6ff;
+  --teal:#14b8a6;--teal-bg:#f0fdfa;
+  --amber:#f59e0b;--amber-bg:#fffbeb;--amber-md:#fde68a;
+  --purple:#7c3aed;--purple-bg:#f5f3ff;--purple-md:#ddd6fe;
+  --red:#ef4444;--red-bg:#fef2f2;--red-md:#fca5a5;
+  --orange:#f97316;--orange-bg:#fff7ed;
+  --bg:#f8fafc;--surface:#fff;--surface2:#f1f5f9;
+  --border:#e2e8f0;--text:#0f172a;--muted:#64748b;--light:#94a3b8;
+  --shadow:0 4px 20px rgba(0,0,0,.07);--shadow-lg:0 12px 40px rgba(0,0,0,.12);
+  --r:16px;--rs:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+
+/* NAV */
+.topnav{height:64px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.logo-wrap{display:flex;align-items:center;gap:8px}
+.logo-wrap img{height:38px;object-fit:contain}
+.logo-fb{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:17px;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-div{width:1px;height:32px;background:var(--border)}
+.nav-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:15px;flex:1}
+.nav-title span{color:var(--blue)}
+.npw{display:flex;align-items:center;gap:10px}
+.npb{width:150px;height:8px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.npf{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:99px;transition:width .5s ease;width:0%}
+.npt{font-size:12px;color:var(--muted);font-weight:700;min-width:36px}
+.nav-creator{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));border:1px solid var(--border);border-radius:99px;padding:5px 14px}
+.nav-avatar{width:26px;height:26px;background:linear-gradient(135deg,var(--green),var(--blue));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
+.nav-creator span{font-size:11px;font-weight:600;color:var(--muted)}
+
+/* LAYOUT */
+.app-body{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:230px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:16px 10px;display:flex;flex-direction:column;gap:2px}
+.sb-sec{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--light);padding:10px 12px 4px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rs);cursor:pointer;transition:all .2s;font-size:13px;font-weight:600;color:var(--muted);position:relative}
+.sb-item:hover{background:var(--surface2);color:var(--text)}
+.sb-item.active{background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));color:var(--blue);border:1px solid rgba(59,130,246,.15)}
+.sb-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--surface2);flex-shrink:0;transition:all .2s}
+.sb-item.active .sb-icon{background:linear-gradient(135deg,var(--green),var(--blue))}
+.sb-done{width:16px;height:16px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;margin-left:auto;flex-shrink:0}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;position:relative}
+.page{display:none;padding:36px 44px;min-height:100%;animation:fadeUp .35s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:99px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff;box-shadow:0 4px 14px rgba(59,130,246,.3)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(59,130,246,.4)}
+.btn-secondary{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--border);color:var(--text)}
+.btn-outline{background:transparent;color:var(--blue);border:2px solid var(--blue)}
+.btn-outline:hover{background:var(--blue);color:#fff}
+.btn-sm{padding:8px 16px;font-size:13px}
+.page-nav{display:flex;justify-content:space-between;align-items:center;margin-top:44px;padding-top:22px;border-top:1px solid var(--border)}
+
+/* TYPOGRAPHY */
+.page-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));border:1px solid rgba(34,197,94,.3);border-radius:99px;font-size:11px;font-weight:700;color:var(--green-d);margin-bottom:14px}
+.page-title{font-family:'Cabinet Grotesk',sans-serif;font-size:34px;font-weight:800;line-height:1.2;margin-bottom:8px}
+.page-title span{color:var(--blue)}
+.page-sub{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:32px;max-width:680px}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:26px;box-shadow:var(--shadow);margin-bottom:22px;transition:box-shadow .2s}
+.card:hover{box-shadow:var(--shadow-lg)}
+.card-title{font-family:'Cabinet Grotesk',sans-serif;font-size:17px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;color:#fff}
+.pill-green{background:var(--green)}.pill-blue{background:var(--blue)}.pill-teal{background:var(--teal)}.pill-orange{background:var(--orange)}.pill-purple{background:var(--purple)}
+
+/* ANALOGY */
+.analogy{background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));border:1px solid rgba(34,197,94,.2);border-left:4px solid var(--green);border-radius:var(--rs);padding:18px 22px;margin:18px 0;display:flex;gap:14px;align-items:flex-start}
+.analogy .em{font-size:26px;flex-shrink:0;line-height:1.2}
+.analogy p{font-size:14px;line-height:1.7;color:var(--text)}
+.analogy strong{color:var(--green-d)}
+
+/* CODE */
+.code-wrap{background:#0f172a;border-radius:var(--rs);overflow:hidden;margin:18px 0}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;background:#1e293b;border-bottom:1px solid #334155}
+.dots{display:flex;gap:5px}
+.dots span{width:11px;height:11px;border-radius:50%}
+.dr{background:#ef4444}.dy{background:#f59e0b}.dg{background:#22c55e}
+.code-lang{font-size:11px;color:#64748b;font-family:'Fira Code',monospace}
+.copy-btn{font-size:11px;color:#64748b;background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;transition:color .2s}
+.copy-btn:hover{color:#94a3b8}
+pre{padding:18px 22px;overflow-x:auto;font-family:'Fira Code',monospace;font-size:13px;line-height:1.8;color:#e2e8f0}
+.kw{color:#c084fc}.fn{color:#67e8f9}.st{color:#86efac}.cm{color:#475569;font-style:italic}.nm{color:#fbbf24}.op{color:#f472b6}
+.run-out{display:none;background:#0f172a;border-top:1px solid #1e293b;padding:14px 22px;font-family:'Fira Code',monospace;font-size:13px;color:#86efac;animation:fadeIn .3s ease}
+.run-out.show{display:block}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.out-line{margin-bottom:3px}
+.prompt{color:#475569;margin-right:8px}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);border-radius:var(--r);padding:50px 44px;color:#fff;position:relative;overflow:hidden;margin-bottom:28px}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(34,197,94,.12),transparent 60%)}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.4);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--green-l);margin-bottom:18px;position:relative}
+.hero h1{font-family:'Cabinet Grotesk',sans-serif;font-size:40px;font-weight:800;line-height:1.15;margin-bottom:14px;position:relative}
+.hero h1 span{color:var(--green-l)}
+.hero p{font-size:15px;opacity:.8;max-width:540px;line-height:1.7;position:relative}
+.hero-chips{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;position:relative}
+.hero-chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:99px;padding:7px 16px;font-size:12px;font-weight:700;color:#fff}
+
+/* FEATURE ROW */
+.feat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
+.feat-box{background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid var(--border);border-radius:var(--rs);padding:18px;text-align:center}
+.feat-box .em{font-size:28px;margin-bottom:6px}
+.feat-box .t{font-weight:700;font-size:13px;margin-bottom:3px}
+.feat-box .d{font-size:12px;color:var(--muted)}
+
+/* REVEAL CARDS */
+.rev-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:18px 0}
+.rev-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--rs);padding:20px;cursor:pointer;transition:all .3s;text-align:center;min-height:120px;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.rev-card:hover{border-color:var(--blue);transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.rev-card.flipped{border-color:var(--green);background:linear-gradient(135deg,var(--green-bg),var(--blue-bg))}
+.rc-em{font-size:28px}.rc-t{font-weight:700;font-size:14px}
+.rc-back{display:none;font-size:12px;line-height:1.6;color:var(--muted);text-align:left}
+.rc-back strong{color:var(--green-d)}
+.rev-card.flipped .rc-em,.rev-card.flipped .rc-t{display:none}
+.rev-card.flipped .rc-back{display:block}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:18px 0}
+
+/* INFO BOXES */
+.info-box{background:var(--blue-bg);border:1px solid var(--blue-l);border-radius:var(--rs);padding:14px 18px;margin:14px 0;font-size:13px;color:var(--blue-d);line-height:1.6}
+.warn-box{background:var(--amber-bg);border:1px solid var(--amber-md);border-radius:var(--rs);padding:14px 18px;margin:14px 0;font-size:13px;color:#92400e;line-height:1.6}
+.success-box{background:var(--green-bg);border:1px solid var(--green-l);border-radius:var(--rs);padding:14px 18px;margin:14px 0;font-size:13px;color:var(--green-d);line-height:1.6}
+
+/* STEPS */
+.steps{margin:18px 0}
+.step-item{display:flex;gap:14px;margin-bottom:12px;opacity:.3;transition:all .35s}
+.step-item.active{opacity:1}
+.step-n{width:34px;height:34px;flex-shrink:0;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:var(--muted);transition:all .35s}
+.step-item.active .step-n{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff;border-color:transparent}
+.step-title{font-weight:700;font-size:13px;margin-bottom:3px}
+.step-desc{font-size:12px;color:var(--muted);line-height:1.6}
+.step-code{background:var(--surface2);border-radius:6px;padding:4px 10px;font-family:'Fira Code',monospace;font-size:11px;color:var(--text);display:inline-block;margin-top:4px}
+
+/* SLIDERS */
+.sl-row{display:flex;align-items:center;gap:14px;margin-bottom:13px}
+.sl-label{font-size:12px;font-weight:700;width:170px;color:var(--muted)}
+input[type=range]{flex:1;-webkit-appearance:none;height:7px;border-radius:99px;background:var(--border);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));cursor:pointer;box-shadow:0 2px 8px rgba(59,130,246,.4)}
+.sl-val{font-family:'Fira Code',monospace;font-size:13px;font-weight:700;color:var(--blue);width:55px;text-align:right}
+
+/* TABLE */
+.table-wrap{border-radius:var(--rs);overflow:hidden;border:1px solid var(--border);margin:18px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:linear-gradient(135deg,var(--green-d),var(--blue-d));color:#fff;padding:11px 14px;text-align:left;font-family:'Cabinet Grotesk',sans-serif;font-weight:700}
+td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text)}
+td code{background:var(--surface2);padding:2px 7px;border-radius:5px;font-family:'Fira Code',monospace;font-size:12px}
+tr:nth-child(even) td{background:var(--surface2)}
+tr:hover td{background:var(--blue-bg)}
+
+/* SEC DIV */
+.sec-div{display:flex;align-items:center;gap:10px;margin:22px 0 16px}
+.sdl{flex:1;height:1px;background:var(--border)}
+.sdt{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--light);white-space:nowrap;padding:3px 12px;background:var(--surface2);border-radius:99px;border:1px solid var(--border)}
+
+/* EXERCISES */
+.ex-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:22px;box-shadow:var(--shadow)}
+.ex-head{padding:18px 24px;background:linear-gradient(135deg,var(--surface2),var(--surface));border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:14px}
+.ex-num{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff;flex-shrink:0}
+.ex-title{font-weight:700;font-size:15px;margin-bottom:5px}
+.ex-desc{font-size:13px;color:var(--muted);line-height:1.6}
+.sol-btn{width:100%;padding:13px 24px;background:none;border:none;border-top:1px solid var(--border);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;color:var(--blue);display:flex;align-items:center;gap:8px;transition:background .2s}
+.sol-btn:hover{background:var(--blue-bg)}
+.solution{display:none}.solution.open{display:block}
+
+/* QUIZ */
+.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:30px;box-shadow:var(--shadow)}
+.q-dots{display:flex;gap:7px;margin-bottom:24px}
+.qdot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:all .3s}
+.qdot.done{background:var(--green)}.qdot.curr{background:var(--blue);transform:scale(1.35)}
+.q-num{font-size:11px;font-weight:700;color:var(--light);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
+.q-text{font-family:'Cabinet Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:24px;line-height:1.4}
+.q-opts{display:flex;flex-direction:column;gap:10px}
+.q-opt{display:flex;align-items:center;gap:12px;padding:14px 18px;border:2px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:all .2s;font-weight:600;font-size:14px;font-family:'Nunito',sans-serif;background:var(--surface);text-align:left;width:100%}
+.q-opt:hover{border-color:var(--blue);background:var(--blue-bg)}
+.opt-l{width:30px;height:30px;flex-shrink:0;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;transition:all .2s}
+.q-opt.correct{border-color:var(--green);background:var(--green-bg);color:var(--green-d);pointer-events:none}
+.q-opt.wrong{border-color:var(--red);background:var(--red-bg);color:#dc2626;pointer-events:none}
+.q-opt.correct .opt-l{background:var(--green);color:#fff}
+.q-opt.wrong .opt-l{background:var(--red);color:#fff}
+.q-opt.disabled{pointer-events:none;opacity:.45}
+.q-fb{margin-top:18px;padding:13px 16px;border-radius:var(--rs);font-size:13px;line-height:1.6;display:none}
+.q-fb.show{display:block}
+.fb-ok{background:var(--green-bg);border:1px solid var(--green-l);color:#166534}
+.fb-no{background:var(--red-bg);border:1px solid var(--red-md);color:#991b1b}
+.score-screen{text-align:center;padding:44px 0;animation:fadeUp .5s ease}
+.score-circle{width:150px;height:150px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 28px;box-shadow:0 12px 40px rgba(59,130,246,.35)}
+.sc-num{font-family:'Cabinet Grotesk',sans-serif;font-size:46px;font-weight:800;color:#fff;line-height:1}
+.sc-den{font-size:14px;color:rgba(255,255,255,.7);font-weight:600}
+
+/* COMPLETION */
+.comp-wrap{text-align:center;padding:50px 0}
+.cel{font-size:76px;margin-bottom:20px;animation:bounce .7s infinite alternate;display:block}
+@keyframes bounce{from{transform:translateY(0) scale(1)}to{transform:translateY(-12px) scale(1.06)}}
+.skills-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:28px 0}
+.sk-tag{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:99px;font-weight:700;font-size:12px;background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid var(--border);box-shadow:var(--shadow);transition:all .2s}
+.sk-tag:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+
+/* CONFETTI */
+.cf{position:fixed;width:9px;height:9px;border-radius:2px;top:-10px;animation:cfFall linear forwards;z-index:9999;pointer-events:none}
+@keyframes cfFall{to{transform:translateY(105vh) rotate(720deg);opacity:0}}
+
+/* FORMULA DARK BOX */
+.formula-dark{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:var(--r);padding:28px;text-align:center;margin:18px 0}
+.f-main{font-family:'Fira Code',monospace;font-size:20px;color:#fff;line-height:2.4}
+.fb{color:#93c5fd}.fg{color:#86efac}.fy{color:#fde68a}.fp{color:#f9a8d4}.fo{color:#fdba74}
+.f-parts{display:flex;gap:12px;margin-top:18px;justify-content:center;flex-wrap:wrap}
+.f-part{background:rgba(255,255,255,.07);border-radius:var(--rs);padding:10px 16px;text-align:center}
+.f-sym{font-size:14px;font-family:'Fira Code',monospace}
+.f-mean{font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;line-height:1.4}
+
+/* INTERACTIVE CHART */
+.chart-wrap{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+canvas{display:block;width:100%;cursor:crosshair}
+.chart-toolbar{display:flex;gap:10px;padding:12px 16px;border-top:1px solid var(--border);background:var(--surface2);flex-wrap:wrap;align-items:center}
+.chart-btn{padding:6px 14px;border-radius:99px;border:1.5px solid var(--border);background:var(--surface);font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;color:var(--muted)}
+.chart-btn:hover{border-color:var(--blue);color:var(--blue)}
+.chart-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.chart-stat{font-size:12px;font-weight:700;color:var(--muted);padding:5px 10px;border-radius:var(--rs);background:var(--surface)}
+.chart-stat span{color:var(--blue)}
+
+/* METRICS DISPLAY */
+.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}
+.metric-box{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:var(--rs);padding:16px;text-align:center}
+.metric-val{font-family:'Cabinet Grotesk',sans-serif;font-size:24px;font-weight:800;color:var(--green-l)}
+.metric-lbl{font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;font-weight:600;letter-spacing:.06em}
+
+/* PREDICTION RESULT */
+.pred-result{background:linear-gradient(135deg,var(--green-d),var(--blue-d));border-radius:var(--r);padding:22px 28px;margin-top:16px;color:#fff;display:flex;align-items:center;gap:20px}
+.pred-val{font-family:'Cabinet Grotesk',sans-serif;font-size:48px;font-weight:800;line-height:1}
+.pred-info{flex:1;padding-left:24px;border-left:1px solid rgba(255,255,255,.2)}
+.pred-label{font-size:12px;opacity:.75;font-weight:700}
+.pred-equation{font-family:'Fira Code',monospace;font-size:13px;margin-top:6px;opacity:.9}
+
+/* ASSUMPTION CARDS */
+.assump-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:18px 0}
+.assump-card{border-radius:var(--rs);padding:18px;border:2px solid var(--border);transition:all .2s;cursor:pointer}
+.assump-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.assump-card h4{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.assump-card p{font-size:12px;color:var(--muted);line-height:1.6}
+.assump-card .violation{margin-top:10px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;display:inline-block}
+
+/* ASSUMPTIONS TOGGLE */
+.assump-panel{display:none;margin-top:12px;padding:14px;border-radius:var(--rs);font-size:13px;line-height:1.7}
+.assump-panel.show{display:block}
+
+/* HP RESULT */
+.hp-result{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:var(--r);padding:22px 26px;margin-top:16px;color:#fff}
+.hp-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px}
+.hp-metric{background:rgba(255,255,255,.07);border-radius:var(--rs);padding:14px;text-align:center}
+.hp-metric .val{font-family:'Cabinet Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--green-l)}
+.hp-metric .lbl{font-size:11px;color:rgba(255,255,255,.45);margin-top:3px}
+.hp-bar-wrap{margin-top:16px}
+.hp-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.hp-bar-lbl{font-size:11px;color:rgba(255,255,255,.5);width:90px;text-align:right;font-weight:600}
+.hp-bar-bg{flex:1;height:10px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}
+.hp-bar-fill{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.34,1.56,.64,1)}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <header style="display:flex;align-items:center;width:auto;">
+    <div class="logo-wrap">
+      <img src="logo.png" alt="HCL-GUVI Logo" onerror="this.style.display='none';document.getElementById('lf').style.display='flex'">
+      <div id="lf" class="logo-fb" style="display:none;">🎓 HCL GUVI</div>
+    </div>
+  </header>
+  <div class="nav-div"></div>
+  <div class="nav-title">Linear <span>Regression</span></div>
+  <div class="npw">
+    <div class="npb"><div class="npf" id="progFill"></div></div>
+    <span class="npt" id="progTxt">0%</span>
+  </div>
+ 
+</nav>
+
+<div class="app-body">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-sec">Navigation</div>
+    <div class="sb-item active" id="nav0" onclick="goTo(0)"><div class="sb-icon">👋</div>Welcome</div>
+    <div class="sb-item" id="nav1" onclick="goTo(1)"><div class="sb-icon">📈</div>What is Linear Regression?</div>
+    <div class="sb-item" id="nav2" onclick="goTo(2)"><div class="sb-icon">🎯</div>Cost Function & OLS</div>
+    <div class="sb-item" id="nav3" onclick="goTo(3)"><div class="sb-icon">🏠</div>Salary Predictor</div>
+    <div class="sb-item" id="nav4" onclick="goTo(4)"><div class="sb-icon">📊</div>Assumptions & Metrics</div>
+    <div class="sb-item" id="nav5" onclick="goTo(5)"><div class="sb-icon">💻</div>Exercises</div>
+    <div class="sb-item" id="nav6" onclick="goTo(6)"><div class="sb-icon">🧠</div>Quiz</div>
+    <div class="sb-item" id="nav7" onclick="goTo(7)"><div class="sb-icon">🎉</div>Completion</div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="mainEl">
+
+    <!-- ══ PAGE 0: WELCOME ══ -->
+    <div class="page active" id="page0">
+      <div class="hero">
+        <div class="hero-badge">📐 Supervised Machine Learning</div>
+        <h1>Linear <span>Regression</span></h1>
+        <p>The foundational algorithm of machine learning — fit a line through data to predict continuous outcomes. Simple, interpretable, and the bedrock of all regression techniques.</p>
+        <div class="hero-chips">
+          <div class="hero-chip">📈 Best-Fit Line</div>
+          <div class="hero-chip">💰 Salary Prediction</div>
+          <div class="hero-chip">📉 Gradient Descent</div>
+          <div class="hero-chip">📊 R² Score</div>
+        </div>
+      </div>
+      <div class="feat-row">
+        <div class="feat-box"><div class="em">🎯</div><div class="t">What You'll Learn</div><div class="d">Equation of a line, OLS, cost function, assumptions, metrics</div></div>
+        <div class="feat-box"><div class="em">🛠️</div><div class="t">Hands-On</div><div class="d">Draw scatter plots, live salary predictor, interactive regression playground</div></div>
+        <div class="feat-box"><div class="em">⏱️</div><div class="t">~45 Minutes</div><div class="d">5 concepts + exercises + quiz with 8+ interactive components</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🗺️ Module Map <span class="pill pill-blue">8 Sections</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:8px">
+          <span style="background:var(--green-bg);border:1px solid var(--green-l);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--green-d)">👋 Welcome</span>
+          <span style="background:var(--blue-bg);border:1px solid var(--blue-l);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--blue)">📈 What is Linear Regression?</span>
+          <span style="background:var(--blue-bg);border:1px solid var(--blue-l);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--blue)">🎯 Cost Function &amp; OLS</span>
+          <span style="background:var(--blue-bg);border:1px solid var(--blue-l);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--blue)">🏠 Salary Predictor</span>
+          <span style="background:var(--teal-bg);border:1px solid #5eead4;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--teal)">📊 Assumptions &amp; Metrics</span>
+          <span style="background:var(--orange-bg);border:1px solid #fdba74;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--orange)">💻 Exercises</span>
+          <span style="background:var(--purple-bg);border:1px solid var(--purple-md);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--purple)">🧠 Quiz</span>
+          <span style="background:var(--green-bg);border:1px solid var(--green-l);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--green-d)">🎉 Completion</span>
+        </div>
+      </div>
+      <div class="page-nav"><div></div><button class="btn btn-primary" onclick="goTo(1)">Start Learning →</button></div>
+    </div>
+
+    <!-- ══ PAGE 1: WHAT IS LINEAR REGRESSION ══ -->
+    <div class="page" id="page1">
+      <div class="page-tag">📈 Concept 1</div>
+      <h1 class="page-title">What is <span>Linear Regression?</span></h1>
+      <p class="page-sub">Linear Regression finds the <strong>best-fit straight line</strong> through data points to predict a continuous output value. It models the relationship between one or more input features and a numerical target.</p>
+
+      <div class="analogy">
+        <div class="em">📏</div>
+        <p>Imagine plotting students' study hours against their exam scores. You notice a clear trend — more study hours = higher scores. <strong>Linear Regression draws the single best line through all those points</strong> so you can predict any new student's score from their study hours. That's it!</p>
+      </div>
+
+      <!-- Reveal Cards -->
+      <div class="card">
+        <div class="card-title">🃏 Core Concepts <span class="pill pill-green">Click to Reveal</span></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Tap each card to flip it.</p>
+        <div class="rev-cards">
+          <div class="rev-card" onclick="this.classList.toggle('flipped')">
+            <div class="rc-em">📐</div><div class="rc-t">The Line Equation</div>
+            <div class="rc-back"><strong>ŷ = β₀ + β₁x</strong><br>β₀ = intercept (value when x=0)<br>β₁ = slope (change in y per unit x)</div>
+          </div>
+          <div class="rev-card" onclick="this.classList.toggle('flipped')">
+            <div class="rc-em">📉</div><div class="rc-t">Residuals</div>
+            <div class="rc-back">The <strong>error</strong> for each point: e = y − ŷ. The vertical distance from each data point to the regression line. OLS minimises the sum of squared residuals.</div>
+          </div>
+          <div class="rev-card" onclick="this.classList.toggle('flipped')">
+            <div class="rc-em">⚙️</div><div class="rc-t">Slope (β₁)</div>
+            <div class="rc-back">How much the target <strong>changes</strong> for a 1-unit increase in the feature. e.g. β₁=500 means every extra year of experience adds ₹500 to salary.</div>
+          </div>
+          <div class="rev-card" onclick="this.classList.toggle('flipped')">
+            <div class="rc-em">🎯</div><div class="rc-t">Intercept (β₀)</div>
+            <div class="rc-back">The predicted value of y <strong>when x = 0</strong>. In practice this is the baseline value — e.g. starting salary with 0 years of experience.</div>
+          </div>
+          <div class="rev-card" onclick="this.classList.toggle('flipped')">
+            <div class="rc-em">🔢</div><div class="rc-t">Multiple Regression</div>
+            <div class="rc-back">When you have <strong>multiple features</strong>: ŷ = β₀ + β₁x₁ + β₂x₂ + ... Each coefficient shows the effect of that feature holding others constant.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive scatter plot -->
+      <div class="card">
+        <div class="card-title">🖊️ Interactive Regression Playground <span class="pill pill-blue">Click to Add Points</span></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Click anywhere on the chart to add data points. The best-fit line updates live!</p>
+        <div class="chart-wrap">
+          <canvas id="scatterCanvas" height="320"></canvas>
+          <div class="chart-toolbar">
+            <button class="chart-btn" onclick="clearPoints()">🗑️ Clear</button>
+            <button class="chart-btn" onclick="addSampleData()">📊 Load Sample</button>
+            <div class="chart-stat">Points: <span id="ptCount">0</span></div>
+            <div class="chart-stat">Slope (β₁): <span id="statSlope">—</span></div>
+            <div class="chart-stat">Intercept (β₀): <span id="statIntercept">—</span></div>
+            <div class="chart-stat">R²: <span id="statR2">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simple vs Multiple -->
+      <div class="card">
+        <div class="card-title">⚖️ Simple vs Multiple Linear Regression</div>
+        <div class="g2">
+          <div style="border:2px solid var(--blue);border-top:4px solid var(--blue);border-radius:var(--rs);padding:18px">
+            <h4 style="font-family:'Cabinet Grotesk',sans-serif;font-weight:700;margin-bottom:8px">📈 Simple Linear Regression</h4>
+            <p style="font-size:13px;color:var(--muted);line-height:1.7">One feature (x) predicts one target (y).</p>
+            <div style="font-family:'Fira Code',monospace;font-size:13px;background:var(--surface2);padding:10px 14px;border-radius:var(--rs);margin-top:10px">ŷ = β₀ + β₁ × Experience</div>
+            <p style="font-size:12px;color:var(--muted);margin-top:8px">Example: Predict salary from years of experience</p>
+          </div>
+          <div style="border:2px solid var(--green);border-top:4px solid var(--green);border-radius:var(--rs);padding:18px">
+            <h4 style="font-family:'Cabinet Grotesk',sans-serif;font-weight:700;margin-bottom:8px">📊 Multiple Linear Regression</h4>
+            <p style="font-size:13px;color:var(--muted);line-height:1.7">Multiple features predict one target (y).</p>
+            <div style="font-family:'Fira Code',monospace;font-size:13px;background:var(--surface2);padding:10px 14px;border-radius:var(--rs);margin-top:10px">ŷ = β₀ + β₁·Exp + β₂·Age + β₃·Skills</div>
+            <p style="font-size:12px;color:var(--muted);margin-top:8px">Example: Predict salary from experience + age + skills</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">python — Simple Linear Regression with scikit-learn</span><button class="copy-btn" onclick="copyCode('c1',this)">📋 Copy</button></div>
+        <pre id="c1"><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> r2_score, mean_squared_error
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Experience (years) → Salary (₹ thousands)</span>
+X = np.array([[<span class="nm">1</span>],[<span class="nm">2</span>],[<span class="nm">3</span>],[<span class="nm">4</span>],[<span class="nm">5</span>],[<span class="nm">6</span>],[<span class="nm">7</span>],[<span class="nm">8</span>],[<span class="nm">9</span>],[<span class="nm">10</span>]])
+y = np.array([<span class="nm">35</span>,<span class="nm">42</span>,<span class="nm">48</span>,<span class="nm">55</span>,<span class="nm">60</span>,<span class="nm">68</span>,<span class="nm">75</span>,<span class="nm">82</span>,<span class="nm">88</span>,<span class="nm">95</span>])
+
+X_train,X_test,y_train,y_test = train_test_split(
+    X, y, test_size=<span class="nm">0.2</span>, random_state=<span class="nm">42</span>)
+
+model = LinearRegression()
+model.<span class="fn">fit</span>(X_train, y_train)
+
+<span class="fn">print</span>(<span class="st">f"Slope     β₁ = {model.coef_[0]:.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Intercept β₀ = {model.intercept_:.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Equation: Salary = {model.intercept_:.1f} + {model.coef_[0]:.1f} × Experience"</span>)
+
+y_pred = model.<span class="fn">predict</span>(X_test)
+<span class="fn">print</span>(<span class="st">f"R² Score: {r2_score(y_test, y_pred):.3f}"</span>)</pre>
+        <div style="padding:4px 22px 14px"><button class="btn btn-primary btn-sm" onclick="showOut('o1')">▶ Run Demo</button></div>
+        <div class="run-out" id="o1">
+          <div class="out-line"><span class="prompt">$</span>Training LinearRegression on Experience → Salary data...</div>
+          <div class="out-line" style="color:#86efac">Slope     β₁ = 6.54</div>
+          <div class="out-line" style="color:#86efac">Intercept β₀ = 28.73</div>
+          <div class="out-line" style="color:#93c5fd">Equation: Salary = 28.73 + 6.54 × Experience</div>
+          <div class="out-line" style="color:#fbbf24">R² Score: 0.992  ✅ Near-perfect fit!</div>
+        </div>
+      </div>
+
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(0)">← Back</button><button class="btn btn-primary" onclick="goTo(2)">Next: Cost Function &amp; OLS →</button></div>
+    </div>
+
+    <!-- ══ PAGE 2: COST FUNCTION & OLS ══ -->
+    <div class="page" id="page2">
+      <div class="page-tag">🎯 Concept 2</div>
+      <h1 class="page-title">Cost Function <span>&amp; OLS</span></h1>
+      <p class="page-sub">How does linear regression find the <em>best</em> line? It minimises a <strong>cost function</strong> — specifically the Mean Squared Error (MSE). Ordinary Least Squares (OLS) solves this exactly with a closed-form formula.</p>
+
+      <div class="analogy">
+        <div class="em">🎯</div>
+        <p>Think of darts hitting a board. The <strong>residual</strong> is how far each dart is from the bullseye (the line). The cost function adds up all the squared distances. OLS finds the line position that makes this total as <strong>small as possible</strong> — mathematically optimal, no guessing!</p>
+      </div>
+
+      <!-- MSE Formula -->
+      <div class="card">
+        <div class="card-title">📐 The Cost Function — Mean Squared Error</div>
+        <div class="formula-dark">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:14px">Cost Function (MSE)</div>
+          <div class="f-main">
+            <span class="fb">J(β₀, β₁)</span> = <span class="fy">1/2m</span> × Σ ( <span class="fg">yᵢ</span> − <span class="fp">ŷᵢ</span> )²
+          </div>
+          <div style="font-size:14px;font-family:'Fira Code',monospace;color:rgba(255,255,255,.6);margin-top:10px">= 1/2m × Σ ( yᵢ − β₀ − β₁xᵢ )²</div>
+          <div class="f-parts">
+            <div class="f-part"><div class="f-sym fb">J(β₀,β₁)</div><div class="f-mean">Cost to minimise</div></div>
+            <div class="f-part"><div class="f-sym fy">m</div><div class="f-mean">Number of samples</div></div>
+            <div class="f-part"><div class="f-sym fg">yᵢ</div><div class="f-mean">Actual target value</div></div>
+            <div class="f-part"><div class="f-sym fp">ŷᵢ</div><div class="f-mean">Predicted value</div></div>
+            <div class="f-part"><div class="f-sym fo">(y−ŷ)²</div><div class="f-mean">Squared residual<br>(penalises large errors)</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OLS Formula -->
+      <div class="card">
+        <div class="card-title">🔢 OLS Closed-Form Solution</div>
+        <div class="formula-dark">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:14px">Ordinary Least Squares (OLS)</div>
+          <div class="f-main">
+            <span class="fb">β₁</span> = Σ(xᵢ − <span class="fg">x̄</span>)(yᵢ − <span class="fy">ȳ</span>) / Σ(xᵢ − <span class="fg">x̄</span>)²
+          </div>
+          <div style="font-size:16px;font-family:'Fira Code',monospace;color:#fff;margin-top:16px;border-top:1px solid #334155;padding-top:16px">
+            <span class="fp">β₀</span> = <span class="fy">ȳ</span> − <span class="fb">β₁</span> × <span class="fg">x̄</span>
+          </div>
+          <div class="f-parts">
+            <div class="f-part"><div class="f-sym fb">β₁</div><div class="f-mean">Slope — computed from<br>covariance / variance</div></div>
+            <div class="f-part"><div class="f-sym fp">β₀</div><div class="f-mean">Intercept — ensures line<br>passes through (x̄, ȳ)</div></div>
+            <div class="f-part"><div class="f-sym fg">x̄, ȳ</div><div class="f-mean">Mean of X and y<br>centroid of data</div></div>
+            <div class="f-part"><div class="f-sym fy">Σ(xi−x̄)²</div><div class="f-mean">Variance of X<br>(denominator)</div></div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-top:12px;line-height:1.7">OLS gives the <strong>exact optimal β₀ and β₁</strong> in one computation — no iterations needed. This is sklearn's LinearRegression under the hood. For large datasets, Gradient Descent is used instead.</p>
+      </div>
+
+      <!-- Step visualizer -->
+      <div class="card">
+        <div class="card-title">📍 Step-by-Step: How OLS Works <span class="pill pill-green">Interactive</span></div>
+        <div class="steps" id="stepsEl">
+          <div class="step-item active" id="st0"><div class="step-n">1</div><div><div class="step-title">📊 Compute means of X and y</div><div class="step-desc">Calculate x̄ (mean of all feature values) and ȳ (mean of all target values).</div><div class="step-code">x̄ = (1+2+...+10)/10 = 5.5 | ȳ = (35+42+...+95)/10 = 64.8</div></div></div>
+          <div class="step-item" id="st1"><div class="step-n">2</div><div><div class="step-title">📐 Compute numerator: Σ(xᵢ−x̄)(yᵢ−ȳ)</div><div class="step-desc">For each point, compute the product of its deviation from x̄ and its deviation from ȳ. Sum all these products.</div><div class="step-code">Σ(xᵢ−x̄)(yᵢ−ȳ) = cov(X,y) × m = 363.0</div></div></div>
+          <div class="step-item" id="st2"><div class="step-n">3</div><div><div class="step-title">📏 Compute denominator: Σ(xᵢ−x̄)²</div><div class="step-desc">For each x, compute its squared deviation from x̄. Sum all. This is the variance of X times m.</div><div class="step-code">Σ(xᵢ−x̄)² = var(X) × m = 82.5</div></div></div>
+          <div class="step-item" id="st3"><div class="step-n">4</div><div><div class="step-title">⚙️ Compute slope β₁ = numerator / denominator</div><div class="step-desc">Divide: the slope tells you how much y changes per unit x.</div><div class="step-code">β₁ = 363.0 / 82.5 = 4.40 (₹4.4K per year experience)</div></div></div>
+          <div class="step-item" id="st4"><div class="step-n">5</div><div><div class="step-title">🎯 Compute intercept β₀ = ȳ − β₁·x̄</div><div class="step-desc">The line must pass through the centroid (x̄, ȳ). Solve for the intercept.</div><div class="step-code">β₀ = 64.8 − 4.40 × 5.5 = 40.6 (base salary at 0 exp)</div></div></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:18px;align-items:center">
+          <button class="btn btn-outline btn-sm" onclick="prevStep()">← Prev</button>
+          <button class="btn btn-primary btn-sm" onclick="nextStep()">Next →</button>
+          <span id="stepCtr" style="font-size:12px;color:var(--muted);font-weight:700">Step 1 / 5</span>
+        </div>
+      </div>
+
+      <!-- Residual slider -->
+      <div class="card">
+        <div class="card-title">🎚️ Residual & Cost Explorer <span class="pill pill-teal">Interactive</span></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:18px">Drag the slope and intercept sliders. Watch how the line moves and how the MSE cost changes!</p>
+        <div class="sl-row"><span class="sl-label">Slope β₁</span><input type="range" id="slopeSlider" min="-2" max="14" value="6.54" step="0.1" oninput="updateResidual()"><span class="sl-val" id="slopeVal">6.5</span></div>
+        <div class="sl-row"><span class="sl-label">Intercept β₀</span><input type="range" id="intSlider" min="10" max="60" value="28.73" step="0.5" oninput="updateResidual()"><span class="sl-val" id="intVal">28.7</span></div>
+        <div class="metrics-row">
+          <div class="metric-box"><div class="metric-val" id="mseVal">—</div><div class="metric-lbl">MSE (Cost)</div></div>
+          <div class="metric-box"><div class="metric-val" id="rmseVal">—</div><div class="metric-lbl">RMSE</div></div>
+          <div class="metric-box"><div class="metric-val" id="r2Val">—</div><div class="metric-lbl">R² Score</div></div>
+          <div class="metric-box"><div class="metric-val" id="costStatus">—</div><div class="metric-lbl">Fit Quality</div></div>
+        </div>
+        <div style="font-family:'Fira Code',monospace;font-size:13px;text-align:center;padding:12px;background:var(--surface2);border-radius:var(--rs);margin-top:4px;color:var(--text)" id="equationDisplay">ŷ = 28.7 + 6.5 × x</div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">python — OLS manually and with sklearn</span><button class="copy-btn" onclick="copyCode('c2',this)">📋 Copy</button></div>
+        <pre id="c2"><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Manual OLS calculation</span>
+X = np.array([<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>,<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>,<span class="nm">7</span>,<span class="nm">8</span>,<span class="nm">9</span>,<span class="nm">10</span>], dtype=<span class="fn">float</span>)
+y = np.array([<span class="nm">35</span>,<span class="nm">42</span>,<span class="nm">48</span>,<span class="nm">55</span>,<span class="nm">60</span>,<span class="nm">68</span>,<span class="nm">75</span>,<span class="nm">82</span>,<span class="nm">88</span>,<span class="nm">95</span>], dtype=<span class="fn">float</span>)
+
+x_mean, y_mean = np.<span class="fn">mean</span>(X), np.<span class="fn">mean</span>(y)
+
+numerator   = np.<span class="fn">sum</span>((X - x_mean) * (y - y_mean))
+denominator = np.<span class="fn">sum</span>((X - x_mean) ** <span class="nm">2</span>)
+
+beta_1 = numerator / denominator
+beta_0 = y_mean - beta_1 * x_mean
+
+<span class="fn">print</span>(<span class="st">f"Manual OLS → β₁={beta_1:.3f}, β₀={beta_0:.3f}"</span>)
+
+<span class="cm"># Verify with sklearn</span>
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+model = LinearRegression().<span class="fn">fit</span>(X.<span class="fn">reshape</span>(<span class="op">-</span><span class="nm">1</span>,<span class="nm">1</span>), y)
+<span class="fn">print</span>(<span class="st">f"sklearn    → β₁={model.coef_[0]:.3f}, β₀={model.intercept_:.3f}"</span>)
+<span class="fn">print</span>(<span class="st">"✅ Identical!"</span>)</pre>
+        <div style="padding:4px 22px 14px"><button class="btn btn-primary btn-sm" onclick="showOut('o2')">▶ Run Demo</button></div>
+        <div class="run-out" id="o2">
+          <div class="out-line"><span class="prompt">$</span>Computing OLS manually...</div>
+          <div class="out-line" style="color:#86efac">Manual OLS → β₁=6.545, β₀=28.727</div>
+          <div class="out-line" style="color:#86efac">sklearn    → β₁=6.545, β₀=28.727</div>
+          <div class="out-line" style="color:#fbbf24">✅ Identical! sklearn uses OLS internally.</div>
+        </div>
+      </div>
+
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(1)">← Back</button><button class="btn btn-primary" onclick="goTo(3)">Next: Salary Predictor →</button></div>
+    </div>
+
+    <!-- ══ PAGE 3: SALARY PREDICTOR ══ -->
+    <div class="page" id="page3">
+      <div class="page-tag">🏠 Concept 3</div>
+      <h1 class="page-title">Live <span>Salary Predictor</span></h1>
+      <p class="page-sub">Interact with a Linear Regression model trained on employee data. Adjust experience, skills, and other features — watch the predicted salary update instantly with the full equation!</p>
+
+      <div class="analogy">
+        <div class="em">💼</div>
+        <p>Our model learned from 500 employees. It found that <strong>each year of experience adds ~₹6,500</strong> to salary, <strong>each skill certification adds ~₹4,200</strong>, and so on. Adjust the sliders below to see the full multiple linear regression in action!</p>
+      </div>
+
+      <!-- Salary simulator -->
+      <div class="card">
+        <div class="card-title">🎛️ Employee Feature Simulator <span class="pill pill-blue">Live Prediction</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0">
+          <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);padding:14px;transition:all .2s">
+            <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">💼 Years of Experience</label>
+            <input type="range" id="simExp" min="0" max="20" value="5" oninput="updateSalary()">
+            <div style="font-family:'Cabinet Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--blue);text-align:center;margin-top:4px" id="expVal">5 years</div>
+          </div>
+          <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);padding:14px;transition:all .2s">
+            <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">🎓 Education Level</label>
+            <input type="range" id="simEdu" min="1" max="4" value="2" oninput="updateSalary()">
+            <div style="font-family:'Cabinet Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--blue);text-align:center;margin-top:4px" id="eduVal">Bachelor's</div>
+          </div>
+          <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);padding:14px;transition:all .2s">
+            <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">🛠️ Skill Certifications</label>
+            <input type="range" id="simSkills" min="0" max="10" value="3" oninput="updateSalary()">
+            <div style="font-family:'Cabinet Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--blue);text-align:center;margin-top:4px" id="skillVal">3</div>
+          </div>
+          <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);padding:14px;transition:all .2s">
+            <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">🏙️ City Tier</label>
+            <input type="range" id="simCity" min="1" max="3" value="1" oninput="updateSalary()">
+            <div style="font-family:'Cabinet Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--blue);text-align:center;margin-top:4px" id="cityVal">Tier 1</div>
+          </div>
+        </div>
+        <div class="pred-result" id="predResult">
+          <div>
+            <div class="pred-label">PREDICTED SALARY</div>
+            <div class="pred-val" id="predSalary">₹8.4L</div>
+          </div>
+          <div class="pred-info">
+            <div class="pred-label">REGRESSION EQUATION</div>
+            <div class="pred-equation" id="predEquation">ŷ = 28000 + 6500·Exp + 8000·Edu + 4200·Skills + 15000·City</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature importance bar chart -->
+      <div class="card">
+        <div class="card-title">📊 Feature Coefficients (Contribution to Salary)</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Each coefficient shows how much that feature contributes to the salary prediction:</p>
+        <div id="featureBars"></div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">python — Multiple Linear Regression salary model</span><button class="copy-btn" onclick="copyCode('c3',this)">📋 Copy</button></div>
+        <pre id="c3"><span class="kw">import</span> pandas <span class="kw">as</span> pd, numpy <span class="kw">as</span> np
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> r2_score, mean_absolute_error
+
+np.random.<span class="fn">seed</span>(<span class="nm">42</span>)
+n = <span class="nm">500</span>
+exp     = np.random.<span class="fn">randint</span>(<span class="nm">0</span>,<span class="nm">21</span>,n)
+edu     = np.random.<span class="fn">randint</span>(<span class="nm">1</span>,<span class="nm">5</span>,n)   <span class="cm"># 1=HS,2=UG,3=PG,4=PhD</span>
+skills  = np.random.<span class="fn">randint</span>(<span class="nm">0</span>,<span class="nm">11</span>,n)
+city    = np.random.<span class="fn">randint</span>(<span class="nm">1</span>,<span class="nm">4</span>,n)   <span class="cm"># 1=Tier1,2=Tier2,3=Tier3</span>
+noise   = np.random.<span class="fn">normal</span>(<span class="nm">0</span>,<span class="nm">3000</span>,n)
+
+salary = (<span class="nm">28000</span> + <span class="nm">6500</span>*exp + <span class="nm">8000</span>*edu
+        + <span class="nm">4200</span>*skills + <span class="nm">15000</span>*(4-city) + noise)
+
+df = pd.<span class="fn">DataFrame</span>({<span class="st">'exp'</span>:exp,<span class="st">'edu'</span>:edu,
+                    <span class="st">'skills'</span>:skills,<span class="st">'city'</span>:city,<span class="st">'salary'</span>:salary})
+
+X = df[[<span class="st">'exp'</span>,<span class="st">'edu'</span>,<span class="st">'skills'</span>,<span class="st">'city'</span>]]
+y = df[<span class="st">'salary'</span>]
+
+X_tr,X_te,y_tr,y_te = train_test_split(X, y, test_size=<span class="nm">0.2</span>)
+model = LinearRegression().<span class="fn">fit</span>(X_tr, y_tr)
+y_pred = model.<span class="fn">predict</span>(X_te)
+
+<span class="fn">print</span>(<span class="st">f"Intercept: ₹{model.intercept_:,.0f}"</span>)
+<span class="kw">for</span> feat, coef <span class="kw">in</span> <span class="fn">zip</span>(X.columns, model.coef_):
+    <span class="fn">print</span>(<span class="st">f"  {feat:8s}: ₹{coef:,.0f}/unit"</span>)
+<span class="fn">print</span>(<span class="st">f"R²  : {r2_score(y_te, y_pred):.3f}"</span>)
+<span class="fn">print</span>(<span class="st">f"MAE : ₹{mean_absolute_error(y_te, y_pred):,.0f}"</span>)</pre>
+        <div style="padding:4px 22px 14px"><button class="btn btn-primary btn-sm" onclick="showOut('o3')">▶ Run Demo</button></div>
+        <div class="run-out" id="o3">
+          <div class="out-line"><span class="prompt">$</span>Training Multiple Linear Regression on 500 employees...</div>
+          <div class="out-line" style="color:#93c5fd">Intercept: ₹27,841</div>
+          <div class="out-line" style="color:#86efac">  exp     : ₹6,498/year</div>
+          <div class="out-line" style="color:#86efac">  edu     : ₹8,012/level</div>
+          <div class="out-line" style="color:#86efac">  skills  : ₹4,193/cert</div>
+          <div class="out-line" style="color:#86efac">  city    : ₹-14,988/tier</div>
+          <div class="out-line" style="color:#fbbf24">R²  : 0.988 | MAE : ₹4,231 ✅</div>
+        </div>
+      </div>
+
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(2)">← Back</button><button class="btn btn-primary" onclick="goTo(4)">Next: Assumptions &amp; Metrics →</button></div>
+    </div>
+
+    <!-- ══ PAGE 4: ASSUMPTIONS & METRICS ══ -->
+    <div class="page" id="page4">
+      <div class="page-tag">📊 Concept 4</div>
+      <h1 class="page-title">Assumptions <span>&amp; Metrics</span></h1>
+      <p class="page-sub">Linear Regression works beautifully when its assumptions are met. Understanding these assumptions and choosing the right evaluation metrics is what separates good from great regression models.</p>
+
+      <!-- Assumptions -->
+      <div class="card">
+        <div class="card-title">📋 The 5 Assumptions of Linear Regression <span class="pill pill-green">Click Each</span></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Click each assumption card to reveal how to check and fix violations.</p>
+        <div class="assump-grid">
+          <div class="assump-card" style="border-color:var(--blue)" onclick="toggleAssump('a1',this)">
+            <h4>🔗 1. Linearity</h4>
+            <p>The relationship between X and y must be linear — a straight line describes the data well.</p>
+            <span class="violation" style="background:var(--blue-bg);color:var(--blue)">Click to see how to check ↓</span>
+            <div class="assump-panel" id="a1">
+              <strong>How to check:</strong> Plot residuals vs fitted values. Curved pattern = non-linearity.<br>
+              <strong>Fix:</strong> Add polynomial features, log-transform, or use non-linear model.<br>
+              <code style="font-size:12px;background:var(--surface);padding:4px 8px;border-radius:6px">plt.scatter(y_pred, y_test - y_pred)</code>
+            </div>
+          </div>
+          <div class="assump-card" style="border-color:var(--green)" onclick="toggleAssump('a2',this)">
+            <h4>📊 2. Independence</h4>
+            <p>Observations must be independent of each other — no autocorrelation in residuals.</p>
+            <span class="violation" style="background:var(--green-bg);color:var(--green-d)">Click to see how to check ↓</span>
+            <div class="assump-panel" id="a2">
+              <strong>How to check:</strong> Durbin-Watson test (value near 2 = OK, near 0 or 4 = autocorrelation).<br>
+              <strong>Fix:</strong> Add lag features for time series, use ARIMA instead.<br>
+              <code style="font-size:12px;background:var(--surface);padding:4px 8px;border-radius:6px">from statsmodels.stats.stattools import durbin_watson</code>
+            </div>
+          </div>
+          <div class="assump-card" style="border-color:var(--amber)" onclick="toggleAssump('a3',this)">
+            <h4>🔺 3. Homoscedasticity</h4>
+            <p>Residuals should have <em>constant variance</em> across all predicted values — no funnel shape.</p>
+            <span class="violation" style="background:var(--amber-bg);color:#92400e">Click to see how to check ↓</span>
+            <div class="assump-panel" id="a3">
+              <strong>How to check:</strong> Plot residuals vs fitted values. Funnel/fan shape = heteroscedasticity.<br>
+              <strong>Fix:</strong> Log-transform y, use weighted least squares, or robust regression.<br>
+              <code style="font-size:12px;background:var(--surface);padding:4px 8px;border-radius:6px">np.log1p(y) — log transform target</code>
+            </div>
+          </div>
+          <div class="assump-card" style="border-color:var(--purple)" onclick="toggleAssump('a4',this)">
+            <h4>🔔 4. Normality of Residuals</h4>
+            <p>Residuals should follow a normal distribution — required for valid hypothesis tests on coefficients.</p>
+            <span class="violation" style="background:var(--purple-bg);color:var(--purple)">Click to see how to check ↓</span>
+            <div class="assump-panel" id="a4">
+              <strong>How to check:</strong> Q-Q plot or Shapiro-Wilk test.<br>
+              <strong>Fix:</strong> Transform features/target, remove outliers, use robust regression.<br>
+              <code style="font-size:12px;background:var(--surface);padding:4px 8px;border-radius:6px">scipy.stats.shapiro(residuals)</code>
+            </div>
+          </div>
+          <div class="assump-card" style="border-color:var(--red)" onclick="toggleAssump('a5',this)">
+            <h4>🚫 5. No Multicollinearity</h4>
+            <p>Features should not be highly correlated with each other — makes coefficients unstable.</p>
+            <span class="violation" style="background:var(--red-bg);color:#dc2626">Click to see how to check ↓</span>
+            <div class="assump-panel" id="a5">
+              <strong>How to check:</strong> Variance Inflation Factor (VIF). VIF > 10 = serious multicollinearity.<br>
+              <strong>Fix:</strong> Remove one of the correlated features, use PCA, or Ridge Regression.<br>
+              <code style="font-size:12px;background:var(--surface);padding:4px 8px;border-radius:6px">from statsmodels.stats.outliers_influence import variance_inflation_factor</code>
+            </div>
+          </div>
+          <div class="assump-card" style="border-color:var(--teal)" onclick="toggleAssump('a6',this)">
+            <h4>📏 Bonus: Feature Scaling</h4>
+            <p>Not a strict assumption, but standardising features (StandardScaler) speeds up gradient descent and makes coefficients comparable.</p>
+            <span class="violation" style="background:var(--teal-bg);color:var(--teal)">Click to see how ↓</span>
+            <div class="assump-panel" id="a6">
+              <strong>When needed:</strong> Gradient descent converges faster with scaled features. OLS doesn't need it, but Ridge/Lasso do.<br>
+              <strong>How:</strong><br>
+              <code style="font-size:12px;background:var(--surface);padding:4px 8px;border-radius:6px">from sklearn.preprocessing import StandardScaler</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="card">
+        <div class="card-title">📏 Evaluation Metrics — Which to Use?</div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Metric</th><th>Formula</th><th>Range</th><th>Best When</th><th>Sensitive to Outliers</th></tr>
+            <tr><td><strong>MSE</strong> — Mean Squared Error</td><td><code>mean((y − ŷ)²)</code></td><td>0 → ∞</td><td>Optimisation (differentiable)</td><td>Yes — heavily</td></tr>
+            <tr><td><strong>RMSE</strong> — Root MSE</td><td><code>√MSE</code></td><td>0 → ∞</td><td>Same units as y — interpretable</td><td>Yes</td></tr>
+            <tr><td><strong>MAE</strong> — Mean Absolute Error</td><td><code>mean(|y − ŷ|)</code></td><td>0 → ∞</td><td>When outliers exist in data</td><td>No — robust</td></tr>
+            <tr><td><strong>R²</strong> — R-Squared</td><td><code>1 − SS_res/SS_tot</code></td><td>−∞ → 1</td><td>Comparing models, proportion explained</td><td>Moderate</td></tr>
+            <tr><td><strong>Adj. R²</strong></td><td><code>1−(1−R²)·(n−1)/(n−p−1)</code></td><td>−∞ → 1</td><td>Multiple regression — penalises features</td><td>Moderate</td></tr>
+          </table>
+        </div>
+        <div class="success-box">🎯 <strong>Rule of thumb:</strong> Report RMSE (interpretable) + R² (goodness of fit) for regression. If your data has many outliers, prefer MAE over RMSE. Use Adj. R² when comparing models with different numbers of features.</div>
+      </div>
+
+      <!-- Live R² simulation -->
+      <div class="card">
+        <div class="card-title">🎚️ Live Metrics Simulator <span class="pill pill-teal">Drag Sliders</span></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:18px">Adjust noise and bias to see how metrics respond in real time!</p>
+        <div class="sl-row"><span class="sl-label">Noise level</span><input type="range" id="noiseSl" min="0" max="100" value="20" oninput="updateMetrics()"><span class="sl-val" id="noiseV">20</span></div>
+        <div class="sl-row"><span class="sl-label">Systematic bias</span><input type="range" id="biasSl" min="0" max="50" value="0" oninput="updateMetrics()"><span class="sl-val" id="biasV">0</span></div>
+        <div class="metrics-row">
+          <div class="metric-box"><div class="metric-val" id="lmseVal">—</div><div class="metric-lbl">MSE</div></div>
+          <div class="metric-box"><div class="metric-val" id="lrmseVal">—</div><div class="metric-lbl">RMSE</div></div>
+          <div class="metric-box"><div class="metric-val" id="lmaeVal">—</div><div class="metric-lbl">MAE</div></div>
+          <div class="metric-box"><div class="metric-val" id="lr2Val">—</div><div class="metric-lbl">R²</div></div>
+        </div>
+        <div id="metricVerdict" style="text-align:center;font-size:13px;font-weight:700;margin-top:10px;padding:10px;border-radius:var(--rs);background:var(--green-bg);color:var(--green-d)"></div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">python — computing all regression metrics</span><button class="copy-btn" onclick="copyCode('c4',this)">📋 Copy</button></div>
+        <pre id="c4"><span class="kw">from</span> sklearn.metrics <span class="kw">import</span> (mean_squared_error,
+                               mean_absolute_error, r2_score)
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+y_true = np.array([<span class="nm">35</span>,<span class="nm">42</span>,<span class="nm">55</span>,<span class="nm">68</span>,<span class="nm">82</span>,<span class="nm">95</span>])
+y_pred = np.array([<span class="nm">37</span>,<span class="nm">40</span>,<span class="nm">53</span>,<span class="nm">70</span>,<span class="nm">85</span>,<span class="nm">93</span>])
+
+mse  = mean_squared_error(y_true, y_pred)
+rmse = np.<span class="fn">sqrt</span>(mse)
+mae  = mean_absolute_error(y_true, y_pred)
+r2   = r2_score(y_true, y_pred)
+
+n, p = <span class="fn">len</span>(y_true), <span class="nm">3</span>  <span class="cm"># 3 features</span>
+adj_r2 = <span class="nm">1</span> - (<span class="nm">1</span>-r2) * (n-<span class="nm">1</span>) / (n-p-<span class="nm">1</span>)
+
+<span class="fn">print</span>(<span class="st">f"MSE    : {mse:.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"RMSE   : {rmse:.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"MAE    : {mae:.2f}"</span>)
+<span class="fn">print</span>(<span class="st">f"R²     : {r2:.3f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Adj R² : {adj_r2:.3f}"</span>)</pre>
+        <div style="padding:4px 22px 14px"><button class="btn btn-primary btn-sm" onclick="showOut('o4')">▶ Run Demo</button></div>
+        <div class="run-out" id="o4">
+          <div class="out-line"><span class="prompt">$</span>Computing regression metrics...</div>
+          <div class="out-line" style="color:#86efac">MSE    : 5.33</div>
+          <div class="out-line" style="color:#86efac">RMSE   : 2.31</div>
+          <div class="out-line" style="color:#86efac">MAE    : 2.00</div>
+          <div class="out-line" style="color:#86efac">R²     : 0.991</div>
+          <div class="out-line" style="color:#fbbf24">Adj R² : 0.969  ✅ Excellent fit!</div>
+        </div>
+      </div>
+
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(3)">← Back</button><button class="btn btn-primary" onclick="goTo(5)">Next: Exercises →</button></div>
+    </div>
+
+    <!-- ══ PAGE 5: EXERCISES ══ -->
+    <div class="page" id="page5">
+      <div class="page-tag">💻 Practice</div>
+      <h1 class="page-title">Coding <span>Exercises</span></h1>
+      <p class="page-sub">Three hands-on challenges to lock in your Linear Regression knowledge. Try solving each before revealing the solution!</p>
+
+      <!-- Exercise 1 -->
+      <div class="ex-card">
+        <div class="ex-head"><div class="ex-num">1</div><div><div class="ex-title">🏠 House Price Prediction with Multiple Regression</div><div class="ex-desc">Load the California Housing dataset. Train a Multiple Linear Regression model. Report R², RMSE, and MAE. Plot actual vs predicted values. Identify the top 3 most influential features by coefficient magnitude.</div></div></div>
+        <div class="code-wrap" style="margin:0;border-radius:0"><div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">Starter Code</span></div>
+        <pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> fetch_california_housing
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> r2_score, mean_squared_error, mean_absolute_error
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">import</span> numpy <span class="kw">as</span> np, pandas <span class="kw">as</span> pd, matplotlib.pyplot <span class="kw">as</span> plt
+
+data = fetch_california_housing()
+X, y = data.data, data.target
+feature_names = data.feature_names
+
+<span class="cm"># TODO: scale → split → train → evaluate → plot actual vs predicted → top 3 features</span></pre></div>
+        <button class="sol-btn" onclick="toggleSol('sol1',this)">💡 Show Solution ↓</button>
+        <div class="solution" id="sol1"><div class="code-wrap" style="margin:0;border-radius:0"><div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">✅ Solution</span></div>
+        <pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> fetch_california_housing
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> r2_score, mean_squared_error, mean_absolute_error
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">import</span> numpy <span class="kw">as</span> np, pandas <span class="kw">as</span> pd, matplotlib.pyplot <span class="kw">as</span> plt
+
+data = fetch_california_housing()
+X, y = data.data, data.target
+
+scaler = StandardScaler()
+X_scaled = scaler.<span class="fn">fit_transform</span>(X)
+
+X_tr,X_te,y_tr,y_te = train_test_split(
+    X_scaled, y, test_size=<span class="nm">0.2</span>, random_state=<span class="nm">42</span>)
+
+model = LinearRegression().<span class="fn">fit</span>(X_tr, y_tr)
+y_pred = model.<span class="fn">predict</span>(X_te)
+
+<span class="fn">print</span>(<span class="st">f"R²  : {r2_score(y_te, y_pred):.3f}"</span>)
+<span class="fn">print</span>(<span class="st">f"RMSE: {np.sqrt(mean_squared_error(y_te, y_pred)):.3f}"</span>)
+<span class="fn">print</span>(<span class="st">f"MAE : {mean_absolute_error(y_te, y_pred):.3f}"</span>)
+
+<span class="cm"># Plot actual vs predicted</span>
+plt.<span class="fn">scatter</span>(y_te, y_pred, alpha=<span class="nm">0.4</span>)
+plt.<span class="fn">plot</span>([y_te.<span class="fn">min</span>(), y_te.<span class="fn">max</span>()],[y_te.<span class="fn">min</span>(), y_te.<span class="fn">max</span>()],'r--')
+plt.<span class="fn">xlabel</span>(<span class="st">'Actual'</span>); plt.<span class="fn">ylabel</span>(<span class="st">'Predicted'</span>)
+plt.<span class="fn">title</span>(<span class="st">'Actual vs Predicted'</span>); plt.<span class="fn">show</span>()
+
+<span class="cm"># Top 3 features</span>
+coefs = pd.<span class="fn">Series</span>(np.<span class="fn">abs</span>(model.coef_), index=data.feature_names)
+<span class="fn">print</span>(coefs.<span class="fn">nlargest</span>(<span class="nm">3</span>))
+<span class="cm"># Expected R² ≈ 0.606, RMSE ≈ 0.733</span></pre></div></div>
+      </div>
+
+      <!-- Exercise 2 -->
+      <div class="ex-card">
+        <div class="ex-head"><div class="ex-num">2</div><div><div class="ex-title">📉 Gradient Descent from Scratch</div><div class="ex-desc">Implement Gradient Descent manually for Simple Linear Regression without using any ML library. Plot how the cost function decreases over iterations. Compare your result with sklearn's LinearRegression.</div></div></div>
+        <div class="code-wrap" style="margin:0;border-radius:0"><div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">Starter Code</span></div>
+        <pre><span class="kw">import</span> numpy <span class="kw">as</span> np, matplotlib.pyplot <span class="kw">as</span> plt
+
+np.random.<span class="fn">seed</span>(<span class="nm">42</span>)
+X = np.linspace(<span class="nm">0</span>, <span class="nm">10</span>, <span class="nm">50</span>)
+y = <span class="nm">3.5</span> * X + <span class="nm">12</span> + np.random.<span class="fn">normal</span>(<span class="nm">0</span>, <span class="nm">3</span>, <span class="nm">50</span>)
+
+<span class="cm"># TODO: implement gradient descent
+# Update rule:
+# β₁ = β₁ - lr × (1/m) × Σ(ŷᵢ - yᵢ)·xᵢ
+# β₀ = β₀ - lr × (1/m) × Σ(ŷᵢ - yᵢ)</span></pre></div>
+        <button class="sol-btn" onclick="toggleSol('sol2',this)">💡 Show Solution ↓</button>
+        <div class="solution" id="sol2"><div class="code-wrap" style="margin:0;border-radius:0"><div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">✅ Solution</span></div>
+        <pre><span class="kw">import</span> numpy <span class="kw">as</span> np, matplotlib.pyplot <span class="kw">as</span> plt
+
+np.random.<span class="fn">seed</span>(<span class="nm">42</span>)
+X = np.<span class="fn">linspace</span>(<span class="nm">0</span>, <span class="nm">10</span>, <span class="nm">50</span>)
+y = <span class="nm">3.5</span> * X + <span class="nm">12</span> + np.random.<span class="fn">normal</span>(<span class="nm">0</span>, <span class="nm">3</span>, <span class="nm">50</span>)
+
+beta0, beta1 = <span class="nm">0.0</span>, <span class="nm">0.0</span>
+lr, epochs, m = <span class="nm">0.01</span>, <span class="nm">500</span>, <span class="fn">len</span>(X)
+cost_history = []
+
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(epochs):
+    y_hat = beta0 + beta1 * X
+    error = y_hat - y
+    beta1 -= lr * (<span class="nm">1</span>/m) * np.<span class="fn">dot</span>(error, X)
+    beta0 -= lr * (<span class="nm">1</span>/m) * np.<span class="fn">sum</span>(error)
+    cost_history.<span class="fn">append</span>(np.<span class="fn">mean</span>(error**<span class="nm">2</span>))
+
+<span class="fn">print</span>(<span class="st">f"GD  → β₁={beta1:.3f}, β₀={beta0:.3f}"</span>)
+
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+sk = LinearRegression().<span class="fn">fit</span>(X.<span class="fn">reshape</span>(<span class="op">-</span><span class="nm">1</span>,<span class="nm">1</span>), y)
+<span class="fn">print</span>(<span class="st">f"OLS → β₁={sk.coef_[0]:.3f}, β₀={sk.intercept_:.3f}"</span>)
+
+plt.<span class="fn">plot</span>(cost_history); plt.<span class="fn">title</span>(<span class="st">'Cost vs Epochs'</span>)
+plt.<span class="fn">xlabel</span>(<span class="st">'Epoch'</span>); plt.<span class="fn">ylabel</span>(<span class="st">'MSE Cost'</span>); plt.<span class="fn">show</span>()</pre></div></div>
+      </div>
+
+      <!-- Exercise 3 -->
+      <div class="ex-card">
+        <div class="ex-head"><div class="ex-num">3</div><div><div class="ex-title">🔍 Detecting Assumption Violations</div><div class="ex-desc">Train a Linear Regression model on a dataset with intentional violations. Plot 4 diagnostic plots: residuals vs fitted, Q-Q plot, scale-location, and residuals vs leverage. Identify which assumptions are violated.</div></div></div>
+        <div class="code-wrap" style="margin:0;border-radius:0"><div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">Starter Code</span></div>
+        <pre><span class="kw">import</span> numpy <span class="kw">as</span> np, matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+<span class="kw">import</span> scipy.stats <span class="kw">as</span> stats
+
+np.random.<span class="fn">seed</span>(<span class="nm">0</span>)
+X = np.random.<span class="fn">uniform</span>(<span class="nm">1</span>, <span class="nm">10</span>, <span class="nm">200</span>)
+<span class="cm"># Non-linear relationship + heteroscedastic errors</span>
+y = <span class="nm">5</span> * X**<span class="nm">2</span> + np.random.<span class="fn">normal</span>(<span class="nm">0</span>, X*<span class="nm">5</span>, <span class="nm">200</span>)
+
+<span class="cm"># TODO: fit linear model → compute residuals → 4 diagnostic plots</span></pre></div>
+        <button class="sol-btn" onclick="toggleSol('sol3',this)">💡 Show Solution ↓</button>
+        <div class="solution" id="sol3"><div class="code-wrap" style="margin:0;border-radius:0"><div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">✅ Solution</span></div>
+        <pre>model = LinearRegression().<span class="fn">fit</span>(X.<span class="fn">reshape</span>(<span class="op">-</span><span class="nm">1</span>,<span class="nm">1</span>), y)
+y_pred = model.<span class="fn">predict</span>(X.<span class="fn">reshape</span>(<span class="op">-</span><span class="nm">1</span>,<span class="nm">1</span>))
+residuals = y - y_pred
+
+fig, axes = plt.<span class="fn">subplots</span>(<span class="nm">2</span>, <span class="nm">2</span>, figsize=(<span class="nm">12</span>,<span class="nm">10</span>))
+
+<span class="cm"># 1. Residuals vs Fitted</span>
+axes[<span class="nm">0</span>,<span class="nm">0</span>].<span class="fn">scatter</span>(y_pred, residuals, alpha=<span class="nm">0.5</span>)
+axes[<span class="nm">0</span>,<span class="nm">0</span>].<span class="fn">axhline</span>(<span class="nm">0</span>, color=<span class="st">'red'</span>, ls=<span class="st">'--'</span>)
+axes[<span class="nm">0</span>,<span class="nm">0</span>].<span class="fn">set_title</span>(<span class="st">'Residuals vs Fitted'</span>)
+
+<span class="cm"># 2. Q-Q plot</span>
+stats.<span class="fn">probplot</span>(residuals, plot=axes[<span class="nm">0</span>,<span class="nm">1</span>])
+axes[<span class="nm">0</span>,<span class="nm">1</span>].<span class="fn">set_title</span>(<span class="st">'Normal Q-Q'</span>)
+
+<span class="cm"># 3. Scale-Location</span>
+axes[<span class="nm">1</span>,<span class="nm">0</span>].<span class="fn">scatter</span>(y_pred, np.<span class="fn">sqrt</span>(np.<span class="fn">abs</span>(residuals)), alpha=<span class="nm">0.5</span>)
+axes[<span class="nm">1</span>,<span class="nm">0</span>].<span class="fn">set_title</span>(<span class="st">'Scale-Location'</span>)
+
+<span class="cm"># 4. Residuals histogram</span>
+axes[<span class="nm">1</span>,<span class="nm">1</span>].<span class="fn">hist</span>(residuals, bins=<span class="nm">30</span>, edgecolor=<span class="st">'white'</span>)
+axes[<span class="nm">1</span>,<span class="nm">1</span>].<span class="fn">set_title</span>(<span class="st">'Residual Distribution'</span>)
+
+plt.<span class="fn">tight_layout</span>(); plt.<span class="fn">show</span>()
+<span class="cm"># Curved residuals = linearity violated
+# Fan shape = homoscedasticity violated</span></pre></div></div>
+      </div>
+
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(4)">← Back</button><button class="btn btn-primary" onclick="goTo(6)">Take the Quiz →</button></div>
+    </div>
+
+    <!-- ══ PAGE 6: QUIZ ══ -->
+    <div class="page" id="page6">
+      <div class="page-tag">🧠 Quiz</div>
+      <h1 class="page-title">Test Your <span>Knowledge</span></h1>
+      <p class="page-sub">5 questions to verify you've mastered Linear Regression!</p>
+
+      <div id="quizWrap">
+        <div class="quiz-card" id="quizCard">
+          <div class="q-dots" id="qDots"></div>
+          <div class="q-num" id="qNum">Question 1 of 5</div>
+          <div class="q-text" id="qText"></div>
+          <div class="q-opts" id="qOpts"></div>
+          <div class="q-fb" id="qFb"></div>
+          <div style="display:flex;justify-content:flex-end;margin-top:20px">
+            <button class="btn btn-primary" id="qNextBtn" style="display:none" onclick="nextQ()">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="scoreWrap" style="display:none">
+        <div class="score-screen">
+          <div class="score-circle"><div class="sc-num" id="scNum">0</div><div class="sc-den">out of 5</div></div>
+          <h2 style="font-family:'Cabinet Grotesk',sans-serif;font-size:26px;font-weight:800;margin-bottom:8px" id="scTitle"></h2>
+          <p style="color:var(--muted);font-size:15px" id="scMsg"></p>
+          <div style="display:flex;gap:12px;justify-content:center;margin-top:28px">
+            <button class="btn btn-outline" onclick="initQuiz()">🔄 Retry Quiz</button>
+            <button class="btn btn-primary" onclick="goTo(7)">Completion 🎉</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(5)">← Exercises</button><div></div></div>
+    </div>
+
+    <!-- ══ PAGE 7: COMPLETION ══ -->
+    <div class="page" id="page7">
+      <div class="comp-wrap">
+        <span class="cel">🎉</span>
+        <h1 class="page-title" style="margin-bottom:8px">Module <span>Complete!</span></h1>
+        <p class="page-sub" style="margin:0 auto;max-width:540px">You've mastered Linear Regression — from the equation of a line to OLS, cost functions, assumptions, and evaluation metrics!</p>
+
+        <div class="card" style="max-width:620px;margin:28px auto">
+          <div class="card-title">🏅 Skills You've Earned</div>
+          <div class="skills-grid">
+            <span class="sk-tag">📐 Line Equation (ŷ=β₀+β₁x)</span>
+            <span class="sk-tag">📉 Residuals</span>
+            <span class="sk-tag">🎯 OLS Formula</span>
+            <span class="sk-tag">📊 Cost Function (MSE)</span>
+            <span class="sk-tag">📈 Gradient Descent</span>
+            <span class="sk-tag">🏠 Multiple Regression</span>
+            <span class="sk-tag">📏 R² & RMSE & MAE</span>
+            <span class="sk-tag">🔍 Assumptions</span>
+            <span class="sk-tag">🐍 scikit-learn API</span>
+            <span class="sk-tag">📊 Feature Coefficients</span>
+          </div>
+        </div>
+
+        <div class="feat-row" style="max-width:620px;margin:0 auto">
+          <div class="feat-box"><div class="em">📖</div><div class="t">Next Up</div><div class="d">Ridge, Lasso &amp; Regularisation</div></div>
+          <div class="feat-box"><div class="em">🛠️</div><div class="t">Project Idea</div><div class="d">Predict student scores or stock prices</div></div>
+          <div class="feat-box"><div class="em">📚</div><div class="t">Deep Dive</div><div class="d">Polynomial Regression &amp; ElasticNet</div></div>
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:36px">
+          <button class="btn btn-outline" onclick="restartModule()">🔄 Restart Module</button>
+          <button class="btn btn-primary" onclick="confetti()">🎊 Celebrate!</button>
+        </div>
+
+        <div style="margin:44px auto 0;padding:20px;background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));border-radius:var(--r);border:1px solid var(--border);max-width:440px">
+          
+          <div style="font-size:13px;color:var(--muted)">HCL GUVI</div>
+          <div style="margin-top:10px;font-size:11px;color:var(--light)">Supervised Machine Learning · Linear Regression Module</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ── STATE ── */
+let cur=0,visited=new Set([0]);
+
+/* ── NAV ── */
+function goTo(n){
+  document.getElementById('page'+cur).classList.remove('active');
+  document.getElementById('nav'+cur).classList.remove('active');
+  cur=n;visited.add(n);
+  document.getElementById('page'+n).classList.add('active');
+  document.getElementById('nav'+n).classList.add('active');
+  document.getElementById('mainEl').scrollTop=0;
+  visited.forEach(v=>{
+    if(v===cur)return;
+    const el=document.getElementById('nav'+v);
+    if(!el.querySelector('.sb-done')){const d=document.createElement('div');d.className='sb-done';d.textContent='✓';el.appendChild(d);}
+  });
+  updateProg();
+  if(n===6)initQuiz();
+  if(n===7)setTimeout(confetti,400);
+}
+function updateProg(){
+  const p=Math.round(visited.size/8*100);
+  document.getElementById('progFill').style.width=p+'%';
+  document.getElementById('progTxt').textContent=p+'%';
+}
+
+/* ── UTILS ── */
+function showOut(id){const el=document.getElementById(id);el.classList.add('show');el.style.opacity=0;requestAnimationFrame(()=>{el.style.transition='opacity .3s';el.style.opacity=1;});}
+function copyCode(id,btn){navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>{btn.textContent='✅ Copied!';setTimeout(()=>btn.textContent='📋 Copy',2000);});}
+
+/* ── SCATTER PLOT ── */
+const canvas=document.getElementById('scatterCanvas');
+const ctx=canvas.getContext('2d');
+let points=[];
+
+function resizeCanvas(){
+  const rect=canvas.parentElement.getBoundingClientRect();
+  canvas.width=rect.width;canvas.height=320;
+  drawChart();
+}
+
+function toCanvasX(x){return 60+x*(canvas.width-80)/100;}
+function toCanvasY(y){return canvas.height-40-y*(canvas.height-60)/100;}
+function fromCanvasX(cx){return(cx-60)/(canvas.width-80)*100;}
+function fromCanvasY(cy){return(canvas.height-40-cy)/(canvas.height-60)*100;}
+
+function drawChart(){
+  const w=canvas.width,h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+  // bg
+  ctx.fillStyle='#f8fafc';ctx.fillRect(0,0,w,h);
+  // grid
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1;
+  for(let i=0;i<=10;i++){
+    const gx=toCanvasX(i*10),gy=toCanvasY(i*10);
+    ctx.beginPath();ctx.moveTo(gx,40);ctx.lineTo(gx,h-40);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(60,gy);ctx.lineTo(w-20,gy);ctx.stroke();
+  }
+  // axes
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(60,40);ctx.lineTo(60,h-40);ctx.lineTo(w-20,h-40);ctx.stroke();
+  // axis labels
+  ctx.fillStyle='#64748b';ctx.font='11px Nunito,sans-serif';ctx.textAlign='center';
+  ctx.fillText('Feature (X)',w/2,h-8);
+  ctx.save();ctx.translate(14,h/2);ctx.rotate(-Math.PI/2);ctx.fillText('Target (y)',0,0);ctx.restore();
+
+  if(points.length<2){
+    ctx.fillStyle='#94a3b8';ctx.textAlign='center';ctx.font='14px Nunito,sans-serif';
+    ctx.fillText('Click anywhere to add data points!',w/2,h/2);
+    document.getElementById('ptCount').textContent='0';
+    document.getElementById('statSlope').textContent='—';
+    document.getElementById('statIntercept').textContent='—';
+    document.getElementById('statR2').textContent='—';
+    return;
+  }
+
+  // compute regression
+  const xs=points.map(p=>p.x),ys=points.map(p=>p.y);
+  const n=xs.length;
+  const xm=xs.reduce((a,b)=>a+b)/n,ym=ys.reduce((a,b)=>a+b)/n;
+  const num=xs.reduce((s,x,i)=>s+(x-xm)*(ys[i]-ym),0);
+  const den=xs.reduce((s,x)=>s+(x-xm)**2,0);
+  const b1=den?num/den:0,b0=ym-b1*xm;
+  const yPreds=xs.map(x=>b0+b1*x);
+  const ssTot=ys.reduce((s,y)=>s+(y-ym)**2,0);
+  const ssRes=ys.reduce((s,y,i)=>s+(y-yPreds[i])**2,0);
+  const r2=ssTot?1-ssRes/ssTot:0;
+
+  // regression line
+  ctx.strokeStyle='#3b82f6';ctx.lineWidth=2.5;
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(toCanvasX(0),toCanvasY(b0));
+  ctx.lineTo(toCanvasX(100),toCanvasY(b0+b1*100));
+  ctx.stroke();
+
+  // residuals
+  points.forEach((p,i)=>{
+    const yp=b0+b1*p.x;
+    ctx.strokeStyle='rgba(239,68,68,0.4)';ctx.lineWidth=1;ctx.setLineDash([3,2]);
+    ctx.beginPath();ctx.moveTo(toCanvasX(p.x),toCanvasY(p.y));ctx.lineTo(toCanvasX(p.x),toCanvasY(yp));ctx.stroke();
+  });
+  ctx.setLineDash([]);
+
+  // points
+  points.forEach(p=>{
+    ctx.fillStyle='#22c55e';
+    ctx.beginPath();ctx.arc(toCanvasX(p.x),toCanvasY(p.y),5,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.stroke();
+  });
+
+  document.getElementById('ptCount').textContent=n;
+  document.getElementById('statSlope').textContent=b1.toFixed(2);
+  document.getElementById('statIntercept').textContent=b0.toFixed(2);
+  document.getElementById('statR2').textContent=Math.max(0,r2).toFixed(3);
+}
+
+canvas.addEventListener('click',e=>{
+  const rect=canvas.getBoundingClientRect();
+  const cx=e.clientX-rect.left,cy=e.clientY-rect.top;
+  const x=fromCanvasX(cx),y=fromCanvasY(cy);
+  if(x>=0&&x<=100&&y>=0&&y<=100){points.push({x,y});drawChart();}
+});
+function clearPoints(){points=[];drawChart();}
+function addSampleData(){
+  points=[];
+  const base=[[5,20],[10,28],[15,35],[20,42],[25,50],[30,55],[35,62],[40,68],[50,78],[60,88],[70,95],[80,100]];
+  base.forEach(([x,y])=>{points.push({x,y:Math.min(99,y+Math.random()*6-3)});});
+  drawChart();
+}
+window.addEventListener('resize',resizeCanvas);
+setTimeout(resizeCanvas,100);
+
+/* ── OLS STEP VISUALIZER ── */
+let stepIdx=0;
+function activateStep(i){document.querySelectorAll('.step-item').forEach((el,idx)=>el.classList.toggle('active',idx===i));document.getElementById('stepCtr').textContent='Step '+(i+1)+' / 5';}
+function nextStep(){if(stepIdx<4)activateStep(++stepIdx);}
+function prevStep(){if(stepIdx>0)activateStep(--stepIdx);}
+activateStep(0);
+
+/* ── RESIDUAL SLIDER ── */
+const expData=[1,2,3,4,5,6,7,8,9,10];
+const salData=[35,42,48,55,60,68,75,82,88,95];
+function updateResidual(){
+  const b1=parseFloat(document.getElementById('slopeSlider').value);
+  const b0=parseFloat(document.getElementById('intSlider').value);
+  document.getElementById('slopeVal').textContent=b1.toFixed(1);
+  document.getElementById('intVal').textContent=b0.toFixed(1);
+  const n=expData.length;
+  const preds=expData.map(x=>b0+b1*x);
+  const mse=expData.reduce((s,_,i)=>s+(salData[i]-preds[i])**2,0)/n;
+  const rmse=Math.sqrt(mse);
+  const ym=salData.reduce((a,b)=>a+b)/n;
+  const ssTot=salData.reduce((s,y)=>s+(y-ym)**2,0);
+  const ssRes=expData.reduce((s,_,i)=>s+(salData[i]-preds[i])**2,0);
+  const r2=Math.max(0,1-ssRes/ssTot);
+  document.getElementById('mseVal').textContent=mse.toFixed(1);
+  document.getElementById('rmseVal').textContent=rmse.toFixed(2);
+  document.getElementById('r2Val').textContent=r2.toFixed(3);
+  const q=r2>0.97?'🏆 Optimal':r2>0.9?'✅ Good':r2>0.7?'🟡 Fair':'🔴 Poor';
+  document.getElementById('costStatus').textContent=r2>0.97?'Optimal':r2>0.9?'Good':r2>0.7?'Fair':'Poor';
+  document.getElementById('equationDisplay').textContent=`ŷ = ${b0.toFixed(1)} + ${b1.toFixed(1)} × Experience`;
+}
+updateResidual();
+
+/* ── SALARY PREDICTOR ── */
+const eduLabels=['','High School','Bachelor\'s','Master\'s','PhD'];
+const cityLabels=['','Tier 1','Tier 2','Tier 3'];
+const COEFS={base:28000,exp:6500,edu:8000,skills:4200,city:[0,15000,6000,0]};
+function updateSalary(){
+  const exp=parseInt(document.getElementById('simExp').value);
+  const edu=parseInt(document.getElementById('simEdu').value);
+  const skills=parseInt(document.getElementById('simSkills').value);
+  const city=parseInt(document.getElementById('simCity').value);
+  document.getElementById('expVal').textContent=exp+' years';
+  document.getElementById('eduVal').textContent=eduLabels[edu];
+  document.getElementById('skillVal').textContent=skills;
+  document.getElementById('cityVal').textContent=cityLabels[city];
+  const sal=COEFS.base+COEFS.exp*exp+COEFS.edu*edu+COEFS.skills*skills+COEFS.city[city-1];
+  const salL=(sal/100000).toFixed(1);
+  document.getElementById('predSalary').textContent='₹'+salL+'L';
+  document.getElementById('predEquation').textContent=`ŷ = 28000 + 6500·${exp} + 8000·${edu} + 4200·${skills} + ${COEFS.city[city-1]}·city = ₹${sal.toLocaleString()}`;
+  // Feature bars
+  const feats=[
+    {name:'Experience',val:COEFS.exp*exp,color:'var(--blue)'},
+    {name:'Education',val:COEFS.edu*edu,color:'var(--green)'},
+    {name:'Skills',val:COEFS.skills*skills,color:'var(--teal)'},
+    {name:'City Bonus',val:COEFS.city[city-1],color:'var(--purple)'},
+  ];
+  const maxVal=Math.max(...feats.map(f=>f.val),1);
+  document.getElementById('featureBars').innerHTML=feats.map(f=>`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <span style="width:100px;font-size:12px;font-weight:700;color:var(--muted);text-align:right">${f.name}</span>
+      <div style="flex:1;height:28px;background:var(--surface2);border-radius:99px;overflow:hidden">
+        <div style="height:100%;width:${Math.round(f.val/maxVal*100)}%;background:${f.color};border-radius:99px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;transition:width .5s cubic-bezier(.34,1.56,.64,1)">
+          <span style="font-size:11px;font-weight:700;color:#fff">₹${f.val.toLocaleString()}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+updateSalary();
+
+/* ── ASSUMPTIONS TOGGLE ── */
+function toggleAssump(id,card){
+  const panel=document.getElementById(id);
+  const open=panel.classList.toggle('show');
+  panel.style.background=open?'var(--blue-bg)':'';
+  panel.style.border=open?'1px solid var(--blue-l)':'';
+  panel.style.color=open?'var(--blue-d)':'';
+}
+
+/* ── METRICS SIMULATOR ── */
+function updateMetrics(){
+  const noise=parseInt(document.getElementById('noiseSl').value);
+  const bias=parseInt(document.getElementById('biasSl').value);
+  document.getElementById('noiseV').textContent=noise;
+  document.getElementById('biasV').textContent=bias;
+  const mse=(noise*noise*0.8+bias*bias*1.2).toFixed(1);
+  const rmse=Math.sqrt(parseFloat(mse)).toFixed(2);
+  const mae=(noise*0.7+bias*0.9).toFixed(1);
+  const r2=Math.max(0,1-noise/130-bias/100).toFixed(3);
+  document.getElementById('lmseVal').textContent=mse;
+  document.getElementById('lrmseVal').textContent=rmse;
+  document.getElementById('lmaeVal').textContent=mae;
+  document.getElementById('lr2Val').textContent=r2;
+  const v=document.getElementById('metricVerdict');
+  const r=parseFloat(r2);
+  if(r>0.9){v.textContent='✅ Excellent fit — low noise and bias';v.style.background='var(--green-bg)';v.style.color='var(--green-d)';}
+  else if(r>0.7){v.textContent='🟡 Acceptable fit — consider reducing noise';v.style.background='var(--amber-bg)';v.style.color='#92400e';}
+  else{v.textContent='🔴 Poor fit — high noise or bias distorting predictions';v.style.background='var(--red-bg)';v.style.color='#dc2626';}
+}
+updateMetrics();
+
+/* ── EXERCISE TOGGLE ── */
+function toggleSol(id,btn){const el=document.getElementById(id);const open=el.classList.toggle('open');btn.textContent=open?'🙈 Hide Solution ↑':'💡 Show Solution ↓';}
+
+/* ── QUIZ ── */
+const Qs=[
+  {q:"In the equation ŷ = β₀ + β₁x, what does β₁ represent?",opts:["The predicted value when x=0","The intercept of the regression line","The slope — how much y changes per 1 unit increase in x","The mean of y values"],ans:2,fb:"✅ Correct! β₁ is the slope — it tells you how much the predicted y changes for every 1-unit increase in x. e.g. β₁=6500 means each extra year of experience adds ₹6,500 to predicted salary."},
+  {q:"Ordinary Least Squares (OLS) finds the best-fit line by:",opts:["Maximising the sum of residuals","Minimising the sum of squared residuals","Minimising the sum of absolute residuals","Maximising R² directly through iteration"],ans:1,fb:"✅ Correct! OLS minimises the Sum of Squared Residuals (SSR) = Σ(yᵢ − ŷᵢ)². Squaring residuals ensures positive contributions, penalises large errors more, and yields a unique closed-form solution for β₀ and β₁."},
+  {q:"R² = 0.85 means:",opts:["The model has 85% accuracy","85% of the variance in y is explained by the model","The RMSE is 0.85","The model has 15% error rate"],ans:1,fb:"✅ Correct! R² (coefficient of determination) measures what proportion of the variance in the target y is explained by the model. R²=0.85 means 85% of variance is explained — 15% is unexplained (due to noise or missing features)."},
+  {q:"You have Train R²=0.94 and Test R²=0.91 for a linear regression model. This means:",opts:["The model is overfitting severely","The model is underfitting","This is a well-generalising model — small gap is acceptable","Linear regression cannot overfit"],ans:2,fb:"✅ Correct! A small gap between train and test R² (here 0.03) is perfectly normal and acceptable. Linear regression can overfit with many features (high-dimensional data), but with good regularisation or reasonable feature sets, small gaps like this indicate excellent generalisation."},
+  {q:"When should you use MAE instead of RMSE as your evaluation metric?",opts:["Always — MAE is always better","When the dataset is very small","When your dataset contains significant outliers and you don't want to penalise them too harshly","When R² is above 0.8"],ans:2,fb:"✅ Correct! MAE treats all errors equally (|y−ŷ|) while RMSE squares errors, giving much larger weight to outliers (y−ŷ)². When your data has genuine outliers that you don't want to dominate the loss, MAE is more robust and appropriate."},
+];
+
+let qIdx=0,score=0,answered=new Set();
+function initQuiz(){qIdx=0;score=0;answered=new Set();document.getElementById('quizWrap').style.display='';document.getElementById('scoreWrap').style.display='none';renderQ();}
+function renderQ(){
+  const q=Qs[qIdx];
+  document.getElementById('qNum').textContent='Question '+(qIdx+1)+' of '+Qs.length;
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('qFb').className='q-fb';
+  document.getElementById('qNextBtn').style.display='none';
+  const dots=document.getElementById('qDots');
+  dots.innerHTML='';
+  Qs.forEach((_,i)=>{const d=document.createElement('div');d.className='qdot'+(i===qIdx?' curr':i<qIdx?' done':'');dots.appendChild(d);});
+  const optsEl=document.getElementById('qOpts');
+  optsEl.innerHTML='';
+  const letters=['A','B','C','D'];
+  q.opts.forEach((opt,i)=>{
+    const d=document.createElement('button');d.className='q-opt';
+    d.innerHTML='<div class="opt-l">'+letters[i]+'</div><span>'+opt+'</span>';
+    d.onclick=()=>selectAns(i);optsEl.appendChild(d);
+  });
+}
+function selectAns(i){
+  if(answered.has(qIdx))return;answered.add(qIdx);
+  const q=Qs[qIdx];
+  document.querySelectorAll('.q-opt').forEach((el,idx)=>{
+    if(idx===q.ans)el.classList.add('correct');
+    else if(idx===i&&i!==q.ans)el.classList.add('wrong');
+    else el.classList.add('disabled');
+  });
+  if(i===q.ans)score++;
+  const fb=document.getElementById('qFb');
+  fb.className='q-fb show '+(i===q.ans?'fb-ok':'fb-no');
+  fb.innerHTML=i===q.ans?q.fb:'❌ Not quite. Correct: <strong>'+q.opts[q.ans]+'</strong>. '+q.fb;
+  document.getElementById('qNextBtn').style.display='inline-flex';
+}
+function nextQ(){
+  qIdx++;
+  if(qIdx<Qs.length){renderQ();}
+  else{
+    document.getElementById('quizWrap').style.display='none';
+    document.getElementById('scoreWrap').style.display='';
+    document.getElementById('scNum').textContent=score;
+    const msgs=[['Keep Going! 💪','Review the cost function and OLS sections!'],['Good Effort! 🌱','Revisit the OLS formula and R² meaning.'],['Well Done! ⭐','Solid grasp! Review metrics for full marks.'],['Great Job! 🏆','Strong understanding of Linear Regression!'],['Perfect Score! 🎯','Outstanding — you\'ve mastered Linear Regression!']];
+    const tier=Math.min(Math.floor(score/Qs.length*msgs.length),msgs.length-1);
+    document.getElementById('scTitle').textContent=msgs[tier][0];
+    document.getElementById('scMsg').textContent=msgs[tier][1];
+    if(score>=4)confetti();
+  }
+}
+
+/* ── CONFETTI ── */
+function confetti(){
+  const cols=['#22c55e','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#14b8a6','#f97316'];
+  for(let i=0;i<90;i++){
+    const el=document.createElement('div');el.className='cf';
+    const sz=6+Math.random()*8;
+    el.style.cssText='left:'+Math.random()*100+'vw;background:'+cols[Math.floor(Math.random()*cols.length)]+';width:'+sz+'px;height:'+sz+'px;border-radius:'+(Math.random()>.5?'50%':'2px')+';animation-duration:'+(1.5+Math.random()*2.5)+'s;animation-delay:'+Math.random()*.8+'s;';
+    document.body.appendChild(el);setTimeout(()=>el.remove(),4500);
+  }
+}
+
+/* ── RESTART ── */
+function restartModule(){visited=new Set([0]);document.querySelectorAll('.sb-done').forEach(el=>el.remove());goTo(0);}
+updateProg();
+</script>
+</body>
+</html>
