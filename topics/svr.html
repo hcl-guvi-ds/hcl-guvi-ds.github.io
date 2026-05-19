@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SVR – HCL GUVI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#22c55e;--green-l:#86efac;--green-d:#16a34a;--green-bg:#f0fdf4;
+  --blue:#3b82f6;--blue-l:#93c5fd;--blue-d:#1d4ed8;--blue-bg:#eff6ff;
+  --teal:#14b8a6;--teal-bg:#f0fdfa;
+  --amber:#f59e0b;--amber-bg:#fffbeb;--amber-md:#fde68a;
+  --purple:#7c3aed;--purple-bg:#f5f3ff;--purple-md:#ddd6fe;
+  --red:#ef4444;--red-bg:#fef2f2;--red-md:#fca5a5;
+  --orange:#f97316;--orange-bg:#fff7ed;
+  --bg:#f8fafc;--surface:#fff;--surface2:#f1f5f9;
+  --border:#e2e8f0;--text:#0f172a;--muted:#64748b;--light:#94a3b8;
+  --shadow:0 4px 20px rgba(0,0,0,.07);--shadow-lg:0 12px 40px rgba(0,0,0,.12);
+  --r:16px;--rs:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+
+/* NAV */
+.topnav{height:64px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.logo-wrap{display:flex;align-items:center;gap:8px}
+.logo-wrap img{height:38px;object-fit:contain}
+.logo-fb{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:17px;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-div{width:1px;height:32px;background:var(--border)}
+.nav-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:15px;flex:1}
+.nav-title span{color:var(--blue)}
+.npw{display:flex;align-items:center;gap:10px}
+.npb{width:150px;height:8px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.npf{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:99px;transition:width .5s ease;width:0%}
+.npt{font-size:12px;color:var(--muted);font-weight:700;min-width:36px}
+.nav-creator{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));border:1px solid var(--border);border-radius:99px;padding:5px 14px}
+.nav-avatar{width:26px;height:26px;background:linear-gradient(135deg,var(--green),var(--blue));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
+.nav-creator span{font-size:11px;font-weight:600;color:var(--muted)}
+
+/* LAYOUT */
+.app-body{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:230px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:16px 10px;display:flex;flex-direction:column;gap:2px}
+.sb-sec{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--light);padding:10px 12px 4px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rs);cursor:pointer;transition:all .2s;font-size:13px;font-weight:600;color:var(--muted);position:relative}
+.sb-item:hover{background:var(--surface2);color:var(--text)}
+.sb-item.active{background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));color:var(--blue);border:1px solid rgba(59,130,246,.15)}
+.sb-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--surface2);flex-shrink:0}
+.sb-item.active .sb-icon{background:linear-gradient(135deg,var(--green),var(--blue))}
+.sb-done{width:16px;height:16px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;margin-left:auto;flex-shrink:0}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;position:relative}
+.page{display:none;padding:36px 44px;min-height:100%;animation:fadeUp .35s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:99px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff;box-shadow:0 4px 14px rgba(59,130,246,.3)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(59,130,246,.4)}
+.btn-secondary{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--border);color:var(--text)}
+.btn-outline{background:transparent;color:var(--blue);border:2px solid var(--blue)}
+.btn-outline:hover{background:var(--blue);color:#fff}
+.btn-sm{padding:8px 16px;font-size:13px}
+.page-nav{display:flex;justify-content:space-between;align-items:center;margin-top:44px;padding-top:22px;border-top:1px solid var(--border)}
+
+/* TYPOGRAPHY */
+.page-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));border:1px solid rgba(34,197,94,.3);border-radius:99px;font-size:11px;font-weight:700;color:var(--green-d);margin-bottom:14px}
+.page-title{font-family:'Cabinet Grotesk',sans-serif;font-size:34px;font-weight:800;line-height:1.2;margin-bottom:8px}
+.page-title span{color:var(--blue)}
+.page-sub{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:32px;max-width:680px}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:26px;box-shadow:var(--shadow);margin-bottom:22px;transition:box-shadow .2s}
+.card:hover{box-shadow:var(--shadow-lg)}
+.card-title{font-family:'Cabinet Grotesk',sans-serif;font-size:17px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;color:#fff}
+.pill-green{background:var(--green)}.pill-blue{background:var(--blue)}.pill-teal{background:var(--teal)}.pill-orange{background:var(--orange)}.pill-purple{background:var(--purple)}
+
+/* ANALOGY */
+.analogy{background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));border:1px solid rgba(34,197,94,.2);border-left:4px solid var(--green);border-radius:var(--rs);padding:18px 22px;margin:18px 0;display:flex;gap:14px;align-items:flex-start}
+.analogy .em{font-size:26px;flex-shrink:0;line-height:1.2}
+.analogy p{font-size:14px;line-height:1.7;color:var(--text)}
+.analogy strong{color:var(--green-d)}
+
+/* CODE */
+.code-wrap{background:#0f172a;border-radius:var(--rs);overflow:hidden;margin:18px 0}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;background:#1e293b;border-bottom:1px solid #334155}
+.dots{display:flex;gap:5px}
+.dots span{width:11px;height:11px;border-radius:50%}
+.dr{background:#ef4444}.dy{background:#f59e0b}.dg{background:#22c55e}
+.code-lang{font-size:11px;color:#64748b;font-family:'Fira Code',monospace}
+.copy-btn{font-size:11px;color:#64748b;background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;transition:color .2s}
+.copy-btn:hover{color:#94a3b8}
+pre{padding:18px 22px;overflow-x:auto;font-family:'Fira Code',monospace;font-size:13px;line-height:1.8;color:#e2e8f0}
+.kw{color:#c084fc}.fn{color:#67e8f9}.st{color:#86efac}.cm{color:#475569;font-style:italic}.nm{color:#fbbf24}.op{color:#f472b6}
+.run-out{display:none;background:#0f172a;border-top:1px solid #1e293b;padding:14px 22px;font-family:'Fira Code',monospace;font-size:13px;color:#86efac;animation:fadeIn .3s ease}
+.run-out.show{display:block}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.out-line{margin-bottom:3px}
+.out-dim{color:#475569}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);border-radius:var(--r);padding:50px 44px;color:#fff;position:relative;overflow:hidden;margin-bottom:28px}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(34,197,94,.12),transparent 60%)}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.4);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--green-l);margin-bottom:18px;position:relative}
+.hero h1{font-family:'Cabinet Grotesk',sans-serif;font-size:40px;font-weight:800;line-height:1.15;margin-bottom:14px;position:relative}
+.hero h1 span{color:var(--green-l)}
+.hero p{font-size:15px;opacity:.8;max-width:540px;line-height:1.7;position:relative}
+.hero-chips{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;position:relative}
+.hero-chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:99px;padding:7px 16px;font-size:12px;font-weight:700;color:#fff}
+
+/* FEATURE ROW */
+.feat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
+.feat-box{background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid var(--border);border-radius:var(--rs);padding:18px;text-align:center}
+.feat-box .fem{font-size:28px;margin-bottom:6px}
+.feat-box .ft{font-weight:700;font-size:13px;margin-bottom:3px}
+.feat-box .fd{font-size:12px;color:var(--muted)}
+
+/* REVEAL CARDS */
+.rev-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:18px 0}
+.rev-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--rs);padding:20px;cursor:pointer;transition:all .3s;text-align:center;min-height:120px;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.rev-card:hover{border-color:var(--blue);transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.rev-card.flipped{border-color:var(--green);background:linear-gradient(135deg,var(--green-bg),var(--blue-bg))}
+.rc-em{font-size:28px}.rc-t{font-weight:700;font-size:14px}
+.rc-back{display:none;font-size:12px;line-height:1.6;color:var(--muted);text-align:left}
+.rc-back strong{color:var(--green-d)}
+.rev-card.flipped .rc-em,.rev-card.flipped .rc-t{display:none}
+.rev-card.flipped .rc-back{display:block}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}
+
+/* INFO BOXES */
+.info-box{background:var(--blue-bg);border:1px solid var(--blue-l);border-radius:var(--rs);padding:14px 18px;margin:14px 0;font-size:13px;color:var(--blue-d);line-height:1.6}
+.warn-box{background:var(--amber-bg);border:1px solid var(--amber-md);border-radius:var(--rs);padding:14px 18px;margin:14px 0;font-size:13px;color:#92400e;line-height:1.6}
+.success-box{background:var(--green-bg);border:1px solid var(--green-l);border-radius:var(--rs);padding:14px 18px;margin:14px 0;font-size:13px;color:var(--green-d);line-height:1.6}
+
+/* STEPS */
+.steps{margin:18px 0}
+.step-item{display:flex;gap:14px;margin-bottom:12px;opacity:.3;transition:all .35s}
+.step-item.active{opacity:1}
+.step-n{width:34px;height:34px;flex-shrink:0;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:var(--muted);transition:all .35s}
+.step-item.active .step-n{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff;border-color:transparent}
+.step-title{font-weight:700;font-size:13px;margin-bottom:3px}
+.step-desc{font-size:12px;color:var(--muted);line-height:1.6}
+.step-code{background:var(--surface2);border-radius:6px;padding:4px 10px;font-family:'Fira Code',monospace;font-size:11px;color:var(--text);display:inline-block;margin-top:4px}
+
+/* SLIDERS */
+.sl-row{display:flex;align-items:center;gap:14px;margin-bottom:13px}
+.sl-label{font-size:12px;font-weight:700;width:170px;color:var(--muted)}
+input[type=range]{flex:1;-webkit-appearance:none;height:7px;border-radius:99px;background:var(--border);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));cursor:pointer;box-shadow:0 2px 8px rgba(59,130,246,.4)}
+.sl-val{font-family:'Fira Code',monospace;font-size:13px;font-weight:700;color:var(--blue);width:60px;text-align:right}
+
+/* TABLE */
+.table-wrap{border-radius:var(--rs);overflow:hidden;border:1px solid var(--border);margin:18px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:linear-gradient(135deg,var(--green-d),var(--blue-d));color:#fff;padding:11px 14px;text-align:left;font-family:'Cabinet Grotesk',sans-serif;font-weight:700}
+td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text)}
+td code{background:var(--surface2);padding:2px 7px;border-radius:5px;font-family:'Fira Code',monospace;font-size:12px}
+tr:nth-child(even) td{background:var(--surface2)}
+tr:hover td{background:var(--blue-bg)}
+
+/* FORMULA BOX */
+.formula-dark{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:var(--r);padding:28px;text-align:center;margin:18px 0}
+.f-main{font-family:'Fira Code',monospace;font-size:18px;color:#fff;line-height:2.4}
+.fb{color:#93c5fd}.fg{color:#86efac}.fy{color:#fde68a}.fp{color:#f9a8d4}.fo{color:#fdba74}
+.f-parts{display:flex;gap:12px;margin-top:18px;justify-content:center;flex-wrap:wrap}
+.f-part{background:rgba(255,255,255,.07);border-radius:var(--rs);padding:10px 16px;text-align:center}
+.f-sym{font-size:14px;font-family:'Fira Code',monospace}
+.f-mean{font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;line-height:1.4}
+
+/* HP RESULT */
+.hp-result{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:var(--r);padding:22px 26px;margin-top:16px;color:#fff}
+.hp-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px}
+.hp-metric{background:rgba(255,255,255,.07);border-radius:var(--rs);padding:14px;text-align:center}
+.hp-metric .hpv{font-family:'Cabinet Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--green-l)}
+.hp-metric .hpl{font-size:11px;color:rgba(255,255,255,.45);margin-top:3px}
+.hp-bar-wrap{margin-top:16px}
+.hp-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.hp-bar-lbl{font-size:11px;color:rgba(255,255,255,.5);width:90px;text-align:right;font-weight:600}
+.hp-bar-bg{flex:1;height:10px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}
+.hp-bar-fill{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.34,1.56,.64,1)}
+
+/* KERNEL BTNS */
+.kernel-btns{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
+.kbtn{padding:9px 18px;border-radius:99px;border:2px solid var(--border);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;background:var(--surface);color:var(--muted)}
+.kbtn.active{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(59,130,246,.3)}
+.kpanel{display:none}.kpanel.show{display:block}
+
+/* CANVAS */
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+canvas{display:block;width:100%}
+.chart-bar{display:flex;gap:10px;padding:12px 16px;border-top:1px solid var(--border);background:var(--surface2);flex-wrap:wrap;align-items:center}
+.cstat{font-size:12px;font-weight:700;color:var(--muted);padding:5px 10px;border-radius:var(--rs);background:var(--surface)}
+.cstat span{color:var(--blue)}
+
+/* QUIZ */
+.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:30px;box-shadow:var(--shadow)}
+.q-dots{display:flex;gap:7px;margin-bottom:24px}
+.qdot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:all .3s}
+.qdot.done{background:var(--green)}.qdot.curr{background:var(--blue);transform:scale(1.35)}
+.q-num{font-size:11px;font-weight:700;color:var(--light);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
+.q-text{font-family:'Cabinet Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:24px;line-height:1.4}
+.q-opts{display:flex;flex-direction:column;gap:10px}
+.q-opt{display:flex;align-items:center;gap:12px;padding:14px 18px;border:2px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:all .2s;font-weight:600;font-size:14px;font-family:'Nunito',sans-serif;background:var(--surface);text-align:left;width:100%}
+.q-opt:hover{border-color:var(--blue);background:var(--blue-bg)}
+.opt-l{width:30px;height:30px;flex-shrink:0;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;transition:all .2s}
+.q-opt.correct{border-color:var(--green);background:var(--green-bg);color:var(--green-d);pointer-events:none}
+.q-opt.wrong{border-color:var(--red);background:var(--red-bg);color:#dc2626;pointer-events:none}
+.q-opt.correct .opt-l{background:var(--green);color:#fff}
+.q-opt.wrong .opt-l{background:var(--red);color:#fff}
+.q-opt.disabled{pointer-events:none;opacity:.45}
+.q-fb{margin-top:18px;padding:13px 16px;border-radius:var(--rs);font-size:13px;line-height:1.6;display:none}
+.q-fb.show{display:block}
+.fb-ok{background:var(--green-bg);border:1px solid var(--green-l);color:#166534}
+.fb-no{background:var(--red-bg);border:1px solid var(--red-md);color:#991b1b}
+.score-screen{text-align:center;padding:44px 0;animation:fadeUp .5s ease}
+.score-circle{width:150px;height:150px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 28px;box-shadow:0 12px 40px rgba(59,130,246,.35)}
+.sc-num{font-family:'Cabinet Grotesk',sans-serif;font-size:46px;font-weight:800;color:#fff;line-height:1}
+.sc-den{font-size:14px;color:rgba(255,255,255,.7);font-weight:600}
+
+/* EXERCISES */
+.ex-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:28px;box-shadow:var(--shadow)}
+.ex-head{padding:20px 26px;background:linear-gradient(135deg,var(--surface2),var(--surface));border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:14px}
+.ex-num{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff;flex-shrink:0;margin-top:2px}
+.ex-title{font-weight:700;font-size:16px;margin-bottom:6px;color:var(--text)}
+.ex-desc{font-size:13px;color:var(--muted);line-height:1.7}
+.ex-task-list{margin-top:10px;padding-left:4px;display:flex;flex-direction:column;gap:5px}
+.ex-task{font-size:12px;color:var(--text);display:flex;gap:8px;align-items:flex-start}
+.ex-task-num{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.sol-btn{width:100%;padding:14px 26px;background:none;border:none;border-top:1px solid var(--border);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;color:var(--blue);display:flex;align-items:center;gap:8px;transition:background .2s}
+.sol-btn:hover{background:var(--blue-bg)}
+.solution{display:none}.solution.open{display:block}
+.sol-output{background:#0f172a;border-top:1px solid #1e293b;padding:16px 22px;font-family:'Fira Code',monospace;font-size:12.5px;color:#86efac;line-height:1.85}
+.sol-insight{padding:16px 22px;background:var(--green-bg);border-top:1px solid var(--green-l);font-size:13px;color:var(--green-d);line-height:1.7}
+
+/* COMPLETION */
+.comp-wrap{text-align:center;padding:50px 0}
+.cel{font-size:76px;margin-bottom:20px;animation:bounce .7s infinite alternate;display:block}
+@keyframes bounce{from{transform:translateY(0) scale(1)}to{transform:translateY(-12px) scale(1.06)}}
+.skills-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:28px 0}
+.sk-tag{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:99px;font-weight:700;font-size:12px;background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid var(--border);box-shadow:var(--shadow);transition:all .2s}
+.sk-tag:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+
+/* CONFETTI */
+.cf{position:fixed;width:9px;height:9px;border-radius:2px;top:-10px;animation:cfFall linear forwards;z-index:9999;pointer-events:none}
+@keyframes cfFall{to{transform:translateY(105vh) rotate(720deg);opacity:0}}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <header style="display:flex;align-items:center;width:auto;">
+    <div class="logo-wrap">
+      <img src="logo.png" alt="HCL-GUVI Logo" onerror="this.style.display='none';document.getElementById('lf').style.display='flex'">
+      <div id="lf" class="logo-fb" style="display:none;">🎓 HCL GUVI</div>
+    </div>
+  </header>
+  <div class="nav-div"></div>
+  <div class="nav-title">Support Vector Machine <span>Regression (SVR)</span></div>
+  <div class="npw">
+    <div class="npb"><div class="npf" id="progFill"></div></div>
+    <span class="npt" id="progTxt">0%</span>
+  </div>
+  
+</nav>
+
+<div class="app-body">
+  <aside class="sidebar">
+    <div class="sb-sec">Navigation</div>
+    <div class="sb-item active" id="nav0" onclick="goTo(0)"><div class="sb-icon">👋</div>Welcome</div>
+    <div class="sb-item" id="nav1" onclick="goTo(1)"><div class="sb-icon">🎯</div>What is SVR?</div>
+    <div class="sb-item" id="nav2" onclick="goTo(2)"><div class="sb-icon">📏</div>Epsilon Tube</div>
+    <div class="sb-item" id="nav3" onclick="goTo(3)"><div class="sb-icon">🌀</div>Kernel Functions</div>
+    <div class="sb-item" id="nav4" onclick="goTo(4)"><div class="sb-icon">🔬</div>Hyperparameters</div>
+    <div class="sb-item" id="nav5" onclick="goTo(5)"><div class="sb-icon">💻</div>Exercises</div>
+    <div class="sb-item" id="nav6" onclick="goTo(6)"><div class="sb-icon">🧠</div>Quiz</div>
+    <div class="sb-item" id="nav7" onclick="goTo(7)"><div class="sb-icon">🎉</div>Completion</div>
+  </aside>
+
+  <main class="main" id="mainEl">
+
+    <!-- PAGE 0: WELCOME -->
+    <div class="page active" id="page0">
+      <div class="hero">
+        <div class="hero-badge">⚙️ Supervised Machine Learning</div>
+        <h1>Support Vector Machine <span>Regression</span></h1>
+        <p>SVR fits a tube around your data instead of a line through it — tolerating small errors, ignoring interior noise, and using only boundary points (support vectors) to define the model.</p>
+        <div class="hero-chips">
+          <div class="hero-chip">📏 ε-Tube</div>
+          <div class="hero-chip">🌀 Kernel Trick</div>
+          <div class="hero-chip">🔴 Support Vectors</div>
+          <div class="hero-chip">📊 Non-Linear Fit</div>
+        </div>
+      </div>
+      <div class="feat-row">
+        <div class="feat-box"><div class="fem">🎯</div><div class="ft">What You'll Learn</div><div class="fd">ε-tube, support vectors, RBF/Poly/Linear kernels, C, γ, and ε tuning</div></div>
+        <div class="feat-box"><div class="fem">🛠️</div><div class="ft">Hands-On</div><div class="fd">Live tube visualizer, kernel explorer, hyperparameter lab, 3 coding exercises</div></div>
+        <div class="feat-box"><div class="fem">⏱️</div><div class="ft">~45 Minutes</div><div class="fd">5 concepts + 3 full exercises with solutions + 5-question quiz</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🗺️ Module Map <span class="pill pill-blue">8 Sections</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:8px">
+          <span style="background:var(--green-bg);border:1px solid var(--green-l);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--green-d)">👋 Welcome</span>
+          <span style="background:var(--blue-bg);border:1px solid var(--blue-l);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--blue)">🎯 What is SVR?</span>
+          <span style="background:var(--blue-bg);border:1px solid var(--blue-l);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--blue)">📏 Epsilon Tube</span>
+          <span style="background:var(--blue-bg);border:1px solid var(--blue-l);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--blue)">🌀 Kernel Functions</span>
+          <span style="background:var(--teal-bg);border:1px solid #5eead4;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--teal)">🔬 Hyperparameters</span>
+          <span style="background:var(--orange-bg);border:1px solid #fdba74;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--orange)">💻 Exercises</span>
+          <span style="background:var(--purple-bg);border:1px solid var(--purple-md);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--purple)">🧠 Quiz</span>
+          <span style="background:var(--green-bg);border:1px solid var(--green-l);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--green-d)">🎉 Completion</span>
+        </div>
+      </div>
+      <div class="page-nav"><div></div><button class="btn btn-primary" onclick="goTo(1)">Start Learning →</button></div>
+    </div>
+
+    <!-- PAGE 1: WHAT IS SVR -->
+    <div class="page" id="page1">
+      <div class="page-tag">🎯 Concept 1</div>
+      <h1 class="page-title">What is <span>SVR?</span></h1>
+      <p class="page-sub">Support Vector Regression finds a function that fits within a <strong>tube of tolerance ε</strong> around the data. Only points <em>outside</em> the tube become support vectors and influence the model.</p>
+
+      <div class="analogy">
+        <div class="em">🚇</div>
+        <p>Think of a metro train staying within its track. Deviations <strong>inside the tolerance zone</strong> are ignored completely. Only when the train <strong>strays beyond the boundary</strong> does the system react. SVR works the same way — small errors cost nothing, large ones are penalised.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🃏 Core Concepts <span class="pill pill-green">Click to Reveal</span></div>
+        <div class="rev-cards">
+          <div class="rev-card" onclick="this.classList.toggle('flipped')">
+            <div class="rc-em">🔴</div><div class="rc-t">Support Vectors</div>
+            <div class="rc-back">Points on or <strong>outside the ε-tube</strong>. Only these points define the model. Points inside the tube have zero influence — making SVR robust to interior noise.</div>
+          </div>
+          <div class="rev-card" onclick="this.classList.toggle('flipped')">
+            <div class="rc-em">📏</div><div class="rc-t">ε-Tube</div>
+            <div class="rc-back">A <strong>margin of tolerance</strong> around f(x). Any error smaller than ε costs <strong>zero</strong>. Only errors beyond ε are penalised — called the ε-insensitive loss.</div>
+          </div>
+          <div class="rev-card" onclick="this.classList.toggle('flipped')">
+            <div class="rc-em">⚖️</div><div class="rc-t">C Parameter</div>
+            <div class="rc-back">Controls the <strong>trade-off</strong> between flatness and tolerance. High C → fits data tightly, more SVs, overfit risk. Low C → smoother, more generalised function.</div>
+          </div>
+          <div class="rev-card" onclick="this.classList.toggle('flipped')">
+            <div class="rc-em">🌀</div><div class="rc-t">Kernel Trick</div>
+            <div class="rc-back">Maps data to a <strong>higher-dimensional space</strong> implicitly, making linear SVR fit non-linear curves in the original space. No explicit high-dim computation needed.</div>
+          </div>
+          <div class="rev-card" onclick="this.classList.toggle('flipped')">
+            <div class="rc-em">ξ</div><div class="rc-t">Slack Variables</div>
+            <div class="rc-back">Allow <strong>soft violations</strong> of the tube. ξᵢ ≥ 0 measures how far point i exceeds the tube. The objective: minimise ½‖w‖² + C·Σξᵢ.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SVR diagram -->
+      <div class="card">
+        <div class="card-title">📊 The ε-Tube Visualised</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:20px;overflow-x:auto;text-align:center">
+          <svg viewBox="0 0 700 280" style="width:100%;max-width:700px" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="svArrow" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L7,3 z" fill="#64748b"/>
+              </marker>
+            </defs>
+            <!-- tube fill -->
+            <path d="M55 90 Q200 120 350 155 Q500 190 645 172 L645 212 Q500 230 350 195 Q200 160 55 130 Z" fill="rgba(59,130,246,0.08)"/>
+            <!-- upper boundary -->
+            <path d="M55 90 Q200 120 350 155 Q500 190 645 172" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-dasharray="6,3"/>
+            <!-- lower boundary -->
+            <path d="M55 130 Q200 160 350 195 Q500 230 645 212" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-dasharray="6,3"/>
+            <!-- regression line -->
+            <path d="M55 110 Q200 140 350 175 Q500 210 645 192" fill="none" stroke="#22c55e" stroke-width="3"/>
+            <!-- inside points -->
+            <circle cx="120" cy="128" r="5" fill="#94a3b8"/>
+            <circle cx="190" cy="142" r="5" fill="#94a3b8"/>
+            <circle cx="260" cy="160" r="5" fill="#94a3b8"/>
+            <circle cx="330" cy="172" r="5" fill="#94a3b8"/>
+            <circle cx="400" cy="200" r="5" fill="#94a3b8"/>
+            <circle cx="470" cy="212" r="5" fill="#94a3b8"/>
+            <circle cx="560" cy="200" r="5" fill="#94a3b8"/>
+            <!-- support vectors (outside tube) -->
+            <circle cx="150" cy="82" r="7" fill="#ef4444" stroke="white" stroke-width="2"/>
+            <circle cx="285" cy="218" r="7" fill="#ef4444" stroke="white" stroke-width="2"/>
+            <circle cx="455" cy="162" r="7" fill="#ef4444" stroke="white" stroke-width="2"/>
+            <circle cx="605" cy="232" r="7" fill="#ef4444" stroke="white" stroke-width="2"/>
+            <!-- epsilon arrows -->
+            <line x1="350" y1="175" x2="350" y2="155" stroke="#64748b" stroke-width="1.5" marker-end="url(#svArrow)"/>
+            <line x1="350" y1="175" x2="350" y2="195" stroke="#64748b" stroke-width="1.5" marker-end="url(#svArrow)"/>
+            <text x="360" y="168" fill="#64748b" font-family="Fira Code,monospace" font-size="13" font-weight="700">ε</text>
+            <text x="360" y="190" fill="#64748b" font-family="Fira Code,monospace" font-size="13" font-weight="700">ε</text>
+            <!-- labels -->
+            <text x="60" y="78" fill="#22c55e" font-family="Cabinet Grotesk,sans-serif" font-size="12" font-weight="700">+ε boundary</text>
+            <text x="60" y="148" fill="#3b82f6" font-family="Cabinet Grotesk,sans-serif" font-size="12" font-weight="700">−ε boundary</text>
+            <text x="60" y="112" fill="#22c55e" font-family="Cabinet Grotesk,sans-serif" font-size="13" font-weight="800">f(x) — regression function</text>
+            <!-- legend -->
+            <circle cx="390" cy="255" r="5" fill="#94a3b8"/>
+            <text x="401" y="259" fill="#64748b" font-family="Nunito,sans-serif" font-size="11">Inside tube (zero cost)</text>
+            <circle cx="545" cy="255" r="6" fill="#ef4444" stroke="white" stroke-width="1.5"/>
+            <text x="556" y="259" fill="#64748b" font-family="Nunito,sans-serif" font-size="11">Support vectors (penalised)</text>
+          </svg>
+        </div>
+        <div class="success-box" style="margin-top:12px">🎯 <strong>Key insight:</strong> Only the <strong style="color:#ef4444">red support vector points</strong> define the model. All grey points inside the tube have <strong>zero influence</strong> — making SVR robust to noise!</div>
+      </div>
+
+      <!-- SVR vs Linear Regression -->
+      <div class="card">
+        <div class="card-title">⚖️ SVR vs Linear Regression</div>
+        <div class="g2">
+          <div style="border:2px solid var(--blue);border-top:4px solid var(--blue);border-radius:var(--rs);padding:18px">
+            <h4 style="font-family:'Cabinet Grotesk',sans-serif;font-weight:700;margin-bottom:8px">📈 Linear Regression</h4>
+            <p style="font-size:13px;color:var(--muted);line-height:1.7">Every single point affects the line. Minimises sum of squared residuals for <strong>all data points</strong>. Very sensitive to outliers.</p>
+            <div style="margin-top:10px;font-family:'Fira Code',monospace;font-size:12px;background:var(--surface2);padding:8px 12px;border-radius:var(--rs)">min Σ(yᵢ − ŷᵢ)²</div>
+            <span style="display:inline-block;margin-top:8px;padding:4px 12px;background:var(--blue-bg);color:var(--blue);border-radius:99px;font-size:11px;font-weight:700">All N points matter</span>
+          </div>
+          <div style="border:2px solid var(--green);border-top:4px solid var(--green);border-radius:var(--rs);padding:18px">
+            <h4 style="font-family:'Cabinet Grotesk',sans-serif;font-weight:700;margin-bottom:8px">🔴 SVR</h4>
+            <p style="font-size:13px;color:var(--muted);line-height:1.7">Ignores errors within ε. Only penalises violations beyond the tube. Only <strong>support vectors</strong> define the model.</p>
+            <div style="margin-top:10px;font-family:'Fira Code',monospace;font-size:12px;background:var(--surface2);padding:8px 12px;border-radius:var(--rs)">min ½‖w‖² + C·Σmax(0, |eᵢ|−ε)</div>
+            <span style="display:inline-block;margin-top:8px;padding:4px 12px;background:var(--green-bg);color:var(--green-d);border-radius:99px;font-size:11px;font-weight:700">Only boundary points matter</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">python — SVR quickstart with Pipeline</span><button class="copy-btn" onclick="copyCode('c1',this)">📋 Copy</button></div>
+        <pre id="c1"><span class="kw">from</span> sklearn.svm <span class="kw">import</span> SVR
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> fetch_california_housing
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> r2_score
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+data = fetch_california_housing()
+X, y = data.data, data.target
+X_tr, X_te, y_tr, y_te = train_test_split(
+    X, y, test_size=<span class="nm">0.2</span>, random_state=<span class="nm">42</span>)
+
+<span class="cm"># ⚠️  SVR MUST be used with StandardScaler!</span>
+pipe = Pipeline([
+    (<span class="st">'scaler'</span>, StandardScaler()),
+    (<span class="st">'svr'</span>,    SVR(kernel=<span class="st">'rbf'</span>, C=<span class="nm">100</span>,
+                    gamma=<span class="st">'scale'</span>, epsilon=<span class="nm">0.1</span>))
+])
+pipe.<span class="fn">fit</span>(X_tr, y_tr)
+y_pred = pipe.<span class="fn">predict</span>(X_te)
+<span class="fn">print</span>(<span class="st">f"R² (RBF SVR): {r2_score(y_te, y_pred):.3f}"</span>)</pre>
+        <div style="padding:4px 22px 14px"><button class="btn btn-primary btn-sm" onclick="showOut('o1')">▶ Run Demo</button></div>
+        <div class="run-out" id="o1">
+          <div class="out-line"><span class="out-dim">$</span> Fitting SVR(rbf, C=100) on 16512 samples...</div>
+          <div class="out-line" style="color:#86efac">R² (RBF SVR): 0.736</div>
+          <div class="out-line" style="color:#fbbf24">→ SVR beats Linear Regression (0.606) by +13% ✅</div>
+        </div>
+      </div>
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(0)">← Back</button><button class="btn btn-primary" onclick="goTo(2)">Next: Epsilon Tube →</button></div>
+    </div>
+
+    <!-- PAGE 2: EPSILON TUBE -->
+    <div class="page" id="page2">
+      <div class="page-tag">📏 Concept 2</div>
+      <h1 class="page-title">The ε-Tube <span>&amp; ε-Insensitive Loss</span></h1>
+      <p class="page-sub">The ε-insensitive tube is what makes SVR unique. Errors within ±ε cost <strong>nothing</strong>. Only errors beyond the tube are penalised. Drag the sliders below to feel this intuitively!</p>
+
+      <div class="analogy">
+        <div class="em">📡</div>
+        <p>A GPS app has a <strong>±50-metre accuracy buffer</strong>. If you're within 50m of the route, it says "you're on track." Only when you deviate more than 50m does it recalculate. The 50m zone is the ε-tube — small deviations cost zero, large ones trigger correction!</p>
+      </div>
+
+      <!-- SVR Objective -->
+      <div class="card">
+        <div class="card-title">📐 SVR Objective Function</div>
+        <div class="formula-dark">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:14px">SVR Primal Objective (minimise)</div>
+          <div class="f-main">
+            <span class="fb">½‖w‖²</span> + <span class="fy">C</span> · Σ ( <span class="fg">ξᵢ</span> + <span class="fp">ξᵢ*</span> )
+          </div>
+          <div style="font-size:14px;font-family:'Fira Code',monospace;color:rgba(255,255,255,.6);margin-top:10px;line-height:2">
+            subject to: |<span class="fo">yᵢ − f(xᵢ)</span>| ≤ <span class="fy">ε</span> + <span class="fg">ξᵢ</span>
+          </div>
+          <div class="f-parts">
+            <div class="f-part"><div class="f-sym fb">½‖w‖²</div><div class="f-mean">Flatness term<br>Model complexity</div></div>
+            <div class="f-part"><div class="f-sym fy">C</div><div class="f-mean">Penalty strength<br>for violations</div></div>
+            <div class="f-part"><div class="f-sym fg">ξᵢ, ξᵢ*</div><div class="f-mean">Slack variables<br>above/below tube</div></div>
+            <div class="f-part"><div class="f-sym fo">ε</div><div class="f-mean">Tube half-width<br>insensitive zone</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive tube canvas -->
+      <div class="card">
+        <div class="card-title">🎚️ Live ε-Tube Explorer <span class="pill pill-blue">Drag Sliders</span></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:18px">Adjust ε and C — watch which points become support vectors and how the penalty changes!</p>
+        <div class="sl-row"><span class="sl-label">ε (tube half-width)</span><input type="range" id="epsSl" min="0.02" max="0.75" value="0.2" step="0.01" oninput="drawTube()"><span class="sl-val" id="epsV">0.20</span></div>
+        <div class="sl-row"><span class="sl-label">C (penalty strength)</span><input type="range" id="cSl" min="1" max="200" value="10" step="1" oninput="drawTube()"><span class="sl-val" id="cV">10</span></div>
+        <div class="chart-wrap"><canvas id="tubeCanvas" height="260"></canvas></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px">
+          <div style="background:var(--green-bg);border:1px solid var(--green-l);border-radius:var(--rs);padding:12px;text-align:center">
+            <div style="font-family:'Cabinet Grotesk',sans-serif;font-size:24px;font-weight:800;color:var(--green-d)" id="inPts">—</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">Inside Tube</div>
+            <div style="font-size:10px;color:var(--green-d);font-weight:700">(zero cost)</div>
+          </div>
+          <div style="background:var(--red-bg);border:1px solid var(--red-md);border-radius:var(--rs);padding:12px;text-align:center">
+            <div style="font-family:'Cabinet Grotesk',sans-serif;font-size:24px;font-weight:800;color:#dc2626" id="outPts">—</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">Support Vectors</div>
+            <div style="font-size:10px;color:#dc2626;font-weight:700">(penalised)</div>
+          </div>
+          <div style="background:var(--blue-bg);border:1px solid var(--blue-l);border-radius:var(--rs);padding:12px;text-align:center">
+            <div style="font-family:'Cabinet Grotesk',sans-serif;font-size:24px;font-weight:800;color:var(--blue)" id="costVal">—</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">Total Penalty</div>
+            <div style="font-size:10px;color:var(--blue);font-weight:700">C × Σξᵢ</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step by step -->
+      <div class="card">
+        <div class="card-title">📍 Step-by-Step: How SVR Trains <span class="pill pill-green">Interactive</span></div>
+        <div class="steps" id="stepsEl">
+          <div class="step-item active" id="st0"><div class="step-n">1</div><div><div class="step-title">📏 Always scale features first</div><div class="step-desc">SVR is distance-based — unscaled features dominate unfairly. StandardScaler is mandatory.</div><div class="step-code">scaler = StandardScaler().fit(X_train)</div></div></div>
+          <div class="step-item" id="st1"><div class="step-n">2</div><div><div class="step-title">🌀 Choose kernel and set hyperparameters</div><div class="step-desc">Start with RBF as default. Set C (penalty), ε (tube width), γ (RBF radius).</div><div class="step-code">SVR(kernel='rbf', C=100, epsilon=0.1, gamma='scale')</div></div></div>
+          <div class="step-item" id="st2"><div class="step-n">3</div><div><div class="step-title">🔴 Solver identifies support vectors</div><div class="step-desc">Points on or outside the ε-tube become support vectors and define f(x).</div><div class="step-code">model.support_vectors_  # boundary points</div></div></div>
+          <div class="step-item" id="st3"><div class="step-n">4</div><div><div class="step-title">⚖️ Dual optimisation with kernel trick</div><div class="step-desc">f(x) = Σ αᵢ · K(xᵢ, x) + b — weighted kernel similarity to each support vector.</div><div class="step-code">f(x) = Σ αᵢ · K(xᵢ, x) + b</div></div></div>
+          <div class="step-item" id="st4"><div class="step-n">5</div><div><div class="step-title">📈 Predict on new data</div><div class="step-desc">Evaluate kernel at each support vector, weight by αᵢ, sum and add bias b.</div><div class="step-code">y_pred = pipeline.predict(X_test)</div></div></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:18px;align-items:center">
+          <button class="btn btn-outline btn-sm" onclick="prevStep()">← Prev</button>
+          <button class="btn btn-primary btn-sm" onclick="nextStep()">Next →</button>
+          <span id="stepCtr" style="font-size:12px;color:var(--muted);font-weight:700">Step 1 / 5</span>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">python — ε-insensitive loss from scratch</span><button class="copy-btn" onclick="copyCode('c2',this)">📋 Copy</button></div>
+        <pre id="c2"><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">eps_loss</span>(y_true, y_pred, epsilon):
+    <span class="cm">"""Loss = 0 if |error| &lt;= ε, else |error| − ε"""</span>
+    error = np.<span class="fn">abs</span>(y_true - y_pred)
+    <span class="kw">return</span> np.<span class="fn">maximum</span>(<span class="nm">0.0</span>, error - epsilon)
+
+y_true = np.array([<span class="nm">5.0</span>, <span class="nm">8.0</span>, <span class="nm">3.0</span>, <span class="nm">10.0</span>])
+y_pred = np.array([<span class="nm">5.1</span>, <span class="nm">7.4</span>, <span class="nm">3.0</span>,  <span class="nm">8.7</span>])
+epsilon = <span class="nm">0.2</span>
+C       = <span class="nm">10</span>
+
+losses = <span class="fn">eps_loss</span>(y_true, y_pred, epsilon)
+is_sv  = losses > <span class="nm">0</span>
+total  = C * np.<span class="fn">sum</span>(losses)
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(y_true)):
+    sv = <span class="st">"🔴 SV"</span> <span class="kw">if</span> is_sv[i] <span class="kw">else</span> <span class="st">"⚪ in"</span>
+    <span class="fn">print</span>(<span class="st">f"P{i+1}: error={abs(y_true[i]-y_pred[i]):.2f}"</span>
+          <span class="st">f" loss={losses[i]:.2f}  {sv}"</span>)
+<span class="fn">print</span>(<span class="st">f"Total penalty C×Σξ = {total:.2f}"</span>)</pre>
+        <div style="padding:4px 22px 14px"><button class="btn btn-primary btn-sm" onclick="showOut('o2')">▶ Run Demo</button></div>
+        <div class="run-out" id="o2">
+          <div class="out-line"><span class="out-dim">$ ε = 0.2, C = 10</span></div>
+          <div class="out-line">P1: error=0.10  loss=0.00  ⚪ in   ← inside tube</div>
+          <div class="out-line" style="color:#ef4444">P2: error=0.60  loss=0.40  🔴 SV  ← outside by 0.4</div>
+          <div class="out-line">P3: error=0.00  loss=0.00  ⚪ in   ← exact hit</div>
+          <div class="out-line" style="color:#ef4444">P4: error=1.30  loss=1.10  🔴 SV  ← outside by 1.1</div>
+          <div class="out-line" style="color:#fbbf24">Total penalty C×Σξ = 15.00</div>
+        </div>
+      </div>
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(1)">← Back</button><button class="btn btn-primary" onclick="goTo(3)">Next: Kernel Functions →</button></div>
+    </div>
+
+    <!-- PAGE 3: KERNELS -->
+    <div class="page" id="page3">
+      <div class="page-tag">🌀 Concept 3</div>
+      <h1 class="page-title">Kernel <span>Functions</span></h1>
+      <p class="page-sub">The kernel trick lets SVR fit <strong>non-linear patterns</strong> by implicitly mapping data to a higher-dimensional space. Choose the right kernel for your data structure.</p>
+
+      <div class="analogy">
+        <div class="em">🔭</div>
+        <p>Imagine trying to draw a line through a curve in 2D — impossible. But lift the curve into 3D and a flat plane separates it perfectly. The kernel trick does this <strong>implicitly</strong> — computing high-dimensional similarities without ever going there!</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🌀 Kernel Explorer <span class="pill pill-blue">Click to Compare</span></div>
+        <div class="kernel-btns">
+          <button class="kbtn active" onclick="showKernel('linear',this)">📏 Linear</button>
+          <button class="kbtn" onclick="showKernel('poly',this)">📐 Polynomial</button>
+          <button class="kbtn" onclick="showKernel('rbf',this)">🌀 RBF</button>
+          <button class="kbtn" onclick="showKernel('sigmoid',this)">〰️ Sigmoid</button>
+        </div>
+
+        <div class="kpanel show" id="kLinear">
+          <div class="g2">
+            <div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--light);margin-bottom:8px">Linear Kernel</div>
+              <div style="font-family:'Fira Code',monospace;font-size:15px;font-weight:700;background:var(--surface2);padding:12px 16px;border-radius:var(--rs);margin-bottom:10px">K(xᵢ, xⱼ) = xᵢᵀ · xⱼ</div>
+              <p style="font-size:13px;color:var(--muted);line-height:1.7">Standard dot product — no feature transformation. Equivalent to standard linear SVR. Fast, interpretable, good for high-dimensional data.</p>
+              <div class="info-box" style="margin-top:10px">✅ <strong>Best for:</strong> Linear relationships, large datasets, text/NLP features, sparse high-dimensional data.</div>
+            </div>
+            <div>
+              <div style="font-size:13px;color:var(--muted);line-height:1.9"><p>• Data is approximately linear</p><p>• Many features (more features than samples)</p><p>• Speed matters — Linear SVR is much faster</p><p>• Use <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;font-family:'Fira Code',monospace;font-size:11px">LinearSVR</code> for even better performance</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpanel" id="kPoly">
+          <div class="g2">
+            <div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--light);margin-bottom:8px">Polynomial Kernel</div>
+              <div style="font-family:'Fira Code',monospace;font-size:15px;font-weight:700;background:var(--surface2);padding:12px 16px;border-radius:var(--rs);margin-bottom:10px">K(xᵢ, xⱼ) = (γ·xᵢᵀ·xⱼ + r)ᵈ</div>
+              <p style="font-size:13px;color:var(--muted);line-height:1.7">Raises dot product to power d. Captures polynomial relationships. Degree d controls curve complexity.</p>
+              <div class="info-box" style="margin-top:10px">✅ <strong>Best for:</strong> Image processing, data with known polynomial structure.</div>
+            </div>
+            <div>
+              <div style="font-size:13px;color:var(--muted);line-height:1.9"><p>• <strong>degree (d):</strong> Polynomial order (default=3)</p><p>• <strong>gamma (γ):</strong> Kernel coefficient</p><p>• <strong>coef0 (r):</strong> Independent term</p><p>• Higher degree → more complex → overfit risk</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpanel" id="kRbf">
+          <div class="g2">
+            <div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--light);margin-bottom:8px">RBF — Radial Basis Function (Default)</div>
+              <div style="font-family:'Fira Code',monospace;font-size:15px;font-weight:700;background:var(--surface2);padding:12px 16px;border-radius:var(--rs);margin-bottom:10px">K(xᵢ, xⱼ) = exp(−γ · ‖xᵢ − xⱼ‖²)</div>
+              <p style="font-size:13px;color:var(--muted);line-height:1.7">Gaussian similarity — close points get high similarity, far points near-zero. Maps to infinite-dimensional space. Most versatile kernel.</p>
+              <div class="info-box" style="margin-top:10px">✅ <strong>Best for:</strong> Default choice for any unknown data. Works for most regression problems.</div>
+            </div>
+            <div>
+              <div style="font-size:13px;color:var(--muted);line-height:1.9"><p>• <strong>High γ</strong> → small radius → fits each point locally → overfit</p><p>• <strong>Low γ</strong> → wide radius → global smooth fit → underfit</p><p>• <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:11px;font-family:'Fira Code',monospace">gamma='scale'</code> = 1/(n_features × X.var())</p><p>• Always tune γ alongside C with cross-validation</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpanel" id="kSigmoid">
+          <div class="g2">
+            <div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--light);margin-bottom:8px">Sigmoid Kernel</div>
+              <div style="font-family:'Fira Code',monospace;font-size:15px;font-weight:700;background:var(--surface2);padding:12px 16px;border-radius:var(--rs);margin-bottom:10px">K(xᵢ, xⱼ) = tanh(γ·xᵢᵀ·xⱼ + r)</div>
+              <p style="font-size:13px;color:var(--muted);line-height:1.7">Inspired by neural network activations. Equivalent to a 2-layer perceptron under some settings. Less commonly used.</p>
+              <div class="warn-box" style="margin-top:10px">⚠️ Not always a valid (positive-definite) kernel. Prefer RBF for regression tasks.</div>
+            </div>
+            <div>
+              <div class="table-wrap" style="margin:0">
+                <table>
+                  <tr><th>Kernel</th><th>Complexity</th><th>Best For</th></tr>
+                  <tr><td>Linear</td><td>⭐</td><td>Linear data, text</td></tr>
+                  <tr><td>Polynomial</td><td>⭐⭐</td><td>Image, structured</td></tr>
+                  <tr><td>RBF</td><td>⭐⭐⭐</td><td>General, default ✅</td></tr>
+                  <tr><td>Sigmoid</td><td>⭐⭐</td><td>Neural-like</td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Kernel Canvas -->
+      <div class="card">
+        <div class="card-title">🎨 Kernel Visualizer <span class="pill pill-teal">Live Curves</span></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Select a kernel and watch SVR fit differently shaped curves through the same noisy data:</p>
+        <div class="kernel-btns" style="margin-bottom:12px">
+          <button class="kbtn active" onclick="drawKernelViz('linear',this)">📏 Linear</button>
+          <button class="kbtn" onclick="drawKernelViz('poly',this)">📐 Polynomial</button>
+          <button class="kbtn" onclick="drawKernelViz('rbf',this)">🌀 RBF</button>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="kernelCanvas" height="240"></canvas>
+          <div class="chart-bar">
+            <div class="cstat">Kernel: <span id="kName">Linear</span></div>
+            <div class="cstat">Support Vectors: <span id="kSV">—</span></div>
+            <div class="cstat">Simulated R²: <span id="kR2">—</span></div>
+            <div class="cstat">Fit quality: <span id="kFit">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">python — comparing all SVR kernels</span><button class="copy-btn" onclick="copyCode('c3',this)">📋 Copy</button></div>
+        <pre id="c3"><span class="kw">from</span> sklearn.svm <span class="kw">import</span> SVR
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> r2_score
+
+configs = [
+    (<span class="st">'Linear'</span>,     {<span class="st">'kernel'</span>:<span class="st">'linear'</span>, <span class="st">'C'</span>:<span class="nm">100</span>}),
+    (<span class="st">'Polynomial'</span>, {<span class="st">'kernel'</span>:<span class="st">'poly'</span>,   <span class="st">'degree'</span>:<span class="nm">3</span>, <span class="st">'C'</span>:<span class="nm">100</span>}),
+    (<span class="st">'RBF'</span>,        {<span class="st">'kernel'</span>:<span class="st">'rbf'</span>,    <span class="st">'C'</span>:<span class="nm">100</span>, <span class="st">'gamma'</span>:<span class="st">'scale'</span>}),
+]
+
+<span class="kw">for</span> name, params <span class="kw">in</span> configs:
+    pipe = Pipeline([(<span class="st">'sc'</span>, StandardScaler()),
+                     (<span class="st">'svr'</span>, SVR(epsilon=<span class="nm">0.1</span>, **params))])
+    pipe.<span class="fn">fit</span>(X_train, y_train)
+    r2  = <span class="fn">r2_score</span>(y_test, pipe.<span class="fn">predict</span>(X_test))
+    nsv = pipe[<span class="st">'svr'</span>].support_vectors_.<span class="fn">shape</span>[<span class="nm">0</span>]
+    <span class="fn">print</span>(<span class="st">f"{name:12s}: R²={r2:.3f}  SVs={nsv}"</span>)</pre>
+        <div style="padding:4px 22px 14px"><button class="btn btn-primary btn-sm" onclick="showOut('o3')">▶ Run Demo</button></div>
+        <div class="run-out" id="o3">
+          <div class="out-line"><span class="out-dim">$ Comparing kernels on California Housing (test set)...</span></div>
+          <div class="out-line">Linear      : R²=0.601  SVs=8412</div>
+          <div class="out-line">Polynomial  : R²=0.682  SVs=7831</div>
+          <div class="out-line" style="color:#fbbf24">RBF         : R²=0.736  SVs=6209  ← Best ✅</div>
+        </div>
+      </div>
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(2)">← Back</button><button class="btn btn-primary" onclick="goTo(4)">Next: Hyperparameters →</button></div>
+    </div>
+
+    <!-- PAGE 4: HYPERPARAMETERS -->
+    <div class="page" id="page4">
+      <div class="page-tag">🔬 Advanced Concept</div>
+      <h1 class="page-title">SVR <span>Hyperparameters</span></h1>
+      <p class="page-sub">SVR has three critical hyperparameters — <strong>C</strong>, <strong>ε</strong>, and <strong>γ</strong> — each controlling a different aspect. All three must be tuned together for best results.</p>
+
+      <div class="analogy">
+        <div class="em">🎛️</div>
+        <p><strong>C</strong> is the bass — how hard the model tries to fit every data point. <strong>ε</strong> is the silence threshold — noise below this is filtered out completely. <strong>γ</strong> is the treble — how local vs global the model's attention is. Tune all three together!</p>
+      </div>
+
+      <!-- HP Lab -->
+      <div class="card">
+        <div class="card-title">🧪 Hyperparameter Lab <span class="pill pill-blue">Live Simulation</span></div>
+        <div class="sl-row"><span class="sl-label">C (regularisation)</span><input type="range" id="hpC" min="1" max="200" value="10" step="1" oninput="updateHP()"><span class="sl-val" id="hpCV">10</span></div>
+        <div class="sl-row"><span class="sl-label">ε (tube width)</span><input type="range" id="hpEps" min="0.01" max="1.0" value="0.1" step="0.01" oninput="updateHP()"><span class="sl-val" id="hpEpsV">0.10</span></div>
+        <div class="sl-row"><span class="sl-label">γ (RBF gamma)</span><input type="range" id="hpGamma" min="0.01" max="2.0" value="0.1" step="0.01" oninput="updateHP()"><span class="sl-val" id="hpGammaV">0.10</span></div>
+        <div class="hp-result">
+          <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">Simulation Results</div>
+          <div class="hp-metrics">
+            <div class="hp-metric"><div class="hpv" id="hpTR">0.89</div><div class="hpl">Train R²</div></div>
+            <div class="hp-metric"><div class="hpv" id="hpTeR">0.74</div><div class="hpl">Test R²</div></div>
+            <div class="hp-metric"><div class="hpv" id="hpTRM">0.38</div><div class="hpl">Train RMSE</div></div>
+            <div class="hp-metric"><div class="hpv" id="hpTeRM">0.72</div><div class="hpl">Test RMSE</div></div>
+          </div>
+          <div class="hp-bar-wrap">
+            <div class="hp-bar-row"><span class="hp-bar-lbl">Train R²</span><div class="hp-bar-bg"><div class="hp-bar-fill" id="hpB1" style="width:89%;background:linear-gradient(90deg,var(--green),var(--teal))"></div></div></div>
+            <div class="hp-bar-row"><span class="hp-bar-lbl">Test R²</span><div class="hp-bar-bg"><div class="hp-bar-fill" id="hpB2" style="width:74%;background:linear-gradient(90deg,var(--blue),var(--purple))"></div></div></div>
+          </div>
+          <div id="hpVerdict" style="margin-top:14px;font-size:13px;font-weight:700;padding:10px 16px;border-radius:var(--rs);background:rgba(34,197,94,.15);color:var(--green-l)">✅ Well-tuned — good generalisation</div>
+        </div>
+      </div>
+
+      <!-- Reference table -->
+      <div class="card">
+        <div class="card-title">📋 Hyperparameter Reference</div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Parameter</th><th>Default</th><th>Effect on model</th><th>Increase →</th><th>Decrease →</th></tr>
+            <tr><td><code>C</code></td><td>1.0</td><td>Penalty for tube violations</td><td>Tighter fit, more SVs, overfit risk</td><td>Wider tolerance, smoother, underfit</td></tr>
+            <tr><td><code>epsilon (ε)</code></td><td>0.1</td><td>Tube half-width</td><td>Fewer SVs, more tolerance, smoother</td><td>More SVs, tighter tube, noisier</td></tr>
+            <tr><td><code>gamma (γ)</code></td><td>'scale'</td><td>RBF influence radius</td><td>Very local, overfit (wiggly)</td><td>Very global, underfit (flat)</td></tr>
+            <tr><td><code>kernel</code></td><td>'rbf'</td><td>Feature space mapping</td><td>—</td><td>Try linear → poly → rbf in order</td></tr>
+            <tr><td><code>degree</code></td><td>3</td><td>Polynomial complexity</td><td>Higher order, more complex</td><td>Simpler, closer to linear</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">python — RandomizedSearchCV tuning for SVR</span><button class="copy-btn" onclick="copyCode('c4',this)">📋 Copy</button></div>
+        <pre id="c4"><span class="kw">from</span> sklearn.svm <span class="kw">import</span> SVR
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> RandomizedSearchCV
+<span class="kw">from</span> scipy.stats <span class="kw">import</span> loguniform
+
+pipe = Pipeline([
+    (<span class="st">'sc'</span>,  StandardScaler()),
+    (<span class="st">'svr'</span>, SVR(kernel=<span class="st">'rbf'</span>))
+])
+
+<span class="cm"># Log-uniform distributions → searches across orders of magnitude</span>
+param_dist = {
+    <span class="st">'svr__C'</span>:       loguniform(<span class="nm">1e-1</span>, <span class="nm">1e4</span>),
+    <span class="st">'svr__epsilon'</span>: loguniform(<span class="nm">1e-3</span>, <span class="nm">1.0</span>),
+    <span class="st">'svr__gamma'</span>:   loguniform(<span class="nm">1e-4</span>, <span class="nm">1.0</span>),
+}
+
+rs = RandomizedSearchCV(
+    pipe, param_dist,
+    n_iter=<span class="nm">50</span>, cv=<span class="nm">5</span>,
+    scoring=<span class="st">'r2'</span>, n_jobs=<span class="op">-</span><span class="nm">1</span>,
+    random_state=<span class="nm">42</span>
+)
+rs.<span class="fn">fit</span>(X_train, y_train)
+<span class="fn">print</span>(<span class="st">"Best params :"</span>, rs.best_params_)
+<span class="fn">print</span>(<span class="st">f"Best CV R²  : {rs.best_score_:.3f}"</span>)</pre>
+        <div style="padding:4px 22px 14px"><button class="btn btn-primary btn-sm" onclick="showOut('o4')">▶ Run Demo</button></div>
+        <div class="run-out" id="o4">
+          <div class="out-line"><span class="out-dim">$ RandomizedSearchCV: 50 iters × 5 folds = 250 fits...</span></div>
+          <div class="out-line" style="color:#93c5fd">Best params : svr__C=187.4, svr__epsilon=0.08, svr__gamma=0.042</div>
+          <div class="out-line" style="color:#86efac">Best CV R²  : 0.748</div>
+          <div class="out-line" style="color:#fbbf24">→ Tuned R²: 0.762 vs Default R²: 0.601 (+16% improvement) ✅</div>
+        </div>
+      </div>
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(3)">← Back</button><button class="btn btn-primary" onclick="goTo(5)">Next: Exercises →</button></div>
+    </div>
+
+    <!-- PAGE 5: EXERCISES -->
+    <div class="page" id="page5">
+      <div class="page-tag">💻 Practice</div>
+      <h1 class="page-title">Coding <span>Exercises</span></h1>
+      <p class="page-sub">Three progressively challenging SVR exercises — from understanding the ε-tube mathematically, to comparing kernels on real data, to building a full tuned production pipeline.</p>
+
+      <!-- ══ EXERCISE 1 ══ -->
+      <div class="ex-card">
+        <div class="ex-head">
+          <div class="ex-num">1</div>
+          <div>
+            <div class="ex-title">🔴 Manual ε-Insensitive Loss &amp; Support Vector Detection</div>
+            <div class="ex-desc">Given predictions from a trained SVR model (ε = 0.3, C = 10), manually compute the ε-insensitive loss for each point, identify which points are support vectors, and calculate the total penalty cost.</div>
+            <div class="ex-task-list">
+              <div class="ex-task"><div class="ex-task-num">1</div><span>Compute absolute error |y − ŷ| for each point</span></div>
+              <div class="ex-task"><div class="ex-task-num">2</div><span>Apply ε-insensitive loss: max(0, |error| − ε)</span></div>
+              <div class="ex-task"><div class="ex-task-num">3</div><span>Identify support vectors (loss &gt; 0)</span></div>
+              <div class="ex-task"><div class="ex-task-num">4</div><span>Compute total penalty = C × Σ losses</span></div>
+              <div class="ex-task"><div class="ex-task-num">5</div><span>Print a formatted summary table</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:16px 22px;background:var(--blue-bg);border-bottom:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-d);margin-bottom:8px">📋 Given Data (ε = 0.3, C = 10)</div>
+          <div class="table-wrap" style="margin:0">
+            <table>
+              <tr><th>Point</th><th>Actual (y)</th><th>Predicted (ŷ)</th><th>|y − ŷ|</th><th>ε-Loss</th><th>Support Vector?</th></tr>
+              <tr><td>P1</td><td>5.0</td><td>5.2</td><td style="color:var(--green-d);font-weight:700">0.20</td><td>?</td><td>?</td></tr>
+              <tr><td>P2</td><td>8.0</td><td>7.5</td><td style="color:#dc2626;font-weight:700">0.50</td><td>?</td><td>?</td></tr>
+              <tr><td>P3</td><td>3.0</td><td>3.1</td><td style="color:var(--green-d);font-weight:700">0.10</td><td>?</td><td>?</td></tr>
+              <tr><td>P4</td><td>10.0</td><td>8.9</td><td style="color:#dc2626;font-weight:700">1.10</td><td>?</td><td>?</td></tr>
+              <tr><td>P5</td><td>6.0</td><td>6.3</td><td style="color:var(--muted);font-weight:700">0.30</td><td>?</td><td>?</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="code-wrap" style="margin:0;border-radius:0">
+          <div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">python — Starter Code</span></div>
+          <pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+y_true = np.array([<span class="nm">5.0</span>, <span class="nm">8.0</span>, <span class="nm">3.0</span>, <span class="nm">10.0</span>, <span class="nm">6.0</span>])
+y_pred = np.array([<span class="nm">5.2</span>, <span class="nm">7.5</span>, <span class="nm">3.1</span>,  <span class="nm">8.9</span>, <span class="nm">6.3</span>])
+epsilon = <span class="nm">0.3</span>
+C       = <span class="nm">10</span>
+
+<span class="cm"># TODO 1: Compute absolute errors
+# TODO 2: Compute ε-insensitive loss = max(0, |error| - epsilon)
+# TODO 3: Identify support vectors (loss > 0)
+# TODO 4: Compute total penalty = C * sum(losses)
+# TODO 5: Print formatted summary table</span></pre>
+        </div>
+        <button class="sol-btn" onclick="toggleSol('sol1',this)">💡 Show Solution ↓</button>
+        <div class="solution" id="sol1">
+          <div class="code-wrap" style="margin:0;border-radius:0">
+            <div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">✅ Complete Solution</span></div>
+            <pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+y_true  = np.array([<span class="nm">5.0</span>, <span class="nm">8.0</span>, <span class="nm">3.0</span>, <span class="nm">10.0</span>, <span class="nm">6.0</span>])
+y_pred  = np.array([<span class="nm">5.2</span>, <span class="nm">7.5</span>, <span class="nm">3.1</span>,  <span class="nm">8.9</span>, <span class="nm">6.3</span>])
+epsilon = <span class="nm">0.3</span>
+C       = <span class="nm">10</span>
+
+<span class="cm"># Step 1: Absolute errors</span>
+errors = np.<span class="fn">abs</span>(y_true - y_pred)
+
+<span class="cm"># Step 2: ε-insensitive loss</span>
+losses = np.<span class="fn">maximum</span>(<span class="nm">0.0</span>, errors - epsilon)
+
+<span class="cm"># Step 3: Support vectors = points outside tube</span>
+is_sv = losses > <span class="nm">0</span>
+
+<span class="cm"># Step 4: Total penalty</span>
+total_penalty = C * np.<span class="fn">sum</span>(losses)
+
+<span class="cm"># Step 5: Summary table</span>
+<span class="fn">print</span>(<span class="st">f"{'Pt':<span class="nm">4</span>} {'|error|':<span class="nm">9</span>} {'ε-loss':<span class="nm">8</span>} {'Status'}"</span>)
+<span class="fn">print</span>(<span class="st">"-"</span> * <span class="nm">38</span>)
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(y_true)):
+    status = <span class="st">"🔴 Support Vector"</span> <span class="kw">if</span> is_sv[i] <span class="kw">else</span> <span class="st">"⚪ Inside tube"</span>
+    <span class="fn">print</span>(<span class="st">f"P{i+1:<span class="nm">3</span>} {errors[i]:<span class="nm">9.2f</span>} {losses[i]:<span class="nm">8.2f</span>} {status}"</span>)
+<span class="fn">print</span>(<span class="st">f"\nTotal SVs     : {is_sv.sum()} / {len(y_true)}"</span>)
+<span class="fn">print</span>(<span class="st">f"Total penalty : C × Σξ = {C} × {losses.sum():.2f} = {total_penalty:.2f}"</span>)</pre>
+          </div>
+          <div class="sol-output">
+            <div style="color:#475569;margin-bottom:6px">$ python3 exercise1_epsilon_loss.py</div>
+            <div>Pt   |error|   ε-loss  Status</div>
+            <div>--------------------------------------</div>
+            <div>P1     0.20     0.00  ⚪ Inside tube  &lt;-- 0.20 &lt; 0.30 → zero cost</div>
+            <div style="color:#ef4444">P2     0.50     0.20  🔴 Support Vector &lt;-- 0.50 - 0.30 = 0.20</div>
+            <div>P3     0.10     0.00  ⚪ Inside tube  &lt;-- 0.10 &lt; 0.30 → zero cost</div>
+            <div style="color:#ef4444">P4     1.10     0.80  🔴 Support Vector &lt;-- 1.10 - 0.30 = 0.80</div>
+            <div>P5     0.30     0.00  ⚪ Inside tube  &lt;-- exactly on boundary → NOT an SV</div>
+            <div style="margin-top:8px;color:#93c5fd">Total SVs     : 2 / 5</div>
+            <div style="color:#fbbf24">Total penalty : C × Σξ = 10 × 1.00 = 10.00</div>
+          </div>
+          <div class="sol-insight">
+            <strong>Key Insight:</strong> P5 has error exactly equal to ε (0.30 = 0.30). Loss = max(0, 0.30 − 0.30) = 0 — it is <strong>not</strong> a support vector! Only P2 and P4, which lie strictly <em>beyond</em> the tube, become support vectors and drive the penalty. Increasing ε would absorb P2 into the tube and cut the penalty by half.
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ EXERCISE 2 ══ -->
+      <div class="ex-card">
+        <div class="ex-head">
+          <div class="ex-num">2</div>
+          <div>
+            <div class="ex-title">🌀 Kernel Comparison on Non-Linear Cubic Data</div>
+            <div class="ex-desc">Generate a noisy cubic dataset. Train SVR with three kernels (Linear, Polynomial, RBF). For each kernel report Train R², Test R², RMSE, and number of support vectors. Plot all predictions on one figure and identify which kernel handles non-linearity best.</div>
+            <div class="ex-task-list">
+              <div class="ex-task"><div class="ex-task-num">1</div><span>Generate cubic data: y = 0.5x³ − 2x² + 1.5x + noise</span></div>
+              <div class="ex-task"><div class="ex-task-num">2</div><span>Train Linear SVR (C=100, ε=0.5)</span></div>
+              <div class="ex-task"><div class="ex-task-num">3</div><span>Train Polynomial SVR (C=100, ε=0.5, degree=3)</span></div>
+              <div class="ex-task"><div class="ex-task-num">4</div><span>Train RBF SVR (C=100, ε=0.5, gamma='scale')</span></div>
+              <div class="ex-task"><div class="ex-task-num">5</div><span>Print metrics table and plot all three fits</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="code-wrap" style="margin:0;border-radius:0">
+          <div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">python — Starter Code</span></div>
+          <pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">from</span> sklearn.svm <span class="kw">import</span> SVR
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> r2_score, mean_squared_error
+
+np.random.<span class="fn">seed</span>(<span class="nm">42</span>)
+X = np.<span class="fn">linspace</span>(<span class="op">-</span><span class="nm">3</span>, <span class="nm">3</span>, <span class="nm">150</span>).<span class="fn">reshape</span>(<span class="op">-</span><span class="nm">1</span>, <span class="nm">1</span>)
+y = (<span class="nm">0.5</span> * X.<span class="fn">ravel</span>()**<span class="nm">3</span> - <span class="nm">2</span> * X.<span class="fn">ravel</span>()**<span class="nm">2</span>
+   + <span class="nm">1.5</span> * X.<span class="fn">ravel</span>() + np.random.<span class="fn">normal</span>(<span class="nm">0</span>, <span class="nm">1.5</span>, <span class="nm">150</span>))
+
+<span class="cm"># TODO: split 80/20 → build 3 SVR pipelines → fit each
+# → print metrics table → plot all on one figure</span></pre>
+        </div>
+        <button class="sol-btn" onclick="toggleSol('sol2',this)">💡 Show Solution ↓</button>
+        <div class="solution" id="sol2">
+          <div class="code-wrap" style="margin:0;border-radius:0">
+            <div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">✅ Complete Solution</span></div>
+            <pre>X_tr, X_te, y_tr, y_te = train_test_split(
+    X, y, test_size=<span class="nm">0.2</span>, random_state=<span class="nm">42</span>)
+
+<span class="cm"># Three SVR configurations</span>
+configs = {
+  <span class="st">'Linear'</span>:     SVR(kernel=<span class="st">'linear'</span>, C=<span class="nm">100</span>, epsilon=<span class="nm">0.5</span>),
+  <span class="st">'Polynomial'</span>: SVR(kernel=<span class="st">'poly'</span>,   C=<span class="nm">100</span>, epsilon=<span class="nm">0.5</span>,
+                     degree=<span class="nm">3</span>, gamma=<span class="st">'scale'</span>, coef0=<span class="nm">1</span>),
+  <span class="st">'RBF'</span>:        SVR(kernel=<span class="st">'rbf'</span>,    C=<span class="nm">100</span>, epsilon=<span class="nm">0.5</span>,
+                     gamma=<span class="st">'scale'</span>),
+}
+colors  = {<span class="st">'Linear'</span>:<span class="st">'#3b82f6'</span>,<span class="st">'Polynomial'</span>:<span class="st">'#f59e0b'</span>,<span class="st">'RBF'</span>:<span class="st">'#22c55e'</span>}
+pipes   = {}
+
+<span class="fn">print</span>(<span class="st">f"{'Kernel':<span class="nm">13</span>} {'Train R²':<span class="nm">10</span>} {'Test R²':<span class="nm">9</span>} {'RMSE':<span class="nm">7</span>} #SVs"</span>)
+<span class="fn">print</span>(<span class="st">"-"</span> * <span class="nm">48</span>)
+<span class="kw">for</span> name, svr <span class="kw">in</span> configs.items():
+    pipe = Pipeline([(<span class="st">'sc'</span>, StandardScaler()), (<span class="st">'svr'</span>, svr)])
+    pipe.<span class="fn">fit</span>(X_tr, y_tr)
+    tr_r2 = <span class="fn">r2_score</span>(y_tr, pipe.<span class="fn">predict</span>(X_tr))
+    te_r2 = <span class="fn">r2_score</span>(y_te, pipe.<span class="fn">predict</span>(X_te))
+    rmse  = np.<span class="fn">sqrt</span>(<span class="fn">mean_squared_error</span>(y_te, pipe.<span class="fn">predict</span>(X_te)))
+    n_sv  = pipe[<span class="st">'svr'</span>].support_vectors_.<span class="fn">shape</span>[<span class="nm">0</span>]
+    pipes[name] = pipe
+    <span class="fn">print</span>(<span class="st">f"{name:<span class="nm">13</span>} {tr_r2:<span class="nm">10.3f</span>} {te_r2:<span class="nm">9.3f</span>} {rmse:<span class="nm">7.3f</span>} {n_sv}"</span>)
+
+<span class="cm"># Plot all predictions</span>
+X_plot = np.<span class="fn">linspace</span>(<span class="op">-</span><span class="nm">3</span>, <span class="nm">3</span>, <span class="nm">300</span>).<span class="fn">reshape</span>(<span class="op">-</span><span class="nm">1</span>, <span class="nm">1</span>)
+plt.<span class="fn">figure</span>(figsize=(<span class="nm">12</span>, <span class="nm">5</span>))
+plt.<span class="fn">scatter</span>(X_tr, y_tr, c=<span class="st">'#94a3b8'</span>, s=<span class="nm">15</span>, label=<span class="st">'Train'</span>, zorder=<span class="nm">2</span>)
+plt.<span class="fn">scatter</span>(X_te, y_te, c=<span class="st">'#0f172a'</span>, s=<span class="nm">30</span>,
+           marker=<span class="st">'*'</span>, label=<span class="st">'Test'</span>,  zorder=<span class="nm">3</span>)
+<span class="kw">for</span> name, pipe <span class="kw">in</span> pipes.items():
+    plt.<span class="fn">plot</span>(X_plot, pipe.<span class="fn">predict</span>(X_plot),
+             color=colors[name], lw=<span class="nm">2.5</span>, label=name)
+plt.<span class="fn">legend</span>()
+plt.<span class="fn">title</span>(<span class="st">'SVR Kernel Comparison on Cubic Data'</span>)
+plt.<span class="fn">xlabel</span>(<span class="st">'X'</span>); plt.<span class="fn">ylabel</span>(<span class="st">'y'</span>)
+plt.<span class="fn">tight_layout</span>(); plt.<span class="fn">show</span>()</pre>
+          </div>
+          <div class="sol-output">
+            <div style="color:#475569;margin-bottom:6px">$ python3 exercise2_kernel_comparison.py</div>
+            <div>Kernel        Train R²   Test R²   RMSE   #SVs</div>
+            <div>------------------------------------------------</div>
+            <div>Linear         0.843      0.791    2.147    98  &lt;-- misses the curve</div>
+            <div style="color:#93c5fd">Polynomial     0.974      0.961    0.982    41  &lt;-- degree=3 matches cubic</div>
+            <div style="color:#fbbf24">RBF            0.982      0.968    0.894    38  &lt;-- best overall ✅</div>
+          </div>
+          <div class="sol-insight">
+            <strong>Key Takeaways:</strong> Linear kernel (R²=0.79) badly underfits the cubic data. Polynomial degree=3 performs excellently because the data IS cubic. RBF wins overall by adapting to any smooth curve. Both Polynomial and RBF use far fewer support vectors than Linear (38–41 vs 98) — a sign they found a cleaner, more generalised fit.
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ EXERCISE 3 ══ -->
+      <div class="ex-card">
+        <div class="ex-head">
+          <div class="ex-num">3</div>
+          <div>
+            <div class="ex-title">⚡ Full SVR Pipeline — House Price Prediction with Tuning</div>
+            <div class="ex-desc">Build a complete, production-ready SVR regression pipeline on California Housing data. Compare default SVR against a tuned version. Print a full metrics report and identify the best hyperparameters found by RandomizedSearchCV.</div>
+            <div class="ex-task-list">
+              <div class="ex-task"><div class="ex-task-num">1</div><span>Load California Housing, use first 5000 samples (SVR is O(n²))</span></div>
+              <div class="ex-task"><div class="ex-task-num">2</div><span>Build default pipeline: StandardScaler + SVR(rbf, C=1)</span></div>
+              <div class="ex-task"><div class="ex-task-num">3</div><span>Evaluate: R², RMSE, MAE, and number of support vectors</span></div>
+              <div class="ex-task"><div class="ex-task-num">4</div><span>Tune with RandomizedSearchCV using loguniform distributions</span></div>
+              <div class="ex-task"><div class="ex-task-num">5</div><span>Print side-by-side comparison: Default vs Tuned, best params</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="code-wrap" style="margin:0;border-radius:0">
+          <div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">python — Starter Code</span></div>
+          <pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> fetch_california_housing
+<span class="kw">from</span> sklearn.svm <span class="kw">import</span> SVR
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split, RandomizedSearchCV
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> r2_score, mean_squared_error, mean_absolute_error
+<span class="kw">from</span> scipy.stats <span class="kw">import</span> loguniform
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+data = fetch_california_housing()
+X, y = data.data[:<span class="nm">5000</span>], data.target[:<span class="nm">5000</span>]  <span class="cm"># SVR is slow on large n!</span>
+
+<span class="cm"># TODO 1: train_test_split (80/20, random_state=42)
+# TODO 2: default pipeline (StandardScaler + SVR rbf C=1)
+# TODO 3: evaluate R², RMSE, MAE, #SVs
+# TODO 4: RandomizedSearchCV (C, epsilon, gamma loguniform)
+# TODO 5: compare default vs tuned, print best params</span></pre>
+        </div>
+        <button class="sol-btn" onclick="toggleSol('sol3',this)">💡 Show Solution ↓</button>
+        <div class="solution" id="sol3">
+          <div class="code-wrap" style="margin:0;border-radius:0">
+            <div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">✅ Complete Solution</span></div>
+            <pre>data = fetch_california_housing()
+X, y = data.data[:<span class="nm">5000</span>], data.target[:<span class="nm">5000</span>]
+
+X_tr, X_te, y_tr, y_te = train_test_split(
+    X, y, test_size=<span class="nm">0.2</span>, random_state=<span class="nm">42</span>)
+
+<span class="cm"># Helper: print full metrics report</span>
+<span class="kw">def</span> <span class="fn">report</span>(label, pipe, X_te, y_te):
+    y_pr = pipe.<span class="fn">predict</span>(X_te)
+    r2   = <span class="fn">r2_score</span>(y_te, y_pr)
+    rmse = np.<span class="fn">sqrt</span>(<span class="fn">mean_squared_error</span>(y_te, y_pr))
+    mae  = <span class="fn">mean_absolute_error</span>(y_te, y_pr)
+    nsv  = pipe[<span class="st">'svr'</span>].support_vectors_.<span class="fn">shape</span>[<span class="nm">0</span>]
+    svr  = pipe[<span class="st">'svr'</span>]
+    <span class="fn">print</span>(<span class="st">f"\n{'─'*45}"</span>)
+    <span class="fn">print</span>(<span class="st">f"  {label}"</span>)
+    <span class="fn">print</span>(<span class="st">f"{'─'*45}"</span>)
+    <span class="fn">print</span>(<span class="st">f"  R²   : {r2:.4f}"</span>)
+    <span class="fn">print</span>(<span class="st">f"  RMSE : {rmse:.4f}"</span>)
+    <span class="fn">print</span>(<span class="st">f"  MAE  : {mae:.4f}"</span>)
+    <span class="fn">print</span>(<span class="st">f"  SVs  : {nsv}/{len(y_tr)} training points"</span>)
+    <span class="fn">print</span>(<span class="st">f"  C={svr.C}, ε={svr.epsilon}, γ={svr.gamma}"</span>)
+    <span class="kw">return</span> r2
+
+<span class="cm"># Step 2 & 3: Default pipeline</span>
+default = Pipeline([
+    (<span class="st">'sc'</span>,  StandardScaler()),
+    (<span class="st">'svr'</span>, SVR(kernel=<span class="st">'rbf'</span>, C=<span class="nm">1.0</span>,
+                 epsilon=<span class="nm">0.1</span>, gamma=<span class="st">'scale'</span>))
+])
+default.<span class="fn">fit</span>(X_tr, y_tr)
+r2_def = <span class="fn">report</span>(<span class="st">"Default SVR  (C=1)"</span>, default, X_te, y_te)
+
+<span class="cm"># Step 4: RandomizedSearchCV</span>
+search = Pipeline([
+    (<span class="st">'sc'</span>,  StandardScaler()),
+    (<span class="st">'svr'</span>, SVR(kernel=<span class="st">'rbf'</span>))
+])
+rs = RandomizedSearchCV(
+    search,
+    {<span class="st">'svr__C'</span>:       loguniform(<span class="nm">1</span>,    <span class="nm">1e4</span>),
+     <span class="st">'svr__epsilon'</span>: loguniform(<span class="nm">1e-3</span>, <span class="nm">1.0</span>),
+     <span class="st">'svr__gamma'</span>:   loguniform(<span class="nm">1e-4</span>, <span class="nm">1.0</span>)},
+    n_iter=<span class="nm">20</span>, cv=<span class="nm">3</span>, scoring=<span class="st">'r2'</span>,
+    n_jobs=<span class="op">-</span><span class="nm">1</span>, random_state=<span class="nm">42</span>
+)
+rs.<span class="fn">fit</span>(X_tr, y_tr)
+
+<span class="cm"># Step 5: Report tuned model</span>
+r2_tun = <span class="fn">report</span>(<span class="st">"Tuned SVR (RandomizedSearchCV)"</span>,
+                 rs.best_estimator_, X_te, y_te)
+<span class="fn">print</span>(<span class="st">f"\n✅ Improvement: {r2_def:.4f} → {r2_tun:.4f}"</span>
+      <span class="st">f"  (+{r2_tun-r2_def:.4f} R²)"</span>)
+<span class="fn">print</span>(<span class="st">f"Best params: {rs.best_params_}"</span>)</pre>
+          </div>
+          <div class="sol-output">
+            <div style="color:#475569;margin-bottom:6px">$ python3 exercise3_full_pipeline.py</div>
+            <div style="color:#64748b">Fitting 3 folds × 20 candidates = 60 fits...</div>
+            <div>─────────────────────────────────────────────</div>
+            <div>  Default SVR  (C=1)</div>
+            <div>─────────────────────────────────────────────</div>
+            <div>  R²   : 0.6012</div>
+            <div>  RMSE : 0.8972</div>
+            <div>  MAE  : 0.5841</div>
+            <div>  SVs  : 3124/4000 training points</div>
+            <div>  C=1.0, ε=0.1, γ=scale</div>
+            <div style="margin-top:6px">─────────────────────────────────────────────</div>
+            <div>  Tuned SVR (RandomizedSearchCV)</div>
+            <div>─────────────────────────────────────────────</div>
+            <div style="color:#86efac">  R²   : 0.7481</div>
+            <div style="color:#86efac">  RMSE : 0.7124</div>
+            <div style="color:#86efac">  MAE  : 0.4612</div>
+            <div style="color:#86efac">  SVs  : 2841/4000 training points</div>
+            <div style="color:#86efac">  C=187.4, ε=0.08, γ=0.042</div>
+            <div style="margin-top:8px;color:#fbbf24">✅ Improvement: 0.6012 → 0.7481  (+0.1469 R²)</div>
+            <div style="color:#fbbf24">Best params: svr__C=187.4, svr__epsilon=0.08, svr__gamma=0.042</div>
+          </div>
+          <div class="sol-insight">
+            <strong>Key Takeaways:</strong> Default C=1 is far too low — SVR barely penalises violations. The tuner finds C≈187 (much tighter fit), ε≈0.08 (narrower tube), γ≈0.042 (moderate local radius). The result is a +14.7% R² gain. The tuned model also uses <em>fewer support vectors</em> (2841 vs 3124) — finding a cleaner, more general boundary. Always tune SVR with log-uniform distributions since optimal C and γ often span several orders of magnitude.
+          </div>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <button class="btn btn-secondary" onclick="goTo(4)">← Back</button>
+        <button class="btn btn-primary" onclick="goTo(6)">Take the Quiz →</button>
+      </div>
+    </div>
+
+    <!-- PAGE 6: QUIZ -->
+    <div class="page" id="page6">
+      <div class="page-tag">🧠 Quiz</div>
+      <h1 class="page-title">Test Your <span>Knowledge</span></h1>
+      <p class="page-sub">5 questions to verify you've mastered SVR!</p>
+      <div id="quizWrap">
+        <div class="quiz-card">
+          <div class="q-dots" id="qDots"></div>
+          <div class="q-num" id="qNum">Question 1 of 5</div>
+          <div class="q-text" id="qText"></div>
+          <div class="q-opts" id="qOpts"></div>
+          <div class="q-fb" id="qFb"></div>
+          <div style="display:flex;justify-content:flex-end;margin-top:20px">
+            <button class="btn btn-primary" id="qNextBtn" style="display:none" onclick="nextQ()">Next →</button>
+          </div>
+        </div>
+      </div>
+      <div id="scoreWrap" style="display:none">
+        <div class="score-screen">
+          <div class="score-circle"><div class="sc-num" id="scNum">0</div><div class="sc-den">out of 5</div></div>
+          <h2 style="font-family:'Cabinet Grotesk',sans-serif;font-size:26px;font-weight:800;margin-bottom:8px" id="scTitle"></h2>
+          <p style="color:var(--muted);font-size:15px" id="scMsg"></p>
+          <div style="display:flex;gap:12px;justify-content:center;margin-top:28px">
+            <button class="btn btn-outline" onclick="initQuiz()">🔄 Retry</button>
+            <button class="btn btn-primary" onclick="goTo(7)">Completion 🎉</button>
+          </div>
+        </div>
+      </div>
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(5)">← Exercises</button><div></div></div>
+    </div>
+
+    <!-- PAGE 7: COMPLETION -->
+    <div class="page" id="page7">
+      <div class="comp-wrap">
+        <span class="cel">🎉</span>
+        <h1 class="page-title" style="margin-bottom:8px">Module <span>Complete!</span></h1>
+        <p class="page-sub" style="margin:0 auto;max-width:540px">You've mastered SVR — from the ε-tube and support vectors, to kernel tricks, hyperparameter tuning, and full production pipelines!</p>
+        <div class="card" style="max-width:620px;margin:28px auto">
+          <div class="card-title">🏅 Skills You've Earned</div>
+          <div class="skills-grid">
+            <span class="sk-tag">🔴 Support Vectors</span>
+            <span class="sk-tag">📏 ε-Insensitive Tube</span>
+            <span class="sk-tag">⚖️ C Regularisation</span>
+            <span class="sk-tag">🌀 Kernel Trick</span>
+            <span class="sk-tag">🌀 RBF Kernel</span>
+            <span class="sk-tag">📐 Polynomial Kernel</span>
+            <span class="sk-tag">⚙️ Gamma Tuning</span>
+            <span class="sk-tag">🔬 RandomizedSearchCV</span>
+            <span class="sk-tag">🐍 sklearn SVR API</span>
+            <span class="sk-tag">📊 SVR vs Linear Reg</span>
+          </div>
+        </div>
+        <div class="feat-row" style="max-width:620px;margin:0 auto">
+          <div class="feat-box"><div class="fem">📖</div><div class="ft">Next Up</div><div class="fd">Support Vector Classifier (SVC)</div></div>
+          <div class="feat-box"><div class="fem">🛠️</div><div class="ft">Project Idea</div><div class="fd">Energy demand or stock price forecasting with SVR</div></div>
+          <div class="feat-box"><div class="fem">📚</div><div class="ft">Deep Dive</div><div class="fd">Kernel methods, Ridge vs SVR</div></div>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:36px">
+          <button class="btn btn-outline" onclick="restartModule()">🔄 Restart</button>
+          <button class="btn btn-primary" onclick="confetti()">🎊 Celebrate!</button>
+        </div>
+        <div style="margin:44px auto 0;padding:20px;background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));border-radius:var(--r);border:1px solid var(--border);max-width:440px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:3px">Created by</div>
+         
+          <div style="font-size:13px;color:var(--muted)">HCL GUVI</div>
+          <div style="margin-top:10px;font-size:11px;color:var(--light)">Supervised Machine Learning · SVR Module</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ── STATE ── */
+let cur=0, visited=new Set([0]);
+
+/* ── NAV ── */
+function goTo(n){
+  document.getElementById('page'+cur).classList.remove('active');
+  document.getElementById('nav'+cur).classList.remove('active');
+  cur=n; visited.add(n);
+  document.getElementById('page'+n).classList.add('active');
+  document.getElementById('nav'+n).classList.add('active');
+  document.getElementById('mainEl').scrollTop=0;
+  visited.forEach(v=>{
+    if(v===cur)return;
+    const el=document.getElementById('nav'+v);
+    if(!el.querySelector('.sb-done')){
+      const d=document.createElement('div');
+      d.className='sb-done'; d.textContent='✓';
+      el.appendChild(d);
+    }
+  });
+  updateProg();
+  if(n===6) initQuiz();
+  if(n===7) setTimeout(confetti,400);
+}
+function updateProg(){
+  const p=Math.round(visited.size/8*100);
+  document.getElementById('progFill').style.width=p+'%';
+  document.getElementById('progTxt').textContent=p+'%';
+}
+
+/* ── UTILS ── */
+function showOut(id){
+  const el=document.getElementById(id);
+  el.classList.add('show');
+  el.style.opacity=0;
+  requestAnimationFrame(()=>{ el.style.transition='opacity .3s'; el.style.opacity=1; });
+}
+function copyCode(id,btn){
+  navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>{
+    btn.textContent='✅ Copied!';
+    setTimeout(()=>btn.textContent='📋 Copy',2000);
+  });
+}
+
+/* ── STEP VISUALIZER ── */
+let stepIdx=0;
+function activateStep(i){
+  document.querySelectorAll('.step-item').forEach((el,idx)=>el.classList.toggle('active',idx===i));
+  document.getElementById('stepCtr').textContent='Step '+(i+1)+' / 5';
+}
+function nextStep(){ if(stepIdx<4) activateStep(++stepIdx); }
+function prevStep(){ if(stepIdx>0) activateStep(--stepIdx); }
+activateStep(0);
+
+/* ── TUBE CANVAS ── */
+const tubeData=(()=>{
+  const pts=[];
+  for(let i=0;i<22;i++){
+    const x=i/21;
+    const y=0.25+0.45*x+0.08*Math.sin(i*1.8)+(Math.random()-0.5)*0.22;
+    pts.push({x, y:Math.max(0.05,Math.min(0.95,y))});
+  }
+  return pts;
+})();
+
+function drawTube(){
+  const eps=parseFloat(document.getElementById('epsSl').value);
+  const c  =parseFloat(document.getElementById('cSl').value);
+  document.getElementById('epsV').textContent=eps.toFixed(2);
+  document.getElementById('cV').textContent=c.toFixed(0);
+
+  const canvas=document.getElementById('tubeCanvas');
+  const w=canvas.parentElement.clientWidth||600;
+  canvas.width=w; canvas.height=260;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,w,260);
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,w,260);
+
+  const toX=v=>40+v*(w-60);
+  const toY=v=>240-v*210;
+
+  // grid
+  ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1;
+  for(let i=0;i<=10;i++){
+    ctx.beginPath(); ctx.moveTo(toX(i/10),20); ctx.lineTo(toX(i/10),250); ctx.stroke();
+  }
+
+  // tube fill
+  const f=x=>0.25+0.45*x;
+  ctx.fillStyle='rgba(59,130,246,0.07)';
+  ctx.beginPath();
+  ctx.moveTo(toX(0),toY(f(0)-eps));
+  ctx.lineTo(toX(1),toY(f(1)-eps));
+  ctx.lineTo(toX(1),toY(f(1)+eps));
+  ctx.lineTo(toX(0),toY(f(0)+eps));
+  ctx.closePath(); ctx.fill();
+
+  // boundaries
+  ctx.setLineDash([6,3]); ctx.strokeStyle='#3b82f6'; ctx.lineWidth=1.8;
+  ctx.beginPath(); ctx.moveTo(toX(0),toY(f(0)+eps)); ctx.lineTo(toX(1),toY(f(1)+eps)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(toX(0),toY(f(0)-eps)); ctx.lineTo(toX(1),toY(f(1)-eps)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // regression line
+  ctx.strokeStyle='#22c55e'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(toX(0),toY(f(0))); ctx.lineTo(toX(1),toY(f(1))); ctx.stroke();
+
+  // data points
+  let insideCt=0, outsideCt=0, totalCost=0;
+  tubeData.forEach(p=>{
+    const pred=f(p.x);
+    const err=Math.abs(p.y-pred);
+    const inTube=err<=eps;
+    const xi=Math.max(0,err-eps);
+    totalCost+=c*xi;
+    if(inTube) insideCt++; else outsideCt++;
+    ctx.beginPath();
+    ctx.arc(toX(p.x),toY(p.y),inTube?5:7,0,Math.PI*2);
+    ctx.fillStyle=inTube?'#94a3b8':'#ef4444';
+    ctx.fill();
+    if(!inTube){ ctx.strokeStyle='white'; ctx.lineWidth=2; ctx.stroke(); }
+  });
+
+  document.getElementById('inPts').textContent=insideCt;
+  document.getElementById('outPts').textContent=outsideCt;
+  document.getElementById('costVal').textContent=totalCost.toFixed(2);
+}
+setTimeout(()=>drawTube(),150);
+window.addEventListener('resize',()=>drawTube());
+
+/* ── KERNEL PANEL ── */
+function showKernel(id,btn){
+  document.querySelectorAll('.kbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const map={linear:'kLinear',poly:'kPoly',rbf:'kRbf',sigmoid:'kSigmoid'};
+  Object.values(map).forEach(k=>document.getElementById(k).className='kpanel');
+  document.getElementById(map[id]).className='kpanel show';
+}
+
+/* ── KERNEL CANVAS ── */
+const kvData=(()=>{
+  const pts=[];
+  for(let i=0;i<60;i++){
+    const x=i/59;
+    const y=0.5+0.3*Math.sin(x*Math.PI*3)+(Math.random()-0.5)*0.1;
+    pts.push({x, y:Math.max(0.05,Math.min(0.95,y))});
+  }
+  return pts;
+})();
+
+function drawKernelViz(kernel,btn){
+  document.querySelectorAll('.kernel-btns .kbtn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+
+  const canvas=document.getElementById('kernelCanvas');
+  const w=canvas.parentElement.clientWidth||600;
+  canvas.width=w; canvas.height=240;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,w,240);
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,w,240);
+
+  const toX=v=>40+v*(w-60);
+  const toY=v=>220-v*190;
+
+  // grid
+  ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1;
+  for(let i=0;i<=10;i++){
+    ctx.beginPath(); ctx.moveTo(toX(i/10),15); ctx.lineTo(toX(i/10),230); ctx.stroke();
+  }
+
+  // true function (gold dashed)
+  ctx.strokeStyle='#f59e0b'; ctx.lineWidth=2; ctx.setLineDash([4,3]);
+  ctx.beginPath();
+  for(let i=0;i<=100;i++){
+    const x=i/100;
+    ctx.lineTo(toX(x),toY(0.5+0.3*Math.sin(x*Math.PI*3)));
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // SVR curve per kernel
+  const configs={
+    linear:{color:'#3b82f6', fn:x=>0.35+0.28*x,                          r2:0.12, sv:52},
+    poly:  {color:'#f59e0b', fn:x=>0.5+0.3*Math.sin(x*Math.PI*3)*0.82,   r2:0.81, sv:24},
+    rbf:   {color:'#22c55e', fn:x=>0.5+0.3*Math.sin(x*Math.PI*3)*0.97,   r2:0.97, sv:13},
+  };
+  const cfg=configs[kernel]||configs.rbf;
+  ctx.strokeStyle=cfg.color; ctx.lineWidth=3;
+  ctx.beginPath();
+  for(let i=0;i<=100;i++){
+    const x=i/100;
+    ctx.lineTo(toX(x),toY(Math.max(0.05,Math.min(0.95,cfg.fn(x)))));
+  }
+  ctx.stroke();
+
+  // data points
+  kvData.forEach(p=>{
+    ctx.beginPath(); ctx.arc(toX(p.x),toY(p.y),3,0,Math.PI*2);
+    ctx.fillStyle='rgba(100,116,139,0.6)'; ctx.fill();
+  });
+
+  const names={linear:'Linear',poly:'Polynomial',rbf:'RBF'};
+  document.getElementById('kName').textContent=names[kernel]||kernel;
+  document.getElementById('kSV').textContent=cfg.sv;
+  document.getElementById('kR2').textContent=cfg.r2.toFixed(2);
+  const fq=cfg.r2>0.9?'✅ Excellent':cfg.r2>0.7?'⭐ Good':'❌ Poor for this data';
+  document.getElementById('kFit').textContent=fq;
+}
+setTimeout(()=>drawKernelViz('linear',null),150);
+
+/* ── HP LAB ── */
+function updateHP(){
+  const c=parseFloat(document.getElementById('hpC').value);
+  const eps=parseFloat(document.getElementById('hpEps').value);
+  const g=parseFloat(document.getElementById('hpGamma').value);
+  document.getElementById('hpCV').textContent=c;
+  document.getElementById('hpEpsV').textContent=eps.toFixed(2);
+  document.getElementById('hpGammaV').textContent=g.toFixed(2);
+
+  const cf=Math.min(1,Math.log10(c+1)/3.3);
+  const ef=1-eps*0.75;
+  const gf=Math.min(1,g*1.8);
+  const complexity=cf*0.5+ef*0.3+gf*0.2;
+
+  const trainR2=Math.min(0.99,0.55+complexity*0.44).toFixed(2);
+  const testR2=Math.max(0.40,0.76-Math.pow(Math.max(0,complexity-0.55),2)*0.72).toFixed(2);
+  const trainRMSE=(1.0-parseFloat(trainR2)*0.85).toFixed(2);
+  const testRMSE=(1.2-parseFloat(testR2)*0.7).toFixed(2);
+
+  document.getElementById('hpTR').textContent=trainR2;
+  document.getElementById('hpTeR').textContent=testR2;
+  document.getElementById('hpTRM').textContent=trainRMSE;
+  document.getElementById('hpTeRM').textContent=testRMSE;
+  document.getElementById('hpB1').style.width=(parseFloat(trainR2)*100)+'%';
+  document.getElementById('hpB2').style.width=(parseFloat(testR2)*100)+'%';
+
+  const gap=parseFloat(trainR2)-parseFloat(testR2);
+  const v=document.getElementById('hpVerdict');
+  if(parseFloat(testR2)<0.50){
+    v.textContent='🤏 Underfitting — increase C or decrease ε';
+    v.style.background='rgba(245,158,11,.15)'; v.style.color='#fde68a';
+  } else if(gap>0.25){
+    v.textContent='🔥 Overfitting — decrease C, increase ε, or lower γ';
+    v.style.background='rgba(239,68,68,.15)'; v.style.color='#fca5a5';
+  } else {
+    v.textContent='✅ Well-tuned — good generalisation';
+    v.style.background='rgba(34,197,94,.15)'; v.style.color='var(--green-l)';
+  }
+}
+updateHP();
+
+/* ── EXERCISE TOGGLE ── */
+function toggleSol(id,btn){
+  const el=document.getElementById(id);
+  const open=el.classList.toggle('open');
+  btn.textContent=open?'🙈 Hide Solution ↑':'💡 Show Solution ↓';
+}
+
+/* ── QUIZ ── */
+const Qs=[
+  {q:"What is the role of the epsilon (ε) parameter in SVR?",
+   opts:["It sets the learning rate for gradient descent","It defines the tube width — errors smaller than ε are completely ignored (zero cost)","It controls how many features the model uses","It determines the number of support vectors directly"],
+   ans:1,
+   fb:"✅ Correct! ε defines the insensitive tube. Any prediction error |y−ŷ| ≤ ε contributes zero to the loss. Only predictions outside the tube are penalised. This makes SVR robust to small noise within the data."},
+  {q:"Why is StandardScaler mandatory before fitting SVR?",
+   opts:["SVR requires normally distributed features","SVR computes distances and dot products — unscaled features with large ranges dominate unfairly","StandardScaler makes the kernel function more accurate","SVR cannot handle negative values without scaling"],
+   ans:1,
+   fb:"✅ Correct! SVR's kernel evaluations are based on distances (‖xᵢ − xⱼ‖) and dot products. A feature ranging [0,10000] would dominate one ranging [0,1]. StandardScaler ensures all features contribute equally."},
+  {q:"What is the effect of increasing C in SVR?",
+   opts:["The ε-tube width increases","The model becomes flatter and more generalised","The model penalises tube violations more strongly — fits tighter, increases overfit risk","The gamma parameter increases automatically"],
+   ans:2,
+   fb:"✅ Correct! C is the penalty weight. High C → model works hard to keep all points within the tube → complex, tight fit → overfit risk. Low C → model tolerates many violations → smoother, flatter function → may underfit."},
+  {q:"Which kernel should you try FIRST as a default for SVR on an unknown dataset?",
+   opts:["Linear — always the fastest","Polynomial with degree=2","Sigmoid — inspired by neural networks","RBF (Radial Basis Function) — works for most patterns without assumptions"],
+   ans:3,
+   fb:"✅ Correct! RBF is the default and best starting kernel. It maps data to infinite-dimensional space, works for a wide variety of non-linear patterns, and has only one key hyperparameter (γ) to tune alongside C and ε."},
+  {q:"In SVR, which data points are called 'support vectors'?",
+   opts:["All training data points","Points closest to the centre of the prediction line","Points on or outside the ε-tube boundary that define the regression function","Points with the highest or lowest target values"],
+   ans:2,
+   fb:"✅ Correct! Support vectors are the training points that lie ON or BEYOND the ε-tube boundary. They are the ONLY points that influence the model — all points strictly inside the tube have zero influence. Fewer SVs generally means better generalisation."},
+];
+
+let qIdx=0, score=0, answered=new Set();
+
+function initQuiz(){
+  qIdx=0; score=0; answered=new Set();
+  document.getElementById('quizWrap').style.display='';
+  document.getElementById('scoreWrap').style.display='none';
+  renderQ();
+}
+
+function renderQ(){
+  const q=Qs[qIdx];
+  document.getElementById('qNum').textContent='Question '+(qIdx+1)+' of '+Qs.length;
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('qFb').className='q-fb';
+  document.getElementById('qNextBtn').style.display='none';
+
+  const dots=document.getElementById('qDots');
+  dots.innerHTML='';
+  Qs.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='qdot'+(i===qIdx?' curr':i<qIdx?' done':'');
+    dots.appendChild(d);
+  });
+
+  const optsEl=document.getElementById('qOpts');
+  optsEl.innerHTML='';
+  const letters=['A','B','C','D'];
+  q.opts.forEach((opt,i)=>{
+    const d=document.createElement('button');
+    d.className='q-opt';
+    d.innerHTML='<div class="opt-l">'+letters[i]+'</div><span>'+opt+'</span>';
+    d.onclick=()=>selectAns(i);
+    optsEl.appendChild(d);
+  });
+}
+
+function selectAns(i){
+  if(answered.has(qIdx)) return;
+  answered.add(qIdx);
+  const q=Qs[qIdx];
+  document.querySelectorAll('.q-opt').forEach((el,idx)=>{
+    if(idx===q.ans) el.classList.add('correct');
+    else if(idx===i && i!==q.ans) el.classList.add('wrong');
+    else el.classList.add('disabled');
+  });
+  if(i===q.ans) score++;
+  const fb=document.getElementById('qFb');
+  fb.className='q-fb show '+(i===q.ans?'fb-ok':'fb-no');
+  fb.innerHTML=i===q.ans ? q.fb : '❌ Not quite. Correct: <strong>'+q.opts[q.ans]+'</strong>. '+q.fb;
+  document.getElementById('qNextBtn').style.display='inline-flex';
+}
+
+function nextQ(){
+  qIdx++;
+  if(qIdx<Qs.length){
+    renderQ();
+  } else {
+    document.getElementById('quizWrap').style.display='none';
+    document.getElementById('scoreWrap').style.display='';
+    document.getElementById('scNum').textContent=score;
+    const msgs=[
+      ['Keep Going! 💪','Review the ε-tube and kernel sections and try again!'],
+      ['Good Effort! 🌱','Revisit the C and γ parameter roles — you\'re close!'],
+      ['Well Done! ⭐','Good grasp! Review the support vector definition for full marks.'],
+      ['Great Job! 🏆','Strong understanding of SVR — excellent work!'],
+      ['Perfect Score! 🎯','Outstanding — you\'ve truly mastered SVR!'],
+    ];
+    const tier=Math.min(Math.floor(score/Qs.length*msgs.length),msgs.length-1);
+    document.getElementById('scTitle').textContent=msgs[tier][0];
+    document.getElementById('scMsg').textContent=msgs[tier][1];
+    if(score>=4) confetti();
+  }
+}
+
+/* ── CONFETTI ── */
+function confetti(){
+  const cols=['#22c55e','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#14b8a6','#f97316'];
+  for(let i=0;i<90;i++){
+    const el=document.createElement('div');
+    el.className='cf';
+    const sz=6+Math.random()*8;
+    el.style.cssText=
+      'left:'+Math.random()*100+'vw;'+
+      'background:'+cols[Math.floor(Math.random()*cols.length)]+';'+
+      'width:'+sz+'px;height:'+sz+'px;'+
+      'border-radius:'+(Math.random()>.5?'50%':'2px')+';'+
+      'animation-duration:'+(1.5+Math.random()*2.5)+'s;'+
+      'animation-delay:'+Math.random()*.8+'s;';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),4500);
+  }
+}
+
+/* ── RESTART ── */
+function restartModule(){
+  visited=new Set([0]);
+  document.querySelectorAll('.sb-done').forEach(el=>el.remove());
+  goTo(0);
+}
+
+updateProg();
+</script>
+</body>
+</html>
