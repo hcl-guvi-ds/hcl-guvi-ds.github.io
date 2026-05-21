@@ -1070,6 +1070,7 @@ function goTo(n){
     if(!el.querySelector('.sb-done')){const d=document.createElement('div');d.className='sb-done';d.textContent='✓';el.appendChild(d);}
   });
   updateProg();
+  if(n===1)requestAnimationFrame(resizeCanvas);
   if(n===6)initQuiz();
   if(n===7)setTimeout(confetti,400);
 }
@@ -1090,7 +1091,8 @@ let points=[];
 
 function resizeCanvas(){
   const rect=canvas.parentElement.getBoundingClientRect();
-  canvas.width=rect.width;canvas.height=320;
+  const width=Math.max(320,Math.round(rect.width||canvas.parentElement.clientWidth||canvas.clientWidth||640));
+  canvas.width=width;canvas.height=320;
   drawChart();
 }
 
@@ -1120,9 +1122,16 @@ function drawChart(){
   ctx.save();ctx.translate(14,h/2);ctx.rotate(-Math.PI/2);ctx.fillText('Target (y)',0,0);ctx.restore();
 
   if(points.length<2){
-    ctx.fillStyle='#94a3b8';ctx.textAlign='center';ctx.font='14px Nunito,sans-serif';
-    ctx.fillText('Click anywhere to add data points!',w/2,h/2);
-    document.getElementById('ptCount').textContent='0';
+    if(points.length===0){
+      ctx.fillStyle='#94a3b8';ctx.textAlign='center';ctx.font='14px Nunito,sans-serif';
+      ctx.fillText('Click anywhere to add data points!',w/2,h/2);
+    }
+    points.forEach(p=>{
+      ctx.fillStyle='#22c55e';
+      ctx.beginPath();ctx.arc(toCanvasX(p.x),toCanvasY(p.y),5,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.stroke();
+    });
+    document.getElementById('ptCount').textContent=points.length;
     document.getElementById('statSlope').textContent='—';
     document.getElementById('statIntercept').textContent='—';
     document.getElementById('statR2').textContent='—';
@@ -1170,12 +1179,14 @@ function drawChart(){
   document.getElementById('statR2').textContent=Math.max(0,r2).toFixed(3);
 }
 
-canvas.addEventListener('click',e=>{
+function addPointFromEvent(e){
   const rect=canvas.getBoundingClientRect();
-  const cx=e.clientX-rect.left,cy=e.clientY-rect.top;
+  const cx=(e.clientX-rect.left)*(canvas.width/rect.width);
+  const cy=(e.clientY-rect.top)*(canvas.height/rect.height);
   const x=fromCanvasX(cx),y=fromCanvasY(cy);
   if(x>=0&&x<=100&&y>=0&&y<=100){points.push({x,y});drawChart();}
-});
+}
+canvas.addEventListener('pointerdown',addPointFromEvent);
 function clearPoints(){points=[];drawChart();}
 function addSampleData(){
   points=[];
