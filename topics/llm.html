@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How LLMs Work — Interactive Visual Explainer</title>
+<meta name="description" content="An interactive visual guide to how Large Language Models tokenize, train, attend, and predict the next word. Play with sliders and buttons to learn.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ─── Brand Tokens ─── */
+:root {
+  --green:       #3aaa35;
+  --green-dark:  #2a8226;
+  --green-light: #e8f7e8;
+  --green-mid:   #c2eabf;
+  --navy:        #1b3a6b;
+  --navy-dark:   #112649;
+  --navy-mid:    #2c5799;
+  --navy-light:  #e8eef8;
+  --navy-xlight: #f0f4fb;
+  --black:       #111827;
+  --gray-900:    #1f2937;
+  --gray-700:    #374151;
+  --gray-500:    #6b7280;
+  --gray-300:    #d1d5db;
+  --gray-100:    #f3f4f6;
+  --gray-50:     #f9fafb;
+  --white:       #ffffff;
+  --border:      #e2e8f0;
+  --shadow-sm:   0 1px 3px rgba(27,58,107,0.08), 0 1px 2px rgba(27,58,107,0.06);
+  --shadow-md:   0 4px 16px rgba(27,58,107,0.10), 0 2px 8px rgba(27,58,107,0.07);
+  --shadow-lg:   0 10px 32px rgba(27,58,107,0.12), 0 4px 16px rgba(27,58,107,0.08);
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--white);
+  color: var(--black);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Utility ─── */
+.mono { font-family: 'DM Mono', monospace; }
+.label {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--navy-mid);
+}
+.text-green { color: var(--green); }
+.text-navy  { color: var(--navy); }
+.text-gray  { color: var(--gray-500); }
+
+/* ─── Grid Background ─── */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(27,58,107,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,58,107,0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ─── Header / Nav ─── */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+}
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.logo-wrap img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+nav a {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: color 0.18s, background 0.18s;
+}
+nav a:hover { color: var(--navy); background: var(--navy-xlight); }
+.nav-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--green-light);
+  border: 1px solid var(--green-mid);
+  border-radius: 100px;
+  padding: 4px 14px 4px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--green-dark);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+.nav-dot {
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.5; transform:scale(0.8); }
+}
+
+/* ─── Hero ─── */
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  padding: 80px 40px 72px;
+}
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 0%, rgba(58,170,53,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 0% 100%, rgba(27,58,107,0.06) 0%, transparent 60%);
+}
+.hero-inner {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--navy-xlight);
+  border: 1px solid rgba(27,58,107,0.15);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--navy-mid);
+  margin-bottom: 28px;
+}
+.hero-pill svg { color: var(--green); }
+
+h1.hero-title {
+  font-size: clamp(36px, 5.5vw, 68px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: var(--black);
+  margin-bottom: 20px;
+}
+.hero-title .accent {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--green) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: 18px;
+  color: var(--gray-500);
+  max-width: 600px;
+  margin-bottom: 40px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600; font-size: 14px;
+  padding: 12px 28px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  border: none; cursor: pointer;
+  transition: opacity 0.18s, transform 0.18s, box-shadow 0.18s;
+  box-shadow: 0 4px 14px rgba(27,58,107,0.25);
+}
+.btn-primary:hover { opacity:0.9; transform:translateY(-1px); box-shadow:0 6px 20px rgba(27,58,107,0.3); }
+.btn-primary:active { transform:translateY(0); }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--white);
+  color: var(--navy);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500; font-size: 14px;
+  padding: 11px 28px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, color 0.18s;
+}
+.btn-secondary:hover { border-color: var(--navy-mid); background: var(--navy-xlight); }
+
+.hero-btns { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 56px; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+.stat-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px 22px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.stat-card:hover { border-color: var(--navy-mid); box-shadow: var(--shadow-md); }
+.stat-value {
+  font-size: 26px; font-weight: 700;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--green) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  line-height: 1.1; margin-bottom: 4px;
+}
+.stat-label { font-size: 12px; color: var(--gray-500); font-weight: 400; }
+
+/* ─── Section wrapper ─── */
+.section { max-width: 1200px; margin: 0 auto; padding: 80px 40px; }
+.section-alt { background: var(--gray-50); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.section-alt .section { /* nested */ }
+
+.section-head { max-width: 640px; margin-bottom: 40px; }
+.section-num { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--green); margin-bottom: 10px; }
+.section-title { font-size: clamp(26px, 3.5vw, 42px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; color: var(--black); margin-bottom: 12px; }
+.section-sub { font-size: 16px; color: var(--gray-500); line-height: 1.65; }
+
+/* ─── Cards ─── */
+.card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 28px 32px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.card:hover { border-color: rgba(27,58,107,0.2); box-shadow: var(--shadow-md); }
+.card-label { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gray-500); margin-bottom: 16px; }
+
+/* ─── Pipeline ─── */
+.pipeline-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+@media (max-width: 900px) { .pipeline-grid { grid-template-columns: repeat(2, 1fr); } }
+.pipe-card {
+  position: relative;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 20px 20px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.pipe-card:hover { border-color: var(--navy-mid); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.pipe-num {
+  position: absolute; top: -12px; left: 16px;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+  color: var(--white);
+  font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500;
+  letter-spacing: 0.12em; padding: 3px 10px; border-radius: 5px;
+}
+.pipe-icon { color: var(--green); margin-bottom: 12px; }
+.pipe-title { font-size: 15px; font-weight: 700; color: var(--black); margin-bottom: 6px; }
+.pipe-desc { font-size: 13px; color: var(--gray-500); line-height: 1.55; }
+
+/* ─── Token chip ─── */
+@keyframes floatUp {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.token-chip {
+  display: inline-block;
+  padding: 8px 13px;
+  border-radius: var(--radius-sm);
+  font-family: 'DM Mono', monospace; font-size: 13px;
+  border: 1.5px solid;
+  animation: floatUp 0.4s ease both;
+}
+.token-chip .tid { font-size: 10px; opacity: 0.55; display: block; margin-top: 2px; }
+.token-a { background: rgba(58,170,53,0.08); color: var(--green-dark); border-color: rgba(58,170,53,0.35); }
+.token-b { background: rgba(27,58,107,0.07); color: var(--navy); border-color: rgba(27,58,107,0.25); }
+.token-c { background: rgba(44,87,153,0.07); color: var(--navy-mid); border-color: rgba(44,87,153,0.25); }
+
+/* ─── Inputs ─── */
+.brand-input {
+  width: 100%;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-family: 'DM Sans', sans-serif; font-size: 15px; color: var(--black);
+  outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.brand-input:focus { border-color: var(--navy-mid); box-shadow: 0 0 0 3px rgba(27,58,107,0.1); }
+.brand-input::placeholder { color: var(--gray-300); }
+
+/* ─── Slider ─── */
+.slider-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.slider-val { font-family:'DM Mono',monospace; font-size:13px; color: var(--green-dark); font-weight:500; }
+input[type=range] {
+  -webkit-appearance: none; width:100%; height:4px;
+  background: var(--gray-200,#e5e7eb); border-radius:4px; outline:none;
+  cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+  background: var(--navy); border:2px solid var(--white);
+  box-shadow:0 1px 4px rgba(27,58,107,0.3);
+  transition: background 0.15s;
+}
+input[type=range]::-webkit-slider-thumb:hover { background: var(--navy-mid); }
+.slider-hints { display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--gray-500); margin-top:6px; }
+
+/* ─── Small btn ─── */
+.btn-sm {
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--white); border:1.5px solid var(--border);
+  border-radius:var(--radius-sm); padding:7px 14px;
+  font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; color:var(--navy);
+  cursor:pointer; transition:border-color 0.16s, background 0.16s;
+}
+.btn-sm:hover { border-color:var(--navy-mid); background:var(--navy-xlight); }
+.btn-green {
+  background:linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+  border-color:transparent; color:var(--white);
+  box-shadow:0 3px 10px rgba(58,170,53,0.25);
+}
+.btn-green:hover { opacity:0.9; background:linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); border-color:transparent; }
+.btn-navy {
+  background:linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+  border-color:transparent; color:var(--white);
+  box-shadow:0 3px 10px rgba(27,58,107,0.22);
+}
+.btn-navy:hover { opacity:0.9; border-color:transparent; }
+
+/* ─── Bar chart ─── */
+.bar-row { display:flex; align-items:center; gap:12px; }
+.bar-label { width:110px; flex-shrink:0; text-align:right; font-family:'DM Mono',monospace; font-size:13px; color:var(--gray-700); }
+.bar-track { flex:1; height:34px; background:var(--gray-50); border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; }
+.bar-fill {
+  height:100%; border-radius:var(--radius-sm);
+  display:flex; align-items:center; justify-content:flex-end; padding-right:10px;
+  font-family:'DM Mono',monospace; font-size:11px; color:var(--white); font-weight:500;
+  transition:width 0.5s cubic-bezier(.4,0,.2,1);
+}
+.bar-pct { width:52px; font-family:'DM Mono',monospace; font-size:12px; color:var(--gray-500); }
+
+/* ─── Attention bars ─── */
+.att-row { display:flex; align-items:center; gap:12px; }
+.att-label { width:72px; flex-shrink:0; text-align:right; font-family:'DM Mono',monospace; font-size:13px; color:var(--gray-700); }
+.att-track { flex:1; height:28px; background:var(--gray-50); border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+.att-fill { height:100%; border-radius:6px; transition:width 0.5s cubic-bezier(.4,0,.2,1); }
+.att-pct { width:44px; font-family:'DM Mono',monospace; font-size:11px; color:var(--gray-500); }
+
+/* ─── Word buttons ─── */
+.word-btn {
+  border:1.5px solid var(--border);
+  background:var(--white); border-radius:var(--radius-sm);
+  padding:9px 16px; font-family:'DM Mono',monospace; font-size:14px; color:var(--gray-700);
+  cursor:pointer; transition:border-color 0.16s, background 0.16s, color 0.16s;
+}
+.word-btn:hover { border-color:var(--navy-mid); color:var(--navy); background:var(--navy-xlight); }
+.word-btn.active { border-color:var(--navy); background:var(--navy-light); color:var(--navy); font-weight:600; }
+
+/* ─── Loss chart ─── */
+.loss-chart-wrap { position:relative; }
+.loss-chart-wrap svg text { font-family:'DM Mono',monospace; }
+
+/* ─── Weight grid ─── */
+.weight-cell {
+  aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+  border-radius:5px; border:1.5px solid;
+  font-family:'DM Mono',monospace; font-size:10px; font-weight:500;
+  transition:background 0.3s, color 0.3s;
+}
+
+/* ─── Context select ─── */
+.ctx-btn {
+  display:block; width:100%;
+  border:1.5px solid var(--border); border-radius:var(--radius-sm);
+  padding:12px 16px; text-align:left;
+  font-family:'DM Mono',monospace; font-size:13px; color:var(--gray-700);
+  background:var(--white); cursor:pointer;
+  transition:border-color 0.16s, background 0.16s, color 0.16s;
+}
+.ctx-btn:hover { border-color:var(--navy-mid); background:var(--navy-xlight); color:var(--navy); }
+.ctx-btn.active { border-color:var(--navy); background:var(--navy-light); color:var(--navy); font-weight:500; }
+
+/* ─── Embed 3D ─── */
+.embed-3d { cursor:grab; touch-action:none; user-select:none; }
+.embed-3d:active { cursor:grabbing; }
+
+/* ─── Select ─── */
+.brand-select {
+  width:100%; border:1.5px solid var(--border); border-radius:var(--radius-sm);
+  background:var(--white); padding:9px 12px;
+  font-family:'DM Mono',monospace; font-size:13px; color:var(--black);
+  outline:none; cursor:pointer;
+  transition:border-color 0.16s;
+}
+.brand-select:focus { border-color:var(--navy-mid); }
+
+/* ─── Footer ─── */
+footer {
+  border-top:1px solid var(--border);
+  background:var(--gray-50);
+}
+.footer-inner {
+  max-width:1200px; margin:0 auto;
+  padding:32px 40px;
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px;
+}
+.footer-logo { display:flex; align-items:center; gap:12px; }
+.footer-logo img { height:32px; }
+.footer-copy { font-family:'DM Mono',monospace; font-size:11px; color:var(--gray-500); letter-spacing:0.06em; }
+.footer-badge {
+  display:inline-flex; align-items:center; gap:7px;
+  font-family:'DM Mono',monospace; font-size:11px; color:var(--gray-500);
+}
+
+/* ─── Grid helpers ─── */
+.grid-2col { display:grid; grid-template-columns:1.4fr 1fr; gap:24px; }
+.grid-pred { display:grid; grid-template-columns:1fr 1.3fr; gap:24px; }
+@media (max-width:900px) { .grid-2col, .grid-pred { grid-template-columns:1fr; } }
+.space-y { display:flex; flex-direction:column; gap:16px; }
+
+/* ─── Generated text box ─── */
+.gen-text-box {
+  background:var(--gray-50); border:1.5px solid var(--border);
+  border-radius:var(--radius-sm); padding:20px 24px;
+  font-family:'DM Mono',monospace; font-size:16px; line-height:1.7;
+  color:var(--black); min-height:60px;
+}
+.cursor { color:var(--gray-300); animation:blink 1.1s step-end infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ─── Training prediction ─── */
+.train-word {
+  display:inline-block; padding:5px 10px; border-radius:6px; margin:3px;
+  font-family:'DM Mono',monospace; font-size:16px; line-height:1.4;
+  transition:color 0.4s, background 0.4s;
+}
+.train-word.wrong { background:rgba(107,114,128,0.08); color:var(--gray-500); text-decoration:line-through; text-decoration-color:rgba(27,58,107,0.3); }
+.train-word.right  { background:rgba(58,170,53,0.1); color:var(--green-dark); text-decoration:none; }
+
+/* ─── Divider accent ─── */
+.accent-divider { height:3px; background:linear-gradient(90deg, var(--navy) 0%, var(--green) 100%); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- ─── HEADER ─── -->
+<header>
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <img src="data:image/jpeg;base64,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" alt="GUVI HCL Logo">
+    </div>
+    <nav>
+      <a href="#tokenize">Tokenize</a>
+      <a href="#embed">Embed</a>
+      <a href="#train">Train</a>
+      <a href="#attention">Attention</a>
+      <a href="#predict">Predict</a>
+      <div class="nav-badge"><span class="nav-dot"></span>Interactive</div>
+    </nav>
+  </div>
+</header>
+
+<!-- ─── HERO ─── -->
+<section class="hero grid-bg">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-pill">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/></svg>
+      Interactive Explainer
+    </div>
+    <h1 class="hero-title">How <span class="accent">Large Language Models</span><br>actually think.</h1>
+    <p class="hero-sub">A hands-on visual journey through tokenization, training, attention, and the math of predicting the next word — with sliders and buttons you can play with.</p>
+    <div class="hero-btns">
+      <a href="#tokenize" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/><path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"/><path d="M18 18a4 4 0 0 0 2-7.464"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/><path d="M6 18a4 4 0 0 1-2-7.464"/><path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"/></svg>
+        Start exploring
+      </a>
+      <a href="#predict" class="btn-secondary">Jump to prediction</a>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value">175B+</div><div class="stat-label">parameters in modern models</div></div>
+      <div class="stat-card"><div class="stat-value">trillions</div><div class="stat-label">of training tokens</div></div>
+      <div class="stat-card"><div class="stat-value">1 word</div><div class="stat-label">predicted at a time</div></div>
+      <div class="stat-card"><div class="stat-value">∞</div><div class="stat-label">possible outputs</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PIPELINE ─── -->
+<div style="max-width:1200px;margin:0 auto;padding:72px 40px;">
+  <div class="section-head">
+    <div class="section-num">The big picture</div>
+    <h2 class="section-title">From text to text, in five stages</h2>
+    <p class="section-sub">Every response from an LLM is just this loop, running thousands of times per second.</p>
+  </div>
+  <div class="pipeline-grid">
+    <div class="pipe-card"><div class="pipe-num">01</div><div class="pipe-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16"/><path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2"/><path d="M9 20h6"/></svg></div><div class="pipe-title">Tokenize</div><div class="pipe-desc">Text is split into tokens & mapped to integer IDs.</div></div>
+    <div class="pipe-card"><div class="pipe-num">02</div><div class="pipe-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></svg></div><div class="pipe-title">Embed</div><div class="pipe-desc">Each ID becomes a high-dimensional vector encoding meaning.</div></div>
+    <div class="pipe-card"><div class="pipe-num">03</div><div class="pipe-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg></div><div class="pipe-title">Transformer</div><div class="pipe-desc">Dozens of attention layers mix context across tokens.</div></div>
+    <div class="pipe-card"><div class="pipe-num">04</div><div class="pipe-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></svg></div><div class="pipe-title">Predict</div><div class="pipe-desc">A softmax produces a probability for every token in the vocabulary.</div></div>
+    <div class="pipe-card"><div class="pipe-num">05</div><div class="pipe-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></div><div class="pipe-title">Repeat</div><div class="pipe-desc">Sampled token is appended; the whole thing runs again.</div></div>
+  </div>
+</div>
+
+<!-- ─── TOKENIZATION ─── -->
+<div class="section-alt">
+<div id="tokenize" class="section">
+  <div class="section-head">
+    <div class="section-num">Step 01 — Tokenization</div>
+    <h2 class="section-title">Words become tokens</h2>
+    <p class="section-sub">Before an LLM sees text, it breaks it into pieces called tokens. Each token is mapped to a unique number — the model never sees letters, only IDs.</p>
+  </div>
+  <div class="card">
+    <div class="card-label">Type any sentence</div>
+    <input id="tokenInput" class="brand-input" style="height:52px;font-size:16px;" placeholder="The quick brown fox..." value="Large language models predict the next token.">
+    <div style="margin-top:28px;">
+      <div class="card-label" id="tokenCount">11 tokens</div>
+      <div id="tokenDisplay" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ─── EMBEDDING ─── -->
+<div id="embed" class="section">
+  <div class="section-head">
+    <div class="section-num">Step 01.5 — Embedding</div>
+    <h2 class="section-title">Tokens become vectors that mean something</h2>
+    <p class="section-sub">Each token is mapped into a high-dimensional space (often 1024+ dims). Words with similar meaning land near each other. Drag the cube to rotate and see the true distances on each axis.</p>
+  </div>
+  <div class="grid-2col">
+    <div class="card" style="padding:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div class="card-label">3D semantic space — drag to rotate</div>
+        <div style="display:flex;gap:8px;">
+          <button id="autoRotBtn" class="btn-sm">Auto-rotate</button>
+          <button id="resetViewBtn" class="btn-sm">Reset view</button>
+        </div>
+      </div>
+      <svg id="embed3d" class="embed-3d" viewBox="0 0 460 460" style="width:100%;"></svg>
+      <p style="margin-top:8px;font-size:12px;color:var(--gray-500);">Drag to rotate · click any word to compare it with Word A · use Auto-rotate to see all sides.</p>
+    </div>
+    <div class="space-y">
+      <div class="card">
+        <div class="card-label">Compare two words</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;">
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--gray-500);margin-bottom:8px;">Word A</div>
+            <select id="wordA" class="brand-select">
+              <option value="apple" selected>🍎 apple</option>
+              <option value="leather ball">⚽ leather ball</option>
+              <option value="orange">🍊 orange</option>
+              <option value="brick">🧱 brick</option>
+              <option value="lemon">🍋 lemon</option>
+              <option value="tire">🛞 tire</option>
+              <option value="honey">🍯 honey</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--gray-500);margin-bottom:8px;">Word B</div>
+            <select id="wordB" class="brand-select">
+              <option value="strawberry" selected>🍓 strawberry</option>
+              <option value="leather ball">⚽ leather ball</option>
+              <option value="orange">🍊 orange</option>
+              <option value="brick">🧱 brick</option>
+              <option value="lemon">🍋 lemon</option>
+              <option value="tire">🛞 tire</option>
+              <option value="honey">🍯 honey</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Per-axis distance</div>
+        <div id="axisDistances" style="display:flex;flex-direction:column;gap:14px;margin-top:16px;"></div>
+        <div id="wordCompDesc" style="margin-top:18px;padding:14px 16px;background:var(--gray-50);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--gray-500);line-height:1.6;"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Try the classic</div>
+        <button id="classicBtn" class="btn-sm" style="margin-top:12px;width:100%;justify-content:center;">apple ↔ leather ball</button>
+        <p style="margin-top:12px;font-size:12px;color:var(--gray-500);line-height:1.6;">Both are round and reddish — close on shape & color — but very far apart on sweetness. That's exactly the kind of nuance embeddings capture, just in hundreds of dimensions instead of three.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TRAINING ─── -->
+<div class="section-alt">
+<div id="train" class="section">
+  <div class="section-head">
+    <div class="section-num">Step 02 — Training</div>
+    <h2 class="section-title">Billions of guesses, slowly less wrong</h2>
+    <p class="section-sub">Training shows the model trillions of token sequences. Each time it predicts the next token, we measure the error (loss) and nudge billions of weights to do better. Repeat for weeks.</p>
+  </div>
+  <div class="grid-2col">
+    <div class="space-y">
+      <div class="card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+          <div>
+            <div class="card-label">Training loss</div>
+            <div id="lossDisplay" style="font-size:32px;font-weight:700;color:var(--navy);margin-top:4px;font-family:'DM Mono',monospace;">4.730</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="card-label">Epoch</div>
+            <div id="epochDisplay" style="font-size:32px;font-weight:700;color:var(--black);margin-top:4px;font-family:'DM Mono',monospace;">0<span style="color:var(--gray-300)">/40</span></div>
+          </div>
+        </div>
+        <svg id="lossChart" viewBox="0 0 600 200" style="margin-top:24px;width:100%;height:180px;">
+          <defs><linearGradient id="lossGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3aaa35" stop-opacity="0.18"/><stop offset="100%" stop-color="#3aaa35" stop-opacity="0"/></linearGradient></defs>
+          <line x1="24" x2="576" y1="20" y2="20" stroke="var(--border)" stroke-width="1"/>
+          <line x1="24" x2="576" y1="60" y2="60" stroke="var(--border)" stroke-width="1"/>
+          <line x1="24" x2="576" y1="100" y2="100" stroke="var(--border)" stroke-width="1"/>
+          <line x1="24" x2="576" y1="140" y2="140" stroke="var(--border)" stroke-width="1"/>
+          <line x1="24" x2="576" y1="180" y2="180" stroke="var(--border)" stroke-width="1"/>
+          <text x="8" y="24" fill="var(--gray-300)" font-size="10" text-anchor="middle">5</text>
+          <text x="8" y="104" fill="var(--gray-300)" font-size="10" text-anchor="middle">2.5</text>
+          <text x="8" y="184" fill="var(--gray-300)" font-size="10" text-anchor="middle">0</text>
+          <path id="lossAreaPath" fill="url(#lossGrad)"/>
+          <path id="lossLinePath" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle id="lossHead" r="4" fill="var(--green)" style="display:none"/>
+        </svg>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:16px;">
+          <button id="trainBtn" class="btn-sm btn-green">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg>
+            Train
+          </button>
+          <button id="resetTrainBtn" class="btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Reset
+          </button>
+          <div style="margin-left:auto;background:var(--gray-50);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 12px;font-family:'DM Mono',monospace;font-size:12px;">accuracy ≈ <span id="accDisplay" style="color:var(--green-dark);">0%</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="space-y">
+      <div class="card">
+        <div class="slider-row"><label class="card-label">Learning rate</label><span id="lrVal" class="slider-val">0.050</span></div>
+        <input type="range" id="lrSlider" min="0.005" max="0.2" step="0.005" value="0.05" style="margin-top:12px;">
+        <p style="margin-top:10px;font-size:12px;color:var(--gray-500);">Higher = faster learning, but risks overshooting the optimum.</p>
+      </div>
+      <div class="card">
+        <div class="slider-row"><label class="card-label">Total epochs</label><span id="epochsVal" class="slider-val">40</span></div>
+        <input type="range" id="epochsSlider" min="10" max="100" step="5" value="40" style="margin-top:12px;">
+        <p style="margin-top:10px;font-size:12px;color:var(--gray-500);">More passes through the data = lower loss, but slower & risk of memorizing.</p>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;"><div class="card-label">Weights (sample)</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gray-500);">→ target</div></div>
+        <div id="weightsGrid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:14px;"></div>
+        <p style="margin-top:10px;font-size:12px;color:var(--gray-500);">Each cell is one weight. Gradient descent nudges every number a tiny step toward its ideal value. Bordered cells have nearly converged.</p>
+      </div>
+    </div>
+  </div>
+  <!-- Training prediction row -->
+  <div class="card" style="margin-top:24px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div class="card-label">Model's prediction on a sample sentence</div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--gray-500);">target: "The quick brown fox jumps over the lazy dog."</div>
+    </div>
+    <div id="trainPrediction" style="margin-top:16px;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;background:var(--gray-50);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px;font-family:'DM Mono',monospace;font-size:17px;line-height:1.8;"></div>
+    <p style="margin-top:10px;font-size:12px;color:var(--gray-500);">Early in training the output is gibberish. As loss drops, more tokens turn <span style="color:var(--green-dark);font-weight:600;">green</span> — meaning the model is finally predicting the right next word.</p>
+  </div>
+</div>
+</div>
+
+<!-- ─── ATTENTION ─── -->
+<div id="attention" class="section">
+  <div class="section-head">
+    <div class="section-num">Step 03 — Attention</div>
+    <h2 class="section-title">Every word looks at every other word</h2>
+    <p class="section-sub">The transformer's superpower: for each word, it computes how much to "pay attention" to every other word in the context. Click a word to see what it looks at.</p>
+  </div>
+  <div class="card">
+    <div class="card-label">Click any word</div>
+    <div id="attWords" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;"></div>
+    <div style="margin-top:28px;">
+      <div id="attTitle" class="card-label" style="margin-bottom:14px;">"it" attends to →</div>
+      <div id="attBars" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+    <p id="attNote" style="margin-top:24px;font-size:14px;color:var(--gray-500);max-width:600px;line-height:1.65;"></p>
+  </div>
+</div>
+
+<!-- ─── PREDICTION ─── -->
+<div class="section-alt">
+<div id="predict" class="section">
+  <div class="section-head">
+    <div class="section-num">Step 04 — Prediction</div>
+    <h2 class="section-title">The whole magic: pick the next token</h2>
+    <p class="section-sub">An LLM doesn't write sentences — it writes one token, then feeds the result back in and writes the next one. Adjust temperature to make it confident or creative.</p>
+  </div>
+  <div class="grid-pred">
+    <div class="space-y">
+      <div class="card">
+        <div class="card-label">Context</div>
+        <div id="ctxBtns" style="display:flex;flex-direction:column;gap:8px;margin-top:14px;"></div>
+      </div>
+      <div class="card">
+        <div class="slider-row"><label class="card-label">Temperature</label><span id="tempVal" class="slider-val">0.80</span></div>
+        <input type="range" id="tempSlider" min="0.1" max="3" step="0.05" value="0.8" style="margin-top:12px;">
+        <div class="slider-hints"><span>focused</span><span>balanced</span><span>chaotic</span></div>
+      </div>
+      <div class="card">
+        <div class="slider-row"><label class="card-label">Top-K</label><span id="topkVal" class="slider-val">5</span></div>
+        <input type="range" id="topkSlider" min="2" max="7" step="1" value="5" style="margin-top:12px;">
+        <p style="margin-top:10px;font-size:12px;color:var(--gray-500);">Only consider the K most likely tokens.</p>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button id="sampleBtn" class="btn-sm btn-navy" style="flex:1;justify-content:center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></svg>
+          Sample next token
+        </button>
+        <button id="resetPredBtn" class="btn-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Generated text</div>
+      <div id="genText" class="gen-text-box" style="margin-top:12px;"></div>
+      <div class="card-label" style="margin-top:28px;margin-bottom:14px;">Probability distribution</div>
+      <div id="probBars" style="display:flex;flex-direction:column;gap:10px;"></div>
+      <p style="margin-top:20px;font-size:13px;color:var(--gray-500);line-height:1.65;">At <span style="color:var(--navy);font-weight:600;">low temperature</span> the model almost always picks the top word. At <span style="color:var(--green-dark);font-weight:600;">high temperature</span> the probabilities flatten and unlikely words get a real chance — that's "creativity".</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <img src="data:image/jpeg;base64,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" alt="GUVI HCL" style="height:28px;">
+      <div class="footer-copy">A visual explainer · built with curiosity</div>
+    </div>
+    <div class="footer-badge"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;display:inline-block;"></span>interactive · client-side · no real model required</div>
+  </div>
+</footer>
+
+<!-- ─────────────────────────── JS ─────────────────────────── -->
+<script>
+/* ──── TOKENIZATION ──── */
+const TOKEN_COLORS = ['token-a','token-b','token-c'];
+const FAKE_IDS = {
+  'Large':49551,'lang':45824,'uage':47003,'mode':45955,'ls':29986,
+  'pred':46348,'ict':37512,'the':38953,'next':46086,'token':4791,'.':13945,
+  'The':464,'quick':4996,'brown':13545,'fox':39083,'jumps':35308,'over':2017,
+  'lazy':16053,'dog':13472,' ':220
+};
+function fakeTokenize(text) {
+  const words = text.match(/[A-Z]?[a-z]+|[A-Z]+(?=[A-Z][a-z])|[A-Z]|[.,!?;:]|\s+|\d+/g) || text.split('');
+  let tokens = [];
+  words.forEach(w => {
+    if (w.length > 5) {
+      const half = Math.ceil(w.length / 2);
+      tokens.push(w.slice(0, half), w.slice(half));
+    } else tokens.push(w);
+  });
+  return tokens.filter(t => t.trim().length > 0);
+}
+function renderTokens() {
+  const val = document.getElementById('tokenInput').value;
+  const tokens = fakeTokenize(val);
+  document.getElementById('tokenCount').textContent = tokens.length + ' tokens';
+  const el = document.getElementById('tokenDisplay'); el.innerHTML = '';
+  tokens.forEach((t, i) => {
+    const c = TOKEN_COLORS[i % 3];
+    const id = FAKE_IDS[t] || (Math.floor(Math.random() * 50000));
+    const chip = document.createElement('div');
+    chip.className = 'token-chip ' + c;
+    chip.style.animationDelay = (i * 50) + 'ms';
+    chip.innerHTML = `<span>${t}</span><span class="tid">#${id}</span>`;
+    el.appendChild(chip);
+  });
+}
+document.getElementById('tokenInput').addEventListener('input', renderTokens);
+renderTokens();
+
+/* ──── EMBEDDING 3D ──── */
+const WORDS = {
+  strawberry:  {pos:[0.55, 0.42, 0.62], emoji:'🍓'},
+  apple:       {pos:[0.48, 0.45, 0.55], emoji:'🍎'},
+  honey:       {pos:[0.40, 0.72, 0.38], emoji:'🍯'},
+  orange:      {pos:[0.45, 0.50, 0.58], emoji:'🍊'},
+  'leather ball':{pos:[0.80, 0.12, 0.48], emoji:'⚽'},
+  brick:       {pos:[0.78, 0.05, 0.20], emoji:'🧱'},
+  lemon:       {pos:[0.42, 0.55, 0.60], emoji:'🍋'},
+  tire:        {pos:[0.82, 0.08, 0.22], emoji:'🛞'},
+};
+const AXES = {shape:'#3aaa35', sweetness:'#1b3a6b', color:'#2c5799'};
+let rotX = 0.35, rotY = -0.5, dragging = false, lastX, lastY, autoRot = false, rafId;
+function mat3d(rx, ry) {
+  const cx=Math.cos(rx),sx=Math.sin(rx),cy=Math.cos(ry),sy=Math.sin(ry);
+  return (v) => {
+    const [x,y,z] = v;
+    const y1 = y*cx - z*sx, z1 = y*sx + z*cx;
+    const x2 = x*cy + z1*sy, z2 = -x*sy + z1*cy;
+    return [x2, y1, z2];
+  };
+}
+function project(v, scale=320, cx=230, cy=230) {
+  const fov = 900, z = v[2]*scale + fov;
+  return [v[0]*scale*fov/z + cx, -v[1]*scale*fov/z + cy];
+}
+function renderEmbed() {
+  const svg = document.getElementById('embed3d');
+  const rot = mat3d(rotX, rotY);
+  const CUBE = [[-.5,-.5,-.5],[.5,-.5,-.5],[.5,.5,-.5],[-.5,.5,-.5],[-.5,-.5,.5],[.5,-.5,.5],[.5,.5,.5],[-.5,.5,.5]];
+  const edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+  const pc = CUBE.map(v => project(rot(v)));
+  let html = '';
+  // Cube
+  edges.forEach(([a,b]) => {
+    html += `<line x1="${pc[a][0]}" y1="${pc[a][1]}" x2="${pc[b][0]}" y2="${pc[b][1]}" stroke="#cbd5e1" stroke-width="1" opacity="0.6"/>`;
+  });
+  // Axes
+  const axDirs = [[1,0,0],[0,0,1],[0,1,0]];
+  const axColors = Object.values(AXES), axNames = Object.keys(AXES);
+  axDirs.forEach((d,i) => {
+    const p0 = project(rot([-0.5,-0.5,-0.5]));
+    const p1 = project(rot([d[0]-0.5, d[1]-0.5, d[2]-0.5]));
+    html += `<line x1="${p0[0]}" y1="${p0[1]}" x2="${p1[0]}" y2="${p1[1]}" stroke="${axColors[i]}" stroke-width="2.5" stroke-linecap="round"/>`;
+    html += `<text x="${p1[0]+6}" y="${p1[1]+4}" fill="${axColors[i]}" font-size="11" font-family="DM Mono,monospace">${axNames[i]}</text>`;
+  });
+  // Words
+  const selA = document.getElementById('wordA')?.value || 'apple';
+  const selB = document.getElementById('wordB')?.value || 'strawberry';
+  const wEntries = Object.entries(WORDS);
+  wEntries.forEach(([name, {pos, emoji}]) => {
+    const [x,y,z] = pos.map(v => v - 0.5);
+    const rp = rot([x,y,z]);
+    const [px,py] = project(rp);
+    const isA = name===selA, isB = name===selB;
+    const isHL = isA || isB;
+    const col = isA ? '#3aaa35' : isB ? '#1b3a6b' : '#94a3b8';
+    const r = isHL ? 7 : 5;
+    html += `<circle cx="${px}" cy="${py}" r="${r}" fill="${col}" opacity="${isHL?1:0.45}" style="cursor:pointer;" data-word="${name}"/>`;
+    html += `<text x="${px+10}" y="${py+4}" fill="${isHL?col:'#94a3b8'}" font-size="${isHL?12:11}" font-family="DM Mono,monospace" style="cursor:pointer;paint-order:stroke;stroke:#fff;stroke-width:3" data-word="${name}">${emoji} ${name}</text>`;
+  });
+  // Distance line
+  if (WORDS[selA] && WORDS[selB]) {
+    const pA = WORDS[selA].pos.map(v=>v-0.5), pB = WORDS[selB].pos.map(v=>v-0.5);
+    const [ax,ay] = project(rot(pA)), [bx,by] = project(rot(pB));
+    const dist = Math.sqrt(pA.reduce((s,v,i)=>(s+(v-pB[i])**2),0)).toFixed(2);
+    const mx=(ax+bx)/2, my=(ay+by)/2;
+    html += `<line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="#3aaa35" stroke-width="1.5" stroke-dasharray="5 4" opacity="0.7"/>`;
+    html += `<text x="${mx}" y="${my-8}" fill="#3aaa35" font-size="11" font-family="DM Mono,monospace" text-anchor="middle">dist ${dist}</text>`;
+  }
+  svg.innerHTML = html;
+  // Re-attach click on words
+  svg.querySelectorAll('[data-word]').forEach(el => {
+    el.addEventListener('click', () => {
+      document.getElementById('wordA').value = el.dataset.word;
+      updateWordComp(); renderEmbed();
+    });
+  });
+}
+const WORD_DATA = {
+  apple:        {shape:0.48, color:0.45, sweetness:0.55},
+  strawberry:   {shape:0.55, color:0.42, sweetness:0.62},
+  'leather ball':{shape:0.80,color:0.12, sweetness:0.02},
+  orange:       {shape:0.45, color:0.50, sweetness:0.58},
+  brick:        {shape:0.78, color:0.05, sweetness:0.01},
+  lemon:        {shape:0.42, color:0.55, sweetness:0.40},
+  tire:         {shape:0.82, color:0.08, sweetness:0.01},
+  honey:        {shape:0.20, color:0.72, sweetness:0.90},
+};
+function updateWordComp() {
+  const a = document.getElementById('wordA')?.value || 'apple';
+  const b = document.getElementById('wordB')?.value || 'strawberry';
+  const da = WORD_DATA[a] || {shape:0.5,color:0.5,sweetness:0.5};
+  const db = WORD_DATA[b] || {shape:0.5,color:0.5,sweetness:0.5};
+  const axes = ['shape','color','sweetness'];
+  const axColors = ['#3aaa35','#2c5799','#1b3a6b'];
+  let html = '';
+  axes.forEach((ax,i) => {
+    const diff = Math.abs((da[ax]||0) - (db[ax]||0)).toFixed(2);
+    const pct = Math.round(diff * 100);
+    html += `<div>
+      <div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:12px;margin-bottom:5px;">
+        <span style="color:var(--gray-500)">${ax}</span><span style="color:${axColors[i]}">${diff}</span>
+      </div>
+      <div style="height:8px;background:var(--gray-100);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,${axColors[i]}40,${axColors[i]});border-radius:4px;transition:width .5s;"></div>
+      </div></div>`;
+  });
+  document.getElementById('axisDistances').innerHTML = html;
+  const labels = axes.map(ax => {
+    const d = Math.abs((da[ax]||0)-(db[ax]||0));
+    return d < 0.15 ? 'close' : d < 0.4 ? 'moderate' : 'far';
+  });
+  document.getElementById('wordCompDesc').innerHTML =
+    `<span style="font-family:'DM Mono',monospace;color:var(--navy)">${WORDS[a]?.emoji||''} ${a}</span> and <span style="font-family:'DM Mono',monospace;color:var(--navy)">${WORDS[b]?.emoji||''} ${b}</span> are <strong style="color:var(--black)">${labels[0]}</strong> on shape, <strong style="color:var(--black)">${labels[1]}</strong> on color, and <strong style="color:var(--black)">${labels[2]}</strong> on sweetness.`;
+}
+// Drag
+const svgEl = document.getElementById('embed3d');
+svgEl.addEventListener('mousedown', e => { dragging=true; lastX=e.clientX; lastY=e.clientY; autoRot=false; document.getElementById('autoRotBtn').textContent='Auto-rotate'; });
+window.addEventListener('mousemove', e => { if (!dragging) return; rotY+=(e.clientX-lastX)*0.008; rotX+=(e.clientY-lastY)*0.008; lastX=e.clientX; lastY=e.clientY; renderEmbed(); });
+window.addEventListener('mouseup', () => dragging=false);
+svgEl.addEventListener('touchstart', e => { dragging=true; lastX=e.touches[0].clientX; lastY=e.touches[0].clientY; }, {passive:true});
+window.addEventListener('touchmove', e => { if(!dragging) return; rotY+=(e.touches[0].clientX-lastX)*0.008; rotX+=(e.touches[0].clientY-lastY)*0.008; lastX=e.touches[0].clientX; lastY=e.touches[0].clientY; renderEmbed(); }, {passive:true});
+window.addEventListener('touchend', () => dragging=false);
+document.getElementById('autoRotBtn').addEventListener('click', () => {
+  autoRot = !autoRot;
+  document.getElementById('autoRotBtn').textContent = autoRot ? 'Stop' : 'Auto-rotate';
+  if (autoRot) loop();
+});
+function loop() { if (!autoRot) return; rotY += 0.012; renderEmbed(); requestAnimationFrame(loop); }
+document.getElementById('resetViewBtn').addEventListener('click', () => { rotX=0.35; rotY=-0.5; renderEmbed(); });
+document.getElementById('wordA').addEventListener('change', () => { updateWordComp(); renderEmbed(); });
+document.getElementById('wordB').addEventListener('change', () => { updateWordComp(); renderEmbed(); });
+document.getElementById('classicBtn').addEventListener('click', () => {
+  document.getElementById('wordA').value = 'apple';
+  document.getElementById('wordB').value = 'leather ball';
+  updateWordComp(); renderEmbed();
+});
+updateWordComp(); renderEmbed();
+
+/* ──── TRAINING ──── */
+const TARGET_WORDS = ['The','quick','brown','fox','jumps','over','the','lazy','dog','.'];
+const GIBBERISH = ['zk','xrr','bln','cat','xx','zz','a','loud','q?',' '];
+let trainEpoch = 0, trainTimer = null, trainRunning = false;
+let lrVal = 0.05, totalEpochs = 40;
+const WEIGHTS = Array.from({length:24}, () => ({
+  val: (Math.random()*2-1).toFixed(2),
+  target: (Math.random()*2-1).toFixed(2),
+  conv: false
+}));
+function computeLoss(epoch, epochs, lr) {
+  const t = epoch/epochs;
+  return 4.73 * Math.exp(-3.5*lr*t*t) * (1 + 0.05*Math.sin(epoch*1.3));
+}
+function computeAccuracy(epoch, epochs, lr) {
+  return Math.min(99, Math.round(100*(1 - Math.exp(-4*lr*epoch/epochs))));
+}
+function renderWeights(epoch, epochs, lr) {
+  const t = epoch/epochs;
+  const el = document.getElementById('weightsGrid'); el.innerHTML = '';
+  WEIGHTS.forEach(w => {
+    const cur = parseFloat(w.val) + (parseFloat(w.target)-parseFloat(w.val))*t;
+    const diff = Math.abs(cur - parseFloat(w.target));
+    const conv = diff < 0.12;
+    const pos = cur >= 0;
+    const bg = pos ? `rgba(58,170,53,${0.06+Math.abs(cur)*0.18})` : `rgba(27,58,107,${0.06+Math.abs(cur)*0.18})`;
+    const col = pos ? 'var(--green-dark)' : 'var(--navy)';
+    const bc = conv ? (pos ? 'rgba(58,170,53,0.5)' : 'rgba(27,58,107,0.4)') : 'var(--border)';
+    const cell = document.createElement('div');
+    cell.className = 'weight-cell';
+    cell.style.cssText = `background:${bg};border-color:${bc};color:${col};`;
+    cell.title = `target ${w.target}`;
+    cell.textContent = (cur >= 0 ? '+' : '') + cur.toFixed(2);
+    el.appendChild(cell);
+  });
+}
+function renderTrainPrediction(epoch, epochs) {
+  const t = epoch/epochs;
+  const el = document.getElementById('trainPrediction'); el.innerHTML = '';
+  TARGET_WORDS.forEach((word, i) => {
+    const span = document.createElement('span');
+    span.className = 'train-word';
+    const p = Math.max(0, t - i/TARGET_WORDS.length*0.5);
+    const correct = p > 0.6 + Math.random()*0.15;
+    if (correct) { span.classList.add('right'); span.textContent = word; }
+    else { span.classList.add('wrong'); span.textContent = GIBBERISH[i] || word; }
+    el.appendChild(span);
+  });
+}
+function renderLossChart(history) {
+  const svg = document.getElementById('lossChart');
+  const W=576, H=180, pad=24;
+  if (history.length < 2) { svg.querySelector('#lossLinePath').setAttribute('d',''); svg.querySelector('#lossAreaPath').setAttribute('d',''); return; }
+  const pts = history.map((v,i) => {
+    const x = pad + (W-pad*2)*i/(history.length-1||1);
+    const y = H - (v/5)*H;
+    return [x, Math.max(4, Math.min(H-4, y))];
+  });
+  const line = 'M'+pts.map(p=>p.join(',')).join('L');
+  const area = line + `L${pts[pts.length-1][0]},${H} L${pts[0][0]},${H} Z`;
+  svg.querySelector('#lossLinePath').setAttribute('d', line);
+  svg.querySelector('#lossAreaPath').setAttribute('d', area);
+  const lh = svg.querySelector('#lossHead');
+  const last = pts[pts.length-1];
+  lh.setAttribute('cx', last[0]); lh.setAttribute('cy', last[1]); lh.style.display='';
+}
+let lossHistory = [];
+function doTrain() {
+  if (trainRunning) return;
+  trainRunning = true;
+  document.getElementById('trainBtn').textContent = 'Training…';
+  lossHistory = [];
+  trainTimer = setInterval(() => {
+    trainEpoch++;
+    const loss = computeLoss(trainEpoch, totalEpochs, lrVal);
+    const acc = computeAccuracy(trainEpoch, totalEpochs, lrVal);
+    lossHistory.push(loss);
+    document.getElementById('lossDisplay').textContent = loss.toFixed(3);
+    document.getElementById('epochDisplay').innerHTML = `${trainEpoch}<span style="color:var(--gray-300)">/${totalEpochs}</span>`;
+    document.getElementById('accDisplay').textContent = acc + '%';
+    renderWeights(trainEpoch, totalEpochs, lrVal);
+    renderTrainPrediction(trainEpoch, totalEpochs);
+    renderLossChart(lossHistory);
+    if (trainEpoch >= totalEpochs) {
+      clearInterval(trainTimer); trainRunning = false;
+      document.getElementById('trainBtn').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg> Train`;
+    }
+  }, 120);
+}
+function resetTrain() {
+  clearInterval(trainTimer); trainRunning = false; trainEpoch = 0; lossHistory = [];
+  document.getElementById('lossDisplay').textContent = '4.730';
+  document.getElementById('epochDisplay').innerHTML = `0<span style="color:var(--gray-300)">/${totalEpochs}</span>`;
+  document.getElementById('accDisplay').textContent = '0%';
+  document.getElementById('trainBtn').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg> Train`;
+  renderWeights(0, totalEpochs, lrVal);
+  renderTrainPrediction(0, totalEpochs);
+  renderLossChart([]);
+}
+document.getElementById('trainBtn').addEventListener('click', doTrain);
+document.getElementById('resetTrainBtn').addEventListener('click', resetTrain);
+document.getElementById('lrSlider').addEventListener('input', e => {
+  lrVal = parseFloat(e.target.value);
+  document.getElementById('lrVal').textContent = lrVal.toFixed(3);
+});
+document.getElementById('epochsSlider').addEventListener('input', e => {
+  totalEpochs = parseInt(e.target.value);
+  document.getElementById('epochsVal').textContent = totalEpochs;
+  document.getElementById('epochDisplay').innerHTML = `${trainEpoch}<span style="color:var(--gray-300)">/${totalEpochs}</span>`;
+});
+renderWeights(0, 40, 0.05);
+renderTrainPrediction(0, 40);
+
+/* ──── ATTENTION ──── */
+const ATT_SENTENCE = ['The','cat','sat','on','the','mat','because','it','was','tired'];
+const ATT_DATA = {
+  The:     {The:30,cat:5,sat:2,on:2,the:5,mat:2,because:2,it:2,was:2,tired:2},
+  cat:     {The:5,cat:30,sat:20,on:5,the:5,mat:10,because:5,it:5,was:5,tired:5},
+  sat:     {The:2,cat:25,sat:15,on:10,the:2,mat:15,because:5,it:5,was:5,tired:5},
+  on:      {The:2,cat:5,sat:10,on:20,the:10,mat:30,because:5,it:5,was:5,tired:2},
+  the:     {The:30,cat:5,sat:2,on:5,the:20,mat:15,because:5,it:5,was:5,tired:2},
+  mat:     {The:2,cat:10,sat:15,on:20,the:10,mat:25,because:5,it:5,was:5,tired:2},
+  because: {The:2,cat:10,sat:10,on:2,the:2,mat:5,because:20,it:20,was:15,tired:10},
+  it:      {The:2,cat:55,sat:5,on:2,the:2,mat:5,because:5,it:20,was:5,tired:5},
+  was:     {The:2,cat:10,sat:5,on:2,the:2,mat:2,because:15,it:25,was:20,tired:20},
+  tired:   {The:2,cat:10,sat:5,on:2,the:2,mat:2,because:10,it:20,was:20,tired:30},
+};
+const ATT_NOTES = {
+  it: '"it" strongly attends to "cat" — that\'s how the model resolves the pronoun.',
+  tired: '"tired" looks back at "it" and "was" to build meaning from context.',
+  sat:   '"sat" attends to "cat" (the subject) and "mat" (where it sat).',
+  on:    '"on" focuses on "mat" (what follows) — a preposition anchoring to its object.',
+  because:'"because" looks at surrounding context to understand what caused what.',
+  the:   '"the" (second occurrence) attends to the first "The" — shared identity.',
+};
+let selWord = 'it';
+function renderAttWords() {
+  const el = document.getElementById('attWords'); el.innerHTML = '';
+  ATT_SENTENCE.forEach(w => {
+    const b = document.createElement('button');
+    b.className = 'word-btn' + (w === selWord ? ' active' : '');
+    b.textContent = w;
+    b.addEventListener('click', () => { selWord = w; renderAttWords(); renderAttBars(); });
+    el.appendChild(b);
+  });
+}
+function renderAttBars() {
+  const data = ATT_DATA[selWord] || {};
+  document.getElementById('attTitle').textContent = `"${selWord}" attends to →`;
+  const el = document.getElementById('attBars'); el.innerHTML = '';
+  ATT_SENTENCE.forEach(w => {
+    const pct = data[w] || 0;
+    const row = document.createElement('div');
+    row.className = 'att-row';
+    const fillW = Math.max(2, pct);
+    row.innerHTML = `<div class="att-label">${w}</div>
+      <div class="att-track"><div class="att-fill" style="width:${fillW}%;background:linear-gradient(90deg,rgba(27,58,107,0.6),rgba(44,87,153,0.85));"></div></div>
+      <div class="att-pct">${pct}%</div>`;
+    el.appendChild(row);
+  });
+  const note = ATT_NOTES[selWord] || `"${selWord}" distributes attention across the sentence.`;
+  document.getElementById('attNote').innerHTML = `<span style="font-family:'DM Mono',monospace;color:var(--navy)">"${selWord}"</span> — ${note}`;
+}
+renderAttWords(); renderAttBars();
+
+/* ──── PREDICTION ──── */
+const CTX = [
+  {text:'The cat sat on the', choices:{mat:41, floor:25, couch:17, table:12, windowsill:5}},
+  {text:'Once upon a', choices:{time:55, day:22, night:12, winter:7, dream:4}},
+  {text:'The capital of France is', choices:{Paris:88, Lyon:5, Marseille:3, Brussels:2, London:2}},
+  {text:'Roses are red, violets are', choices:{blue:60, purple:18, violet:10, red:7, black:5}},
+];
+let ctxIdx = 0, genTokens = [], temp = 0.8, topK = 5;
+function getProbs(choices, temperature, k) {
+  let entries = Object.entries(choices).map(([w,p])=>([w, Math.pow(p, 1/temperature)]));
+  entries.sort((a,b)=>b[1]-a[1]);
+  entries = entries.slice(0, k);
+  const sum = entries.reduce((s,[,v])=>s+v, 0);
+  return entries.map(([w,v])=>([w, v/sum*100]));
+}
+function renderCtxBtns() {
+  const el = document.getElementById('ctxBtns'); el.innerHTML = '';
+  CTX.forEach((c, i) => {
+    const b = document.createElement('button');
+    b.className = 'ctx-btn' + (i===ctxIdx ? ' active' : '');
+    b.innerHTML = `${c.text} <span style="color:var(--gray-300)">___</span>`;
+    b.addEventListener('click', () => { ctxIdx = i; genTokens = []; renderCtxBtns(); renderGen(); renderProbBars(); });
+    el.appendChild(b);
+  });
+}
+function renderGen() {
+  const el = document.getElementById('genText');
+  const base = CTX[ctxIdx].text;
+  el.innerHTML = base + ' ' + genTokens.join(' ') + ' <span class="cursor">▌</span>';
+}
+function renderProbBars() {
+  const choices = CTX[ctxIdx].choices;
+  const probs = getProbs(choices, temp, topK);
+  const el = document.getElementById('probBars'); el.innerHTML = '';
+  const maxP = Math.max(...probs.map(([,p])=>p));
+  probs.forEach(([word, pct]) => {
+    const isTop = pct === maxP;
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <div class="bar-label">${word}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${pct.toFixed(1)}%;background:${isTop?'linear-gradient(90deg,rgba(27,58,107,0.7),rgba(27,58,107,0.9))':'linear-gradient(90deg,rgba(44,87,153,0.4),rgba(44,87,153,0.65))'};min-width:${pct>5?'40px':'0'};">
+          ${pct > 8 ? pct.toFixed(1)+'%' : ''}
+        </div>
+      </div>
+      <div class="bar-pct">${pct <= 8 ? pct.toFixed(1)+'%' : ''}</div>`;
+    el.appendChild(row);
+  });
+}
+function sampleToken() {
+  const choices = CTX[ctxIdx].choices;
+  const probs = getProbs(choices, temp, topK);
+  const r = Math.random()*100;
+  let cum = 0;
+  for (const [word, pct] of probs) {
+    cum += pct;
+    if (r <= cum) { genTokens.push(word); break; }
+  }
+  renderGen(); renderProbBars();
+}
+document.getElementById('sampleBtn').addEventListener('click', sampleToken);
+document.getElementById('resetPredBtn').addEventListener('click', () => { genTokens = []; renderGen(); renderProbBars(); });
+document.getElementById('tempSlider').addEventListener('input', e => {
+  temp = parseFloat(e.target.value);
+  document.getElementById('tempVal').textContent = temp.toFixed(2);
+  renderProbBars();
+});
+document.getElementById('topkSlider').addEventListener('input', e => {
+  topK = parseInt(e.target.value);
+  document.getElementById('topkVal').textContent = topK;
+  renderProbBars();
+});
+renderCtxBtns(); renderGen(); renderProbBars();
+</script>
+</body>
+</html>

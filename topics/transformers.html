@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transformers Deep Learning Module - HCL GUVI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#22c55e;--green-l:#86efac;--green-d:#16a34a;--green-bg:#f0fdf4;
+  --blue:#3b82f6;--blue-l:#93c5fd;--blue-d:#1d4ed8;--blue-bg:#eff6ff;
+  --teal:#14b8a6;--teal-bg:#f0fdfa;
+  --amber:#f59e0b;--amber-bg:#fffbeb;--amber-md:#fde68a;
+  --purple:#7c3aed;--purple-bg:#f5f3ff;--purple-md:#ddd6fe;
+  --red:#ef4444;--red-bg:#fef2f2;--red-md:#fca5a5;
+  --orange:#f97316;--orange-bg:#fff7ed;
+  --bg:#f8fafc;--surface:#fff;--surface2:#f1f5f9;
+  --border:#e2e8f0;--text:#0f172a;--muted:#64748b;--light:#94a3b8;
+  --shadow:0 4px 20px rgba(0,0,0,.07);--shadow-lg:0 12px 40px rgba(0,0,0,.12);
+  --r:16px;--rs:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+.topnav{height:64px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.logo-wrap{display:flex;align-items:center;gap:8px}.logo-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--blue));display:grid;place-items:center;color:#fff;font-weight:800;font-family:'Cabinet Grotesk',sans-serif}
+.logo-fb{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:17px;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-div{width:1px;height:32px;background:var(--border)}.nav-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:15px;flex:1}.nav-title span{color:var(--blue)}
+.npw{display:flex;align-items:center;gap:10px}.npb{width:150px;height:8px;background:var(--surface2);border-radius:99px;overflow:hidden}.npf{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:99px;transition:width .5s ease;width:0%}.npt{font-size:12px;color:var(--muted);font-weight:700;min-width:36px}
+.nav-creator{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));border:1px solid var(--border);border-radius:99px;padding:5px 14px}.nav-avatar{width:26px;height:26px;background:linear-gradient(135deg,var(--green),var(--blue));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}.nav-creator span{font-size:11px;font-weight:600;color:var(--muted)}
+.app-body{display:flex;flex:1;overflow:hidden}.sidebar{width:245px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:16px 10px;display:flex;flex-direction:column;gap:2px}
+.sb-sec{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--light);padding:10px 12px 4px}.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rs);cursor:pointer;transition:all .2s;font-size:13px;font-weight:600;color:var(--muted);position:relative}.sb-item:hover{background:var(--surface2);color:var(--text)}.sb-item.active{background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));color:var(--blue);border:1px solid rgba(59,130,246,.15)}.sb-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--surface2);flex-shrink:0}.sb-item.active .sb-icon{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff}.sb-done{width:16px;height:16px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;margin-left:auto;flex-shrink:0}
+.main{flex:1;overflow-y:auto;position:relative}.page{display:none;padding:36px 44px;min-height:100%;animation:fadeUp .35s ease}.page.active{display:block}@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:99px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;transition:all .2s}.btn-primary{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff;box-shadow:0 4px 14px rgba(59,130,246,.3)}.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(59,130,246,.4)}.btn-secondary{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}.btn-outline{background:transparent;color:var(--blue);border:2px solid var(--blue)}.btn-outline:hover{background:var(--blue);color:#fff}.btn-sm{padding:8px 16px;font-size:13px}.page-nav{display:flex;justify-content:space-between;align-items:center;margin-top:44px;padding-top:22px;border-top:1px solid var(--border)}
+.page-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));border:1px solid rgba(34,197,94,.3);border-radius:99px;font-size:11px;font-weight:700;color:var(--green-d);margin-bottom:14px}.page-title{font-family:'Cabinet Grotesk',sans-serif;font-size:34px;font-weight:800;line-height:1.2;margin-bottom:8px}.page-title span{color:var(--blue)}.page-sub{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:32px;max-width:780px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:26px;box-shadow:var(--shadow);margin-bottom:22px;transition:box-shadow .2s}.card:hover{box-shadow:var(--shadow-lg)}.card-title{font-family:'Cabinet Grotesk',sans-serif;font-size:17px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.pill{font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;color:#fff}.pill-green{background:var(--green)}.pill-blue{background:var(--blue)}.pill-teal{background:var(--teal)}.pill-orange{background:var(--orange)}.pill-purple{background:var(--purple)}
+.hero{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);border-radius:var(--r);padding:50px 44px;color:#fff;position:relative;overflow:hidden;margin-bottom:28px}.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 82% 20%,rgba(34,197,94,.18),transparent 58%),linear-gradient(120deg,transparent,rgba(59,130,246,.1))}.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.4);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--green-l);margin-bottom:18px;position:relative}.hero h1{font-family:'Cabinet Grotesk',sans-serif;font-size:42px;font-weight:800;line-height:1.15;margin-bottom:14px;position:relative}.hero h1 span{color:var(--green-l)}.hero p{font-size:15px;opacity:.82;max-width:650px;line-height:1.7;position:relative}.hero-chips{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;position:relative}.hero-chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:99px;padding:7px 16px;font-size:12px;font-weight:700;color:#fff}
+.analogy{background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));border:1px solid rgba(34,197,94,.2);border-left:4px solid var(--green);border-radius:var(--rs);padding:18px 22px;margin:18px 0;display:flex;gap:14px;align-items:flex-start}.analogy .em{font-size:26px;flex-shrink:0;line-height:1.2}.analogy p{font-size:14px;line-height:1.7;color:var(--text)}.analogy strong{color:var(--green-d)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}.feat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}.feat-box{background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid var(--border);border-radius:var(--rs);padding:18px;text-align:center}.feat-box .em{font-size:28px;margin-bottom:6px}.feat-box .t{font-weight:700;font-size:13px;margin-bottom:3px}.feat-box .d{font-size:12px;color:var(--muted);line-height:1.5}
+.info-box{background:var(--blue-bg);border:1px solid var(--blue-l);border-radius:var(--rs);padding:14px 18px;margin:14px 0;font-size:13px;color:var(--blue-d);line-height:1.6}.warn-box{background:var(--amber-bg);border:1px solid var(--amber-md);border-radius:var(--rs);padding:14px 18px;margin:14px 0;font-size:13px;color:#92400e;line-height:1.6}.success-box{background:var(--green-bg);border:1px solid var(--green-l);border-radius:var(--rs);padding:14px 18px;margin:14px 0;font-size:13px;color:var(--green-d);line-height:1.6}
+.code-wrap{background:#0f172a;border-radius:var(--rs);overflow:hidden;margin:18px 0}.code-header{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;background:#1e293b;border-bottom:1px solid #334155}.dots{display:flex;gap:5px}.dots span{width:11px;height:11px;border-radius:50%}.dr{background:#ef4444}.dy{background:#f59e0b}.dg{background:#22c55e}.code-lang{font-size:11px;color:#64748b;font-family:'Fira Code',monospace}.copy-btn{font-size:11px;color:#94a3b8;background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif}pre{padding:18px 22px;overflow-x:auto;font-family:'Fira Code',monospace;font-size:13px;line-height:1.75;color:#e2e8f0}.kw{color:#c084fc}.fn{color:#67e8f9}.st{color:#86efac}.cm{color:#64748b;font-style:italic}.nm{color:#fbbf24}.op{color:#f472b6}.run-out{display:none;background:#0f172a;border-top:1px solid #1e293b;padding:14px 22px;font-family:'Fira Code',monospace;font-size:13px;color:#86efac}.run-out.show{display:block}
+.formula-dark{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:var(--r);padding:28px;text-align:center;margin:18px 0}.f-main{font-family:'Fira Code',monospace;font-size:18px;color:#fff;line-height:2}.fb{color:#93c5fd}.fg{color:#86efac}.fy{color:#fde68a}.fp{color:#f9a8d4}.fo{color:#fdba74}.f-parts{display:flex;gap:12px;margin-top:18px;justify-content:center;flex-wrap:wrap}.f-part{background:rgba(255,255,255,.07);border-radius:var(--rs);padding:10px 16px;text-align:center}.f-sym{font-size:14px;font-family:'Fira Code',monospace;color:#fff}.f-mean{font-size:10px;color:rgba(255,255,255,.5);margin-top:3px;line-height:1.4}
+.concept-map{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:stretch;margin-top:16px}.cm-node{border:2px solid var(--border);background:var(--surface);border-radius:var(--rs);padding:16px;text-align:center;cursor:pointer;transition:all .2s;min-height:112px;display:flex;flex-direction:column;justify-content:center}.cm-node:hover,.cm-node.active{border-color:var(--blue);background:var(--blue-bg);transform:translateY(-3px)}.cm-node .em{font-size:26px;margin-bottom:6px}.cm-node .t{font-weight:800;font-size:13px}.cm-node .d{font-size:11px;color:var(--muted);line-height:1.45;margin-top:5px}.detail-panel{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:18px;margin-top:16px;font-size:13px;line-height:1.65;color:var(--muted)}
+.token-box{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.token{border:2px solid var(--border);background:var(--surface);border-radius:10px;padding:9px 12px;font-weight:800;font-size:13px;cursor:pointer;transition:all .2s}.token:hover,.token.active{border-color:var(--blue);background:var(--blue-bg);color:var(--blue-d);transform:translateY(-2px)}
+.playground{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--surface);margin:18px 0}.pg-head{display:flex;gap:10px;align-items:center;padding:14px 16px;background:var(--surface2);border-bottom:1px solid var(--border);flex-wrap:wrap}.pg-head input,.pg-head select{border:1.5px solid var(--border);border-radius:99px;padding:9px 14px;font-family:'Nunito';font-weight:700;background:#fff;color:var(--text)}.pg-head input{flex:1;min-width:260px}.pg-body{padding:18px}.heatmap{display:grid;gap:6px;margin-top:12px}.hm-row{display:grid;grid-template-columns:110px repeat(var(--cols),minmax(42px,1fr));gap:6px;align-items:center}.hm-lbl{font-size:11px;color:var(--muted);font-weight:800;text-align:right;overflow:hidden;text-overflow:ellipsis}.hm-cell{border-radius:8px;min-height:42px;display:flex;align-items:center;justify-content:center;font-family:'Fira Code',monospace;font-size:12px;font-weight:700;color:#0f172a;border:1px solid rgba(15,23,42,.08)}.attn-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}.mini-stat{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:13px}.mini-stat .k{font-size:10px;color:var(--light);font-weight:800;text-transform:uppercase;letter-spacing:.08em}.mini-stat .v{font-size:16px;font-weight:800;color:var(--blue);margin-top:4px}.mini-stat .s{font-size:12px;color:var(--muted);line-height:1.5;margin-top:3px}
+canvas{display:block;width:100%;height:260px;background:#f8fafc;border:1px solid var(--border);border-radius:var(--rs)}
+.stack{display:flex;gap:12px;align-items:stretch;margin:16px 0;overflow-x:auto;padding-bottom:8px}.block{min-width:155px;background:var(--surface);border:2px solid var(--border);border-radius:var(--rs);padding:14px;text-align:center;cursor:pointer;transition:all .2s}.block.active,.block:hover{border-color:var(--green);background:var(--green-bg);transform:translateY(-2px)}.block .b-em{font-size:24px}.block .b-t{font-weight:800;font-size:13px;margin-top:4px}.block .b-d{font-size:11px;color:var(--muted);line-height:1.45;margin-top:4px}
+.slider-row{display:flex;align-items:center;gap:14px;margin:13px 0}.slider-row label{width:190px;font-size:12px;font-weight:800;color:var(--muted)}input[type=range]{flex:1;-webkit-appearance:none;height:7px;border-radius:99px;background:var(--border);outline:none;cursor:pointer}input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));cursor:pointer;box-shadow:0 2px 8px rgba(59,130,246,.4)}.sl-val{font-family:'Fira Code',monospace;font-size:13px;font-weight:800;color:var(--blue);width:68px;text-align:right}
+.table-wrap{border-radius:var(--rs);overflow:hidden;border:1px solid var(--border);margin:18px 0}table{width:100%;border-collapse:collapse;font-size:13px}th{background:linear-gradient(135deg,var(--green-d),var(--blue-d));color:#fff;padding:11px 14px;text-align:left;font-family:'Cabinet Grotesk',sans-serif;font-weight:700}td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text);line-height:1.5}td code{background:var(--surface2);padding:2px 7px;border-radius:5px;font-family:'Fira Code',monospace;font-size:12px}tr:nth-child(even) td{background:var(--surface2)}
+.ex-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:22px;box-shadow:var(--shadow)}.ex-head{padding:18px 24px;background:linear-gradient(135deg,var(--surface2),var(--surface));border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:14px}.ex-num{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff;flex-shrink:0}.ex-title{font-weight:800;font-size:15px;margin-bottom:5px}.ex-desc{font-size:13px;color:var(--muted);line-height:1.6}.sol-btn{width:100%;padding:13px 24px;background:none;border:none;border-top:1px solid var(--border);font-family:'Nunito';font-weight:800;font-size:13px;cursor:pointer;color:var(--blue);display:flex;align-items:center;gap:8px}.solution{display:none}.solution.open{display:block}
+.q-opt{display:flex;align-items:center;gap:12px;padding:14px 18px;border:2px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:all .2s;font-weight:700;font-size:14px;font-family:'Nunito';background:var(--surface);text-align:left;width:100%;margin-bottom:10px}.q-opt:hover{border-color:var(--blue);background:var(--blue-bg)}.q-opt.correct{border-color:var(--green);background:var(--green-bg);color:var(--green-d);pointer-events:none}.q-opt.wrong{border-color:var(--red);background:var(--red-bg);color:#dc2626;pointer-events:none}.q-opt.disabled{pointer-events:none;opacity:.45}.opt-l{width:30px;height:30px;flex-shrink:0;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}.q-fb{margin-top:18px;padding:13px 16px;border-radius:var(--rs);font-size:13px;line-height:1.6;display:none}.q-fb.show{display:block}.fb-ok{background:var(--green-bg);border:1px solid var(--green-l);color:#166534}.fb-no{background:var(--red-bg);border:1px solid var(--red-md);color:#991b1b}.q-dots{display:flex;gap:7px;margin-bottom:24px}.qdot{width:10px;height:10px;border-radius:50%;background:var(--border)}.qdot.done{background:var(--green)}.qdot.curr{background:var(--blue);transform:scale(1.35)}
+.cf{position:fixed;width:9px;height:9px;border-radius:2px;top:-10px;animation:cfFall linear forwards;z-index:9999;pointer-events:none}@keyframes cfFall{to{transform:translateY(105vh) rotate(720deg);opacity:0}}
+@media(max-width:900px){.sidebar{display:none}.page{padding:24px 18px}.g2,.g3,.feat-row,.attn-summary,.concept-map{grid-template-columns:1fr}.topnav{padding:0 12px}.npw,.nav-creator{display:none}.hero{padding:34px 24px}.hero h1{font-size:32px}.hm-row{grid-template-columns:82px repeat(var(--cols),minmax(36px,1fr))}.hm-cell{min-height:36px;font-size:10px}}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="logo-wrap"><div class="logo-mark">T</div><div class="logo-fb">HCL GUVI</div></div>
+  <div class="nav-div"></div>
+  <div class="nav-title">Deep Learning Module: <span>Transformers</span></div>
+  <div class="npw"><div class="npb"><div class="npf" id="progFill"></div></div><div class="npt" id="progTxt">0%</div></div>
+  <div class="nav-creator"><div class="nav-avatar">AI</div><span>Interactive Learning</span></div>
+</nav>
+
+<div class="app-body">
+  <aside class="sidebar">
+    <div class="sb-sec">Transformer Path</div>
+    <div class="sb-item active" id="nav0" onclick="goTo(0)"><div class="sb-icon">1</div>Welcome</div>
+    <div class="sb-item" id="nav1" onclick="goTo(1)"><div class="sb-icon">2</div>Concept Map</div>
+    <div class="sb-item" id="nav2" onclick="goTo(2)"><div class="sb-icon">3</div>Self-Attention Lab</div>
+    <div class="sb-item" id="nav3" onclick="goTo(3)"><div class="sb-icon">4</div>Architecture</div>
+    <div class="sb-item" id="nav4" onclick="goTo(4)"><div class="sb-icon">5</div>Training & Fine-Tuning</div>
+    <div class="sb-item" id="nav5" onclick="goTo(5)"><div class="sb-icon">6</div>Try It Yourself</div>
+    <div class="sb-item" id="nav6" onclick="goTo(6)"><div class="sb-icon">7</div>Quiz</div>
+    <div class="sb-item" id="nav7" onclick="goTo(7)"><div class="sb-icon">8</div>Completion</div>
+  </aside>
+
+  <main class="main" id="mainEl">
+    <section class="page active" id="page0">
+      <div class="hero">
+        <div class="hero-badge">Deep Learning | NLP | Generative AI</div>
+        <h1>Transformers: the engine behind <span>modern AI</span></h1>
+        <p>Learn the Transformer architecture deeply: tokens, embeddings, positional encoding, self-attention, multi-head attention, encoder-decoder stacks, masking, training objectives, fine-tuning, and why this design replaced recurrent models for language, vision, audio, and multimodal AI.</p>
+        <div class="hero-chips">
+          <div class="hero-chip">Self-Attention</div><div class="hero-chip">Multi-Head Attention</div><div class="hero-chip">Encoder & Decoder</div><div class="hero-chip">LLM Training</div>
+        </div>
+      </div>
+      <div class="feat-row">
+        <div class="feat-box"><div class="em">A</div><div class="t">Attention First</div><div class="d">Understand how every token can look at every other token.</div></div>
+        <div class="feat-box"><div class="em">B</div><div class="t">Hands-On</div><div class="d">Edit sentences, inspect attention, and tune model size parameters.</div></div>
+        <div class="feat-box"><div class="em">C</div><div class="t">Production View</div><div class="d">Learn pretraining, fine-tuning, inference, and common failure modes.</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Why Transformers Matter <span class="pill pill-green">Big Picture</span></div>
+        <p class="page-sub" style="margin-bottom:0">Before Transformers, sequence models usually processed text one step at a time. That made long-range relationships hard and training slow. Transformers changed the recipe: instead of reading left-to-right with a recurrent hidden state, they compare tokens directly with attention. This makes training parallel, captures long-distance dependencies, and scales beautifully with data and compute.</p>
+        <div class="analogy"><div class="em">AI</div><p><strong>Analogy:</strong> Imagine reading a paragraph with sticky notes. For each word, you ask: "Which other words explain this word?" In "The animal did not cross the road because it was tired", attention helps decide that "it" refers to "animal", not "road".</p></div>
+      </div>
+      <div class="page-nav"><div></div><button class="btn btn-primary" onclick="goTo(1)">Start Learning</button></div>
+    </section>
+
+    <section class="page" id="page1">
+      <div class="page-tag">Chapter 1</div><h2 class="page-title">Transformer <span>Concept Map</span></h2>
+      <p class="page-sub">A Transformer is not one trick. It is a pipeline of carefully connected ideas. Click each concept to see what role it plays in the model.</p>
+      <div class="card">
+        <div class="card-title">Interactive Concept Map <span class="pill pill-blue">Click Nodes</span></div>
+        <div class="concept-map" id="conceptMap"></div>
+        <div class="detail-panel" id="conceptDetail">Click a concept node above to reveal its explanation.</div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">The Core Flow</div>
+          <div class="formula-dark">
+            <div class="f-main"><span class="fb">tokens</span> -> <span class="fg">embeddings</span> + <span class="fy">position</span> -> <span class="fp">attention</span> -> <span class="fo">MLP</span> -> prediction</div>
+            <div class="f-parts">
+              <div class="f-part"><div class="f-sym">tokens</div><div class="f-mean">text chunks</div></div>
+              <div class="f-part"><div class="f-sym">attention</div><div class="f-mean">context mixing</div></div>
+              <div class="f-part"><div class="f-sym">MLP</div><div class="f-mean">feature transformation</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">What Transformers Learn</div>
+          <table><tr><th>Layer Type</th><th>Typical Role</th></tr>
+            <tr><td>Early layers</td><td>Local patterns, punctuation, word shapes, token identity.</td></tr>
+            <tr><td>Middle layers</td><td>Syntax, entity links, phrase structure, coreference.</td></tr>
+            <tr><td>Late layers</td><td>Task-specific abstractions, answer candidates, generation decisions.</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(0)">Back</button><button class="btn btn-primary" onclick="goTo(2)">Next: Self-Attention</button></div>
+    </section>
+
+    <section class="page" id="page2">
+      <div class="page-tag">Chapter 2</div><h2 class="page-title">Self-Attention <span>Lab</span></h2>
+      <p class="page-sub">Self-attention lets each token build a context-aware representation by borrowing information from other tokens. This is the beating heart of Transformers.</p>
+      <div class="card">
+        <div class="card-title">Attention Formula <span class="pill pill-purple">Scaled Dot Product</span></div>
+        <div class="formula-dark"><div class="f-main">Attention(Q,K,V) = softmax(<span class="fb">QK<sup>T</sup></span> / <span class="fy">sqrt(d<sub>k</sub>)</span>) <span class="fg">V</span></div></div>
+        <div class="g3">
+          <div class="info-box"><strong>Query (Q):</strong> what the current token is looking for.</div>
+          <div class="success-box"><strong>Key (K):</strong> what each token offers as a searchable label.</div>
+          <div class="warn-box"><strong>Value (V):</strong> the actual information copied into the output.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Interactive Attention Playground <span class="pill pill-blue">Try It</span></div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.7">Type a sentence, choose a query token, and inspect how attention weights shift. This simplified demo uses token similarity, distance, and a head style to imitate attention behavior.</p>
+        <div class="playground">
+          <div class="pg-head">
+            <input id="attnSentence" value="The robot picked up the box because it was heavy">
+            <select id="headType"><option value="semantic">Semantic head</option><option value="local">Local head</option><option value="syntax">Syntax head</option></select>
+            <button class="btn btn-primary btn-sm" onclick="buildAttention()">Run Attention</button>
+          </div>
+          <div class="pg-body">
+            <div class="token-box" id="tokenBox"></div>
+            <div class="heatmap" id="heatmap"></div>
+            <div class="attn-summary">
+              <div class="mini-stat"><div class="k">Query Token</div><div class="v" id="queryTok">-</div><div class="s">The token currently asking for context.</div></div>
+              <div class="mini-stat"><div class="k">Top Attended Token</div><div class="v" id="topTok">-</div><div class="s">The strongest source of copied information.</div></div>
+              <div class="mini-stat"><div class="k">Interpretation</div><div class="v" id="attnInterp">-</div><div class="s">A plain-English reading of the attention pattern.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Positional Encoding Canvas <span class="pill pill-teal">Why Order Matters</span></div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:12px">Self-attention alone treats tokens like a set. Positional encodings inject order so the model knows "dog bites man" is different from "man bites dog". Move the slider to see how sine/cosine position patterns change across dimensions.</p>
+        <div class="slider-row"><label>Encoding dimension</label><input type="range" id="posDim" min="0" max="15" value="4" oninput="drawPositional()"><span class="sl-val" id="posDimVal">4</span></div>
+        <canvas id="posCanvas" width="900" height="260"></canvas>
+      </div>
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(1)">Back</button><button class="btn btn-primary" onclick="goTo(3)">Next: Architecture</button></div>
+    </section>
+
+    <section class="page" id="page3">
+      <div class="page-tag">Chapter 3</div><h2 class="page-title">Transformer <span>Architecture</span></h2>
+      <p class="page-sub">A Transformer block repeats a few operations: attention, residual connections, normalization, and a feed-forward network. Stacking many blocks creates powerful representations.</p>
+      <div class="card">
+        <div class="card-title">Click Through One Transformer Block</div>
+        <div class="stack" id="archStack"></div>
+        <div class="detail-panel" id="archDetail">Click a block to inspect why it exists.</div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Encoder vs Decoder vs Encoder-Decoder</div>
+          <table><tr><th>Model Type</th><th>Used For</th><th>Attention Pattern</th></tr>
+            <tr><td><strong>Encoder-only</strong> BERT-style</td><td>Classification, retrieval, embeddings</td><td>Bidirectional attention over input</td></tr>
+            <tr><td><strong>Decoder-only</strong> GPT-style</td><td>Text generation, chat, code</td><td>Causal attention: can only see previous tokens</td></tr>
+            <tr><td><strong>Encoder-decoder</strong> T5-style</td><td>Translation, summarization</td><td>Encoder reads input; decoder generates output</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title">Causal Mask Demo <span class="pill pill-orange">Decoder Logic</span></div>
+          <p style="font-size:13px;color:var(--muted);line-height:1.7">In generation, token 5 must not peek at token 6. A causal mask hides future positions so next-token prediction remains honest.</p>
+          <div class="pg-head" style="border:1px solid var(--border);border-radius:var(--rs);margin-top:12px"><button class="btn btn-primary btn-sm" onclick="toggleMask()">Toggle Mask</button><span id="maskState" style="font-size:13px;font-weight:800;color:var(--blue)">Mask: ON</span></div>
+          <div class="heatmap" id="maskMap" style="--cols:6"></div>
+        </div>
+      </div>
+      <div class="code-wrap">
+        <div class="code-header"><div class="dots"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div><span class="code-lang">PyTorch-style Transformer block</span><button class="copy-btn" onclick="copyCode('codeBlock',this)">Copy</button></div>
+        <pre id="codeBlock"><span class="kw">class</span> <span class="fn">TransformerBlock</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">forward</span>(self, x, mask=None):
+        attn_out = self.attention(x, x, x, mask)
+        x = self.norm1(x + attn_out)       <span class="cm"># residual + layer norm</span>
+        mlp_out = self.mlp(x)
+        x = self.norm2(x + mlp_out)        <span class="cm"># another residual path</span>
+        <span class="kw">return</span> x</pre>
+      </div>
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(2)">Back</button><button class="btn btn-primary" onclick="goTo(4)">Next: Training</button></div>
+    </section>
+
+    <section class="page" id="page4">
+      <div class="page-tag">Chapter 4</div><h2 class="page-title">Training, Fine-Tuning <span>& Inference</span></h2>
+      <p class="page-sub">Transformers become useful through large-scale training. The architecture provides capacity; the objective and data shape the behavior.</p>
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Training Objective Simulator</div>
+          <div class="slider-row"><label>Model size</label><input type="range" id="modelSize" min="1" max="10" value="5" oninput="updateTraining()"><span class="sl-val" id="modelSizeVal">5B</span></div>
+          <div class="slider-row"><label>Dataset quality</label><input type="range" id="dataQuality" min="1" max="10" value="7" oninput="updateTraining()"><span class="sl-val" id="dataQualityVal">7/10</span></div>
+          <div class="slider-row"><label>Fine-tuning strength</label><input type="range" id="ftStrength" min="0" max="10" value="4" oninput="updateTraining()"><span class="sl-val" id="ftStrengthVal">4</span></div>
+          <div class="attn-summary">
+            <div class="mini-stat"><div class="k">Language Skill</div><div class="v" id="langSkill">-</div><div class="s">Pattern learning from pretraining.</div></div>
+            <div class="mini-stat"><div class="k">Task Alignment</div><div class="v" id="alignSkill">-</div><div class="s">How well behavior follows the target task.</div></div>
+            <div class="mini-stat"><div class="k">Risk</div><div class="v" id="riskSkill">-</div><div class="s">Overfitting, hallucination, or style collapse.</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Training Stages</div>
+          <table><tr><th>Stage</th><th>What Happens</th></tr>
+            <tr><td>Pretraining</td><td>Predict masked or next tokens from huge corpora. The model learns language, facts, and patterns.</td></tr>
+            <tr><td>Supervised fine-tuning</td><td>Train on input-output examples so the model follows desired task formats.</td></tr>
+            <tr><td>Preference tuning</td><td>Use rankings or reward signals to prefer helpful, harmless, high-quality responses.</td></tr>
+            <tr><td>Inference</td><td>Generate tokens one at a time using sampling controls like temperature and top-p.</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Important Failure Modes</div>
+        <div class="g3">
+          <div class="warn-box"><strong>Hallucination:</strong> fluent output that is not grounded in truth.</div>
+          <div class="warn-box"><strong>Context limits:</strong> the model can only attend to tokens inside its context window.</div>
+          <div class="warn-box"><strong>Data leakage:</strong> evaluation becomes misleading if test examples appear in training.</div>
+        </div>
+      </div>
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(3)">Back</button><button class="btn btn-primary" onclick="goTo(5)">Next: Try It Yourself</button></div>
+    </section>
+
+    <section class="page" id="page5">
+      <div class="page-tag">Chapter 5</div><h2 class="page-title">Try It <span>Yourself</span></h2>
+      <p class="page-sub">Use these hands-on mini tasks to check whether the ideas are becoming operational. Try solving before revealing the explanation.</p>
+      <div class="ex-card">
+        <div class="ex-head"><div class="ex-num">1</div><div><div class="ex-title">Find the Attention Target</div><div class="ex-desc">Sentence: "Maya placed the laptop on the desk because it was charging." What should "it" attend to?</div></div></div>
+        <button class="sol-btn" onclick="toggleSol('sol1',this)">Show Solution</button>
+        <div class="solution" id="sol1"><div class="success-box">"It" should most strongly attend to "laptop", because a laptop can be charging. If it attended to "desk", the meaning would become strange. This is a coreference problem, and attention heads often learn patterns that help resolve it.</div></div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-head"><div class="ex-num">2</div><div><div class="ex-title">Choose the Model Type</div><div class="ex-desc">You need a model for sentiment classification of reviews. Encoder-only, decoder-only, or encoder-decoder?</div></div></div>
+        <button class="sol-btn" onclick="toggleSol('sol2',this)">Show Solution</button>
+        <div class="solution" id="sol2"><div class="info-box">Encoder-only is usually the most direct choice. The full review can be read bidirectionally, then a classification head predicts sentiment. Decoder-only can also classify via prompting, but encoder-only is efficient and natural for fixed-label prediction.</div></div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-head"><div class="ex-num">3</div><div><div class="ex-title">Causal Mask Reasoning</div><div class="ex-desc">During next-token prediction, why must the model not see future tokens?</div></div></div>
+        <button class="sol-btn" onclick="toggleSol('sol3',this)">Show Solution</button>
+        <div class="solution" id="sol3"><div class="warn-box">If the model sees future tokens, the training task becomes cheating. It could copy the answer instead of learning how previous context predicts the next token. Causal masking ensures training matches generation, where future tokens do not exist yet.</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Mini QK Similarity Calculator</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.7">Adjust Query and Key vector values. Higher dot product means stronger compatibility before softmax.</p>
+        <div class="slider-row"><label>Query feature 1</label><input type="range" id="q1" min="-5" max="5" value="3" oninput="updateQK()"><span class="sl-val" id="q1v">3</span></div>
+        <div class="slider-row"><label>Query feature 2</label><input type="range" id="q2" min="-5" max="5" value="1" oninput="updateQK()"><span class="sl-val" id="q2v">1</span></div>
+        <div class="slider-row"><label>Key feature 1</label><input type="range" id="k1" min="-5" max="5" value="4" oninput="updateQK()"><span class="sl-val" id="k1v">4</span></div>
+        <div class="slider-row"><label>Key feature 2</label><input type="range" id="k2" min="-5" max="5" value="2" oninput="updateQK()"><span class="sl-val" id="k2v">2</span></div>
+        <div class="formula-dark"><div class="f-main" id="qkOut">dot(Q,K) = 14</div></div>
+      </div>
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(4)">Back</button><button class="btn btn-primary" onclick="goTo(6)">Take Quiz</button></div>
+    </section>
+
+    <section class="page" id="page6">
+      <div class="page-tag">Chapter 6</div><h2 class="page-title">Transformer <span>Quiz</span></h2>
+      <p class="page-sub">Check your understanding. The quiz gives explanations after every answer.</p>
+      <div class="card">
+        <div id="quizWrap">
+          <div class="q-dots" id="qDots"></div>
+          <div style="font-size:11px;font-weight:800;color:var(--light);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px" id="qNum"></div>
+          <div style="font-family:'Cabinet Grotesk';font-size:21px;font-weight:800;margin-bottom:22px" id="qText"></div>
+          <div id="qOpts"></div><div id="qFb" class="q-fb"></div>
+          <button class="btn btn-primary" id="qNextBtn" style="display:none;margin-top:16px" onclick="nextQ()">Next</button>
+        </div>
+        <div id="scoreWrap" style="display:none;text-align:center;padding:38px 0">
+          <div style="width:150px;height:150px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;margin:0 auto 24px;color:#fff;font-family:'Cabinet Grotesk';font-size:44px;font-weight:800"><span id="scNum">0</span>/5</div>
+          <h3 id="scTitle" style="font-family:'Cabinet Grotesk';font-size:28px;margin-bottom:8px"></h3>
+          <p id="scMsg" style="color:var(--muted);margin-bottom:22px"></p>
+          <button class="btn btn-outline" onclick="initQuiz()">Retry Quiz</button>
+          <button class="btn btn-primary" onclick="goTo(7)">Completion</button>
+        </div>
+      </div>
+      <div class="page-nav"><button class="btn btn-secondary" onclick="goTo(5)">Back</button><div></div></div>
+    </section>
+
+    <section class="page" id="page7">
+      <div class="page-tag">Finished</div><h2 class="page-title">You Completed <span>Transformers</span></h2>
+      <div class="card" style="text-align:center;padding:48px">
+        <div style="font-size:70px;margin-bottom:16px">AI</div>
+        <p class="page-sub" style="margin:0 auto 24px">You now understand the core design of Transformers: tokenization, embeddings, attention, masking, architecture variants, and the training workflow behind modern AI systems.</p>
+        <div class="hero-chips" style="justify-content:center">
+          <div class="hero-chip" style="background:var(--blue)">Self-Attention</div><div class="hero-chip" style="background:var(--green)">Q/K/V</div><div class="hero-chip" style="background:var(--purple)">Causal Masking</div><div class="hero-chip" style="background:var(--orange)">Fine-Tuning</div>
+        </div>
+        <div style="margin-top:30px"><button class="btn btn-outline" onclick="restartModule()">Restart</button><button class="btn btn-primary" onclick="confetti()">Celebrate</button></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+let cur=0,visited=new Set([0]);
+function goTo(n){
+  document.getElementById('page'+cur).classList.remove('active');
+  document.getElementById('nav'+cur).classList.remove('active');
+  cur=n;visited.add(n);
+  document.getElementById('page'+n).classList.add('active');
+  document.getElementById('nav'+n).classList.add('active');
+  document.getElementById('mainEl').scrollTop=0;
+  visited.forEach(v=>{if(v===cur)return;const el=document.getElementById('nav'+v);if(!el.querySelector('.sb-done')){const d=document.createElement('div');d.className='sb-done';d.textContent='✓';el.appendChild(d);}});
+  updateProg();
+  if(n===2){setTimeout(()=>{buildAttention();drawPositional();},50);}
+  if(n===3)drawMask();
+  if(n===4)updateTraining();
+  if(n===5)updateQK();
+  if(n===6)initQuiz();
+  if(n===7)setTimeout(confetti,300);
+}
+function updateProg(){const p=Math.round(visited.size/8*100);document.getElementById('progFill').style.width=p+'%';document.getElementById('progTxt').textContent=p+'%';}
+function copyCode(id,btn){navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>{btn.textContent='Copied';setTimeout(()=>btn.textContent='Copy',1400);});}
+
+const concepts=[
+  ['Tokens','Text is split into chunks such as words, subwords, punctuation, or byte pieces. Transformers do not see raw sentences; they see token IDs.','T'],
+  ['Embeddings','Each token ID is mapped to a learned vector. Similar tokens can have similar vector directions, but meaning becomes richer after attention layers.','E'],
+  ['Position','Because attention compares all tokens at once, the model needs position information to represent order.','P'],
+  ['Attention','Attention computes which tokens matter to each other, then mixes their value vectors into contextual representations.','A'],
+  ['MLP','The feed-forward network transforms each token independently after attention has mixed context.','M'],
+  ['Residuals','Residual connections preserve information and improve gradient flow through deep stacks.','R'],
+  ['LayerNorm','Normalization stabilizes training by keeping activations in a useful range.','N'],
+  ['Masking','Masks control what tokens can attend to. Decoder-only models use causal masks to hide future tokens.','K'],
+  ['Heads','Multiple heads let the model learn different relationship types in parallel: local, syntactic, semantic, positional.','H'],
+  ['Logits','The final hidden state is projected to vocabulary scores. Softmax turns scores into token probabilities.','L']
+];
+function initConcepts(){
+  const map=document.getElementById('conceptMap');
+  map.innerHTML=concepts.map((c,i)=>`<div class="cm-node" onclick="showConcept(${i})"><div class="em">${c[2]}</div><div class="t">${c[0]}</div><div class="d">${c[1].slice(0,58)}...</div></div>`).join('');
+}
+function showConcept(i){
+  document.querySelectorAll('.cm-node').forEach((el,idx)=>el.classList.toggle('active',idx===i));
+  document.getElementById('conceptDetail').innerHTML=`<strong style="color:var(--blue)">${concepts[i][0]}:</strong> ${concepts[i][1]}`;
+}
+
+let selectedToken=0;
+function tokenize(s){return s.trim().split(/\s+/).filter(Boolean).slice(0,10);}
+function sim(a,b,dist,head){
+  const A=a.toLowerCase().replace(/[^a-z]/g,''),B=b.toLowerCase().replace(/[^a-z]/g,'');
+  let score=0.15;
+  if(A===B)score+=1.8;
+  if(A[0]&&A[0]===B[0])score+=0.25;
+  if(['it','he','she','they','this','that'].includes(A)&&B.length>3)score+=0.8;
+  if(['because','when','if','while','and','but'].includes(B))score+=0.35;
+  if(head==='local')score+=1/(dist+1);
+  if(head==='syntax')score+=(/ed$|ing$|s$/.test(B)?0.45:0)+(dist<3?0.35:0);
+  if(head==='semantic')score+=(B.length>5?0.5:0)+(dist>1?0.15:0);
+  return score;
+}
+function softmax(arr){const m=Math.max(...arr);const ex=arr.map(x=>Math.exp(x-m));const sum=ex.reduce((a,b)=>a+b,0);return ex.map(x=>x/sum);}
+function buildAttention(){
+  const toks=tokenize(document.getElementById('attnSentence').value||'Transformers learn attention patterns');
+  if(selectedToken>=toks.length)selectedToken=0;
+  const box=document.getElementById('tokenBox');
+  box.innerHTML=toks.map((t,i)=>`<div class="token ${i===selectedToken?'active':''}" onclick="selectedToken=${i};buildAttention()">${i}:${t}</div>`).join('');
+  const head=document.getElementById('headType').value;
+  const raw=toks.map((t,i)=>sim(toks[selectedToken],t,Math.abs(i-selectedToken),head));
+  const weights=softmax(raw);
+  const hm=document.getElementById('heatmap');hm.style.setProperty('--cols',toks.length);
+  const header=`<div class="hm-row"><div></div>${toks.map(t=>`<div class="hm-lbl" style="text-align:center">${t}</div>`).join('')}</div>`;
+  const row=`<div class="hm-row"><div class="hm-lbl">${toks[selectedToken]}</div>${weights.map(w=>`<div class="hm-cell" style="background:rgba(59,130,246,${0.12+w*1.9})">${w.toFixed(2)}</div>`).join('')}</div>`;
+  hm.innerHTML=header+row;
+  const maxI=weights.reduce((best,w,i)=>w>weights[best]?i:best,0);
+  document.getElementById('queryTok').textContent=toks[selectedToken];
+  document.getElementById('topTok').textContent=toks[maxI];
+  document.getElementById('attnInterp').textContent=maxI===selectedToken?'Self focus':Math.abs(maxI-selectedToken)<=1?'Local context':'Long link';
+}
+function drawPositional(){
+  const c=document.getElementById('posCanvas'),ctx=c.getContext('2d'),d=+document.getElementById('posDim').value;
+  document.getElementById('posDimVal').textContent=d;
+  const rect=c.getBoundingClientRect();c.width=Math.max(500,Math.round(rect.width));c.height=260;
+  ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='#f8fafc';ctx.fillRect(0,0,c.width,c.height);
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1;for(let i=0;i<=10;i++){let x=40+i*(c.width-70)/10;ctx.beginPath();ctx.moveTo(x,20);ctx.lineTo(x,220);ctx.stroke();}
+  const positions=40,amp=80,mid=120,freq=Math.pow(10000,-(2*Math.floor(d/2))/16);
+  ctx.strokeStyle=d%2?'#22c55e':'#3b82f6';ctx.lineWidth=3;ctx.beginPath();
+  for(let p=0;p<positions;p++){const x=40+p*(c.width-70)/(positions-1);const val=d%2?Math.cos(p*freq):Math.sin(p*freq);const y=mid-val*amp;if(p===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
+  ctx.stroke();ctx.fillStyle='#64748b';ctx.font='12px Nunito';ctx.fillText((d%2?'cos':'sin')+' positional dimension '+d,44,242);
+}
+
+const arch=[
+  ['Input Embedding','Token IDs become vectors with trainable meaning.','E'],
+  ['Position Add','Order information is added to token vectors.','P'],
+  ['Multi-Head Attention','Different heads attend to different relationships.','H'],
+  ['Add & Norm','Residual connection plus LayerNorm stabilizes depth.','N'],
+  ['Feed Forward','A token-wise MLP expands and compresses features.','F'],
+  ['Output Logits','Final vectors become vocabulary scores or task labels.','O']
+];
+function initArch(){
+  document.getElementById('archStack').innerHTML=arch.map((b,i)=>`<div class="block" onclick="showArch(${i})"><div class="b-em">${b[2]}</div><div class="b-t">${b[0]}</div><div class="b-d">${b[1]}</div></div>`).join('');
+}
+function showArch(i){document.querySelectorAll('.block').forEach((el,idx)=>el.classList.toggle('active',idx===i));document.getElementById('archDetail').innerHTML=`<strong style="color:var(--green-d)">${arch[i][0]}:</strong> ${arch[i][1]}`;}
+let maskOn=true;
+function toggleMask(){maskOn=!maskOn;document.getElementById('maskState').textContent='Mask: '+(maskOn?'ON':'OFF');drawMask();}
+function drawMask(){
+  const toks=['I','love','deep','learning','with','AI'],hm=document.getElementById('maskMap');hm.style.setProperty('--cols',6);
+  let html=`<div class="hm-row"><div></div>${toks.map(t=>`<div class="hm-lbl" style="text-align:center">${t}</div>`).join('')}</div>`;
+  toks.forEach((r,i)=>{html+=`<div class="hm-row"><div class="hm-lbl">${r}</div>`;toks.forEach((_,j)=>{const allowed=!maskOn||j<=i;html+=`<div class="hm-cell" style="background:${allowed?'rgba(34,197,94,.28)':'rgba(239,68,68,.25)'}">${allowed?'see':'hide'}</div>`});html+='</div>';});
+  hm.innerHTML=html;
+}
+function updateTraining(){
+  const size=+document.getElementById('modelSize').value,quality=+document.getElementById('dataQuality').value,ft=+document.getElementById('ftStrength').value;
+  document.getElementById('modelSizeVal').textContent=size+'B';document.getElementById('dataQualityVal').textContent=quality+'/10';document.getElementById('ftStrengthVal').textContent=ft;
+  const lang=Math.min(99,Math.round(35+size*4+quality*5));const align=Math.min(99,Math.round(25+quality*3+ft*6));const risk=Math.max(5,Math.round(70-quality*4+ft*3-size));
+  document.getElementById('langSkill').textContent=lang+'%';document.getElementById('alignSkill').textContent=align+'%';document.getElementById('riskSkill').textContent=risk+'%';
+}
+function toggleSol(id,btn){const el=document.getElementById(id);const open=el.classList.toggle('open');btn.textContent=open?'Hide Solution':'Show Solution';}
+function updateQK(){
+  const ids=['q1','q2','k1','k2'];ids.forEach(id=>document.getElementById(id+'v').textContent=document.getElementById(id).value);
+  const q1=+document.getElementById('q1').value,q2=+document.getElementById('q2').value,k1=+document.getElementById('k1').value,k2=+document.getElementById('k2').value;
+  const dot=q1*k1+q2*k2,scaled=dot/Math.sqrt(2);
+  document.getElementById('qkOut').innerHTML=`dot(Q,K) = (${q1} x ${k1}) + (${q2} x ${k2}) = <span class="fg">${dot}</span><br>scaled score = ${scaled.toFixed(2)} before softmax`;
+}
+
+const Qs=[
+  {q:'What is the main purpose of self-attention?',opts:['To reduce vocabulary size','To let each token use information from other tokens','To store training data exactly','To replace embeddings'],ans:1,fb:'Self-attention computes relationships among tokens and mixes contextual information into each token representation.'},
+  {q:'In Q/K/V attention, what does the Query represent?',opts:['The information copied to the output','What the current token is looking for','The final vocabulary probability','The token position only'],ans:1,fb:'The query is the current token asking: which other keys match what I need?'},
+  {q:'Why do decoder-only models use causal masks?',opts:['To hide padding tokens only','To prevent tokens from attending to future tokens','To make embeddings smaller','To remove residual connections'],ans:1,fb:'Generation predicts the next token from previous context, so future tokens must be hidden during training.'},
+  {q:'What does multi-head attention buy us?',opts:['Many relation types can be learned in parallel','It removes the need for data','It guarantees factual answers','It makes tokenization unnecessary'],ans:0,fb:'Different heads can specialize in local patterns, syntax, semantic links, coreference, and more.'},
+  {q:'Which model type is most natural for text generation?',opts:['Encoder-only','Decoder-only','CNN-only','Linear regression'],ans:1,fb:'Decoder-only Transformers use causal attention and generate one token at a time.'}
+];
+let qIdx=0,score=0,answered=new Set();
+function initQuiz(){qIdx=0;score=0;answered=new Set();document.getElementById('quizWrap').style.display='';document.getElementById('scoreWrap').style.display='none';renderQ();}
+function renderQ(){
+  const q=Qs[qIdx];document.getElementById('qNum').textContent='Question '+(qIdx+1)+' of '+Qs.length;document.getElementById('qText').textContent=q.q;document.getElementById('qFb').className='q-fb';document.getElementById('qNextBtn').style.display='none';
+  document.getElementById('qDots').innerHTML=Qs.map((_,i)=>`<div class="qdot ${i===qIdx?'curr':i<qIdx?'done':''}"></div>`).join('');
+  const letters=['A','B','C','D'];document.getElementById('qOpts').innerHTML=q.opts.map((o,i)=>`<button class="q-opt" onclick="selectAns(${i})"><div class="opt-l">${letters[i]}</div><span>${o}</span></button>`).join('');
+}
+function selectAns(i){
+  if(answered.has(qIdx))return;answered.add(qIdx);const q=Qs[qIdx];
+  document.querySelectorAll('.q-opt').forEach((el,idx)=>{if(idx===q.ans)el.classList.add('correct');else if(idx===i)el.classList.add('wrong');else el.classList.add('disabled');});
+  if(i===q.ans)score++;const fb=document.getElementById('qFb');fb.className='q-fb show '+(i===q.ans?'fb-ok':'fb-no');fb.innerHTML=(i===q.ans?'Correct. ':'Not quite. ')+q.fb;document.getElementById('qNextBtn').style.display='inline-flex';
+}
+function nextQ(){qIdx++;if(qIdx<Qs.length)renderQ();else{document.getElementById('quizWrap').style.display='none';document.getElementById('scoreWrap').style.display='';document.getElementById('scNum').textContent=score;document.getElementById('scTitle').textContent=score>=4?'Excellent Work':'Good Progress';document.getElementById('scMsg').textContent=score>=4?'You have a strong Transformer foundation.':'Review attention, masking, and architecture types once more.';if(score>=4)confetti();}}
+function confetti(){const cols=['#22c55e','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#14b8a6'];for(let i=0;i<80;i++){const el=document.createElement('div');el.className='cf';const sz=6+Math.random()*8;el.style.cssText='left:'+Math.random()*100+'vw;background:'+cols[Math.floor(Math.random()*cols.length)]+';width:'+sz+'px;height:'+sz+'px;border-radius:'+(Math.random()>.5?'50%':'2px')+';animation-duration:'+(1.5+Math.random()*2.5)+'s;animation-delay:'+Math.random()*.7+'s;';document.body.appendChild(el);setTimeout(()=>el.remove(),4300);}}
+function restartModule(){visited=new Set([0]);document.querySelectorAll('.sb-done').forEach(el=>el.remove());goTo(0);}
+
+initConcepts();initArch();showConcept(0);showArch(0);buildAttention();drawPositional();drawMask();updateTraining();updateQK();updateProg();
+window.addEventListener('resize',()=>{if(cur===2)drawPositional();});
+</script>
+</body>
+</html>
