@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outliers Interactive Learning App</title>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#22c55e;--green-l:#86efac;--green-d:#16a34a;--green-bg:#f0fdf4;
+  --blue:#3b82f6;--blue-l:#93c5fd;--blue-d:#1d4ed8;--blue-bg:#eff6ff;
+  --teal:#14b8a6;--teal-bg:#f0fdfa;--amber:#f59e0b;--amber-bg:#fffbeb;--amber-md:#fde68a;
+  --purple:#7c3aed;--purple-bg:#f5f3ff;--red:#ef4444;--red-bg:#fef2f2;--red-md:#fca5a5;
+  --orange:#f97316;--orange-bg:#fff7ed;--bg:#f8fafc;--surface:#fff;--surface2:#f1f5f9;
+  --border:#e2e8f0;--text:#0f172a;--muted:#64748b;--light:#94a3b8;
+  --shadow:0 4px 20px rgba(0,0,0,.07);--shadow-lg:0 12px 40px rgba(0,0,0,.12);
+  --r:16px;--rs:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+.topnav{height:64px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--blue));display:grid;place-items:center;color:#fff;font-family:'Cabinet Grotesk';font-weight:800}.brand{font-family:'Cabinet Grotesk';font-weight:800;font-size:17px;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}.nav-title{font-family:'Cabinet Grotesk';font-weight:700;font-size:15px;flex:1}.nav-title span{color:var(--blue)}
+.tabs{height:48px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;padding:7px 16px;overflow-x:auto;flex-shrink:0}.tab{border:1px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:99px;padding:8px 13px;font-family:'Nunito';font-size:12px;font-weight:900;white-space:nowrap;cursor:pointer}.tab.active{background:linear-gradient(135deg,var(--green),var(--blue));border-color:transparent;color:#fff}
+.app{display:flex;flex:1;overflow:hidden}.sidebar{width:245px;background:var(--surface);border-right:1px solid var(--border);padding:16px 10px;overflow:auto;flex-shrink:0}.sb-sec{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--light);padding:10px 12px 4px}.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rs);cursor:pointer;font-size:13px;font-weight:700;color:var(--muted);transition:.2s}.sb-item:hover{background:var(--surface2);color:var(--text)}.sb-item.active{background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));color:var(--blue);border:1px solid rgba(59,130,246,.15)}.sb-icon{width:28px;height:28px;border-radius:8px;background:var(--surface2);display:grid;place-items:center;flex-shrink:0}.sb-item.active .sb-icon{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff}
+.main{flex:1;overflow:auto}.page{display:none;padding:32px 40px;min-height:100%;animation:fadeUp .3s ease}.page.active{display:block}@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.tag{display:inline-flex;padding:4px 14px;background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));border:1px solid rgba(34,197,94,.3);border-radius:99px;font-size:11px;font-weight:800;color:var(--green-d);margin-bottom:14px}.title{font-family:'Cabinet Grotesk';font-size:34px;font-weight:800;line-height:1.2;margin-bottom:8px}.title span{color:var(--blue)}.sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:880px;margin-bottom:24px}
+.hero{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);border-radius:var(--r);padding:42px;color:#fff;position:relative;overflow:hidden;margin-bottom:24px}.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 82% 18%,rgba(239,68,68,.2),transparent 58%),radial-gradient(circle at 20% 80%,rgba(34,197,94,.13),transparent 50%)}.hero>*{position:relative}.hero h1{font-family:'Cabinet Grotesk';font-size:42px;line-height:1.12;margin-bottom:12px}.hero h1 span{color:var(--green-l)}.hero p{font-size:15px;line-height:1.7;opacity:.84;max-width:780px}.chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:99px;padding:7px 14px;font-size:12px;font-weight:800}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:24px;margin-bottom:20px}.card-title{font-family:'Cabinet Grotesk';font-size:18px;font-weight:800;margin-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.pill{font-size:10px;font-weight:800;padding:3px 10px;border-radius:99px;color:#fff}.pill-blue{background:var(--blue)}.pill-green{background:var(--green)}.pill-red{background:var(--red)}.pill-purple{background:var(--purple)}.pill-orange{background:var(--orange)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.lab{display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:99px;padding:10px 18px;font-family:'Nunito';font-weight:800;cursor:pointer;transition:.2s}.btn-primary{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff;box-shadow:0 4px 14px rgba(59,130,246,.3)}.btn-secondary{background:var(--surface2);border:1px solid var(--border);color:var(--muted)}.btn-outline{background:transparent;border:2px solid var(--blue);color:var(--blue)}.btn-sm{font-size:12px;padding:7px 13px}.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.control{margin-bottom:14px}.control label{display:block;font-size:11px;font-weight:900;color:var(--light);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}.control select,.control input[type=number]{width:100%;border:1.5px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-family:'Nunito';font-weight:800;background:#fff;color:var(--text)}.control input[type=range]{width:100%;-webkit-appearance:none;height:7px;border-radius:99px;background:var(--border);outline:none}.control input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));box-shadow:0 2px 8px rgba(59,130,246,.4);cursor:pointer}.rh{display:flex;justify-content:space-between}.rv{font-family:'Fira Code';font-size:12px;font-weight:800;color:var(--blue)}
+canvas{width:100%;height:390px;display:block;background:#fff;border:1px solid var(--border);border-radius:var(--rs)}.mini-canvas{height:260px}.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.leg{display:flex;gap:6px;align-items:center;font-size:12px;font-weight:800;color:var(--muted)}.sw{width:12px;height:12px;border-radius:3px}
+.box-canvas{height:240px}.formula-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.formula-chip{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center}.formula-chip .f{font-family:'Fira Code';font-size:13px;font-weight:800;color:var(--blue)}.formula-chip .m{font-size:11px;color:var(--muted);line-height:1.45;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}th{background:linear-gradient(135deg,var(--green-d),var(--blue-d));color:#fff;text-align:left;padding:10px 12px;font-family:'Cabinet Grotesk';font-weight:800}td{padding:10px 12px;border-bottom:1px solid var(--border);line-height:1.45}tr:nth-child(even) td{background:var(--surface2)}
+.metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}.metric{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:13px}.metric .k{font-size:10px;color:var(--light);font-weight:900;text-transform:uppercase;letter-spacing:.08em}.metric .v{font-family:'Cabinet Grotesk';font-size:23px;font-weight:900;color:var(--blue);margin-top:2px}.metric .s{font-size:12px;color:var(--muted);line-height:1.45;margin-top:2px}
+.info{background:var(--blue-bg);border:1px solid var(--blue-l);border-radius:var(--rs);padding:14px;font-size:13px;line-height:1.65;color:var(--blue-d)}.success{background:var(--green-bg);border:1px solid var(--green-l);border-radius:var(--rs);padding:14px;font-size:13px;line-height:1.65;color:var(--green-d)}.warn{background:var(--amber-bg);border:1px solid var(--amber-md);border-radius:var(--rs);padding:14px;font-size:13px;line-height:1.65;color:#92400e}.danger{background:var(--red-bg);border:1px solid var(--red-md);border-radius:var(--rs);padding:14px;font-size:13px;line-height:1.65;color:#991b1b}.advice{background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));border:1px solid rgba(34,197,94,.28);border-left:4px solid var(--green);border-radius:var(--rs);padding:16px 18px;font-size:13px;line-height:1.65;color:var(--text);margin-top:14px}
+.method-card{border:2px solid var(--border);border-radius:var(--rs);padding:16px;background:#fff;cursor:pointer;transition:.2s}.method-card:hover,.method-card.active{border-color:var(--blue);background:var(--blue-bg);transform:translateY(-2px)}.method-card h3{font-family:'Cabinet Grotesk';font-size:17px;margin-bottom:7px}.method-card p,.method-card li{font-size:13px;color:var(--muted);line-height:1.6}.method-card ul{margin-left:18px;margin-top:8px}.code{background:#0f172a;border-radius:var(--rs);overflow:hidden;margin-top:14px}.code-head{background:#1e293b;color:#94a3b8;font-family:'Fira Code';font-size:11px;padding:9px 14px}.code pre{padding:16px 18px;overflow:auto;color:#e2e8f0;font-family:'Fira Code';font-size:13px;line-height:1.7}
+.quiz-opt{display:flex;align-items:center;gap:12px;width:100%;background:#fff;border:2px solid var(--border);border-radius:var(--rs);padding:13px 16px;margin-bottom:10px;font-family:'Nunito';font-size:14px;font-weight:800;cursor:pointer;text-align:left}.quiz-opt:hover{border-color:var(--blue);background:var(--blue-bg)}.quiz-opt.correct{border-color:var(--green);background:var(--green-bg);color:var(--green-d)}.quiz-opt.wrong{border-color:var(--red);background:var(--red-bg);color:#dc2626}.fb{display:none;border-radius:var(--rs);padding:13px;margin-top:12px;font-size:13px;line-height:1.6}.fb.show{display:block}.fb.ok{background:var(--green-bg);border:1px solid var(--green-l);color:#166534}.fb.no{background:var(--red-bg);border:1px solid var(--red-md);color:#991b1b}
+@media(max-width:980px){.sidebar{display:none}.page{padding:22px 16px}.lab,.grid2,.grid3,.metric-row,.formula-strip{grid-template-columns:1fr}.hero{padding:30px 22px}.hero h1{font-size:32px}.topnav{padding:0 12px}.brand{display:none}}
+</style>
+</head>
+<body>
+<nav class="topnav"><div class="logo">O</div><div class="brand">HCL GUVI</div><div class="nav-title">Interactive Module: <span>Outliers Detection & Handling</span></div></nav>
+<div class="tabs">
+  <button class="tab active" id="tab0" onclick="goTo(0)">Overview</button>
+  <button class="tab" id="tab1" onclick="goTo(1)">Detection Lab</button>
+  <button class="tab" id="tab2" onclick="goTo(2)">Handling Lab</button>
+  <button class="tab" id="tab3" onclick="goTo(3)">Before vs After</button>
+  <button class="tab" id="tab4" onclick="goTo(4)">Method Guide</button>
+  <button class="tab" id="tab5" onclick="goTo(5)">Quiz</button>
+</div>
+<div class="app">
+<aside class="sidebar">
+  <div class="sb-sec">Outlier Path</div>
+  <div class="sb-item active" id="nav0" onclick="goTo(0)"><div class="sb-icon">1</div>Overview</div>
+  <div class="sb-item" id="nav1" onclick="goTo(1)"><div class="sb-icon">2</div>Detection Lab</div>
+  <div class="sb-item" id="nav2" onclick="goTo(2)"><div class="sb-icon">3</div>Handling Lab</div>
+  <div class="sb-item" id="nav3" onclick="goTo(3)"><div class="sb-icon">4</div>Before vs After</div>
+  <div class="sb-item" id="nav4" onclick="goTo(4)"><div class="sb-icon">5</div>Method Guide</div>
+  <div class="sb-item" id="nav5" onclick="goTo(5)"><div class="sb-icon">6</div>Quiz</div>
+</aside>
+<main class="main" id="main">
+  <section class="page active" id="page0">
+    <div class="hero">
+      <h1>Outliers are not just "bad points" <span>they are signals to investigate</span></h1>
+      <p>An outlier is an observation that is unusually far from the rest of the data. It may be a data-entry error, sensor glitch, rare but valid behavior, fraud, a special customer segment, or the most important case in your dataset.</p>
+      <div class="chips"><div class="chip">IQR</div><div class="chip">Z-score</div><div class="chip">MAD</div><div class="chip">Winsorization</div><div class="chip">Capping</div><div class="chip">Robust Models</div></div>
+    </div>
+    <div class="grid3">
+      <div class="card"><div class="card-title">What Are Outliers?</div><p class="sub" style="margin:0">Values that do not follow the usual pattern. Example: most orders are $20-$80, one order is $8,000.</p></div>
+      <div class="card"><div class="card-title">Why They Matter</div><p class="sub" style="margin:0">They can distort mean, standard deviation, regression lines, clustering, scaling, and model loss.</p></div>
+      <div class="card"><div class="card-title">Key Rule</div><p class="sub" style="margin:0">Do not remove outliers blindly. First ask whether they are errors, rare valid cases, or important business events.</p></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Types of Outliers <span class="pill pill-blue">Theory</span></div>
+      <table>
+        <tr><th>Type</th><th>Meaning</th><th>Example</th><th>Usual Action</th></tr>
+        <tr><td>Point outlier</td><td>One value is extreme by itself.</td><td>Age = 250</td><td>Validate, fix, cap, or remove.</td></tr>
+        <tr><td>Contextual outlier</td><td>Extreme only in a specific context.</td><td>High electricity use in winter may be normal, in summer unusual.</td><td>Use domain-aware rules.</td></tr>
+        <tr><td>Collective outlier</td><td>A group pattern is unusual.</td><td>Sudden repeated failed logins.</td><td>Investigate sequence or group behavior.</td></tr>
+        <tr><td>Influential point</td><td>A point strongly changes a model.</td><td>One high-leverage data point changes regression slope.</td><td>Compare model before and after.</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Box Plot Concept <span class="pill pill-green">Most Important Visual</span></div>
+      <p class="sub" style="margin-bottom:10px">A box plot summarizes a numeric column using quartiles. It is one of the easiest ways to detect outliers because it shows the middle 50% of the data, the median, the whiskers, and points beyond the expected range.</p>
+      <div class="formula-strip">
+        <div class="formula-chip"><div class="f">Q1</div><div class="m">25th percentile. 25% of values are below this.</div></div>
+        <div class="formula-chip"><div class="f">Median / Q2</div><div class="m">50th percentile. Robust center of the data.</div></div>
+        <div class="formula-chip"><div class="f">Q3</div><div class="m">75th percentile. 75% of values are below this.</div></div>
+        <div class="formula-chip"><div class="f">IQR = Q3 - Q1</div><div class="m">Spread of the middle 50%; robust to extreme values.</div></div>
+      </div>
+      <div class="info"><strong>Box plot outlier rule:</strong> lower fence = Q1 - 1.5 x IQR, upper fence = Q3 + 1.5 x IQR. Points outside these fences are potential outliers. They are not automatically wrong; they are observations that deserve investigation.</div>
+    </div>
+    <button class="btn btn-primary" onclick="goTo(1)">Open Detection Lab</button>
+  </section>
+
+  <section class="page" id="page1">
+    <div class="tag">Practical Lab 1</div><h2 class="title">Detect <span>Outliers</span></h2>
+    <p class="sub">Generate dummy data, inject outliers, and compare detection methods. Notice that each method has assumptions and tradeoffs.</p>
+    <div class="lab">
+      <div class="card">
+        <div class="card-title">Data Controls <span class="pill pill-green">Interactive</span></div>
+        <div class="control"><label>Dataset shape</label><select id="distType" onchange="runDetect()"><option value="normal">Normal distribution</option><option value="skew">Right-skewed income-like data</option><option value="bimodal">Two customer segments</option><option value="trend">Regression trend with influential points</option></select></div>
+        <div class="control"><div class="rh"><label>Outlier amount</label><span class="rv" id="outPctVal">10%</span></div><input id="outPct" type="range" min="0" max="25" value="10" oninput="runDetect()"></div>
+        <div class="control"><div class="rh"><label>Noise / spread</label><span class="rv" id="spreadVal">20</span></div><input id="spread" type="range" min="5" max="45" value="20" oninput="runDetect()"></div>
+        <div class="control"><div class="rh"><label>Samples</label><span class="rv" id="nVal">140</span></div><input id="n" type="range" min="50" max="260" step="10" value="140" oninput="runDetect()"></div>
+        <div class="control"><label>Detection method</label><select id="detectMethod" onchange="runDetect()"><option value="iqr">IQR rule</option><option value="z">Z-score</option><option value="mad">Modified Z-score / MAD</option><option value="percentile">Percentile rule</option><option value="isolation">Isolation-like score</option></select></div>
+        <button class="btn btn-primary" onclick="runDetect()">Regenerate + Detect</button>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-title">Detection Visualization <span class="pill pill-red">Red = Detected</span></div>
+          <canvas id="detectCanvas"></canvas>
+          <div class="legend"><div class="leg"><span class="sw" style="background:#3b82f6"></span>Normal</div><div class="leg"><span class="sw" style="background:#ef4444"></span>Detected outlier</div><div class="leg"><span class="sw" style="background:#94a3b8"></span>Rule boundary</div></div>
+          <div class="advice" id="detectAdvice"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Box Plot Detector <span class="pill pill-blue">IQR Fences</span></div>
+          <canvas id="boxCanvas" class="box-canvas"></canvas>
+          <div class="legend"><div class="leg"><span class="sw" style="background:#3b82f6"></span>Q1 to Q3 box</div><div class="leg"><span class="sw" style="background:#22c55e"></span>Median</div><div class="leg"><span class="sw" style="background:#ef4444"></span>Outlier beyond fence</div></div>
+          <div class="info" id="boxExplain" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Detection Summary</div>
+          <div class="metric-row" id="detectMetrics"></div>
+          <table id="detectTable"></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page2">
+    <div class="tag">Practical Lab 2</div><h2 class="title">Handle <span>Outliers</span></h2>
+    <p class="sub">Try different handling methods and see how mean, median, standard deviation, RMSE, and regression slope change.</p>
+    <div class="lab">
+      <div class="card">
+        <div class="card-title">Handling Controls <span class="pill pill-purple">Try Methods</span></div>
+        <div class="control"><label>Handling method</label><select id="handleMethod" onchange="runHandle()"><option value="none">Do nothing</option><option value="remove">Remove detected outliers</option><option value="cap">Cap using IQR fences</option><option value="winsor">Winsorize 5th-95th percentile</option><option value="median">Median imputation</option><option value="log">Log transform</option><option value="robust">Robust median-centered scaling</option></select></div>
+        <div class="control"><label>Detection rule used before handling</label><select id="handleDetect" onchange="runHandle()"><option value="iqr">IQR</option><option value="mad">MAD</option><option value="percentile">Percentile</option></select></div>
+        <button class="btn btn-primary" onclick="runHandle()">Apply Handling</button>
+        <div class="warn" style="margin-top:14px"><strong>Important:</strong> In real ML pipelines, learn caps/medians/scalers from training data only, then apply them to validation/test data. Do not leak test information.</div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-title">Before vs After Values <span class="pill pill-orange">Same Data</span></div>
+          <canvas id="handleCanvas"></canvas>
+          <div class="legend"><div class="leg"><span class="sw" style="background:#94a3b8"></span>Before</div><div class="leg"><span class="sw" style="background:#22c55e"></span>After</div></div>
+          <div class="advice" id="handleAdvice"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Before vs After Metrics</div>
+          <table id="handleTable"></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page3">
+    <div class="tag">Model Impact</div><h2 class="title">Before & After <span>Outlier Handling</span></h2>
+    <p class="sub">Outliers can pull a regression line away from the main pattern. This lab compares a sensitive model with a robust alternative.</p>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Regression Impact <span class="pill pill-blue">Influence</span></div>
+        <canvas id="regCanvas" class="mini-canvas"></canvas>
+        <div class="advice" id="regAdvice"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Model Comparison</div>
+        <table id="regTable"></table>
+        <div class="success" style="margin-top:14px"><strong>Lesson:</strong> If outliers are valid but extreme, robust models or robust loss functions can be better than deleting rare but important observations.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Classification / Anomaly View</div>
+      <p class="sub" style="margin-bottom:12px">Sometimes outliers are the target itself: fraud, machine failure, network intrusion, or rare disease. In those cases, removing them destroys the signal.</p>
+      <div class="grid3">
+        <div class="danger"><strong>Bad idea:</strong> Remove all rare fraud transactions because they are outliers.</div>
+        <div class="info"><strong>Better:</strong> Keep them, label them, and use anomaly detection or imbalance-aware classification.</div>
+        <div class="success"><strong>Best:</strong> Ask the business cost: false negatives may be much worse than false positives.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page4">
+    <div class="tag">Reference</div><h2 class="title">Detection & Handling <span>Method Guide</span></h2>
+    <p class="sub">Use this as a practical decision guide. The correct method depends on distribution, domain meaning, model type, and business risk.</p>
+    <div class="grid2" id="methodCards"></div>
+    <div class="card">
+      <div class="card-title">Common Python Patterns</div>
+      <div class="code"><div class="code-head">pandas / sklearn style pseudocode</div><pre>q1 = df["value"].quantile(0.25)
+q3 = df["value"].quantile(0.75)
+iqr = q3 - q1
+lower = q1 - 1.5 * iqr
+upper = q3 + 1.5 * iqr
+
+# detect
+mask = (df["value"] < lower) | (df["value"] > upper)
+
+# handle option 1: remove
+clean = df.loc[~mask]
+
+# handle option 2: cap
+df["value_capped"] = df["value"].clip(lower, upper)
+
+# handle option 3: robust scaling
+from sklearn.preprocessing import RobustScaler
+scaler = RobustScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)</pre></div>
+    </div>
+  </section>
+
+  <section class="page" id="page5">
+    <div class="tag">Quiz</div><h2 class="title">Outlier <span>Check</span></h2>
+    <div class="card"><div id="quiz"></div><div id="quizFb" class="fb"></div><button class="btn btn-primary" id="nextQ" style="display:none;margin-top:14px" onclick="nextQuiz()">Next</button></div>
+  </section>
+</main>
+</div>
+<script>
+let cur=0,seed=42,data=[],flags=[],handled=[],qIdx=0,score=0;
+function rand(){seed=(seed*9301+49297)%233280;return seed/233280}
+function norm(){let u=0,v=0;while(u===0)u=rand();while(v===0)v=rand();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function goTo(n){document.getElementById('page'+cur).classList.remove('active');document.getElementById('nav'+cur).classList.remove('active');document.getElementById('tab'+cur).classList.remove('active');cur=n;document.getElementById('page'+n).classList.add('active');document.getElementById('nav'+n).classList.add('active');document.getElementById('tab'+n).classList.add('active');document.getElementById('main').scrollTop=0;if(n===1)setTimeout(runDetect,30);if(n===2)setTimeout(runHandle,30);if(n===3)setTimeout(runImpact,30);if(n===5)initQuiz();}
+function mean(a){return a.reduce((s,x)=>s+x,0)/a.length}
+function median(a){const s=[...a].sort((x,y)=>x-y),m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2}
+function quantile(a,q){const s=[...a].sort((x,y)=>x-y),p=(s.length-1)*q,b=Math.floor(p),r=p-b;return s[b]+(s[b+1]!==undefined?r*(s[b+1]-s[b]):0)}
+function sd(a){const m=mean(a);return Math.sqrt(mean(a.map(x=>(x-m)**2)))}
+function mad(a){const med=median(a);return median(a.map(x=>Math.abs(x-med)))||1e-9}
+function genData(){
+  seed=42;const type=document.getElementById('distType').value,n=+document.getElementById('n').value,spread=+document.getElementById('spread').value,pct=+document.getElementById('outPct').value/100;
+  document.getElementById('nVal').textContent=n;document.getElementById('spreadVal').textContent=spread;document.getElementById('outPctVal').textContent=Math.round(pct*100)+'%';
+  const arr=[];for(let i=0;i<n;i++){let x=i,y;if(type==='normal')y=100+norm()*spread;else if(type==='skew')y=Math.exp(4+norm()*.45)*(spread/20);else if(type==='bimodal')y=(rand()<.55?70:135)+norm()*spread*.65;else y=30+i*.7+norm()*spread*.35;if(rand()<pct){if(type==='trend')y+=90+rand()*90;else y+=spread*(3.5+rand()*5)*(rand()>.2?1:-1)}arr.push({x,y})}return arr;
+}
+function detect(vals,method){
+  const m=mean(vals),s=sd(vals),q1=quantile(vals,.25),q3=quantile(vals,.75),iqr=q3-q1,med=median(vals),ma=mad(vals),p05=quantile(vals,.05),p95=quantile(vals,.95);
+  return vals.map(v=>{if(method==='iqr')return v<q1-1.5*iqr||v>q3+1.5*iqr;if(method==='z')return Math.abs((v-m)/(s||1))>2.7;if(method==='mad')return Math.abs(.6745*(v-med)/ma)>3.5;if(method==='percentile')return v<p05||v>p95;if(method==='isolation'){const density=vals.filter(x=>Math.abs(x-v)<s*.35).length/vals.length;return density<.035&&Math.abs(v-med)>ma*2.5}return false});
+}
+function boundaries(vals,method){const q1=quantile(vals,.25),q3=quantile(vals,.75),iqr=q3-q1,m=mean(vals),s=sd(vals),med=median(vals),ma=mad(vals),p05=quantile(vals,.05),p95=quantile(vals,.95);if(method==='iqr')return[q1-1.5*iqr,q3+1.5*iqr];if(method==='z')return[m-2.7*s,m+2.7*s];if(method==='mad')return[med-3.5*ma/.6745,med+3.5*ma/.6745];if(method==='percentile')return[p05,p95];return[med-2.5*ma,med+2.5*ma]}
+function runDetect(){data=genData();const vals=data.map(d=>d.y),method=document.getElementById('detectMethod').value;flags=detect(vals,method);drawDetect();drawBoxPlot();renderDetect();runHandle();}
+function scale(vals,w,h){const lo=Math.min(...vals),hi=Math.max(...vals),pad=(hi-lo)*.08||1;return{lo:lo-pad,hi:hi+pad,X:(i,n)=>45+i/(n-1)*(w-65),Y:v=>h-34-(v-(lo-pad))/((hi+pad)-(lo-pad))*(h-58)}}
+function drawDetect(){const c=document.getElementById('detectCanvas'),ctx=c.getContext('2d'),r=c.getBoundingClientRect();c.width=Math.round(r.width);c.height=390;const vals=data.map(d=>d.y),s=scale(vals,c.width,c.height);ctx.clearRect(0,0,c.width,c.height);ctx.strokeStyle='#e2e8f0';for(let i=0;i<=6;i++){let y=24+i*(c.height-58)/6;ctx.beginPath();ctx.moveTo(45,y);ctx.lineTo(c.width-20,y);ctx.stroke()}const b=boundaries(vals,document.getElementById('detectMethod').value);ctx.strokeStyle='#94a3b8';ctx.setLineDash([5,4]);b.forEach(v=>{ctx.beginPath();ctx.moveTo(45,s.Y(v));ctx.lineTo(c.width-20,s.Y(v));ctx.stroke()});ctx.setLineDash([]);data.forEach((d,i)=>{ctx.fillStyle=flags[i]?'#ef4444':'#3b82f6';ctx.beginPath();ctx.arc(s.X(i,data.length),s.Y(d.y),flags[i]?5:3.2,0,Math.PI*2);ctx.fill()})}
+function drawBoxPlot(){
+  const c=document.getElementById('boxCanvas');if(!c||!data.length)return;
+  const ctx=c.getContext('2d'),r=c.getBoundingClientRect();c.width=Math.round(r.width);c.height=240;
+  const vals=data.map(d=>d.y),q1=quantile(vals,.25),q2=median(vals),q3=quantile(vals,.75),iqr=q3-q1,lf=q1-1.5*iqr,uf=q3+1.5*iqr;
+  const inFence=vals.filter(v=>v>=lf&&v<=uf),wLow=Math.min(...inFence),wHigh=Math.max(...inFence);
+  const lo=Math.min(...vals,lf),hi=Math.max(...vals,uf),pad=(hi-lo)*.08||1,X=v=>50+(v-(lo-pad))/((hi+pad)-(lo-pad))*(c.width-90),mid=116,boxH=58;
+  ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1;for(let i=0;i<=5;i++){let x=50+i*(c.width-90)/5;ctx.beginPath();ctx.moveTo(x,35);ctx.lineTo(x,190);ctx.stroke()}
+  ctx.strokeStyle='#94a3b8';ctx.lineWidth=2;ctx.setLineDash([5,4]);[lf,uf].forEach(v=>{ctx.beginPath();ctx.moveTo(X(v),30);ctx.lineTo(X(v),195);ctx.stroke()});ctx.setLineDash([]);
+  ctx.strokeStyle='#64748b';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(X(wLow),mid);ctx.lineTo(X(wHigh),mid);ctx.stroke();
+  [wLow,wHigh].forEach(v=>{ctx.beginPath();ctx.moveTo(X(v),mid-24);ctx.lineTo(X(v),mid+24);ctx.stroke()});
+  ctx.fillStyle='rgba(59,130,246,.18)';ctx.strokeStyle='#3b82f6';ctx.lineWidth=2;ctx.fillRect(X(q1),mid-boxH/2,X(q3)-X(q1),boxH);ctx.strokeRect(X(q1),mid-boxH/2,X(q3)-X(q1),boxH);
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(X(q2),mid-boxH/2-8);ctx.lineTo(X(q2),mid+boxH/2+8);ctx.stroke();
+  vals.forEach((v,i)=>{if(v<lf||v>uf){ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(X(v),mid+Math.sin(i*12.9898)*17,5,0,Math.PI*2);ctx.fill()}});
+  ctx.fillStyle='#64748b';ctx.font='12px Nunito';ctx.textAlign='center';
+  [['Lower fence',lf],['Q1',q1],['Median',q2],['Q3',q3],['Upper fence',uf]].forEach(([label,v],i)=>{const y=i%2?218:22;ctx.fillText(label+' '+v.toFixed(1),X(v),y)});
+  document.getElementById('boxExplain').innerHTML=`<strong>Box plot reading:</strong> Q1 = <strong>${q1.toFixed(2)}</strong>, median = <strong>${q2.toFixed(2)}</strong>, Q3 = <strong>${q3.toFixed(2)}</strong>, IQR = <strong>${iqr.toFixed(2)}</strong>. Values below <strong>${lf.toFixed(2)}</strong> or above <strong>${uf.toFixed(2)}</strong> are box-plot outlier candidates.`;
+}
+function renderDetect(){const vals=data.map(d=>d.y),count=flags.filter(Boolean).length,method=document.getElementById('detectMethod').value;document.getElementById('detectMetrics').innerHTML=`<div class="metric"><div class="k">Detected</div><div class="v">${count}</div><div class="s">${(count/data.length*100).toFixed(1)}% of rows.</div></div><div class="metric"><div class="k">Mean</div><div class="v">${mean(vals).toFixed(1)}</div><div class="s">Sensitive to extremes.</div></div><div class="metric"><div class="k">Median</div><div class="v">${median(vals).toFixed(1)}</div><div class="s">Robust center.</div></div><div class="metric"><div class="k">Std Dev</div><div class="v">${sd(vals).toFixed(1)}</div><div class="s">Inflated by outliers.</div></div>`;document.getElementById('detectTable').innerHTML='<tr><th>Method</th><th>Assumption</th><th>Good For</th><th>Weakness</th></tr>'+methodRows(method);document.getElementById('detectAdvice').innerHTML=adviceDetect(method,count)}
+function methodRows(m){const rows={iqr:['IQR','Uses Q1, Q3, and 1.5 x IQR fences.','Skewed data and robust general screening.','Can flag valid tail values in naturally heavy-tailed data.'],z:['Z-score','Assumes mean and standard deviation are meaningful.','Roughly normal data.','Mean and SD are themselves affected by outliers.'],mad:['MAD','Uses median absolute deviation.','Robust detection when extremes are present.','May be conservative if data has multiple segments.'],percentile:['Percentile','Flags fixed tails such as bottom/top 5%.','Business capping rules and dashboards.','Always flags some values even if data is clean.'],isolation:['Isolation-like','Low local density plus distance from median.','Clusters and unusual isolated points.','This simplified demo is not full Isolation Forest.']}[m];return `<tr><td>${rows[0]}</td><td>${rows[1]}</td><td>${rows[2]}</td><td>${rows[3]}</td></tr>`}
+function adviceDetect(m,c){const msg={iqr:'IQR is a strong default for numeric tabular data because quartiles are robust.',z:'Z-score is useful for normal data, but can miss outliers when extremes inflate standard deviation.',mad:'MAD is robust and often better than z-score when data already contains extreme values.',percentile:'Percentile rules are simple business rules, but they can over-flag clean data.',isolation:'Isolation-style methods are useful when outliers are isolated from dense regions.'}[m];return `<strong>Interpretation:</strong> ${msg} This run detected <strong>${c}</strong> possible outliers. Validate them with domain knowledge before handling.`}
+function handleValues(vals,method,flagMethod){const fl=detect(vals,flagMethod),q1=quantile(vals,.25),q3=quantile(vals,.75),iqr=q3-q1,lo=q1-1.5*iqr,hi=q3+1.5*iqr,p05=quantile(vals,.05),p95=quantile(vals,.95),med=median(vals);if(method==='none')return vals.map(v=>v);if(method==='remove')return vals.filter((_,i)=>!fl[i]);if(method==='cap')return vals.map(v=>Math.max(lo,Math.min(hi,v)));if(method==='winsor')return vals.map(v=>Math.max(p05,Math.min(p95,v)));if(method==='median')return vals.map((v,i)=>fl[i]?med:v);if(method==='log')return vals.map(v=>Math.log(Math.max(1,v-Math.min(...vals)+1))*30);if(method==='robust'){const ma=mad(vals);return vals.map(v=>(v-med)/ma*20+100)}return vals}
+function runHandle(){if(!data.length)data=genData();const vals=data.map(d=>d.y),method=document.getElementById('handleMethod').value,rule=document.getElementById('handleDetect').value;handled=handleValues(vals,method,rule);drawHandle(vals,handled);renderHandle(vals,handled,method);runImpact();}
+function drawHandle(before,after){const c=document.getElementById('handleCanvas'),ctx=c.getContext('2d'),r=c.getBoundingClientRect();c.width=Math.round(r.width);c.height=390;const all=[...before,...after],s=scale(all,c.width,c.height);ctx.clearRect(0,0,c.width,c.height);before.forEach((v,i)=>{ctx.fillStyle='rgba(100,116,139,.35)';ctx.beginPath();ctx.arc(s.X(i,before.length),s.Y(v),3,0,Math.PI*2);ctx.fill()});after.forEach((v,i)=>{ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(s.X(i,after.length),s.Y(v),3.3,0,Math.PI*2);ctx.fill()})}
+function renderHandle(before,after,method){const stat=a=>({n:a.length,mean:mean(a),median:median(a),sd:sd(a),min:Math.min(...a),max:Math.max(...a)}),b=stat(before),a=stat(after);document.getElementById('handleTable').innerHTML='<tr><th>Metric</th><th>Before</th><th>After</th><th>Meaning</th></tr>'+[['Rows',b.n,a.n,'Removal changes sample size; capping does not.'],['Mean',b.mean,a.mean,'Outliers usually pull the mean.'],['Median',b.median,a.median,'Median should move less than mean.'],['Std Dev',b.sd,a.sd,'Spread often shrinks after handling.'],['Min',b.min,a.min,'Lower extreme.'],['Max',b.max,a.max,'Upper extreme.']].map(r=>`<tr><td>${r[0]}</td><td>${Number.isFinite(r[1])?r[1].toFixed(2):r[1]}</td><td>${Number.isFinite(r[2])?r[2].toFixed(2):r[2]}</td><td>${r[3]}</td></tr>`).join('');document.getElementById('handleAdvice').innerHTML=handleAdvice(method)}
+function handleAdvice(m){return{none:'<strong>Do nothing:</strong> correct when outliers are valid and your model/metric can handle them.',remove:'<strong>Remove:</strong> use only when outliers are confirmed errors or outside the population you want to model.',cap:'<strong>Cap:</strong> keeps rows while limiting extreme influence. Good for dashboards and many ML pipelines.',winsor:'<strong>Winsorize:</strong> percentile capping is simple and stable, but choose percentiles from training data only.',median:'<strong>Median imputation:</strong> replaces detected extremes with a robust central value. Useful for obvious measurement errors.',log:'<strong>Log transform:</strong> compresses right-skewed positive values and often makes models more stable.',robust:'<strong>Robust scaling:</strong> centers by median and scales by MAD/IQR. Great before distance-based models.'}[m]}
+function fitLine(arr){const xs=arr.map(d=>d.x),ys=arr.map(d=>d.y),xm=mean(xs),ym=mean(ys),b1=xs.reduce((s,x,i)=>s+(x-xm)*(ys[i]-ym),0)/(xs.reduce((s,x)=>s+(x-xm)**2,0)||1);return{b1,b0:ym-b1*xm,p:x=>ym-b1*xm+b1*x}}
+function rmse(arr,line){return Math.sqrt(mean(arr.map(d=>(d.y-line.p(d.x))**2)))}
+function runImpact(){const trendType=document.getElementById('distType').value;const old=document.getElementById('distType').value;if(trendType!=='trend'){/* use current data as-is */}if(!data.length)data=genData();const vals=data.map(d=>d.y),fl=detect(vals,'iqr'),clean=data.filter((_,i)=>!fl[i]);const allLine=fitLine(data),cleanLine=fitLine(clean.length>5?clean:data);drawRegImpact(data,clean,allLine,cleanLine);document.getElementById('regTable').innerHTML=`<tr><th>Model/Data</th><th>Slope</th><th>RMSE on all data</th><th>Interpretation</th></tr><tr><td>OLS with outliers</td><td>${allLine.b1.toFixed(2)}</td><td>${rmse(data,allLine).toFixed(2)}</td><td>Sensitive to influential points.</td></tr><tr><td>After IQR removal / robust view</td><td>${cleanLine.b1.toFixed(2)}</td><td>${rmse(data,cleanLine).toFixed(2)}</td><td>Better reflects main pattern, but may ignore rare valid cases.</td></tr>`;document.getElementById('regAdvice').innerHTML=`<strong>Before vs after:</strong> The slope changed from <strong>${allLine.b1.toFixed(2)}</strong> to <strong>${cleanLine.b1.toFixed(2)}</strong>. A big change means the outliers are influential, not just unusual.`}
+function drawRegImpact(arr,clean,l1,l2){const c=document.getElementById('regCanvas'),ctx=c.getContext('2d'),r=c.getBoundingClientRect();c.width=Math.round(r.width);c.height=260;const vals=arr.map(d=>d.y),s=scale(vals,c.width,c.height),X=i=>s.X(i,arr.length),Y=s.Y;ctx.clearRect(0,0,c.width,c.height);arr.forEach((d,i)=>{ctx.fillStyle=clean.includes(d)?'#3b82f6':'#ef4444';ctx.beginPath();ctx.arc(X(i),Y(d.y),4,0,Math.PI*2);ctx.fill()});[[l1,'#ef4444'],[l2,'#22c55e']].forEach(([l,col])=>{ctx.strokeStyle=col;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(X(0),Y(l.p(0)));ctx.lineTo(X(arr.length-1),Y(l.p(arr.length-1)));ctx.stroke()})}
+function initMethods(){const cards=[['IQR Rule','Best general-purpose detector for skewed numeric data. Uses Q1 - 1.5*IQR and Q3 + 1.5*IQR.','Use when distribution is not perfectly normal.'],['Z-score','Flags values many standard deviations away from the mean.','Use when data is roughly normal and not already contaminated.'],['MAD / Modified Z','Robust alternative to z-score based on median absolute deviation.','Use when extreme values may already distort mean and standard deviation.'],['Percentile Capping','Caps values at fixed percentiles such as 1st and 99th.','Use for stable production pipelines and business dashboards.'],['Remove Rows','Deletes detected observations.','Use only for confirmed errors, duplicates, impossible values, or wrong population.'],['Robust Models','Use median, tree models, Huber loss, quantile regression, or robust scalers.','Use when outliers are valid and should remain in the dataset.']];document.getElementById('methodCards').innerHTML=cards.map(c=>`<div class="method-card"><h3>${c[0]}</h3><p>${c[1]}</p><ul><li>${c[2]}</li></ul></div>`).join('')}
+const quiz=[['Which statistic is usually most affected by outliers?',['Median','Mean','Mode','Count'],1,'The mean is pulled by extreme values. Median is more robust.'],['When should you remove an outlier?',['Always','Only when it is confirmed error or outside target population','Whenever z-score flags it','Never'],1,'Detection is not the same as deletion. Domain validation matters.'],['Best default detector for skewed tabular numeric data?',['IQR','Mean only','Alphabetical sorting','Accuracy'],0,'IQR is robust because it uses quartiles.'],['If fraud transactions are outliers, what should you do?',['Delete them','Keep and model them as rare target events','Replace all with median','Ignore labels'],1,'Some outliers are the business signal itself.']];
+function initQuiz(){qIdx=0;score=0;renderQuiz()}
+function renderQuiz(){const q=quiz[qIdx];document.getElementById('quiz').innerHTML=`<div style="font-size:11px;font-weight:900;color:var(--light);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Question ${qIdx+1} of ${quiz.length}</div><div style="font-family:'Cabinet Grotesk';font-size:22px;font-weight:900;margin-bottom:18px">${q[0]}</div>`+q[1].map((o,i)=>`<button class="quiz-opt" onclick="answerQuiz(${i})"><strong>${String.fromCharCode(65+i)}</strong> ${o}</button>`).join('');document.getElementById('quizFb').className='fb';document.getElementById('nextQ').style.display='none'}
+function answerQuiz(i){const q=quiz[qIdx];document.querySelectorAll('.quiz-opt').forEach((el,idx)=>{if(idx===q[2])el.classList.add('correct');else if(idx===i)el.classList.add('wrong')});if(i===q[2])score++;const fb=document.getElementById('quizFb');fb.className='fb show '+(i===q[2]?'ok':'no');fb.innerHTML=(i===q[2]?'Correct. ':'Not quite. ')+q[3];document.getElementById('nextQ').style.display='inline-flex'}
+function nextQuiz(){qIdx++;if(qIdx<quiz.length)renderQuiz();else document.getElementById('quiz').innerHTML=`<div style="text-align:center;padding:36px"><div style="font-family:'Cabinet Grotesk';font-size:42px;font-weight:900;color:var(--blue)">${score}/${quiz.length}</div><h3 style="font-family:'Cabinet Grotesk';font-size:26px;margin:8px 0">${score>=3?'Great job':'Keep practicing'}</h3><p class="sub" style="margin:0 auto 18px">You now know that outliers must be detected, interpreted, and handled based on business meaning.</p><button class="btn btn-outline" onclick="initQuiz()">Retry</button></div>`}
+initMethods();runDetect();initQuiz();window.addEventListener('resize',()=>{if(cur===1){drawDetect();drawBoxPlot();}if(cur===2)drawHandle(data.map(d=>d.y),handled);if(cur===3)runImpact();});
+</script>
+</body>
+</html>

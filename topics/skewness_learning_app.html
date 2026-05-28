@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skewness Interactive Learning App</title>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#22c55e;--green-l:#86efac;--green-d:#16a34a;--green-bg:#f0fdf4;
+  --blue:#3b82f6;--blue-l:#93c5fd;--blue-d:#1d4ed8;--blue-bg:#eff6ff;
+  --teal:#14b8a6;--teal-bg:#f0fdfa;--amber:#f59e0b;--amber-bg:#fffbeb;--amber-md:#fde68a;
+  --purple:#7c3aed;--purple-bg:#f5f3ff;--red:#ef4444;--red-bg:#fef2f2;--red-md:#fca5a5;
+  --orange:#f97316;--orange-bg:#fff7ed;--bg:#f8fafc;--surface:#fff;--surface2:#f1f5f9;
+  --border:#e2e8f0;--text:#0f172a;--muted:#64748b;--light:#94a3b8;
+  --shadow:0 4px 20px rgba(0,0,0,.07);--shadow-lg:0 12px 40px rgba(0,0,0,.12);
+  --r:16px;--rs:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+.topnav{height:64px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--blue));display:grid;place-items:center;color:#fff;font-family:'Cabinet Grotesk';font-weight:800}.brand{font-family:'Cabinet Grotesk';font-weight:800;font-size:17px;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}.nav-title{font-family:'Cabinet Grotesk';font-weight:700;font-size:15px;flex:1}.nav-title span{color:var(--blue)}
+.tabs{height:48px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;padding:7px 16px;overflow-x:auto;flex-shrink:0}.tab{border:1px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:99px;padding:8px 13px;font-family:'Nunito';font-size:12px;font-weight:900;white-space:nowrap;cursor:pointer}.tab.active{background:linear-gradient(135deg,var(--green),var(--blue));border-color:transparent;color:#fff}
+.app{display:flex;flex:1;overflow:hidden}.sidebar{width:245px;background:var(--surface);border-right:1px solid var(--border);padding:16px 10px;overflow:auto;flex-shrink:0}.sb-sec{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--light);padding:10px 12px 4px}.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rs);cursor:pointer;font-size:13px;font-weight:700;color:var(--muted);transition:.2s}.sb-item:hover{background:var(--surface2);color:var(--text)}.sb-item.active{background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));color:var(--blue);border:1px solid rgba(59,130,246,.15)}.sb-icon{width:28px;height:28px;border-radius:8px;background:var(--surface2);display:grid;place-items:center;flex-shrink:0}.sb-item.active .sb-icon{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff}
+.main{flex:1;overflow:auto}.page{display:none;padding:32px 40px;min-height:100%;animation:fadeUp .3s ease}.page.active{display:block}@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.tag{display:inline-flex;padding:4px 14px;background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));border:1px solid rgba(34,197,94,.3);border-radius:99px;font-size:11px;font-weight:800;color:var(--green-d);margin-bottom:14px}.title{font-family:'Cabinet Grotesk';font-size:34px;font-weight:800;line-height:1.2;margin-bottom:8px}.title span{color:var(--blue)}.sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:900px;margin-bottom:24px}
+.hero{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);border-radius:var(--r);padding:42px;color:#fff;position:relative;overflow:hidden;margin-bottom:24px}.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 82% 18%,rgba(34,197,94,.18),transparent 58%),radial-gradient(circle at 12% 85%,rgba(245,158,11,.16),transparent 48%)}.hero>*{position:relative}.hero h1{font-family:'Cabinet Grotesk';font-size:42px;line-height:1.12;margin-bottom:12px}.hero h1 span{color:var(--green-l)}.hero p{font-size:15px;line-height:1.7;opacity:.84;max-width:800px}.chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:99px;padding:7px 14px;font-size:12px;font-weight:800}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:24px;margin-bottom:20px}.card-title{font-family:'Cabinet Grotesk';font-size:18px;font-weight:800;margin-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.pill{font-size:10px;font-weight:800;padding:3px 10px;border-radius:99px;color:#fff}.pill-blue{background:var(--blue)}.pill-green{background:var(--green)}.pill-red{background:var(--red)}.pill-purple{background:var(--purple)}.pill-orange{background:var(--orange)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.lab{display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:99px;padding:10px 18px;font-family:'Nunito';font-weight:800;cursor:pointer;transition:.2s}.btn-primary{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff;box-shadow:0 4px 14px rgba(59,130,246,.3)}.btn-secondary{background:var(--surface2);border:1px solid var(--border);color:var(--muted)}.btn-outline{background:transparent;border:2px solid var(--blue);color:var(--blue)}.btn-sm{font-size:12px;padding:7px 13px}
+.control{margin-bottom:14px}.control label{display:block;font-size:11px;font-weight:900;color:var(--light);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}.control select,.control input[type=number]{width:100%;border:1.5px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-family:'Nunito';font-weight:800;background:#fff;color:var(--text)}.control input[type=range]{width:100%;-webkit-appearance:none;height:7px;border-radius:99px;background:var(--border);outline:none}.control input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));box-shadow:0 2px 8px rgba(59,130,246,.4);cursor:pointer}.rh{display:flex;justify-content:space-between}.rv{font-family:'Fira Code';font-size:12px;font-weight:800;color:var(--blue)}
+canvas{width:100%;height:390px;display:block;background:#fff;border:1px solid var(--border);border-radius:var(--rs)}.mini-canvas{height:270px}.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.leg{display:flex;gap:6px;align-items:center;font-size:12px;font-weight:800;color:var(--muted)}.sw{width:12px;height:12px;border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}th{background:linear-gradient(135deg,var(--green-d),var(--blue-d));color:#fff;text-align:left;padding:10px 12px;font-family:'Cabinet Grotesk';font-weight:800}td{padding:10px 12px;border-bottom:1px solid var(--border);line-height:1.45}tr:nth-child(even) td{background:var(--surface2)}
+.metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}.metric{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:13px}.metric .k{font-size:10px;color:var(--light);font-weight:900;text-transform:uppercase;letter-spacing:.08em}.metric .v{font-family:'Cabinet Grotesk';font-size:23px;font-weight:900;color:var(--blue);margin-top:2px}.metric .s{font-size:12px;color:var(--muted);line-height:1.45;margin-top:2px}
+.info{background:var(--blue-bg);border:1px solid var(--blue-l);border-radius:var(--rs);padding:14px;font-size:13px;line-height:1.65;color:var(--blue-d)}.success{background:var(--green-bg);border:1px solid var(--green-l);border-radius:var(--rs);padding:14px;font-size:13px;line-height:1.65;color:var(--green-d)}.warn{background:var(--amber-bg);border:1px solid var(--amber-md);border-radius:var(--rs);padding:14px;font-size:13px;line-height:1.65;color:#92400e}.danger{background:var(--red-bg);border:1px solid var(--red-md);border-radius:var(--rs);padding:14px;font-size:13px;line-height:1.65;color:#991b1b}.advice{background:linear-gradient(135deg,var(--green-bg),var(--blue-bg));border:1px solid rgba(34,197,94,.28);border-left:4px solid var(--green);border-radius:var(--rs);padding:16px 18px;font-size:13px;line-height:1.65;color:var(--text);margin-top:14px}
+.formula-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.formula-chip{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center}.formula-chip .f{font-family:'Fira Code';font-size:13px;font-weight:800;color:var(--blue)}.formula-chip .m{font-size:11px;color:var(--muted);line-height:1.45;margin-top:4px}
+.method-card{border:2px solid var(--border);border-radius:var(--rs);padding:16px;background:#fff;transition:.2s}.method-card:hover{border-color:var(--blue);background:var(--blue-bg);transform:translateY(-2px)}.method-card h3{font-family:'Cabinet Grotesk';font-size:17px;margin-bottom:7px}.method-card p,.method-card li{font-size:13px;color:var(--muted);line-height:1.6}.method-card ul{margin-left:18px;margin-top:8px}.code{background:#0f172a;border-radius:var(--rs);overflow:hidden;margin-top:14px}.code-head{background:#1e293b;color:#94a3b8;font-family:'Fira Code';font-size:11px;padding:9px 14px}.code pre{padding:16px 18px;overflow:auto;color:#e2e8f0;font-family:'Fira Code';font-size:13px;line-height:1.7}
+.quiz-opt{display:flex;align-items:center;gap:12px;width:100%;background:#fff;border:2px solid var(--border);border-radius:var(--rs);padding:13px 16px;margin-bottom:10px;font-family:'Nunito';font-size:14px;font-weight:800;cursor:pointer;text-align:left}.quiz-opt:hover{border-color:var(--blue);background:var(--blue-bg)}.quiz-opt.correct{border-color:var(--green);background:var(--green-bg);color:var(--green-d)}.quiz-opt.wrong{border-color:var(--red);background:var(--red-bg);color:#dc2626}.fb{display:none;border-radius:var(--rs);padding:13px;margin-top:12px;font-size:13px;line-height:1.6}.fb.show{display:block}.fb.ok{background:var(--green-bg);border:1px solid var(--green-l);color:#166534}.fb.no{background:var(--red-bg);border:1px solid var(--red-md);color:#991b1b}
+@media(max-width:980px){.sidebar{display:none}.page{padding:22px 16px}.lab,.grid2,.grid3,.metric-row,.formula-strip{grid-template-columns:1fr}.hero{padding:30px 22px}.hero h1{font-size:32px}.topnav{padding:0 12px}.brand{display:none}}
+</style>
+</head>
+<body>
+<nav class="topnav"><div class="logo">S</div><div class="brand">HCL GUVI</div><div class="nav-title">Interactive Module: <span>Skewness Detection & Handling</span></div></nav>
+<div class="tabs">
+  <button class="tab active" id="tab0" onclick="goTo(0)">Overview</button>
+  <button class="tab" id="tab1" onclick="goTo(1)">Skewness Lab</button>
+  <button class="tab" id="tab2" onclick="goTo(2)">Detection</button>
+  <button class="tab" id="tab3" onclick="goTo(3)">Handling</button>
+  <button class="tab" id="tab4" onclick="goTo(4)">ML Impact</button>
+  <button class="tab" id="tab5" onclick="goTo(5)">Guide</button>
+  <button class="tab" id="tab6" onclick="goTo(6)">Quiz</button>
+</div>
+<div class="app">
+<aside class="sidebar">
+  <div class="sb-sec">Skewness Path</div>
+  <div class="sb-item active" id="nav0" onclick="goTo(0)"><div class="sb-icon">1</div>Overview</div>
+  <div class="sb-item" id="nav1" onclick="goTo(1)"><div class="sb-icon">2</div>Skewness Lab</div>
+  <div class="sb-item" id="nav2" onclick="goTo(2)"><div class="sb-icon">3</div>Detection</div>
+  <div class="sb-item" id="nav3" onclick="goTo(3)"><div class="sb-icon">4</div>Handling</div>
+  <div class="sb-item" id="nav4" onclick="goTo(4)"><div class="sb-icon">5</div>ML Impact</div>
+  <div class="sb-item" id="nav5" onclick="goTo(5)"><div class="sb-icon">6</div>Guide</div>
+  <div class="sb-item" id="nav6" onclick="goTo(6)"><div class="sb-icon">7</div>Quiz</div>
+</aside>
+<main class="main" id="main">
+  <section class="page active" id="page0">
+    <div class="hero">
+      <h1>Skewness explains <span>which side your data leans toward</span></h1>
+      <p>Skewness measures asymmetry in a distribution. A symmetric distribution has balanced left and right sides. A skewed distribution has a long tail on one side, which affects averages, outliers, model assumptions, scaling, and business interpretation.</p>
+      <div class="chips"><div class="chip">Right Skew</div><div class="chip">Left Skew</div><div class="chip">Mean vs Median</div><div class="chip">Log Transform</div><div class="chip">Box-Cox / Yeo-Johnson</div></div>
+    </div>
+    <div class="grid3">
+      <div class="card"><div class="card-title">Symmetric</div><p class="sub" style="margin:0">Both tails are similar. Mean and median are close. Example: measurement errors around a target.</p></div>
+      <div class="card"><div class="card-title">Right Skew</div><p class="sub" style="margin:0">Long tail to the right. Mean is usually greater than median. Example: income, order value, waiting time.</p></div>
+      <div class="card"><div class="card-title">Left Skew</div><p class="sub" style="margin:0">Long tail to the left. Mean is usually less than median. Example: high exam scores with a few very low scores.</p></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Core Theory <span class="pill pill-blue">Concept</span></div>
+      <p class="sub" style="margin-bottom:8px">Skewness is the standardized third moment of a distribution. Practically, it tells you whether extreme values are pulling the distribution to the left or right.</p>
+      <div class="formula-strip">
+        <div class="formula-chip"><div class="f">skew ≈ 0</div><div class="m">Approximately symmetric distribution.</div></div>
+        <div class="formula-chip"><div class="f">skew &gt; 0</div><div class="m">Right tail is longer. Mean tends to move upward.</div></div>
+        <div class="formula-chip"><div class="f">skew &lt; 0</div><div class="m">Left tail is longer. Mean tends to move downward.</div></div>
+        <div class="formula-chip"><div class="f">|skew| &gt; 1</div><div class="m">Often considered highly skewed.</div></div>
+      </div>
+      <div class="info"><strong>Why it matters:</strong> many statistical methods behave best when variables or residuals are roughly symmetric. Skewed features can create outliers, unstable scaling, poor linear model fit, and misleading average-based summaries.</div>
+    </div>
+    <button class="btn btn-primary" onclick="goTo(1)">Open Skewness Lab</button>
+  </section>
+
+  <section class="page" id="page1">
+    <div class="tag">Interactive Lab</div><h2 class="title">Visualize <span>Skewness</span></h2>
+    <p class="sub">Generate distributions and see how shape, tails, mean, median, and skewness change.</p>
+    <div class="lab">
+      <div class="card">
+        <div class="card-title">Data Controls <span class="pill pill-green">Dummy Data</span></div>
+        <div class="control"><label>Distribution</label><select id="distType" onchange="runLab()"><option value="normal">Symmetric normal</option><option value="right">Right skewed</option><option value="left">Left skewed</option><option value="mixed">Mixed segments</option><option value="outliers">Skew + extreme outliers</option></select></div>
+        <div class="control"><div class="rh"><label>Skew strength</label><span class="rv" id="skewVal">5</span></div><input id="skewStrength" type="range" min="1" max="10" value="5" oninput="runLab()"></div>
+        <div class="control"><div class="rh"><label>Noise / spread</label><span class="rv" id="spreadVal">20</span></div><input id="spread" type="range" min="5" max="45" value="20" oninput="runLab()"></div>
+        <div class="control"><div class="rh"><label>Samples</label><span class="rv" id="nVal">220</span></div><input id="n" type="range" min="60" max="500" step="20" value="220" oninput="runLab()"></div>
+        <button class="btn btn-primary" onclick="runLab()">Regenerate Data</button>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-title">Histogram + Mean/Median <span class="pill pill-blue">Shape</span></div>
+          <canvas id="histCanvas"></canvas>
+          <div class="legend"><div class="leg"><span class="sw" style="background:#3b82f6"></span>Histogram</div><div class="leg"><span class="sw" style="background:#ef4444"></span>Mean</div><div class="leg"><span class="sw" style="background:#22c55e"></span>Median</div></div>
+          <div class="advice" id="shapeAdvice"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Distribution Metrics</div>
+          <div class="metric-row" id="metricCards"></div>
+          <table id="metricTable"></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page2">
+    <div class="tag">Detection</div><h2 class="title">How to Detect <span>Skewness</span></h2>
+    <p class="sub">Skewness is detected visually and numerically. Use both: the number summarizes asymmetry, while charts show whether it is caused by tail behavior, outliers, or multiple populations.</p>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Detection Charts</div>
+        <canvas id="boxCanvas" class="mini-canvas"></canvas>
+        <div class="advice" id="boxAdvice"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Detection Rules</div>
+        <table>
+          <tr><th>Tool</th><th>What to Look For</th><th>Meaning</th></tr>
+          <tr><td>Histogram</td><td>Long tail on one side</td><td>Shows direction of skew.</td></tr>
+          <tr><td>Box plot</td><td>Longer whisker and many points on one side</td><td>Shows tail imbalance and possible outliers.</td></tr>
+          <tr><td>Mean vs median</td><td>Mean far from median</td><td>Tail is pulling the average.</td></tr>
+          <tr><td>Skewness coefficient</td><td>|skew| above 0.5 or 1</td><td>Moderate or high asymmetry.</td></tr>
+          <tr><td>Q-Q plot</td><td>Systematic curve away from line</td><td>Distribution differs from normality.</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Interpretation Scale</div>
+      <div class="grid3">
+        <div class="success"><strong>|skew| &lt; 0.5:</strong> roughly symmetric. Usually no urgent transformation needed.</div>
+        <div class="warn"><strong>0.5 to 1:</strong> moderate skew. Consider transformation if model assumptions or metrics suffer.</div>
+        <div class="danger"><strong>|skew| &gt; 1:</strong> high skew. Investigate tail, outliers, and transformation options.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page3">
+    <div class="tag">Handling</div><h2 class="title">Handle <span>Skewed Data</span></h2>
+    <p class="sub">Handling skewness does not mean forcing every variable to become normal. It means making the data easier for statistics, models, and humans to interpret.</p>
+    <div class="lab">
+      <div class="card">
+        <div class="card-title">Transformation Controls <span class="pill pill-purple">Before vs After</span></div>
+        <div class="control"><label>Handling method</label><select id="transformMethod" onchange="runTransform()"><option value="none">Do nothing</option><option value="log">Log transform</option><option value="sqrt">Square root transform</option><option value="cuberoot">Cube root transform</option><option value="reciprocal">Reciprocal transform</option><option value="winsor">Winsorize tails</option><option value="standard">Standard scaling</option><option value="robust">Robust scaling</option><option value="yeo">Yeo-Johnson style transform</option></select></div>
+        <button class="btn btn-primary" onclick="runTransform()">Apply Method</button>
+        <div class="warn" style="margin-top:14px"><strong>Pipeline rule:</strong> learn transformation parameters from training data only, then apply them to validation/test data.</div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-title">Before vs After Histogram <span class="pill pill-orange">Interactive</span></div>
+          <canvas id="transformCanvas"></canvas>
+          <div class="legend"><div class="leg"><span class="sw" style="background:#94a3b8"></span>Before</div><div class="leg"><span class="sw" style="background:#22c55e"></span>After</div></div>
+          <div class="advice" id="transformAdvice"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Transformation Metrics</div>
+          <table id="transformTable"></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page4">
+    <div class="tag">ML Impact</div><h2 class="title">How Skewness <span>Affects Models</span></h2>
+    <p class="sub">Skewness can affect models differently. Linear models, distance-based methods, and neural networks often benefit from transformed or scaled features. Tree-based models are usually less sensitive.</p>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Model Impact Simulator</div>
+        <canvas id="impactCanvas" class="mini-canvas"></canvas>
+        <div class="advice" id="impactAdvice"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Model Sensitivity</div>
+        <table>
+          <tr><th>Model Type</th><th>Effect of Skewness</th><th>What to Do</th></tr>
+          <tr><td>Linear / Logistic Regression</td><td>Can be affected through nonlinearity, extreme values, and residual skew.</td><td>Try log/sqrt transform, robust scaling, inspect residuals.</td></tr>
+          <tr><td>kNN / K-means / SVM</td><td>Distance is dominated by large-scale skewed variables.</td><td>Transform and scale features.</td></tr>
+          <tr><td>Decision Trees / Random Forest</td><td>Less sensitive because splits are rank/threshold based.</td><td>Transformation often optional, but outliers can still matter.</td></tr>
+          <tr><td>Neural Networks</td><td>Training can be unstable if features have long tails and different scales.</td><td>Transform, normalize, use robust preprocessing.</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Business Interpretation</div>
+      <div class="grid3">
+        <div class="info"><strong>Right-skewed revenue:</strong> a few large customers pull the average upward, so median may better represent a typical customer.</div>
+        <div class="info"><strong>Left-skewed scores:</strong> most learners score high, but a few low scores create a left tail. Investigate struggling segments.</div>
+        <div class="info"><strong>Long-tail demand:</strong> average demand may hide many low-frequency products. Segmenting may be better than one global model.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page5">
+    <div class="tag">Guide</div><h2 class="title">Skewness <span>Method Guide</span></h2>
+    <p class="sub">Choose the method based on data domain, sign of values, model type, and whether interpretability matters.</p>
+    <div class="grid2" id="guideCards"></div>
+    <div class="card">
+      <div class="card-title">Python Patterns</div>
+      <div class="code"><div class="code-head">pandas / scipy / sklearn style pseudocode</div><pre># detect skewness
+skew_value = df["amount"].skew()
+mean_value = df["amount"].mean()
+median_value = df["amount"].median()
+
+# log transform for positive right-skewed data
+df["amount_log"] = np.log1p(df["amount"])
+
+# winsorize tails
+lower = df["amount"].quantile(0.01)
+upper = df["amount"].quantile(0.99)
+df["amount_cap"] = df["amount"].clip(lower, upper)
+
+# robust scale after transformation
+from sklearn.preprocessing import RobustScaler
+scaler = RobustScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)</pre></div>
+    </div>
+  </section>
+
+  <section class="page" id="page6">
+    <div class="tag">Quiz</div><h2 class="title">Skewness <span>Check</span></h2>
+    <div class="card"><div id="quiz"></div><div id="quizFb" class="fb"></div><button class="btn btn-primary" id="nextQ" style="display:none;margin-top:14px" onclick="nextQuiz()">Next</button></div>
+  </section>
+</main>
+</div>
+
+<script>
+let cur=0,seed=19,data=[],transformed=[],qIdx=0,score=0;
+function rand(){seed=(seed*9301+49297)%233280;return seed/233280}
+function norm(){let u=0,v=0;while(u===0)u=rand();while(v===0)v=rand();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function goTo(n){document.getElementById('page'+cur).classList.remove('active');document.getElementById('nav'+cur).classList.remove('active');document.getElementById('tab'+cur).classList.remove('active');cur=n;document.getElementById('page'+n).classList.add('active');document.getElementById('nav'+n).classList.add('active');document.getElementById('tab'+n).classList.add('active');document.getElementById('main').scrollTop=0;if(n===1)setTimeout(runLab,30);if(n===2)setTimeout(()=>{drawBox();},30);if(n===3)setTimeout(runTransform,30);if(n===4)setTimeout(drawImpact,30);if(n===6)initQuiz();}
+function mean(a){return a.reduce((s,x)=>s+x,0)/a.length}
+function median(a){const s=[...a].sort((x,y)=>x-y),m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2}
+function quantile(a,q){const s=[...a].sort((x,y)=>x-y),p=(s.length-1)*q,b=Math.floor(p),r=p-b;return s[b]+(s[b+1]!==undefined?r*(s[b+1]-s[b]):0)}
+function sd(a){const m=mean(a);return Math.sqrt(mean(a.map(x=>(x-m)**2)))||1}
+function skew(a){const m=mean(a),s=sd(a);return mean(a.map(x=>((x-m)/s)**3))}
+function genData(){
+  seed=19;const type=document.getElementById('distType')?.value||'right',n=+(document.getElementById('n')?.value||220),str=+(document.getElementById('skewStrength')?.value||5),spread=+(document.getElementById('spread')?.value||20);
+  if(document.getElementById('nVal')){document.getElementById('nVal').textContent=n;document.getElementById('skewVal').textContent=str;document.getElementById('spreadVal').textContent=spread;}
+  const arr=[];for(let i=0;i<n;i++){let v;if(type==='normal')v=100+norm()*spread;else if(type==='right')v=Math.exp(3.6+norm()*(.22+str*.055))*(spread/18);else if(type==='left')v=240-Math.exp(3.6+norm()*(.22+str*.055))*(spread/18);else if(type==='mixed')v=rand()<.7?80+norm()*spread*.5:150+Math.exp(2.4+norm()*.45)*(str/4);else{v=Math.exp(3.5+norm()*(.25+str*.05))*(spread/18);if(rand()<.08)v*=2.5+rand()*3;}arr.push(v)}return arr;
+}
+function scale(vals,w,h){const lo=Math.min(...vals),hi=Math.max(...vals),pad=(hi-lo)*.08||1;return{lo:lo-pad,hi:hi+pad,X:v=>45+(v-(lo-pad))/((hi+pad)-(lo-pad))*(w-65),Y:v=>h-34-(v-(lo-pad))/((hi+pad)-(lo-pad))*(h-58)}}
+function bins(vals,k=24){const lo=Math.min(...vals),hi=Math.max(...vals),w=(hi-lo||1)/k,arr=Array(k).fill(0);vals.forEach(v=>{let i=Math.min(k-1,Math.floor((v-lo)/w));arr[i]++});return{arr,lo,hi,w}}
+function drawHist(canvasId,vals,opts={}){
+  const c=document.getElementById(canvasId);if(!c)return;const ctx=c.getContext('2d'),r=c.getBoundingClientRect();c.width=Math.round(r.width);c.height=opts.h||390;ctx.clearRect(0,0,c.width,c.height);
+  const b=bins(vals,28),max=Math.max(...b.arr),left=45,bottom=c.height-34,top=26,bw=(c.width-70)/b.arr.length;
+  ctx.strokeStyle='#e2e8f0';for(let i=0;i<=5;i++){let y=top+i*(bottom-top)/5;ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(c.width-20,y);ctx.stroke()}
+  b.arr.forEach((ct,i)=>{const h=ct/max*(bottom-top);ctx.fillStyle=opts.color||'rgba(59,130,246,.72)';ctx.fillRect(left+i*bw,bottom-h,bw-2,h)});
+  const m=mean(vals),med=median(vals),x=v=>left+(v-b.lo)/(b.hi-b.lo||1)*(c.width-70);
+  ctx.lineWidth=3;ctx.strokeStyle='#ef4444';ctx.beginPath();ctx.moveTo(x(m),top);ctx.lineTo(x(m),bottom);ctx.stroke();
+  ctx.strokeStyle='#22c55e';ctx.beginPath();ctx.moveTo(x(med),top);ctx.lineTo(x(med),bottom);ctx.stroke();
+  ctx.fillStyle='#64748b';ctx.font='12px Nunito';ctx.fillText('Mean',x(m)+4,top+14);ctx.fillText('Median',x(med)+4,top+30);
+}
+function runLab(){data=genData();drawHist('histCanvas',data);renderMetrics();drawBox();runTransform();drawImpact();}
+function renderMetrics(){const sk=skew(data),m=mean(data),med=median(data),direction=sk>0.5?'Right skew':sk<-0.5?'Left skew':'Roughly symmetric';document.getElementById('metricCards').innerHTML=`<div class="metric"><div class="k">Skewness</div><div class="v">${sk.toFixed(2)}</div><div class="s">${direction}</div></div><div class="metric"><div class="k">Mean</div><div class="v">${m.toFixed(1)}</div><div class="s">Pulled by tail.</div></div><div class="metric"><div class="k">Median</div><div class="v">${med.toFixed(1)}</div><div class="s">Robust center.</div></div><div class="metric"><div class="k">Mean - Median</div><div class="v">${(m-med).toFixed(1)}</div><div class="s">Direction clue.</div></div>`;document.getElementById('metricTable').innerHTML=`<tr><th>Observation</th><th>Value</th><th>Interpretation</th></tr><tr><td>Skewness coefficient</td><td>${sk.toFixed(3)}</td><td>${direction}</td></tr><tr><td>Mean vs median</td><td>${m.toFixed(2)} vs ${med.toFixed(2)}</td><td>${m>med?'Mean is above median: right-tail pull.':m<med?'Mean is below median: left-tail pull.':'Centers are close.'}</td></tr><tr><td>Recommended first check</td><td>Histogram + box plot</td><td>Confirm whether skew comes from tail, outliers, or mixed populations.</td></tr>`;document.getElementById('shapeAdvice').innerHTML=`<strong>Reading the chart:</strong> ${direction}. ${Math.abs(sk)>1?'This is highly skewed; transformations may help.':Math.abs(sk)>.5?'This is moderately skewed; check model impact.':'This is close enough to symmetric for many workflows.'}`}
+function drawBox(){if(!data.length)data=genData();const c=document.getElementById('boxCanvas');if(!c)return;const ctx=c.getContext('2d'),r=c.getBoundingClientRect();c.width=Math.round(r.width);c.height=270;const vals=data,q1=quantile(vals,.25),q2=median(vals),q3=quantile(vals,.75),iqr=q3-q1,lf=q1-1.5*iqr,uf=q3+1.5*iqr,inF=vals.filter(v=>v>=lf&&v<=uf),wLow=Math.min(...inF),wHigh=Math.max(...inF),lo=Math.min(...vals,lf),hi=Math.max(...vals,uf),pad=(hi-lo)*.08||1,X=v=>50+(v-(lo-pad))/((hi+pad)-(lo-pad))*(c.width-90),mid=126,boxH=62;ctx.clearRect(0,0,c.width,c.height);ctx.strokeStyle='#e2e8f0';for(let i=0;i<=5;i++){let x=50+i*(c.width-90)/5;ctx.beginPath();ctx.moveTo(x,40);ctx.lineTo(x,205);ctx.stroke()}ctx.strokeStyle='#64748b';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(X(wLow),mid);ctx.lineTo(X(wHigh),mid);ctx.stroke();[wLow,wHigh].forEach(v=>{ctx.beginPath();ctx.moveTo(X(v),mid-25);ctx.lineTo(X(v),mid+25);ctx.stroke()});ctx.fillStyle='rgba(59,130,246,.18)';ctx.strokeStyle='#3b82f6';ctx.lineWidth=2;ctx.fillRect(X(q1),mid-boxH/2,X(q3)-X(q1),boxH);ctx.strokeRect(X(q1),mid-boxH/2,X(q3)-X(q1),boxH);ctx.strokeStyle='#22c55e';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(X(q2),mid-boxH/2-8);ctx.lineTo(X(q2),mid+boxH/2+8);ctx.stroke();vals.forEach((v,i)=>{if(v<lf||v>uf){ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(X(v),mid+Math.sin(i*9.7)*18,5,0,Math.PI*2);ctx.fill()}});ctx.fillStyle='#64748b';ctx.font='12px Nunito';ctx.textAlign='center';[['Q1',q1],['Median',q2],['Q3',q3]].forEach(([l,v],i)=>ctx.fillText(l+' '+v.toFixed(1),X(v),225+i%2*18));const sk=skew(vals);document.getElementById('boxAdvice').innerHTML=`<strong>Box plot detection:</strong> skewness = <strong>${sk.toFixed(2)}</strong>. A longer whisker or more red points on the ${sk>=0?'right':'left'} side shows ${sk>=0?'positive/right':'negative/left'} skew. IQR = <strong>${iqr.toFixed(2)}</strong>.`}
+function transform(vals,method){const min=Math.min(...vals),shift=min<=0?1-min:0,m=mean(vals),s=sd(vals),med=median(vals),iqr=quantile(vals,.75)-quantile(vals,.25)||1,p05=quantile(vals,.05),p95=quantile(vals,.95);if(method==='none')return vals.map(v=>v);if(method==='log')return vals.map(v=>Math.log1p(v+shift));if(method==='sqrt')return vals.map(v=>Math.sqrt(v+shift));if(method==='cuberoot')return vals.map(v=>Math.cbrt(v));if(method==='reciprocal')return vals.map(v=>1/(v+shift+1));if(method==='winsor')return vals.map(v=>Math.max(p05,Math.min(p95,v)));if(method==='standard')return vals.map(v=>(v-m)/s);if(method==='robust')return vals.map(v=>(v-med)/iqr);if(method==='yeo')return vals.map(v=>v>=0?Math.log1p(v): -Math.log1p(-v));return vals.map(v=>v)}
+function runTransform(){if(!data.length)data=genData();const method=document.getElementById('transformMethod')?.value||'log';transformed=transform(data,method);drawTransform();renderTransform(method)}
+function drawTransform(){const c=document.getElementById('transformCanvas');if(!c)return;const ctx=c.getContext('2d'),r=c.getBoundingClientRect();c.width=Math.round(r.width);c.height=390;ctx.clearRect(0,0,c.width,c.height);drawSmallHist(ctx,data,45,25,c.width-70,150,'rgba(148,163,184,.72)','Before');drawSmallHist(ctx,transformed,45,220,c.width-70,140,'rgba(34,197,94,.72)','After')}
+function drawSmallHist(ctx,vals,x,y,w,h,color,label){const b=bins(vals,24),max=Math.max(...b.arr),bw=w/b.arr.length;ctx.fillStyle='#64748b';ctx.font='13px Nunito';ctx.fillText(label,x,y-8);b.arr.forEach((ct,i)=>{const bh=ct/max*h;ctx.fillStyle=color;ctx.fillRect(x+i*bw,y+h-bh,bw-2,bh)});ctx.strokeStyle='#e2e8f0';ctx.strokeRect(x,y,w,h)}
+function renderTransform(method){const before=skew(data),after=skew(transformed);document.getElementById('transformTable').innerHTML=`<tr><th>Metric</th><th>Before</th><th>After</th><th>Meaning</th></tr><tr><td>Skewness</td><td>${before.toFixed(3)}</td><td>${after.toFixed(3)}</td><td>Closer to 0 means more symmetric.</td></tr><tr><td>Mean</td><td>${mean(data).toFixed(2)}</td><td>${mean(transformed).toFixed(2)}</td><td>Transformation changes scale.</td></tr><tr><td>Median</td><td>${median(data).toFixed(2)}</td><td>${median(transformed).toFixed(2)}</td><td>Robust center after transform.</td></tr><tr><td>Std Dev</td><td>${sd(data).toFixed(2)}</td><td>${sd(transformed).toFixed(2)}</td><td>Spread after transform/scaling.</td></tr>`;document.getElementById('transformAdvice').innerHTML=transformAdvice(method,before,after)}
+function transformAdvice(m,b,a){const txt={none:'Doing nothing is valid when skewness does not hurt modeling or interpretation.',log:'Log transform is the classic choice for positive right-skewed values such as income, sales, duration, and counts.',sqrt:'Square root is milder than log and works well for count-like data.',cuberoot:'Cube root is useful when values can include negatives and you need a mild compression.',reciprocal:'Reciprocal strongly compresses large values but reverses order; use carefully.',winsor:'Winsorization caps extreme tails while keeping original units.',standard:'Standard scaling changes mean and variance but does not remove skewness.',robust:'Robust scaling handles median and IQR but does not fully change distribution shape.',yeo:'Yeo-Johnson style transforms can handle zero and negative values better than plain log.'}[m];return `<strong>${m}:</strong> ${txt} Skewness changed from <strong>${b.toFixed(2)}</strong> to <strong>${a.toFixed(2)}</strong>.`}
+function drawImpact(){if(!data.length)data=genData();const c=document.getElementById('impactCanvas');if(!c)return;const ctx=c.getContext('2d'),r=c.getBoundingClientRect();c.width=Math.round(r.width);c.height=270;const raw=data,log=transform(data,'log');ctx.clearRect(0,0,c.width,c.height);drawSmallHist(ctx,raw,40,28,c.width-80,95,'rgba(59,130,246,.7)','Raw skewed feature');drawSmallHist(ctx,log,40,165,c.width-80,75,'rgba(34,197,94,.75)','After log transform');const improvement=Math.abs(skew(raw))-Math.abs(skew(log));document.getElementById('impactAdvice').innerHTML=`<strong>Model impact:</strong> log transformation reduced absolute skew by <strong>${improvement.toFixed(2)}</strong>. This often helps linear, distance-based, and neural models by compressing long tails. Tree models may not need it.`
+}
+function initGuide(){const cards=[['Log Transform','Best for positive right-skewed variables. Compresses large values and often stabilizes variance.','Use for income, revenue, duration, population, order value.'],['Square Root','Milder than log. Useful for count data when skew is moderate.','Use for counts, events, visits, defects.'],['Cube Root','Works with negative values and compresses both tails gently.','Use when data includes zero/negative values.'],['Winsorization','Caps extreme tails without changing most observations.','Use when skew is mainly caused by extreme valid values.'],['Robust Scaling','Centers by median and scales by IQR. Does not remove skew but reduces scale sensitivity.','Use before kNN, SVM, clustering.'],['Segment Instead','Sometimes skew means you have multiple populations mixed together.','Use customer segments, product groups, geography, or behavior clusters.']];document.getElementById('guideCards').innerHTML=cards.map(c=>`<div class="method-card"><h3>${c[0]}</h3><p>${c[1]}</p><ul><li>${c[2]}</li></ul></div>`).join('')}
+const quiz=[['If skewness is positive, where is the long tail?',['Left','Right','Both equally','No tail'],1,'Positive skew means a longer right tail; mean is often greater than median.'],['Which chart is best for quickly seeing skewness?',['Histogram','Random table only','Pie chart','Confusion matrix'],0,'Histogram directly shows distribution shape and tail direction.'],['What is a common transform for positive right-skewed income data?',['Log transform','Alphabetical sort','One-hot encoding only','Accuracy score'],0,'Log transform compresses large values and reduces right skew.'],['Does standard scaling remove skewness?',['Always','No, it changes scale but not shape','Only for text','It deletes outliers'],1,'Standard scaling changes mean and standard deviation, but the distribution can remain skewed.']];
+function initQuiz(){qIdx=0;score=0;renderQuiz()}
+function renderQuiz(){const q=quiz[qIdx];document.getElementById('quiz').innerHTML=`<div style="font-size:11px;font-weight:900;color:var(--light);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Question ${qIdx+1} of ${quiz.length}</div><div style="font-family:'Cabinet Grotesk';font-size:22px;font-weight:900;margin-bottom:18px">${q[0]}</div>`+q[1].map((o,i)=>`<button class="quiz-opt" onclick="answerQuiz(${i})"><strong>${String.fromCharCode(65+i)}</strong> ${o}</button>`).join('');document.getElementById('quizFb').className='fb';document.getElementById('nextQ').style.display='none'}
+function answerQuiz(i){const q=quiz[qIdx];document.querySelectorAll('.quiz-opt').forEach((el,idx)=>{if(idx===q[2])el.classList.add('correct');else if(idx===i)el.classList.add('wrong')});if(i===q[2])score++;const fb=document.getElementById('quizFb');fb.className='fb show '+(i===q[2]?'ok':'no');fb.innerHTML=(i===q[2]?'Correct. ':'Not quite. ')+q[3];document.getElementById('nextQ').style.display='inline-flex'}
+function nextQuiz(){qIdx++;if(qIdx<quiz.length)renderQuiz();else document.getElementById('quiz').innerHTML=`<div style="text-align:center;padding:36px"><div style="font-family:'Cabinet Grotesk';font-size:42px;font-weight:900;color:var(--blue)">${score}/${quiz.length}</div><h3 style="font-family:'Cabinet Grotesk';font-size:26px;margin:8px 0">${score>=3?'Great job':'Keep practicing'}</h3><p class="sub" style="margin:0 auto 18px">You now know how to detect, interpret, and handle skewed data.</p><button class="btn btn-outline" onclick="initQuiz()">Retry</button></div>`}
+initGuide();runLab();initQuiz();window.addEventListener('resize',()=>{if(cur===1){drawHist('histCanvas',data);renderMetrics();}if(cur===2)drawBox();if(cur===3)drawTransform();if(cur===4)drawImpact();});
+</script>
+</body>
+</html>
