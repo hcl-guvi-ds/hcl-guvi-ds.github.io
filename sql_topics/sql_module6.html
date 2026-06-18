@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 6 — Joins | SQL Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;
+  --bg2:#f8f9fc;
+  --bg3:#f1f3f9;
+  --bg4:#e8ecf5;
+  --border:#e2e6f0;
+  --border2:#c8d0e8;
+  --text:#1a1d2e;
+  --text2:#4a5270;
+  --text3:#8a93b5;
+
+  --blue:#2563eb;    --blue-l:#eff6ff;   --blue-m:#dbeafe;
+  --indigo:#4f46e5;  --indigo-l:#eef2ff; --indigo-m:#e0e7ff;
+  --violet:#7c3aed;  --violet-l:#f5f3ff; --violet-m:#ede9fe;
+  --pink:#db2777;    --pink-l:#fdf2f8;   --pink-m:#fce7f3;
+  --red:#dc2626;     --red-l:#fef2f2;    --red-m:#fee2e2;
+  --orange:#ea580c;  --orange-l:#fff7ed; --orange-m:#ffedd5;
+  --amber:#d97706;   --amber-l:#fffbeb;  --amber-m:#fef3c7;
+  --green:#16a34a;   --green-l:#f0fdf4;  --green-m:#dcfce7;
+  --teal:#0d9488;    --teal-l:#f0fdfa;   --teal-m:#ccfbf1;
+  --cyan:#0891b2;    --cyan-l:#ecfeff;   --cyan-m:#cffafe;
+
+  --radius:10px;--radius-lg:16px;--radius-xl:24px;
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
+  --shadow-md:0 4px 12px rgba(0,0,0,.1),0 1px 3px rgba(0,0,0,.06);
+  --mono:'JetBrains Mono',monospace;
+  --serif:'Lora',serif;
+  --sans:'Sora',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.7}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:2px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;gap:1rem;height:58px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.nav-brand{font-weight:800;font-size:14px;color:var(--blue);letter-spacing:-.02em;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.nav-badge{background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:20px;font-weight:600}
+.nav-links{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-link{font-size:12px;color:var(--text2);padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:all .15s;border:none;background:none;font-family:var(--sans);font-weight:500}
+.nav-link:hover{color:var(--blue);background:var(--blue-l)}
+.nav-link.active{color:var(--blue);background:var(--blue-m);font-weight:600}
+.nav-right{font-size:11px;color:var(--text3);white-space:nowrap;font-family:var(--mono)}
+
+.page{display:grid;grid-template-columns:250px 1fr;min-height:calc(100vh - 58px)}
+aside{background:var(--bg2);border-right:2px solid var(--border);padding:1.25rem 0;position:sticky;top:58px;height:calc(100vh - 58px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+.sb-section{margin-bottom:1.5rem}
+.sb-heading{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);padding:0 1.25rem;margin-bottom:.5rem}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 1.25rem;font-size:12.5px;color:var(--text2);cursor:pointer;transition:all .15s;border:none;background:none;text-align:left;width:100%;font-family:var(--sans);font-weight:500;line-height:1.3;border-left:3px solid transparent}
+.sb-item:hover{color:var(--blue);background:var(--blue-l);border-left-color:var(--blue-m)}
+.sb-item.active{color:var(--blue);background:var(--blue-l);border-left-color:var(--blue);font-weight:600}
+.sb-divider{height:1px;background:var(--border);margin:.5rem 1.25rem}
+.sb-chip{font-size:9px;font-family:var(--mono);padding:1px 6px;border-radius:8px;font-weight:600;margin-left:auto}
+
+main{padding:2.5rem 3rem;max-width:960px}
+.section{display:none}.section.active{display:block}
+
+.hero{margin-bottom:3rem}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:1rem}
+.hero-badge{font-size:11px;font-family:var(--mono);font-weight:600;padding:4px 12px;border-radius:20px;border:1.5px solid}
+.hero-badge.ch6{color:var(--indigo);border-color:var(--indigo);background:var(--indigo-l)}
+.hero-num{font-size:11px;color:var(--text3);font-family:var(--mono)}
+.hero-title{font-size:40px;font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:.75rem;color:var(--text)}
+.hero-title .accent{background:linear-gradient(135deg,var(--indigo),var(--violet),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:16px;color:var(--text2);font-family:var(--serif);font-style:italic;line-height:1.7;max-width:620px;margin-bottom:1.5rem}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px}
+.hero-tag{font-size:11px;font-family:var(--mono);padding:4px 12px;border-radius:20px;border:1.5px solid var(--border2);color:var(--text2);background:var(--bg2);font-weight:500}
+.hero-tag.hi{border-color:var(--indigo);color:var(--indigo);background:var(--indigo-l)}
+
+.sec-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:10px;letter-spacing:-.02em}
+.sec-title .line{display:block;width:4px;height:24px;border-radius:2px;flex-shrink:0}
+.sec-title.indigo .line{background:var(--indigo)}
+.sec-title.blue .line{background:var(--blue)}
+.sec-title.violet .line{background:var(--violet)}
+.sec-title.green .line{background:var(--green)}
+.sec-title.orange .line{background:var(--orange)}
+.sec-title.pink .line{background:var(--pink)}
+.sec-title.teal .line{background:var(--teal)}
+.sec-title.cyan .line{background:var(--cyan)}
+.block{margin-bottom:3rem}
+p{color:var(--text2);margin-bottom:1rem;line-height:1.8}
+strong.hl{color:var(--text)}
+
+/* VENN DIAGRAM VISUAL — using two overlapping circles */
+.venn-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:1.5rem 0}
+.venn-card{background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;text-align:center;transition:all .15s}
+.venn-card:hover{box-shadow:var(--shadow);border-color:var(--border2)}
+.venn-svg{margin:0 auto .75rem}
+.venn-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:.3rem;font-family:var(--mono)}
+.venn-desc{font-size:11.5px;color:var(--text2);line-height:1.5}
+
+/* CODE BLOCK */
+.code-wrap{margin:1.5rem 0;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)}
+.code-hdr{display:flex;align-items:center;justify-content:space-between;background:var(--text);padding:10px 18px}
+.code-lbl{font-size:11px;font-family:var(--mono);color:#9aa3b5}
+.code-badge{font-size:10px;font-family:var(--mono);padding:3px 10px;border-radius:10px;font-weight:700;white-space:nowrap}
+.b-inner{background:#2563eb;color:#fff}
+.b-left{background:#16a34a;color:#fff}
+.b-right{background:#ea580c;color:#fff}
+.b-full{background:#7c3aed;color:#fff}
+.b-self{background:#db2777;color:#fff}
+.b-cross{background:#0d9488;color:#fff}
+.b-sub{background:#d97706;color:#fff}
+.b-tip{background:#0891b2;color:#fff}
+pre{background:#1a1d2e;padding:1.5rem;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.95;color:#e8eaf0;tab-size:2;margin:0}
+.kw{color:#c084fc;font-weight:600}
+.fn{color:#60a5fa}
+.str{color:#86efac}
+.num{color:#fb923c}
+.cmt{color:#6b7a9e;font-style:italic}
+.tbl{color:#fde68a}
+.op{color:#7dd3fc}
+.dt{color:#67e8f9}
+
+.out{background:var(--green-l);border:2px solid var(--green-m);border-radius:var(--radius);padding:1rem 1.5rem;margin-top:.5rem;font-family:var(--mono);font-size:12px;color:var(--green);line-height:1.9}
+.out-lbl{font-size:10px;color:var(--text3);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+
+.explain{background:var(--blue-l);border:2px solid var(--blue-m);border-radius:var(--radius);padding:1rem 1.5rem;margin-top:.75rem;font-size:13px;color:var(--text2);line-height:1.75}
+.explain strong{color:var(--blue)}
+.explain code{font-family:var(--mono);font-size:12px;background:white;padding:1px 6px;border-radius:4px;color:var(--violet);border:1px solid var(--border)}
+
+.callout{border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin:1.5rem 0;border:2px solid}
+.callout-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:var(--mono);margin-bottom:.5rem}
+.callout p{margin:0;line-height:1.8;font-size:13.5px}
+.callout.analogy{background:var(--amber-l);border-color:var(--amber-m)}
+.callout.analogy .callout-lbl{color:var(--amber)}
+.callout.analogy p{color:#78350f;font-family:var(--serif);font-style:italic}
+.callout.teacher{background:var(--violet-l);border-color:var(--violet-m)}
+.callout.teacher .callout-lbl{color:var(--violet)}
+.callout.teacher p{color:#3b0764}
+.callout.rw{background:var(--teal-l);border-color:var(--teal-m)}
+.callout.rw .callout-lbl{color:var(--teal)}
+.callout.rw p{color:#134e4a}
+.callout.warn{background:var(--red-l);border-color:var(--red-m)}
+.callout.warn .callout-lbl{color:var(--red)}
+.callout.warn p{color:#7f1d1d}
+.callout.info{background:var(--blue-l);border-color:var(--blue-m)}
+.callout.info .callout-lbl{color:var(--blue)}
+.callout.info p{color:#1e3a8a}
+.callout.green{background:var(--green-l);border-color:var(--green-m)}
+.callout.green .callout-lbl{color:var(--green)}
+.callout.green p{color:#14532d}
+
+.ctable{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:13px;box-shadow:var(--shadow);border-radius:var(--radius-lg);overflow:hidden}
+.ctable th{background:var(--text);color:#fff;font-weight:600;padding:11px 16px;text-align:left;font-size:12px;letter-spacing:.03em}
+.ctable td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.65;background:var(--bg)}
+.ctable tr:last-child td{border-bottom:none}
+.ctable tr:hover td{background:var(--bg2)}
+.ctable .good{color:var(--green);font-weight:600}
+.ctable .bad{color:var(--red);font-weight:600}
+.ctable .c{font-family:var(--mono);font-size:12px;color:var(--violet);background:var(--violet-l);padding:2px 6px;border-radius:4px}
+
+/* SAMPLE TABLE VISUALS (mini data tables) */
+.mini-tables{display:flex;gap:16px;margin:1.5rem 0;flex-wrap:wrap}
+.mt{background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;flex:1;min-width:220px}
+.mt-hdr{padding:9px 14px;font-size:12px;font-weight:700;font-family:var(--mono);color:#fff}
+.mt-hdr.cust{background:var(--blue)}
+.mt-hdr.ord{background:var(--orange)}
+.mt-table{width:100%;font-size:11.5px;border-collapse:collapse}
+.mt-table th{background:var(--bg3);padding:6px 10px;text-align:left;font-family:var(--mono);font-weight:600;color:var(--text2);border-bottom:1px solid var(--border)}
+.mt-table td{padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text2);font-family:var(--mono)}
+.mt-table tr:last-child td{border-bottom:none}
+
+/* CARD GRID */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:1.5rem 0}
+.ccard{background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;transition:all .15s}
+.ccard:hover{border-color:var(--border2);box-shadow:var(--shadow)}
+.ccard-icon{font-size:22px;margin-bottom:.6rem}
+.ccard-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:.35rem}
+.ccard-body{font-size:12px;color:var(--text2);line-height:1.6}
+.ccard-tag{font-family:var(--mono);font-size:11px;margin-top:.5rem;display:inline-block;padding:2px 8px;border-radius:6px}
+
+/* FAQ */
+.faq-item{border:2px solid var(--border);border-radius:var(--radius-lg);margin-bottom:.75rem;overflow:hidden;background:var(--bg)}
+.faq-q{padding:13px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;font-size:13.5px;color:var(--text);font-weight:600;user-select:none;transition:background .15s;line-height:1.5}
+.faq-q:hover{background:var(--bg2)}
+.faq-arr{color:var(--text3);transition:transform .2s;font-size:14px;flex-shrink:0;margin-top:1px}
+.faq-item.open .faq-arr{transform:rotate(180deg)}
+.faq-item.open .faq-q{background:var(--indigo-l);color:var(--indigo);border-bottom:2px solid var(--indigo-m)}
+.faq-a{display:none;padding:14px 18px;background:var(--bg);font-size:13px;color:var(--text2);line-height:1.85}
+.faq-item.open .faq-a{display:block}
+.faq-a code{font-family:var(--mono);font-size:12px;background:var(--bg3);padding:1px 6px;border-radius:4px;color:var(--violet);border:1px solid var(--border)}
+.faq-code{background:var(--text);border-radius:10px;padding:.9rem 1.2rem;font-family:var(--mono);font-size:12px;margin:.75rem 0;line-height:2;color:#e8eaf0;overflow-x:auto}
+
+/* HW */
+.hw-box{background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius-xl);padding:2rem;margin:2rem 0}
+.hw-hdr{font-size:18px;font-weight:800;color:var(--text);margin-bottom:.4rem;letter-spacing:-.02em}
+.hw-sub{font-size:13px;color:var(--text2);margin-bottom:1.5rem}
+.hw-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.hw-item{background:var(--bg);border:2px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;display:flex;gap:12px;align-items:flex-start;transition:border-color .15s}
+.hw-item:hover{border-color:var(--border2)}
+.hw-n{font-family:var(--mono);font-size:12px;font-weight:700;min-width:28px;padding-top:2px}
+.hw-c{flex:1}
+.hw-q{font-size:13.5px;color:var(--text);line-height:1.65;margin-bottom:.35rem;font-weight:500}
+.hw-hint{font-size:12px;color:var(--text3);font-style:italic;margin-bottom:.35rem}
+.hw-tag{display:inline-block;font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:8px;font-weight:700}
+.hw-tag.easy{background:var(--green-l);color:var(--green);border:1.5px solid var(--green-m)}
+.hw-tag.med{background:var(--amber-l);color:var(--amber);border:1.5px solid var(--amber-m)}
+.hw-tag.hard{background:var(--red-l);color:var(--red);border:1.5px solid var(--red-m)}
+.hw-n.e{color:var(--green)}.hw-n.m{color:var(--amber)}.hw-n.h{color:var(--red)}
+
+.prog-wrap{margin-bottom:2.5rem}
+.prog-label{font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:.5rem;display:flex;justify-content:space-between}
+.prog{background:var(--bg3);border-radius:20px;height:6px;overflow:hidden;border:1px solid var(--border)}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--indigo),var(--violet),var(--pink));border-radius:20px;transition:width .6s ease}
+
+.next-card{background:linear-gradient(135deg,var(--indigo-l),var(--violet-l),var(--pink-l));border:2px solid var(--violet-m);border-radius:var(--radius-xl);padding:1.75rem 2rem;display:flex;justify-content:space-between;align-items:center;margin-top:3rem;cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
+.next-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.next-lbl{font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.25rem;font-weight:600}
+.next-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.02em}
+.next-arrow{font-size:32px;color:var(--violet)}
+
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+@media(max-width:780px){.page{grid-template-columns:1fr}aside{display:none}main{padding:1.5rem}.hero-title{font-size:28px}.mini-tables{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">📘 SQL Course<span class="nav-badge">Ch 6</span></div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="show('s1',this)">Concepts</button>
+    <button class="nav-link" onclick="show('s2',this)">INNER (Ex 1–2)</button>
+    <button class="nav-link" onclick="show('s3',this)">LEFT/RIGHT (Ex 3–5)</button>
+    <button class="nav-link" onclick="show('s4',this)">FULL/CROSS (Ex 6–7)</button>
+    <button class="nav-link" onclick="show('s5',this)">SELF JOIN (Ex 8)</button>
+    <button class="nav-link" onclick="show('s6',this)">Multi-Joins (Ex 9–10)</button>
+    <button class="nav-link" onclick="show('s7',this)">Real World</button>
+    <button class="nav-link" onclick="show('s8',this)">FAQ</button>
+    <button class="nav-link" onclick="show('s9',this)">Homework</button>
+  </div>
+  <div class="nav-right">6 / 18</div>
+</nav>
+
+<div class="page">
+
+<aside>
+  <div class="sb-section">
+    <div class="sb-heading">Chapter 6</div>
+    <button class="sb-item active" onclick="show('s1',null);sa(this)">📖 Core Concepts</button>
+    <button class="sb-item" onclick="show('s2',null);sa(this)">🔗 INNER JOIN <span class="sb-chip" style="background:var(--blue-m);color:var(--blue)">Ex 1–2</span></button>
+    <button class="sb-item" onclick="show('s3',null);sa(this)">⬅️ LEFT/RIGHT <span class="sb-chip" style="background:var(--green-m);color:var(--green)">Ex 3–5</span></button>
+    <button class="sb-item" onclick="show('s4',null);sa(this)">⚪ FULL/CROSS <span class="sb-chip" style="background:var(--violet-m);color:var(--violet)">Ex 6–7</span></button>
+    <button class="sb-item" onclick="show('s5',null);sa(this)">🔁 SELF JOIN <span class="sb-chip" style="background:var(--pink-m);color:var(--pink)">Ex 8</span></button>
+    <button class="sb-item" onclick="show('s6',null);sa(this)">🧩 Multi-Joins <span class="sb-chip" style="background:var(--teal-m);color:var(--teal)">Ex 9–10</span></button>
+    <button class="sb-item" onclick="show('s7',null);sa(this)">🌍 Real World</button>
+    <button class="sb-item" onclick="show('s8',null);sa(this)">❓ Student FAQ</button>
+    <button class="sb-item" onclick="show('s9',null);sa(this)">📝 Homework</button>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-section">
+    <div class="sb-heading">Key Concepts</div>
+    <button class="sb-item" onclick="show('s1',null)">Why Joins Exist</button>
+    <button class="sb-item" onclick="show('s1',null)">Join Venn Diagrams</button>
+    <button class="sb-item" onclick="show('s3',null)">NULL in LEFT/RIGHT</button>
+    <button class="sb-item" onclick="show('s5',null)">Self Join (Hierarchies)</button>
+    <button class="sb-item" onclick="show('s6',null)">Joining 3+ Tables</button>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-section">
+    <div class="sb-heading">Progress</div>
+    <button class="sb-item" style="opacity:.45;cursor:default">Ch 1–5 ✓ Complete</button>
+    <button class="sb-item" style="color:var(--indigo);font-weight:700">Ch 6 ● Joins</button>
+    <button class="sb-item" style="opacity:.3;cursor:default">Ch 7 — Subqueries</button>
+  </div>
+</aside>
+
+<main>
+
+<div class="prog-wrap">
+  <div class="prog-label"><span>Course Progress</span><span>36%</span></div>
+  <div class="prog"><div class="prog-fill" style="width:36%"></div></div>
+</div>
+
+<!-- ══════════════ S1 — CONCEPTS ══════════════ -->
+<div class="section active" id="s1">
+
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="hero-badge ch6">🔗 Phase 3 · Chapter 6</span>
+      <span class="hero-num">10 examples · ~120 min</span>
+    </div>
+    <h1 class="hero-title">Joins — <span class="accent">Combining Tables</span></h1>
+    <p class="hero-sub">Real data never lives in one table. Joins are how you reunite customers with their orders, employees with their managers, products with their categories — the single most important SQL skill for real-world work.</p>
+    <div class="hero-tags">
+      <span class="hero-tag hi">INNER JOIN</span>
+      <span class="hero-tag hi">LEFT / RIGHT JOIN</span>
+      <span class="hero-tag">FULL OUTER JOIN</span>
+      <span class="hero-tag">CROSS JOIN</span>
+      <span class="hero-tag">SELF JOIN</span>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="sec-title indigo"><span class="line"></span>Why Do We Need Joins?</div>
+    <p>In Chapter 3, we normalised our data into separate tables — customers, products, orders — to avoid redundancy. But that creates a new problem: <strong class="hl">how do you ask a question that needs data from multiple tables at once?</strong> "Show me each order with the customer's name and the product's price" needs all three tables. JOINs stitch them back together at query time.</p>
+
+    <div class="mini-tables">
+      <div class="mt">
+        <div class="mt-hdr cust">customers</div>
+        <table class="mt-table">
+          <tr><th>customer_id</th><th>name</th><th>city</th></tr>
+          <tr><td>1</td><td>Priya</td><td>Chennai</td></tr>
+          <tr><td>2</td><td>Arjun</td><td>Mumbai</td></tr>
+          <tr><td>3</td><td>Divya</td><td>Kochi</td></tr>
+        </table>
+      </div>
+      <div class="mt">
+        <div class="mt-hdr ord">orders</div>
+        <table class="mt-table">
+          <tr><th>order_id</th><th>customer_id</th><th>amount</th></tr>
+          <tr><td>101</td><td>1</td><td>2500</td></tr>
+          <tr><td>102</td><td>1</td><td>1800</td></tr>
+          <tr><td>103</td><td>2</td><td>4200</td></tr>
+          <tr><td>104</td><td>99</td><td>900</td></tr>
+        </table>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--text3)">Notice: order 104 has customer_id=99, which doesn't exist in customers. Divya (id=3) has no orders at all. Different JOIN types handle these mismatches differently — that's the whole chapter.</p>
+
+    <div class="callout analogy">
+      <div class="callout-lbl">🎓 Analogy — The Wedding Seating Chart</div>
+      <p>Imagine two lists: a guest list (names) and a table assignment list (which table number each guest sits at). JOINing them produces the seating chart — "Priya sits at Table 3." INNER JOIN only shows guests who have a table assignment. LEFT JOIN shows every guest, even ones without an assigned table (marked "unassigned"). That's the entire concept of JOINs in one sentence.</p>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="sec-title violet"><span class="line"></span>The Five Join Types — Visual Overview</div>
+
+    <div class="venn-wrap">
+      <div class="venn-card">
+        <svg class="venn-svg" width="160" height="90" viewBox="0 0 160 90">
+          <circle cx="60" cy="45" r="38" fill="#2563eb" opacity="0.25" stroke="#2563eb" stroke-width="2"/>
+          <circle cx="100" cy="45" r="38" fill="#16a34a" opacity="0.25" stroke="#16a34a" stroke-width="2"/>
+          <circle cx="80" cy="45" r="16" fill="#7c3aed" opacity="0.9"/>
+        </svg>
+        <div class="venn-title" style="color:var(--violet)">INNER JOIN</div>
+        <div class="venn-desc">Only matching rows in BOTH tables. The overlap.</div>
+      </div>
+      <div class="venn-card">
+        <svg class="venn-svg" width="160" height="90" viewBox="0 0 160 90">
+          <circle cx="60" cy="45" r="38" fill="#16a34a" opacity="0.9" stroke="#16a34a" stroke-width="2"/>
+          <circle cx="100" cy="45" r="38" fill="#e2e6f0" opacity="0.5" stroke="#c8d0e8" stroke-width="2"/>
+        </svg>
+        <div class="venn-title" style="color:var(--green)">LEFT JOIN</div>
+        <div class="venn-desc">ALL of left table + matches from right. NULLs where no match.</div>
+      </div>
+      <div class="venn-card">
+        <svg class="venn-svg" width="160" height="90" viewBox="0 0 160 90">
+          <circle cx="60" cy="45" r="38" fill="#e2e6f0" opacity="0.5" stroke="#c8d0e8" stroke-width="2"/>
+          <circle cx="100" cy="45" r="38" fill="#ea580c" opacity="0.9" stroke="#ea580c" stroke-width="2"/>
+        </svg>
+        <div class="venn-title" style="color:var(--orange)">RIGHT JOIN</div>
+        <div class="venn-desc">ALL of right table + matches from left. Mirror of LEFT JOIN.</div>
+      </div>
+      <div class="venn-card">
+        <svg class="venn-svg" width="160" height="90" viewBox="0 0 160 90">
+          <circle cx="60" cy="45" r="38" fill="#db2777" opacity="0.6" stroke="#db2777" stroke-width="2"/>
+          <circle cx="100" cy="45" r="38" fill="#db2777" opacity="0.6" stroke="#db2777" stroke-width="2"/>
+        </svg>
+        <div class="venn-title" style="color:var(--pink)">FULL OUTER JOIN</div>
+        <div class="venn-desc">EVERYTHING from both tables. Matches + unmatched from each side.</div>
+      </div>
+      <div class="venn-card">
+        <svg class="venn-svg" width="160" height="90" viewBox="0 0 160 90">
+          <rect x="20" y="15" width="35" height="60" fill="#0d9488" opacity="0.35" stroke="#0d9488" stroke-width="2" rx="4"/>
+          <rect x="65" y="15" width="35" height="60" fill="#0d9488" opacity="0.35" stroke="#0d9488" stroke-width="2" rx="4"/>
+          <rect x="110" y="15" width="35" height="60" fill="#0d9488" opacity="0.35" stroke="#0d9488" stroke-width="2" rx="4"/>
+        </svg>
+        <div class="venn-title" style="color:var(--teal)">CROSS JOIN</div>
+        <div class="venn-desc">Every row × every row. Cartesian product — no matching condition.</div>
+      </div>
+      <div class="venn-card">
+        <svg class="venn-svg" width="160" height="90" viewBox="0 0 160 90">
+          <circle cx="80" cy="45" r="38" fill="#db2777" opacity="0.25" stroke="#db2777" stroke-width="2"/>
+          <circle cx="80" cy="45" r="38" fill="none" stroke="#db2777" stroke-width="2" stroke-dasharray="4,3" transform="translate(8,-6)"/>
+        </svg>
+        <div class="venn-title" style="color:var(--pink)">SELF JOIN</div>
+        <div class="venn-desc">A table joined to itself. For hierarchies like employee→manager.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="sec-title blue"><span class="line"></span>Join Syntax — The Universal Pattern</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">Every join follows this same structure</span><span class="code-badge b-inner">Syntax</span></div>
+      <pre><span class="kw">SELECT</span>   columns
+<span class="kw">FROM</span>     table_a
+<span class="kw">[INNER | LEFT | RIGHT | FULL OUTER | CROSS]</span> <span class="kw">JOIN</span> table_b
+    <span class="kw">ON</span>   table_a.matching_column <span class="op">=</span> table_b.matching_column
+<span class="kw">WHERE</span>    <span class="cmt">-- optional row filter</span>
+<span class="kw">GROUP BY</span> <span class="cmt">-- optional aggregation</span>
+<span class="kw">ORDER BY</span><span class="cmt">-- optional sort</span>;</pre>
+    </div>
+    <p>The <code style="font-family:var(--mono);background:var(--bg3);padding:2px 6px;border-radius:4px;color:var(--violet)">ON</code> clause defines the matching condition — almost always a foreign key matching a primary key. Without it (except CROSS JOIN), the database doesn't know how to connect the rows.</p>
+  </div>
+
+</div><!-- /s1 -->
+
+
+<!-- ══════════════ S2 — INNER JOIN (Ex 1–2) ══════════════ -->
+<div class="section" id="s2">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch6">🔗 INNER JOIN</span></div>
+    <h1 class="hero-title" style="font-size:30px">INNER JOIN — <span class="accent">The Default Join</span></h1>
+    <p class="hero-sub" style="font-size:14px">When people say "join two tables" without specifying a type, they almost always mean INNER JOIN. Only matched rows survive.</p>
+  </div>
+
+  <div class="block">
+    <div class="sec-title blue"><span class="line"></span>Dataset Setup — Run This First</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">Chapter 6 database — customers, products, orders, employees</span><span class="code-badge b-inner">SETUP</span></div>
+      <pre><span class="kw">CREATE DATABASE IF NOT EXISTS</span> joins_db;
+<span class="kw">USE</span> joins_db;
+
+<span class="kw">CREATE TABLE</span> <span class="tbl">customers</span> (
+    customer_id <span class="dt">INT</span> <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+    name        <span class="dt">VARCHAR</span>(<span class="num">100</span>),
+    city        <span class="dt">VARCHAR</span>(<span class="num">60</span>)
+);
+
+<span class="kw">CREATE TABLE</span> <span class="tbl">products</span> (
+    product_id  <span class="dt">INT</span> <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+    name        <span class="dt">VARCHAR</span>(<span class="num">100</span>),
+    category    <span class="dt">VARCHAR</span>(<span class="num">60</span>),
+    price       <span class="dt">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>)
+);
+
+<span class="kw">CREATE TABLE</span> <span class="tbl">orders</span> (
+    order_id     <span class="dt">INT</span> <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+    customer_id  <span class="dt">INT</span>,        <span class="cmt">-- intentionally no FK constraint — for teaching unmatched rows</span>
+    product_id   <span class="dt">INT</span>,
+    quantity     <span class="dt">INT</span>,
+    order_date   <span class="dt">DATE</span>
+);
+
+<span class="kw">CREATE TABLE</span> <span class="tbl">employees</span> (
+    emp_id      <span class="dt">INT</span> <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+    name        <span class="dt">VARCHAR</span>(<span class="num">100</span>),
+    manager_id  <span class="dt">INT</span>            <span class="cmt">-- self-referencing FK for Example 8</span>
+);
+
+<span class="kw">INSERT INTO</span> <span class="tbl">customers</span> (name, city) <span class="kw">VALUES</span>
+(<span class="str">'Priya Menon'</span>, <span class="str">'Chennai'</span>), (<span class="str">'Arjun Das'</span>, <span class="str">'Mumbai'</span>),
+(<span class="str">'Divya Nair'</span>, <span class="str">'Kochi'</span>),   (<span class="str">'Rohit Sharma'</span>, <span class="str">'Delhi'</span>);
+<span class="cmt">-- IDs: 1=Priya, 2=Arjun, 3=Divya (no orders), 4=Rohit</span>
+
+<span class="kw">INSERT INTO</span> <span class="tbl">products</span> (name, category, price) <span class="kw">VALUES</span>
+(<span class="str">'Laptop'</span>,    <span class="str">'Electronics'</span>, <span class="num">65000</span>),
+(<span class="str">'Phone'</span>,     <span class="str">'Electronics'</span>, <span class="num">28000</span>),
+(<span class="str">'Desk Chair'</span>,<span class="str">'Furniture'</span>,   <span class="num">12000</span>),
+(<span class="str">'Yoga Mat'</span>,  <span class="str">'Fitness'</span>,     <span class="num">799</span>);
+<span class="cmt">-- IDs: 1=Laptop, 2=Phone, 3=Desk Chair, 4=Yoga Mat (never ordered)</span>
+
+<span class="kw">INSERT INTO</span> <span class="tbl">orders</span> (customer_id, product_id, quantity, order_date) <span class="kw">VALUES</span>
+(<span class="num">1</span>, <span class="num">1</span>, <span class="num">1</span>, <span class="str">'2024-01-05'</span>),
+(<span class="num">1</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="str">'2024-01-12'</span>),
+(<span class="num">2</span>, <span class="num">3</span>, <span class="num">1</span>, <span class="str">'2024-01-18'</span>),
+(<span class="num">99</span>, <span class="num">1</span>, <span class="num">1</span>, <span class="str">'2024-01-20'</span>); <span class="cmt">-- customer_id 99 doesn't exist!</span>
+
+<span class="kw">INSERT INTO</span> <span class="tbl">employees</span> (name, manager_id) <span class="kw">VALUES</span>
+(<span class="str">'Vikram Iyer'</span>, <span class="kw">NULL</span>),  <span class="cmt">-- 1: CEO, no manager</span>
+(<span class="str">'Ananya K'</span>,   <span class="num">1</span>),     <span class="cmt">-- 2: reports to Vikram</span>
+(<span class="str">'Rajan M'</span>,    <span class="num">1</span>),     <span class="cmt">-- 3: reports to Vikram</span>
+(<span class="str">'Kabir S'</span>,    <span class="num">2</span>);     <span class="cmt">-- 4: reports to Ananya</span></pre>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="sec-title blue"><span class="line"></span>Example 1 — INNER JOIN: Basic Two-Table Join</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">Only rows that match in both tables survive</span><span class="code-badge b-inner">Ex 1</span></div>
+      <pre>
+<span class="cmt">-- The classic INNER JOIN: orders + customer names</span>
+<span class="kw">SELECT</span>
+    o.order_id,
+    c.name      <span class="kw">AS</span> customer_name,
+    c.city,
+    o.quantity,
+    o.order_date
+<span class="kw">FROM</span>      <span class="tbl">orders</span> o
+<span class="kw">INNER JOIN</span> <span class="tbl">customers</span> c <span class="kw">ON</span> o.customer_id <span class="op">=</span> c.customer_id;
+
+<span class="cmt">-- "INNER" is optional — JOIN alone means INNER JOIN</span>
+<span class="kw">SELECT</span> o.order_id, c.name
+<span class="kw">FROM</span>   <span class="tbl">orders</span> o
+<span class="kw">JOIN</span>   <span class="tbl">customers</span> c <span class="kw">ON</span> o.customer_id <span class="op">=</span> c.customer_id;
+<span class="cmt">-- identical result — but writing INNER JOIN explicitly is clearer for beginners</span></pre>
+    </div>
+    <div class="out">
+      <div class="out-lbl">Output — only 3 rows, not 4!</div>
+      order_id | customer_name | city    | quantity | order_date
+      ---------+---------------+---------+----------+------------
+             1 | Priya Menon   | Chennai |        1 | 2024-01-05
+             2 | Priya Menon   | Chennai |        2 | 2024-01-12
+             3 | Arjun Das     | Mumbai  |        1 | 2024-01-18
+      <span style="opacity:.6;font-size:11px">← Order 4 (customer_id=99) vanished! No matching customer = excluded by INNER JOIN.</span>
+    </div>
+    <div class="explain">
+      <strong>This is the defining feature of INNER JOIN:</strong> Order #4 referenced customer_id 99, which doesn't exist in the customers table. INNER JOIN silently drops any row that doesn't have a match on both sides. This is powerful but also dangerous — if you expect 4 orders and get 3, always check for orphan foreign keys.
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="sec-title blue"><span class="line"></span>Example 2 — INNER JOIN: Three Tables + Computed Columns</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">Joining orders, customers, AND products together</span><span class="code-badge b-inner">Ex 2</span></div>
+      <pre>
+<span class="cmt">-- Full order detail: customer + product + computed total</span>
+<span class="kw">SELECT</span>
+    o.order_id,
+    c.name              <span class="kw">AS</span> customer_name,
+    p.name              <span class="kw">AS</span> product_name,
+    p.category,
+    o.quantity,
+    p.price             <span class="kw">AS</span> unit_price,
+    o.quantity <span class="op">*</span> p.price <span class="kw">AS</span> total_amount,
+    o.order_date
+<span class="kw">FROM</span>      <span class="tbl">orders</span> o
+<span class="kw">INNER JOIN</span> <span class="tbl">customers</span> c <span class="kw">ON</span> o.customer_id <span class="op">=</span> c.customer_id
+<span class="kw">INNER JOIN</span> <span class="tbl">products</span>  p <span class="kw">ON</span> o.product_id  <span class="op">=</span> p.product_id
+<span class="kw">ORDER BY</span> total_amount <span class="kw">DESC</span>;
+
+<span class="cmt">-- INNER JOIN with WHERE filter — runs after the join</span>
+<span class="kw">SELECT</span>
+    c.name    <span class="kw">AS</span> customer_name,
+    p.name    <span class="kw">AS</span> product_name,
+    p.category
+<span class="kw">FROM</span>      <span class="tbl">orders</span> o
+<span class="kw">INNER JOIN</span> <span class="tbl">customers</span> c <span class="kw">ON</span> o.customer_id <span class="op">=</span> c.customer_id
+<span class="kw">INNER JOIN</span> <span class="tbl">products</span>  p <span class="kw">ON</span> o.product_id  <span class="op">=</span> p.product_id
+<span class="kw">WHERE</span>     p.category <span class="op">=</span> <span class="str">'Electronics'</span>
+  <span class="kw">AND</span>    c.city <span class="op">=</span> <span class="str">'Chennai'</span>;</pre>
+    </div>
+    <div class="explain">
+      <strong>Joining 3 tables is just chaining JOIN clauses</strong> — each new JOIN connects to ANY previously joined table, not just the first one. Here, products joins to orders (via product_id), and customers also joins to orders (via customer_id). The result combines all three. This pattern scales to 4, 5, even 10 tables in real production queries.
+    </div>
+  </div>
+
+</div><!-- /s2 -->
+
+
+<!-- ══════════════ S3 — LEFT/RIGHT JOIN (Ex 3–5) ══════════════ -->
+<div class="section" id="s3">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch6">⬅️ LEFT & RIGHT JOIN</span></div>
+    <h1 class="hero-title" style="font-size:30px">LEFT JOIN & <span class="accent">RIGHT JOIN</span></h1>
+    <p class="hero-sub" style="font-size:14px">Keep all rows from one side, even when there's no match on the other. This is how you find "what's missing."</p>
+  </div>
+
+  <div class="block">
+    <div class="sec-title green"><span class="line"></span>Example 3 — LEFT JOIN: Keep All Customers, Even Without Orders</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">LEFT JOIN — every row from the left table is preserved</span><span class="code-badge b-left">Ex 3</span></div>
+      <pre>
+<span class="cmt">-- LEFT JOIN: ALL customers shown, even Divya who has no orders</span>
+<span class="kw">SELECT</span>
+    c.customer_id,
+    c.name,
+    c.city,
+    o.order_id,
+    o.quantity,
+    o.order_date
+<span class="kw">FROM</span>     <span class="tbl">customers</span> c
+<span class="kw">LEFT JOIN</span> <span class="tbl">orders</span> o <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id
+<span class="kw">ORDER BY</span> c.customer_id;</pre>
+    </div>
+    <div class="out">
+      <div class="out-lbl">Output — Divya appears with NULLs!</div>
+      customer_id | name         | city    | order_id | quantity | order_date
+      ------------+--------------+---------+----------+----------+------------
+                1 | Priya Menon  | Chennai |        1 |        1 | 2024-01-05
+                1 | Priya Menon  | Chennai |        2 |        2 | 2024-01-12
+                2 | Arjun Das    | Mumbai  |        3 |        1 | 2024-01-18
+                3 | Divya Nair   | Kochi   |     NULL |     NULL | NULL
+                4 | Rohit Sharma | Delhi   |     NULL |     NULL | NULL
+      <span style="opacity:.6;font-size:11px">← Divya and Rohit show NULL for order columns — they exist but have no orders.</span>
+    </div>
+    <div class="explain">
+      <strong>The LEFT table is "customers"</strong> (written first, before LEFT JOIN). Every single customer appears in the output — guaranteed. Where there's no matching order, all the order columns become NULL. This is exactly how you'd answer: "show me ALL customers and their orders, including customers who never ordered."
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="sec-title green"><span class="line"></span>Example 4 — Finding "Missing" Data with LEFT JOIN + WHERE IS NULL</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">The most powerful LEFT JOIN pattern — finding what's absent</span><span class="code-badge b-left">Ex 4</span></div>
+      <pre>
+<span class="cmt">-- Find customers who have NEVER placed an order</span>
+<span class="kw">SELECT</span>
+    c.customer_id,
+    c.name,
+    c.city
+<span class="kw">FROM</span>     <span class="tbl">customers</span> c
+<span class="kw">LEFT JOIN</span> <span class="tbl">orders</span> o <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id
+<span class="kw">WHERE</span>    o.order_id <span class="kw">IS NULL</span>;   <span class="cmt">-- only keep rows where NO match was found</span>
+
+<span class="cmt">-- Find products that have NEVER been ordered (zero sales)</span>
+<span class="kw">SELECT</span>
+    p.product_id,
+    p.name,
+    p.category,
+    p.price
+<span class="kw">FROM</span>     <span class="tbl">products</span> p
+<span class="kw">LEFT JOIN</span> <span class="tbl">orders</span> o <span class="kw">ON</span> p.product_id <span class="op">=</span> o.product_id
+<span class="kw">WHERE</span>    o.order_id <span class="kw">IS NULL</span>;
+<span class="cmt">-- Yoga Mat will appear here — it was never ordered</span>
+
+<span class="cmt">-- Find orphan orders (orders pointing to non-existent customers)</span>
+<span class="kw">SELECT</span>
+    o.order_id,
+    o.customer_id <span class="kw">AS</span> missing_customer_id
+<span class="kw">FROM</span>     <span class="tbl">orders</span> o
+<span class="kw">LEFT JOIN</span> <span class="tbl">customers</span> c <span class="kw">ON</span> o.customer_id <span class="op">=</span> c.customer_id
+<span class="kw">WHERE</span>    c.customer_id <span class="kw">IS NULL</span>;
+<span class="cmt">-- This finds order #4 — a data integrity problem!</span></pre>
+    </div>
+    <div class="callout teacher">
+      <div class="callout-lbl">🎓 The Most Important Pattern in This Chapter</div>
+      <p><strong>LEFT JOIN + WHERE [right_table].id IS NULL</strong> is how you find "things that don't exist in the other table" — customers with no orders, products never sold, students who never submitted an assignment, employees with no manager. This single pattern answers more business questions than almost any other SQL technique. Drill this until it's automatic.</p>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="sec-title orange"><span class="line"></span>Example 5 — RIGHT JOIN: The Mirror Image</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">RIGHT JOIN — same logic, opposite direction</span><span class="code-badge b-right">Ex 5</span></div>
+      <pre>
+<span class="cmt">-- RIGHT JOIN: all orders kept, even those with invalid customer_id</span>
+<span class="kw">SELECT</span>
+    o.order_id,
+    o.customer_id,
+    c.name,
+    c.city
+<span class="kw">FROM</span>      <span class="tbl">customers</span> c
+<span class="kw">RIGHT JOIN</span> <span class="tbl">orders</span> o <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id;
+<span class="cmt">-- Order #4 (customer_id=99) appears here with NULL name/city!</span>
+
+<span class="cmt">-- RIGHT JOIN is RARELY used because you can always rewrite it as LEFT JOIN
+-- by swapping table order — most style guides prefer this for readability:</span>
+<span class="kw">SELECT</span>
+    o.order_id,
+    o.customer_id,
+    c.name,
+    c.city
+<span class="kw">FROM</span>     <span class="tbl">orders</span> o
+<span class="kw">LEFT JOIN</span> <span class="tbl">customers</span> c <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id;
+<span class="cmt">-- IDENTICAL RESULT to the RIGHT JOIN above — just swap which table is "left"</span></pre>
+    </div>
+    <div class="callout info">
+      <div class="callout-lbl">💡 Why RIGHT JOIN Is Rarely Used in Practice</div>
+      <p>Any RIGHT JOIN can be rewritten as a LEFT JOIN by simply swapping the order of the two tables in the FROM/JOIN clauses. Most engineers standardise on always using LEFT JOIN for readability — it's easier to scan a query and know "the first table listed is the one I'm keeping everything from." You should understand RIGHT JOIN (it appears in legacy code and interviews) but default to LEFT JOIN in your own writing.</p>
+    </div>
+  </div>
+
+</div><!-- /s3 -->
+
+
+<!-- ══════════════ S4 — FULL/CROSS (Ex 6–7) ══════════════ -->
+<div class="section" id="s4">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch6">⚪ FULL & CROSS JOIN</span></div>
+    <h1 class="hero-title" style="font-size:30px">FULL OUTER <span class="accent">& CROSS JOIN</span></h1>
+  </div>
+
+  <div class="block">
+    <div class="sec-title violet"><span class="line"></span>Example 6 — FULL OUTER JOIN: Everything, From Both Sides</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">FULL OUTER JOIN — union of LEFT and RIGHT joins</span><span class="code-badge b-full">Ex 6</span></div>
+      <pre>
+<span class="cmt">-- FULL OUTER JOIN — MySQL does NOT support this directly!
+-- Workaround: UNION of LEFT JOIN and RIGHT JOIN</span>
+
+<span class="kw">SELECT</span> c.customer_id, c.name, o.order_id, o.customer_id <span class="kw">AS</span> order_cust_id
+<span class="kw">FROM</span>     <span class="tbl">customers</span> c
+<span class="kw">LEFT JOIN</span> <span class="tbl">orders</span> o <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id
+
+<span class="kw">UNION</span>
+
+<span class="kw">SELECT</span> c.customer_id, c.name, o.order_id, o.customer_id <span class="kw">AS</span> order_cust_id
+<span class="kw">FROM</span>      <span class="tbl">customers</span> c
+<span class="kw">RIGHT JOIN</span> <span class="tbl">orders</span> o <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id;
+
+<span class="cmt">-- PostgreSQL / SQL Server: native support, much simpler</span>
+<span class="cmt">-- SELECT c.customer_id, c.name, o.order_id</span>
+<span class="cmt">-- FROM customers c</span>
+<span class="cmt">-- FULL OUTER JOIN orders o ON c.customer_id = o.customer_id;</span></pre>
+    </div>
+    <div class="out">
+      <div class="out-lbl">Output — everyone AND everything appears</div>
+      customer_id | name         | order_id | order_cust_id
+      ------------+--------------+----------+---------------
+                1 | Priya Menon  |        1 |             1
+                1 | Priya Menon  |        2 |             1
+                2 | Arjun Das    |        3 |             2
+                3 | Divya Nair   |     NULL |          NULL
+                4 | Rohit Sharma |     NULL |          NULL
+             NULL | NULL         |        4 |            99
+      <span style="opacity:.6;font-size:11px">← Divya/Rohit have NULL orders. Order #4 has NULL customer. Nothing is lost from EITHER side.</span>
+    </div>
+    <div class="callout warn">
+      <div class="callout-lbl">⚠️ MySQL Doesn't Support FULL OUTER JOIN</div>
+      <p>This is a common surprise. MySQL has no FULL OUTER JOIN keyword — you must simulate it with <code style="font-family:var(--mono)">LEFT JOIN UNION RIGHT JOIN</code> as shown above. PostgreSQL, SQL Server, and Oracle all support FULL OUTER JOIN natively. Always check which database you're working with before assuming syntax availability.</p>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="sec-title teal"><span class="line"></span>Example 7 — CROSS JOIN: Every Combination</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">CROSS JOIN — Cartesian product, no matching condition</span><span class="code-badge b-cross">Ex 7</span></div>
+      <pre>
+<span class="cmt">-- CROSS JOIN: every customer paired with every product
+-- 4 customers × 4 products = 16 rows</span>
+<span class="kw">SELECT</span>
+    c.name <span class="kw">AS</span> customer_name,
+    p.name <span class="kw">AS</span> product_name
+<span class="kw">FROM</span>      <span class="tbl">customers</span> c
+<span class="kw">CROSS JOIN</span> <span class="tbl">products</span> p;
+<span class="cmt">-- Result: 16 rows — every possible (customer, product) pair</span>
+
+<span class="cmt">-- Practical use: generate a complete date × category matrix for reporting
+-- (even for combinations that had ZERO actual sales)</span>
+<span class="kw">CREATE TABLE</span> <span class="tbl">date_range</span> (report_date <span class="dt">DATE</span>);
+<span class="kw">INSERT INTO</span> <span class="tbl">date_range</span> <span class="kw">VALUES</span>
+    (<span class="str">'2024-01-01'</span>), (<span class="str">'2024-01-02'</span>), (<span class="str">'2024-01-03'</span>);
+
+<span class="kw">SELECT</span>
+    d.report_date,
+    p.category,
+    <span class="fn">COALESCE</span>(<span class="fn">SUM</span>(o.quantity), <span class="num">0</span>) <span class="kw">AS</span> units_sold
+<span class="kw">FROM</span>      <span class="tbl">date_range</span> d
+<span class="kw">CROSS JOIN</span> (<span class="kw">SELECT DISTINCT</span> category <span class="kw">FROM</span> <span class="tbl">products</span>) p
+<span class="kw">LEFT JOIN</span>  <span class="tbl">orders</span> o <span class="kw">ON</span> o.order_date <span class="op">=</span> d.report_date
+<span class="kw">GROUP BY</span> d.report_date, p.category
+<span class="kw">ORDER BY</span> d.report_date, p.category;
+<span class="cmt">-- This ensures EVERY date × category combination appears,
+-- even with zero sales — crucial for accurate trend charts</span></pre>
+    </div>
+    <div class="callout rw">
+      <div class="callout-lbl">🌍 Real Use of CROSS JOIN — Filling Gaps in Reports</div>
+      <p>If a category had zero sales on a particular day, a normal GROUP BY query simply won't produce that row — your chart will have a misleading gap instead of a "0" bar. CROSS JOIN with a date dimension table generates every combination first, then LEFT JOIN brings in actual sales (defaulting to 0 via COALESCE). This is the standard technique for building gap-free time series charts in BI tools.</p>
+    </div>
+  </div>
+
+</div><!-- /s4 -->
+
+
+<!-- ══════════════ S5 — SELF JOIN (Ex 8) ══════════════ -->
+<div class="section" id="s5">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch6">🔁 SELF JOIN</span></div>
+    <h1 class="hero-title" style="font-size:30px">SELF JOIN — <span class="accent">A Table Meets Itself</span></h1>
+    <p class="hero-sub" style="font-size:14px">When a table references itself — employees and their managers, categories and subcategories — SELF JOIN is the technique.</p>
+  </div>
+
+  <div class="block">
+    <div class="sec-title pink"><span class="line"></span>Example 8 — SELF JOIN: Employee–Manager Hierarchy</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">The classic SELF JOIN — same table, two aliases</span><span class="code-badge b-self">Ex 8</span></div>
+      <pre>
+<span class="cmt">-- The employees table has manager_id, which points BACK to emp_id
+-- in the SAME table. To show employee name alongside manager name,
+-- we must join the table to itself using TWO different aliases.</span>
+
+<span class="kw">SELECT</span>
+    e.name        <span class="kw">AS</span> employee_name,
+    m.name        <span class="kw">AS</span> manager_name
+<span class="kw">FROM</span>     <span class="tbl">employees</span> e
+<span class="kw">LEFT JOIN</span> <span class="tbl">employees</span> m <span class="kw">ON</span> e.manager_id <span class="op">=</span> m.emp_id;
+<span class="cmt">-- LEFT JOIN (not INNER) — so the CEO (no manager) still appears</span></pre>
+    </div>
+    <div class="out">
+      <div class="out-lbl">Output — the full reporting chain</div>
+      employee_name | manager_name
+      --------------+--------------
+      Vikram Iyer   |  NULL          ← CEO has no manager
+      Ananya K      |  Vikram Iyer
+      Rajan M       |  Vikram Iyer
+      Kabir S       |  Ananya K       ← reports to Ananya, who reports to Vikram
+    </div>
+    <div class="explain">
+      <strong>Why two aliases (e and m)?</strong> SQL needs to treat the same physical table as if it were two different tables — "the employee's row" and "the manager's row." Without aliases, SQL wouldn't know which "name" or "emp_id" you mean. <code>e.manager_id = m.emp_id</code> is the key: it says "find the row in this same table where emp_id matches my manager_id."
+
+      <pre style="margin-top:1rem;background:#1a1d2e;padding:1rem 1.25rem;border-radius:8px;color:#e8eaf0;font-family:var(--mono);font-size:12.5px;line-height:1.9"><span class="cmt">-- Bonus: find employees who have NO manager (top of hierarchy)</span>
+<span class="kw">SELECT</span> name <span class="kw">FROM</span> <span class="tbl">employees</span> <span class="kw">WHERE</span> manager_id <span class="kw">IS NULL</span>;
+
+<span class="cmt">-- Bonus: count direct reports per manager</span>
+<span class="kw">SELECT</span>
+    m.name <span class="kw">AS</span> manager_name,
+    <span class="fn">COUNT</span>(e.emp_id) <span class="kw">AS</span> direct_reports
+<span class="kw">FROM</span>     <span class="tbl">employees</span> m
+<span class="kw">LEFT JOIN</span> <span class="tbl">employees</span> e <span class="kw">ON</span> e.manager_id <span class="op">=</span> m.emp_id
+<span class="kw">GROUP BY</span> m.emp_id, m.name;</pre>
+    </div>
+
+    <div class="callout teacher">
+      <div class="callout-lbl">🎓 Teaching SELF JOIN — The Family Tree Trick</div>
+      <p>Draw a family tree on the whiteboard with 4-5 people. Ask students to write down "who is whose parent" as a 2-column table (person, parent). Then ask: "How would you find each person's grandparent?" This requires joining the table to itself twice — a perfect lead-in to recursive CTEs in Chapter 11. SELF JOIN clicks instantly once students see it as "the same list, asked twice."</p>
+    </div>
+  </div>
+
+</div><!-- /s5 -->
+
+
+<!-- ══════════════ S6 — MULTI-JOINS (Ex 9–10) ══════════════ -->
+<div class="section" id="s6">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch6">🧩 Multi-Table Joins</span></div>
+    <h1 class="hero-title" style="font-size:30px">Joining <span class="accent">Multiple Tables</span></h1>
+    <p class="hero-sub" style="font-size:14px">Real production queries routinely join 4, 5, even 8 tables. Here's how to build them without getting lost.</p>
+  </div>
+
+  <div class="block">
+    <div class="sec-title teal"><span class="line"></span>Example 9 — Mixing Join Types in One Query</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">Real queries often combine INNER and LEFT joins together</span><span class="code-badge b-tip">Ex 9</span></div>
+      <pre>
+<span class="cmt">-- Business question: "Show every customer with their order count
+-- and total spend, including customers with ZERO orders (showing 0, not NULL)"</span>
+
+<span class="kw">SELECT</span>
+    c.customer_id,
+    c.name,
+    c.city,
+    <span class="fn">COUNT</span>(o.order_id)                          <span class="kw">AS</span> total_orders,
+    <span class="fn">COALESCE</span>(<span class="fn">SUM</span>(o.quantity <span class="op">*</span> p.price), <span class="num">0</span>) <span class="kw">AS</span> total_spent
+<span class="kw">FROM</span>      <span class="tbl">customers</span> c
+<span class="kw">LEFT JOIN</span>  <span class="tbl">orders</span>    o <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id
+<span class="kw">LEFT JOIN</span>  <span class="tbl">products</span>  p <span class="kw">ON</span> o.product_id  <span class="op">=</span> p.product_id
+<span class="kw">GROUP BY</span> c.customer_id, c.name, c.city
+<span class="kw">ORDER BY</span> total_spent <span class="kw">DESC</span>;
+<span class="cmt">-- Both joins use LEFT — if we used INNER here, customers with
+-- zero orders would disappear, defeating the purpose!</span>
+
+<span class="cmt">-- Customers who spent above ₹50,000 (using HAVING after the join+group)</span>
+<span class="kw">SELECT</span>
+    c.name,
+    <span class="fn">SUM</span>(o.quantity <span class="op">*</span> p.price) <span class="kw">AS</span> total_spent
+<span class="kw">FROM</span>      <span class="tbl">customers</span> c
+<span class="kw">INNER JOIN</span> <span class="tbl">orders</span>    o <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id
+<span class="kw">INNER JOIN</span> <span class="tbl">products</span>  p <span class="kw">ON</span> o.product_id  <span class="op">=</span> p.product_id
+<span class="kw">GROUP BY</span> c.customer_id, c.name
+<span class="kw">HAVING</span>   <span class="fn">SUM</span>(o.quantity <span class="op">*</span> p.price) <span class="op">&gt;</span> <span class="num">50000</span>;</pre>
+    </div>
+    <div class="callout warn">
+      <div class="callout-lbl">⚠️ The Silent LEFT-JOIN-Killer Bug</div>
+      <p>If you LEFT JOIN customers→orders correctly, but then INNER JOIN orders→products, customers with zero orders get silently dropped anyway! The INNER JOIN downstream undoes your LEFT JOIN's purpose. <strong>Rule: once you start with LEFT JOIN to preserve unmatched rows, every subsequent join in the chain must also be LEFT JOIN</strong> (or carefully designed), or you'll lose the very rows you tried to keep.</p>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="sec-title cyan"><span class="line"></span>Example 10 — Capstone: Five-Table Join with Full Analytics</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">Adding categories and reviews tables for a complete e-commerce join</span><span class="code-badge b-tip">Capstone</span></div>
+      <pre>
+<span class="cmt">-- Extend the schema with categories and reviews</span>
+<span class="kw">CREATE TABLE</span> <span class="tbl">categories</span> (
+    category_id   <span class="dt">INT</span> <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+    category_name <span class="dt">VARCHAR</span>(<span class="num">60</span>),
+    department    <span class="dt">VARCHAR</span>(<span class="num">60</span>)
+);
+<span class="kw">INSERT INTO</span> <span class="tbl">categories</span> (category_name, department) <span class="kw">VALUES</span>
+(<span class="str">'Electronics'</span>, <span class="str">'Tech'</span>), (<span class="str">'Furniture'</span>, <span class="str">'Home'</span>), (<span class="str">'Fitness'</span>, <span class="str">'Wellness'</span>);
+
+<span class="kw">CREATE TABLE</span> <span class="tbl">reviews</span> (
+    review_id    <span class="dt">INT</span> <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+    product_id   <span class="dt">INT</span>,
+    customer_id  <span class="dt">INT</span>,
+    rating       <span class="dt">INT</span> <span class="kw">CHECK</span> (rating <span class="kw">BETWEEN</span> <span class="num">1</span> <span class="kw">AND</span> <span class="num">5</span>)
+);
+<span class="kw">INSERT INTO</span> <span class="tbl">reviews</span> (product_id, customer_id, rating) <span class="kw">VALUES</span>
+(<span class="num">1</span>, <span class="num">1</span>, <span class="num">5</span>), (<span class="num">2</span>, <span class="num">1</span>, <span class="num">4</span>), (<span class="num">3</span>, <span class="num">2</span>, <span class="num">3</span>);
+
+<span class="cmt">-- ALTER products to link to categories properly (was a text column before)</span>
+<span class="cmt">-- (In real design, category would be a FK from the start — see Ch.3)</span>
+
+<span class="cmt">-- THE 5-TABLE JOIN: orders + customers + products + categories + reviews</span>
+<span class="kw">SELECT</span>
+    o.order_id,
+    c.name                              <span class="kw">AS</span> customer,
+    c.city,
+    p.name                              <span class="kw">AS</span> product,
+    cat.department,
+    o.quantity,
+    p.price,
+    o.quantity <span class="op">*</span> p.price                <span class="kw">AS</span> order_value,
+    r.rating                            <span class="kw">AS</span> customer_rating
+<span class="kw">FROM</span>      <span class="tbl">orders</span> o
+<span class="kw">INNER JOIN</span> <span class="tbl">customers</span>  c   <span class="kw">ON</span> o.customer_id  <span class="op">=</span> c.customer_id
+<span class="kw">INNER JOIN</span> <span class="tbl">products</span>   p   <span class="kw">ON</span> o.product_id   <span class="op">=</span> p.product_id
+<span class="kw">LEFT JOIN</span>  <span class="tbl">categories</span> cat <span class="kw">ON</span> p.category     <span class="op">=</span> cat.category_name
+<span class="kw">LEFT JOIN</span>  <span class="tbl">reviews</span>    r   <span class="kw">ON</span> r.product_id   <span class="op">=</span> p.product_id
+                              <span class="kw">AND</span> r.customer_id <span class="op">=</span> c.customer_id
+<span class="kw">ORDER BY</span> order_value <span class="kw">DESC</span>;
+<span class="cmt">-- LEFT JOINs used for categories/reviews — an order is still valid
+-- even if the customer never left a review</span></pre>
+    </div>
+    <div class="explain">
+      <strong>Building multi-table joins systematically:</strong> Start with your "anchor" table (usually the most granular — here, orders). Add INNER JOIN for data that MUST exist (every order needs a customer and product). Add LEFT JOIN for optional/supplementary data (a review may or may not exist). Notice the review join uses TWO conditions in ON — this is common when matching on a composite relationship.
+    </div>
+  </div>
+
+</div><!-- /s6 -->
+
+
+<!-- ══════════════ S7 — REAL WORLD ══════════════ -->
+<div class="section" id="s7">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch6">🌍 Real World</span></div>
+    <h1 class="hero-title" style="font-size:30px">Joins <span class="accent">Power Everything</span></h1>
+  </div>
+  <div class="block">
+    <div class="callout rw">
+      <div class="callout-lbl">🛒 E-Commerce — Order Confirmation Page</div>
+      <p>That single page showing your order — product image, name, price, your address, estimated delivery — is the RESULT of a 4-5 table JOIN: orders + order_items + products + customers + addresses + shipping_info. Every checkout page on every e-commerce site is a join query rendered as HTML.</p>
+    </div>
+    <div class="callout rw">
+      <div class="callout-lbl">🏦 Banking — Account Statement</div>
+      <p>Your monthly statement joins accounts + transactions + transaction_categories + merchants. The "merchant logo" you see next to each transaction comes from a LEFT JOIN to a merchants table — LEFT because not every transaction has a recognised, logo-enabled merchant.</p>
+    </div>
+    <div class="callout rw">
+      <div class="callout-lbl">🎓 EdTech — Mentor Dashboard at GUVI</div>
+      <p>"Show me all students assigned to me, including ones who haven't submitted their first project yet" is a textbook LEFT JOIN + WHERE IS NULL pattern: students LEFT JOIN submissions WHERE submissions.id IS NULL. The "students at risk" report mentors check every Monday is built entirely on this join pattern.</p>
+    </div>
+    <div class="callout rw">
+      <div class="callout-lbl">📊 Data Science — Building the Training Dataset</div>
+      <p>Before training a churn prediction model, you join: customers + transactions + support_tickets + app_usage_logs into one wide feature table. Missing a LEFT JOIN here (using INNER instead) silently removes customers with no support tickets from your training data — a classic, dangerous data science bug caused by misunderstanding joins.</p>
+    </div>
+    <div class="callout teacher">
+      <div class="callout-lbl">🎓 Teaching Strategy — The "Detective Board" Exercise</div>
+      <p>Print 3-4 small tables on paper (customers, orders, products) and physically cut them into rows. Have students physically connect matching rows with string or arrows for INNER JOIN, then ask "which rows would have NO partner?" for LEFT JOIN. This kinesthetic exercise makes joins click for visual learners far faster than staring at SQL syntax alone.</p>
+    </div>
+  </div>
+</div><!-- /s7 -->
+
+
+<!-- ══════════════ S8 — FAQ ══════════════ -->
+<div class="section" id="s8">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch6">❓ FAQ</span></div>
+    <h1 class="hero-title" style="font-size:30px">Questions Students <span class="accent">Always Ask</span></h1>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="tf(this)">Q: My JOIN is returning way more rows than I expected. What went wrong?<span class="faq-arr">▾</span></div>
+    <div class="faq-a">
+      This is almost always one of two issues:<br><br>
+      <strong>1. Duplicate matches:</strong> If table A has 1 row matching to 3 rows in table B, the join produces 3 rows — this is correct behaviour, but surprising if you expected a 1-to-1 relationship. Check: is your join key actually unique in one of the tables?<br><br>
+      <strong>2. Missing or wrong ON condition:</strong> If you accidentally write a condition that matches too broadly (or use CROSS JOIN by mistake — missing the ON clause entirely), you get a Cartesian explosion. 100 rows × 100 rows = 10,000 rows instead of the expected ~100.<br><br>
+      <div class="faq-code">
+<span class="cmt">-- Debug technique: check for duplicate keys first</span>
+<span class="kw">SELECT</span> customer_id, <span class="fn">COUNT</span>(<span class="op">*</span>)
+<span class="kw">FROM</span> orders <span class="kw">GROUP BY</span> customer_id <span class="kw">HAVING COUNT</span>(<span class="op">*</span>) <span class="op">&gt;</span> <span class="num">1</span>;
+      </div>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="tf(this)">Q: What's the difference between putting a condition in ON vs WHERE for a LEFT JOIN?<span class="faq-arr">▾</span></div>
+    <div class="faq-a">
+      This is a subtle but critical distinction for LEFT JOIN (doesn't matter for INNER JOIN):<br><br>
+      <div class="faq-code">
+<span class="cmt">-- Condition in ON: filters the RIGHT table BEFORE joining
+-- Left rows are still ALL preserved, just with NULL where condition fails</span>
+<span class="kw">SELECT</span> c.name, o.order_id
+<span class="kw">FROM</span> customers c
+<span class="kw">LEFT JOIN</span> orders o <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id
+                  <span class="kw">AND</span> o.order_date <span class="op">&gt;</span> <span class="str">'2024-01-01'</span>;
+<span class="cmt">-- Every customer still appears. Old orders just show as NULL.</span>
+
+<span class="cmt">-- Condition in WHERE: filters the FINAL RESULT after joining
+-- This can accidentally turn your LEFT JOIN into an INNER JOIN!</span>
+<span class="kw">SELECT</span> c.name, o.order_id
+<span class="kw">FROM</span> customers c
+<span class="kw">LEFT JOIN</span> orders o <span class="kw">ON</span> c.customer_id <span class="op">=</span> o.customer_id
+<span class="kw">WHERE</span> o.order_date <span class="op">&gt;</span> <span class="str">'2024-01-01'</span>;
+<span class="cmt">-- Customers with NO orders (NULL order_date) get FILTERED OUT
+-- because NULL > '2024-01-01' is never TRUE!</span>
+      </div>
+      Rule: filters specific to the joined table's matching logic go in ON. Filters on the final combined result go in WHERE — but be aware WHERE can silently negate your LEFT JOIN's purpose.
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="tf(this)">Q: How many tables can I join in one query? Is there a limit?<span class="faq-arr">▾</span></div>
+    <div class="faq-a">
+      No hard limit in SQL itself (MySQL technically supports 61 tables in one join by default config). In practice, queries joining more than 6-8 tables become hard to read and often slow. <br><br>
+      When you need more, consider: breaking into a CTE (Chapter 11) for readability, creating an intermediate view, or checking if your schema needs denormalization for this specific reporting use case. Production data warehouses sometimes join 15+ tables, but they're usually auto-generated by BI tools, not hand-written.
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="tf(this)">Q: Should I use table aliases? Are they required?<span class="faq-arr">▾</span></div>
+    <div class="faq-a">
+      Not required for 2-table joins where column names don't collide, but <strong>always use them as a best practice.</strong> Reasons:<br><br>
+      1. Shorter queries — type "c." instead of "customers." repeatedly<br>
+      2. Required for SELF JOINs (you literally cannot join a table to itself without aliases)<br>
+      3. Removes ambiguity when both tables have a column with the same name (like "name" or "id")<br>
+      4. Makes queries more maintainable as they grow<br><br>
+      Convention: use short, meaningful aliases (c for customers, o for orders, p for products) rather than single arbitrary letters like a, b, c for unrelated tables.
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="tf(this)">Q: Can I JOIN on a condition that isn't equality (like &gt; or BETWEEN)?<span class="faq-arr">▾</span></div>
+    <div class="faq-a">
+      Yes! Most joins use equality (=) because that's how foreign keys work, but JOIN conditions can use any comparison operator. This is called a <strong>non-equi join</strong>.<br>
+      <div class="faq-code">
+<span class="cmt">-- Example: match orders to the price tier they fall into</span>
+<span class="kw">SELECT</span> o.order_id, o.quantity <span class="op">*</span> p.price <span class="kw">AS</span> total, t.tier_name
+<span class="kw">FROM</span>   orders o
+<span class="kw">JOIN</span>   products p <span class="kw">ON</span> o.product_id <span class="op">=</span> p.product_id
+<span class="kw">JOIN</span>   price_tiers t
+    <span class="kw">ON</span> (o.quantity <span class="op">*</span> p.price) <span class="kw">BETWEEN</span> t.min_amount <span class="kw">AND</span> t.max_amount;
+      </div>
+      Common use cases: date range matching, price tier/bracket lookups, geographic radius matching.
+    </div>
+  </div>
+
+</div><!-- /s8 -->
+
+
+<!-- ══════════════ S9 — HOMEWORK ══════════════ -->
+<div class="section" id="s9">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch6">📝 Homework</span></div>
+    <h1 class="hero-title" style="font-size:30px">Chapter 6 <span class="accent">Practice</span></h1>
+    <p class="hero-sub" style="font-size:14px">Use the joins_db schema from the setup. For each exercise, first decide which join type fits, then write the query.</p>
+  </div>
+
+  <div class="hw-box">
+    <div class="hw-hdr">🧠 Theory</div>
+    <div class="hw-sub">Test your understanding of WHY each join behaves the way it does.</div>
+    <ul class="hw-list">
+      <li class="hw-item">
+        <div class="hw-n e">Q1</div>
+        <div class="hw-c"><div class="hw-q">In your own words, explain the difference between INNER JOIN and LEFT JOIN using a real-life example that is NOT customers/orders.</div><span class="hw-tag easy">conceptual</span></div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n e">Q2</div>
+        <div class="hw-c"><div class="hw-q">Why does MySQL not support FULL OUTER JOIN directly? What's the workaround, and why does it work?</div><span class="hw-tag easy">conceptual</span></div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n m">Q3</div>
+        <div class="hw-c"><div class="hw-q">Explain why putting a WHERE condition on the right-side table of a LEFT JOIN can silently turn it into an INNER JOIN. Write two example queries showing the difference (one correct, one buggy).</div><span class="hw-tag med">medium</span></div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="hw-box">
+    <div class="hw-hdr">💻 SQL Practice</div>
+    <div class="hw-sub">Use the joins_db schema. Write the business question in plain English before writing SQL.</div>
+    <ul class="hw-list">
+      <li class="hw-item">
+        <div class="hw-n e">P1</div>
+        <div class="hw-c"><div class="hw-q">Write an INNER JOIN that lists every order along with the customer's name and the product's name and category.</div><span class="hw-tag easy">easy</span></div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n e">P2</div>
+        <div class="hw-c"><div class="hw-q">Write a LEFT JOIN query that shows every product along with how many times it has been ordered (use COUNT). Products never ordered should show 0, not NULL.</div><div class="hw-hint">COALESCE the COUNT result, or use COUNT(o.order_id) which naturally skips NULLs.</div><span class="hw-tag easy">easy</span></div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n m">P3</div>
+        <div class="hw-c"><div class="hw-q">Find all customers who have NEVER placed an order. Then find all products that have NEVER been ordered. Use the LEFT JOIN + WHERE IS NULL pattern for both.</div><span class="hw-tag med">medium</span></div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n m">P4</div>
+        <div class="hw-c"><div class="hw-q">Write a SELF JOIN query showing each employee, their manager's name, and their manager's manager's name (grandmanager). Use three aliases of the employees table.</div><div class="hw-hint">You'll need to LEFT JOIN employees to itself twice.</div><span class="hw-tag med">medium</span></div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n m">P5</div>
+        <div class="hw-c"><div class="hw-q">Write a query joining customers, orders, and products to find total spend per customer per category. Show customer name, category, and total spend. Sort by customer name then by total spend descending.</div><span class="hw-tag med">medium</span></div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n h">P6</div>
+        <div class="hw-c"><div class="hw-q">Find data integrity problems: write a query that finds all orders referencing a customer_id that doesn't exist in the customers table (orphan records). This is exactly the kind of audit query a data engineer runs before a migration.</div><span class="hw-tag hard">hard</span></div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n h">P7</div>
+        <div class="hw-c"><div class="hw-q">Using CROSS JOIN, generate a matrix of every customer × every product category they have NOT purchased from. (Hint: CROSS JOIN customers and categories, then LEFT JOIN to actual purchases, then filter WHERE the purchase is NULL.) This identifies cross-sell opportunities.</div><div class="hw-hint">This is a real marketing analytics technique called "whitespace analysis."</div><span class="hw-tag hard">hard</span></div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="next-card" onclick="alert('Open chapter-07-subqueries.html')">
+    <div><div class="next-lbl">Up Next</div><div class="next-title">Chapter 7 — Subqueries: Scalar, Correlated & EXISTS →</div></div>
+    <div class="next-arrow">→</div>
+  </div>
+
+</div><!-- /s9 -->
+
+</main>
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) { document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+}
+function sa(el) { document.querySelectorAll('.sb-item').forEach(s => s.classList.remove('active')); el.classList.add('active'); }
+function tf(el) { el.parentElement.classList.toggle('open'); }
+</script>
+</body>
+</html>

@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 5 — Aggregations, GROUP BY & HAVING | SQL Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;
+  --bg2:#f8f9fc;
+  --bg3:#f1f3f9;
+  --bg4:#e8ecf5;
+  --border:#e2e6f0;
+  --border2:#c8d0e8;
+  --text:#1a1d2e;
+  --text2:#4a5270;
+  --text3:#8a93b5;
+
+  /* Vibrant palette */
+  --blue:#2563eb;    --blue-l:#eff6ff;   --blue-m:#dbeafe;
+  --indigo:#4f46e5;  --indigo-l:#eef2ff; --indigo-m:#e0e7ff;
+  --violet:#7c3aed;  --violet-l:#f5f3ff; --violet-m:#ede9fe;
+  --pink:#db2777;    --pink-l:#fdf2f8;   --pink-m:#fce7f3;
+  --red:#dc2626;     --red-l:#fef2f2;    --red-m:#fee2e2;
+  --orange:#ea580c;  --orange-l:#fff7ed; --orange-m:#ffedd5;
+  --amber:#d97706;   --amber-l:#fffbeb;  --amber-m:#fef3c7;
+  --green:#16a34a;   --green-l:#f0fdf4;  --green-m:#dcfce7;
+  --teal:#0d9488;    --teal-l:#f0fdfa;   --teal-m:#ccfbf1;
+  --cyan:#0891b2;    --cyan-l:#ecfeff;   --cyan-m:#cffafe;
+
+  --radius:10px;
+  --radius-lg:16px;
+  --radius-xl:24px;
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
+  --shadow-md:0 4px 12px rgba(0,0,0,.1),0 1px 3px rgba(0,0,0,.06);
+  --mono:'JetBrains Mono',monospace;
+  --serif:'Lora',serif;
+  --sans:'Sora',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.7}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:2px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;gap:1rem;height:58px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.nav-brand{font-weight:800;font-size:14px;color:var(--blue);letter-spacing:-.02em;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.nav-badge{background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:20px;font-weight:600}
+.nav-links{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-link{font-size:12px;color:var(--text2);padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:all .15s;border:none;background:none;font-family:var(--sans);font-weight:500}
+.nav-link:hover{color:var(--blue);background:var(--blue-l)}
+.nav-link.active{color:var(--blue);background:var(--blue-m);font-weight:600}
+.nav-right{font-size:11px;color:var(--text3);white-space:nowrap;font-family:var(--mono)}
+
+/* ── LAYOUT ── */
+.page{display:grid;grid-template-columns:250px 1fr;min-height:calc(100vh - 58px)}
+
+/* ── SIDEBAR ── */
+aside{background:var(--bg2);border-right:2px solid var(--border);padding:1.25rem 0;position:sticky;top:58px;height:calc(100vh - 58px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+.sb-section{margin-bottom:1.5rem}
+.sb-heading{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);padding:0 1.25rem;margin-bottom:.5rem}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 1.25rem;font-size:12.5px;color:var(--text2);cursor:pointer;transition:all .15s;border:none;background:none;text-align:left;width:100%;font-family:var(--sans);font-weight:500;line-height:1.3;border-left:3px solid transparent}
+.sb-item:hover{color:var(--blue);background:var(--blue-l);border-left-color:var(--blue-m)}
+.sb-item.active{color:var(--blue);background:var(--blue-l);border-left-color:var(--blue);font-weight:600}
+.sb-divider{height:1px;background:var(--border);margin:.5rem 1.25rem}
+.sb-chip{font-size:9px;font-family:var(--mono);padding:1px 6px;border-radius:8px;font-weight:600;margin-left:auto}
+
+/* ── MAIN ── */
+main{padding:2.5rem 3rem;max-width:960px}
+.section{display:none}.section.active{display:block}
+
+/* ── HERO ── */
+.hero{margin-bottom:3rem}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:1rem}
+.hero-badge{font-size:11px;font-family:var(--mono);font-weight:600;padding:4px 12px;border-radius:20px;border:1.5px solid}
+.hero-badge.ch5{color:var(--teal);border-color:var(--teal);background:var(--teal-l)}
+.hero-num{font-size:11px;color:var(--text3);font-family:var(--mono)}
+.hero-title{font-size:40px;font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:.75rem;color:var(--text)}
+.hero-title .accent{background:linear-gradient(135deg,var(--teal),var(--blue),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:16px;color:var(--text2);font-family:var(--serif);font-style:italic;line-height:1.7;max-width:620px;margin-bottom:1.5rem}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px}
+.hero-tag{font-size:11px;font-family:var(--mono);padding:4px 12px;border-radius:20px;border:1.5px solid var(--border2);color:var(--text2);background:var(--bg2);font-weight:500}
+.hero-tag.hi{border-color:var(--teal);color:var(--teal);background:var(--teal-l)}
+
+/* ── SECTION TITLE ── */
+.sec-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:10px;letter-spacing:-.02em}
+.sec-title .line{display:block;width:4px;height:24px;border-radius:2px;flex-shrink:0}
+.sec-title.teal .line{background:var(--teal)}
+.sec-title.blue .line{background:var(--blue)}
+.sec-title.violet .line{background:var(--violet)}
+.sec-title.green .line{background:var(--green)}
+.sec-title.orange .line{background:var(--orange)}
+.sec-title.pink .line{background:var(--pink)}
+.sec-title.indigo .line{background:var(--indigo)}
+.block{margin-bottom:3rem}
+p{color:var(--text2);margin-bottom:1rem;line-height:1.8}
+strong.hl{color:var(--text)}
+
+/* ── FUNCTION SHOWCASE ── */
+.fn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:1.5rem 0}
+.fn-card{border-radius:var(--radius-lg);padding:1.25rem;border:2px solid;text-align:center;transition:transform .15s,box-shadow .15s}
+.fn-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.fn-card.c1{background:var(--teal-l);border-color:var(--teal)}
+.fn-card.c2{background:var(--blue-l);border-color:var(--blue)}
+.fn-card.c3{background:var(--violet-l);border-color:var(--violet)}
+.fn-card.c4{background:var(--orange-l);border-color:var(--orange)}
+.fn-card.c5{background:var(--green-l);border-color:var(--green)}
+.fn-name{font-family:var(--mono);font-size:16px;font-weight:700;margin-bottom:.4rem}
+.fn-card.c1 .fn-name{color:var(--teal)}
+.fn-card.c2 .fn-name{color:var(--blue)}
+.fn-card.c3 .fn-name{color:var(--violet)}
+.fn-card.c4 .fn-name{color:var(--orange)}
+.fn-card.c5 .fn-name{color:var(--green)}
+.fn-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:.5rem}
+.fn-ex{font-size:11px;font-family:var(--mono);color:var(--text3);background:rgba(255,255,255,.7);padding:3px 8px;border-radius:6px;display:inline-block}
+
+/* ── SYNTAX BOX ── */
+.syntax-box{background:var(--indigo-l);border:2px solid var(--indigo-m);border-radius:var(--radius-lg);padding:1.5rem;margin:1.5rem 0;font-family:var(--mono);font-size:13px;line-height:2.2;color:var(--text)}
+.syntax-box .sk{color:var(--blue);font-weight:700}
+.syntax-box .sv{color:var(--violet)}
+.syntax-box .sopt{color:var(--text3)}
+.syntax-box .scom{color:var(--teal);font-style:italic;font-size:12px}
+
+/* ── CODE BLOCK ── */
+.code-wrap{margin:1.5rem 0;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)}
+.code-hdr{display:flex;align-items:center;justify-content:space-between;background:var(--text);padding:10px 18px}
+.code-lbl{font-size:11px;font-family:var(--mono);color:#9aa3b5}
+.code-badge{font-size:10px;font-family:var(--mono);padding:3px 10px;border-radius:10px;font-weight:700;white-space:nowrap}
+.b-agg{background:#0d9488;color:#fff}
+.b-grp{background:#4f46e5;color:#fff}
+.b-hav{background:#db2777;color:#fff}
+.b-ex{background:#ea580c;color:#fff}
+.b-py{background:#2563eb;color:#fff}
+.b-tip{background:#16a34a;color:#fff}
+pre{background:#1a1d2e;padding:1.5rem;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.95;color:#e8eaf0;tab-size:2;margin:0}
+.kw{color:#c084fc;font-weight:600}
+.fn{color:#60a5fa}
+.str{color:#86efac}
+.num{color:#fb923c}
+.cmt{color:#6b7a9e;font-style:italic}
+.tbl{color:#fde68a}
+.op{color:#7dd3fc}
+.dt{color:#67e8f9}
+.py{color:#60a5fa}
+.pys{color:#86efac}
+.pyc{color:#6b7a9e;font-style:italic}
+.pyk{color:#c084fc;font-weight:600}
+.pyn{color:#fb923c}
+.pyfn{color:#60a5fa}
+
+/* ── OUTPUT ── */
+.out{background:var(--green-l);border:2px solid var(--green-m);border-radius:var(--radius);padding:1rem 1.5rem;margin-top:.5rem;font-family:var(--mono);font-size:12px;color:var(--green);line-height:1.9}
+.out-lbl{font-size:10px;color:var(--text3);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+
+/* ── EXPLAIN ── */
+.explain{background:var(--blue-l);border:2px solid var(--blue-m);border-radius:var(--radius);padding:1rem 1.5rem;margin-top:.75rem;font-size:13px;color:var(--text2);line-height:1.75}
+.explain strong{color:var(--blue)}
+.explain code{font-family:var(--mono);font-size:12px;background:white;padding:1px 6px;border-radius:4px;color:var(--violet);border:1px solid var(--border)}
+
+/* ── CALLOUTS ── */
+.callout{border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin:1.5rem 0;border:2px solid}
+.callout-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:var(--mono);margin-bottom:.5rem}
+.callout p{margin:0;line-height:1.8;font-size:13.5px}
+.callout.analogy{background:var(--amber-l);border-color:var(--amber-m)}
+.callout.analogy .callout-lbl{color:var(--amber)}
+.callout.analogy p{color:#78350f;font-family:var(--serif);font-style:italic}
+.callout.teacher{background:var(--violet-l);border-color:var(--violet-m)}
+.callout.teacher .callout-lbl{color:var(--violet)}
+.callout.teacher p{color:#3b0764}
+.callout.rw{background:var(--teal-l);border-color:var(--teal-m)}
+.callout.rw .callout-lbl{color:var(--teal)}
+.callout.rw p{color:#134e4a}
+.callout.warn{background:var(--red-l);border-color:var(--red-m)}
+.callout.warn .callout-lbl{color:var(--red)}
+.callout.warn p{color:#7f1d1d}
+.callout.info{background:var(--blue-l);border-color:var(--blue-m)}
+.callout.info .callout-lbl{color:var(--blue)}
+.callout.info p{color:#1e3a8a}
+.callout.green{background:var(--green-l);border-color:var(--green-m)}
+.callout.green .callout-lbl{color:var(--green)}
+.callout.green p{color:#14532d}
+
+/* ── COMPARE TABLE ── */
+.ctable{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:13px;box-shadow:var(--shadow);border-radius:var(--radius-lg);overflow:hidden}
+.ctable th{background:var(--text);color:#fff;font-weight:600;padding:11px 16px;text-align:left;font-size:12px;letter-spacing:.03em}
+.ctable td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.65;background:var(--bg)}
+.ctable tr:last-child td{border-bottom:none}
+.ctable tr:hover td{background:var(--bg2)}
+.ctable .good{color:var(--green);font-weight:600}
+.ctable .bad{color:var(--red);font-weight:600}
+.ctable .c{font-family:var(--mono);font-size:12px;color:var(--violet);background:var(--violet-l);padding:2px 6px;border-radius:4px}
+
+/* ── WHERE vs HAVING visual ── */
+.wh-compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:1.5rem 0}
+.wh-panel{border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)}
+.wh-hdr{padding:12px 16px;font-size:12px;font-weight:700;font-family:var(--mono);letter-spacing:.05em}
+.wh-hdr.where{background:var(--orange-m);color:#7c2d12}
+.wh-hdr.having{background:var(--pink-m);color:#831843}
+.wh-body{padding:1rem 1.25rem;background:var(--bg2);font-size:12px;color:var(--text2);line-height:1.8}
+.wh-body code{font-family:var(--mono);font-size:11.5px;background:white;padding:1px 5px;border-radius:3px;color:var(--violet);border:1px solid var(--border)}
+
+/* ── PIPELINE VISUAL ── */
+.pipeline{display:flex;align-items:center;gap:0;margin:1.5rem 0;flex-wrap:wrap;gap:4px}
+.pipe-step{background:var(--bg2);border:2px solid var(--border2);border-radius:var(--radius);padding:.65rem 1rem;font-size:12px;font-family:var(--mono);font-weight:600;color:var(--text2);text-align:center;white-space:nowrap}
+.pipe-step.active-step{border-color:var(--teal);background:var(--teal-l);color:var(--teal)}
+.pipe-arrow{color:var(--text3);font-size:18px;font-weight:300;flex-shrink:0}
+.pipe-note{font-size:10px;color:var(--text3);text-align:center;margin-top:4px;font-family:var(--mono)}
+
+/* ── NULL DEMO BOX ── */
+.null-demo{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:1.5rem 0}
+.nd-panel{border-radius:var(--radius);overflow:hidden;border:2px solid var(--border)}
+.nd-hdr{padding:8px 14px;font-size:11px;font-weight:700;font-family:var(--mono);background:var(--bg3);border-bottom:1px solid var(--border)}
+.nd-body{padding:.85rem 1rem;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.9}
+
+/* ── CARD GRID ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:1.5rem 0}
+.ccard{background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;transition:all .15s}
+.ccard:hover{border-color:var(--border2);box-shadow:var(--shadow)}
+.ccard-icon{font-size:22px;margin-bottom:.6rem}
+.ccard-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:.35rem}
+.ccard-body{font-size:12px;color:var(--text2);line-height:1.6}
+.ccard-tag{font-family:var(--mono);font-size:11px;margin-top:.5rem;display:inline-block;padding:2px 8px;border-radius:6px}
+
+/* ── FAQ ── */
+.faq-item{border:2px solid var(--border);border-radius:var(--radius-lg);margin-bottom:.75rem;overflow:hidden;background:var(--bg)}
+.faq-q{padding:13px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;font-size:13.5px;color:var(--text);font-weight:600;user-select:none;transition:background .15s;line-height:1.5}
+.faq-q:hover{background:var(--bg2)}
+.faq-arr{color:var(--text3);transition:transform .2s;font-size:14px;flex-shrink:0;margin-top:1px}
+.faq-item.open .faq-arr{transform:rotate(180deg)}
+.faq-item.open .faq-q{background:var(--teal-l);color:var(--teal);border-bottom:2px solid var(--teal-m)}
+.faq-a{display:none;padding:14px 18px;background:var(--bg);font-size:13px;color:var(--text2);line-height:1.85}
+.faq-item.open .faq-a{display:block}
+.faq-a code{font-family:var(--mono);font-size:12px;background:var(--bg3);padding:1px 6px;border-radius:4px;color:var(--violet);border:1px solid var(--border)}
+.faq-code{background:var(--text);border-radius:10px;padding:.9rem 1.2rem;font-family:var(--mono);font-size:12px;margin:.75rem 0;line-height:2;color:#e8eaf0;overflow-x:auto}
+
+/* ── HW ── */
+.hw-box{background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius-xl);padding:2rem;margin:2rem 0}
+.hw-hdr{font-size:18px;font-weight:800;color:var(--text);margin-bottom:.4rem;letter-spacing:-.02em}
+.hw-sub{font-size:13px;color:var(--text2);margin-bottom:1.5rem}
+.hw-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.hw-item{background:var(--bg);border:2px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;display:flex;gap:12px;align-items:flex-start;transition:border-color .15s}
+.hw-item:hover{border-color:var(--border2)}
+.hw-n{font-family:var(--mono);font-size:12px;font-weight:700;min-width:28px;padding-top:2px}
+.hw-c{flex:1}
+.hw-q{font-size:13.5px;color:var(--text);line-height:1.65;margin-bottom:.35rem;font-weight:500}
+.hw-hint{font-size:12px;color:var(--text3);font-style:italic;margin-bottom:.35rem}
+.hw-tag{display:inline-block;font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:8px;font-weight:700}
+.hw-tag.easy{background:var(--green-l);color:var(--green);border:1.5px solid var(--green-m)}
+.hw-tag.med{background:var(--amber-l);color:var(--amber);border:1.5px solid var(--amber-m)}
+.hw-tag.hard{background:var(--red-l);color:var(--red);border:1.5px solid var(--red-m)}
+.hw-n.e{color:var(--green)}.hw-n.m{color:var(--amber)}.hw-n.h{color:var(--red)}
+
+/* ── PROGRESS ── */
+.prog-wrap{margin-bottom:2.5rem}
+.prog-label{font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:.5rem;display:flex;justify-content:space-between}
+.prog{background:var(--bg3);border-radius:20px;height:6px;overflow:hidden;border:1px solid var(--border)}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--blue),var(--violet));border-radius:20px;transition:width .6s ease}
+
+/* ── NEXT ── */
+.next-card{background:linear-gradient(135deg,var(--teal-l),var(--blue-l),var(--violet-l));border:2px solid var(--indigo-m);border-radius:var(--radius-xl);padding:1.75rem 2rem;display:flex;justify-content:space-between;align-items:center;margin-top:3rem;cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
+.next-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.next-lbl{font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.25rem;font-weight:600}
+.next-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.02em}
+.next-arrow{font-size:32px;color:var(--indigo)}
+
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+@media(max-width:780px){.page{grid-template-columns:1fr}aside{display:none}main{padding:1.5rem}.hero-title{font-size:28px}.wh-compare,.null-demo{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <div class="nav-brand">
+    📘 SQL Course
+    <span class="nav-badge">Ch 5</span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="show('s1',this)">Concepts</button>
+    <button class="nav-link" onclick="show('s2',this)">COUNT & SUM (Ex 1–2)</button>
+    <button class="nav-link" onclick="show('s3',this)">AVG · MIN · MAX (Ex 3)</button>
+    <button class="nav-link" onclick="show('s4',this)">GROUP BY (Ex 4–6)</button>
+    <button class="nav-link" onclick="show('s5',this)">HAVING (Ex 7–8)</button>
+    <button class="nav-link" onclick="show('s6',this)">NULLs & Advanced (Ex 9–10)</button>
+    <button class="nav-link" onclick="show('s7',this)">Real World</button>
+    <button class="nav-link" onclick="show('s8',this)">FAQ</button>
+    <button class="nav-link" onclick="show('s9',this)">Homework</button>
+  </div>
+  <div class="nav-right">5 / 18</div>
+</nav>
+
+<div class="page">
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside>
+  <div class="sb-section">
+    <div class="sb-heading">Chapter 5</div>
+    <button class="sb-item active" onclick="show('s1',null);sa(this)">📖 Core Concepts</button>
+    <button class="sb-item" onclick="show('s2',null);sa(this)">🔢 COUNT & SUM <span class="sb-chip" style="background:var(--teal-m);color:var(--teal)">Ex 1–2</span></button>
+    <button class="sb-item" onclick="show('s3',null);sa(this)">📊 AVG · MIN · MAX <span class="sb-chip" style="background:var(--blue-m);color:var(--blue)">Ex 3</span></button>
+    <button class="sb-item" onclick="show('s4',null);sa(this)">🗂️ GROUP BY <span class="sb-chip" style="background:var(--violet-m);color:var(--violet)">Ex 4–6</span></button>
+    <button class="sb-item" onclick="show('s5',null);sa(this)">🔍 HAVING <span class="sb-chip" style="background:var(--pink-m);color:var(--pink)">Ex 7–8</span></button>
+    <button class="sb-item" onclick="show('s6',null);sa(this)">⚠️ NULLs & Advanced <span class="sb-chip" style="background:var(--orange-m);color:var(--orange)">Ex 9–10</span></button>
+    <button class="sb-item" onclick="show('s7',null);sa(this)">🌍 Real World</button>
+    <button class="sb-item" onclick="show('s8',null);sa(this)">❓ Student FAQ</button>
+    <button class="sb-item" onclick="show('s9',null);sa(this)">📝 Homework</button>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-section">
+    <div class="sb-heading">Key Concepts</div>
+    <button class="sb-item" onclick="show('s1',null)">Aggregate Functions</button>
+    <button class="sb-item" onclick="show('s1',null)">Execution Order</button>
+    <button class="sb-item" onclick="show('s4',null)">GROUP BY Logic</button>
+    <button class="sb-item" onclick="show('s5',null)">WHERE vs HAVING</button>
+    <button class="sb-item" onclick="show('s6',null)">NULL in Aggregations</button>
+    <button class="sb-item" onclick="show('s6',null)">ROLLUP & GROUPING SETS</button>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-section">
+    <div class="sb-heading">Progress</div>
+    <button class="sb-item" style="opacity:.45;cursor:default">Ch 1 ✓ Fundamentals</button>
+    <button class="sb-item" style="opacity:.45;cursor:default">Ch 2 ✓ SELECT & Filters</button>
+    <button class="sb-item" style="opacity:.45;cursor:default">Ch 3 ✓ DDL</button>
+    <button class="sb-item" style="opacity:.45;cursor:default">Ch 4 ✓ DML & Transactions</button>
+    <button class="sb-item" style="color:var(--teal);font-weight:700">Ch 5 ● Aggregations</button>
+    <button class="sb-item" style="opacity:.3;cursor:default">Ch 6 — Joins</button>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main>
+
+<div class="prog-wrap">
+  <div class="prog-label"><span>Course Progress</span><span>30%</span></div>
+  <div class="prog"><div class="prog-fill" style="width:30%"></div></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     S1 — CONCEPTS
+══════════════════════════════════════════ -->
+<div class="section active" id="s1">
+
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="hero-badge ch5">📊 Phase 2 · Chapter 5</span>
+      <span class="hero-num">10 examples · ~90 min</span>
+    </div>
+    <h1 class="hero-title">Aggregations, <span class="accent">GROUP BY</span> & HAVING</h1>
+    <p class="hero-sub">This is where SQL transforms from a lookup tool into an analytics engine. Learn to summarise millions of rows into meaningful numbers that drive business decisions.</p>
+    <div class="hero-tags">
+      <span class="hero-tag hi">COUNT · SUM · AVG · MIN · MAX</span>
+      <span class="hero-tag">GROUP BY</span>
+      <span class="hero-tag">HAVING</span>
+      <span class="hero-tag">NULL handling</span>
+      <span class="hero-tag">ROLLUP</span>
+    </div>
+  </div>
+
+  <!-- What are aggregate functions -->
+  <div class="block">
+    <div class="sec-title teal"><span class="line"></span>What Are Aggregate Functions?</div>
+    <p><strong class="hl">Aggregate functions</strong> take a set of rows and return a single value. They collapse many rows into one summary number. Without them, you'd have to pull all data into Python and compute manually. With them, the database engine does it faster, closer to the data.</p>
+
+    <div class="fn-grid">
+      <div class="fn-card c1">
+        <div class="fn-name">COUNT()</div>
+        <div class="fn-desc">Counts the number of rows or non-NULL values in a column.</div>
+        <div class="fn-ex">COUNT(*) → 1500</div>
+      </div>
+      <div class="fn-card c2">
+        <div class="fn-name">SUM()</div>
+        <div class="fn-desc">Adds up all numeric values in a column. Ignores NULLs.</div>
+        <div class="fn-ex">SUM(price) → ₹82,400</div>
+      </div>
+      <div class="fn-card c3">
+        <div class="fn-name">AVG()</div>
+        <div class="fn-desc">Calculates the arithmetic mean. Ignores NULLs in numerator AND denominator.</div>
+        <div class="fn-ex">AVG(salary) → ₹68,200</div>
+      </div>
+      <div class="fn-card c4">
+        <div class="fn-name">MIN()</div>
+        <div class="fn-desc">Returns the smallest value. Works on numbers, dates, and text (alphabetically).</div>
+        <div class="fn-ex">MIN(join_date) → 2018-06-30</div>
+      </div>
+      <div class="fn-card c5">
+        <div class="fn-name">MAX()</div>
+        <div class="fn-desc">Returns the largest value. Extremely useful for "most recent" or "highest" queries.</div>
+        <div class="fn-ex">MAX(order_total) → ₹12,499</div>
+      </div>
+    </div>
+
+    <div class="callout analogy">
+      <div class="callout-lbl">🎓 Analogy — The Cricket Scorecard</div>
+      <p>Imagine a table with every ball bowled in a cricket match — 300 rows. COUNT(*) tells you how many balls were bowled. SUM(runs) gives the team's total. AVG(runs) is the run rate per ball. MAX(runs) is the highest run in a single delivery. MIN(runs) is the lowest. The entire scorecard is built from five aggregate functions applied to the raw delivery log. That's exactly what you'll do with business data.</p>
+    </div>
+  </div>
+
+  <!-- SQL Execution Order -->
+  <div class="block">
+    <div class="sec-title blue"><span class="line"></span>The Query Execution Order — Why It Matters</div>
+    <p>SQL is not executed in the order it's written. Understanding the actual execution order explains why you can use WHERE with regular columns but HAVING with aggregates — they run at different stages.</p>
+
+    <div style="margin:1.5rem 0">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:.75rem">
+        <div style="background:var(--bg3);border:2px solid var(--border2);border-radius:8px;padding:.5rem .9rem;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text2)"><span style="color:var(--text3);font-size:10px;display:block;margin-bottom:1px">STEP 1</span>FROM / JOIN</div>
+        <div style="color:var(--text3);font-size:20px">›</div>
+        <div style="background:var(--orange-l);border:2px solid var(--orange-m);border-radius:8px;padding:.5rem .9rem;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--orange)"><span style="font-size:10px;display:block;margin-bottom:1px;opacity:.7">STEP 2</span>WHERE</div>
+        <div style="color:var(--text3);font-size:20px">›</div>
+        <div style="background:var(--teal-l);border:2px solid var(--teal-m);border-radius:8px;padding:.5rem .9rem;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--teal)"><span style="font-size:10px;display:block;margin-bottom:1px;opacity:.7">STEP 3</span>GROUP BY</div>
+        <div style="color:var(--text3);font-size:20px">›</div>
+        <div style="background:var(--violet-l);border:2px solid var(--violet-m);border-radius:8px;padding:.5rem .9rem;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--violet)"><span style="font-size:10px;display:block;margin-bottom:1px;opacity:.7">STEP 4</span>HAVING</div>
+        <div style="color:var(--text3);font-size:20px">›</div>
+        <div style="background:var(--blue-l);border:2px solid var(--blue-m);border-radius:8px;padding:.5rem .9rem;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--blue)"><span style="font-size:10px;display:block;margin-bottom:1px;opacity:.7">STEP 5</span>SELECT</div>
+        <div style="color:var(--text3);font-size:20px">›</div>
+        <div style="background:var(--green-l);border:2px solid var(--green-m);border-radius:8px;padding:.5rem .9rem;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--green)"><span style="font-size:10px;display:block;margin-bottom:1px;opacity:.7">STEP 6</span>ORDER BY</div>
+        <div style="color:var(--text3);font-size:20px">›</div>
+        <div style="background:var(--pink-l);border:2px solid var(--pink-m);border-radius:8px;padding:.5rem .9rem;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--pink)"><span style="font-size:10px;display:block;margin-bottom:1px;opacity:.7">STEP 7</span>LIMIT</div>
+      </div>
+      <p style="font-size:12.5px;color:var(--text3);font-family:var(--mono)">← Written in this order. Executed top-to-bottom above.</p>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-lbl">💡 Why does this matter?</div>
+      <p>WHERE runs at Step 2 — before aggregation. So you can't write <code style="font-family:var(--mono)">WHERE COUNT(*) > 5</code> — the count doesn't exist yet! <br>HAVING runs at Step 4 — after GROUP BY and aggregation. That's why HAVING is where you filter aggregate results. This single concept eliminates 80% of "why doesn't my query work?" confusion.</p>
+    </div>
+  </div>
+
+  <!-- WHERE vs HAVING -->
+  <div class="block">
+    <div class="sec-title violet"><span class="line"></span>WHERE vs HAVING — The Golden Rule</div>
+
+    <div class="wh-compare">
+      <div class="wh-panel">
+        <div class="wh-hdr where">📋 WHERE — Filters Rows (before grouping)</div>
+        <div class="wh-body">
+          • Runs on <strong>individual rows</strong><br>
+          • Executes <strong>before GROUP BY</strong><br>
+          • Can filter on any column<br>
+          • ❌ Cannot use aggregate functions<br><br>
+          <em>Use when:</em> "I only want to include orders from 2024" or "only active customers"
+        </div>
+      </div>
+      <div class="wh-panel">
+        <div class="wh-hdr having">🔍 HAVING — Filters Groups (after grouping)</div>
+        <div class="wh-body">
+          • Runs on <strong>grouped result sets</strong><br>
+          • Executes <strong>after GROUP BY</strong><br>
+          • Can only reference grouped/aggregated columns<br>
+          • ✅ Can use aggregate functions<br><br>
+          <em>Use when:</em> "Only show me departments with more than 3 employees" or "cities with avg salary > 70K"
+        </div>
+      </div>
+    </div>
+
+    <div class="callout teacher">
+      <div class="callout-lbl">🎓 One-Line Mnemonic to Teach</div>
+      <p><strong>"WHERE filters rows. HAVING filters groups."</strong> — Write this on the board. Repeat it every time a student confuses them. After three classes, students will say it automatically when they see each clause.</p>
+    </div>
+  </div>
+
+  <!-- GROUP BY concept -->
+  <div class="block">
+    <div class="sec-title green"><span class="line"></span>GROUP BY — How It Works Internally</div>
+    <p>GROUP BY partitions your data into buckets based on unique values of the specified column(s). Then aggregate functions are applied to each bucket separately, returning one row per group.</p>
+
+    <div class="card-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="ccard" style="border-color:var(--orange-m);background:var(--orange-l)">
+        <div class="ccard-icon">📥</div>
+        <div class="ccard-title" style="color:var(--orange)">Step 1 — Raw Rows</div>
+        <div class="ccard-body">50,000 order rows. Each row has customer_id, city, amount. One row per order.</div>
+      </div>
+      <div class="ccard" style="border-color:var(--teal-m);background:var(--teal-l)">
+        <div class="ccard-icon">🗂️</div>
+        <div class="ccard-title" style="color:var(--teal)">Step 2 — GROUP BY city</div>
+        <div class="ccard-body">Database sorts and groups all rows by city. All Chennai rows together. All Mumbai rows together. Etc.</div>
+      </div>
+      <div class="ccard" style="border-color:var(--violet-m);background:var(--violet-l)">
+        <div class="ccard-icon">📊</div>
+        <div class="ccard-title" style="color:var(--violet)">Step 3 — Aggregate</div>
+        <div class="ccard-body">COUNT(*) and SUM(amount) applied to each city bucket. 50,000 rows collapse to one row per city.</div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-lbl">⚠️ The GROUP BY Rule — Most Common Beginner Error</div>
+      <p><strong>Every column in SELECT that is NOT inside an aggregate function MUST appear in GROUP BY.</strong> <br><br>You're essentially telling SQL: "for each unique combination of these columns, compute the aggregates." If a column isn't grouped or aggregated, SQL doesn't know which row's value to show for that group — and rightfully throws an error (or returns random values in MySQL's permissive mode). Always SELECT only what you GROUP BY plus your aggregates.</p>
+    </div>
+  </div>
+
+</div><!-- /s1 -->
+
+
+<!-- ══════════════════════════════════════════
+     S2 — COUNT & SUM (Ex 1–2)
+══════════════════════════════════════════ -->
+<div class="section" id="s2">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch5">🔢 COUNT & SUM</span></div>
+    <h1 class="hero-title" style="font-size:30px">COUNT() <span class="accent">&</span> SUM()</h1>
+    <p class="hero-sub" style="font-size:14px">The two most-used aggregate functions. COUNT answers "how many?" — SUM answers "how much?"</p>
+  </div>
+
+  <!-- SETUP -->
+  <div class="block">
+    <div class="sec-title orange"><span class="line"></span>Dataset Setup — Run This First</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">Chapter 5 dataset — sales analytics database</span><span class="code-badge b-ex">SETUP</span></div>
+      <pre><span class="kw">CREATE DATABASE IF NOT EXISTS</span> sales_db;
+<span class="kw">USE</span> sales_db;
+
+<span class="kw">CREATE TABLE</span> <span class="tbl">employees</span> (
+    emp_id       <span class="dt">INT</span>          <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+    name         <span class="dt">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,
+    department   <span class="dt">VARCHAR</span>(<span class="num">60</span>)  <span class="kw">NOT NULL</span>,
+    city         <span class="dt">VARCHAR</span>(<span class="num">60</span>),
+    salary       <span class="dt">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>),
+    join_date    <span class="dt">DATE</span>,
+    manager_id   <span class="dt">INT</span>,
+    is_active    <span class="dt">BOOLEAN</span>      <span class="kw">DEFAULT TRUE</span>
+);
+
+<span class="kw">CREATE TABLE</span> <span class="tbl">orders</span> (
+    order_id     <span class="dt">INT</span>          <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+    customer_id  <span class="dt">INT</span>,
+    emp_id       <span class="dt">INT</span>,
+    product      <span class="dt">VARCHAR</span>(<span class="num">100</span>),
+    category     <span class="dt">VARCHAR</span>(<span class="num">60</span>),
+    amount       <span class="dt">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>),
+    discount_pct <span class="dt">DECIMAL</span>(<span class="num">5</span>,<span class="num">2</span>),
+    order_date   <span class="dt">DATE</span>,
+    status       <span class="dt">ENUM</span>(<span class="str">'Pending'</span>,<span class="str">'Shipped'</span>,<span class="str">'Delivered'</span>,<span class="str">'Cancelled'</span>)
+);
+
+<span class="kw">INSERT INTO</span> <span class="tbl">employees</span> (name, department, city, salary, join_date, manager_id) <span class="kw">VALUES</span>
+(<span class="str">'Ananya K'</span>,  <span class="str">'Engineering'</span>, <span class="str">'Bangalore'</span>, <span class="num">85000</span>, <span class="str">'2021-03-15'</span>, <span class="kw">NULL</span>),
+(<span class="str">'Rajan M'</span>,   <span class="str">'Sales'</span>,       <span class="str">'Mumbai'</span>,    <span class="num">52000</span>, <span class="str">'2020-07-01'</span>, <span class="num">1</span>),
+(<span class="str">'Priya N'</span>,   <span class="str">'Engineering'</span>, <span class="str">'Chennai'</span>,   <span class="num">92000</span>, <span class="str">'2019-11-20'</span>, <span class="num">1</span>),
+(<span class="str">'Kabir S'</span>,   <span class="str">'HR'</span>,          <span class="str">'Delhi'</span>,     <span class="num">48000</span>, <span class="str">'2022-01-10'</span>, <span class="kw">NULL</span>),
+(<span class="str">'Divya R'</span>,   <span class="str">'Engineering'</span>, <span class="str">'Bangalore'</span>, <span class="num">78000</span>, <span class="str">'2021-09-05'</span>, <span class="num">1</span>),
+(<span class="str">'Arjun D'</span>,   <span class="str">'Sales'</span>,       <span class="str">'Kochi'</span>,     <span class="num">61000</span>, <span class="str">'2020-04-22'</span>, <span class="num">2</span>),
+(<span class="str">'Meera P'</span>,   <span class="str">'Marketing'</span>,   <span class="str">'Chennai'</span>,   <span class="num">55000</span>, <span class="str">'2023-02-14'</span>, <span class="kw">NULL</span>),
+(<span class="str">'Vikram I'</span>,  <span class="str">'Engineering'</span>, <span class="str">'Mumbai'</span>,    <span class="num">95000</span>, <span class="str">'2018-06-30'</span>, <span class="num">1</span>),
+(<span class="str">'Sana K'</span>,    <span class="str">'HR'</span>,          <span class="str">'Delhi'</span>,     <span class="kw">NULL</span>,   <span class="str">'2023-08-01'</span>, <span class="num">4</span>),
+(<span class="str">'Aryan G'</span>,   <span class="str">'Marketing'</span>,   <span class="str">'Bangalore'</span>, <span class="num">67000</span>, <span class="str">'2022-05-18'</span>, <span class="num">7</span>);
+
+<span class="kw">INSERT INTO</span> <span class="tbl">orders</span> (customer_id, emp_id, product, category, amount, discount_pct, order_date, status) <span class="kw">VALUES</span>
+(<span class="num">1</span>,<span class="num">2</span>,<span class="str">'Laptop'</span>,    <span class="str">'Electronics'</span>, <span class="num">65000</span>,<span class="num">5.0</span>, <span class="str">'2024-01-05'</span>,<span class="str">'Delivered'</span>),
+(<span class="num">2</span>,<span class="num">6</span>,<span class="str">'Phone'</span>,     <span class="str">'Electronics'</span>, <span class="num">28000</span>,<span class="num">10.0</span>,<span class="str">'2024-01-12'</span>,<span class="str">'Delivered'</span>),
+(<span class="num">3</span>,<span class="num">2</span>,<span class="str">'Headphones'</span>,<span class="str">'Electronics'</span>, <span class="num">4500</span>, <span class="num">0.0</span>, <span class="str">'2024-01-18'</span>,<span class="str">'Shipped'</span>),
+(<span class="num">4</span>,<span class="num">6</span>,<span class="str">'Desk Chair'</span>,<span class="str">'Furniture'</span>,   <span class="num">12000</span>,<span class="num">15.0</span>,<span class="str">'2024-01-22'</span>,<span class="str">'Delivered'</span>),
+(<span class="num">5</span>,<span class="num">2</span>,<span class="str">'Monitor'</span>,   <span class="str">'Electronics'</span>, <span class="num">18000</span>,<span class="num">0.0</span>, <span class="str">'2024-02-01'</span>,<span class="str">'Pending'</span>),
+(<span class="num">1</span>,<span class="num">6</span>,<span class="str">'Keyboard'</span>,  <span class="str">'Electronics'</span>, <span class="num">3200</span>, <span class="num">5.0</span>, <span class="str">'2024-02-05'</span>,<span class="str">'Delivered'</span>),
+(<span class="num">2</span>,<span class="num">2</span>,<span class="str">'Mouse'</span>,     <span class="str">'Electronics'</span>, <span class="num">1500</span>, <span class="num">0.0</span>, <span class="str">'2024-02-10'</span>,<span class="str">'Delivered'</span>),
+(<span class="num">3</span>,<span class="num">6</span>,<span class="str">'Bookshelf'</span>, <span class="str">'Furniture'</span>,   <span class="num">8500</span>, <span class="num">10.0</span>,<span class="str">'2024-02-14'</span>,<span class="str">'Shipped'</span>),
+(<span class="num">4</span>,<span class="num">2</span>,<span class="str">'Webcam'</span>,    <span class="str">'Electronics'</span>, <span class="num">2800</span>, <span class="num">0.0</span>, <span class="str">'2024-02-20'</span>,<span class="str">'Cancelled'</span>),
+(<span class="num">5</span>,<span class="num">6</span>,<span class="str">'Standing Desk'</span>,<span class="str">'Furniture'</span>,<span class="num">22000</span>,<span class="num">20.0</span>,<span class="str">'2024-02-25'</span>,<span class="str">'Delivered'</span>);</pre>
+    </div>
+  </div>
+
+  <!-- Example 1 -->
+  <div class="block">
+    <div class="sec-title teal"><span class="line"></span>Example 1 — COUNT(): Every Variation You'll Ever Need</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">COUNT(*) vs COUNT(col) vs COUNT(DISTINCT col)</span><span class="code-badge b-agg">Ex 1</span></div>
+      <pre>
+<span class="cmt">-- COUNT(*): counts ALL rows including NULLs — the most common form</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> total_employees
+<span class="kw">FROM</span>   <span class="tbl">employees</span>;
+
+<span class="cmt">-- COUNT(column): counts only NON-NULL values in that column</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(salary)     <span class="kw">AS</span> employees_with_salary,
+       <span class="fn">COUNT</span>(manager_id) <span class="kw">AS</span> employees_with_manager,
+       <span class="fn">COUNT</span>(<span class="op">*</span>)          <span class="kw">AS</span> total_employees
+<span class="kw">FROM</span>   <span class="tbl">employees</span>;
+<span class="cmt">-- salary has 9 non-NULLs (Sana has NULL salary)</span>
+<span class="cmt">-- manager_id has 7 non-NULLs (3 people have no manager)</span>
+
+<span class="cmt">-- COUNT(DISTINCT col): counts unique non-NULL values</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> department) <span class="kw">AS</span> num_departments,
+       <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> city)       <span class="kw">AS</span> num_cities
+<span class="kw">FROM</span>   <span class="tbl">employees</span>;
+
+<span class="cmt">-- COUNT with WHERE: count matching rows only</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> engineers
+<span class="kw">FROM</span>   <span class="tbl">employees</span>
+<span class="kw">WHERE</span>  department <span class="op">=</span> <span class="str">'Engineering'</span>;
+
+<span class="cmt">-- COUNT with CASE: conditional counting (powerful pattern!)</span>
+<span class="kw">SELECT</span>
+    <span class="fn">COUNT</span>(<span class="op">*</span>)                                                    <span class="kw">AS</span> total_orders,
+    <span class="fn">COUNT</span>(<span class="kw">CASE WHEN</span> status <span class="op">=</span> <span class="str">'Delivered'</span>  <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">END</span>)          <span class="kw">AS</span> delivered,
+    <span class="fn">COUNT</span>(<span class="kw">CASE WHEN</span> status <span class="op">=</span> <span class="str">'Cancelled'</span>  <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">END</span>)          <span class="kw">AS</span> cancelled,
+    <span class="fn">COUNT</span>(<span class="kw">CASE WHEN</span> status <span class="op">=</span> <span class="str">'Pending'</span>    <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">END</span>)          <span class="kw">AS</span> pending,
+    <span class="fn">ROUND</span>(<span class="fn">COUNT</span>(<span class="kw">CASE WHEN</span> status<span class="op">=</span><span class="str">'Cancelled'</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">END</span>) <span class="op">*</span> <span class="num">100.0</span>
+          <span class="op">/</span> <span class="fn">COUNT</span>(<span class="op">*</span>), <span class="num">1</span>)                                        <span class="kw">AS</span> cancellation_rate_pct
+<span class="kw">FROM</span>   <span class="tbl">orders</span>;</pre>
+    </div>
+    <div class="out">
+      <div class="out-lbl">COUNT(CASE WHEN ...) Output — Pivot in a single row</div>
+      total_orders | delivered | cancelled | pending | cancellation_rate_pct
+      -------------+-----------+-----------+---------+-----------------------
+                10 |         6 |         1 |       1 |                  10.0
+    </div>
+    <div class="explain">
+      <strong>COUNT(CASE WHEN ... THEN 1 END)</strong> is one of the most useful SQL patterns. When the CASE evaluates to NULL (condition not met), COUNT ignores it. When it evaluates to 1, COUNT counts it. This effectively performs <em>conditional counting</em> — no GROUP BY needed, all categories in one row. Used constantly in BI dashboards and reporting queries.
+    </div>
+  </div>
+
+  <!-- Example 2 -->
+  <div class="block">
+    <div class="sec-title blue"><span class="line"></span>Example 2 — SUM(): Totals, Running Totals & Weighted Averages</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">SUM in all its forms — including advanced patterns</span><span class="code-badge b-agg">Ex 2</span></div>
+      <pre>
+<span class="cmt">-- Basic SUM: total revenue</span>
+<span class="kw">SELECT</span> <span class="fn">SUM</span>(amount)                    <span class="kw">AS</span> total_revenue,
+       <span class="fn">SUM</span>(amount <span class="op">*</span> discount_pct<span class="op">/</span><span class="num">100</span>) <span class="kw">AS</span> total_discount_given,
+       <span class="fn">SUM</span>(amount) <span class="op">-</span> <span class="fn">SUM</span>(amount <span class="op">*</span> discount_pct<span class="op">/</span><span class="num">100</span>) <span class="kw">AS</span> net_revenue
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">WHERE</span>  status <span class="op">!=</span> <span class="str">'Cancelled'</span>;
+
+<span class="cmt">-- SUM with CASE: conditional sum (revenue only from Electronics)</span>
+<span class="kw">SELECT</span>
+    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> category <span class="op">=</span> <span class="str">'Electronics'</span> <span class="kw">THEN</span> amount <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> electronics_rev,
+    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> category <span class="op">=</span> <span class="str">'Furniture'</span>   <span class="kw">THEN</span> amount <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> furniture_rev,
+    <span class="fn">SUM</span>(amount)                                                       <span class="kw">AS</span> total_rev
+<span class="kw">FROM</span>   <span class="tbl">orders</span>;
+<span class="cmt">-- This is called "pivoting" — all categories as separate columns</span>
+
+<span class="cmt">-- SUM vs COUNT: different questions, different answers</span>
+<span class="kw">SELECT</span>
+    <span class="fn">COUNT</span>(<span class="op">*</span>)      <span class="kw">AS</span> number_of_orders,   <span class="cmt">-- how many orders?</span>
+    <span class="fn">SUM</span>(amount)   <span class="kw">AS</span> total_order_value,  <span class="cmt">-- what's their total value?</span>
+    <span class="fn">SUM</span>(amount) <span class="op">/</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> avg_order_value <span class="cmt">-- same as AVG(amount)</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span>;
+
+<span class="cmt">-- Weighted average using SUM (true weighted mean)</span>
+<span class="cmt">-- What is the real average discount rate, weighted by order size?</span>
+<span class="kw">SELECT</span>
+    <span class="fn">AVG</span>(discount_pct)                               <span class="kw">AS</span> simple_avg_discount,
+    <span class="fn">SUM</span>(amount <span class="op">*</span> discount_pct) <span class="op">/</span> <span class="fn">SUM</span>(amount)        <span class="kw">AS</span> weighted_avg_discount
+<span class="kw">FROM</span>   <span class="tbl">orders</span>;
+<span class="cmt">-- Weighted avg is more accurate: big orders drag the average more than small ones</span></pre>
+    </div>
+    <div class="explain">
+      <strong>SUM(CASE WHEN...)</strong> is the horizontal pivoting pattern — turning row values into columns. The difference between <code>AVG()</code> and <code>SUM()/COUNT()</code> is crucial when some values are NULL — AVG skips NULLs in both numerator and denominator, while SUM()/COUNT(*) only skips NULL in the numerator. Weighted averages using SUM are more accurate than simple AVGs when your data has very different-sized groups.
+    </div>
+  </div>
+
+</div><!-- /s2 -->
+
+
+<!-- ══════════════════════════════════════════
+     S3 — AVG · MIN · MAX (Ex 3)
+══════════════════════════════════════════ -->
+<div class="section" id="s3">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch5">📊 AVG · MIN · MAX</span></div>
+    <h1 class="hero-title" style="font-size:30px">AVG(), <span class="accent">MIN()</span> & MAX()</h1>
+  </div>
+
+  <div class="block">
+    <div class="sec-title blue"><span class="line"></span>Example 3 — AVG, MIN, MAX: Complete Patterns</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">Statistics that tell the full story of your data</span><span class="code-badge b-agg">Ex 3</span></div>
+      <pre>
+<span class="cmt">-- Basic stats on salary (remember: Sana has NULL salary — watch how each handles it)</span>
+<span class="kw">SELECT</span>
+    <span class="fn">AVG</span>(salary)           <span class="kw">AS</span> avg_salary,      <span class="cmt">-- ignores the NULL row</span>
+    <span class="fn">MIN</span>(salary)           <span class="kw">AS</span> min_salary,      <span class="cmt">-- ignores NULL, returns 48000</span>
+    <span class="fn">MAX</span>(salary)           <span class="kw">AS</span> max_salary,      <span class="cmt">-- ignores NULL, returns 95000</span>
+    <span class="fn">MAX</span>(salary) <span class="op">-</span> <span class="fn">MIN</span>(salary) <span class="kw">AS</span> salary_range,  <span class="cmt">-- spread between top and bottom</span>
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(salary), <span class="num">0</span>)  <span class="kw">AS</span> avg_salary_rounded
+<span class="kw">FROM</span>   <span class="tbl">employees</span>;
+
+<span class="cmt">-- MIN/MAX on text: alphabetical ordering</span>
+<span class="kw">SELECT</span>
+    <span class="fn">MIN</span>(name) <span class="kw">AS</span> first_name_alphabetically,
+    <span class="fn">MAX</span>(name) <span class="kw">AS</span> last_name_alphabetically
+<span class="kw">FROM</span>   <span class="tbl">employees</span>;
+
+<span class="cmt">-- MIN/MAX on dates: earliest and most recent</span>
+<span class="kw">SELECT</span>
+    <span class="fn">MIN</span>(join_date) <span class="kw">AS</span> earliest_hire,
+    <span class="fn">MAX</span>(join_date) <span class="kw">AS</span> most_recent_hire,
+    <span class="fn">DATEDIFF</span>(<span class="fn">MAX</span>(join_date), <span class="fn">MIN</span>(join_date)) <span class="kw">AS</span> days_span
+<span class="kw">FROM</span>   <span class="tbl">employees</span>;
+
+<span class="cmt">-- AVG with CASE: average salary of active employees only</span>
+<span class="kw">SELECT</span>
+    <span class="fn">AVG</span>(<span class="kw">CASE WHEN</span> is_active <span class="op">=</span> <span class="kw">TRUE</span> <span class="kw">THEN</span> salary <span class="kw">END</span>) <span class="kw">AS</span> avg_active_salary
+<span class="kw">FROM</span>   <span class="tbl">employees</span>;
+
+<span class="cmt">-- Percentile approximation using AVG + WHERE trick</span>
+<span class="cmt">-- Employees earning above the average salary</span>
+<span class="kw">SELECT</span> name, salary
+<span class="kw">FROM</span>   <span class="tbl">employees</span>
+<span class="kw">WHERE</span>  salary <span class="op">&gt;</span> (<span class="kw">SELECT</span> <span class="fn">AVG</span>(salary) <span class="kw">FROM</span> <span class="tbl">employees</span>)
+<span class="kw">ORDER BY</span> salary <span class="kw">DESC</span>;
+
+<span class="cmt">-- Five-number summary: Min, Q1 approx, Median approx, Q3 approx, Max</span>
+<span class="kw">SELECT</span>
+    <span class="fn">MIN</span>(salary)                                              <span class="kw">AS</span> minimum,
+    <span class="fn">AVG</span>(salary)                                              <span class="kw">AS</span> mean,
+    <span class="fn">MAX</span>(salary)                                              <span class="kw">AS</span> maximum,
+    <span class="fn">MAX</span>(salary) <span class="op">-</span> <span class="fn">MIN</span>(salary)                                <span class="kw">AS</span> range_val,
+    <span class="fn">ROUND</span>(<span class="fn">STDDEV</span>(salary), <span class="num">2</span>)                                <span class="kw">AS</span> std_dev
+<span class="kw">FROM</span>   <span class="tbl">employees</span>;
+<span class="cmt">-- STDDEV() and VARIANCE() are also aggregate functions in MySQL</span></pre>
+    </div>
+    <div class="out">
+      <div class="out-lbl">Basic stats output</div>
+      avg_salary   | min_salary | max_salary | salary_range | avg_salary_rounded
+      -------------+------------+------------+--------------+-------------------
+        70111.11   |      48000 |      95000 |        47000 |              70111
+      <br>
+      <span style="opacity:.6">← AVG computed on 9 rows (Sana's NULL excluded). Range = 95000-48000 = 47000.</span>
+    </div>
+    <div class="callout teacher">
+      <div class="callout-lbl">🎓 Teaching Moment — NULL in AVG</div>
+      <p>Ask students: "If 9 employees have salaries and 1 has NULL, and we AVG(salary) — does SQL use 9 or 10 as the denominator?" Answer: <strong>9</strong>. SQL skips NULL entirely. This is why you should use <code style="font-family:var(--mono)">COALESCE(salary, 0)</code> if you want NULL to count as 0 in your average. These two queries produce very different results, and data scientists need to know which they actually want.</p>
+    </div>
+  </div>
+</div><!-- /s3 -->
+
+
+<!-- ══════════════════════════════════════════
+     S4 — GROUP BY (Ex 4–6)
+══════════════════════════════════════════ -->
+<div class="section" id="s4">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch5">🗂️ GROUP BY</span></div>
+    <h1 class="hero-title" style="font-size:30px"><span class="accent">GROUP BY</span> — Aggregate Per Category</h1>
+    <p class="hero-sub" style="font-size:14px">GROUP BY is the engine of analytical SQL. It answers "show me aggregates broken down by each category."</p>
+  </div>
+
+  <!-- Example 4 -->
+  <div class="block">
+    <div class="sec-title violet"><span class="line"></span>Example 4 — GROUP BY Basics: Single & Multi-Column</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">Grouping by one column, then multiple columns</span><span class="code-badge b-grp">Ex 4</span></div>
+      <pre>
+<span class="cmt">-- GROUP BY single column: stats per department</span>
+<span class="kw">SELECT</span>
+    department,
+    <span class="fn">COUNT</span>(<span class="op">*</span>)           <span class="kw">AS</span> headcount,
+    <span class="fn">SUM</span>(salary)        <span class="kw">AS</span> total_salary_bill,
+    <span class="fn">AVG</span>(salary)        <span class="kw">AS</span> avg_salary,
+    <span class="fn">MIN</span>(salary)        <span class="kw">AS</span> min_salary,
+    <span class="fn">MAX</span>(salary)        <span class="kw">AS</span> max_salary
+<span class="kw">FROM</span>   <span class="tbl">employees</span>
+<span class="kw">GROUP BY</span> department
+<span class="kw">ORDER BY</span> total_salary_bill <span class="kw">DESC</span>;
+
+<span class="cmt">-- GROUP BY multiple columns: stats per department PER city</span>
+<span class="kw">SELECT</span>
+    department,
+    city,
+    <span class="fn">COUNT</span>(<span class="op">*</span>)    <span class="kw">AS</span> headcount,
+    <span class="fn">AVG</span>(salary) <span class="kw">AS</span> avg_salary
+<span class="kw">FROM</span>   <span class="tbl">employees</span>
+<span class="kw">GROUP BY</span> department, city
+<span class="kw">ORDER BY</span> department, avg_salary <span class="kw">DESC</span>;
+
+<span class="cmt">-- GROUP BY with alias (can reference SELECT alias in MySQL)</span>
+<span class="kw">SELECT</span>
+    <span class="fn">YEAR</span>(join_date) <span class="kw">AS</span> join_year,
+    <span class="fn">COUNT</span>(<span class="op">*</span>)        <span class="kw">AS</span> new_hires
+<span class="kw">FROM</span>   <span class="tbl">employees</span>
+<span class="kw">GROUP BY</span> join_year
+<span class="kw">ORDER BY</span> join_year;</pre>
+    </div>
+    <div class="out">
+      <div class="out-lbl">GROUP BY department output</div>
+      department   | headcount | total_salary_bill | avg_salary   | min_salary | max_salary
+      -------------+-----------+-------------------+--------------+------------+-----------
+      Engineering  |         4 |          350000   |   87500.00   |      78000 |      95000
+      Sales        |         2 |          113000   |   56500.00   |      52000 |      61000
+      Marketing    |         2 |          122000   |   61000.00   |      55000 |      67000
+      HR           |         2 |           48000   |   48000.00   |      48000 |      48000
+      <span style="opacity:.6;font-size:11px">← HR avg uses only 1 salary (Sana's is NULL) — important!</span>
+    </div>
+    <div class="explain">
+      <strong>The GROUP BY rule in practice:</strong> In the first query, <code>department</code> is in GROUP BY, so it's safe in SELECT. <code>COUNT(*)</code>, <code>SUM(salary)</code> etc. are aggregates — safe. You can NEVER add <code>name</code> to SELECT here without also adding it to GROUP BY or wrapping it in an aggregate like <code>MAX(name)</code>.
+    </div>
+  </div>
+
+  <!-- Example 5 -->
+  <div class="block">
+    <div class="sec-title green"><span class="line"></span>Example 5 — GROUP BY with WHERE, ORDER BY & LIMIT</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">Filtering before grouping, then sorting and slicing results</span><span class="code-badge b-grp">Ex 5</span></div>
+      <pre>
+<span class="cmt">-- WHERE filters rows BEFORE grouping (only consider delivered/shipped orders)</span>
+<span class="kw">SELECT</span>
+    category,
+    <span class="fn">COUNT</span>(<span class="op">*</span>)        <span class="kw">AS</span> order_count,
+    <span class="fn">SUM</span>(amount)     <span class="kw">AS</span> revenue,
+    <span class="fn">AVG</span>(amount)     <span class="kw">AS</span> avg_order_value
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">WHERE</span>  status <span class="kw">IN</span> (<span class="str">'Delivered'</span>, <span class="str">'Shipped'</span>)   <span class="cmt">-- filter BEFORE grouping</span>
+<span class="kw">GROUP BY</span> category
+<span class="kw">ORDER BY</span> revenue <span class="kw">DESC</span>;
+
+<span class="cmt">-- Group by computed expression: group by month</span>
+<span class="kw">SELECT</span>
+    <span class="fn">DATE_FORMAT</span>(order_date, <span class="str">'%Y-%m'</span>) <span class="kw">AS</span> order_month,
+    <span class="fn">COUNT</span>(<span class="op">*</span>)                           <span class="kw">AS</span> orders_placed,
+    <span class="fn">SUM</span>(amount)                        <span class="kw">AS</span> monthly_revenue
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">GROUP BY</span> order_month
+<span class="kw">ORDER BY</span> order_month;
+
+<span class="cmt">-- Top categories by revenue (GROUP BY + ORDER BY + LIMIT)</span>
+<span class="kw">SELECT</span>
+    category,
+    <span class="fn">SUM</span>(amount) <span class="kw">AS</span> total_revenue
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">GROUP BY</span> category
+<span class="kw">ORDER BY</span> total_revenue <span class="kw">DESC</span>
+<span class="kw">LIMIT</span>  <span class="num">3</span>;   <span class="cmt">-- top 3 categories by revenue</span>
+
+<span class="cmt">-- Group by employee with their order performance</span>
+<span class="kw">SELECT</span>
+    e.name           <span class="kw">AS</span> sales_rep,
+    e.department,
+    <span class="fn">COUNT</span>(o.order_id) <span class="kw">AS</span> orders_handled,
+    <span class="fn">SUM</span>(o.amount)    <span class="kw">AS</span> total_sales,
+    <span class="fn">AVG</span>(o.amount)    <span class="kw">AS</span> avg_deal_size
+<span class="kw">FROM</span>   <span class="tbl">employees</span> e
+<span class="kw">LEFT JOIN</span> <span class="tbl">orders</span> o <span class="kw">ON</span> e.emp_id <span class="op">=</span> o.emp_id
+<span class="kw">GROUP BY</span> e.emp_id, e.name, e.department
+<span class="kw">ORDER BY</span> total_sales <span class="kw">DESC</span>;</pre>
+    </div>
+    <div class="callout rw">
+      <div class="callout-lbl">🌍 Real World — Monthly Revenue Report</div>
+      <p>The DATE_FORMAT + GROUP BY pattern generates every monthly/weekly report you'll ever build. Every business dashboard — Flipkart sales by month, Swiggy orders by day of week, GUVI learners by enrollment month — uses exactly this pattern. Master it and you can build 70% of all BI reports from scratch.</p>
+    </div>
+  </div>
+
+  <!-- Example 6 -->
+  <div class="block">
+    <div class="sec-title orange"><span class="line"></span>Example 6 — GROUP BY with ROLLUP (Subtotals & Grand Totals)</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">WITH ROLLUP — automatic subtotals at each grouping level</span><span class="code-badge b-grp">Ex 6</span></div>
+      <pre>
+<span class="cmt">-- WITH ROLLUP: adds subtotal rows automatically at each group level</span>
+<span class="kw">SELECT</span>
+    <span class="fn">COALESCE</span>(department, <span class="str">'── GRAND TOTAL'</span>) <span class="kw">AS</span> department,
+    <span class="fn">COUNT</span>(<span class="op">*</span>)                                  <span class="kw">AS</span> headcount,
+    <span class="fn">SUM</span>(salary)                               <span class="kw">AS</span> total_payroll,
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(salary), <span class="num">0</span>)                    <span class="kw">AS</span> avg_salary
+<span class="kw">FROM</span>   <span class="tbl">employees</span>
+<span class="kw">GROUP BY</span> department <span class="kw">WITH ROLLUP</span>;
+
+<span class="cmt">-- Multi-level ROLLUP: subtotals per department AND per city</span>
+<span class="kw">SELECT</span>
+    <span class="fn">COALESCE</span>(department, <span class="str">'ALL DEPARTMENTS'</span>) <span class="kw">AS</span> dept,
+    <span class="fn">COALESCE</span>(city,       <span class="str">'ALL CITIES'</span>)      <span class="kw">AS</span> city,
+    <span class="fn">COUNT</span>(<span class="op">*</span>)                                  <span class="kw">AS</span> count,
+    <span class="fn">SUM</span>(salary)                               <span class="kw">AS</span> payroll
+<span class="kw">FROM</span>   <span class="tbl">employees</span>
+<span class="kw">GROUP BY</span> department, city <span class="kw">WITH ROLLUP</span>
+<span class="kw">ORDER BY</span> department, city;</pre>
+    </div>
+    <div class="out">
+      <div class="out-lbl">WITH ROLLUP — subtotals + grand total automatically added</div>
+      department          | headcount | total_payroll | avg_salary
+      --------------------+-----------+---------------+-----------
+      Engineering         |         4 |       350000  |     87500
+      HR                  |         2 |        48000  |     48000
+      Marketing           |         2 |       122000  |     61000
+      Sales               |         2 |       113000  |     56500
+      ── GRAND TOTAL      |        10 |       633000  |     70333
+      <br>
+      <span style="opacity:.6;font-size:11px">← ROLLUP adds the last row automatically. COALESCE replaces NULL with a label.</span>
+    </div>
+    <div class="explain">
+      <strong>WITH ROLLUP</strong> is essential for financial reports and Excel-like summaries. The grand total row has NULL for the grouping column — that's why we use <code>COALESCE(department, 'GRAND TOTAL')</code> to replace it with a readable label. Used in every financial statement, P&amp;L summary, and management report.
+    </div>
+  </div>
+
+</div><!-- /s4 -->
+
+
+<!-- ══════════════════════════════════════════
+     S5 — HAVING (Ex 7–8)
+══════════════════════════════════════════ -->
+<div class="section" id="s5">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch5">🔍 HAVING</span></div>
+    <h1 class="hero-title" style="font-size:30px">HAVING — <span class="accent">Filter the Groups</span></h1>
+    <p class="hero-sub" style="font-size:14px">HAVING is WHERE for grouped data. It runs after aggregation — so you can filter on COUNT(), SUM(), AVG() results.</p>
+  </div>
+
+  <!-- Example 7 -->
+  <div class="block">
+    <div class="sec-title pink"><span class="line"></span>Example 7 — HAVING: From Simple to Real Analytics</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">HAVING — filtering groups using aggregate conditions</span><span class="code-badge b-hav">Ex 7</span></div>
+      <pre>
+<span class="cmt">-- Basic HAVING: departments with more than 1 employee</span>
+<span class="kw">SELECT</span>
+    department,
+    <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> headcount
+<span class="kw">FROM</span>   <span class="tbl">employees</span>
+<span class="kw">GROUP BY</span> department
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;</span> <span class="num">1</span>;
+
+<span class="cmt">-- HAVING with AVG: departments where avg salary exceeds threshold</span>
+<span class="kw">SELECT</span>
+    department,
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(salary), <span class="num">0</span>) <span class="kw">AS</span> avg_salary
+<span class="kw">FROM</span>   <span class="tbl">employees</span>
+<span class="kw">GROUP BY</span> department
+<span class="kw">HAVING</span>   <span class="fn">AVG</span>(salary) <span class="op">&gt;</span> <span class="num">60000</span>
+<span class="kw">ORDER BY</span> avg_salary <span class="kw">DESC</span>;
+
+<span class="cmt">-- Combining WHERE (row filter) + HAVING (group filter)</span>
+<span class="cmt">-- Q: Which categories had 3+ delivered/shipped orders AND total revenue > ₹10,000?</span>
+<span class="kw">SELECT</span>
+    category,
+    <span class="fn">COUNT</span>(<span class="op">*</span>)    <span class="kw">AS</span> order_count,
+    <span class="fn">SUM</span>(amount) <span class="kw">AS</span> revenue
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">WHERE</span>  status <span class="kw">IN</span> (<span class="str">'Delivered'</span>, <span class="str">'Shipped'</span>)  <span class="cmt">-- ← filter rows FIRST</span>
+<span class="kw">GROUP BY</span> category
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;=</span> <span class="num">3</span>
+    <span class="kw">AND</span>  <span class="fn">SUM</span>(amount) <span class="op">&gt;</span> <span class="num">10000</span>               <span class="cmt">-- ← filter groups AFTER</span>
+<span class="kw">ORDER BY</span> revenue <span class="kw">DESC</span>;
+
+<span class="cmt">-- HAVING with SUM: find employees whose total sales exceed a target</span>
+<span class="kw">SELECT</span>
+    e.name,
+    <span class="fn">COUNT</span>(o.order_id)  <span class="kw">AS</span> deals_closed,
+    <span class="fn">SUM</span>(o.amount)      <span class="kw">AS</span> total_sales
+<span class="kw">FROM</span>   <span class="tbl">employees</span>  e
+<span class="kw">JOIN</span>   <span class="tbl">orders</span>     o <span class="kw">ON</span> e.emp_id <span class="op">=</span> o.emp_id
+<span class="kw">WHERE</span>  o.status <span class="op">=</span> <span class="str">'Delivered'</span>
+<span class="kw">GROUP BY</span> e.emp_id, e.name
+<span class="kw">HAVING</span>   <span class="fn">SUM</span>(o.amount) <span class="op">&gt;</span> <span class="num">50000</span>   <span class="cmt">-- only show reps who exceeded target</span>
+<span class="kw">ORDER BY</span> total_sales <span class="kw">DESC</span>;</pre>
+    </div>
+  </div>
+
+  <!-- Example 8 — WHERE vs HAVING comparison -->
+  <div class="block">
+    <div class="sec-title indigo"><span class="line"></span>Example 8 — WHERE vs HAVING: Side-by-Side Comparison</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">The exact same-looking questions — very different answers</span><span class="code-badge b-hav">Ex 8</span></div>
+      <pre>
+<span class="cmt">━━━━━ QUESTION 1: Employees in Engineering department ━━━━━</span>
+
+<span class="cmt">-- Use WHERE: filter individual rows by department column</span>
+<span class="kw">SELECT</span> department, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> headcount
+<span class="kw">FROM</span>   <span class="tbl">employees</span>
+<span class="kw">WHERE</span>  department <span class="op">=</span> <span class="str">'Engineering'</span>
+<span class="kw">GROUP BY</span> department;
+<span class="cmt">-- Result: Engineering → 4  (only Engineering rows entered the grouping)</span>
+
+<span class="cmt">━━━━━ QUESTION 2: Departments that have exactly 4 employees ━━━━━</span>
+
+<span class="cmt">-- Use HAVING: filter groups by their COUNT aggregate</span>
+<span class="kw">SELECT</span> department, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> headcount
+<span class="kw">FROM</span>   <span class="tbl">employees</span>
+<span class="kw">GROUP BY</span> department
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">=</span> <span class="num">4</span>;
+<span class="cmt">-- Result: Engineering → 4  (all depts grouped first, then filtered by count)</span>
+
+<span class="cmt">━━━━━ THE COMMON MISTAKE ━━━━━</span>
+
+<span class="cmt">-- ❌ WRONG: Can't use aggregate in WHERE</span>
+<span class="cmt">-- SELECT department, COUNT(*) FROM employees</span>
+<span class="cmt">-- WHERE COUNT(*) > 2 GROUP BY department;</span>
+<span class="cmt">-- Error: Invalid use of group function</span>
+
+<span class="cmt">-- ✅ CORRECT: aggregate condition goes in HAVING</span>
+<span class="kw">SELECT</span> department, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> headcount
+<span class="kw">FROM</span>   <span class="tbl">employees</span>
+<span class="kw">GROUP BY</span> department
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;</span> <span class="num">2</span>;
+
+<span class="cmt">━━━━━ PERFORMANCE TIP ━━━━━</span>
+
+<span class="cmt">-- Put as much filtering in WHERE as possible — it reduces rows BEFORE grouping</span>
+<span class="cmt">-- This is faster (fewer rows to group):</span>
+<span class="kw">SELECT</span> department, <span class="fn">AVG</span>(salary)
+<span class="kw">FROM</span>   <span class="tbl">employees</span>
+<span class="kw">WHERE</span>  is_active <span class="op">=</span> <span class="kw">TRUE</span>       <span class="cmt">-- filter 20% inactive rows BEFORE grouping</span>
+<span class="kw">GROUP BY</span> department
+<span class="kw">HAVING</span>   <span class="fn">AVG</span>(salary) <span class="op">&gt;</span> <span class="num">60000</span>; <span class="cmt">-- filter groups AFTER</span></pre>
+    </div>
+    <div class="callout green">
+      <div class="callout-lbl">✅ Decision Rule — Teach This to Students</div>
+      <p>Ask yourself: <strong>"Am I filtering individual rows, or am I filtering the result of an aggregation?"</strong><br>— Individual rows → WHERE<br>— Aggregation result (COUNT, SUM, AVG etc.) → HAVING<br><br>If you're not sure, try writing the equivalent English sentence: <em>"Only include orders where status is Delivered"</em> → WHERE. <em>"Only include departments that have more than 3 employees"</em> → HAVING (headcount is a count — an aggregate).</p>
+    </div>
+  </div>
+
+</div><!-- /s5 -->
+
+
+<!-- ══════════════════════════════════════════
+     S6 — NULLs & ADVANCED (Ex 9–10)
+══════════════════════════════════════════ -->
+<div class="section" id="s6">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch5">⚠️ NULLs & Advanced</span></div>
+    <h1 class="hero-title" style="font-size:30px">NULL Handling <span class="accent">& Advanced Patterns</span></h1>
+  </div>
+
+  <!-- Example 9 -->
+  <div class="block">
+    <div class="sec-title orange"><span class="line"></span>Example 9 — NULL Handling in Every Aggregate Function</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">How each function treats NULL — critical for accurate reporting</span><span class="code-badge b-ex">Ex 9</span></div>
+      <pre>
+<span class="cmt">-- Our employees table: Sana has NULL salary, 3 people have NULL manager_id</span>
+
+<span class="cmt">-- 1. COUNT behaviour with NULL</span>
+<span class="kw">SELECT</span>
+    <span class="fn">COUNT</span>(<span class="op">*</span>)          <span class="kw">AS</span> total_rows,          <span class="cmt">-- 10 (counts everything)</span>
+    <span class="fn">COUNT</span>(salary)     <span class="kw">AS</span> salary_not_null,     <span class="cmt">-- 9  (skips Sana's NULL)</span>
+    <span class="fn">COUNT</span>(manager_id) <span class="kw">AS</span> has_manager         <span class="cmt">-- 7  (3 people without manager)</span>
+<span class="kw">FROM</span>   <span class="tbl">employees</span>;
+
+<span class="cmt">-- 2. SUM and AVG: both IGNORE NULLs</span>
+<span class="kw">SELECT</span>
+    <span class="fn">SUM</span>(salary)                        <span class="kw">AS</span> sum_ignores_null,
+    <span class="fn">AVG</span>(salary)                        <span class="kw">AS</span> avg_ignores_null,        <span class="cmt">-- divides by 9</span>
+    <span class="fn">SUM</span>(<span class="fn">COALESCE</span>(salary, <span class="num">0</span>))           <span class="kw">AS</span> sum_null_as_zero,
+    <span class="fn">SUM</span>(<span class="fn">COALESCE</span>(salary, <span class="num">0</span>)) <span class="op">/</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> avg_null_as_zero       <span class="cmt">-- divides by 10</span>
+<span class="kw">FROM</span>   <span class="tbl">employees</span>;
+
+<span class="cmt">-- 3. NULL in GROUP BY: NULLs form their own group!</span>
+<span class="kw">SELECT</span>
+    manager_id,                        <span class="cmt">-- NULL = "employees with no manager"</span>
+    <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> reports
+<span class="kw">FROM</span>   <span class="tbl">employees</span>
+<span class="kw">GROUP BY</span> manager_id
+<span class="kw">ORDER BY</span> manager_id;
+
+<span class="cmt">-- 4. COALESCE — handle NULL gracefully in output</span>
+<span class="kw">SELECT</span>
+    name,
+    <span class="fn">COALESCE</span>(salary, <span class="num">0</span>)              <span class="kw">AS</span> salary_display,
+    <span class="fn">COALESCE</span>(city, <span class="str">'Unknown'</span>)        <span class="kw">AS</span> city_display,
+    <span class="fn">IFNULL</span>(manager_id, <span class="str">'No Manager'</span>) <span class="kw">AS</span> manager_display
+<span class="kw">FROM</span>   <span class="tbl">employees</span>;
+
+<span class="cmt">-- 5. NULLIF — turn a value INTO NULL (useful for division)</span>
+<span class="cmt">-- Prevents division by zero errors:</span>
+<span class="kw">SELECT</span>
+    category,
+    <span class="fn">SUM</span>(amount) <span class="op">/</span> <span class="fn">NULLIF</span>(<span class="fn">COUNT</span>(<span class="op">*</span>), <span class="num">0</span>) <span class="kw">AS</span> safe_avg
+    <span class="cmt">-- NULLIF returns NULL if count is 0 → division gives NULL, not error</span>
+<span class="kw">FROM</span>   <span class="tbl">orders</span>
+<span class="kw">GROUP BY</span> category;</pre>
+    </div>
+    <div class="null-demo">
+      <div class="nd-panel">
+        <div class="nd-hdr" style="color:var(--red)">AVG(salary) — NULLs excluded</div>
+        <div class="nd-body">Rows: 10<br>Non-NULL salaries: 9<br>SUM = 633,000<br>AVG = 633,000 / 9 = <strong>70,333</strong></div>
+      </div>
+      <div class="nd-panel">
+        <div class="nd-hdr" style="color:var(--green)">AVG using COALESCE — NULLs = 0</div>
+        <div class="nd-body">Rows: 10<br>All 10 rows included<br>SUM = 633,000<br>AVG = 633,000 / 10 = <strong>63,300</strong></div>
+      </div>
+    </div>
+    <div class="callout warn">
+      <div class="callout-lbl">⚠️ Real-World Impact — Wrong AVG Leads to Wrong Decisions</div>
+      <p>If you're calculating average salary for payroll budgeting and 20% of records have NULL salary (data not filled in yet), your AVG is 20% higher than reality — you'll underestimate the budget. Always decide consciously: should NULL salary count as ₹0 (use COALESCE) or should that employee be excluded from the calculation (use AVG directly)? The answer depends on your business question.</p>
+    </div>
+  </div>
+
+  <!-- Example 10 -->
+  <div class="block">
+    <div class="sec-title teal"><span class="line"></span>Example 10 — Advanced Analytics: Full Dashboard Query</div>
+    <div class="code-wrap">
+      <div class="code-hdr"><span class="code-lbl">A real-world sales dashboard query combining everything in this chapter</span><span class="code-badge b-tip">Capstone</span></div>
+      <pre>
+<span class="cmt">-- Business Question:
+-- "Give me a sales performance summary by category and month
+--  showing: order volume, revenue, avg order, cancellation rate,
+--  discount impact — for orders with meaningful revenue only"</span>
+
+<span class="kw">SELECT</span>
+    <span class="cmt">-- Grouping dimensions</span>
+    category,
+    <span class="fn">DATE_FORMAT</span>(order_date, <span class="str">'%Y-%m'</span>)                               <span class="kw">AS</span> month,
+
+    <span class="cmt">-- Volume metrics</span>
+    <span class="fn">COUNT</span>(<span class="op">*</span>)                                                          <span class="kw">AS</span> total_orders,
+    <span class="fn">COUNT</span>(<span class="kw">CASE WHEN</span> status <span class="op">=</span> <span class="str">'Delivered'</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">END</span>)                <span class="kw">AS</span> delivered,
+    <span class="fn">COUNT</span>(<span class="kw">CASE WHEN</span> status <span class="op">=</span> <span class="str">'Cancelled'</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">END</span>)                <span class="kw">AS</span> cancelled,
+
+    <span class="cmt">-- Revenue metrics</span>
+    <span class="fn">SUM</span>(amount)                                                       <span class="kw">AS</span> gross_revenue,
+    <span class="fn">SUM</span>(amount <span class="op">*</span> (<span class="num">1</span> <span class="op">-</span> discount_pct <span class="op">/</span> <span class="num">100</span>))                          <span class="kw">AS</span> net_revenue,
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(amount), <span class="num">0</span>)                                            <span class="kw">AS</span> avg_order_value,
+
+    <span class="cmt">-- Discount analysis</span>
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(discount_pct), <span class="num">1</span>)                                       <span class="kw">AS</span> avg_discount_pct,
+    <span class="fn">SUM</span>(amount <span class="op">*</span> discount_pct <span class="op">/</span> <span class="num">100</span>)                                 <span class="kw">AS</span> total_discount_given,
+
+    <span class="cmt">-- Rates (as percentages)</span>
+    <span class="fn">ROUND</span>(
+        <span class="fn">COUNT</span>(<span class="kw">CASE WHEN</span> status <span class="op">=</span> <span class="str">'Cancelled'</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">END</span>) <span class="op">*</span> <span class="num">100.0</span>
+        <span class="op">/</span> <span class="fn">NULLIF</span>(<span class="fn">COUNT</span>(<span class="op">*</span>), <span class="num">0</span>)
+    , <span class="num">1</span>)                                                               <span class="kw">AS</span> cancellation_rate_pct,
+
+    <span class="cmt">-- Min/Max for range insight</span>
+    <span class="fn">MIN</span>(amount) <span class="kw">AS</span> smallest_order,
+    <span class="fn">MAX</span>(amount) <span class="kw">AS</span> largest_order
+
+<span class="kw">FROM</span>  <span class="tbl">orders</span>
+
+<span class="kw">WHERE</span> order_date <span class="op">&gt;=</span> <span class="str">'2024-01-01'</span>            <span class="cmt">-- row-level filter: 2024 orders only</span>
+
+<span class="kw">GROUP BY</span>
+    category,
+    <span class="fn">DATE_FORMAT</span>(order_date, <span class="str">'%Y-%m'</span>)
+
+<span class="kw">HAVING</span>
+    <span class="fn">SUM</span>(amount) <span class="op">&gt;</span> <span class="num">5000</span>                        <span class="cmt">-- group filter: only meaningful revenue</span>
+    <span class="kw">AND</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;=</span> <span class="num">2</span>                          <span class="cmt">-- at least 2 orders in the group</span>
+
+<span class="kw">ORDER BY</span>
+    month,
+    net_revenue <span class="kw">DESC</span>;
+<span class="cmt">-- This single query powers a complete sales analytics dashboard</span></pre>
+    </div>
+    <div class="explain">
+      <strong>This query demonstrates every concept from Chapter 5 in one place:</strong> aggregate functions (COUNT, SUM, AVG, MIN, MAX), COUNT(CASE WHEN) for conditional counting, computed columns with expressions, DATE_FORMAT for temporal grouping, WHERE for pre-group row filtering, GROUP BY on multiple columns, HAVING for post-group filtering, NULLIF for safe division, and ORDER BY on a derived column. This is the kind of query a senior data analyst writes every day.
+    </div>
+  </div>
+
+</div><!-- /s6 -->
+
+
+<!-- ══════════════════════════════════════════
+     S7 — REAL WORLD
+══════════════════════════════════════════ -->
+<div class="section" id="s7">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch5">🌍 Real World</span></div>
+    <h1 class="hero-title" style="font-size:30px">Aggregations <span class="accent">in the Wild</span></h1>
+    <p class="hero-sub" style="font-size:14px">Every data-driven decision in business starts with a GROUP BY query.</p>
+  </div>
+  <div class="block">
+    <div class="callout rw">
+      <div class="callout-lbl">🛒 E-Commerce — Flipkart / Amazon</div>
+      <p>Every "Best Sellers" list is <code style="font-family:var(--mono)">GROUP BY product, ORDER BY SUM(units_sold) DESC, LIMIT 10</code>. Revenue dashboards showing "Total Revenue by Category by Month" — GROUP BY category, DATE_FORMAT(order_date,'%Y-%m'). Return rate by product category — COUNT(CASE WHEN returned=1 THEN 1 END)/COUNT(*). The entire ops dashboard is built on aggregation queries running every 15 minutes.</p>
+    </div>
+    <div class="callout rw">
+      <div class="callout-lbl">🏦 Banking — Fraud Detection</div>
+      <p>Fraud analysts write: find accounts where COUNT(transactions in last 1 hour) > 20 OR SUM(amount in last 10 min) > 50000. That's HAVING on a GROUP BY account_id, time_window. Every fraud alert is an aggregate threshold query. Banks run these continuously on streaming data.</p>
+    </div>
+    <div class="callout rw">
+      <div class="callout-lbl">🎓 EdTech — Learner Analytics at GUVI</div>
+      <p>"Which batch has the lowest average quiz score?" → GROUP BY batch_id, ORDER BY AVG(quiz_score). "How many learners completed more than 80% of the curriculum?" → HAVING COUNT(completed_lessons)/total_lessons > 0.8. Mentor intervention reports are GROUP BY + HAVING queries identifying at-risk cohorts every Monday morning.</p>
+    </div>
+    <div class="callout rw">
+      <div class="callout-lbl">📊 Data Science — Feature Engineering</div>
+      <p>Before training a churn model: SELECT customer_id, COUNT(orders) AS order_frequency, AVG(order_value) AS avg_spend, MAX(order_date) AS last_purchase, DATEDIFF(NOW(), MAX(order_date)) AS days_since_last_order FROM orders GROUP BY customer_id. These aggregated features feed directly into the ML model. GROUP BY is how you go from raw event data to structured ML features.</p>
+    </div>
+    <div class="callout teacher">
+      <div class="callout-lbl">🎓 Teaching Strategy</div>
+      <p>Give each student a real business question in English and ask them to write the SQL. Example prompts: "Which salesperson closed the most deals last quarter?" "What was our highest-revenue month?" "Which product category has the worst return rate?" Let them struggle first, then reveal the GROUP BY + HAVING solution. The problem-to-SQL translation skill is what gets hired.</p>
+    </div>
+  </div>
+</div><!-- /s7 -->
+
+
+<!-- ══════════════════════════════════════════
+     S8 — FAQ
+══════════════════════════════════════════ -->
+<div class="section" id="s8">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch5">❓ FAQ</span></div>
+    <h1 class="hero-title" style="font-size:30px">Questions Students <span class="accent">Always Ask</span></h1>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="tf(this)">Q: Why do I get "1140 – In aggregated query without GROUP BY, expression #1 of SELECT list contains nonaggregated column"?<span class="faq-arr">▾</span></div>
+    <div class="faq-a">
+      This means you have a column in SELECT that is neither in GROUP BY nor inside an aggregate function. SQL doesn't know which row's value to show for that column within the group.<br><br>
+      <div class="faq-code">
+<span class="cmt">-- ❌ ERROR: name is not in GROUP BY and not aggregated</span>
+<span class="kw">SELECT</span> department, name, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">FROM</span> employees <span class="kw">GROUP BY</span> department;
+
+<span class="cmt">-- ✅ FIX 1: Add name to GROUP BY (now grouping by dept+name combo)</span>
+<span class="kw">SELECT</span> department, name, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">FROM</span> employees <span class="kw">GROUP BY</span> department, name;
+
+<span class="cmt">-- ✅ FIX 2: Aggregate name (e.g., pick any one name from the group)</span>
+<span class="kw">SELECT</span> department, <span class="fn">MAX</span>(name) <span class="kw">AS</span> sample_name, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">FROM</span> employees <span class="kw">GROUP BY</span> department;
+
+<span class="cmt">-- ✅ FIX 3: Remove name from SELECT</span>
+<span class="kw">SELECT</span> department, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">FROM</span> employees <span class="kw">GROUP BY</span> department;
+      </div>
+      Note: MySQL has a "permissive" mode (sql_mode without ONLY_FULL_GROUP_BY) where it won't throw an error — but returns an arbitrary row's value, which is almost always wrong. Always fix the query properly.
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="tf(this)">Q: Can I use a SELECT alias in HAVING?<span class="faq-arr">▾</span></div>
+    <div class="faq-a">
+      It depends on the database:<br><br>
+      <strong>MySQL:</strong> Yes — MySQL evaluates aliases from SELECT before HAVING, so this works:<br>
+      <div class="faq-code">
+<span class="kw">SELECT</span> department, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> headcount
+<span class="kw">FROM</span> employees <span class="kw">GROUP BY</span> department
+<span class="kw">HAVING</span> headcount <span class="op">&gt;</span> <span class="num">2</span>;  <span class="cmt">-- works in MySQL</span>
+      </div>
+      <strong>PostgreSQL / standard SQL:</strong> No — HAVING runs before SELECT aliases are resolved. Use the full expression:<br>
+      <div class="faq-code">
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;</span> <span class="num">2</span>;  <span class="cmt">-- always works in all databases</span>
+      </div>
+      Best practice: always use the full expression in HAVING for maximum portability.
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="tf(this)">Q: What's the difference between COUNT(*) and COUNT(1)? Which is faster?<span class="faq-arr">▾</span></div>
+    <div class="faq-a">
+      <code>COUNT(*)</code> and <code>COUNT(1)</code> both count all rows including those with NULLs. They produce <strong>identical results</strong> and modern query optimisers treat them identically — there is no performance difference.<br><br>
+      Historically, people believed COUNT(1) was faster because it didn't need to look at column values. This was a myth. Today's optimisers recognise both forms and execute them the same way. Use COUNT(*) — it's the ANSI standard and clearly communicates "count all rows." COUNT(column_name) is different — it only counts non-NULL values.
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="tf(this)">Q: How do I find duplicates in a table using GROUP BY?<span class="faq-arr">▾</span></div>
+    <div class="faq-a">
+      Classic interview question! GROUP BY + HAVING COUNT > 1 is the standard approach:
+      <div class="faq-code">
+<span class="cmt">-- Find duplicate emails in customers</span>
+<span class="kw">SELECT</span> email, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> occurrences
+<span class="kw">FROM</span>   customers
+<span class="kw">GROUP BY</span> email
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;</span> <span class="num">1</span>
+<span class="kw">ORDER BY</span> occurrences <span class="kw">DESC</span>;
+
+<span class="cmt">-- Find all rows that are duplicates (with full details)</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> customers
+<span class="kw">WHERE</span>  email <span class="kw">IN</span> (
+    <span class="kw">SELECT</span> email <span class="kw">FROM</span> customers
+    <span class="kw">GROUP BY</span> email <span class="kw">HAVING</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;</span> <span class="num">1</span>
+)
+<span class="kw">ORDER BY</span> email;
+      </div>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="tf(this)">Q: Can I GROUP BY and HAVING without a SELECT aggregate? What happens?<span class="faq-arr">▾</span></div>
+    <div class="faq-a">
+      Yes, technically — but it's unusual. HAVING uses the aggregate for filtering even if it's not in SELECT:
+      <div class="faq-code">
+<span class="cmt">-- HAVING without showing the aggregate in SELECT</span>
+<span class="kw">SELECT</span>   department
+<span class="kw">FROM</span>     employees
+<span class="kw">GROUP BY</span> department
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;</span> <span class="num">2</span>;
+<span class="cmt">-- Shows only department name, but filtering was done using COUNT</span>
+<span class="cmt">-- This is valid — SELECT only shows what you need</span>
+      </div>
+      Useful when you want to filter based on an aggregate but don't want to show it in the output.
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="tf(this)">Q: How do I calculate a percentage / ratio within a group?<span class="faq-arr">▾</span></div>
+    <div class="faq-a">
+      Two common patterns:<br><br>
+      <strong>Pattern 1:</strong> Use a subquery or scalar subquery in SELECT:
+      <div class="faq-code">
+<span class="kw">SELECT</span>
+    department,
+    <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> headcount,
+    <span class="fn">ROUND</span>(<span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">*</span> <span class="num">100.0</span> <span class="op">/</span> (<span class="kw">SELECT COUNT</span>(<span class="op">*</span>) <span class="kw">FROM</span> employees), <span class="num">1</span>) <span class="kw">AS</span> pct_of_total
+<span class="kw">FROM</span>   employees
+<span class="kw">GROUP BY</span> department;
+      </div>
+      <strong>Pattern 2:</strong> Window functions (covered in Chapter 13 — SUM OVER PARTITION BY) — more elegant for complex cases.
+    </div>
+  </div>
+
+</div><!-- /s8 -->
+
+
+<!-- ══════════════════════════════════════════
+     S9 — HOMEWORK
+══════════════════════════════════════════ -->
+<div class="section" id="s9">
+  <div class="hero" style="margin-bottom:2rem">
+    <div class="hero-eyebrow"><span class="hero-badge ch5">📝 Homework</span></div>
+    <h1 class="hero-title" style="font-size:30px">Chapter 5 <span class="accent">Practice</span></h1>
+    <p class="hero-sub" style="font-size:14px">10 exercises — from one-liners to full analytics queries. Always write the question in plain English first, then translate to SQL.</p>
+  </div>
+
+  <div class="hw-box">
+    <div class="hw-hdr">🧠 Theory Check</div>
+    <div class="hw-sub">Short, sharp answers — test conceptual understanding.</div>
+    <ul class="hw-list">
+      <li class="hw-item">
+        <div class="hw-n e">Q1</div>
+        <div class="hw-c">
+          <div class="hw-q">A table has 100 rows. 20 rows have NULL in the salary column. What does AVG(salary) return — the average of 100 rows (treating NULL as 0) or 80 rows? What would you write to average all 100 rows treating NULL as 0?</div>
+          <span class="hw-tag easy">conceptual</span>
+        </div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n e">Q2</div>
+        <div class="hw-c">
+          <div class="hw-q">Explain in one sentence why this query fails: <code style="font-family:var(--mono);color:var(--violet)">SELECT department, name, COUNT(*) FROM employees GROUP BY department;</code> — and give two different ways to fix it.</div>
+          <span class="hw-tag easy">conceptual</span>
+        </div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n e">Q3</div>
+        <div class="hw-c">
+          <div class="hw-q">Draw or write out the SQL execution order for this query. Mark at which step WHERE runs and at which step HAVING runs. Then explain why you can't put <code style="font-family:var(--mono);color:var(--violet)">COUNT(*) > 5</code> in a WHERE clause.</div>
+          <div class="hw-hint">Reference the execution order from the Concepts section.</div>
+          <span class="hw-tag easy">conceptual</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="hw-box">
+    <div class="hw-hdr">💻 SQL Practice — sales_db</div>
+    <div class="hw-sub">Use the employees and orders tables from the setup. Write the business question in English FIRST, then write the SQL.</div>
+    <ul class="hw-list">
+      <li class="hw-item">
+        <div class="hw-n e">P1</div>
+        <div class="hw-c">
+          <div class="hw-q">Find the total number of employees, total payroll, and average salary across the entire company (no grouping — a single row answer).</div>
+          <span class="hw-tag easy">easy</span>
+        </div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n e">P2</div>
+        <div class="hw-c">
+          <div class="hw-q">Show the count of orders for each status (Pending, Shipped, Delivered, Cancelled) as separate columns in a SINGLE row — using COUNT(CASE WHEN ...). Also include the total order count and the cancellation rate as a percentage.</div>
+          <div class="hw-hint">Refer to Example 1 — the conditional counting pattern.</div>
+          <span class="hw-tag easy">easy</span>
+        </div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n m">P3</div>
+        <div class="hw-c">
+          <div class="hw-q">Write a query that shows for each city: number of employees, average salary (rounded to 0 decimals), highest salary, and lowest salary. Sort by average salary descending. Exclude cities where the average salary is below ₹55,000.</div>
+          <div class="hw-hint">This needs both GROUP BY and HAVING.</div>
+          <span class="hw-tag med">medium</span>
+        </div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n m">P4</div>
+        <div class="hw-c">
+          <div class="hw-q">Show monthly revenue (SUM of amount) and order count for each month in 2024. Add a column showing the percentage of orders that were Delivered that month. Sort by month ascending.</div>
+          <div class="hw-hint">Use DATE_FORMAT for grouping. Use COUNT(CASE WHEN ...) for delivery rate.</div>
+          <span class="hw-tag med">medium</span>
+        </div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n m">P5</div>
+        <div class="hw-c">
+          <div class="hw-q">Find all departments where: the number of employees is at least 2, AND the average salary is above the company-wide average salary. Show: department name, headcount, and avg salary.</div>
+          <div class="hw-hint">Company-wide average = scalar subquery in HAVING.</div>
+          <span class="hw-tag med">medium</span>
+        </div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n h">P6</div>
+        <div class="hw-c">
+          <div class="hw-q">Build a complete category performance report: for each product category, show — gross revenue, net revenue (after discounts), number of orders, number of delivered orders, delivery rate %, average discount %, and the revenue share % of that category vs total. Sort by gross revenue descending. Filter out any category with fewer than 2 orders.</div>
+          <div class="hw-hint">Revenue share = SUM(amount) / (SELECT SUM(amount) FROM orders) * 100</div>
+          <span class="hw-tag hard">hard</span>
+        </div>
+      </li>
+      <li class="hw-item">
+        <div class="hw-n h">P7</div>
+        <div class="hw-c">
+          <div class="hw-q">Use WITH ROLLUP to produce a payroll summary report that shows: for each department and each city combination — headcount and total salary. Include department subtotals and a grand total row. Use COALESCE to replace NULL labels with meaningful text.</div>
+          <span class="hw-tag hard">hard</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="hw-box">
+    <div class="hw-hdr">🏆 Bonus Challenge — Pivot Table</div>
+    <div class="hw-sub">Advanced — only attempt after finishing all the above.</div>
+    <ul class="hw-list">
+      <li class="hw-item">
+        <div class="hw-n h">C1</div>
+        <div class="hw-c">
+          <div class="hw-q">Write a query that produces a pivot table showing — for each employee (rows) × each order status (columns) — the total revenue for that combination. The output should have columns: emp_name, pending_revenue, shipped_revenue, delivered_revenue, cancelled_revenue, total_revenue.</div>
+          <div class="hw-hint">Use SUM(CASE WHEN status = 'X' THEN amount ELSE 0 END) for each column.</div>
+          <span class="hw-tag hard">hard · pivot</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="next-card" onclick="alert('Open chapter-06-joins.html')">
+    <div>
+      <div class="next-lbl">Up Next</div>
+      <div class="next-title">Chapter 6 — Joins: INNER, LEFT, RIGHT, FULL, SELF →</div>
+    </div>
+    <div class="next-arrow">→</div>
+  </div>
+
+</div><!-- /s9 -->
+
+</main>
+</div><!-- /page -->
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) {
+    document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+function sa(el) {
+  document.querySelectorAll('.sb-item').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+}
+function tf(el) { el.parentElement.classList.toggle('open'); }
+</script>
+</body>
+</html>
