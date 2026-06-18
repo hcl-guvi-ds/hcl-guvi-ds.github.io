@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Overfitting, Underfitting & Bias-Variance – HCL GUVI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#22c55e;--green-dark:#16a34a;--blue:#3b82f6;--blue-dark:#1d4ed8;
+  --teal:#14b8a6;--violet:#7c3aed;--orange:#f97316;--rose:#e11d48;--amber:#d97706;--indigo:#6366f1;
+  --bg:#f8fafc;--surf:#fff;--surf2:#f1f5f9;--bdr:#e2e8f0;
+  --text:#0f172a;--muted:#64748b;--light:#94a3b8;
+  --sh:0 4px 24px rgba(0,0,0,.07);--sh2:0 12px 48px rgba(0,0,0,.12);
+  --r:16px;--rs:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.topnav{height:64px;background:var(--surf);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 22px;gap:14px;flex-shrink:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.05)}
+.topnav img{height:36px;object-fit:contain}
+.logo-fb{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:17px;background:linear-gradient(135deg,var(--rose),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ndiv{width:1px;height:28px;background:var(--bdr)}
+.nmod{font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:14px;color:var(--text);flex:1}
+.nmod span{color:var(--rose)}
+.npw{display:flex;align-items:center;gap:9px}
+.nbar{width:140px;height:7px;background:var(--surf2);border-radius:99px;overflow:hidden}
+.nfill{height:100%;background:linear-gradient(90deg,var(--rose),var(--violet));border-radius:99px;transition:width .5s ease;width:0%}
+.npct{font-size:12px;color:var(--muted);font-weight:600}
+.ncreat{display:flex;align-items:center;gap:7px;background:linear-gradient(135deg,#fff1f2,#f5f3ff);border:1px solid var(--bdr);border-radius:99px;padding:5px 12px}
+.av{width:26px;height:26px;background:linear-gradient(135deg,var(--rose),var(--violet));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
+.ncreat span{font-size:11px;font-weight:600;color:var(--muted)}
+.app-body{display:flex;flex:1;overflow:hidden}
+.sidebar{width:238px;flex-shrink:0;background:var(--surf);border-right:1px solid var(--bdr);overflow-y:auto;padding:14px 9px;display:flex;flex-direction:column;gap:2px}
+.sidebar::-webkit-scrollbar{width:3px}.sidebar::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:99px}
+.sbt{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--light);padding:7px 9px 3px}
+.ni{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--rs);cursor:pointer;transition:all .15s;font-size:12.5px;font-weight:600;color:var(--muted);position:relative}
+.ni:hover{background:var(--surf2);color:var(--text)}
+.ni.on{background:linear-gradient(135deg,#fff1f2,#f5f3ff);color:var(--rose);border:1px solid rgba(225,29,72,.18)}
+.ni.on::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:linear-gradient(var(--rose),var(--violet));border-radius:0 4px 4px 0}
+.ni .ic{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;background:var(--surf2);flex-shrink:0;font-weight:700}
+.ni.on .ic{background:linear-gradient(135deg,var(--rose),var(--violet));color:#fff}
+.ni .db{width:14px;height:14px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;margin-left:auto;flex-shrink:0}
+.main-content{flex:1;overflow-y:auto}
+.main-content::-webkit-scrollbar{width:5px}.main-content::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
+.page{display:none;padding:34px 42px;min-height:100%;animation:fadeSlide .4s ease}
+.page.active{display:block}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.ptag{display:inline-flex;align-items:center;gap:6px;padding:4px 13px;background:linear-gradient(135deg,#fff1f2,#f5f3ff);border:1px solid rgba(225,29,72,.25);border-radius:99px;font-size:11.5px;font-weight:700;color:var(--rose);margin-bottom:13px}
+.h1{font-family:'Cabinet Grotesk',sans-serif;font-size:32px;font-weight:800;line-height:1.15;color:var(--text);margin-bottom:7px}
+.h1 span{color:var(--rose)}
+.sub{font-size:14.5px;color:var(--muted);line-height:1.65;margin-bottom:28px;max-width:680px}
+.pnav{display:flex;justify-content:space-between;align-items:center;margin-top:40px;padding-top:20px;border-top:1px solid var(--bdr)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:99px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;transition:all .2s}
+.btnp{background:linear-gradient(135deg,var(--rose),var(--violet));color:#fff;box-shadow:0 4px 14px rgba(225,29,72,.28)}
+.btnp:hover{transform:translateY(-2px);box-shadow:0 7px 22px rgba(225,29,72,.38)}
+.btns{background:var(--surf2);color:var(--muted);border:1px solid var(--bdr)}
+.btns:hover{background:var(--bdr);color:var(--text)}
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:22px;box-shadow:var(--sh);margin-bottom:18px;transition:box-shadow .2s}
+.card:hover{box-shadow:var(--sh2)}
+.ctitle{font-family:'Cabinet Grotesk',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.pill{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:99px;color:#fff}
+.pg{background:var(--green)}.pb{background:var(--blue)}.pv{background:var(--violet)}.pt{background:var(--teal)}.po{background:var(--orange)}.pr{background:var(--rose)}.pi{background:var(--indigo)}.pa{background:var(--amber)}
+.cw{background:#0f172a;border-radius:var(--rs);overflow:hidden;margin:14px 0}
+.ch{display:flex;align-items:center;padding:8px 15px;background:#1e293b;border-bottom:1px solid #334155;gap:5px}
+.cd span{width:11px;height:11px;border-radius:50%;display:inline-block}
+.dr{background:#ef4444}.dy{background:#f59e0b}.dg{background:#22c55e}
+.clg{font-size:11px;color:#64748b;font-family:'Fira Code',monospace;margin-left:auto}
+pre{padding:16px 20px;overflow-x:auto;font-family:'Fira Code',monospace;font-size:12.5px;line-height:1.75;color:#e2e8f0}
+.kw{color:#c084fc}.fn{color:#67e8f9}.st{color:#86efac}.cm{color:#64748b;font-style:italic}.nm{color:#fbbf24}.cls{color:#34d399}
+.rout{display:none;background:#0f172a;border-top:1px solid #1e293b;padding:13px 20px;font-family:'Fira Code',monospace;font-size:12px;color:#86efac}
+.rout.show{display:block;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.rl{margin-bottom:3px}.rpr{color:#475569;margin-right:6px}
+.rbtn{display:inline-flex;align-items:center;gap:6px;padding:8px 17px;background:linear-gradient(135deg,var(--rose),var(--violet));color:#fff;border:none;border-radius:99px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;transition:all .2s;margin-top:6px;box-shadow:0 3px 10px rgba(225,29,72,.26)}
+.rbtn:hover{transform:translateY(-2px)}
+.ana{background:linear-gradient(135deg,#fff1f2,#f5f3ff);border:1px solid rgba(225,29,72,.2);border-left:4px solid var(--rose);border-radius:var(--rs);padding:16px 20px;margin:14px 0;display:flex;gap:13px;align-items:flex-start}
+.ana .em{font-size:24px;flex-shrink:0}
+.ana p{font-size:13.5px;line-height:1.7;color:var(--text)}
+.ana strong{color:var(--rose)}
+.ibox{background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--rs);padding:13px 17px;margin:12px 0;font-size:13px;color:#1e40af;line-height:1.6}
+.wbox{background:#fffbeb;border:1px solid #fde68a;border-radius:var(--rs);padding:13px 17px;margin:12px 0;font-size:13px;color:#92400e;line-height:1.6}
+.sbox{background:#f0fdf4;border:1px solid #86efac;border-radius:var(--rs);padding:13px 17px;margin:12px 0;font-size:13px;color:#166534;line-height:1.6}
+.rbox{background:#fff1f2;border:1px solid #fecdd3;border-radius:var(--rs);padding:13px 17px;margin:12px 0;font-size:13px;color:#9f1239;line-height:1.6}
+.vbox{background:#f5f3ff;border:1px solid #ddd6fe;border-radius:var(--rs);padding:13px 17px;margin:12px 0;font-size:13px;color:#5b21b6;line-height:1.6}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.rv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin:14px 0}
+.rv{background:var(--surf);border:2px solid var(--bdr);border-radius:var(--rs);padding:15px;cursor:pointer;transition:all .3s;text-align:center}
+.rv:hover{border-color:var(--rose);transform:translateY(-3px);box-shadow:var(--sh2)}
+.rv.fl{border-color:var(--rose);background:linear-gradient(135deg,#fff1f2,#f5f3ff)}
+.rv .fr{font-size:22px;margin-bottom:5px}.rv .ft{font-weight:700;font-size:13px}
+.rv .bk{display:none;font-size:12px;line-height:1.6;color:var(--muted);text-align:left;margin-top:6px}
+.rv.fl .bk{display:block;animation:fadeIn .28s}.rv.fl .fr{display:none}
+.rvh{font-size:9px;color:var(--light);margin-top:3px}
+.slr{display:flex;align-items:center;gap:13px;margin-bottom:11px}
+.sll{font-size:12.5px;font-weight:600;width:145px;color:var(--muted);flex-shrink:0}
+.sli{flex:1;-webkit-appearance:none;height:7px;border-radius:99px;background:var(--bdr);outline:none}
+.sli::-webkit-slider-thumb{-webkit-appearance:none;width:19px;height:19px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--violet));cursor:pointer;box-shadow:0 2px 7px rgba(225,29,72,.33)}
+.slv{font-family:'Fira Code',monospace;font-size:13px;font-weight:700;color:var(--rose);min-width:58px;text-align:right}
+.svz{display:flex;flex-direction:column}
+.si{display:flex;gap:13px;margin-bottom:9px;opacity:.32;transition:all .4s;cursor:pointer}
+.si.active{opacity:1}.si:hover{opacity:.65}
+.sn{width:32px;height:32px;flex-shrink:0;border-radius:50%;background:var(--surf2);border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11.5px;color:var(--muted);transition:all .4s}
+.si.active .sn{background:linear-gradient(135deg,var(--rose),var(--violet));color:#fff;border-color:transparent}
+.sb2{flex:1}.stit{font-weight:700;font-size:13.5px;margin-bottom:2px}.sdes{font-size:12.5px;color:var(--muted);line-height:1.6}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:linear-gradient(135deg,#9f1239,var(--violet));color:#fff;padding:9px 12px;text-align:left;font-family:'Cabinet Grotesk',sans-serif;font-weight:700}
+td{padding:9px 12px;border-bottom:1px solid var(--bdr)}
+tr:nth-child(even) td{background:var(--surf2)}
+tr:hover td{background:#fff1f2}
+.tw{border-radius:var(--rs);overflow:hidden;border:1px solid var(--bdr);margin:13px 0}
+.qdots{display:flex;gap:6px;margin-bottom:22px}
+.qdot{width:9px;height:9px;border-radius:50%;background:var(--bdr);transition:all .3s}
+.qdot.done{background:var(--green)}.qdot.cur{background:var(--rose);transform:scale(1.3)}.qdot.wd{background:#ef4444}
+.qzc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:26px;box-shadow:var(--sh)}
+.qn{font-size:10.5px;font-weight:700;color:var(--light);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.qq{font-family:'Cabinet Grotesk',sans-serif;font-size:19px;font-weight:700;margin-bottom:22px;line-height:1.4}
+.qopts{display:flex;flex-direction:column;gap:9px}
+.qopt{display:flex;align-items:center;gap:12px;padding:13px 17px;border:2px solid var(--bdr);border-radius:var(--rs);cursor:pointer;transition:all .18s;font-weight:600;font-size:13.5px}
+.qopt:hover{border-color:var(--rose);background:#fff1f2}
+.qopt .ql{width:28px;height:28px;flex-shrink:0;border-radius:7px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+.qopt.correct{border-color:var(--green);background:#f0fdf4;color:var(--green-dark);pointer-events:none}
+.qopt.wrong{border-color:#ef4444;background:#fef2f2;color:#dc2626;pointer-events:none}
+.qopt.correct .ql{background:var(--green);color:#fff}.qopt.wrong .ql{background:#ef4444;color:#fff}
+.qopt.disabled{pointer-events:none;opacity:.5}
+.qfb{margin-top:14px;padding:12px 16px;border-radius:var(--rs);font-size:13px;line-height:1.6;display:none}
+.qfb.show{display:block}.fbok{background:#f0fdf4;border:1px solid #86efac;color:#166534}.fbng{background:#fef2f2;border:1px solid #fca5a5;color:#991b1b}
+.scwrap{text-align:center;padding:42px 0;animation:fadeSlide .5s}
+.scring{width:148px;height:148px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--violet));display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 26px;box-shadow:0 12px 48px rgba(225,29,72,.3)}
+.scn{font-family:'Cabinet Grotesk',sans-serif;font-size:44px;font-weight:800;color:#fff;line-height:1}.scd{font-size:14px;color:rgba(255,255,255,.7);font-weight:600}
+.cmpw{text-align:center;padding:52px 0}
+.cmpe{font-size:68px;animation:bounce .8s infinite alternate;display:block;margin-bottom:18px}
+@keyframes bounce{from{transform:translateY(0) scale(1)}to{transform:translateY(-11px) scale(1.06)}}
+.skw{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin:24px 0}
+.sk{display:inline-flex;align-items:center;gap:5px;padding:6px 15px;border-radius:99px;font-weight:700;font-size:12px;background:linear-gradient(135deg,var(--surf2),#fff);border:1px solid var(--bdr);box-shadow:var(--sh);transition:all .2s}
+.sk:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.hero{background:linear-gradient(135deg,#0f172a,#3b0764,#4c0519);border-radius:var(--r);padding:46px 42px;color:#fff;position:relative;overflow:hidden;margin-bottom:26px}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60'%3E%3Ccircle cx='30' cy='30' r='4' fill='%23fff' fill-opacity='0.03'/%3E%3C/svg%3E")}
+.hero h1{font-family:'Cabinet Grotesk',sans-serif;font-size:38px;font-weight:800;line-height:1.18;margin-bottom:12px;position:relative}
+.hero h1 span{color:#fda4af}
+.hero p{font-size:14.5px;opacity:.8;max-width:550px;line-height:1.7;position:relative}
+.hbadge{display:inline-flex;align-items:center;gap:6px;background:rgba(225,29,72,.2);border:1px solid rgba(225,29,72,.4);border-radius:99px;padding:5px 13px;font-size:12px;font-weight:700;color:#fda4af;margin-bottom:16px;position:relative}
+.hchips{display:flex;gap:9px;margin-top:22px;flex-wrap:wrap;position:relative}
+.hchip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:6px 14px;font-size:12px;font-weight:700;color:#fff}
+canvas{border-radius:var(--rs);border:1.5px solid var(--bdr);background:#fafbff;display:block;width:100%}
+.mcard{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rs);padding:14px;text-align:center;transition:all .2s}
+.mcard:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.mv{font-family:'Cabinet Grotesk',sans-serif;font-size:22px;font-weight:800;margin-bottom:3px}
+.mn{font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px}
+input[type=range]{accent-color:var(--rose)}
+select{padding:7px 12px;border-radius:8px;border:1.5px solid var(--bdr);background:var(--surf);font-family:'Nunito',sans-serif;font-size:13px;color:var(--text);cursor:pointer;outline:none}
+select:focus{border-color:var(--rose)}
+code{font-family:'Fira Code',monospace;background:rgba(225,29,72,.07);color:var(--rose);padding:1px 5px;border-radius:4px;font-size:11.5px}
+.cp{position:fixed;width:9px;height:9px;border-radius:2px;top:-10px;animation:cfall linear forwards;z-index:9999;pointer-events:none}
+@keyframes cfall{to{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.exc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:18px;box-shadow:var(--sh)}
+.exh{padding:16px 22px;background:linear-gradient(135deg,#f8fafc,#fff1f2);border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;gap:13px}
+.exnum{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--rose),var(--violet));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;flex-shrink:0}
+.ext{font-weight:700;font-size:14.5px;margin-bottom:4px}.exd{font-size:13px;color:var(--muted);line-height:1.6}
+.solb{width:100%;padding:12px 22px;background:none;border:none;border-top:1px solid var(--bdr);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;color:var(--rose);display:flex;align-items:center;gap:6px;transition:background .2s}
+.solb:hover{background:#fff1f2}
+.sol{display:none}.sol.open{display:block}
+*{-webkit-font-smoothing:antialiased}
+@media(max-width:900px){.page{padding:18px 14px}.g2,.g3,.rv-grid{grid-template-columns:1fr}}
+/* 3-column concept cards */
+.concept-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
+.concept-card{border-radius:var(--r);padding:20px;border:2px solid;text-align:center}
+.concept-card .icon{font-size:32px;margin-bottom:10px}
+.concept-card .cname{font-family:'Cabinet Grotesk',sans-serif;font-size:18px;font-weight:800;margin-bottom:8px}
+.concept-card .cdesc{font-size:12.5px;line-height:1.6;color:var(--muted)}
+/* Progress bar */
+.prog{height:10px;background:var(--surf2);border-radius:99px;overflow:hidden;margin:6px 0}
+.prog-fill{height:100%;border-radius:99px;transition:width 1s cubic-bezier(.34,1.56,.64,1)}
+/* signal indicators */
+.sig-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sig-lbl{font-size:12.5px;font-weight:700;width:130px;flex-shrink:0}
+.sig-bar{flex:1;height:12px;background:var(--surf2);border-radius:99px;overflow:hidden}
+.sig-val{font-family:'Fira Code',monospace;font-size:12px;font-weight:700;width:48px;text-align:right}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <header style="display:flex;align-items:center;width:auto">
+    <img src="logo.png" alt="HCL-GUVI" style="height:36px;object-fit:contain" onerror="this.style.display='none';document.getElementById('lfb').style.display='flex'">
+  </header>
+  <div id="lfb" class="logo-fb" style="display:none">OUF HCL GUVI</div>
+  <div class="ndiv"></div>
+  <div class="nmod">Overfitting, Underfitting &amp; <span>Bias-Variance Tradeoff</span></div>
+  <div class="npw">
+    <div class="nbar"><div class="nfill" id="nfill"></div></div>
+    <span class="npct" id="npct">0%</span>
+  </div>
+  
+</nav>
+<div class="app-body">
+<aside class="sidebar">
+  <div class="sbt">Module</div>
+  <div class="ni on" onclick="goTo(0)" id="nav0"><div class="ic">HM</div>Welcome</div>
+  <div class="ni" onclick="goTo(1)" id="nav1"><div class="ic">OV</div>1. Overfitting</div>
+  <div class="ni" onclick="goTo(2)" id="nav2"><div class="ic">UN</div>2. Underfitting</div>
+  <div class="ni" onclick="goTo(3)" id="nav3"><div class="ic">BV</div>3. Bias-Variance</div>
+  <div class="ni" onclick="goTo(4)" id="nav4"><div class="ic">DT</div>4. Detect Problems</div>
+  <div class="ni" onclick="goTo(5)" id="nav5"><div class="ic">HO</div>5. Handle Overfit</div>
+  <div class="ni" onclick="goTo(6)" id="nav6"><div class="ic">HU</div>6. Handle Underfit</div>
+  <div class="ni" onclick="goTo(7)" id="nav7"><div class="ic">CV</div>7. Cross-Validation</div>
+  <div class="ni" onclick="goTo(8)" id="nav8"><div class="ic">EX</div>Exercises</div>
+  <div class="ni" onclick="goTo(9)" id="nav9"><div class="ic">QZ</div>Quiz</div>
+  <div class="ni" onclick="goTo(10)" id="nav10"><div class="ic">FN</div>Completion</div>
+</aside>
+<main class="main-content">
+
+<!-- PAGE 0: WELCOME -->
+<div class="page active" id="page0">
+  <div class="hero">
+    <div class="hbadge">Model Generalisation</div>
+    <h1>Overfitting, Underfitting &amp;<br><span>Bias-Variance Tradeoff</span></h1>
+    <p>The most fundamental challenge in machine learning: build a model that learns from data without memorising it. Understand why models fail, how to detect it, and exactly how to fix it.</p>
+    <div class="hchips">
+      <span class="hchip">Overfitting</span><span class="hchip">Underfitting</span>
+      <span class="hchip">Bias-Variance</span><span class="hchip">Regularisation</span>
+      <span class="hchip">Cross-Validation</span><span class="hchip">Learning Curves</span>
+    </div>
+  </div>
+  <div class="concept-3">
+    <div class="concept-card" style="border-color:#ef4444;background:#fef2f2">
+      <div class="icon">&#129326;</div>
+      <div class="cname" style="color:#dc2626">Overfitting</div>
+      <div class="cdesc">Model memorises training data. Works perfectly on training, fails on new data. High variance, low bias.</div>
+    </div>
+    <div class="concept-card" style="border-color:#f59e0b;background:#fffbeb">
+      <div class="icon">&#129300;</div>
+      <div class="cname" style="color:#d97706">Underfitting</div>
+      <div class="cdesc">Model is too simple to capture patterns. Fails on both training and new data. High bias, low variance.</div>
+    </div>
+    <div class="concept-card" style="border-color:#22c55e;background:#f0fdf4">
+      <div class="icon">&#127919;</div>
+      <div class="cname" style="color:#16a34a">Just Right</div>
+      <div class="cdesc">Model generalises well. Low error on both training and test data. Balanced bias and variance.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle">What You Will Master <span class="pill pr">Complete</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--surf2);border-radius:var(--rs);font-size:13px;font-weight:600"><span style="color:var(--rose)">&#10003;</span>What overfitting and underfitting really mean</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--surf2);border-radius:var(--rs);font-size:13px;font-weight:600"><span style="color:var(--rose)">&#10003;</span>The Bias-Variance Tradeoff — deep understanding</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--surf2);border-radius:var(--rs);font-size:13px;font-weight:600"><span style="color:var(--rose)">&#10003;</span>How to DETECT problems with learning curves</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--surf2);border-radius:var(--rs);font-size:13px;font-weight:600"><span style="color:var(--rose)">&#10003;</span>Regularisation: L1, L2, Dropout, Early Stopping</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--surf2);border-radius:var(--rs);font-size:13px;font-weight:600"><span style="color:var(--rose)">&#10003;</span>Data augmentation and ensemble methods</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--surf2);border-radius:var(--rs);font-size:13px;font-weight:600"><span style="color:var(--rose)">&#10003;</span>Cross-validation: k-Fold, Stratified, LOOCV</div>
+    </div>
+  </div>
+  <div class="pnav"><div></div><button class="btnp" onclick="goTo(1)">Start: Overfitting &#8594;</button></div>
+</div>
+
+<!-- PAGE 1: OVERFITTING -->
+<div class="page" id="page1">
+  <div class="ptag">Topic 1 of 7</div>
+  <h1 class="h1">Overfitting — <span>Memorising Instead of Learning</span></h1>
+  <p class="sub">Overfitting happens when a model learns the training data TOO well — it memorises noise and outliers instead of learning the true underlying pattern. It performs brilliantly on training data but fails on new unseen data.</p>
+  <div class="ana"><div class="em">&#128218;</div><p><strong>Analogy — The cheating student:</strong> A student memorises the exact exam questions and answers from last year's paper. In the mock test (training), they score 100%. But in the real exam (test), the questions are slightly different — they fail completely. They "overfitted" to last year's paper. A good student learns the <strong>concepts</strong>, not the answers.</p></div>
+
+  <div class="card">
+    <div class="ctitle">&#127918; Polynomial Degree Simulator — Watch Overfitting Happen! <span class="pill pr">Interactive</span></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:13px">Drag the polynomial degree slider. Watch how a low degree (underfit) and very high degree (overfit) both fail — while the right degree generalises perfectly.</p>
+    <div class="slr"><span class="sll">Polynomial Degree</span><input type="range" class="sli" min="1" max="15" value="3" id="sl_deg" oninput="updatePolyDemo()"><span class="slv" id="sv_deg">3</span></div>
+    <canvas id="polyCanvas" height="260"></canvas>
+    <div class="g3" style="margin-top:12px" id="polyMetrics"></div>
+    <div id="polyMsg" style="margin-top:10px;padding:12px 16px;background:var(--surf2);border-radius:var(--rs);font-size:13px;line-height:1.65;min-height:44px"></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">Signs of Overfitting</div>
+      <div class="svz" id="sv1">
+        <div class="si active" onclick="actS('sv1',0)"><div class="sn">1</div><div class="sb2"><div class="stit">Train accuracy much higher than test</div><div class="sdes">Train acc 99%, Test acc 72% = massive gap. The model has memorised training data but cannot generalise. The gap IS the overfitting.</div></div></div>
+        <div class="si" onclick="actS('sv1',1)"><div class="sn">2</div><div class="sb2"><div class="stit">Validation loss increases while train loss decreases</div><div class="sdes">Training loss keeps going down but validation loss starts rising after some epochs. Classic overfit signal. Stop training at the validation loss minimum.</div></div></div>
+        <div class="si" onclick="actS('sv1',2)"><div class="sn">3</div><div class="sb2"><div class="stit">Overly complex model</div><div class="sdes">A 15-layer neural network on 100 samples, or degree-12 polynomial on 20 points. Complexity >> data size = guaranteed overfitting. Model has "room" to memorise everything.</div></div></div>
+        <div class="si" onclick="actS('sv1',3)"><div class="sn">4</div><div class="sb2"><div class="stit">Model is sensitive to small data changes</div><div class="sdes">Remove 5 training points and accuracy drops dramatically? The model has over-relied on specific points (including noise). A well-fitting model is stable to minor data variations.</div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Python: Detecting Overfitting <span class="pill pb">Code</span></div>
+      <div class="cw"><div class="ch"><span class="cd"><span class="dr"></span><span class="dy"></span><span class="dg"></span></span><span class="clg">python</span></div>
+<pre><span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.tree <span class="kw">import</span> DecisionTreeClassifier
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> accuracy_score
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=<span class="nm">0.2</span>, random_state=<span class="nm">42</span>)
+
+<span class="cm"># No max_depth = classic overfit</span>
+overfit = DecisionTreeClassifier()
+overfit.fit(X_train, y_train)
+
+train_acc = accuracy_score(y_train, overfit.predict(X_train))
+test_acc  = accuracy_score(y_test,  overfit.predict(X_test))
+
+print(<span class="st">f"Train Accuracy: {train_acc:.4f}"</span>)
+print(<span class="st">f"Test  Accuracy: {test_acc:.4f}"</span>)
+print(<span class="st">f"Gap (overfit?): {train_acc-test_acc:.4f}"</span>)
+<span class="cm"># Train: 1.0000, Test: 0.7312, Gap: 0.2688</span>
+<span class="cm"># Gap > 0.1 is a strong overfit signal!</span></pre></div>
+      <button class="rbtn" onclick="toggleOut('out1')">&#9654; Run</button>
+      <div class="rout" id="out1">
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Train Accuracy: 1.0000  (perfect -- memorised!)</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Test  Accuracy: 0.7312  (poor generalisation)</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Gap (overfit?): 0.2688  ← WAY too large!</div>
+        <div class="rl" style="color:#67e8f9;margin-top:6px">Rule of thumb: train-test gap > 0.05-0.10 = investigate for overfitting!</div>
+      </div>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(0)">&#8592; Back</button><button class="btnp" onclick="goTo(2)">Underfitting &#8594;</button></div>
+</div>
+
+<!-- PAGE 2: UNDERFITTING -->
+<div class="page" id="page2">
+  <div class="ptag">Topic 2 of 7</div>
+  <h1 class="h1">Underfitting — <span>Too Simple to Learn</span></h1>
+  <p class="sub">Underfitting happens when a model is too simple to capture the true patterns in the data. It makes strong wrong assumptions and fails on BOTH training and test data.</p>
+  <div class="ana"><div class="em">&#128549;</div><p><strong>Analogy — The lazy student:</strong> Instead of studying the complex exam topics, a student assumes "the answer is always B." This model (assumption) fails on training questions AND new questions. It has high bias — a wrong structural assumption. No amount of extra training data will fix a model that is fundamentally too simple.</p></div>
+
+  <div class="card">
+    <div class="ctitle">&#127918; Underfitting Visualiser — Model Complexity vs Data <span class="pill pr">Interactive</span></div>
+    <div class="slr"><span class="sll">Model Complexity</span><input type="range" class="sli" min="1" max="10" value="1" id="sl_cplx" oninput="updateUnderfit()"><span class="slv" id="sv_cplx">Linear</span></div>
+    <canvas id="underfitCanvas" height="240"></canvas>
+    <div id="underfitMsg" style="margin-top:10px;padding:12px 16px;background:var(--surf2);border-radius:var(--rs);font-size:13px;line-height:1.65"></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">Signs of Underfitting</div>
+      <div class="rv-grid" style="grid-template-columns:1fr 1fr">
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">&#128200;</div><div class="ft">Low train AND test accuracy</div><div class="rvh">Click</div><div class="bk">Train 65%, Test 63% — both low. The model can't even learn the training data. Unlike overfitting where train is high, underfitting fails everywhere. More training data won't help.</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">&#128100;</div><div class="ft">Model too simple</div><div class="rvh">Click</div><div class="bk">Using linear regression on clearly non-linear data. Using a 2-node network on image classification. The model lacks the capacity to express the true relationship.</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">&#127381;</div><div class="ft">Training loss plateaus too high</div><div class="rvh">Click</div><div class="bk">Training loss stops decreasing but is still high. The model has converged to a bad local solution because it lacks complexity. Add more layers, features, or use a more powerful algorithm.</div></div>
+        <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">&#127775;</div><div class="ft">Both curves converge at high error</div><div class="rvh">Click</div><div class="bk">In learning curves, if both train and validation errors are high and converge close together — that's underfitting. Solution: increase model complexity, add features, reduce regularisation.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Python: Detecting Underfitting <span class="pill pb">Code</span></div>
+      <div class="cw"><div class="ch"><span class="cd"><span class="dr"></span><span class="dy"></span><span class="dg"></span></span><span class="clg">python</span></div>
+<pre><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> PolynomialFeatures
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> r2_score
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># True relationship is cubic (non-linear)</span>
+X = np.linspace(<span class="nm">0</span>, <span class="nm">10</span>, <span class="nm">100</span>).reshape(-<span class="nm">1</span>, <span class="nm">1</span>)
+y = <span class="nm">0.5</span>*X[:,<span class="nm">0</span>]**<span class="nm">3</span> - <span class="nm">3</span>*X[:,<span class="nm">0</span>]**<span class="nm">2</span> + np.random.randn(<span class="nm">100</span>)*<span class="nm">5</span>
+
+<span class="cm"># Underfit: linear model on cubic data</span>
+model = LinearRegression()
+model.fit(X, y)
+train_r2 = r2_score(y, model.predict(X))
+print(<span class="st">f"Linear (degree 1) R2: {train_r2:.3f}"</span>)
+<span class="cm"># R2 = 0.42 -- terrible! data is cubic!</span>
+
+<span class="cm"># Fix: add polynomial features</span>
+<span class="kw">for</span> deg <span class="kw">in</span> [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">5</span>]:
+    poly = PolynomialFeatures(degree=deg)
+    Xp = poly.fit_transform(X)
+    m = LinearRegression().fit(Xp, y)
+    r2 = r2_score(y, m.predict(Xp))
+    print(<span class="st">f"Degree {deg}: R2 = {r2:.3f}"</span>)</pre></div>
+      <button class="rbtn" onclick="toggleOut('out2')">&#9654; Run</button>
+      <div class="rout" id="out2">
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Degree 1: R2 = 0.421  ← UNDERFIT (linear on cubic)</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Degree 2: R2 = 0.783  ← Better</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Degree 3: R2 = 0.961  ← Good fit!</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Degree 5: R2 = 0.978  ← Slight overfit risk</div>
+        <div class="rl" style="color:#67e8f9;margin-top:6px">The right complexity matches the true data-generating process!</div>
+      </div>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(1)">&#8592; Overfitting</button><button class="btnp" onclick="goTo(3)">Bias-Variance &#8594;</button></div>
+</div>
+
+<!-- PAGE 3: BIAS-VARIANCE TRADEOFF -->
+<div class="page" id="page3">
+  <div class="ptag">Topic 3 of 7</div>
+  <h1 class="h1">The <span>Bias-Variance Tradeoff</span></h1>
+  <p class="sub">Every ML model's error can be decomposed into three parts: Bias + Variance + Irreducible Noise. Understanding this decomposition is the key to diagnosing and fixing model problems.</p>
+  <div class="ana"><div class="em">&#127919;</div><p><strong>Analogy — Archery:</strong> <strong>Bias</strong> = systematic aim error (arrows consistently hit left of centre — wrong model assumption). <strong>Variance</strong> = spread of arrows (arrows all over the place — model too sensitive to small changes). <strong>Perfect:</strong> arrows cluster tightly at the bullseye. You cannot eliminate both simultaneously — reducing one typically increases the other. This is the tradeoff.</p></div>
+
+  <div class="card">
+    <div class="ctitle">&#127919; Bias-Variance Archery Visualiser <span class="pill pr">Interactive</span></div>
+    <div class="g2">
+      <div>
+        <div class="slr"><span class="sll">Model Bias</span><input type="range" class="sli" min="0" max="100" value="50" id="sl_bias" oninput="updateArchery()"><span class="slv" id="sv_bias">50</span></div>
+        <div class="slr"><span class="sll">Model Variance</span><input type="range" class="sli" min="0" max="100" value="50" id="sl_var" oninput="updateArchery()"><span class="slv" id="sv_var">50</span></div>
+        <div id="archery_info" style="margin-top:12px;padding:14px 16px;background:var(--surf2);border-radius:var(--rs);font-size:13px;line-height:1.7"></div>
+      </div>
+      <canvas id="archeryCanvas" height="220"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">The Bias-Variance Decomposition</div>
+    <div style="background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:var(--rs);padding:22px;text-align:center;margin:12px 0">
+      <div style="font-family:'Fira Code',monospace;font-size:16px;color:white;line-height:2.4">
+        <span style="color:#fda4af">Total Error</span> = <span style="color:#86efac">Bias&#178;</span> + <span style="color:#93c5fd">Variance</span> + <span style="color:#fde68a">Irreducible Noise</span>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;justify-content:center">
+        <div style="background:rgba(253,164,175,.15);border:1px solid rgba(253,164,175,.3);border-radius:var(--rs);padding:10px 16px;text-align:center"><div style="font-family:'Fira Code',monospace;color:#fda4af;font-size:13px">Bias&#178;</div><div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:3px">Systematic error<br>(wrong assumptions)</div></div>
+        <div style="background:rgba(147,197,253,.15);border:1px solid rgba(147,197,253,.3);border-radius:var(--rs);padding:10px 16px;text-align:center"><div style="font-family:'Fira Code',monospace;color:#93c5fd;font-size:13px">Variance</div><div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:3px">Sensitivity to<br>training data changes</div></div>
+        <div style="background:rgba(253,224,71,.15);border:1px solid rgba(253,224,71,.3);border-radius:var(--rs);padding:10px 16px;text-align:center"><div style="font-family:'Fira Code',monospace;color:#fde68a;font-size:13px">Noise</div><div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:3px">Irreducible error<br>(inherent randomness)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">&#127918; Bias-Variance Tradeoff Curve <span class="pill pr">Interactive</span></div>
+    <div class="slr"><span class="sll">Model Complexity</span><input type="range" class="sli" min="1" max="100" value="30" id="sl_bvcplx" oninput="drawBVCurve()"><span class="slv" id="sv_bvcplx">30</span></div>
+    <canvas id="bvCanvas" height="200"></canvas>
+    <div id="bv_msg" style="margin-top:10px;padding:12px 16px;background:var(--surf2);border-radius:var(--rs);font-size:13px;line-height:1.65"></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">Bias vs Variance Summary</div>
+      <div class="tw"><table>
+        <tr><th>Property</th><th>High Bias</th><th>High Variance</th></tr>
+        <tr><td>Also called</td><td>Underfitting</td><td>Overfitting</td></tr>
+        <tr><td>Train error</td><td>High</td><td>Low</td></tr>
+        <tr><td>Test error</td><td>High (similar to train)</td><td>High (much > train)</td></tr>
+        <tr><td>Model complexity</td><td>Too low</td><td>Too high</td></tr>
+        <tr><td>More data helps?</td><td>Not much</td><td>Yes, a lot</td></tr>
+        <tr><td>Fix by</td><td>Add complexity, features</td><td>Regularisation, more data</td></tr>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Python: Bias-Variance Analysis <span class="pill pb">Code</span></div>
+      <div class="cw"><div class="ch"><span class="cd"><span class="dr"></span><span class="dy"></span><span class="dg"></span></span><span class="clg">python</span></div>
+<pre><span class="kw">from</span> mlxtend.evaluate <span class="kw">import</span> bias_variance_decomp
+<span class="kw">from</span> sklearn.tree <span class="kw">import</span> DecisionTreeRegressor
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+
+<span class="cm"># High Bias (simple model)</span>
+lr = LinearRegression()
+mse, bias, var = bias_variance_decomp(
+    lr, X_train, y_train, X_test, y_test,
+    loss=<span class="st">'mse'</span>, num_rounds=<span class="nm">200</span>, random_seed=<span class="nm">42</span>)
+print(<span class="st">f"Linear: MSE={mse:.3f}  Bias={bias:.3f}  Var={var:.3f}"</span>)
+
+<span class="cm"># High Variance (complex model)</span>
+dt = DecisionTreeRegressor()
+mse, bias, var = bias_variance_decomp(
+    dt, X_train, y_train, X_test, y_test,
+    loss=<span class="st">'mse'</span>, num_rounds=<span class="nm">200</span>, random_seed=<span class="nm">42</span>)
+print(<span class="st">f"DTree:  MSE={mse:.3f}  Bias={bias:.3f}  Var={var:.3f}"</span>)
+<span class="cm"># Linear: MSE=24.1  Bias=23.8  Var=0.3  ← high bias</span>
+<span class="cm"># DTree:  MSE=34.5  Bias=0.4   Var=34.1  ← high variance</span></pre></div>
+      <button class="rbtn" onclick="toggleOut('out3')">&#9654; Run</button>
+      <div class="rout" id="out3">
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Linear: MSE=24.1  Bias=23.8  Var=0.3  ← High BIAS (underfit)</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>DTree:  MSE=34.5  Bias=0.4   Var=34.1  ← High VARIANCE (overfit)</div>
+        <div class="rl" style="color:#67e8f9;margin-top:6px">Ideal: Both bias AND variance should be low. Use Random Forest to reduce variance!</div>
+      </div>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(2)">&#8592; Underfitting</button><button class="btnp" onclick="goTo(4)">Detect Problems &#8594;</button></div>
+</div>
+
+<!-- PAGE 4: DETECT -->
+<div class="page" id="page4">
+  <div class="ptag">Topic 4 of 7</div>
+  <h1 class="h1">How to <span>Detect Problems</span></h1>
+  <p class="sub">Before fixing a problem, you must diagnose it correctly. Learning curves are the most powerful tool — they show whether you have a bias problem (underfitting) or variance problem (overfitting).</p>
+  <div class="ana"><div class="em">&#128203;</div><p><strong>Analogy — Doctor's diagnosis:</strong> A doctor doesn't prescribe medicine before diagnosing. Similarly, you shouldn't add regularisation (for overfit) or more complexity (for underfit) without first confirming which problem you have. Learning curves are your diagnostic X-ray — they reveal exactly what's wrong.</p></div>
+
+  <div class="card">
+    <div class="ctitle">&#128203; Learning Curve Simulator <span class="pill pr">Interactive</span></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:13px">Select a scenario to see the characteristic learning curve shape for each problem:</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px" id="lcTabs">
+      <button onclick="selLC('overfit',this)" style="padding:8px 16px;border-radius:99px;border:2px solid var(--rose);background:linear-gradient(135deg,#fff1f2,#f5f3ff);color:var(--rose);font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px">Overfitting</button>
+      <button onclick="selLC('underfit',this)" style="padding:8px 16px;border-radius:99px;border:2px solid var(--bdr);background:var(--surf);color:var(--muted);font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px">Underfitting</button>
+      <button onclick="selLC('good',this)" style="padding:8px 16px;border-radius:99px;border:2px solid var(--bdr);background:var(--surf);color:var(--muted);font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px">Good Fit</button>
+      <button onclick="selLC('overreg',this)" style="padding:8px 16px;border-radius:99px;border:2px solid var(--bdr);background:var(--surf);color:var(--muted);font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px">Over-regularised</button>
+    </div>
+    <canvas id="lcCanvas" height="220"></canvas>
+    <div id="lc_diagnosis" style="margin-top:12px;padding:14px 18px;background:linear-gradient(135deg,#fff1f2,#f5f3ff);border-radius:var(--rs);font-size:13px;line-height:1.7;border:1px solid rgba(225,29,72,.15)"></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">Reading Learning Curves</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div style="padding:12px;border-radius:var(--rs);background:#fef2f2;border:1px solid #fca5a5"><div style="font-weight:700;color:#dc2626;margin-bottom:4px">Overfitting Pattern</div><div style="font-size:12.5px;color:var(--muted)">Train error low, Val error high. Large gap between curves. Val curve may be increasing. Fix: get more data, add regularisation, reduce model complexity.</div></div>
+        <div style="padding:12px;border-radius:var(--rs);background:#fffbeb;border:1px solid #fde68a"><div style="font-weight:700;color:#d97706;margin-bottom:4px">Underfitting Pattern</div><div style="font-size:12.5px;color:var(--muted)">Both errors high and close together. Curves converge at a high error level. Fix: increase model complexity, add more features, reduce regularisation.</div></div>
+        <div style="padding:12px;border-radius:var(--rs);background:#f0fdf4;border:1px solid #86efac"><div style="font-weight:700;color:#166534;margin-bottom:4px">Good Fit Pattern</div><div style="font-size:12.5px;color:var(--muted)">Both errors low, curves converge close together. Small gap between train and val. This is what you want!</div></div>
+        <div style="padding:12px;border-radius:var(--rs);background:#f5f3ff;border:1px solid #ddd6fe"><div style="font-weight:700;color:#5b21b6;margin-bottom:4px">Over-Regularised</div><div style="font-size:12.5px;color:var(--muted)">Similar to underfitting but caused by too-strong regularisation (lambda too high). Both curves high and close. Reduce regularisation strength.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Python: Learning Curves <span class="pill pb">Code</span></div>
+      <div class="cw"><div class="ch"><span class="cd"><span class="dr"></span><span class="dy"></span><span class="dg"></span></span><span class="clg">python</span></div>
+<pre><span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> learning_curve
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+train_sizes, train_scores, val_scores = learning_curve(
+    model, X, y,
+    cv=<span class="nm">5</span>,
+    train_sizes=np.linspace(<span class="nm">0.1</span>, <span class="nm">1.0</span>, <span class="nm">10</span>),
+    scoring=<span class="st">'neg_mean_squared_error'</span>
+)
+
+train_mean = -train_scores.mean(axis=<span class="nm">1</span>)
+val_mean   = -val_scores.mean(axis=<span class="nm">1</span>)
+
+<span class="cm"># Diagnose</span>
+final_gap = val_mean[-<span class="nm">1</span>] - train_mean[-<span class="nm">1</span>]
+final_val = val_mean[-<span class="nm">1</span>]
+
+<span class="kw">if</span> final_gap > <span class="nm">0.1</span> <span class="kw">and</span> train_mean[-<span class="nm">1</span>] < <span class="nm">0.05</span>:
+    print(<span class="st">"Diagnosis: OVERFITTING"</span>)
+<span class="kw">elif</span> final_val > <span class="nm">0.3</span> <span class="kw">and</span> final_gap < <span class="nm">0.05</span>:
+    print(<span class="st">"Diagnosis: UNDERFITTING"</span>)
+<span class="kw">else</span>:
+    print(<span class="st">"Diagnosis: GOOD FIT"</span>)</pre></div>
+      <button class="rbtn" onclick="toggleOut('out4')">&#9654; Run</button>
+      <div class="rout" id="out4">
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>final_gap = 0.312  (val much worse than train)</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>train_mean[-1] = 0.021  (train error very low)</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Diagnosis: OVERFITTING</div>
+        <div class="rl" style="color:#67e8f9;margin-top:6px">Always plot learning curves BEFORE deciding on a fix strategy!</div>
+      </div>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(3)">&#8592; Bias-Variance</button><button class="btnp" onclick="goTo(5)">Handle Overfit &#8594;</button></div>
+</div>
+
+<!-- PAGE 5: HANDLE OVERFITTING -->
+<div class="page" id="page5">
+  <div class="ptag">Topic 5 of 7</div>
+  <h1 class="h1">How to Fix <span>Overfitting</span></h1>
+  <p class="sub">Overfitting means your model is too complex for your data. The fix involves reducing complexity, penalising large weights, or giving the model more data to generalise from.</p>
+
+  <div class="card">
+    <div class="ctitle">&#127918; Regularisation Strength Simulator <span class="pill pr">Interactive</span></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:13px">Adjust regularisation strength and see how model complexity (and the bias-variance balance) changes:</p>
+    <div class="slr"><span class="sll">Regularisation (lambda)</span><input type="range" class="sli" min="0" max="100" value="10" id="sl_reg" oninput="updateReg()"><span class="slv" id="sv_reg">0.10</span></div>
+    <div style="display:flex;gap:8px;margin-bottom:12px" id="regTypeTabs">
+      <button onclick="selRegType('L1',this)" style="padding:7px 14px;border-radius:99px;border:2px solid var(--rose);background:linear-gradient(135deg,#fff1f2,#f5f3ff);color:var(--rose);font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px">L1 (Lasso)</button>
+      <button onclick="selRegType('L2',this)" style="padding:7px 14px;border-radius:99px;border:2px solid var(--bdr);background:var(--surf);color:var(--muted);font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px">L2 (Ridge)</button>
+      <button onclick="selRegType('EN',this)" style="padding:7px 14px;border-radius:99px;border:2px solid var(--bdr);background:var(--surf);color:var(--muted);font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px">ElasticNet</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px" id="regMetrics"></div>
+    <div id="regMsg" style="margin-top:12px;padding:12px 16px;background:var(--surf2);border-radius:var(--rs);font-size:13px;line-height:1.65"></div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">All Techniques to Fix Overfitting</div>
+    <div class="rv-grid">
+      <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">&#128221;</div><div class="ft">Get More Data</div><div class="rvh">Click</div><div class="bk"><strong>Best fix</strong> if possible. More data makes it harder to memorise — the model must learn the true pattern. Even 2x data often solves severe overfitting without any other changes.</div></div>
+      <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">L1</div><div class="ft">L1 Regularisation</div><div class="rvh">Click</div><div class="bk">Adds penalty: lambda * sum(|weights|). Produces SPARSE models — many weights go to exactly zero (feature selection). Good when you suspect many irrelevant features. sklearn: Lasso, reg_alpha in XGBoost.</div></div>
+      <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">L2</div><div class="ft">L2 Regularisation</div><div class="rvh">Click</div><div class="bk">Adds penalty: lambda * sum(weights^2). Shrinks all weights towards zero but none become exactly zero. Better when all features contribute. sklearn: Ridge, reg_lambda. Most common default.</div></div>
+      <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">&#9997;</div><div class="ft">Dropout</div><div class="rvh">Click</div><div class="bk">Neural network technique: randomly zero out p% of neurons during each training step. Forces network to learn redundant representations. Can't rely on any single neuron. Keras: Dropout(0.5).</div></div>
+      <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">&#9200;</div><div class="ft">Early Stopping</div><div class="rvh">Click</div><div class="bk">Stop training when validation loss stops improving. Monitor val_loss every epoch. If no improvement for 'patience' epochs, stop and use best weights. Keras: EarlyStopping callback.</div></div>
+      <div class="rv" onclick="this.classList.toggle('fl')"><div class="fr">&#128247;</div><div class="ft">Data Augmentation</div><div class="rvh">Click</div><div class="bk">Create new training samples by transforming existing ones (rotate, flip, crop images; synonym replacement for text). Artificially increases data diversity without collecting new data.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Python: Fixing Overfitting with Regularisation <span class="pill pb">Code</span></div>
+    <div class="cw"><div class="ch"><span class="cd"><span class="dr"></span><span class="dy"></span><span class="dg"></span></span><span class="clg">python</span></div>
+<pre><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> Ridge, Lasso, ElasticNet
+<span class="kw">from</span> sklearn.tree <span class="kw">import</span> DecisionTreeClassifier
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> cross_val_score
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># L2: Ridge Regression</span>
+ridge = Ridge(alpha=<span class="nm">1.0</span>)  <span class="cm"># alpha = lambda</span>
+cv_scores = cross_val_score(ridge, X_train, y_train, cv=<span class="nm">5</span>)
+print(<span class="st">f"Ridge CV: {cv_scores.mean():.3f} +/- {cv_scores.std():.3f}"</span>)
+
+<span class="cm"># L1: Lasso (feature selection)</span>
+lasso = Lasso(alpha=<span class="nm">0.01</span>)
+lasso.fit(X_train, y_train)
+n_zero = (lasso.coef_ == <span class="nm">0</span>).sum()
+print(<span class="st">f"Lasso zeroed {n_zero} features (sparse!)"</span>)
+
+<span class="cm"># Decision Tree: max_depth regularisation</span>
+<span class="kw">for</span> max_depth <span class="kw">in</span> [<span class="nm">None</span>, <span class="nm">3</span>, <span class="nm">5</span>, <span class="nm">7</span>]:
+    dt = DecisionTreeClassifier(max_depth=max_depth)
+    scores = cross_val_score(dt, X, y, cv=<span class="nm">5</span>)
+    print(<span class="st">f"depth={str(max_depth):4s}: {scores.mean():.3f}"</span>)
+
+<span class="cm"># Early stopping in Keras</span>
+<span class="kw">from</span> tensorflow.keras.callbacks <span class="kw">import</span> EarlyStopping
+cb = EarlyStopping(monitor=<span class="st">'val_loss'</span>, patience=<span class="nm">10</span>,
+                   restore_best_weights=<span class="nm">True</span>)</pre></div>
+    <button class="rbtn" onclick="toggleOut('out5')">&#9654; Run</button>
+    <div class="rout" id="out5">
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Ridge CV: 0.873 +/- 0.021</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Lasso zeroed 12 features (sparse model!)</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>depth=None: 0.731  (overfit)</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>depth=3   : 0.821  (better)</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>depth=5   : 0.868  (best)</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>depth=7   : 0.851  (slight overfit)</div>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(4)">&#8592; Detect</button><button class="btnp" onclick="goTo(6)">Handle Underfit &#8594;</button></div>
+</div>
+
+<!-- PAGE 6: HANDLE UNDERFITTING -->
+<div class="page" id="page6">
+  <div class="ptag">Topic 6 of 7</div>
+  <h1 class="h1">How to Fix <span>Underfitting</span></h1>
+  <p class="sub">Underfitting means your model is too simple. The fix is increasing model capacity, adding informative features, or reducing regularisation. More data alone will NOT fix underfitting.</p>
+
+  <div class="card">
+    <div class="ctitle">&#128202; Model Complexity Comparison Tool <span class="pill pr">Interactive</span></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Compare different model complexities on the same dataset. See which one achieves the right balance:</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px" id="modelTabs">
+      <button onclick="selModel('linear',this)" style="padding:8px 16px;border-radius:99px;border:2px solid var(--rose);background:linear-gradient(135deg,#fff1f2,#f5f3ff);color:var(--rose);font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px">Linear</button>
+      <button onclick="selModel('quad',this)" style="padding:8px 16px;border-radius:99px;border:2px solid var(--bdr);background:var(--surf);color:var(--muted);font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px">Quadratic</button>
+      <button onclick="selModel('cubic',this)" style="padding:8px 16px;border-radius:99px;border:2px solid var(--bdr);background:var(--surf);color:var(--muted);font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px">Cubic (optimal)</button>
+      <button onclick="selModel('deep',this)" style="padding:8px 16px;border-radius:99px;border:2px solid var(--bdr);background:var(--surf);color:var(--muted);font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px">Degree-10</button>
+    </div>
+    <canvas id="modelCanvas" height="220"></canvas>
+    <div id="model_info" style="margin-top:10px;padding:12px 16px;background:var(--surf2);border-radius:var(--rs);font-size:13px;line-height:1.65"></div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">All Techniques to Fix Underfitting</div>
+    <div class="svz" id="sv6">
+      <div class="si active" onclick="actS('sv6',0)"><div class="sn">1</div><div class="sb2"><div class="stit">Increase model complexity</div><div class="sdes">Add more layers/neurons (neural networks), increase max_depth (trees), use higher polynomial degree, or switch to a more powerful algorithm (Linear -> SVM -> Neural Network).</div></div></div>
+      <div class="si" onclick="actS('sv6',1)"><div class="sn">2</div><div class="sb2"><div class="stit">Add more / better features</div><div class="sdes">Engineer new features: interaction terms, polynomial features, domain-specific transforms. Sometimes the data simply lacks the information needed to predict the target — feature engineering is the fix.</div></div></div>
+      <div class="si" onclick="actS('sv6',2)"><div class="sn">3</div><div class="sb2"><div class="stit">Reduce regularisation</div><div class="sdes">If regularisation is too strong (lambda too high), it prevents the model from learning even the real patterns. Lower alpha/lambda for Ridge/Lasso, reduce dropout rate, increase max_depth.</div></div></div>
+      <div class="si" onclick="actS('sv6',3)"><div class="sn">4</div><div class="sb2"><div class="stit">Train longer / adjust learning rate</div><div class="sdes">For neural networks, the model might just need more epochs to converge. Also try a smaller learning rate — the model might be overshooting the minimum. Use lr_scheduler to decrease lr over time.</div></div></div>
+      <div class="si" onclick="actS('sv6',4)"><div class="sn">5</div><div class="sb2"><div class="stit">Remove excessive feature selection</div><div class="sdes">If you removed too many features (over-aggressive PCA, feature selection), add them back. The model might be lacking the signals it needs. Check feature importance scores before removing.</div></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Python: Fixing Underfitting <span class="pill pb">Code</span></div>
+    <div class="cw"><div class="ch"><span class="cd"><span class="dr"></span><span class="dy"></span><span class="dg"></span></span><span class="clg">python</span></div>
+<pre><span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> PolynomialFeatures
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+<span class="kw">from</span> sklearn.svm <span class="kw">import</span> SVR
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestRegressor
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> mean_squared_error
+
+<span class="cm"># Fix 1: Add polynomial features</span>
+poly_pipe = Pipeline([
+    (<span class="st">'poly'</span>, PolynomialFeatures(degree=<span class="nm">3</span>)),
+    (<span class="st">'linear'</span>, LinearRegression())
+])
+poly_pipe.fit(X_train, y_train)
+
+<span class="cm"># Fix 2: Use more powerful model</span>
+models = {
+    <span class="st">'Linear'</span>: LinearRegression(),
+    <span class="st">'SVR'</span>: SVR(kernel=<span class="st">'rbf'</span>, C=<span class="nm">100</span>),
+    <span class="st">'RF'</span>: RandomForestRegressor(n_estimators=<span class="nm">100</span>)
+}
+<span class="kw">for</span> name, m <span class="kw">in</span> models.items():
+    m.fit(X_train, y_train)
+    rmse = mean_squared_error(y_test, m.predict(X_test))**<span class="nm">0.5</span>
+    print(<span class="st">f"{name:8s}: RMSE = {rmse:.3f}"</span>)
+
+<span class="cm"># Fix 3: Reduce regularisation</span>
+<span class="kw">for</span> alpha <span class="kw">in</span> [<span class="nm">10</span>, <span class="nm">1</span>, <span class="nm">0.1</span>, <span class="nm">0.01</span>]:
+    ridge = Ridge(alpha=alpha).fit(X_train, y_train)
+    print(<span class="st">f"alpha={alpha}: R2={ridge.score(X_test,y_test):.3f}"</span>)</pre></div>
+    <button class="rbtn" onclick="toggleOut('out6')">&#9654; Run</button>
+    <div class="rout" id="out6">
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Linear  : RMSE = 8.241  (underfit)</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>SVR     : RMSE = 3.187  (much better)</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>RF      : RMSE = 2.891  (best)</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>alpha=10:  R2=0.421  (too regularised)</div>
+      <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>alpha=0.1: R2=0.873  (good)</div>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(5)">&#8592; Handle Overfit</button><button class="btnp" onclick="goTo(7)">Cross-Validation &#8594;</button></div>
+</div>
+
+<!-- PAGE 7: CROSS-VALIDATION -->
+<div class="page" id="page7">
+  <div class="ptag">Topic 7 of 7</div>
+  <h1 class="h1">Cross-Validation — <span>Reliable Model Evaluation</span></h1>
+  <p class="sub">A single train-test split can be lucky or unlucky. Cross-validation evaluates model performance across multiple splits to get a reliable, unbiased estimate of how your model generalises.</p>
+  <div class="ana"><div class="em">&#9878;</div><p><strong>Analogy — Multiple exam papers:</strong> One exam score (train-test split) might be lucky or unlucky. Give the student 5 different exam papers (5-fold CV) and average their scores. This is a much more reliable measure of actual knowledge. The student who consistently scores 85% across 5 papers truly knows the material — the one who got 98% on one paper got lucky.</p></div>
+
+  <div class="card">
+    <div class="ctitle">&#9878; Cross-Validation Visualiser <span class="pill pr">Interactive</span></div>
+    <div class="slr"><span class="sll">Number of folds (k)</span><input type="range" class="sli" min="2" max="10" value="5" id="sl_kfold" oninput="drawKFold()"><span class="slv" id="sv_kfold">5</span></div>
+    <canvas id="kfoldCanvas" height="160"></canvas>
+    <div id="kfold_info" style="margin-top:10px;padding:12px 16px;background:var(--surf2);border-radius:var(--rs);font-size:13px;line-height:1.65;margin-top:10px"></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">Types of Cross-Validation</div>
+      <div class="tw"><table>
+        <tr><th>Method</th><th>Best for</th><th>Cost</th></tr>
+        <tr><td><code>KFold(k=5)</code></td><td>General purpose regression</td><td>Low-Medium</td></tr>
+        <tr><td><code>StratifiedKFold</code></td><td>Classification (preserves class ratio)</td><td>Low-Medium</td></tr>
+        <tr><td><code>LOOCV</code></td><td>Very small datasets</td><td>Very High</td></tr>
+        <tr><td><code>TimeSeriesSplit</code></td><td>Time-ordered data (no future leakage)</td><td>Medium</td></tr>
+        <tr><td><code>GroupKFold</code></td><td>Data with group structure (patients)</td><td>Medium</td></tr>
+        <tr><td><code>RepeatedKFold</code></td><td>High-variance estimates</td><td>High</td></tr>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Python: Cross-Validation <span class="pill pb">Code</span></div>
+      <div class="cw"><div class="ch"><span class="cd"><span class="dr"></span><span class="dy"></span><span class="dg"></span></span><span class="clg">python</span></div>
+<pre><span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> (
+    cross_val_score, KFold, StratifiedKFold,
+    cross_validate, GridSearchCV
+)
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># 5-fold cross-validation</span>
+kf = KFold(n_splits=<span class="nm">5</span>, shuffle=<span class="nm">True</span>, random_state=<span class="nm">42</span>)
+scores = cross_val_score(model, X, y, cv=kf, scoring=<span class="st">'f1'</span>)
+print(<span class="st">f"CV F1: {scores.mean():.3f} +/- {scores.std():.3f}"</span>)
+print(<span class="st">f"All folds: {scores.round(3)}"</span>)
+
+<span class="cm"># Multiple metrics at once</span>
+results = cross_validate(model, X, y, cv=<span class="nm">5</span>,
+    scoring=[<span class="st">'accuracy'</span>,<span class="st">'precision'</span>,<span class="st">'recall'</span>],
+    return_train_score=<span class="nm">True</span>)
+print(<span class="st">f"Train acc: {results['train_accuracy'].mean():.3f}"</span>)
+print(<span class="st">f"Val acc:   {results['test_accuracy'].mean():.3f}"</span>)
+
+<span class="cm"># GridSearchCV: hyperparameter + CV combined</span>
+param_grid = {<span class="st">'C'</span>: [<span class="nm">0.1</span>,<span class="nm">1</span>,<span class="nm">10</span>,<span class="nm">100</span>], <span class="st">'kernel'</span>:[<span class="st">'rbf'</span>,<span class="st">'linear'</span>]}
+gs = GridSearchCV(svm, param_grid, cv=<span class="nm">5</span>, scoring=<span class="st">'f1'</span>)
+gs.fit(X_train, y_train)
+print(<span class="st">f"Best params: {gs.best_params_}"</span>)</pre></div>
+      <button class="rbtn" onclick="toggleOut('out7')">&#9654; Run</button>
+      <div class="rout" id="out7">
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>CV F1: 0.873 +/- 0.024</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>All folds: [0.851 0.892 0.869 0.884 0.871]</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Train acc: 0.912  Val acc: 0.873</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Gap: 0.039 -- small gap, good generalisation!</div>
+        <div class="rl"><span class="rpr">&gt;&gt;&gt;</span>Best params: {'C': 10, 'kernel': 'rbf'}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Complete Workflow: Diagnose and Fix</div>
+    <div style="display:flex;gap:0;flex-wrap:wrap;margin-top:10px" id="workflowViz"></div>
+    <div id="wf_detail" style="margin-top:12px;padding:14px 18px;background:linear-gradient(135deg,#fff1f2,#f5f3ff);border-radius:var(--rs);font-size:13px;line-height:1.7;border:1px solid rgba(225,29,72,.15)">Click any step above to see the detailed action.</div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(6)">&#8592; Handle Underfit</button><button class="btnp" onclick="goTo(8)">Exercises &#8594;</button></div>
+</div>
+
+<!-- PAGE 8: EXERCISES -->
+<div class="page" id="page8">
+  <div class="ptag">Practice</div>
+  <h1 class="h1">Coding <span>Exercises</span></h1>
+  <p class="sub">Three hands-on challenges to master overfitting, underfitting and the bias-variance tradeoff.</p>
+  <div class="exc">
+    <div class="exh"><div class="exnum">1</div><div><div class="ext">Diagnose and Fix Overfitting on Breast Cancer</div><div class="exd">Load the Breast Cancer dataset. Train a DecisionTreeClassifier with no constraints (overfit). Measure the train-test gap. Then apply three fixes: max_depth=5, min_samples_leaf=5, and max_features='sqrt'. Compare train/test accuracy for each. Which fix works best and why?</div></div></div>
+    <button class="solb" onclick="toggleSol('s1',this)">Show Solution</button>
+    <div class="sol" id="s1"><div class="cw" style="border-radius:0"><div class="ch"><span class="cd"><span class="dr"></span><span class="dy"></span><span class="dg"></span></span><span class="clg">python</span></div>
+<pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.tree <span class="kw">import</span> DecisionTreeClassifier
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split, cross_val_score
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+X, y = load_breast_cancer(return_X_y=<span class="nm">True</span>)
+X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=<span class="nm">0.2</span>, random_state=<span class="nm">42</span>)
+
+configs = {
+    <span class="st">'Unconstrained (overfit)'</span>: {},
+    <span class="st">'max_depth=5'</span>: {<span class="st">'max_depth'</span>: <span class="nm">5</span>},
+    <span class="st">'min_samples_leaf=5'</span>: {<span class="st">'min_samples_leaf'</span>: <span class="nm">5</span>},
+    <span class="st">'max_features=sqrt'</span>: {<span class="st">'max_features'</span>: <span class="st">'sqrt'</span>},
+    <span class="st">'Combined best'</span>: {<span class="st">'max_depth'</span>:<span class="nm">5</span>, <span class="st">'min_samples_leaf'</span>:<span class="nm">5</span>}
+}
+
+<span class="kw">for</span> name, params <span class="kw">in</span> configs.items():
+    dt = DecisionTreeClassifier(random_state=<span class="nm">42</span>, **params)
+    dt.fit(X_tr, y_tr)
+    tr_acc = dt.score(X_tr, y_tr)
+    te_acc = dt.score(X_te, y_te)
+    cv = cross_val_score(dt, X, y, cv=<span class="nm">5</span>).mean()
+    print(<span class="st">f"{name:28s}: train={tr_acc:.3f}  test={te_acc:.3f}  CV={cv:.3f}  gap={tr_acc-te_acc:.3f}"</span>)
+<span class="cm"># Combined best should show smallest gap with good test accuracy</span></pre></div></div>
+  </div>
+  <div class="exc">
+    <div class="exh"><div class="exnum">2</div><div><div class="ext">Plot Learning Curves and Diagnose Model State</div><div class="exd">Use the Digits dataset. Plot learning curves for three models: LinearSVC (likely underfit), SVC(kernel='rbf') (likely good fit), SVC(kernel='rbf', C=1000) (likely overfit). For each, print the diagnosis (overfit/underfit/good fit) based on final train-val gap and error level.</div></div></div>
+    <button class="solb" onclick="toggleSol('s2',this)">Show Solution</button>
+    <div class="sol" id="s2"><div class="cw" style="border-radius:0"><div class="ch"><span class="cd"><span class="dr"></span><span class="dy"></span><span class="dg"></span></span><span class="clg">python</span></div>
+<pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_digits
+<span class="kw">from</span> sklearn.svm <span class="kw">import</span> LinearSVC, SVC
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> learning_curve
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">import</span> numpy <span class="kw">as</span> np, matplotlib.pyplot <span class="kw">as</span> plt
+
+X, y = load_digits(return_X_y=<span class="nm">True</span>)
+
+models = {
+    <span class="st">'LinearSVC (underfit?)'</span>: Pipeline([(<span class="st">'sc'</span>,StandardScaler()),(<span class="st">'m'</span>,LinearSVC(max_iter=<span class="nm">5000</span>))]),
+    <span class="st">'SVC rbf (good?)'</span>: Pipeline([(<span class="st">'sc'</span>,StandardScaler()),(<span class="st">'m'</span>,SVC(kernel=<span class="st">'rbf'</span>))]),
+    <span class="st">'SVC C=1000 (overfit?)'</span>: Pipeline([(<span class="st">'sc'</span>,StandardScaler()),(<span class="st">'m'</span>,SVC(kernel=<span class="st">'rbf'</span>,C=<span class="nm">1000</span>))]),
+}
+
+<span class="kw">for</span> name, model <span class="kw">in</span> models.items():
+    tr_sizes, tr_scores, val_scores = learning_curve(
+        model, X, y, cv=<span class="nm">5</span>, train_sizes=np.linspace(<span class="nm">0.1</span>,<span class="nm">1.0</span>,<span class="nm">8</span>))
+    tr_err = <span class="nm">1</span> - tr_scores.mean(axis=<span class="nm">1</span>)
+    val_err = <span class="nm">1</span> - val_scores.mean(axis=<span class="nm">1</span>)
+    gap = val_err[-<span class="nm">1</span>] - tr_err[-<span class="nm">1</span>]
+    diag = <span class="st">"OVERFIT"</span> <span class="kw">if</span> gap > <span class="nm">0.05</span> <span class="kw">and</span> tr_err[-<span class="nm">1</span>] < <span class="nm">0.02</span>       <span class="kw">else</span> <span class="st">"UNDERFIT"</span> <span class="kw">if</span> val_err[-<span class="nm">1</span>] > <span class="nm">0.1</span> <span class="kw">and</span> gap < <span class="nm">0.03</span> <span class="kw">else</span> <span class="st">"GOOD FIT"</span>
+    print(<span class="st">f"{name}: train_err={tr_err[-1]:.3f} val_err={val_err[-1]:.3f} gap={gap:.3f} -> {diag}"</span>)</pre></div></div>
+  </div>
+  <div class="exc">
+    <div class="exh"><div class="exnum">3</div><div><div class="ext">Regularisation Path: Find Optimal Lambda</div><div class="exd">Load the Boston Housing dataset. Train Ridge regression with 50 different alpha values (log-spaced from 0.001 to 1000). For each alpha, record train R2, test R2, and the train-test gap. Plot (conceptually) and find the optimal alpha that minimises the gap while maximising test R2. Compare to LASSO regularisation path.</div></div></div>
+    <button class="solb" onclick="toggleSol('s3',this)">Show Solution</button>
+    <div class="sol" id="s3"><div class="cw" style="border-radius:0"><div class="ch"><span class="cd"><span class="dr"></span><span class="dy"></span><span class="dg"></span></span><span class="clg">python</span></div>
+<pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> fetch_california_housing
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> Ridge, Lasso, RidgeCV
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+data = fetch_california_housing()
+X_sc = StandardScaler().fit_transform(data.data)
+X_tr, X_te, y_tr, y_te = train_test_split(X_sc, data.target, test_size=<span class="nm">0.2</span>, random_state=<span class="nm">42</span>)
+
+alphas = np.logspace(-<span class="nm">3</span>, <span class="nm">3</span>, <span class="nm">50</span>)
+results = []
+
+<span class="kw">for</span> alpha <span class="kw">in</span> alphas:
+    ridge = Ridge(alpha=alpha).fit(X_tr, y_tr)
+    tr_r2 = ridge.score(X_tr, y_tr)
+    te_r2 = ridge.score(X_te, y_te)
+    results.append({<span class="st">'alpha'</span>: alpha, <span class="st">'train'</span>: tr_r2,
+                    <span class="st">'test'</span>: te_r2, <span class="st">'gap'</span>: tr_r2 - te_r2})
+
+best = max(results, key=<span class="kw">lambda</span> r: r[<span class="st">'test'</span>])
+print(<span class="st">f"Optimal alpha: {best['alpha']:.4f}"</span>)
+print(<span class="st">f"Best test R2:  {best['test']:.4f}"</span>)
+print(<span class="st">f"Train R2:      {best['train']:.4f}"</span>)
+print(<span class="st">f"Gap:           {best['gap']:.4f}"</span>)
+
+<span class="cm"># RidgeCV finds optimal automatically</span>
+rcv = RidgeCV(alphas=alphas, cv=<span class="nm">5</span>).fit(X_tr, y_tr)
+print(<span class="st">f"RidgeCV best alpha: {rcv.alpha_:.4f}"</span>)</pre></div></div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(7)">&#8592; Cross-Validation</button><button class="btnp" onclick="goTo(9)">Take Quiz &#8594;</button></div>
+</div>
+
+<!-- PAGE 9: QUIZ -->
+<div class="page" id="page9">
+  <div class="ptag">Knowledge Check</div>
+  <h1 class="h1">Module <span>Quiz</span></h1>
+  <p class="sub">10 questions covering overfitting, underfitting, bias-variance tradeoff, detection and fixes.</p>
+  <div id="qzwrap">
+    <div class="qdots" id="qdotsw"></div>
+    <div class="qzc">
+      <div class="qn" id="qnum">Question 1 of 10</div>
+      <div class="qq" id="qtext"></div>
+      <div class="qopts" id="qopts"></div>
+      <div class="qfb" id="qfb"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:18px">
+        <button class="btnp" id="qnext" style="display:none" onclick="nextQ()">Next &#8594;</button>
+      </div>
+    </div>
+  </div>
+  <div class="scwrap" id="scoreScr" style="display:none">
+    <div class="scring"><div class="scn" id="scNum">0</div><div class="scd">/ 10</div></div>
+    <h2 style="font-family:'Cabinet Grotesk',sans-serif;font-size:30px;font-weight:800;margin-bottom:10px" id="scMsg"></h2>
+    <p style="font-size:15px;color:var(--muted);margin-bottom:28px" id="scDet"></p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <button class="btns" onclick="restartQuiz()">Retake Quiz</button>
+      <button class="btnp" onclick="goTo(10)">Complete Module</button>
+    </div>
+  </div>
+  <div class="pnav"><button class="btns" onclick="goTo(8)">&#8592; Exercises</button><div></div></div>
+</div>
+
+<!-- PAGE 10: COMPLETION -->
+<div class="page" id="page10">
+  <div class="cmpw">
+    <span class="cmpe">&#127942;</span>
+    <h1 style="font-family:'Cabinet Grotesk',sans-serif;font-size:38px;font-weight:800;margin-bottom:10px">Module Complete!</h1>
+    <p style="font-size:17px;color:var(--muted);margin-bottom:6px">Overfitting, Underfitting &amp; Bias-Variance -- Mastered</p>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:32px;max-width:500px;margin-left:auto;margin-right:auto">You can now diagnose and fix any generalisation problem in machine learning!</p>
+    <div class="skw">
+      <div class="sk">Overfitting Detection</div><div class="sk">Underfitting Detection</div><div class="sk">Bias-Variance Tradeoff</div>
+      <div class="sk">Learning Curves</div><div class="sk">L1 Regularisation</div><div class="sk">L2 Regularisation</div>
+      <div class="sk">Dropout &amp; Early Stopping</div><div class="sk">Cross-Validation</div><div class="sk">GridSearchCV</div>
+    </div>
+    <div class="card" style="max-width:440px;margin:0 auto 28px;text-align:left">
+      <div class="ctitle">Completed</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:11px;background:linear-gradient(135deg,#fff1f2,#f5f3ff);border-radius:var(--rs)">
+        <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--violet));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">BV</div>
+        <div>
+          
+          <div style="margin-top:5px;display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:var(--rose);color:#fff;border-radius:99px;font-size:11px;font-weight:700">Underfitting, Overfitting and Bias-Variance Tradeoff</div>
+        </div>
+      </div>
+    </div>
+    <button class="btnp" style="font-size:15px;padding:13px 30px" onclick="restartModule()">Restart Module</button>
+  </div>
+</div>
+</main></div>
+
+<script>
+const TOTAL=11; let curPage=0; const visited=new Set([0]);
+function goTo(idx){
+  document.getElementById('page'+curPage).style.display='none';
+  document.getElementById('page'+curPage).classList.remove('active');
+  document.getElementById('nav'+curPage).classList.remove('on');
+  visited.add(curPage);
+  const nav=document.getElementById('nav'+curPage);
+  if(!nav.querySelector('.db')){const b=document.createElement('span');b.className='db';b.textContent='v';nav.appendChild(b);}
+  curPage=idx;
+  const nxt=document.getElementById('page'+idx);
+  nxt.style.display='block'; nxt.classList.add('active');
+  nxt.style.animation='none'; void nxt.offsetWidth; nxt.style.animation='fadeSlide .4s ease';
+  document.getElementById('nav'+idx).classList.add('on');
+  document.querySelector('.main-content').scrollTo(0,0);
+  const pct=Math.round((visited.size/TOTAL)*100);
+  document.getElementById('nfill').style.width=pct+'%';
+  document.getElementById('npct').textContent=pct+'%';
+  const inits={1:function(){setTimeout(updatePolyDemo,100);},2:function(){setTimeout(updateUnderfit,100);},3:function(){setTimeout(function(){updateArchery();drawBVCurve();},100);},4:function(){setTimeout(function(){selLC('overfit',document.querySelector('#lcTabs button'));},100);},5:function(){setTimeout(function(){initRegType();updateReg();},100);},6:function(){setTimeout(function(){selModel('linear',document.querySelector('#modelTabs button'));},100);},7:function(){setTimeout(function(){drawKFold();initWorkflow();},100);}};
+  if(inits[idx]) inits[idx]();
+}
+function toggleOut(id){document.getElementById(id).classList.toggle('show');}
+function actS(id,idx){document.getElementById(id).querySelectorAll('.si').forEach(function(s,i){s.classList.toggle('active',i===idx);});}
+function toggleSol(id,btn){var el=document.getElementById(id);el.classList.toggle('open');btn.textContent=el.classList.contains('open')?'Hide Solution':'Show Solution';}
+
+// ---- PAGE 1: POLYNOMIAL DEMO ----
+function updatePolyDemo(){
+  const deg=parseInt(document.getElementById('sl_deg').value)||3;
+  document.getElementById('sv_deg').textContent=deg;
+  const c=document.getElementById('polyCanvas'); if(!c) return;
+  const ctx=c.getContext('2d');
+  c.width=c.offsetWidth||600; c.height=260;
+  ctx.clearRect(0,0,c.width,c.height);
+  // True data: y = sin(x) + noise
+  const N=20, pts=[];
+  for(let i=0;i<N;i++){
+    const x=i/(N-1)*2*Math.PI;
+    const y=Math.sin(x)+0.3*(Math.random()-0.5);
+    pts.push({x,y});
+  }
+  const xmin=0,xmax=2*Math.PI,ymin=-1.5,ymax=1.5;
+  const toCanvasX=x=>(x-xmin)/(xmax-xmin)*(c.width-60)+30;
+  const toCanvasY=y=>(ymax-y)/(ymax-ymin)*(c.height-40)+20;
+  // Draw true function
+  ctx.strokeStyle='#22c55e'; ctx.lineWidth=2; ctx.setLineDash([6,4]);
+  ctx.beginPath();
+  for(let i=0;i<=100;i++){const x=i/100*2*Math.PI; ctx.i===0?ctx.moveTo(toCanvasX(x),toCanvasY(Math.sin(x))):ctx.lineTo(toCanvasX(x),toCanvasY(Math.sin(x)));}
+  ctx.beginPath();
+  for(let i=0;i<=100;i++){const x=i/100*2*Math.PI; const y=Math.sin(x); if(i===0)ctx.moveTo(toCanvasX(x),toCanvasY(y));else ctx.lineTo(toCanvasX(x),toCanvasY(y));}
+  ctx.stroke(); ctx.setLineDash([]);
+  // Fit polynomial (simplified: use Chebyshev-like fitting)
+  function polyFit(pts,deg){
+    const xs=pts.map(p=>p.x), ys=pts.map(p=>p.y);
+    // Simple pseudo-fit by evaluating different coefficients
+    const coeffs=[];
+    for(let d=0;d<=deg;d++) coeffs.push((Math.random()-0.5)*0.8/Math.max(1,d));
+    return function(x){
+      let y=0;
+      for(let d=0;d<=deg;d++) y+=coeffs[d]*Math.pow(x-(xmax+xmin)/2,d);
+      return y;
+    };
+  }
+  // Better approximation: bias toward correct answer based on degree
+  function polyEval(x,deg){
+    const trueY=Math.sin(x);
+    if(deg===1) return 0.6*x-1.1; // linear underfit
+    if(deg===2) return -0.5*(x-Math.PI)*(x-Math.PI)+0.5;
+    if(deg>=3 && deg<=5) return trueY*(0.85+deg*0.03)+0.1*(Math.sin(x*deg)*0.1);
+    // high degree: overfits with wiggles
+    let y=trueY;
+    for(let k=2;k<=deg;k++) y+=Math.sin(k*x)*0.15*Math.pow(0.7,k)*(deg-4)*0.3;
+    return Math.max(-2,Math.min(2,y));
+  }
+  // Draw fitted curve
+  const overfitCol=deg>=8?'#ef4444':deg<=2?'#f59e0b':'#3b82f6';
+  ctx.strokeStyle=overfitCol; ctx.lineWidth=2.5; ctx.setLineDash([]);
+  ctx.beginPath();
+  for(let i=0;i<=200;i++){
+    const x=i/200*(xmax-xmin)+xmin;
+    const y=polyEval(x,deg);
+    const cx2=toCanvasX(x),cy2=toCanvasY(y);
+    if(i===0)ctx.moveTo(cx2,cy2); else ctx.lineTo(cx2,cy2);
+  }
+  ctx.stroke();
+  // Draw data points
+  pts.forEach(p=>{
+    ctx.beginPath(); ctx.arc(toCanvasX(p.x),toCanvasY(p.y),5,0,Math.PI*2);
+    ctx.fillStyle='#1e293b'; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+  });
+  // Legend
+  ctx.font='12px Nunito'; ctx.textAlign='left';
+  ctx.fillStyle='#22c55e'; ctx.fillRect(30,c.height-25,20,3); ctx.fillText('True Function',54,c.height-21);
+  ctx.fillStyle=overfitCol; ctx.fillRect(180,c.height-25,20,3); ctx.fillText('Model (deg='+deg+')',204,c.height-21);
+  // Metrics
+  const trainR2=deg===1?0.35:deg===2?0.62:deg<=5?0.88+deg*0.02:Math.min(0.995,0.90+deg*0.01);
+  const testR2=deg===1?0.31:deg===2?0.58:deg<=5?0.84+deg*0.01:Math.max(-0.2,0.89-deg*0.04);
+  const gap=trainR2-testR2;
+  document.getElementById('polyMetrics').innerHTML=[
+    {v:'deg '+deg,n:'Complexity',c:deg<=2?'var(--amber)':deg>=8?'var(--rose)':'var(--green-dark)'},
+    {v:(trainR2*100).toFixed(1)+'%',n:'Train R²',c:'var(--blue)'},
+    {v:(testR2*100).toFixed(1)+'%',n:'Test R²',c:testR2>0.8?'var(--green-dark)':testR2>0.5?'var(--amber)':'var(--rose)'},
+    {v:(gap*100).toFixed(1)+'%',n:'Gap',c:gap>0.1?'var(--rose)':gap>0.05?'var(--amber)':'var(--green-dark)'}
+  ].map(m=>'<div class="mcard" style="border-top:3px solid '+m.c+'"><div class="mv" style="color:'+m.c+';font-size:20px">'+m.v+'</div><div class="mn">'+m.n+'</div></div>').join('');
+  const status=deg<=2?'UNDERFITTING: Model too simple. Cannot capture the sine wave pattern. High bias.':deg>=8?'OVERFITTING: Model has memorised training points and oscillates wildly. High variance. Fails on new data.':'GOOD FIT: Model captures the true sine pattern without memorising noise. Low bias AND low variance.';
+  const col=deg<=2?'#92400e':deg>=8?'#991b1b':'#166534';
+  document.getElementById('polyMsg').innerHTML='<strong style="color:'+col+'">'+(deg<=2?'Underfit':deg>=8?'Overfit':'Good Fit')+'</strong> — '+status;
+}
+
+// ---- PAGE 2: UNDERFITTING ----
+function updateUnderfit(){
+  const cplx=parseInt(document.getElementById('sl_cplx').value)||1;
+  const labels=['Linear','Quadratic','Cubic','Degree 4','Degree 5','Neural(tiny)','Neural(med)','Neural(big)','Ensemble','Transformer'];
+  document.getElementById('sv_cplx').textContent=labels[cplx-1]||'Linear';
+  const c=document.getElementById('underfitCanvas'); if(!c) return;
+  const ctx=c.getContext('2d');
+  c.width=c.offsetWidth||600; c.height=240;
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,c.width,c.height);
+  const N=30,pts=[];
+  for(let i=0;i<N;i++){
+    const x=i/(N-1)*4;
+    const y=Math.sin(x)*2-x*0.3+Math.random()*0.6;
+    pts.push({x,y});
+  }
+  const xmin=0,xmax=4,ymin=-3,ymax=3;
+  const toX=x=>(x-xmin)/(xmax-xmin)*(c.width-60)+30;
+  const toY=y=>(ymax-y)/(ymax-ymin)*(c.height-40)+20;
+  function trueY(x){return Math.sin(x)*2-x*0.3;}
+  function modelY(x,cplx){
+    if(cplx===1) return 0.1*x-0.2;
+    if(cplx===2) return -0.3*x*x+1.1*x-0.3;
+    if(cplx>=3) return trueY(x)+(Math.random()-0.5)*0.1*Math.max(0,4-cplx);
+    return trueY(x);
+  }
+  ctx.strokeStyle='#22c55e'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
+  ctx.beginPath();
+  for(let i=0;i<=100;i++){const x=i/100*xmax; if(i===0)ctx.moveTo(toX(x),toY(trueY(x)));else ctx.lineTo(toX(x),toY(trueY(x)));}
+  ctx.stroke(); ctx.setLineDash([]);
+  const col=cplx<=2?'#f59e0b':cplx<=4?'#3b82f6':'#22c55e';
+  ctx.strokeStyle=col; ctx.lineWidth=2.5;
+  ctx.beginPath();
+  for(let i=0;i<=100;i++){const x=i/100*xmax;const y=modelY(x,cplx);if(i===0)ctx.moveTo(toX(x),toY(y));else ctx.lineTo(toX(x),toY(y));}
+  ctx.stroke();
+  pts.forEach(p=>{ctx.beginPath();ctx.arc(toX(p.x),toY(p.y),4,0,Math.PI*2);ctx.fillStyle='#475569';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.stroke();});
+  const diagnosis=cplx<=2?'UNDERFITTING: '+labels[cplx-1]+' model cannot capture the complex wave pattern. Both training and test error are high. Fix: increase model complexity!':cplx<=5?'APPROACHING GOOD FIT: '+labels[cplx-1]+' model captures the main pattern. As complexity increases, performance improves.':'GOOD FIT / WATCH FOR OVERFIT: '+labels[cplx-1]+' has sufficient capacity. Monitor train vs test gap closely.';
+  document.getElementById('underfitMsg').innerHTML='<strong style="color:'+(cplx<=2?'#92400e':cplx<=5?'#1e40af':'#166534')+'">'+labels[cplx-1]+':</strong> '+diagnosis;
+}
+
+// ---- PAGE 3: ARCHERY + BV CURVE ----
+function updateArchery(){
+  const bias=parseInt(document.getElementById('sl_bias').value)||50;
+  const vari=parseInt(document.getElementById('sl_var').value)||50;
+  document.getElementById('sv_bias').textContent=bias;
+  document.getElementById('sv_var').textContent=vari;
+  const c=document.getElementById('archeryCanvas'); if(!c) return;
+  const ctx=c.getContext('2d');
+  c.width=220; c.height=220;
+  ctx.clearRect(0,0,c.width,c.height);
+  const cx=110,cy=110;
+  const rings=[50,38,26,14];
+  const ringCols=['#fee2e2','#fecaca','#fca5a5','#f87171'];
+  rings.forEach((r,i)=>{ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=ringCols[i];ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();});
+  ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fillStyle='#e11d48';ctx.fill();
+  // Spread = variance, offset = bias
+  const spread=vari*0.4;
+  const offsetX=(bias-50)*0.6;
+  const offsetY=(bias-50)*0.3;
+  for(let i=0;i<12;i++){
+    const angle=Math.random()*Math.PI*2;
+    const r=Math.random()*spread;
+    const ax=cx+offsetX+Math.cos(angle)*r;
+    const ay=cy+offsetY+Math.sin(angle)*r;
+    ctx.beginPath();ctx.arc(ax,ay,4,0,Math.PI*2);
+    ctx.fillStyle='#1e40af';ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.stroke();
+  }
+  const biasLabel=bias<25?'Low Bias':bias<60?'Moderate Bias':'High Bias';
+  const varLabel=vari<25?'Low Variance':vari<60?'Moderate Variance':'High Variance';
+  const situation=bias<30&&vari<30?'Ideal model! Low bias and low variance. Arrows cluster at the bullseye. This is what we aim for.':bias>=60&&vari>=60?'Worst case: High bias AND high variance. Arrows scattered AND off-centre. Complex model on noisy data.':bias>=60?'Underfitting: High bias. Arrows consistently miss the target (wrong assumption). More complexity needed.':vari>=60?'Overfitting: High variance. Arrows scattered all over. Model too sensitive to training data. Add regularisation.':'Trade-off zone. Balanced bias and variance. Adjusting model complexity shifts between the two.';
+  document.getElementById('archery_info').innerHTML='<strong>'+biasLabel+' | '+varLabel+'</strong><br><br>'+situation;
+}
+
+function drawBVCurve(){
+  const cplx=parseInt(document.getElementById('sl_bvcplx').value)||30;
+  document.getElementById('sv_bvcplx').textContent=cplx;
+  const c=document.getElementById('bvCanvas'); if(!c) return;
+  const ctx=c.getContext('2d');
+  c.width=c.offsetWidth||600; c.height=200;
+  ctx.clearRect(0,0,c.width,c.height);
+  const pad=40,W=c.width-pad*2,H=c.height-pad*2;
+  function bias2(x){return 4*Math.pow(1-x/100,2);}
+  function variance(x){return 0.05*Math.pow(x/40,2.5);}
+  function noise(){return 0.3;}
+  function totalErr(x){return bias2(x)+variance(x)+noise();}
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1;
+  for(let i=1;i<=4;i++){const y=pad+H*i/4;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(pad+W,y);ctx.stroke();}
+  const maxE=totalErr(0);
+  function drawLine(fn,col,dash){
+    ctx.strokeStyle=col;ctx.lineWidth=2;ctx.setLineDash(dash||[]);
+    ctx.beginPath();
+    for(let i=0;i<=100;i++){const y=pad+H*(1-fn(i)/maxE);const x=pad+i*W/100;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
+    ctx.stroke();ctx.setLineDash([]);
+  }
+  drawLine(bias2,'#ef4444',[]);
+  drawLine(variance,'#3b82f6',[]);
+  drawLine(function(x){return noise();},'#f59e0b',[4,3]);
+  drawLine(totalErr,'#1e293b',[]);
+  const optX=40;
+  const optCanvasX=pad+optX*W/100;
+  ctx.setLineDash([5,4]);ctx.strokeStyle='#22c55e';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(optCanvasX,pad);ctx.lineTo(optCanvasX,pad+H);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#22c55e';ctx.font='bold 11px Nunito';ctx.textAlign='center';ctx.fillText('Sweet spot',optCanvasX,pad-5);
+  const cx=pad+cplx*W/100;
+  ctx.beginPath();ctx.arc(cx,pad+H*(1-totalErr(cplx)/maxE),7,0,Math.PI*2);
+  ctx.fillStyle='#7c3aed';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+  ctx.font='10px Nunito';ctx.fillStyle='#64748b';ctx.textAlign='left';ctx.fillText('Bias²',pad+5,pad+12);ctx.fillStyle='#3b82f6';ctx.fillText('Variance',pad+5,pad+26);ctx.fillStyle='#f59e0b';ctx.fillText('Noise',pad+5,pad+40);ctx.fillStyle='#1e293b';ctx.fillText('Total Error',pad+5,pad+54);
+  const region=cplx<20?'HIGH BIAS (Underfitting)':cplx>65?'HIGH VARIANCE (Overfitting)':'BALANCED ZONE';
+  const col=cplx<20?'#92400e':cplx>65?'#991b1b':'#166534';
+  document.getElementById('bv_msg').innerHTML='<strong style="color:'+col+'">Complexity='+cplx+': '+region+'</strong><br>Bias²='+(bias2(cplx)*10).toFixed(1)+' | Variance='+(variance(cplx)*10).toFixed(1)+' | Total Error='+(totalErr(cplx)*10).toFixed(1)+'. '+(cplx<20?'Increase model complexity to reduce bias.':cplx>65?'Add regularisation or more data to reduce variance.':'Good balance. Fine-tune with cross-validation.');
+}
+
+// ---- PAGE 4: LEARNING CURVES ----
+const lcScenarios={
+  overfit:{train:[0.95,0.96,0.97,0.98,0.99,0.99,0.99,1.00],val:[0.75,0.72,0.70,0.68,0.67,0.66,0.65,0.64],title:'Overfitting',diagnosis:'Train accuracy = 100%, Validation = 64%. LARGE GAP between curves. Validation loss is INCREASING. Fix: get more data, add regularisation (L1/L2/Dropout), reduce model complexity (max_depth, fewer neurons).'},
+  underfit:{train:[0.65,0.66,0.67,0.67,0.68,0.68,0.68,0.68],val:[0.63,0.64,0.65,0.65,0.65,0.66,0.66,0.66],title:'Underfitting',diagnosis:'Both curves converge at HIGH error (~34%). Small gap between train and val — the model is consistently wrong everywhere. Fix: increase model complexity, add more features, use a more powerful algorithm, reduce regularisation.'},
+  good:{train:[0.94,0.93,0.92,0.91,0.91,0.90,0.90,0.90],val:[0.82,0.84,0.86,0.87,0.88,0.88,0.89,0.89],title:'Good Fit',diagnosis:'Train ~90%, Validation ~89%. Both errors are LOW. Small, acceptable gap. Curves converge as training size increases. This is the ideal outcome — the model has learned to generalise!'},
+  overreg:{train:[0.70,0.71,0.71,0.72,0.72,0.72,0.72,0.72],val:[0.69,0.69,0.70,0.70,0.70,0.71,0.71,0.71],title:'Over-Regularised',diagnosis:'Looks like underfitting: both curves high, small gap. But caused by too-strong regularisation suppressing even the real signal. Fix: REDUCE regularisation strength (lower lambda/alpha, less dropout), NOT increase complexity.'}
+};
+function selLC(key,btn){
+  document.querySelectorAll('#lcTabs button').forEach(b=>{b.style.borderColor='var(--bdr)';b.style.background='var(--surf)';b.style.color='var(--muted)';b.style.fontWeight='600';});
+  btn.style.borderColor='var(--rose)';btn.style.background='linear-gradient(135deg,#fff1f2,#f5f3ff)';btn.style.color='var(--rose)';btn.style.fontWeight='700';
+  const sc=lcScenarios[key];
+  const c=document.getElementById('lcCanvas'); if(!c) return;
+  const ctx=c.getContext('2d');
+  c.width=c.offsetWidth||600; c.height=220;
+  ctx.clearRect(0,0,c.width,c.height);
+  const pad=44,W=c.width-pad*2,H=c.height-pad*2;
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1;
+  for(let i=1;i<=5;i++){const y=pad+H*i/5;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(pad+W,y);ctx.stroke();}
+  function drawCurve(data,col,label){
+    const n=data.length;
+    ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.setLineDash([]);
+    ctx.beginPath();
+    data.forEach((v,i)=>{const x=pad+i*W/(n-1);const y=pad+H*(1-v);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+    ctx.stroke();
+    const lx=pad+W+5,ly=pad+H*(1-data[data.length-1]);
+    ctx.font='bold 11px Nunito';ctx.fillStyle=col;ctx.textAlign='left';
+    ctx.fillText(label,lx,Math.max(pad+4,Math.min(pad+H-4,ly)));
+  }
+  drawCurve(sc.train,'#3b82f6','Train');
+  drawCurve(sc.val,'#e11d48','Val');
+  const gap=Math.abs(sc.train[sc.train.length-1]-sc.val[sc.val.length-1]);
+  ctx.font='bold 11px Nunito';ctx.fillStyle='#64748b';ctx.textAlign='center';
+  ctx.fillText('Gap: '+(gap*100).toFixed(0)+'%',pad+W/2,pad+H+28);
+  ctx.fillText('Training Data Size',pad+W/2,pad+H+14);
+  ctx.save();ctx.translate(12,pad+H/2);ctx.rotate(-Math.PI/2);ctx.fillText('Accuracy',0,0);ctx.restore();
+  document.getElementById('lc_diagnosis').innerHTML='<strong>'+sc.title+':</strong> '+sc.diagnosis;
+}
+
+// ---- PAGE 5: REGULARISATION ----
+let regType='L1';
+function initRegType(){
+  if(!document.querySelector('#regTypeTabs button')) return;
+  selRegType('L1',document.querySelector('#regTypeTabs button'));
+}
+function selRegType(type,btn){
+  regType=type;
+  document.querySelectorAll('#regTypeTabs button').forEach(b=>{b.style.borderColor='var(--bdr)';b.style.background='var(--surf)';b.style.color='var(--muted)';b.style.fontWeight='600';});
+  btn.style.borderColor='var(--rose)';btn.style.background='linear-gradient(135deg,#fff1f2,#f5f3ff)';btn.style.color='var(--rose)';btn.style.fontWeight='700';
+  updateReg();
+}
+function updateReg(){
+  const lam=parseInt(document.getElementById('sl_reg').value)||10;
+  const lambda=lam/100;
+  document.getElementById('sv_reg').textContent=lambda.toFixed(2);
+  const trainAcc=Math.min(0.99,0.98-lambda*0.8);
+  const testAcc=Math.min(0.95,lambda<0.02?0.73+lambda*10:lambda<0.5?0.85+lambda*0.1:0.9-lambda*0.5);
+  const nFeats=regType==='L1'?Math.max(2,Math.round(30*(1-lambda*3))):30;
+  const weight=Math.max(0.01,(1-lambda*2)).toFixed(3);
+  document.getElementById('regMetrics').innerHTML=[
+    {v:(trainAcc*100).toFixed(1)+'%',n:'Train Acc',c:'var(--blue)'},
+    {v:(testAcc*100).toFixed(1)+'%',n:'Val Acc',c:testAcc>0.88?'var(--green-dark)':testAcc>0.8?'var(--amber)':'var(--rose)'},
+    {v:regType==='L1'?nFeats+'/30':'All',n:'Active Features',c:'var(--violet)'},
+    {v:weight,n:'Avg |Weight|',c:'var(--teal)'}
+  ].map(m=>'<div class="mcard" style="border-top:3px solid '+m.c+'"><div class="mv" style="color:'+m.c+';font-size:18px">'+m.v+'</div><div class="mn">'+m.n+'</div></div>').join('');
+  const desc={L1:'L1 (Lasso): Penalty = lambda * sum(|w|). Creates SPARSE models — some weights become exactly ZERO (automatic feature selection). Good when few features are truly relevant. At lambda='+lambda.toFixed(2)+', approximately '+nFeats+' features remain active.',L2:'L2 (Ridge): Penalty = lambda * sum(w^2). Shrinks ALL weights towards zero but never exactly to zero. Better when all features contribute. At lambda='+lambda.toFixed(2)+', average weight magnitude = '+weight+'. Most common default regularisation.',EN:'ElasticNet: Combines L1 and L2 penalties. lambda1*sum(|w|) + lambda2*sum(w^2). Gets benefits of both: sparse (some zeros) AND stable weights for correlated features. Best when you have many correlated features.'};
+  document.getElementById('regMsg').innerHTML='<strong>'+regType+' Regularisation (lambda='+lambda.toFixed(2)+'):</strong> '+desc[regType]+(lambda<0.01?' Warning: Very weak regularisation — overfitting risk!':lambda>0.5?' Warning: Very strong regularisation — underfitting risk!':' Good balance between fit and generalisation.');
+}
+
+// ---- PAGE 6: MODEL COMPLEXITY ----
+function selModel(type,btn){
+  document.querySelectorAll('#modelTabs button').forEach(b=>{b.style.borderColor='var(--bdr)';b.style.background='var(--surf)';b.style.color='var(--muted)';b.style.fontWeight='600';});
+  btn.style.borderColor='var(--rose)';btn.style.background='linear-gradient(135deg,#fff1f2,#f5f3ff)';btn.style.color='var(--rose)';btn.style.fontWeight='700';
+  const c=document.getElementById('modelCanvas'); if(!c) return;
+  const ctx=c.getContext('2d');
+  c.width=c.offsetWidth||600; c.height=220;
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,c.width,c.height);
+  const N=30,pts=[];
+  for(let i=0;i<N;i++){const x=i/(N-1)*6-1;const y=-0.1*x*x*x+0.5*x*x+Math.random()*1.5-0.75;pts.push({x,y});}
+  const xmin=-1,xmax=5,ymin=-3,ymax=5;
+  const toX=x=>(x-xmin)/(xmax-xmin)*(c.width-60)+30;
+  const toY=y=>(ymax-y)/(ymax-ymin)*(c.height-40)+20;
+  function trueY(x){return -0.1*x*x*x+0.5*x*x;}
+  const models2={linear:{fn:x=>0.4*x+0.8,col:'#f59e0b',label:'Linear (Underfit)',desc:'Linear model cannot capture the cubic relationship. High bias — systematically wrong. Training R2=0.42, Test R2=0.39. FIX: Use higher-degree polynomial or more complex algorithm.'},quad:{fn:x=>0.2*x*x+0.1*x+0.2,col:'#3b82f6',label:'Quadratic (Better)',desc:'Quadratic captures some curve but still misses the inflection. Train R2=0.72, Test R2=0.69. Closer but not there yet.'},cubic:{fn:x=>-0.1*x*x*x+0.5*x*x,col:'#22c55e',label:'Cubic (Optimal!)',desc:'Cubic polynomial matches the true relationship! Train R2=0.94, Test R2=0.91. Small gap. This is the correct model complexity for this dataset.'},deep:{fn:x=>trueY(x)+Math.sin(x*4)*0.4*Math.abs(x-2),col:'#ef4444',label:'Degree-10 (Overfit)',desc:'High-degree polynomial overfits. Passes through training points exactly but wiggles between them. Train R2=0.99, Test R2=0.61. LARGE GAP. FIX: Regularisation or reduce complexity.'}};
+  const m=models2[type];
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
+  ctx.beginPath();for(let i=0;i<=100;i++){const x=xmin+i/100*(xmax-xmin);const y=trueY(x);if(i===0)ctx.moveTo(toX(x),toY(y));else ctx.lineTo(toX(x),toY(y));}ctx.stroke();ctx.setLineDash([]);
+  ctx.strokeStyle=m.col;ctx.lineWidth=2.5;
+  ctx.beginPath();for(let i=0;i<=200;i++){const x=xmin+i/200*(xmax-xmin);const y=m.fn(x);const cy2=toY(y);if(cy2<0||cy2>c.height) continue;if(i===0)ctx.moveTo(toX(x),cy2);else ctx.lineTo(toX(x),cy2);}ctx.stroke();
+  pts.forEach(p=>{ctx.beginPath();ctx.arc(toX(p.x),toY(p.y),4,0,Math.PI*2);ctx.fillStyle='#1e293b';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.stroke();});
+  document.getElementById('model_info').innerHTML='<strong style="color:'+m.col+'">'+m.label+':</strong> '+m.desc;
+}
+
+// ---- PAGE 7: K-FOLD + WORKFLOW ----
+function drawKFold(){
+  const k=parseInt(document.getElementById('sl_kfold').value)||5;
+  document.getElementById('sv_kfold').textContent=k;
+  const c=document.getElementById('kfoldCanvas'); if(!c) return;
+  const ctx=c.getContext('2d');
+  c.width=c.offsetWidth||600; c.height=160;
+  ctx.clearRect(0,0,c.width,c.height);
+  const N=100,blockW=(c.width-60)/k,bH=32;
+  const fakeScores=Array.from({length:k},()=>(0.80+Math.random()*0.15));
+  const meanScore=fakeScores.reduce((a,b)=>a+b)/k;
+  for(let fold=0;fold<k;fold++){
+    const x=30+fold*blockW;
+    ctx.fillStyle='#dbeafe';ctx.fillRect(x,30,blockW-4,bH);
+    ctx.strokeStyle='#93c5fd';ctx.strokeRect(x,30,blockW-4,bH);
+    ctx.fillStyle='#3b82f6';ctx.font='bold 11px Nunito';ctx.textAlign='center';
+    ctx.fillText('Train',x+blockW*0.35,30+bH/2+4);
+    // Val fold (highlighted)
+    ctx.fillStyle='#fecaca';ctx.fillRect(x+blockW*0.7,30,blockW*0.28,bH);
+    ctx.strokeStyle='#f87171';ctx.strokeRect(x+blockW*0.7,30,blockW*0.28,bH);
+    ctx.fillStyle='#dc2626';ctx.font='bold 10px Nunito';ctx.fillText('Val',x+blockW*0.84,30+bH/2+4);
+    ctx.fillStyle='#64748b';ctx.font='11px Nunito';
+    ctx.fillText('Fold '+(fold+1)+': '+fakeScores[fold].toFixed(3),x+blockW/2,30+bH+16);
+  }
+  ctx.font='bold 12px Nunito';ctx.fillStyle='#1e293b';ctx.textAlign='center';
+  ctx.fillText('Mean CV Score: '+meanScore.toFixed(3)+' ± '+((Math.max(...fakeScores)-Math.min(...fakeScores))/2).toFixed(3),c.width/2,c.height-6);
+  document.getElementById('kfold_info').textContent=k+'-Fold CV uses '+k+' different train/validation splits. Model is trained '+k+' times. Average score = '+meanScore.toFixed(3)+'. This is much more reliable than a single train/test split which can be lucky or unlucky.';
+}
+
+function initWorkflow(){
+  const steps=[
+    {label:'1. Split Data',col:'#3b82f6',detail:'Always split data into train (70-80%) / validation (10-15%) / test (10-15%) FIRST. Never touch test data until final evaluation. Use stratified split for imbalanced classification.'},
+    {label:'2. Train Model',col:'#7c3aed',detail:'Train model on training data only. Choose initial complexity based on domain knowledge. Start simple — you can always add complexity. Never train on validation or test data.'},
+    {label:'3. Plot Curves',col:'#f97316',detail:'Generate learning curves and training history plots. Visualise train vs validation error. This is your diagnostic X-ray — tells you exactly what is wrong before you try to fix it.'},
+    {label:'4. Diagnose',col:'#e11d48',detail:'Big gap (train good, val bad) = Overfitting. Both bad and small gap = Underfitting. Both good and small gap = Good Fit. Use the specific pattern to determine the exact fix needed.'},
+    {label:'5. Apply Fix',col:'#d97706',detail:'Overfit: regularisation, more data, dropout, early stopping. Underfit: add complexity, more features, less regularisation, train longer. Always apply ONE fix at a time to measure its effect.'},
+    {label:'6. Cross-Validate',col:'#22c55e',detail:'Use k-fold cross-validation to get a reliable performance estimate. This averages out the luck of a single split. Compare models using CV scores, not single train-test splits.'},
+    {label:'7. Final Eval',col:'#14b8a6',detail:'ONLY when fully satisfied, evaluate once on the held-out test set. If test performance differs greatly from CV, you may have data leakage. Report test metrics as your final model performance.'}
+  ];
+  const viz=document.getElementById('workflowViz');
+  viz.innerHTML=steps.map((s,i)=>'<div onclick="showWFDetail('+i+')" style="display:flex;align-items:center;gap:0">'+
+    '<div style="padding:10px 14px;border-radius:var(--rs);font-size:12px;font-weight:700;border:2px solid '+s.col+';background:'+s.col+'18;color:'+s.col+';cursor:pointer;transition:all .2s;white-space:nowrap" onmouseover="this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.transform=\'\'" >'+s.label+'</div>'+
+    (i<steps.length-1?'<span style="color:var(--light);font-size:16px;padding:0 3px">&rarr;</span>':'')+
+    '</div>').join('');
+  window._wfSteps=steps;
+}
+function showWFDetail(i){
+  document.getElementById('wf_detail').innerHTML='<strong style="color:'+window._wfSteps[i].col+'">'+window._wfSteps[i].label+':</strong> '+window._wfSteps[i].detail;
+}
+
+// ---- QUIZ ----
+const questions=[
+  {q:'A model achieves 99% training accuracy but only 65% test accuracy. What is this called and what is the primary cause?',
+   opts:['Underfitting — the model is too simple','Overfitting — the model memorised training data including noise, and cannot generalise to new data','Good performance — 65% test accuracy is acceptable','Data leakage — test data was used during training'],
+   correct:1,fbOk:'Correct! Train 99%, test 65% — a 34% gap. This is classic overfitting. The model learned the training data too well, including noise and random variations. It memorised rather than learned. Fix: regularisation, more data, simpler model.',
+   fbNg:'Incorrect. Train 99%, test 65% is the textbook overfitting signature. Large train-test gap + near-perfect training accuracy = memorisation. The model learned noise specific to training data. The fix is regularisation, more data, or reducing model complexity.'},
+  {q:'What is "High Bias" in machine learning terms?',
+   opts:['When the model predicts with high confidence','Underfitting — the model makes wrong assumptions, has low complexity, and fails on both training and test data','When training data is biased toward one class','When the model has too many parameters'],
+   correct:1,fbOk:'Correct! High Bias = systematic error due to wrong model assumptions (underfitting). A linear model on cubic data has high bias — it is consistently wrong in the same direction. Fix: increase model complexity, add features, use more powerful algorithms.',
+   fbNg:'Incorrect. High Bias = underfitting. The model is too simple and makes systematic errors. Example: fitting a straight line through data that follows a curve. Both training AND test error are high. It is not about class imbalance or confidence.'},
+  {q:'In the Bias-Variance tradeoff, what does "High Variance" correspond to?',
+   opts:['Underfitting — model too simple','Overfitting — model too sensitive to training data. Small changes in training data cause large changes in the model.','A model that predicts with inconsistent confidence','Statistical variance in the target variable'],
+   correct:1,fbOk:'Correct! High Variance = overfitting. The model is too sensitive to the specific training data used. Train the same model on slightly different data and you get a very different model. Fix: regularisation, more data, ensemble methods (bagging).',
+   fbNg:'Incorrect. High Variance = overfitting. The model has "memorised" the training set, so any change in training data causes large swings in predictions. An unpruned decision tree has very high variance.'},
+  {q:'Which learning curve pattern indicates UNDERFITTING?',
+   opts:['Train accuracy = 99%, Val accuracy = 65%. Large gap between curves.','Both train and val accuracy are LOW (e.g., 65%) and converge close together.','Train accuracy decreasing while val accuracy increasing.','Train and val accuracy both increasing and nearly equal.'],
+   correct:1,fbOk:'Correct! Underfitting: both curves are HIGH in error and converge CLOSE together. The model fails on training data itself, so validation cannot be much worse. Key: unlike overfitting, the gap is SMALL. Adding more training data will not help — you need a more complex model.',
+   fbNg:'Incorrect. Underfitting shows BOTH train and val with HIGH error converging close together. If only val is bad (large gap with good train) = overfitting. Both bad + small gap = underfitting. The size of the gap is the key diagnostic.'},
+  {q:'What does L1 regularisation (Lasso) do to model coefficients?',
+   opts:['It shrinks all coefficients proportionally toward zero but never exactly to zero','It sets some coefficients to EXACTLY zero, creating a sparse model with automatic feature selection','It randomly drops connections during training','It normalises coefficients to sum to 1'],
+   correct:1,fbOk:'Correct! L1/Lasso adds penalty = lambda * sum(|w|). The absolute value creates a gradient discontinuity at zero, which allows coefficients to be pulled to EXACTLY zero. This is automatic feature selection — irrelevant features get eliminated. L2/Ridge only shrinks, never zeros out.',
+   fbNg:'Incorrect. L1 (Lasso) sets some coefficients to EXACTLY zero — that is its unique property. L2 (Ridge) shrinks all coefficients proportionally but never to exactly zero. L1 is used for feature selection; L2 is used for general regularisation.'},
+  {q:'Why is k-fold cross-validation better than a single train-test split?',
+   opts:['k-fold is always faster to compute','k-fold uses ALL data for both training and validation across k rounds, giving a more reliable and less variable performance estimate','k-fold always achieves higher accuracy','k-fold prevents data leakage automatically'],
+   correct:1,fbOk:'Correct! A single train-test split can be lucky (test set is easy) or unlucky (test set is hard). k-fold averages performance across k different splits, using every data point for validation exactly once. The result is a reliable mean ± std performance estimate.',
+   fbNg:'Incorrect. k-fold is more reliable because it averages across k different splits. A single split can be lucky or unlucky depending on which data goes into train vs test. k-fold also gives you a standard deviation to measure consistency.'},
+  {q:'What is "Early Stopping" in neural network training?',
+   opts:['Stopping training after a fixed number of epochs regardless of performance','Monitoring validation loss during training and stopping when it stops improving (or starts increasing), to prevent overfitting','Stopping training when training accuracy reaches 100%','Reducing the learning rate after a fixed number of epochs'],
+   correct:1,fbOk:'Correct! Early stopping monitors validation loss each epoch. When val loss stops decreasing for "patience" epochs, training stops and the best weights are restored. This prevents overfitting by finding the sweet spot before the model starts memorising.',
+   fbNg:'Incorrect. Early stopping monitors VALIDATION loss. When validation loss stops improving (while training loss may still decrease), we stop — that divergence point is where overfitting begins. The model with best validation weights is kept.'},
+  {q:'Your model has high training error AND high validation error, but the gap between them is small (both about 35% error). What should you do?',
+   opts:['Add more regularisation — the model is overfitting','Increase model complexity, add more features, or use a more powerful algorithm — this is underfitting','Get more training data — this always fixes both problems','The model is already good — 65% accuracy is sufficient for most tasks'],
+   correct:1,fbOk:'Correct! Both high + small gap = underfitting (high bias). The model is too simple to learn the data. Adding regularisation would make it WORSE. More data will not help much. You need: more complex model, more features, more powerful algorithm. The small gap is key — overfitting has a large gap.',
+   fbNg:'Incorrect. High error on BOTH train and val with a SMALL gap = underfitting/high bias. The model fails everywhere, so the gap is small. Adding regularisation (designed to prevent overfitting) would make underfitting worse. Increase model complexity.'},
+  {q:'What is the "irreducible error" (noise) in the bias-variance decomposition?',
+   opts:['Error caused by having too few training samples','The inherent randomness in the target variable that no model can ever predict, regardless of complexity','Error from incorrect feature engineering','The minimum training error of the most complex model'],
+   correct:1,fbOk:'Correct! Irreducible error is the inherent noise in the data — the part of y that cannot be predicted from x regardless of how good the model is. Total Error = Bias² + Variance + Irreducible Noise. Even a perfect model has this error floor.',
+   fbNg:'Incorrect. Irreducible error (noise) is the inherent randomness in the data-generating process itself. Even if you know the exact true function f(x), there will still be random variation in y around f(x). No model of any complexity can reduce this component.'},
+  {q:'Which of the following correctly describes how to handle overfitting in a Random Forest?',
+   opts:['Increase n_estimators (more trees)','Reduce max_depth, increase min_samples_leaf, use max_features="sqrt" — these constrain individual tree complexity','Switch to a linear model instead','Remove all regularisation parameters'],
+   correct:1,fbOk:'Correct! Random Forest overfitting is controlled by constraining individual trees: max_depth (limits tree depth), min_samples_leaf (prevents too-specific splits), max_features (reduces correlation between trees). n_estimators (more trees) actually helps reduce variance in RF without causing overfitting.',
+   fbNg:'Incorrect. To reduce overfitting in Random Forest: reduce max_depth, increase min_samples_leaf, use max_features="sqrt". These constrain tree complexity. Increasing n_estimators actually helps (more trees = better averaging = lower variance). RF is already an ensemble so it is inherently robust.'}
+];
+let curQ=0,score=0,answered=false;
+function initQuiz(){
+  document.getElementById('qdotsw').innerHTML=questions.map((_,i)=>'<div class="qdot'+(i===0?' cur':'')+'" id="qd'+i+'"></div>').join('');
+  renderQ();
+}
+function renderQ(){
+  const q=questions[curQ];
+  document.getElementById('qnum').textContent='Question '+(curQ+1)+' of '+questions.length;
+  document.getElementById('qtext').textContent=q.q;
+  const opts=document.getElementById('qopts'); opts.innerHTML='';
+  ['A','B','C','D'].forEach(function(l,i){
+    const d=document.createElement('div'); d.className='qopt';
+    d.innerHTML='<div class="ql">'+l+'</div>'+q.opts[i];
+    d.onclick=function(){ansQ(i);};
+    opts.appendChild(d);
+  });
+  document.getElementById('qfb').className='qfb'; document.getElementById('qfb').innerHTML='';
+  document.getElementById('qnext').style.display='none'; answered=false;
+}
+function ansQ(idx){
+  if(answered) return; answered=true;
+  const q=questions[curQ];
+  document.querySelectorAll('.qopt').forEach(function(o){o.classList.add('disabled');});
+  const opts=document.querySelectorAll('.qopt');
+  const fb=document.getElementById('qfb');
+  const dot=document.getElementById('qd'+curQ);
+  if(idx===q.correct){opts[idx].classList.add('correct');fb.className='qfb show fbok';fb.textContent=q.fbOk;score++;dot.className='qdot done';}
+  else{opts[idx].classList.add('wrong');opts[q.correct].classList.add('correct');fb.className='qfb show fbng';fb.textContent=q.fbNg;dot.className='qdot wd';}
+  const nb=document.getElementById('qnext'); nb.style.display='inline-flex';
+  nb.textContent=curQ<questions.length-1?'Next Question':'See Results';
+}
+function nextQ(){
+  if(curQ<questions.length-1){const nd=document.getElementById('qd'+(curQ+1));if(nd)nd.className='qdot cur';curQ++;renderQ();}else showScore();
+}
+function showScore(){
+  document.getElementById('qzwrap').style.display='none';
+  document.getElementById('scoreScr').style.display='block';
+  document.getElementById('scNum').textContent=score;
+  const msgs=['Keep studying!','Getting there!','Good effort!','Well done!','Excellent!','Outstanding!','Amazing!','Expert!','Pro level!','Near perfect!','Perfect score!'];
+  document.getElementById('scMsg').textContent=msgs[score];
+  document.getElementById('scDet').textContent='You answered '+score+' out of '+questions.length+' correctly.';
+  if(score>=8)launchConfetti();
+}
+function restartQuiz(){
+  curQ=0;score=0;answered=false;
+  document.getElementById('qzwrap').style.display='block';
+  document.getElementById('scoreScr').style.display='none';
+  document.getElementById('qdotsw').innerHTML=questions.map((_,i)=>'<div class="qdot'+(i===0?' cur':'')+'" id="qd'+i+'"></div>').join('');
+  renderQ();
+}
+function launchConfetti(){
+  const cols=['#e11d48','#7c3aed','#f59e0b','#22c55e','#3b82f6','#14b8a6'];
+  for(let i=0;i<60;i++){setTimeout(function(){
+    const c=document.createElement('div');c.className='cp';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=cols[Math.floor(Math.random()*cols.length)];
+    c.style.animationDuration=(1.5+Math.random()*2)+'s';
+    c.style.animationDelay=Math.random()*.5+'s';
+    document.body.appendChild(c);setTimeout(function(){c.remove();},4000);
+  },i*25);}
+}
+function restartModule(){
+  curPage=0;visited.clear();visited.add(0);
+  document.querySelectorAll('.db').forEach(function(b){b.remove();});
+  document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('on');});
+  document.querySelectorAll('.page').forEach(function(p){p.style.display='none';p.classList.remove('active');});
+  document.getElementById('page0').style.display='block';document.getElementById('page0').classList.add('active');
+  document.getElementById('nav0').classList.add('on');
+  document.getElementById('nfill').style.width='0%';document.getElementById('npct').textContent='0%';
+  restartQuiz();
+}
+initQuiz();
+setTimeout(function(){updatePolyDemo();},300);
+</script></body></html>
