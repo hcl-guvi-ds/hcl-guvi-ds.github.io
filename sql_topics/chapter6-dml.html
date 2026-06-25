@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 6 — DML: Data Manipulation Language | SQL Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#0F6E56;--teal-mid:#1D9E75;--teal-light:#E1F5EE;--teal-soft:#f0faf6;
+  --blue:#185FA5;--blue-light:#E6F1FB;--indigo:#534AB7;--indigo-light:#EEEDFE;
+  --amber:#BA7517;--amber-light:#FAEEDA;--coral:#993C1D;--coral-light:#FAECE7;
+  --green:#16A34A;--green-light:#DCFCE7;--red:#DC2626;--red-light:#FEE2E2;
+  --purple:#7C3AED;--purple-light:#EDE9FE;--orange:#C2410C;--orange-light:#FFEDD5;
+  --gray900:#1a1a1a;--gray700:#3d3d3d;--gray500:#6b6b6b;--gray300:#c8c8c8;
+  --gray100:#f4f4f4;--gray50:#fafafa;--white:#fff;--border:#e8e8e8;
+  --radius:10px;--radius-lg:16px;--shadow:0 2px 12px rgba(0,0,0,.07);
+  --font:'Inter',sans-serif;--mono:'Fira Code',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:#f7f8fa;color:var(--gray900);font-size:15px;line-height:1.7}
+.shell{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:260px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.brand-tag{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--teal);text-transform:uppercase;margin-bottom:4px}
+.brand-title{font-size:15px;font-weight:700;color:var(--gray900)}
+.brand-sub{font-size:11px;color:var(--gray500);margin-top:2px}
+.sidebar-progress{padding:12px 20px;border-bottom:1px solid var(--border)}
+.prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--gray500);margin-bottom:6px}
+.prog-bar{height:4px;background:var(--gray100);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal-mid),var(--blue));border-radius:4px;transition:width .5s}
+.sidebar-nav{padding:12px 0;flex:1}
+.nav-section{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--gray300);text-transform:uppercase;padding:8px 20px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 20px;font-size:13px;color:var(--gray500);cursor:pointer;border-left:3px solid transparent;transition:all .15s;text-decoration:none}
+.nav-item:hover{color:var(--teal);background:var(--teal-soft)}
+.nav-item.active{color:var(--teal);background:var(--teal-light);border-left-color:var(--teal-mid);font-weight:500}
+.nav-num{width:20px;height:20px;border-radius:50%;background:var(--gray100);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;color:var(--gray500)}
+.nav-item.active .nav-num{background:var(--teal-light);color:var(--teal)}
+
+/* MAIN */
+.main{margin-left:260px;flex:1}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-breadcrumb{font-size:12px;color:var(--gray500)}
+.topbar-breadcrumb span{color:var(--gray900);font-weight:500}
+.topbar-actions{display:flex;gap:10px}
+.meta-chip{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray500);background:var(--gray50);border:1px solid var(--border);padding:5px 12px;border-radius:20px}
+
+/* HERO */
+.chapter-hero{background:var(--white);border-bottom:1px solid var(--border);padding:48px 40px 36px}
+.hero-phase{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--teal);text-transform:uppercase;margin-bottom:10px}
+.hero-title{font-size:32px;font-weight:700;color:var(--gray900);line-height:1.25;margin-bottom:12px}
+.hero-title span{color:var(--teal-mid)}
+.hero-desc{font-size:15px;color:var(--gray500);max-width:640px;line-height:1.7;margin-bottom:24px}
+.hero-meta{display:flex;gap:12px;flex-wrap:wrap}
+
+/* CONTENT */
+.content{padding:40px 40px 80px;max-width:920px}
+.section{margin-bottom:60px;scroll-margin-top:80px}
+.section-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:14px;border-bottom:2px solid var(--teal-light)}
+.section-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.section-num{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.section-title{font-size:22px;font-weight:700;color:var(--gray900)}
+
+/* CALLOUTS */
+.callout{border-radius:var(--radius);padding:16px 20px;margin:20px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.callout-body{flex:1}
+.callout-title{font-weight:600;font-size:14px;margin-bottom:4px}
+.callout-text{font-size:13px;line-height:1.6}
+.callout.tip{background:var(--teal-light);color:var(--teal);border-left:3px solid var(--teal-mid)}
+.callout.info{background:var(--blue-light);color:var(--blue);border-left:3px solid var(--blue)}
+.callout.warning{background:var(--amber-light);color:var(--amber);border-left:3px solid var(--amber)}
+.callout.danger{background:var(--red-light);color:var(--red);border-left:3px solid var(--red)}
+.callout.good{background:var(--green-light);color:var(--green);border-left:3px solid var(--green)}
+.callout.example{background:var(--indigo-light);color:var(--indigo);border-left:3px solid var(--indigo)}
+
+/* REAL WORLD */
+.real-world{background:var(--white);border:1px solid var(--border);border-left:4px solid var(--teal-mid);border-radius:var(--radius);padding:20px 24px;margin:20px 0}
+.rw-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:8px}
+.rw-title{font-size:16px;font-weight:700;color:var(--gray900);margin-bottom:8px}
+.rw-body{font-size:13px;color:var(--gray700);line-height:1.7}
+
+/* CODE BLOCKS */
+.code-block{background:#1e2030;border-radius:var(--radius);overflow:hidden;margin:16px 0;font-family:var(--mono);font-size:13px}
+.code-header{background:#272a3f;padding:9px 16px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#7a8ba8;font-family:var(--font)}
+.code-lang{background:rgba(255,255,255,.08);padding:2px 8px;border-radius:4px;font-weight:500}
+.code-body{padding:16px;color:#cdd6f4;line-height:1.75;overflow-x:auto;white-space:pre}
+.kw{color:#89b4fa}.str{color:#a6e3a1}.cm{color:#6c7086;font-style:italic}.fn{color:#f38ba8}.nm{color:#fab387}.op{color:#89dceb}.tbl{color:#cba6f7}
+
+/* SYNTAX BOX */
+.syntax-box{background:var(--gray900);border-radius:var(--radius);padding:18px 20px;margin:16px 0;position:relative;font-family:var(--mono);font-size:13px;line-height:2}
+.syntax-box .s-kw{color:#89b4fa;font-weight:700}
+.syntax-box .s-ph{color:#fab387;font-style:italic}
+.syntax-box .s-opt{color:#6c7086}
+.syntax-label{position:absolute;top:-10px;left:14px;background:var(--teal-mid);color:white;font-size:10px;font-weight:700;padding:2px 10px;border-radius:4px;font-family:var(--font);letter-spacing:.5px}
+
+/* LIVE SIMULATOR */
+.simulator{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:20px 0;box-shadow:var(--shadow)}
+.sim-top{background:linear-gradient(135deg,#1e2030,#2a2d47);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.sim-title{font-size:13px;font-weight:600;color:white;display:flex;align-items:center;gap:8px}
+.sim-badge{font-size:10px;background:var(--teal-mid);color:white;padding:2px 8px;border-radius:4px;font-weight:700}
+.sim-state-label{font-size:11px;color:rgba(255,255,255,.5)}
+.sim-editor{min-height:110px;background:#1e2030;padding:14px 16px;font-family:var(--mono);font-size:13px;color:#cdd6f4;border:none;outline:none;resize:vertical;width:100%;line-height:1.75}
+.sim-toolbar{background:var(--gray50);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.sim-hint{font-size:12px;color:var(--gray500);flex:1}
+.sim-btns{display:flex;gap:8px}
+.run-btn{background:var(--teal-mid);color:white;border:none;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:background .15s}
+.run-btn:hover{background:var(--teal)}
+.reset-btn{background:transparent;color:var(--gray500);border:1px solid var(--border);padding:8px 14px;border-radius:7px;font-size:13px;cursor:pointer;font-family:var(--font)}
+.reset-btn:hover{background:var(--gray100)}
+.sim-output{border-top:1px solid var(--border);display:none}
+.sim-output.visible{display:block}
+.out-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--gray50)}
+.out-tab{padding:8px 16px;font-size:12px;font-weight:500;cursor:pointer;color:var(--gray500);border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font)}
+.out-tab.active{color:var(--teal);border-bottom-color:var(--teal-mid)}
+.out-panel{display:none;padding:14px 18px}
+.out-panel.active{display:block}
+.out-label{font-size:11px;font-weight:600;color:var(--gray500);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.row-count{font-size:11px;background:var(--teal-light);color:var(--teal);padding:2px 8px;border-radius:10px;font-weight:600}
+.result-tbl{width:100%;border-collapse:collapse;font-size:12px;overflow-x:auto}
+.result-tbl th{background:var(--teal-light);color:var(--teal);font-weight:600;padding:8px 12px;text-align:left;font-size:11px;text-transform:uppercase;white-space:nowrap}
+.result-tbl td{padding:7px 12px;border-bottom:1px solid var(--gray100);color:var(--gray700);white-space:nowrap}
+.result-tbl tr:last-child td{border-bottom:none}
+.result-tbl .hi{background:#e6ffe6;color:var(--green);font-weight:600}
+.result-tbl .changed{background:#fff8e1;color:var(--amber);font-weight:600}
+.result-tbl .deleted{background:var(--red-light);color:var(--red);text-decoration:line-through;opacity:.7}
+.result-tbl .soft-del{background:var(--orange-light);color:var(--orange);font-style:italic}
+.msg{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;margin-bottom:6px;line-height:1.5}
+.msg.success{background:var(--teal-light);color:var(--teal)}
+.msg.info{background:var(--blue-light);color:var(--blue)}
+.msg.warn{background:var(--amber-light);color:var(--amber)}
+.msg.danger{background:var(--red-light);color:var(--red)}
+.msg.good{background:var(--green-light);color:var(--green)}
+
+/* DISASTER DEMO */
+.disaster-box{background:var(--red-light);border:2px solid var(--red);border-radius:var(--radius-lg);overflow:hidden;margin:20px 0}
+.dis-head{background:var(--red);color:white;padding:12px 18px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px}
+.dis-body{padding:18px}
+.dis-scenario{background:white;border:1px solid rgba(220,38,38,.3);border-radius:8px;padding:14px;margin-bottom:12px;font-size:13px;line-height:1.7;color:var(--red)}
+.dis-fix{background:var(--green-light);border:1px solid var(--green);border-radius:8px;padding:14px;font-size:13px;line-height:1.7;color:var(--green)}
+
+/* PATTERN CARDS */
+.pattern-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:16px 0}
+.pattern-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.pat-head{padding:12px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px}
+.pat-body{padding:12px 16px;font-size:13px;color:var(--gray700);line-height:1.6}
+.pat-code{font-family:var(--mono);font-size:11px;background:var(--gray50);padding:8px 10px;border-radius:6px;margin-top:8px;color:var(--gray700);white-space:pre;overflow-x:auto}
+
+/* COMPARE TABLE */
+.cmp-table{width:100%;border-collapse:collapse;font-size:13px;background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin:16px 0}
+.cmp-table th{padding:11px 16px;text-align:left;font-weight:600;font-size:12px}
+.cmp-table td{padding:10px 16px;border-bottom:1px solid var(--gray100);color:var(--gray700);vertical-align:top;line-height:1.5}
+.cmp-table tr:last-child td{border-bottom:none}
+.cmp-table tr:hover td{background:var(--gray50)}
+.cmp-table td:first-child{font-family:var(--mono);font-weight:700;font-size:12px;color:var(--teal)}
+
+/* DRY RUN VISUAL */
+.dry-run{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:20px 0}
+.dr-step{display:flex;align-items:flex-start;gap:0;border-bottom:1px solid var(--border)}
+.dr-step:last-child{border-bottom:none}
+.dr-num{width:44px;min-height:100%;background:var(--gray50);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;padding:16px 0;border-right:1px solid var(--border)}
+.dr-content{padding:14px 18px;flex:1}
+.dr-title{font-size:14px;font-weight:600;color:var(--gray900);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.dr-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px}
+.dr-body{font-size:13px;color:var(--gray700);line-height:1.6;margin-bottom:8px}
+
+/* TRANSACTION VISUAL */
+.txn-flow{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin:16px 0}
+.txn-title{font-size:13px;font-weight:600;color:var(--gray900);margin-bottom:14px}
+.txn-steps{display:flex;flex-direction:column;gap:0}
+.txn-step{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed var(--border);position:relative}
+.txn-step:last-child{border-bottom:none}
+.txn-step::before{content:'';position:absolute;left:15px;top:36px;width:2px;height:calc(100% - 10px);background:var(--teal-light)}
+.txn-step:last-child::before{display:none}
+.txn-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;z-index:1}
+.txn-label{font-size:13px;font-family:var(--mono);font-weight:500;color:var(--gray700)}
+.txn-desc{font-size:12px;color:var(--gray500);margin-top:2px}
+
+/* QUIZ */
+.quiz-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:24px 0}
+.quiz-header{background:var(--indigo-light);padding:14px 20px;display:flex;align-items:center;gap:10px}
+.quiz-title{font-size:14px;font-weight:600;color:var(--indigo)}
+.quiz-count{font-size:12px;color:var(--indigo);opacity:.7;margin-left:auto}
+.quiz-body{padding:20px}
+.quiz-q{font-size:14px;font-weight:500;color:var(--gray900);margin-bottom:14px;line-height:1.6}
+.quiz-options{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.quiz-opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--gray700);transition:all .15s;background:var(--white);text-align:left;font-family:var(--font);line-height:1.5;width:100%}
+.quiz-opt:hover{border-color:var(--indigo);color:var(--indigo);background:var(--indigo-light)}
+.quiz-opt.correct{border-color:var(--teal-mid);background:var(--teal-light);color:var(--teal)}
+.quiz-opt.wrong{border-color:var(--coral);background:var(--coral-light);color:var(--coral)}
+.opt-letter{width:22px;height:22px;border-radius:50%;background:var(--gray100);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:var(--gray500)}
+.quiz-opt.correct .opt-letter{background:var(--teal-mid);color:white}
+.quiz-opt.wrong .opt-letter{background:var(--coral);color:white}
+.quiz-feedback{display:none;padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.5;margin-top:4px}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:var(--teal-light);color:var(--teal)}
+.quiz-feedback.wrong{background:var(--coral-light);color:var(--coral)}
+.quiz-nav{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-top:1px solid var(--border);background:var(--gray50)}
+.quiz-progress-dots{display:flex;gap:6px}
+.q-dot{width:8px;height:8px;border-radius:50%;background:var(--gray300);transition:all .2s}
+.q-dot.active{background:var(--indigo);transform:scale(1.3)}
+.q-dot.done-c{background:var(--teal-mid)}
+.q-dot.done-w{background:var(--coral)}
+.btn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--gray700);font-family:var(--font);transition:all .15s}
+.btn:hover{background:var(--gray100)}
+.btn-primary{background:var(--teal-mid);color:white;border-color:var(--teal-mid)}
+.btn-primary:hover{background:var(--teal)}
+
+/* CHEATSHEET */
+.cheatsheet{background:var(--gray900);border-radius:var(--radius-lg);padding:24px 28px;margin:20px 0}
+.cs-title{font-size:14px;font-weight:600;color:white;margin-bottom:16px}
+.cs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.cs-item{background:rgba(255,255,255,.05);border-radius:8px;padding:12px 14px}
+.cs-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#7a8ba8;margin-bottom:6px}
+.cs-code{font-family:var(--mono);font-size:12px;line-height:1.8;color:#cdd6f4;white-space:pre}
+.cs-code .kw{color:#89b4fa;font-weight:700}
+.cs-code .ph{color:#fab387}
+.cs-code .str{color:#a6e3a1}
+.cs-code .cm{color:#6c7086}
+
+/* SUMMARY */
+.summary-box{background:linear-gradient(135deg,var(--teal-soft),var(--blue-light));border:1px solid var(--teal-light);border-radius:var(--radius-lg);padding:24px 28px;margin:32px 0 0}
+.summary-title{font-size:16px;font-weight:700;color:var(--gray900);margin-bottom:16px}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.summary-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--gray700);line-height:1.5}
+.summary-check{width:20px;height:20px;border-radius:50%;background:var(--teal-mid);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px}
+
+/* CHAPTER NAV */
+.chapter-nav{background:var(--white);border-top:1px solid var(--border);padding:24px 40px;display:flex;justify-content:space-between;align-items:center}
+.nav-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;font-size:13px;color:var(--gray700);transition:all .15s;min-width:200px}
+.nav-card:hover{border-color:var(--teal-mid);color:var(--teal)}
+.nav-card-dir{font-size:11px;color:var(--gray300);margin-bottom:2px}
+.nav-card-name{font-weight:600}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .main{margin-left:0}
+  .content{padding:24px 20px 60px}
+  .chapter-hero{padding:32px 20px 24px}
+  .topbar{padding:12px 20px}
+  .hero-title{font-size:24px}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-tag">HCL GUVI · SQL Mastery · Phase 2</div>
+    <div class="brand-title">Chapter 6</div>
+    <div class="brand-sub">DML — Data Manipulation Language</div>
+  </div>
+  <div class="sidebar-progress">
+    <div class="prog-label"><span>Progress</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Topics</div>
+    <a class="nav-item active" href="#sec1"><div class="nav-num">1</div>DML Overview</a>
+    <a class="nav-item" href="#sec2"><div class="nav-num">2</div>INSERT — Single Row</a>
+    <a class="nav-item" href="#sec3"><div class="nav-num">3</div>INSERT — Multi-Row Batch</a>
+    <a class="nav-item" href="#sec4"><div class="nav-num">4</div>INSERT INTO SELECT</a>
+    <a class="nav-item" href="#sec5"><div class="nav-num">5</div>UPDATE SET WHERE</a>
+    <a class="nav-item" href="#sec6"><div class="nav-num">6</div>DELETE FROM WHERE</a>
+    <a class="nav-item" href="#sec7"><div class="nav-num">7</div>REPLACE INTO & UPSERT</a>
+    <a class="nav-item" href="#sec8"><div class="nav-num">8</div>WHERE Clause Discipline</a>
+    <a class="nav-item" href="#sec9"><div class="nav-num">9</div>Dry-Run Pattern</a>
+    <a class="nav-item" href="#sec10"><div class="nav-num">10</div>Soft Delete vs Hard Delete</a>
+    <a class="nav-item" href="#sec11"><div class="nav-num">11</div>Cascading Deletes</a>
+    <a class="nav-item" href="#sec12"><div class="nav-num">12</div>Transactions for Bulk DML</a>
+    <a class="nav-item" href="#sec13"><div class="nav-num">13</div>Cheatsheet & Quiz</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-breadcrumb">SQL Mastery › Phase 2 › <span>Chapter 6 — DML</span></div>
+    <div class="topbar-actions">
+      <div class="meta-chip"><span style="width:6px;height:6px;border-radius:50%;background:#185FA5;display:inline-block"></span>Intermediate</div>
+      <div class="meta-chip">⏱ ~70 min</div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="chapter-hero">
+    <div class="hero-phase">Phase 2 · Chapter 6 of 22</div>
+    <h1 class="hero-title">DML — <span>Data Manipulation Language</span></h1>
+    <p class="hero-desc">DML is where data lives, moves, and changes. INSERT puts data in, UPDATE changes it, DELETE removes it — but each command carries serious responsibility. One missing WHERE clause can wipe an entire table. This chapter teaches you not just the syntax, but the safety patterns that professional developers use to never lose data.</p>
+    <div class="hero-meta">
+      <div class="meta-chip">📚 13 Topics</div>
+      <div class="meta-chip">🎮 Live Simulator</div>
+      <div class="meta-chip">⚠️ Disaster Scenarios</div>
+      <div class="meta-chip">🛡️ Safety Patterns</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- ── SECTION 1: DML OVERVIEW ── -->
+  <div class="section" id="sec1">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--teal-light)">📦</div>
+      <div><div class="section-num">Topic 1</div><h2 class="section-title">DML Overview — What Changes Data</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <strong>DML (Data Manipulation Language)</strong> is the set of SQL commands that <strong>read, add, change, or remove data</strong> inside tables. Unlike DDL (which changes structure), DML works with the rows inside existing tables.
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:20px 0">
+      <div style="background:var(--white);border:2px solid var(--teal-mid);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">➕</div>
+        <div style="font-weight:700;font-size:14px;color:var(--teal);font-family:var(--mono)">INSERT</div>
+        <div style="font-size:12px;color:var(--gray500);margin-top:4px">Add new rows to a table</div>
+      </div>
+      <div style="background:var(--white);border:2px solid var(--blue);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">✏️</div>
+        <div style="font-weight:700;font-size:14px;color:var(--blue);font-family:var(--mono)">UPDATE</div>
+        <div style="font-size:12px;color:var(--gray500);margin-top:4px">Modify existing row values</div>
+      </div>
+      <div style="background:var(--white);border:2px solid var(--coral);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">🗑️</div>
+        <div style="font-weight:700;font-size:14px;color:var(--coral);font-family:var(--mono)">DELETE</div>
+        <div style="font-size:12px;color:var(--gray500);margin-top:4px">Remove rows from a table</div>
+      </div>
+      <div style="background:var(--white);border:2px solid var(--indigo);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">🔁</div>
+        <div style="font-weight:700;font-size:14px;color:var(--indigo);font-family:var(--mono)">SELECT</div>
+        <div style="font-size:12px;color:var(--gray500);margin-top:4px">Read data (DQL / part of DML)</div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">DML vs DDL — The Critical Difference</div>
+        <div class="callout-text">
+          <strong>DDL</strong> (CREATE/ALTER/DROP) — changes <em>structure</em>. Auto-committed, usually can't rollback.<br>
+          <strong>DML</strong> (INSERT/UPDATE/DELETE) — changes <em>data</em>. Participates in transactions — you CAN rollback before committing!<br><br>
+          This is why DML safety matters so much: you have a window to undo mistakes using ROLLBACK — but only if you use transactions.
+        </div>
+      </div>
+    </div>
+
+    <!-- Live DB State Display -->
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:20px 0">
+      <div style="padding:12px 18px;background:var(--gray50);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:13px;font-weight:600;color:var(--gray900)">📋 Live Database — students table (our sandbox)</div>
+        <div style="font-size:11px;color:var(--gray500)">All DML operations in this chapter run against this data</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="result-tbl" style="margin:0">
+          <thead><tr><th>student_id</th><th>name</th><th>city</th><th>course</th><th>score</th><th>fee_paid</th><th>is_active</th></tr></thead>
+          <tbody id="live-db"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2: INSERT SINGLE ── -->
+  <div class="section" id="sec2">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--teal-light)">➕</div>
+      <div><div class="section-num">Topic 2</div><h2 class="section-title">INSERT INTO — Single Row</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <code style="font-family:var(--mono);background:var(--gray100);padding:2px 6px;border-radius:4px">INSERT INTO</code> adds a new row to a table. You can specify columns explicitly (recommended) or insert in the table's column order.
+    </p>
+
+    <div class="syntax-box">
+      <div class="syntax-label">SYNTAX</div>
+      <span class="s-kw">INSERT INTO</span> <span class="s-ph">table_name</span> (<span class="s-ph">col1</span>, <span class="s-ph">col2</span>, <span class="s-ph">...</span>)
+<span class="s-kw">VALUES</span> (<span class="s-ph">val1</span>, <span class="s-ph">val2</span>, <span class="s-ph">...</span>);
+    </div>
+
+    <div class="simulator">
+      <div class="sim-top">
+        <div class="sim-title">🎮 INSERT Single Row <span class="sim-badge">Exercise 1</span></div>
+        <div class="sim-state-label">Modifies the live database above</div>
+      </div>
+      <textarea class="sim-editor" id="q1" spellcheck="false">-- Method 1: Explicit column names (ALWAYS prefer this)
+INSERT INTO students (name, city, course, score, fee_paid, is_active)
+VALUES ('Kavitha Rajan', 'Coimbatore', 'SQL', 85.0, 12000, TRUE);
+
+-- Method 2: All columns in order (fragile — breaks if schema changes)
+-- INSERT INTO students VALUES (21, 'Arjun Mehta', 'Pune', 'ML', 78.5, 15000, TRUE);
+
+-- Inserting with NULL for optional fields:
+-- INSERT INTO students (name, city, course, fee_paid, is_active)
+-- VALUES ('Sundar Pichai', 'Chennai', 'Python', 10000, TRUE);
+-- ↑ score is NULL (optional column)</textarea>
+      <div class="sim-toolbar">
+        <div class="sim-hint">💡 Always specify column names — if a new column is added to the table, positional INSERT breaks!</div>
+        <div class="sim-btns">
+          <button class="reset-btn" onclick="resetQ('q1',0)">Reset</button>
+          <button class="run-btn" onclick="runDML('q1','o1','insert-single')">▶ Run INSERT</button>
+        </div>
+      </div>
+      <div class="sim-output" id="o1"></div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">After INSERT — Get the new row's ID</div>
+        <div class="callout-text">
+          In MySQL: <code>SELECT LAST_INSERT_ID();</code> → returns the AUTO_INCREMENT value just assigned<br>
+          In PostgreSQL: <code>INSERT INTO ... RETURNING id;</code> → returns the new row's values<br>
+          In Python (mysql-connector): <code>cursor.lastrowid</code><br>
+          This is essential in applications — you need the new ID to create related records.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3: INSERT MULTI-ROW ── -->
+  <div class="section" id="sec3">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--blue-light)">📦</div>
+      <div><div class="section-num">Topic 3</div><h2 class="section-title">INSERT INTO — Multi-Row Batch</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Inserting many rows one-by-one is extremely slow. A <strong>multi-row INSERT</strong> sends all rows in a single statement — up to <strong>100× faster</strong> for large datasets. This is the standard approach for data loading.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header"><span>Performance Comparison</span><span class="code-lang">MySQL</span></div>
+      <div class="code-body"><span class="cm">-- ❌ SLOW: 1000 separate INSERT statements (1000 round trips to DB)</span>
+<span class="kw">INSERT INTO</span> students (name, city, course, score, fee_paid) <span class="kw">VALUES</span> (<span class="str">'Priya'</span>, <span class="str">'Chennai'</span>, <span class="str">'SQL'</span>, <span class="nm">88</span>, <span class="nm">12000</span>);
+<span class="kw">INSERT INTO</span> students (name, city, course, score, fee_paid) <span class="kw">VALUES</span> (<span class="str">'Rahul'</span>, <span class="str">'Delhi'</span>, <span class="str">'ML'</span>, <span class="nm">74</span>, <span class="nm">15000</span>);
+<span class="cm">-- ... 998 more statements  →  ~2 seconds</span>
+
+<span class="cm">-- ✅ FAST: One multi-row INSERT (1 round trip)</span>
+<span class="kw">INSERT INTO</span> students (name, city, course, score, fee_paid) <span class="kw">VALUES</span>
+    (<span class="str">'Priya'</span>,   <span class="str">'Chennai'</span>,   <span class="str">'SQL'</span>,    <span class="nm">88.0</span>, <span class="nm">12000</span>),
+    (<span class="str">'Rahul'</span>,   <span class="str">'Delhi'</span>,     <span class="str">'ML'</span>,     <span class="nm">74.0</span>, <span class="nm">15000</span>),
+    (<span class="str">'Ananya'</span>,  <span class="str">'Bangalore'</span>, <span class="str">'Python'</span>, <span class="nm">91.5</span>, <span class="nm">10000</span>),
+    <span class="cm">-- ... 997 more rows</span>
+    (<span class="str">'Karthik'</span>, <span class="str">'Mumbai'</span>,    <span class="str">'SQL'</span>,    <span class="nm">65.0</span>, <span class="nm">12000</span>);
+<span class="cm">-- →  ~0.02 seconds (100× faster!)</span></div>
+    </div>
+
+    <div class="simulator">
+      <div class="sim-top">
+        <div class="sim-title">🎮 Multi-Row Batch INSERT <span class="sim-badge">Exercise 2</span></div>
+      </div>
+      <textarea class="sim-editor" id="q2" spellcheck="false">-- Insert a full batch of new students at once
+INSERT INTO students (name, city, course, score, fee_paid, is_active)
+VALUES
+    ('Aditya Kumar',   'Pune',      'Python', 82.0, 10000, TRUE),
+    ('Sneha Reddy',    'Hyderabad', 'ML',     77.5, 15000, TRUE),
+    ('Rahul Jain',     'Jaipur',    'SQL',    90.0, 12000, TRUE),
+    ('Pooja Agarwal',  'Lucknow',   'Python', 55.0, 10000, TRUE),
+    ('Vijay Nair',     'Kochi',     'SQL',    88.5, 12000, TRUE);
+
+-- In Python, use executemany() for bulk inserts:
+-- data = [('Name1', 'City1', ...), ('Name2', 'City2', ...)]
+-- cursor.executemany("INSERT INTO students VALUES (%s,%s,...)", data)</textarea>
+      <div class="sim-toolbar">
+        <div class="sim-hint">💡 For very large datasets (100k+ rows), consider LOAD DATA INFILE (MySQL) or COPY (PostgreSQL) — even faster!</div>
+        <div class="sim-btns">
+          <button class="reset-btn" onclick="resetQ('q2',1)">Reset</button>
+          <button class="run-btn" onclick="runDML('q2','o2','insert-batch')">▶ Run Batch INSERT</button>
+        </div>
+      </div>
+      <div class="sim-output" id="o2"></div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4: INSERT SELECT ── -->
+  <div class="section" id="sec4">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--indigo-light)">🔄</div>
+      <div><div class="section-num">Topic 4</div><h2 class="section-title">INSERT INTO … SELECT — Copy Data</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <code style="font-family:var(--mono);background:var(--gray100);padding:2px 6px;border-radius:4px">INSERT INTO … SELECT</code> copies rows from one table into another in a single SQL statement. Extremely useful for ETL pipelines, archiving, creating summaries, and data migration.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header"><span>INSERT INTO … SELECT — All Patterns</span><span class="code-lang">MySQL</span></div>
+      <div class="code-body"><span class="cm">-- Pattern 1: Copy ALL rows from one table to another</span>
+<span class="kw">INSERT INTO</span> <span class="tbl">students_backup</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">students</span>;
+
+<span class="cm">-- Pattern 2: Copy selected columns + filter</span>
+<span class="kw">INSERT INTO</span> <span class="tbl">top_students</span> (name, city, course, score)
+<span class="kw">SELECT</span> name, city, course, score
+<span class="kw">FROM</span> <span class="tbl">students</span>
+<span class="kw">WHERE</span> score >= <span class="nm">80</span>;
+
+<span class="cm">-- Pattern 3: Copy with transformation</span>
+<span class="kw">INSERT INTO</span> <span class="tbl">student_report</span> (student_name, grade, city)
+<span class="kw">SELECT</span>
+    name,
+    <span class="kw">CASE</span>
+        <span class="kw">WHEN</span> score >= <span class="nm">90</span> <span class="kw">THEN</span> <span class="str">'A'</span>
+        <span class="kw">WHEN</span> score >= <span class="nm">75</span> <span class="kw">THEN</span> <span class="str">'B'</span>
+        <span class="kw">ELSE</span> <span class="str">'C'</span>
+    <span class="kw">END</span>,
+    city
+<span class="kw">FROM</span> <span class="tbl">students</span>;
+
+<span class="cm">-- Pattern 4: Create table AND insert in one shot</span>
+<span class="kw">CREATE TABLE</span> <span class="tbl">sql_students</span> <span class="kw">AS</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">students</span> <span class="kw">WHERE</span> course = <span class="str">'SQL'</span>;
+<span class="cm">-- ⚠️ This creates the table BUT does NOT copy constraints/indexes!</span>
+
+<span class="cm">-- Pattern 5: Archive old data (ETL pattern)</span>
+<span class="kw">INSERT INTO</span> <span class="tbl">students_archive_2023</span>
+<span class="kw">SELECT</span> *, <span class="fn">NOW</span>() <span class="kw">AS</span> archived_at
+<span class="kw">FROM</span> <span class="tbl">students</span>
+<span class="kw">WHERE</span> batch = <span class="str">'B2023'</span>;</div>
+    </div>
+
+    <div class="simulator">
+      <div class="sim-top">
+        <div class="sim-title">🎮 INSERT INTO SELECT <span class="sim-badge">Exercise 3</span></div>
+      </div>
+      <textarea class="sim-editor" id="q3" spellcheck="false">-- Real ETL scenario: Archive high-scorers to a separate table
+-- Step 1: Create archive table (in real scenario, pre-created)
+CREATE TABLE IF NOT EXISTS top_students_archive (
+    student_id INT,
+    name       VARCHAR(100),
+    city       VARCHAR(50),
+    course     VARCHAR(50),
+    score      DECIMAL(5,2),
+    grade      VARCHAR(20),
+    archived_on DATE DEFAULT (CURRENT_DATE)
+);
+
+-- Step 2: Copy top students with grade computation
+INSERT INTO top_students_archive (student_id, name, city, course, score, grade)
+SELECT
+    student_id,
+    name,
+    city,
+    course,
+    score,
+    CASE
+        WHEN score >= 90 THEN 'Distinction'
+        WHEN score >= 75 THEN 'First Class'
+        ELSE 'Merit'
+    END AS grade
+FROM students
+WHERE score >= 75
+ORDER BY score DESC;
+
+-- Step 3: Verify what was copied
+SELECT * FROM top_students_archive ORDER BY score DESC;</textarea>
+      <div class="sim-toolbar">
+        <div class="sim-hint">💡 INSERT INTO SELECT is atomic — either all rows are inserted or none. Perfect for batch ETL operations.</div>
+        <div class="sim-btns">
+          <button class="reset-btn" onclick="resetQ('q3',2)">Reset</button>
+          <button class="run-btn" onclick="runDML('q3','o3','insert-select')">▶ Run</button>
+        </div>
+      </div>
+      <div class="sim-output" id="o3"></div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 5: UPDATE ── -->
+  <div class="section" id="sec5">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--blue-light)">✏️</div>
+      <div><div class="section-num">Topic 5</div><h2 class="section-title">UPDATE SET WHERE — Modifying Data Safely</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <code style="font-family:var(--mono);background:var(--gray100);padding:2px 6px;border-radius:4px">UPDATE</code> modifies existing rows. The <code>WHERE</code> clause controls WHICH rows get updated. Without WHERE, every single row in the table is modified — one of the most common disasters in SQL.
+    </p>
+
+    <div class="syntax-box">
+      <div class="syntax-label">SYNTAX</div>
+      <span class="s-kw">UPDATE</span> <span class="s-ph">table_name</span>
+<span class="s-kw">SET</span>    <span class="s-ph">col1</span> = <span class="s-ph">new_value1</span>,
+       <span class="s-ph">col2</span> = <span class="s-ph">new_value2</span>
+<span class="s-kw">WHERE</span>  <span class="s-ph">condition</span>;  <span class="s-opt">← NEVER OMIT THIS!</span>
+    </div>
+
+    <div class="simulator">
+      <div class="sim-top">
+        <div class="sim-title">🎮 UPDATE — Safe Editing <span class="sim-badge">Exercise 4</span></div>
+      </div>
+      <textarea class="sim-editor" id="q4" spellcheck="false">-- Update a single student's score (safe — specific WHERE)
+UPDATE students
+SET score = 92.5
+WHERE student_id = 1;
+
+-- Update multiple columns at once:
+-- UPDATE students
+-- SET score = 88.0, city = 'Bangalore'
+-- WHERE student_id = 3;
+
+-- Update all students in a specific batch:
+-- UPDATE students
+-- SET is_active = FALSE
+-- WHERE course = 'Python' AND score < 40;
+
+-- Update with a calculation (increase all fees by 10%):
+-- UPDATE students
+-- SET fee_paid = fee_paid * 1.10
+-- WHERE batch = 'B2024';
+
+-- VERIFY after update:
+SELECT student_id, name, score FROM students WHERE student_id = 1;</textarea>
+      <div class="sim-toolbar">
+        <div class="sim-hint">💡 Always run SELECT first to see which rows will be affected. Then replace SELECT with UPDATE.</div>
+        <div class="sim-btns">
+          <button class="reset-btn" onclick="resetQ('q4',3)">Reset</button>
+          <button class="run-btn" onclick="runDML('q4','o4','update')">▶ Run UPDATE</button>
+        </div>
+      </div>
+      <div class="sim-output" id="o4"></div>
+    </div>
+
+    <div class="disaster-box">
+      <div class="dis-head">💀 Common Disaster — UPDATE Without WHERE</div>
+      <div class="dis-body">
+        <div class="dis-scenario">
+          😱 True story scenario: Developer wants to update Priya's city from Chennai to Bangalore.<br><br>
+          They type: <code style="background:rgba(220,38,38,.1);padding:2px 6px;border-radius:4px">UPDATE students SET city = 'Bangalore';</code><br><br>
+          They forgot the WHERE clause. Result? <strong>ALL 50,000 students now live in Bangalore.</strong><br>
+          If not in a transaction, this is permanent. Hours of panic follow.
+        </div>
+        <div class="dis-fix">
+          ✅ The correct, safe query:<br>
+          <code style="background:rgba(22,163,74,.1);padding:2px 6px;border-radius:4px">UPDATE students SET city = 'Bangalore' WHERE student_id = 1;</code><br><br>
+          ✅ Even safer — run this SELECT first to confirm:<br>
+          <code style="background:rgba(22,163,74,.1);padding:2px 6px;border-radius:4px">SELECT student_id, name, city FROM students WHERE student_id = 1;</code><br>
+          — verify you see exactly the row you want to update, THEN run the UPDATE.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 6: DELETE ── -->
+  <div class="section" id="sec6">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--coral-light)">🗑️</div>
+      <div><div class="section-num">Topic 6</div><h2 class="section-title">DELETE FROM WHERE — Removing Rows</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <code style="font-family:var(--mono);background:var(--gray100);padding:2px 6px;border-radius:4px">DELETE FROM</code> removes rows that satisfy the WHERE condition. Like UPDATE, a missing WHERE clause deletes ALL rows.
+    </p>
+
+    <div class="syntax-box">
+      <div class="syntax-label">SYNTAX</div>
+      <span class="s-kw">DELETE FROM</span> <span class="s-ph">table_name</span>
+<span class="s-kw">WHERE</span> <span class="s-ph">condition</span>;  <span class="s-opt">← CRITICAL — always include!</span>
+    </div>
+
+    <div class="simulator">
+      <div class="sim-top">
+        <div class="sim-title">🎮 DELETE — Removing Rows <span class="sim-badge">Exercise 5</span></div>
+      </div>
+      <textarea class="sim-editor" id="q5" spellcheck="false">-- Delete a specific student by ID (safest - uses PK)
+DELETE FROM students
+WHERE student_id = 20;
+
+-- Delete based on condition:
+-- DELETE FROM students
+-- WHERE score < 40 AND is_active = FALSE;
+
+-- Delete with LIMIT (extra safety net in MySQL):
+-- DELETE FROM students
+-- WHERE city = 'Jaipur'
+-- LIMIT 1;   -- even if WHERE matches multiple, only deletes 1
+
+-- ALWAYS verify with SELECT first:
+SELECT student_id, name, score FROM students WHERE student_id = 20;
+-- Confirm this is the row you want to delete, THEN delete it</textarea>
+      <div class="sim-toolbar">
+        <div class="sim-hint">💡 Use LIMIT 1 in DELETE when targeting a single row by non-unique criteria — prevents accidental bulk deletion!</div>
+        <div class="sim-btns">
+          <button class="reset-btn" onclick="resetQ('q5',4)">Reset</button>
+          <button class="run-btn" onclick="runDML('q5','o5','delete')">▶ Run DELETE</button>
+        </div>
+      </div>
+      <div class="sim-output" id="o5"></div>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <div class="callout-title">DELETE vs TRUNCATE — Choose carefully</div>
+        <div class="callout-text">
+          <code>DELETE FROM students;</code> — removes all rows, but: logs every row, fires triggers, can ROLLBACK. Slow on big tables.<br>
+          <code>TRUNCATE TABLE students;</code> — removes all rows, but: NOT logged row-by-row, NO rollback in MySQL, NO triggers. Lightning fast.<br><br>
+          For targeted removal: DELETE with WHERE. For complete table wipe: TRUNCATE. For reverting: always use DELETE inside a transaction.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 7: REPLACE / UPSERT ── -->
+  <div class="section" id="sec7">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--purple-light)">🔁</div>
+      <div><div class="section-num">Topic 7</div><h2 class="section-title">REPLACE INTO & UPSERT</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Sometimes you want to: "Insert this row, but if it already exists, update it instead." This is called an <strong>UPSERT</strong> (Update + Insert). Different databases handle this differently.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header"><span>UPSERT Patterns — All Databases</span><span class="code-lang">MySQL / PostgreSQL</span></div>
+      <div class="code-body"><span class="cm">── MySQL: REPLACE INTO ────────────────────────────────────────</span>
+<span class="cm">-- REPLACE = DELETE existing row if PK/UNIQUE conflict, then INSERT fresh</span>
+<span class="cm">-- ⚠️ Deletes and re-inserts — AUTO_INCREMENT ID changes!</span>
+<span class="kw">REPLACE INTO</span> students (student_id, name, city, course, score)
+<span class="kw">VALUES</span> (<span class="nm">1</span>, <span class="str">'Priya Sharma'</span>, <span class="str">'Bangalore'</span>, <span class="str">'SQL'</span>, <span class="nm">92.0</span>);
+
+<span class="cm">── MySQL: INSERT … ON DUPLICATE KEY UPDATE (preferred!) ──────</span>
+<span class="cm">-- Safer: Only UPDATEs the conflicting columns, keeps the row ID</span>
+<span class="kw">INSERT INTO</span> students (student_id, name, city, score)
+<span class="kw">VALUES</span> (<span class="nm">1</span>, <span class="str">'Priya Sharma'</span>, <span class="str">'Bangalore'</span>, <span class="nm">92.0</span>)
+<span class="kw">ON DUPLICATE KEY UPDATE</span>
+    city  = <span class="kw">VALUES</span>(city),
+    score = <span class="kw">VALUES</span>(score);
+<span class="cm">-- If student_id=1 exists: updates city & score only</span>
+<span class="cm">-- If student_id=1 doesn't exist: inserts the full row</span>
+
+<span class="cm">-- Increment counter on conflict (common in analytics):</span>
+<span class="kw">INSERT INTO</span> page_views (page_id, views)
+<span class="kw">VALUES</span> (<span class="nm">101</span>, <span class="nm">1</span>)
+<span class="kw">ON DUPLICATE KEY UPDATE</span>
+    views = views + <span class="nm">1</span>;
+
+<span class="cm">── PostgreSQL: INSERT … ON CONFLICT (modern SQL standard) ────</span>
+<span class="kw">INSERT INTO</span> students (student_id, name, city, score)
+<span class="kw">VALUES</span> (<span class="nm">1</span>, <span class="str">'Priya Sharma'</span>, <span class="str">'Bangalore'</span>, <span class="nm">92.0</span>)
+<span class="kw">ON CONFLICT</span> (student_id) <span class="kw">DO UPDATE</span>
+    <span class="kw">SET</span> city  = <span class="kw">EXCLUDED</span>.city,
+        score = <span class="kw">EXCLUDED</span>.score;
+
+<span class="cm">-- PostgreSQL: Do nothing on conflict (skip duplicates)</span>
+<span class="kw">INSERT INTO</span> students (student_id, name)
+<span class="kw">VALUES</span> (<span class="nm">1</span>, <span class="str">'Priya'</span>)
+<span class="kw">ON CONFLICT</span> (student_id) <span class="kw">DO NOTHING</span>;</div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">REPLACE INTO vs ON DUPLICATE KEY UPDATE</div>
+        <div class="callout-text">
+          <strong>REPLACE INTO:</strong> Deletes the existing row, then inserts fresh. AUTO_INCREMENT ID changes. Any FK references to the old row break. Use rarely.<br><br>
+          <strong>ON DUPLICATE KEY UPDATE:</strong> Updates only the specified columns. Row ID stays the same. FK references intact. This is almost always what you want.<br><br>
+          In production code, use <code>ON DUPLICATE KEY UPDATE</code> — it's safer and more predictable.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 8: WHERE DISCIPLINE ── -->
+  <div class="section" id="sec8">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--red-light)">⚠️</div>
+      <div><div class="section-num">Topic 8</div><h2 class="section-title">WHERE Clause Discipline — The #1 Safety Rule</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      The single most important habit in DML: <strong>never run UPDATE or DELETE without a WHERE clause</strong> — unless you explicitly intend to affect every row. Here are the rules professional developers follow.
+    </p>
+
+    <div class="disaster-box">
+      <div class="dis-head">💀 Real Disasters — The Hall of Shame</div>
+      <div class="dis-body">
+        <div class="dis-scenario" style="margin-bottom:8px">
+          🚨 <strong>GitLab (2017):</strong> A DBA meant to delete data from a staging database. He deleted the wrong database — on production. 300 GB of data lost in seconds. They had to restore from a 6-hour-old backup. 5000+ GitLab.com users lost data.<br>
+          The culprit: Running a command on the wrong server, no WHERE clause.<br>
+          <a href="https://about.gitlab.com/blog/2017/02/01/gitlab-dot-com-database-incident/" style="color:var(--red);font-size:11px">Source: GitLab's public post-mortem</a>
+        </div>
+        <div class="dis-scenario">
+          🚨 <strong>Every beginner at some point:</strong> UPDATE students SET city = 'Mumbai'; (missing WHERE student_id = 5)<br>
+          Result: All 20,000 students now live in Mumbai.
+        </div>
+        <div class="dis-fix">
+          ✅ <strong>Prevention rules:</strong><br>
+          1. Always write WHERE clause BEFORE the SET clause in your mind<br>
+          2. Never copy-paste an UPDATE/DELETE from one context to another<br>
+          3. Always use transactions for any DML in production<br>
+          4. Add MySQL's safe mode: SET SQL_SAFE_UPDATES = 1; (blocks UPDATE/DELETE without WHERE + key column)
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>Safe Update Mode & Best Practices</span><span class="code-lang">MySQL</span></div>
+      <div class="code-body"><span class="cm">-- Enable safe update mode (MySQL) — prevents dangerous queries</span>
+<span class="kw">SET</span> SQL_SAFE_UPDATES = <span class="nm">1</span>;
+
+<span class="cm">-- This will now FAIL (no WHERE with key column):</span>
+<span class="kw">UPDATE</span> students <span class="kw">SET</span> city = <span class="str">'Mumbai'</span>;
+<span class="cm">-- Error 1175: You are using safe update mode...</span>
+
+<span class="cm">-- This will SUCCEED (WHERE with key column):</span>
+<span class="kw">UPDATE</span> students <span class="kw">SET</span> city = <span class="str">'Mumbai'</span>
+<span class="kw">WHERE</span> student_id = <span class="nm">5</span>;  <span class="cm">-- key column in WHERE = safe</span>
+
+<span class="cm">-- Best practices checklist:</span>
+<span class="cm">-- ✅ WHERE clause always present</span>
+<span class="cm">-- ✅ Use PK in WHERE when updating specific row</span>
+<span class="cm">-- ✅ Run SELECT first with same WHERE to verify</span>
+<span class="cm">-- ✅ Wrap in BEGIN/COMMIT transaction</span>
+<span class="cm">-- ✅ Use LIMIT on UPDATE/DELETE for safety net</span>
+<span class="cm">-- ✅ Backup or test on staging before production</span></div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 9: DRY RUN PATTERN ── -->
+  <div class="section" id="sec9">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--green-light)">🔍</div>
+      <div><div class="section-num">Topic 9</div><h2 class="section-title">The Dry-Run Pattern — SELECT Before You Wreck</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      The <strong>dry-run pattern</strong> is a professional habit: before running any UPDATE or DELETE, first run a SELECT with the same WHERE clause to preview exactly which rows will be affected. Only then execute the modification.
+    </p>
+
+    <div class="dry-run">
+      <div class="dr-step">
+        <div class="dr-num">1️⃣</div>
+        <div class="dr-content">
+          <div class="dr-title">Write the SELECT (dry run) <span class="dr-tag" style="background:var(--blue-light);color:var(--blue)">PREVIEW</span></div>
+          <div class="dr-body">First, write a SELECT with the exact same WHERE condition you plan to use in your UPDATE or DELETE. This shows you PRECISELY which rows will be affected.</div>
+          <div class="code-block" style="margin:8px 0">
+            <div class="code-body" style="padding:10px 14px;font-size:12px"><span class="cm">-- STEP 1: See which rows match your condition</span>
+<span class="kw">SELECT</span> student_id, name, score, city
+<span class="kw">FROM</span> students
+<span class="kw">WHERE</span> course = <span class="str">'Python'</span> <span class="kw">AND</span> score < <span class="nm">50</span>;</div>
+          </div>
+        </div>
+      </div>
+      <div class="dr-step">
+        <div class="dr-num">2️⃣</div>
+        <div class="dr-content">
+          <div class="dr-title">Verify the results <span class="dr-tag" style="background:var(--amber-light);color:var(--amber)">CHECK</span></div>
+          <div class="dr-body">Look at the SELECT results carefully. Ask: "Is this exactly what I want to update/delete?" Count the rows. Check the values. If anything looks wrong — fix the WHERE clause and re-run the SELECT.</div>
+          <div style="background:var(--gray50);padding:10px 14px;border-radius:8px;font-size:13px;color:var(--gray700);margin-top:8px">
+            Checklist: ✅ Right number of rows? ✅ Right students? ✅ Values look correct? ✅ No unexpected rows included?
+          </div>
+        </div>
+      </div>
+      <div class="dr-step">
+        <div class="dr-num">3️⃣</div>
+        <div class="dr-content">
+          <div class="dr-title">Replace SELECT with UPDATE/DELETE <span class="dr-tag" style="background:var(--teal-light);color:var(--teal)">EXECUTE</span></div>
+          <div class="dr-body">Only after verifying, change SELECT to UPDATE/DELETE — keeping the exact same WHERE clause.</div>
+          <div class="code-block" style="margin:8px 0">
+            <div class="code-body" style="padding:10px 14px;font-size:12px"><span class="cm">-- STEP 3: Same WHERE, now with UPDATE</span>
+<span class="kw">UPDATE</span> students
+<span class="kw">SET</span> is_active = <span class="nm">FALSE</span>
+<span class="kw">WHERE</span> course = <span class="str">'Python'</span> <span class="kw">AND</span> score < <span class="nm">50</span>;</div>
+          </div>
+        </div>
+      </div>
+      <div class="dr-step">
+        <div class="dr-num">4️⃣</div>
+        <div class="dr-content">
+          <div class="dr-title">Verify after the operation <span class="dr-tag" style="background:var(--green-light);color:var(--green)">CONFIRM</span></div>
+          <div class="dr-body">Run a SELECT again after the UPDATE/DELETE to confirm the changes took effect as expected. Check rows affected count. Verify before committing in production.</div>
+          <div class="code-block" style="margin:8px 0">
+            <div class="code-body" style="padding:10px 14px;font-size:12px"><span class="cm">-- STEP 4: Verify the change</span>
+<span class="kw">SELECT</span> student_id, name, is_active
+<span class="kw">FROM</span> students
+<span class="kw">WHERE</span> course = <span class="str">'Python'</span> <span class="kw">AND</span> score < <span class="nm">50</span>;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="simulator">
+      <div class="sim-top">
+        <div class="sim-title">🎮 Dry-Run Pattern in Action <span class="sim-badge">Exercise 6</span></div>
+      </div>
+      <textarea class="sim-editor" id="q6" spellcheck="false">-- STEP 1: Dry run — see which students will be deactivated
+SELECT student_id, name, course, score, is_active
+FROM students
+WHERE score < 50;
+
+-- After confirming the above SELECT shows exactly the right rows:
+
+-- STEP 2: Execute the UPDATE (same WHERE clause)
+-- UPDATE students
+-- SET is_active = FALSE
+-- WHERE score < 50;
+
+-- STEP 3: Verify the change
+-- SELECT student_id, name, score, is_active
+-- FROM students
+-- WHERE score < 50;</textarea>
+      <div class="sim-toolbar">
+        <div class="sim-hint">💡 This pattern saves databases. Senior developers do this every time, without exception.</div>
+        <div class="sim-btns">
+          <button class="reset-btn" onclick="resetQ('q6',5)">Reset</button>
+          <button class="run-btn" onclick="runDML('q6','o6','dry-run')">▶ Preview Rows</button>
+        </div>
+      </div>
+      <div class="sim-output" id="o6"></div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 10: SOFT DELETE ── -->
+  <div class="section" id="sec10">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--amber-light)">🏷️</div>
+      <div><div class="section-num">Topic 10</div><h2 class="section-title">Soft Delete vs Hard Delete</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      In real applications, you almost never truly delete data. Instead, you use <strong>soft delete</strong> — marking a record as "deleted" with a flag, while keeping the data. This is standard practice in production systems.
+    </p>
+
+    <table class="cmp-table">
+      <thead><tr style="background:var(--gray900);color:white"><th>Aspect</th><th style="color:#f38ba8">Hard Delete (DELETE FROM)</th><th style="color:#a6e3a1">Soft Delete (UPDATE is_deleted)</th></tr></thead>
+      <tbody>
+        <tr><td>Data after</td><td>Gone permanently</td><td>Still in database, just flagged</td></tr>
+        <tr><td>Recovery</td><td>❌ Only from backup</td><td>✅ Just flip the flag back</td></tr>
+        <tr><td>Audit trail</td><td>❌ No history</td><td>✅ Who deleted, when, why</td></tr>
+        <tr><td>FK references</td><td>❌ Can break child tables</td><td>✅ FK still valid</td></tr>
+        <tr><td>Compliance</td><td>❌ May violate data retention laws</td><td>✅ Data preserved for auditors</td></tr>
+        <tr><td>Query complexity</td><td>Simple — just SELECT</td><td>Must add WHERE is_deleted = FALSE</td></tr>
+        <tr><td>Storage</td><td>Less data stored</td><td>More data stored</td></tr>
+        <tr><td>Used in</td><td>Temp data, logs, test data</td><td>Users, orders, financial records</td></tr>
+      </tbody>
+    </table>
+
+    <div class="code-block">
+      <div class="code-header"><span>Implementing Soft Delete — Complete Pattern</span><span class="code-lang">MySQL</span></div>
+      <div class="code-body"><span class="cm">-- Step 1: Add soft delete columns to table</span>
+<span class="kw">ALTER TABLE</span> students
+    <span class="kw">ADD COLUMN</span> is_deleted     <span class="kw">BOOLEAN</span>   <span class="kw">DEFAULT</span> <span class="nm">FALSE</span>,
+    <span class="kw">ADD COLUMN</span> deleted_at     <span class="kw">TIMESTAMP</span> <span class="kw">NULL</span>,
+    <span class="kw">ADD COLUMN</span> deleted_reason <span class="kw">VARCHAR</span>(<span class="nm">200</span>);
+
+<span class="cm">-- Step 2: "Delete" = UPDATE the flag (not DELETE)</span>
+<span class="kw">UPDATE</span> students
+<span class="kw">SET</span>
+    is_deleted     = <span class="nm">TRUE</span>,
+    deleted_at     = <span class="fn">NOW</span>(),
+    deleted_reason = <span class="str">'Student requested account removal'</span>
+<span class="kw">WHERE</span> student_id = <span class="nm">5</span>;
+
+<span class="cm">-- Step 3: All regular queries must filter out deleted records</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> students
+<span class="kw">WHERE</span> is_deleted = <span class="nm">FALSE</span>;  <span class="cm">-- add this to EVERY query</span>
+
+<span class="cm">-- Step 4: "Restore" a deleted record easily</span>
+<span class="kw">UPDATE</span> students
+<span class="kw">SET</span> is_deleted = <span class="nm">FALSE</span>, deleted_at = <span class="kw">NULL</span>, deleted_reason = <span class="kw">NULL</span>
+<span class="kw">WHERE</span> student_id = <span class="nm">5</span>;
+
+<span class="cm">-- Step 5: Admin view — see all deleted records</span>
+<span class="kw">SELECT</span> student_id, name, deleted_at, deleted_reason
+<span class="kw">FROM</span> students
+<span class="kw">WHERE</span> is_deleted = <span class="nm">TRUE</span>
+<span class="kw">ORDER BY</span> deleted_at <span class="kw">DESC</span>;</div>
+    </div>
+
+    <div class="simulator">
+      <div class="sim-top">
+        <div class="sim-title">🎮 Soft Delete Simulation <span class="sim-badge">Exercise 7</span></div>
+      </div>
+      <textarea class="sim-editor" id="q7" spellcheck="false">-- Soft delete student_id = 14 (Vikram who scored 38)
+-- Instead of DELETE, we UPDATE with a flag
+UPDATE students
+SET is_active = FALSE
+WHERE student_id = 14;
+
+-- Now query "active" students only (soft-deleted excluded)
+SELECT student_id, name, score, is_active
+FROM students
+WHERE is_active = TRUE
+ORDER BY student_id;
+
+-- Admin view: show ALL including "deleted"
+-- SELECT student_id, name, score, is_active,
+--   CASE WHEN is_active = FALSE THEN '🗑 Soft Deleted' ELSE '✅ Active' END AS status
+-- FROM students
+-- ORDER BY is_active DESC, student_id;</textarea>
+      <div class="sim-toolbar">
+        <div class="sim-hint">💡 Notice: the student's data still exists — we can restore it anytime by setting is_active = TRUE again!</div>
+        <div class="sim-btns">
+          <button class="reset-btn" onclick="resetQ('q7',6)">Reset</button>
+          <button class="run-btn" onclick="runDML('q7','o7','soft-delete')">▶ Soft Delete & Query</button>
+        </div>
+      </div>
+      <div class="sim-output" id="o7"></div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 11: CASCADE DELETES ── -->
+  <div class="section" id="sec11">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--coral-light)">⛓️</div>
+      <div><div class="section-num">Topic 11</div><h2 class="section-title">Cascading Deletes with FK Constraints</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      When tables are linked by Foreign Keys with <code>ON DELETE CASCADE</code>, deleting a parent row automatically deletes all child rows across multiple tables — like a chain reaction. Understanding this is critical for both intentional design and accidental disasters.
+    </p>
+
+    <div class="real-world">
+      <div class="rw-label">🇮🇳 Real-World Cascade Scenario</div>
+      <div class="rw-title">GUVI LMS — What happens when a student account is deleted?</div>
+      <div class="rw-body">
+        Table: <strong>students</strong> (parent)<br>
+        ↓ ON DELETE CASCADE →<br>
+        Table: <strong>enrollments</strong> (child) — student's course enrollments deleted<br>
+        ↓ ON DELETE CASCADE →<br>
+        Table: <strong>quiz_attempts</strong> (grandchild) — their quiz results deleted<br>
+        ↓ ON DELETE CASCADE →<br>
+        Table: <strong>certificates</strong> (great-grandchild) — issued certificates deleted<br><br>
+        One <code>DELETE FROM students WHERE student_id = 5</code> can cascade through 4 tables and delete hundreds of rows. All automatic. This is why most production systems use soft delete instead!
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>Cascade Delete — Schema & Behavior</span><span class="code-lang">MySQL</span></div>
+      <div class="code-body"><span class="cm">-- Schema with cascading FK relationships</span>
+<span class="kw">CREATE TABLE</span> students (
+    student_id <span class="kw">INT PRIMARY KEY AUTO_INCREMENT</span>,
+    name       <span class="kw">VARCHAR</span>(<span class="nm">100</span>)
+);
+
+<span class="kw">CREATE TABLE</span> enrollments (
+    enroll_id  <span class="kw">INT PRIMARY KEY AUTO_INCREMENT</span>,
+    student_id <span class="kw">INT NOT NULL</span>,
+    course     <span class="kw">VARCHAR</span>(<span class="nm">50</span>),
+    <span class="kw">FOREIGN KEY</span> (student_id) <span class="kw">REFERENCES</span> students(student_id)
+        <span class="kw">ON DELETE CASCADE</span>   <span class="cm">-- enrollments deleted when student deleted</span>
+);
+
+<span class="kw">CREATE TABLE</span> quiz_attempts (
+    attempt_id <span class="kw">INT PRIMARY KEY AUTO_INCREMENT</span>,
+    enroll_id  <span class="kw">INT NOT NULL</span>,
+    score      <span class="kw">DECIMAL</span>(<span class="nm">5</span>,<span class="nm">2</span>),
+    <span class="kw">FOREIGN KEY</span> (enroll_id) <span class="kw">REFERENCES</span> enrollments(enroll_id)
+        <span class="kw">ON DELETE CASCADE</span>   <span class="cm">-- quiz attempts deleted when enrollment deleted</span>
+);
+
+<span class="cm">-- ONE delete cascades through 3 tables:</span>
+<span class="kw">DELETE FROM</span> students <span class="kw">WHERE</span> student_id = <span class="nm">5</span>;
+<span class="cm">-- AUTO-DELETES: all enrollments WHERE student_id=5</span>
+<span class="cm">--              all quiz_attempts WHERE enroll_id IN (deleted enrollments)</span>
+
+<span class="cm">-- To see cascade impact BEFORE deleting (dry run):</span>
+<span class="kw">SELECT</span>
+    s.name,
+    <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> e.enroll_id)  <span class="kw">AS</span> enrollments_to_delete,
+    <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> q.attempt_id) <span class="kw">AS</span> quiz_attempts_to_delete
+<span class="kw">FROM</span> students s
+<span class="kw">LEFT JOIN</span> enrollments e  <span class="kw">ON</span> s.student_id = e.student_id
+<span class="kw">LEFT JOIN</span> quiz_attempts q <span class="kw">ON</span> e.enroll_id  = q.enroll_id
+<span class="kw">WHERE</span> s.student_id = <span class="nm">5</span>
+<span class="kw">GROUP BY</span> s.name;</div>
+    </div>
+
+    <div class="callout danger">
+      <div class="callout-icon">💀</div>
+      <div class="callout-body">
+        <div class="callout-title">Cascade Delete is powerful — and dangerous</div>
+        <div class="callout-text">
+          Always run a dry-run SELECT JOIN query to understand cascade impact before deleting parent rows. A single DELETE can remove thousands of rows across multiple tables in milliseconds — and if not in a transaction, it's gone.<br><br>
+          Production best practice: Use <code>ON DELETE RESTRICT</code> (blocks delete, forces manual cleanup), or use soft delete on parent records.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 12: TRANSACTIONS ── -->
+  <div class="section" id="sec12">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--green-light)">🔐</div>
+      <div><div class="section-num">Topic 12</div><h2 class="section-title">Transactions for Bulk DML — Your Safety Net</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      A <strong>transaction</strong> is a group of DML statements that execute as a single unit — all succeed together, or none of them apply. Transactions are your ultimate safety net: if anything goes wrong, you can ROLLBACK and restore the exact previous state.
+    </p>
+
+    <div class="txn-flow">
+      <div class="txn-title">🔄 Transaction Lifecycle</div>
+      <div class="txn-steps">
+        <div class="txn-step">
+          <div class="txn-dot" style="background:var(--blue-light);color:var(--blue)">🚀</div>
+          <div>
+            <div class="txn-label">BEGIN / START TRANSACTION</div>
+            <div class="txn-desc">Start a transaction — all subsequent DML is temporary, not yet committed</div>
+          </div>
+        </div>
+        <div class="txn-step">
+          <div class="txn-dot" style="background:var(--amber-light);color:var(--amber)">✏️</div>
+          <div>
+            <div class="txn-label">INSERT / UPDATE / DELETE</div>
+            <div class="txn-desc">Run DML operations — changes visible to THIS session but not yet to others</div>
+          </div>
+        </div>
+        <div class="txn-step">
+          <div class="txn-dot" style="background:var(--blue-light);color:var(--blue)">🔍</div>
+          <div>
+            <div class="txn-label">SELECT to verify</div>
+            <div class="txn-desc">Within the transaction, run SELECT to verify changes look correct before committing</div>
+          </div>
+        </div>
+        <div class="txn-step">
+          <div class="txn-dot" style="background:var(--teal-light);color:var(--teal)">✅</div>
+          <div>
+            <div class="txn-label">COMMIT → changes permanent</div>
+            <div class="txn-desc">All changes are written to disk and visible to all other connections</div>
+          </div>
+        </div>
+        <div class="txn-step">
+          <div class="txn-dot" style="background:var(--red-light);color:var(--red)">↩️</div>
+          <div>
+            <div class="txn-label">OR: ROLLBACK → undo everything</div>
+            <div class="txn-desc">If anything went wrong, ALL changes in this transaction are reversed instantly</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="simulator">
+      <div class="sim-top">
+        <div class="sim-title">🎮 Transactions — Bulk DML with Safety Net <span class="sim-badge">Exercise 8</span></div>
+      </div>
+      <textarea class="sim-editor" id="q8" spellcheck="false">-- Real scenario: End of batch — mark all students as graduated
+-- Using a transaction for safety
+
+START TRANSACTION;
+
+-- Step 1: Create summary before changes
+SELECT COUNT(*) AS total_students,
+       AVG(score) AS batch_avg,
+       SUM(fee_paid) AS total_revenue
+FROM students WHERE batch = 'B2024';
+
+-- Step 2: Update batch status
+UPDATE students
+SET is_active = FALSE
+WHERE batch = 'B2024';
+
+-- Step 3: Verify the update looks right
+SELECT student_id, name, batch, is_active
+FROM students
+WHERE batch = 'B2024';
+
+-- Step 4: If everything looks good → COMMIT
+-- COMMIT;
+
+-- Step 4 (alternative): If something is wrong → ROLLBACK
+-- ROLLBACK;  -- reverts ALL changes in this transaction
+
+-- SAVEPOINT example:
+-- START TRANSACTION;
+-- SAVEPOINT before_update;
+-- UPDATE students SET score = 0 WHERE score IS NULL;
+-- -- Realize this was wrong:
+-- ROLLBACK TO SAVEPOINT before_update;
+-- -- Now try a different approach...
+-- COMMIT;</textarea>
+      <div class="sim-toolbar">
+        <div class="sim-hint">💡 In production: ALWAYS wrap bulk DML in transactions. One mistake shouldn't corrupt your entire database.</div>
+        <div class="sim-btns">
+          <button class="reset-btn" onclick="resetQ('q8',7)">Reset</button>
+          <button class="run-btn" onclick="runDML('q8','o8','transaction')">▶ See Transaction Flow</button>
+        </div>
+      </div>
+      <div class="sim-output" id="o8"></div>
+    </div>
+
+    <div class="pattern-grid">
+      <div class="pattern-card">
+        <div class="pat-head" style="background:var(--teal-light);color:var(--teal)">✅ Safe Bulk UPDATE Pattern</div>
+        <div class="pat-body">
+          Wraps all changes in a transaction with verification at each step.
+          <div class="pat-code">START TRANSACTION;
+
+-- Dry run first
+SELECT COUNT(*) FROM students
+WHERE score < 40;
+
+-- Execute
+UPDATE students SET is_active = FALSE
+WHERE score < 40;
+
+-- Verify
+SELECT student_id, name, is_active
+FROM students WHERE score < 40;
+
+-- Only if all looks good:
+COMMIT;
+-- Otherwise: ROLLBACK;</div>
+        </div>
+      </div>
+      <div class="pattern-card">
+        <div class="pat-head" style="background:var(--blue-light);color:var(--blue)">🏦 Bank Transfer Pattern</div>
+        <div class="pat-body">
+          Classic ACID example — atomic debit + credit pair.
+          <div class="pat-code">START TRANSACTION;
+
+-- Debit sender
+UPDATE accounts
+SET balance = balance - 5000
+WHERE account_id = 101
+  AND balance >= 5000;  -- check funds!
+
+-- Verify debit happened
+IF ROW_COUNT() = 0 THEN
+  ROLLBACK;  -- insufficient funds
+END IF;
+
+-- Credit receiver
+UPDATE accounts
+SET balance = balance + 5000
+WHERE account_id = 202;
+
+COMMIT;  -- both happen or neither</div>
+        </div>
+      </div>
+      <div class="pattern-card">
+        <div class="pat-head" style="background:var(--amber-light);color:var(--amber)">📦 ETL Load Pattern</div>
+        <div class="pat-body">
+          For loading batch data — all rows or none.
+          <div class="pat-code">START TRANSACTION;
+
+-- Clear staging
+TRUNCATE TABLE staging_students;
+
+-- Load new data
+INSERT INTO staging_students
+SELECT * FROM csv_import;
+
+-- Validate counts
+SELECT COUNT(*) FROM staging_students;
+-- If count matches expected: proceed
+
+-- Move to production
+INSERT INTO students
+SELECT * FROM staging_students;
+
+COMMIT;  -- or ROLLBACK if counts wrong</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 13: CHEATSHEET & QUIZ ── -->
+  <div class="section" id="sec13">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--indigo-light)">📋</div>
+      <div><div class="section-num">Topic 13</div><h2 class="section-title">DML Cheatsheet & Quiz</h2></div>
+    </div>
+
+    <div class="cheatsheet">
+      <div class="cs-title">📋 DML Quick Reference</div>
+      <div class="cs-grid">
+        <div class="cs-item">
+          <div class="cs-label">INSERT</div>
+          <div class="cs-code"><span class="cm">-- Single row</span>
+<span class="kw">INSERT INTO</span> <span class="ph">t</span> (<span class="ph">col1</span>,<span class="ph">col2</span>) <span class="kw">VALUES</span> (<span class="ph">v1</span>,<span class="ph">v2</span>);
+<span class="cm">-- Multi-row batch</span>
+<span class="kw">INSERT INTO</span> <span class="ph">t</span> (<span class="ph">col1</span>) <span class="kw">VALUES</span> (<span class="ph">a</span>),(<span class="ph">b</span>),(<span class="ph">c</span>);
+<span class="cm">-- From SELECT</span>
+<span class="kw">INSERT INTO</span> <span class="ph">t2</span> <span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="ph">t1 WHERE</span> ...;</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">UPDATE (safe)</div>
+          <div class="cs-code"><span class="cm">-- DRY RUN FIRST:</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="ph">t WHERE</span> <span class="ph">condition</span>;
+<span class="cm">-- THEN update:</span>
+<span class="kw">UPDATE</span> <span class="ph">t</span>
+<span class="kw">SET</span> <span class="ph">col</span> = <span class="ph">new_val</span>
+<span class="kw">WHERE</span> <span class="ph">condition</span>;  <span class="cm">← NEVER OMIT</span></div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">DELETE (safe)</div>
+          <div class="cs-code"><span class="cm">-- DRY RUN FIRST:</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="ph">t WHERE</span> <span class="ph">condition</span>;
+<span class="cm">-- THEN delete:</span>
+<span class="kw">DELETE FROM</span> <span class="ph">t</span>
+<span class="kw">WHERE</span> <span class="ph">condition</span>
+<span class="kw">LIMIT</span> <span class="ph">n</span>;  <span class="cm">← safety net</span></div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">UPSERT (MySQL)</div>
+          <div class="cs-code"><span class="kw">INSERT INTO</span> <span class="ph">t</span> (<span class="ph">id</span>, <span class="ph">col</span>)
+<span class="kw">VALUES</span> (<span class="ph">1</span>, <span class="ph">'new'</span>)
+<span class="kw">ON DUPLICATE KEY UPDATE</span>
+  <span class="ph">col</span> = <span class="kw">VALUES</span>(<span class="ph">col</span>);</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">Transactions</div>
+          <div class="cs-code"><span class="kw">START TRANSACTION</span>;
+<span class="cm">-- DML statements...</span>
+<span class="kw">SELECT</span> * ... <span class="cm">-- verify</span>
+<span class="kw">COMMIT</span>;      <span class="cm">-- save</span>
+<span class="cm">-- OR:</span>
+<span class="kw">ROLLBACK</span>;    <span class="cm">-- undo all</span></div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">Soft Delete Pattern</div>
+          <div class="cs-code"><span class="cm">-- Mark deleted (don't actually delete)</span>
+<span class="kw">UPDATE</span> <span class="ph">t</span>
+<span class="kw">SET</span> is_deleted=<span class="ph">TRUE</span>, deleted_at=<span class="fn">NOW</span>()
+<span class="kw">WHERE</span> <span class="ph">id</span>=<span class="ph">5</span>;
+<span class="cm">-- Query active only:</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="ph">t WHERE</span> is_deleted=<span class="ph">FALSE</span>;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="quiz-box">
+      <div class="quiz-header">
+        <div style="font-size:18px">🧠</div>
+        <div class="quiz-title">Chapter 6 — DML Knowledge Check</div>
+        <div class="quiz-count" id="q-count">Question 1 of 12</div>
+      </div>
+      <div class="quiz-body" id="quiz-body"></div>
+      <div class="quiz-nav">
+        <div class="quiz-progress-dots" id="q-dots"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn" id="prev-btn" onclick="prevQ()" style="display:none">← Prev</button>
+          <button class="btn btn-primary" id="next-btn" onclick="nextQ()" style="display:none">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-box">
+      <div class="summary-title">✅ Chapter 6 — What You've Mastered</div>
+      <div class="summary-grid">
+        <div class="summary-item"><div class="summary-check">✓</div>INSERT INTO — single row with explicit columns</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Multi-row batch INSERT — 100× faster than one-by-one</div>
+        <div class="summary-item"><div class="summary-check">✓</div>INSERT INTO SELECT — copy & transform data</div>
+        <div class="summary-item"><div class="summary-check">✓</div>UPDATE SET WHERE — safe modification pattern</div>
+        <div class="summary-item"><div class="summary-check">✓</div>DELETE FROM WHERE — targeted row removal</div>
+        <div class="summary-item"><div class="summary-check">✓</div>REPLACE INTO & ON DUPLICATE KEY UPDATE (UPSERT)</div>
+        <div class="summary-item"><div class="summary-check">✓</div>WHERE clause discipline — the #1 safety rule</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Dry-run pattern — SELECT before UPDATE/DELETE</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Soft delete vs hard delete — production patterns</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Cascade deletes — how FK chains work</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Transactions — COMMIT and ROLLBACK for safety</div>
+      </div>
+    </div>
+  </div>
+  </div><!-- /content -->
+
+  <div class="chapter-nav">
+    <div class="nav-card" onclick="window.location='chapter5-ddl.html'">
+      ‹ <div><div class="nav-card-dir">← Previous</div><div class="nav-card-name">Chapter 5: DDL</div></div>
+    </div>
+    <div class="nav-card" onclick="alert('Chapter 7: TCL — Transaction Control Language coming next!')">
+      <div><div class="nav-card-dir">Next →</div><div class="nav-card-name">Chapter 7: TCL — Transaction Control</div></div> ›
+    </div>
+  </div>
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ── LIVE DATABASE ────────────────────────────────
+let DB = [
+  {student_id:1, name:'Priya Sharma',   city:'Chennai',   course:'SQL',    score:88.5, fee_paid:12000, is_active:true, batch:'B2024'},
+  {student_id:2, name:'Rahul Verma',    city:'Delhi',     course:'Python', score:74.0, fee_paid:10000, is_active:true, batch:'B2024'},
+  {student_id:3, name:'Ananya Iyer',    city:'Bangalore', course:'ML',     score:91.5, fee_paid:15000, is_active:true, batch:'B2024'},
+  {student_id:4, name:'Karthik Nair',   city:'Mumbai',    course:'SQL',    score:65.0, fee_paid:12000, is_active:true, batch:'B2024'},
+  {student_id:5, name:'Meena Pillai',   city:'Chennai',   course:'Python', score:79.5, fee_paid:10000, is_active:true, batch:'B2024'},
+  {student_id:6, name:'Arjun Reddy',    city:'Hyderabad', course:'ML',     score:55.0, fee_paid:15000, is_active:true, batch:'B2024'},
+  {student_id:7, name:'Nisha Gupta',    city:'Delhi',     course:'SQL',    score:83.0, fee_paid:12000, is_active:true, batch:'B2025'},
+  {student_id:8, name:'Sai Krishna',    city:'Bangalore', course:'Python', score:92.0, fee_paid:10000, is_active:true, batch:'B2025'},
+  {student_id:9, name:'Divya Menon',    city:'Chennai',   course:'ML',     score:47.5, fee_paid:15000, is_active:true, batch:'B2025'},
+  {student_id:10,name:'Rohit Joshi',    city:'Pune',      course:'SQL',    score:76.0, fee_paid:12000, is_active:true, batch:'B2025'},
+  {student_id:11,name:'Pooja Singh',    city:'Mumbai',    course:'Python', score:88.0, fee_paid:10000, is_active:true, batch:'B2025'},
+  {student_id:12,name:'Arun Kumar',     city:'Chennai',   course:'ML',     score:61.5, fee_paid:15000, is_active:true, batch:'B2025'},
+  {student_id:13,name:'Lakshmi Devi',   city:'Hyderabad', course:'SQL',    score:95.0, fee_paid:12000, is_active:true, batch:'B2025'},
+  {student_id:14,name:'Vikram Rao',     city:'Bangalore', course:'Python', score:38.0, fee_paid:10000, is_active:true, batch:'B2024'},
+  {student_id:15,name:'Sunita Sharma',  city:'Jaipur',    course:'ML',     score:72.0, fee_paid:15000, is_active:true, batch:'B2024'},
+  {student_id:16,name:'Deepak Patel',   city:'Ahmedabad', course:'SQL',    score:58.5, fee_paid:12000, is_active:true, batch:'B2024'},
+  {student_id:17,name:'Renu Kapoor',    city:'Delhi',     course:'Python', score:84.0, fee_paid:10000, is_active:true, batch:'B2025'},
+  {student_id:18,name:'Manoj Tiwari',   city:'Lucknow',   course:'ML',     score:66.5, fee_paid:15000, is_active:true, batch:'B2025'},
+  {student_id:19,name:'Kavitha Suresh', city:'Chennai',   course:'SQL',    score:90.0, fee_paid:12000, is_active:true, batch:'B2024'},
+  {student_id:20,name:'Nitin Mishra',   city:'Pune',      course:'Python', score:43.0, fee_paid:10000, is_active:true, batch:'B2024'},
+];
+const originalDB = JSON.parse(JSON.stringify(DB));
+
+function renderLiveDB() {
+  const tbody = document.getElementById('live-db');
+  tbody.innerHTML = '';
+  DB.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.student_id}</td><td>${r.name}</td><td>${r.city}</td><td>${r.course}</td><td>${r.score}</td><td>₹${r.fee_paid.toLocaleString()}</td><td style="color:${r.is_active?'var(--teal)':'var(--coral)'}">●&nbsp;${r.is_active?'Active':'Inactive'}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+renderLiveDB();
+
+// ── DML SIMULATOR ────────────────────────────────
+function runDML(editorId, outputId, type) {
+  const out = document.getElementById(outputId);
+  out.classList.add('visible');
+  const before = JSON.parse(JSON.stringify(DB));
+
+  let tabs = '', panels = '';
+  if (type === 'insert-single') {
+    const newId = Math.max(...DB.map(r=>r.student_id)) + 1;
+    const newRow = {student_id:newId, name:'Kavitha Rajan', city:'Coimbatore', course:'SQL', score:85.0, fee_paid:12000, is_active:true, batch:'B2025'};
+    DB.push(newRow);
+    renderLiveDB();
+    tabs = `<button class="out-tab active" onclick="switchOutTab(this,'ot1a')">Result</button><button class="out-tab" onclick="switchOutTab(this,'ot1b')">New Row</button>`;
+    panels = `<div class="out-panel active" id="ot1a">
+      <div class="msg success">✅ INSERT successful — 1 row added (student_id = ${newId} auto-assigned)</div>
+      <div class="msg info">📌 LAST_INSERT_ID() = ${newId} — use this to get the new row's ID in Python</div>
+      <div class="msg good">💡 Live database updated above — scroll up to see the new student!</div>
+    </div>
+    <div class="out-panel" id="ot1b">
+      <div class="out-label">Newly inserted row</div>
+      <table class="result-tbl"><thead><tr><th>student_id</th><th>name</th><th>city</th><th>course</th><th>score</th><th>fee_paid</th></tr></thead>
+      <tbody><tr class="hi-row"><td class="hi">${newId}</td><td class="hi">${newRow.name}</td><td class="hi">${newRow.city}</td><td class="hi">${newRow.course}</td><td class="hi">${newRow.score}</td><td class="hi">₹${newRow.fee_paid.toLocaleString()}</td></tr></tbody></table>
+    </div>`;
+  } else if (type === 'insert-batch') {
+    const batch = [
+      {name:'Aditya Kumar',city:'Pune',course:'Python',score:82.0,fee_paid:10000},
+      {name:'Sneha Reddy',city:'Hyderabad',course:'ML',score:77.5,fee_paid:15000},
+      {name:'Rahul Jain',city:'Jaipur',course:'SQL',score:90.0,fee_paid:12000},
+      {name:'Pooja Agarwal',city:'Lucknow',course:'Python',score:55.0,fee_paid:10000},
+      {name:'Vijay Nair',city:'Kochi',course:'SQL',score:88.5,fee_paid:12000},
+    ];
+    let startId = Math.max(...DB.map(r=>r.student_id)) + 1;
+    batch.forEach(b => { DB.push({...b, student_id:startId++, is_active:true, batch:'B2025'}); });
+    renderLiveDB();
+    tabs = `<button class="out-tab active" onclick="switchOutTab(this,'ot2a')">Result</button><button class="out-tab" onclick="switchOutTab(this,'ot2b')">Inserted Rows</button>`;
+    panels = `<div class="out-panel active" id="ot2a">
+      <div class="msg success">✅ Batch INSERT successful — 5 rows added in a single statement</div>
+      <div class="msg info">⚡ Performance: 1 network round-trip vs 5 individual INSERTs. 5× faster here, 100× faster with thousands of rows.</div>
+    </div>
+    <div class="out-panel" id="ot2b">
+      <div class="out-label">5 rows inserted <span class="row-count">5 rows</span></div>
+      <table class="result-tbl"><thead><tr><th>name</th><th>city</th><th>course</th><th>score</th></tr></thead>
+      <tbody>${batch.map(b=>`<tr><td class="hi">${b.name}</td><td class="hi">${b.city}</td><td class="hi">${b.course}</td><td class="hi">${b.score}</td></tr>`).join('')}</tbody></table>
+    </div>`;
+  } else if (type === 'insert-select') {
+    const topStudents = DB.filter(r=>r.score>=75).sort((a,b)=>b.score-a.score);
+    tabs = `<button class="out-tab active" onclick="switchOutTab(this,'ot3a')">Result</button><button class="out-tab" onclick="switchOutTab(this,'ot3b')">Copied Rows</button>`;
+    panels = `<div class="out-panel active" id="ot3a">
+      <div class="msg success">✅ INSERT INTO ... SELECT completed — ${topStudents.length} rows copied to top_students_archive</div>
+      <div class="msg info">💡 No VALUES clause needed — the SELECT provides the data. This runs as one atomic operation.</div>
+    </div>
+    <div class="out-panel" id="ot3b">
+      <div class="out-label">Rows copied (score ≥ 75) <span class="row-count">${topStudents.length} rows</span></div>
+      <table class="result-tbl"><thead><tr><th>student_id</th><th>name</th><th>course</th><th>score</th><th>grade</th></tr></thead>
+      <tbody>${topStudents.map(r=>{
+        const g=r.score>=90?'Distinction':r.score>=75?'First Class':'Merit';
+        return `<tr><td>${r.student_id}</td><td>${r.name}</td><td>${r.course}</td><td class="hi">${r.score}</td><td class="hi">${g}</td></tr>`;
+      }).join('')}</tbody></table>
+    </div>`;
+  } else if (type === 'update') {
+    const student = DB.find(r=>r.student_id===1);
+    const oldScore = student.score;
+    student.score = 92.5;
+    renderLiveDB();
+    tabs = `<button class="out-tab active" onclick="switchOutTab(this,'ot4a')">Result</button><button class="out-tab" onclick="switchOutTab(this,'ot4b')">Changed Row</button>`;
+    panels = `<div class="out-panel active" id="ot4a">
+      <div class="msg success">✅ UPDATE successful — 1 row affected</div>
+      <div class="msg info">📌 Rows affected: 1. Using student_id = 1 (PK) guarantees exactly ONE row changes.</div>
+    </div>
+    <div class="out-panel" id="ot4b">
+      <div class="out-label">Updated row</div>
+      <table class="result-tbl"><thead><tr><th>student_id</th><th>name</th><th>score (before)</th><th>score (after)</th></tr></thead>
+      <tbody><tr><td>1</td><td>${student.name}</td><td style="color:var(--coral);text-decoration:line-through">${oldScore}</td><td class="changed">92.5</td></tr></tbody></table>
+    </div>`;
+  } else if (type === 'delete') {
+    const idx = DB.findIndex(r=>r.student_id===20);
+    const deleted = idx >= 0 ? DB.splice(idx, 1)[0] : null;
+    renderLiveDB();
+    tabs = `<button class="out-tab active" onclick="switchOutTab(this,'ot5a')">Result</button>`;
+    panels = `<div class="out-panel active" id="ot5a">
+      ${deleted ? `<div class="msg success">✅ DELETE successful — 1 row removed</div><div class="msg warn">⚠️ Row permanently removed from live database (no transaction = no rollback)</div>` : `<div class="msg info">ℹ️ Row already deleted — student_id 20 not found</div>`}
+      ${deleted ? `<table class="result-tbl" style="margin-top:10px"><thead><tr><th>Deleted: student_id</th><th>name</th><th>course</th><th>score</th></tr></thead><tbody><tr><td class="deleted">${deleted.student_id}</td><td class="deleted">${deleted.name}</td><td class="deleted">${deleted.course}</td><td class="deleted">${deleted.score}</td></tr></tbody></table>` : ''}
+    </div>`;
+  } else if (type === 'dry-run') {
+    const matches = DB.filter(r=>r.score<50);
+    tabs = `<button class="out-tab active" onclick="switchOutTab(this,'ot6a')">Preview</button><button class="out-tab" onclick="switchOutTab(this,'ot6b')">Analysis</button>`;
+    panels = `<div class="out-panel active" id="ot6a">
+      <div class="out-label">Dry run — rows that WOULD be updated <span class="row-count">${matches.length} rows</span></div>
+      <table class="result-tbl"><thead><tr><th>student_id</th><th>name</th><th>course</th><th>score</th><th>is_active (current)</th></tr></thead>
+      <tbody>${matches.map(r=>`<tr><td>${r.student_id}</td><td>${r.name}</td><td>${r.course}</td><td style="color:var(--red)">${r.score}</td><td>● Active</td></tr>`).join('')}</tbody></table>
+    </div>
+    <div class="out-panel" id="ot6b">
+      <div class="msg info">📋 ${matches.length} students will be deactivated (score < 50)</div>
+      <div class="msg good">✅ Verified: These are exactly the students we want to mark inactive</div>
+      <div class="msg success">🚀 Now safe to run: UPDATE students SET is_active = FALSE WHERE score &lt; 50;</div>
+    </div>`;
+  } else if (type === 'soft-delete') {
+    const s = DB.find(r=>r.student_id===14);
+    if(s) s.is_active = false;
+    const active = DB.filter(r=>r.is_active);
+    renderLiveDB();
+    tabs = `<button class="out-tab active" onclick="switchOutTab(this,'ot7a')">Active Students</button><button class="out-tab" onclick="switchOutTab(this,'ot7b')">Analysis</button>`;
+    panels = `<div class="out-panel active" id="ot7a">
+      <div class="out-label">Active students (is_active = TRUE) <span class="row-count">${active.length} rows</span></div>
+      <table class="result-tbl"><thead><tr><th>student_id</th><th>name</th><th>course</th><th>score</th><th>is_active</th></tr></thead>
+      <tbody>${active.map(r=>`<tr><td>${r.student_id}</td><td>${r.name}</td><td>${r.course}</td><td>${r.score}</td><td style="color:var(--teal)">● Active</td></tr>`).join('')}</tbody></table>
+    </div>
+    <div class="out-panel" id="ot7b">
+      <div class="msg success">✅ Soft delete applied — Vikram Rao (id=14) marked inactive</div>
+      <div class="msg info">📋 Total students: ${DB.length} | Active: ${active.length} | Soft-deleted: ${DB.length-active.length}</div>
+      <div class="msg good">💡 To restore: UPDATE students SET is_active = TRUE WHERE student_id = 14;</div>
+    </div>`;
+  } else if (type === 'transaction') {
+    const b2024 = DB.filter(r=>r.batch==='B2024');
+    const avg = (b2024.reduce((s,r)=>s+r.score,0)/b2024.length).toFixed(1);
+    const rev = b2024.reduce((s,r)=>s+r.fee_paid,0);
+    tabs = `<button class="out-tab active" onclick="switchOutTab(this,'ot8a')">Transaction Flow</button><button class="out-tab" onclick="switchOutTab(this,'ot8b')">Batch Summary</button>`;
+    panels = `<div class="out-panel active" id="ot8a">
+      <div class="msg info">🚀 START TRANSACTION — transaction opened</div>
+      <div class="msg success">✅ Step 1 SELECT — batch B2024 summary computed</div>
+      <div class="msg info">⏳ Step 2 UPDATE — marking B2024 students inactive (PENDING, not committed yet)</div>
+      <div class="msg warn">⚠️ Changes visible to THIS session but NOT committed to disk yet</div>
+      <div class="msg good">💡 COMMIT to save | ROLLBACK to undo everything</div>
+    </div>
+    <div class="out-panel" id="ot8b">
+      <div class="out-label">B2024 Batch Summary</div>
+      <table class="result-tbl"><thead><tr><th>Metric</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Total B2024 students</td><td class="hi">${b2024.length}</td></tr>
+        <tr><td>Average score</td><td class="hi">${avg}</td></tr>
+        <tr><td>Total revenue</td><td class="hi">₹${rev.toLocaleString()}</td></tr>
+      </tbody></table>
+    </div>`;
+  }
+
+  out.innerHTML = `<div class="out-tabs">${tabs}</div>${panels}`;
+  out.querySelectorAll('.out-panel')[0]?.classList.add('active');
+  updateProgress();
+}
+
+function switchOutTab(btn, id) {
+  const parent = btn.closest('.sim-output');
+  parent.querySelectorAll('.out-tab').forEach(t=>t.classList.remove('active'));
+  parent.querySelectorAll('.out-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// ── DEFAULTS ────────────────────────────────────
+const defaults = [
+  `-- Method 1: Explicit column names (ALWAYS prefer this)\nINSERT INTO students (name, city, course, score, fee_paid, is_active)\nVALUES ('Kavitha Rajan', 'Coimbatore', 'SQL', 85.0, 12000, TRUE);`,
+  `-- Insert a full batch of new students at once\nINSERT INTO students (name, city, course, score, fee_paid, is_active)\nVALUES\n    ('Aditya Kumar',   'Pune',      'Python', 82.0, 10000, TRUE),\n    ('Sneha Reddy',    'Hyderabad', 'ML',     77.5, 15000, TRUE),\n    ('Rahul Jain',     'Jaipur',    'SQL',    90.0, 12000, TRUE),\n    ('Pooja Agarwal',  'Lucknow',   'Python', 55.0, 10000, TRUE),\n    ('Vijay Nair',     'Kochi',     'SQL',    88.5, 12000, TRUE);`,
+  `-- Real ETL: Archive high-scorers to a separate table\nCREATE TABLE IF NOT EXISTS top_students_archive (\n    student_id INT, name VARCHAR(100), city VARCHAR(50),\n    course VARCHAR(50), score DECIMAL(5,2), grade VARCHAR(20)\n);\n\nINSERT INTO top_students_archive (student_id, name, city, course, score, grade)\nSELECT student_id, name, city, course, score,\n    CASE WHEN score >= 90 THEN 'Distinction'\n         WHEN score >= 75 THEN 'First Class' ELSE 'Merit' END AS grade\nFROM students WHERE score >= 75 ORDER BY score DESC;`,
+  `-- Update a single student's score (safe — specific WHERE)\nUPDATE students\nSET score = 92.5\nWHERE student_id = 1;\n\nSELECT student_id, name, score FROM students WHERE student_id = 1;`,
+  `-- Delete a specific student by ID (safest - uses PK)\nDELETE FROM students\nWHERE student_id = 20;\n\nSELECT student_id, name, score FROM students WHERE student_id = 20;`,
+  `-- STEP 1: Dry run — see which students will be deactivated\nSELECT student_id, name, course, score, is_active\nFROM students\nWHERE score < 50;`,
+  `-- Soft delete student_id = 14 (Vikram who scored 38)\nUPDATE students\nSET is_active = FALSE\nWHERE student_id = 14;\n\nSELECT student_id, name, score, is_active\nFROM students\nWHERE is_active = TRUE\nORDER BY student_id;`,
+  `-- Transaction: End of batch processing\nSTART TRANSACTION;\n\nSELECT COUNT(*) AS total_students, AVG(score) AS batch_avg\nFROM students WHERE batch = 'B2024';\n\nUPDATE students SET is_active = FALSE WHERE batch = 'B2024';\n\n-- COMMIT; or ROLLBACK;`,
+];
+function resetQ(id, idx) {
+  document.getElementById(id).value = defaults[idx];
+  // Reset DB if needed
+  if (idx === 4 && !DB.find(r=>r.student_id===20)) {
+    DB = JSON.parse(JSON.stringify(originalDB));
+    renderLiveDB();
+  }
+}
+
+// ── PROGRESS ─────────────────────────────────────
+function updateProgress(){
+  const outs = document.querySelectorAll('.sim-output.visible').length;
+  const answered = qAns.filter(a=>a!==null).length;
+  const pct = Math.min(100, Math.round((outs+answered)/(8+12)*100));
+  document.getElementById('prog-pct').textContent = pct+'%';
+  document.getElementById('prog-fill').style.width = pct+'%';
+}
+
+// ── SCROLL SPY ───────────────────────────────────
+const sids=['sec1','sec2','sec3','sec4','sec5','sec6','sec7','sec8','sec9','sec10','sec11','sec12','sec13'];
+window.addEventListener('scroll',()=>{
+  let cur=sids[0];
+  sids.forEach(id=>{const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<120)cur=id;});
+  document.querySelectorAll('.nav-item').forEach(n=>{n.classList.remove('active');if(n.getAttribute('href')==='#'+cur)n.classList.add('active');});
+});
+
+// ── QUIZ ─────────────────────────────────────────
+const qList=[
+  {q:'What is the most important safety rule when writing UPDATE or DELETE statements?',opts:['Always use a transaction','Always include a WHERE clause — without it, ALL rows are affected','Always backup the database first','Always run as a database administrator'],correct:1,exp:'✅ The WHERE clause is the #1 safety rule. UPDATE students SET city = "Mumbai" affects all rows. UPDATE students SET city = "Mumbai" WHERE student_id = 5 affects only one row. Always include WHERE — and always verify it with a SELECT dry run first.'},
+  {q:'Which INSERT syntax is fastest for loading 10,000 rows?',opts:['10,000 individual INSERT statements in a loop','One multi-row INSERT with all 10,000 rows in VALUES','Using SELECT instead of VALUES','Using REPLACE INTO instead of INSERT INTO'],correct:1,exp:'✅ Multi-row INSERT sends all rows in one network round-trip to the database. Individual INSERTs send 10,000 separate requests. The multi-row approach is 10-100× faster because network latency (each round-trip takes ~1ms) adds up to seconds vs milliseconds for bulk inserts.'},
+  {q:'What does INSERT INTO table2 SELECT * FROM table1 WHERE score > 80 do?',opts:['Creates a copy of table1 called table2','Copies rows from table1 where score > 80 into table2 (which must already exist)','Moves rows from table1 to table2 and deletes from table1','Creates table2 with the same structure as table1'],correct:1,exp:'✅ INSERT INTO ... SELECT copies matching rows from table1 into table2. The target table (table2) must already exist with compatible columns. This is the standard ETL pattern for archiving, reporting, and data migration. Note: CREATE TABLE AS SELECT creates AND populates, but doesn\'t copy constraints.'},
+  {q:'What is the "dry-run pattern" in DML?',opts:['Running the query on a copy of the database first','Executing an UPDATE without committing it','Running a SELECT with the same WHERE clause first to preview which rows will change, then executing the UPDATE/DELETE','Disabling foreign key checks before running DML'],correct:2,exp:'✅ The dry-run pattern: 1) Write SELECT with your WHERE condition → see exactly which rows match. 2) Verify the results look correct. 3) Replace SELECT with UPDATE/DELETE — using the exact same WHERE. 4) Verify after. This pattern is used by professional DBAs and developers universally.'},
+  {q:'What is the difference between soft delete and hard delete?',opts:['Soft delete uses DELETE FROM; hard delete uses TRUNCATE','Soft delete marks a record as deleted (is_deleted = TRUE) but keeps the data; hard delete permanently removes the row with DELETE','Soft delete deletes one row; hard delete deletes all rows','Soft delete uses a transaction; hard delete does not'],correct:1,exp:'✅ Soft delete marks a record as inactive/deleted (using a flag like is_deleted = TRUE or is_active = FALSE) but preserves the data. Hard delete uses DELETE FROM to physically remove the row. Production systems almost always use soft delete for audit trails, recovery ability, FK integrity, and compliance reasons.'},
+  {q:'You run: UPDATE products SET price = 0; (no WHERE clause, no transaction). What happens?',opts:['Only the first row is updated','Nothing happens — MySQL requires a WHERE clause','All products in the table now have price = 0. If not in a transaction, this is permanent and cannot be undone.','MySQL automatically adds WHERE price > 0 for safety'],correct:2,exp:'✅ Without WHERE, UPDATE affects ALL rows. Without a transaction, the change is immediately committed and permanent. There is no undo. This is the most common (and painful) beginner DML mistake. Enable SQL_SAFE_UPDATES = 1 to prevent this, and always use transactions for important DML.'},
+  {q:'What does ON DUPLICATE KEY UPDATE do in MySQL?',opts:['It duplicates the row instead of inserting','If the INSERT would create a duplicate PK/UNIQUE violation, it UPDATES the existing row instead of failing','It allows duplicate values in UNIQUE columns','It creates a backup copy before updating'],correct:1,exp:'✅ ON DUPLICATE KEY UPDATE is MySQL\'s UPSERT syntax. If the INSERT would violate a PK or UNIQUE constraint (duplicate), instead of throwing an error, it runs the UPDATE clause on the existing row. This is preferred over REPLACE INTO because it doesn\'t delete and re-insert (which would change the AUTO_INCREMENT ID and break FK references).'},
+  {q:'Why should you use transactions for bulk DML operations?',opts:['Transactions make DML run faster','Transactions allow you to ROLLBACK if something goes wrong, ensuring all changes succeed together or none apply','Transactions bypass foreign key checks for speed','Transactions are required for multi-row INSERTs'],correct:1,exp:'✅ Transactions provide ACID guarantees for DML. If you\'re updating 5 tables and something fails on the 4th, ROLLBACK reverts all changes in all 4 tables — leaving the database in a consistent state. Without transactions, you might end up with a partially-updated database (some tables changed, some not) which is a very dangerous inconsistency.'},
+  {q:'A table has: enrollments FOREIGN KEY student_id ON DELETE CASCADE referencing students. What happens when you DELETE FROM students WHERE student_id = 10?',opts:['The DELETE fails — students with enrollments cannot be deleted','Only the student row is deleted; enrollments remain','The student row is deleted AND all enrollment rows WHERE student_id = 10 are automatically deleted','The enrollment rows have student_id set to NULL'],correct:2,exp:'✅ ON DELETE CASCADE: when the parent row (students, student_id=10) is deleted, all child rows (enrollments WHERE student_id=10) are automatically deleted too. This cascades through all FK relationships with CASCADE. Always do a dry-run JOIN query to understand cascade impact: SELECT COUNT(*) FROM enrollments WHERE student_id = 10; before deleting!'},
+  {q:'Which query correctly uses INSERT INTO … SELECT to copy high-scoring students to an archive?',opts:['INSERT INTO archive VALUES (SELECT * FROM students WHERE score > 90)','INSERT INTO archive SELECT * FROM students WHERE score > 90','COPY students TO archive WHERE score > 90','SELECT * FROM students WHERE score > 90 INSERT INTO archive'],correct:1,exp:'✅ Correct syntax: INSERT INTO target_table SELECT columns FROM source_table WHERE condition; No VALUES keyword when using SELECT. The SELECT provides the data rows directly. The number and types of selected columns must match the target table\'s columns (or the explicitly listed columns in INSERT INTO target(col1, col2)).'},
+  {q:'What is the safest way to delete a single specific row?',opts:['DELETE FROM table LIMIT 1','DELETE FROM table WHERE non_unique_column = value','DELETE FROM table WHERE primary_key = specific_id','DELETE FROM table WHERE primary_key = specific_id LIMIT 1'],correct:3,exp:'✅ The absolute safest DELETE uses the PRIMARY KEY in WHERE AND adds LIMIT 1. Using PK guarantees you target exactly the right row. LIMIT 1 adds a backup safety net — even if the WHERE somehow matches more rows than expected, only 1 row is deleted. Never use DELETE based on non-unique columns without LIMIT, as multiple rows may match.'},
+  {q:'What is SAVEPOINT used for in transactions?',opts:['To save the database to disk permanently','To create a named checkpoint within a transaction that you can ROLLBACK to, without reverting the entire transaction','To mark the start of a transaction','To lock rows so other sessions cannot modify them'],correct:1,exp:'✅ SAVEPOINT creates a named checkpoint inside an active transaction. If something goes wrong later, ROLLBACK TO SAVEPOINT name; reverts only to that checkpoint — preserving earlier changes. This allows partial rollbacks within a large transaction: do step 1, create savepoint, do step 2, realize step 2 is wrong, rollback to savepoint (step 1 preserved), try step 2 again differently.'},
+];
+let cQ=0; const qAns=new Array(qList.length).fill(null);
+function renderQuiz(){
+  const q=qList[cQ];
+  document.getElementById('q-count').textContent=`Question ${cQ+1} of ${qList.length}`;
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="quiz-q">${cQ+1}. ${q.q}</div>
+    <div class="quiz-options">${q.opts.map((o,i)=>`
+      <button class="quiz-opt ${qAns[cQ]===i?(i===q.correct?'correct':'wrong'):''}"
+              onclick="ansQ(${i})" ${qAns[cQ]!==null?'disabled':''}>
+        <div class="opt-letter">${['A','B','C','D'][i]}</div>${o}
+      </button>`).join('')}</div>
+    <div class="quiz-feedback ${qAns[cQ]!==null?'show':''} ${qAns[cQ]===q.correct?'correct':'wrong'}">
+      ${qAns[cQ]!==null?q.exp:''}
+    </div>`;
+  document.getElementById('q-dots').innerHTML=qList.map((_,i)=>`<div class="q-dot ${i===cQ?'active':qAns[i]===null?'':(qAns[i]===qList[i].correct?'done-c':'done-w')}"></div>`).join('');
+  document.getElementById('prev-btn').style.display=cQ>0?'block':'none';
+  document.getElementById('next-btn').style.display=qAns[cQ]!==null&&cQ<qList.length-1?'block':'none';
+}
+function ansQ(i){if(qAns[cQ]!==null)return;qAns[cQ]=i;updateProgress();renderQuiz();}
+function nextQ(){if(cQ<qList.length-1){cQ++;renderQuiz();}}
+function prevQ(){if(cQ>0){cQ--;renderQuiz();}}
+renderQuiz();
+</script>
+</body>
+</html>
