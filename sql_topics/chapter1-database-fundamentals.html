@@ -1,0 +1,2295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 1 — Database Fundamentals | SQL Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal:       #0F6E56;
+  --teal-mid:   #1D9E75;
+  --teal-light: #E1F5EE;
+  --teal-soft:  #f0faf6;
+  --blue:       #185FA5;
+  --blue-light: #E6F1FB;
+  --indigo:     #534AB7;
+  --indigo-light:#EEEDFE;
+  --amber:      #BA7517;
+  --amber-light:#FAEEDA;
+  --coral:      #993C1D;
+  --coral-light:#FAECE7;
+  --gray900:    #1a1a1a;
+  --gray700:    #3d3d3d;
+  --gray500:    #6b6b6b;
+  --gray300:    #c8c8c8;
+  --gray100:    #f4f4f4;
+  --gray50:     #fafafa;
+  --white:      #ffffff;
+  --border:     #e8e8e8;
+  --radius:     10px;
+  --radius-lg:  16px;
+  --shadow:     0 2px 12px rgba(0,0,0,0.07);
+  --font:       'Inter', sans-serif;
+  --mono:       'Fira Code', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: #f7f8fa;
+  color: var(--gray900);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* ── LAYOUT ─────────────────────────────────────── */
+.shell { display: flex; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-brand {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.brand-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--teal);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.brand-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray900);
+  line-height: 1.3;
+}
+.brand-sub {
+  font-size: 11px;
+  color: var(--gray500);
+  margin-top: 2px;
+}
+.sidebar-progress {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.prog-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--gray500);
+  margin-bottom: 6px;
+}
+.prog-bar {
+  height: 4px;
+  background: var(--gray100);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal-mid), var(--blue));
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+.sidebar-nav { padding: 12px 0; flex: 1; }
+.nav-section {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--gray300);
+  text-transform: uppercase;
+  padding: 8px 20px 4px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  font-size: 13px;
+  color: var(--gray500);
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+  text-decoration: none;
+}
+.nav-item:hover { color: var(--teal); background: var(--teal-soft); }
+.nav-item.active {
+  color: var(--teal);
+  background: var(--teal-light);
+  border-left-color: var(--teal-mid);
+  font-weight: 500;
+}
+.nav-item .nav-num {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--gray100);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+  color: var(--gray500);
+}
+.nav-item.active .nav-num,
+.nav-item.done .nav-num {
+  background: var(--teal-light);
+  color: var(--teal);
+}
+.nav-item.done { color: var(--gray700); }
+.nav-item.done::after { content: '✓'; margin-left: auto; font-size: 11px; color: var(--teal-mid); }
+
+/* MAIN */
+.main {
+  margin-left: 260px;
+  flex: 1;
+  min-height: 100vh;
+}
+
+/* TOP BAR */
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-breadcrumb {
+  font-size: 12px;
+  color: var(--gray500);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.topbar-breadcrumb span { color: var(--gray900); font-weight: 500; }
+.topbar-actions { display: flex; gap: 10px; align-items: center; }
+.btn {
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--gray700);
+  font-family: var(--font);
+  transition: all 0.15s;
+}
+.btn:hover { background: var(--gray100); }
+.btn-primary {
+  background: var(--teal-mid);
+  color: var(--white);
+  border-color: var(--teal-mid);
+}
+.btn-primary:hover { background: var(--teal); }
+
+/* HERO */
+.chapter-hero {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 48px 40px 36px;
+}
+.hero-phase {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--teal);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.hero-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--gray900);
+  line-height: 1.25;
+  margin-bottom: 12px;
+}
+.hero-title span { color: var(--teal-mid); }
+.hero-desc {
+  font-size: 15px;
+  color: var(--gray500);
+  max-width: 620px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.hero-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.meta-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--gray500);
+  background: var(--gray50);
+  border: 1px solid var(--border);
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+.meta-chip .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* CONTENT */
+.content { padding: 40px 40px 80px; max-width: 860px; }
+
+/* SECTION */
+.section {
+  margin-bottom: 56px;
+  scroll-margin-top: 80px;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--teal-light);
+}
+.section-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.section-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--teal);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gray900);
+}
+
+/* CARDS */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gray900);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title .badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+/* COMPARISON TABLE */
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.compare-col {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.compare-head {
+  padding: 14px 18px;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.compare-body { padding: 4px 0 12px; }
+.compare-row {
+  padding: 8px 18px;
+  font-size: 13px;
+  color: var(--gray700);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.5;
+}
+.compare-row::before {
+  content: '▸';
+  color: var(--gray300);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* HIGHLIGHT BOXES */
+.callout {
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 20px 0;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.callout-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.callout-body { flex: 1; }
+.callout-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.callout-text { font-size: 13px; line-height: 1.6; }
+.callout.info { background: var(--blue-light); color: var(--blue); border-left: 3px solid var(--blue); }
+.callout.tip { background: var(--teal-light); color: var(--teal); border-left: 3px solid var(--teal-mid); }
+.callout.warning { background: var(--amber-light); color: var(--amber); border-left: 3px solid var(--amber); }
+.callout.example { background: var(--indigo-light); color: var(--indigo); border-left: 3px solid var(--indigo); }
+
+/* VISUAL DIAGRAMS */
+.diagram-box {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin: 20px 0;
+  text-align: center;
+}
+.diagram-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray500);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
+/* TABLE VISUAL */
+.db-table-visual {
+  display: inline-block;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid var(--teal-mid);
+  margin: 8px;
+  min-width: 220px;
+  font-size: 13px;
+  box-shadow: var(--shadow);
+}
+.db-table-visual .tbl-head {
+  background: var(--teal-mid);
+  color: white;
+  padding: 8px 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.db-table-visual .tbl-cols {
+  background: var(--teal-light);
+  display: flex;
+  border-bottom: 1px solid var(--teal-mid);
+}
+.db-table-visual .tbl-col {
+  flex: 1;
+  padding: 6px 12px;
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--teal);
+  border-right: 1px solid rgba(0,0,0,0.08);
+}
+.db-table-visual .tbl-row {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.db-table-visual .tbl-row:last-child { border-bottom: none; }
+.db-table-visual .tbl-cell {
+  flex: 1;
+  padding: 7px 12px;
+  color: var(--gray700);
+  border-right: 1px solid var(--border);
+  font-size: 12px;
+}
+.db-table-visual .tbl-cell:last-child { border-right: none; }
+.pk-cell { font-weight: 600; color: var(--teal) !important; }
+.fk-cell { color: var(--blue) !important; }
+
+/* KEY BADGES */
+.key-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-right: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.key-pk { background: var(--teal-light); color: var(--teal); }
+.key-fk { background: var(--blue-light); color: var(--blue); }
+.key-uk { background: var(--indigo-light); color: var(--indigo); }
+
+/* CODE BLOCKS */
+.code-block {
+  background: #1e2030;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 16px 0;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.code-header {
+  background: #272a3f;
+  padding: 9px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #7a8ba8;
+  font-family: var(--font);
+}
+.code-lang {
+  background: rgba(255,255,255,0.08);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+.code-body {
+  padding: 16px;
+  color: #cdd6f4;
+  line-height: 1.75;
+  overflow-x: auto;
+}
+.code-body .kw  { color: #89b4fa; }
+.code-body .str { color: #a6e3a1; }
+.code-body .cm  { color: #6c7086; font-style: italic; }
+.code-body .fn  { color: #f38ba8; }
+.code-body .nm  { color: #fab387; }
+.code-body .op  { color: #89dceb; }
+
+/* TRY IT */
+.try-box {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: 20px 0;
+}
+.try-header {
+  background: linear-gradient(135deg, #1e2030, #272a3f);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+}
+.try-title {
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.try-badge {
+  font-size: 10px;
+  background: var(--teal-mid);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.try-editor {
+  min-height: 100px;
+  background: #1e2030;
+  padding: 14px 16px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: #cdd6f4;
+  border: none;
+  outline: none;
+  resize: vertical;
+  width: 100%;
+  line-height: 1.75;
+}
+.try-footer {
+  background: var(--gray50);
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.try-hint { font-size: 12px; color: var(--gray500); }
+.try-btns { display: flex; gap: 8px; }
+.run-btn {
+  background: var(--teal-mid);
+  color: white;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s;
+}
+.run-btn:hover { background: var(--teal); }
+.reset-btn {
+  background: transparent;
+  color: var(--gray500);
+  border: 1px solid var(--border);
+  padding: 7px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all 0.15s;
+}
+.reset-btn:hover { background: var(--gray100); }
+.try-output {
+  border-top: 1px solid var(--border);
+  background: var(--white);
+  padding: 16px 18px;
+  display: none;
+}
+.try-output.visible { display: block; }
+.output-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray500);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.result-table th {
+  background: var(--teal-light);
+  color: var(--teal);
+  font-weight: 600;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.result-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--gray700);
+}
+.result-table tr:last-child td { border-bottom: none; }
+.result-table tr:hover td { background: var(--gray50); }
+.result-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.result-msg.success { background: var(--teal-light); color: var(--teal); }
+.result-msg.error { background: var(--coral-light); color: var(--coral); }
+
+/* QUIZ */
+.quiz-box {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: 24px 0;
+}
+.quiz-header {
+  background: var(--indigo-light);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.quiz-icon { font-size: 18px; }
+.quiz-title { font-size: 14px; font-weight: 600; color: var(--indigo); }
+.quiz-count { font-size: 12px; color: var(--indigo); opacity: .7; margin-left: auto; }
+.quiz-body { padding: 20px; }
+.quiz-q {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray900);
+  margin-bottom: 14px;
+  line-height: 1.6;
+}
+.quiz-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.quiz-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--gray700);
+  transition: all 0.15s;
+  background: var(--white);
+  text-align: left;
+  font-family: var(--font);
+  line-height: 1.5;
+  width: 100%;
+}
+.quiz-opt:hover { border-color: var(--indigo); color: var(--indigo); background: var(--indigo-light); }
+.quiz-opt.correct { border-color: var(--teal-mid); background: var(--teal-light); color: var(--teal); }
+.quiz-opt.wrong { border-color: var(--coral); background: var(--coral-light); color: var(--coral); }
+.quiz-opt .opt-letter {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--gray100);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  color: var(--gray500);
+}
+.quiz-opt.correct .opt-letter { background: var(--teal-mid); color: white; }
+.quiz-opt.wrong .opt-letter { background: var(--coral); color: white; }
+.quiz-feedback {
+  display: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--teal-light); color: var(--teal); }
+.quiz-feedback.wrong { background: var(--coral-light); color: var(--coral); }
+.quiz-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--gray50);
+}
+.quiz-progress-dots { display: flex; gap: 6px; }
+.q-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gray300);
+  transition: all 0.2s;
+}
+.q-dot.active { background: var(--indigo); transform: scale(1.3); }
+.q-dot.done-c { background: var(--teal-mid); }
+.q-dot.done-w { background: var(--coral); }
+
+/* ANALOGY CARDS */
+.analogy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+.analogy-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  text-align: center;
+}
+.analogy-icon { font-size: 32px; margin-bottom: 10px; }
+.analogy-label { font-size: 11px; font-weight: 600; color: var(--gray500); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.analogy-term { font-size: 15px; font-weight: 700; color: var(--gray900); margin-bottom: 6px; }
+.analogy-desc { font-size: 12px; color: var(--gray500); line-height: 1.5; }
+
+/* STEP FLOW */
+.steps { display: flex; flex-direction: column; gap: 0; margin: 20px 0; }
+.step {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-left: 2px solid var(--teal-light);
+  margin-left: 16px;
+  padding-left: 24px;
+  position: relative;
+}
+.step::before {
+  content: '';
+  position: absolute;
+  left: -9px;
+  top: 20px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--teal-mid);
+  border: 3px solid white;
+  box-shadow: 0 0 0 2px var(--teal-mid);
+}
+.step:last-child { border-left-color: transparent; }
+.step-content { flex: 1; }
+.step-title { font-size: 14px; font-weight: 600; color: var(--gray900); margin-bottom: 4px; }
+.step-text { font-size: 13px; color: var(--gray500); line-height: 1.6; }
+
+/* KEY TERMS */
+.term-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.term-card {
+  background: var(--gray50);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.term-word {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--teal);
+  font-family: var(--mono);
+  margin-bottom: 4px;
+}
+.term-def { font-size: 12px; color: var(--gray700); line-height: 1.5; }
+.term-eg { font-size: 11px; color: var(--gray500); margin-top: 4px; font-style: italic; }
+
+/* REAL WORLD EXAMPLE */
+.real-world {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--teal-mid);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+.rw-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--teal);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rw-title { font-size: 16px; font-weight: 700; color: var(--gray900); margin-bottom: 8px; }
+.rw-body { font-size: 13px; color: var(--gray700); line-height: 1.7; }
+
+/* INTERACTIVE: DB vs FILE */
+.toggle-demo {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: 20px 0;
+}
+.toggle-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.toggle-tab {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--gray500);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.15s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--font);
+}
+.toggle-tab.active { color: var(--teal); border-bottom-color: var(--teal-mid); }
+.toggle-content { display: none; padding: 20px; }
+.toggle-content.active { display: block; }
+
+/* DATA TYPES TABLE */
+.dt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 12px 0;
+}
+.dt-table th {
+  background: var(--gray50);
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--gray700);
+  border-bottom: 1px solid var(--border);
+}
+.dt-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--gray100);
+  color: var(--gray700);
+  vertical-align: top;
+}
+.dt-table tr:last-child td { border-bottom: none; }
+.dt-table td:first-child { font-family: var(--mono); font-size: 12px; color: var(--teal); font-weight: 500; }
+.dt-table .cat-row td { background: var(--gray50); font-weight: 600; color: var(--gray500); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-family: var(--font); }
+
+/* SUMMARY */
+.summary-box {
+  background: linear-gradient(135deg, var(--teal-soft), var(--blue-light));
+  border: 1px solid var(--teal-light);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin: 32px 0 0;
+}
+.summary-title { font-size: 16px; font-weight: 700; color: var(--gray900); margin-bottom: 16px; }
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+  gap: 12px;
+}
+.summary-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--gray700);
+  line-height: 1.5;
+}
+.summary-check {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--teal-mid);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* NEXT / PREV */
+.chapter-nav {
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  padding: 24px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.nav-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--gray700);
+  transition: all 0.15s;
+  min-width: 200px;
+}
+.nav-card:hover { border-color: var(--teal-mid); color: var(--teal); }
+.nav-card-dir { font-size: 11px; color: var(--gray300); margin-bottom: 2px; }
+.nav-card-name { font-weight: 600; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-100%); transition: transform 0.25s; }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .content { padding: 24px 20px 60px; }
+  .chapter-hero { padding: 32px 20px 24px; }
+  .topbar { padding: 12px 20px; }
+  .compare-grid { grid-template-columns: 1fr; }
+  .hero-title { font-size: 24px; }
+}
+
+/* PROGRESS TRACKER */
+.section-done-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  background: var(--teal-light);
+  color: var(--teal);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  margin-left: auto;
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ── SIDEBAR ─────────────────────────────── -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-tag">HCL GUVI · SQL Mastery</div>
+    <div class="brand-title">Chapter 1</div>
+    <div class="brand-sub">Database Fundamentals</div>
+  </div>
+  <div class="sidebar-progress">
+    <div class="prog-label"><span>Your progress</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Topics</div>
+    <a class="nav-item active" href="#sec1" onclick="setActive(this)">
+      <div class="nav-num">1</div> What is a Database?
+    </a>
+    <a class="nav-item" href="#sec2" onclick="setActive(this)">
+      <div class="nav-num">2</div> DBMS vs RDBMS
+    </a>
+    <a class="nav-item" href="#sec3" onclick="setActive(this)">
+      <div class="nav-num">3</div> Structured vs Unstructured
+    </a>
+    <a class="nav-item" href="#sec4" onclick="setActive(this)">
+      <div class="nav-num">4</div> Tables, Rows & Columns
+    </a>
+    <a class="nav-item" href="#sec5" onclick="setActive(this)">
+      <div class="nav-num">5</div> Keys & Relationships
+    </a>
+    <a class="nav-item" href="#sec6" onclick="setActive(this)">
+      <div class="nav-num">6</div> Data Types
+    </a>
+    <a class="nav-item" href="#sec7" onclick="setActive(this)">
+      <div class="nav-num">7</div> Constraints
+    </a>
+    <a class="nav-item" href="#sec8" onclick="setActive(this)">
+      <div class="nav-num">8</div> ER Diagrams
+    </a>
+    <a class="nav-item" href="#sec9" onclick="setActive(this)">
+      <div class="nav-num">9</div> Quiz & Review
+    </a>
+  </div>
+</nav>
+
+<!-- ── MAIN ───────────────────────────────── -->
+<div class="main">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-breadcrumb">
+      SQL Mastery › Phase 1 › <span>Chapter 1 — Database Fundamentals</span>
+    </div>
+    <div class="topbar-actions">
+      <div class="meta-chip"><div class="dot" style="background:#1D9E75"></div> Beginner</div>
+      <div class="meta-chip">⏱ ~60 min</div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="chapter-hero">
+    <div class="hero-phase">Phase 1 · Chapter 1 of 22</div>
+    <h1 class="hero-title">Database <span>Fundamentals</span></h1>
+    <p class="hero-desc">
+      Before you write a single line of SQL, you need to understand what a database really is — and why the world runs on them. 
+      From Zomato orders to bank transactions to your IRCTC ticket, everything lives in a database. Let's understand how.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-chip">📚 9 Topics</div>
+      <div class="meta-chip">✍️ 6 Try-It exercises</div>
+      <div class="meta-chip">🧠 10 Quiz questions</div>
+      <div class="meta-chip">🏆 Beginner level</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ─── SECTION 1: What is a Database ─── -->
+    <div class="section" id="sec1">
+      <div class="section-header">
+        <div class="section-icon" style="background:#E1F5EE; font-size:22px;">🗄️</div>
+        <div>
+          <div class="section-num">Topic 1</div>
+          <h2 class="section-title">What is a Database?</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px;">
+        A <strong>database</strong> is an organized collection of data that is stored and accessed electronically. 
+        Think of it as a super-powered filing system — but instead of paper folders in a cabinet, data is stored digitally, 
+        structured in a way that makes it easy to search, update, and retrieve in milliseconds.
+      </p>
+
+      <div class="callout tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-body">
+          <div class="callout-title">Simple Definition</div>
+          <div class="callout-text">A database is like a <strong>digital Excel sheet on steroids</strong> — it stores millions of rows, handles multiple users at once, keeps data safe, and lets you ask complex questions (queries) about your data instantly.</div>
+        </div>
+      </div>
+
+      <div class="real-world">
+        <div class="rw-label">🇮🇳 Real-World Example</div>
+        <div class="rw-title">Zomato's database at work</div>
+        <div class="rw-body">
+          Every time you order biryani on Zomato, their database is doing all of this <em>simultaneously</em>:
+          <br><br>
+          ✅ Storing your order details (restaurant, items, total)<br>
+          ✅ Updating the restaurant's order count<br>
+          ✅ Saving your delivery address<br>
+          ✅ Recording payment status<br>
+          ✅ Notifying the delivery partner<br>
+          ✅ Updating your order history<br><br>
+          All of this happens in under 1 second, for <strong>millions of users at the same time</strong>. That's the power of a proper database.
+        </div>
+      </div>
+
+      <h3 style="font-size:16px;font-weight:600;margin:24px 0 14px;color:var(--gray900);">Why not just use Excel?</h3>
+
+      <div class="compare-grid">
+        <div class="compare-col">
+          <div class="compare-head" style="background:#fff8e6;color:#BA7517;">📊 Excel / Spreadsheet</div>
+          <div class="compare-body">
+            <div class="compare-row">Max ~1 million rows (performance degrades fast)</div>
+            <div class="compare-row">One person edits at a time</div>
+            <div class="compare-row">No user permissions or security</div>
+            <div class="compare-row">Data can be easily corrupted or overwritten</div>
+            <div class="compare-row">Hard to link data across sheets</div>
+            <div class="compare-row">Manual, slow for large data operations</div>
+          </div>
+        </div>
+        <div class="compare-col">
+          <div class="compare-head" style="background:var(--teal-light);color:var(--teal);">🗄️ Database</div>
+          <div class="compare-body">
+            <div class="compare-row">Billions of rows with lightning speed</div>
+            <div class="compare-row">Thousands of users simultaneously</div>
+            <div class="compare-row">Role-based access control (admin, reader, etc.)</div>
+            <div class="compare-row">ACID transactions protect data integrity</div>
+            <div class="compare-row">Relationships between tables (JOINs)</div>
+            <div class="compare-row">Automated, optimized with indexes</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analogy-grid">
+        <div class="analogy-card">
+          <div class="analogy-icon">🏛️</div>
+          <div class="analogy-label">Real world</div>
+          <div class="analogy-term">Library</div>
+          <div class="analogy-desc">Thousands of books organized by category, author, ISBN — easy to find anything</div>
+        </div>
+        <div class="analogy-card">
+          <div class="analogy-icon">🗄️</div>
+          <div class="analogy-label">Database equivalent</div>
+          <div class="analogy-term">Database</div>
+          <div class="analogy-desc">Millions of records organized in tables — easy to query, update, and relate</div>
+        </div>
+        <div class="analogy-card">
+          <div class="analogy-icon">📖</div>
+          <div class="analogy-label">Real world</div>
+          <div class="analogy-term">One Book</div>
+          <div class="analogy-desc">A single item with defined attributes: title, author, ISBN, genre</div>
+        </div>
+        <div class="analogy-card">
+          <div class="analogy-icon">📄</div>
+          <div class="analogy-label">Database equivalent</div>
+          <div class="analogy-term">One Row</div>
+          <div class="analogy-desc">A single record with defined columns: name, email, age, city</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 2: DBMS vs RDBMS ─── -->
+    <div class="section" id="sec2">
+      <div class="section-header">
+        <div class="section-icon" style="background:#E6F1FB; font-size:22px;">⚙️</div>
+        <div>
+          <div class="section-num">Topic 2</div>
+          <h2 class="section-title">DBMS vs RDBMS</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:20px;">
+        A <strong>DBMS (Database Management System)</strong> is software that stores, retrieves, and manages data. 
+        An <strong>RDBMS (Relational DBMS)</strong> is a special type of DBMS where data is stored in <em>related tables</em> and follows strict rules.
+        SQL works with RDBMS.
+      </p>
+
+      <div class="toggle-demo">
+        <div class="toggle-tabs">
+          <button class="toggle-tab active" onclick="switchTab(this,'tab-dbms')">DBMS — General</button>
+          <button class="toggle-tab" onclick="switchTab(this,'tab-rdbms')">RDBMS — Relational</button>
+          <button class="toggle-tab" onclick="switchTab(this,'tab-examples')">Popular Examples</button>
+        </div>
+        <div class="toggle-content active" id="tab-dbms">
+          <h4 style="font-size:15px;font-weight:600;margin-bottom:10px;">DBMS — Database Management System</h4>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.7;margin-bottom:14px;">
+            A DBMS stores data in various formats — files, hierarchies, or networks. It doesn't enforce relationships between data. 
+            Think of it as a simple filing system.
+          </p>
+          <div class="callout info">
+            <div class="callout-icon">📁</div>
+            <div class="callout-body">
+              <div class="callout-title">Examples of DBMS (non-relational)</div>
+              <div class="callout-text">File system (your computer folders), Microsoft Access (basic), early IBM IMS (hierarchical), MongoDB (document-based NoSQL)</div>
+            </div>
+          </div>
+          <div class="compare-col" style="margin-top:12px;">
+            <div class="compare-head" style="background:var(--amber-light);color:var(--amber);">DBMS Characteristics</div>
+            <div class="compare-body">
+              <div class="compare-row">Data stored in files or simple structures</div>
+              <div class="compare-row">No strict relationships between data</div>
+              <div class="compare-row">Limited support for multiple users</div>
+              <div class="compare-row">No ACID transaction support</div>
+              <div class="compare-row">Less data integrity enforcement</div>
+              <div class="compare-row">Examples: File system, XML stores, early databases</div>
+            </div>
+          </div>
+        </div>
+        <div class="toggle-content" id="tab-rdbms">
+          <h4 style="font-size:15px;font-weight:600;margin-bottom:10px;">RDBMS — Relational Database Management System</h4>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.7;margin-bottom:14px;">
+            An RDBMS stores data in <strong>tables</strong> (relations) and enforces <strong>relationships</strong> between them using keys. 
+            It follows E.F. Codd's 12 rules for relational databases. SQL is the language used to interact with RDBMS.
+          </p>
+          <div class="callout tip">
+            <div class="callout-icon">🔑</div>
+            <div class="callout-body">
+              <div class="callout-title">Key Concept: "Relational" means related tables</div>
+              <div class="callout-text">A Students table and a Courses table are <em>related</em> — a student can enroll in many courses. RDBMS enforces and manages this relationship automatically.</div>
+            </div>
+          </div>
+          <div class="compare-col" style="margin-top:12px;">
+            <div class="compare-head" style="background:var(--teal-light);color:var(--teal);">RDBMS Characteristics</div>
+            <div class="compare-body">
+              <div class="compare-row">Data stored in structured tables (rows + columns)</div>
+              <div class="compare-row">Relationships enforced via Primary & Foreign Keys</div>
+              <div class="compare-row">Supports thousands of concurrent users</div>
+              <div class="compare-row">Full ACID transaction support</div>
+              <div class="compare-row">SQL as standard query language</div>
+              <div class="compare-row">Strong data integrity and constraints</div>
+            </div>
+          </div>
+        </div>
+        <div class="toggle-content" id="tab-examples">
+          <h4 style="font-size:15px;font-weight:600;margin-bottom:14px;">Popular RDBMS in Industry</h4>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+            <div class="term-card">
+              <div class="term-word">MySQL</div>
+              <div class="term-def">Open-source, widely used in web apps. Powers Facebook, YouTube, Twitter.</div>
+              <div class="term-eg">Free & beginner-friendly</div>
+            </div>
+            <div class="term-card">
+              <div class="term-word">PostgreSQL</div>
+              <div class="term-def">Advanced open-source RDBMS. Supports JSON, full-text search, and more.</div>
+              <div class="term-eg">Used in data engineering</div>
+            </div>
+            <div class="term-card">
+              <div class="term-word">SQLite</div>
+              <div class="term-def">Lightweight, file-based. Used in mobile apps, Python projects.</div>
+              <div class="term-eg">Best for learning & prototyping</div>
+            </div>
+            <div class="term-card">
+              <div class="term-word">Oracle DB</div>
+              <div class="term-def">Enterprise-grade, used in banking, telecom, large corporations.</div>
+              <div class="term-eg">HDFC, Airtel, etc.</div>
+            </div>
+            <div class="term-card">
+              <div class="term-word">SQL Server</div>
+              <div class="term-def">Microsoft's enterprise RDBMS, tightly integrated with Windows ecosystem.</div>
+              <div class="term-eg">Used in IT companies</div>
+            </div>
+            <div class="term-card">
+              <div class="term-word">BigQuery</div>
+              <div class="term-def">Google's cloud SQL for analytics on massive datasets. Uses standard SQL.</div>
+              <div class="term-eg">Used for data analytics</div>
+            </div>
+          </div>
+          <div class="callout tip" style="margin-top:16px;">
+            <div class="callout-icon">🎯</div>
+            <div class="callout-body">
+              <div class="callout-title">Which should you learn?</div>
+              <div class="callout-text">The core SQL you learn is the same across all databases (95% identical). We'll use MySQL syntax with notes for PostgreSQL/SQLite differences where they vary. Once you know SQL, switching databases takes just days.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 3: Structured vs Unstructured ─── -->
+    <div class="section" id="sec3">
+      <div class="section-header">
+        <div class="section-icon" style="background:#EEEDFE; font-size:22px;">📊</div>
+        <div>
+          <div class="section-num">Topic 3</div>
+          <h2 class="section-title">Structured vs Unstructured vs Semi-Structured Data</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:20px;">
+        Not all data looks the same. As a data scientist, you'll work with all three types. SQL primarily deals with <strong>structured data</strong> — but knowing the difference helps you choose the right tool for the right job.
+      </p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:20px;">
+        <div class="card">
+          <div class="card-title" style="color:var(--teal);">
+            🟩 Structured Data
+            <span class="badge" style="background:var(--teal-light);color:var(--teal);">SQL's domain</span>
+          </div>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.6;margin-bottom:10px;">
+            Data that fits neatly into <strong>rows and columns</strong> — like a table. Each column has a defined data type and every row follows the same format.
+          </p>
+          <div style="font-size:12px;color:var(--gray500);">Examples:</div>
+          <div style="font-size:12px;color:var(--gray700);margin-top:4px;line-height:1.7;">
+            📋 Customer records (name, phone, city)<br>
+            💰 Bank transactions (date, amount, type)<br>
+            🎓 Student marks (subject, score, grade)<br>
+            📦 Product inventory (SKU, price, stock)
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="color:var(--coral);">
+            🟥 Unstructured Data
+            <span class="badge" style="background:var(--coral-light);color:var(--coral);">No fixed format</span>
+          </div>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.6;margin-bottom:10px;">
+            Data with <strong>no predefined format</strong> — no rows, no columns. Needs special tools to process (NLP, Computer Vision, etc.).
+          </p>
+          <div style="font-size:12px;color:var(--gray500);">Examples:</div>
+          <div style="font-size:12px;color:var(--gray700);margin-top:4px;line-height:1.7;">
+            📧 Emails, customer reviews, WhatsApp chats<br>
+            🖼️ Images (Instagram posts, Aadhaar photos)<br>
+            🎥 Videos (YouTube, CCTV footage)<br>
+            🎙️ Audio (call recordings, podcasts)
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="color:var(--amber);">
+            🟨 Semi-Structured
+            <span class="badge" style="background:var(--amber-light);color:var(--amber);">In between</span>
+          </div>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.6;margin-bottom:10px;">
+            Data that has <strong>some structure</strong> but doesn't fit into a rigid table. Has tags or markers to separate elements.
+          </p>
+          <div style="font-size:12px;color:var(--gray500);">Examples:</div>
+          <div style="font-size:12px;color:var(--gray700);margin-top:4px;line-height:1.7;">
+            📄 JSON (API responses, MongoDB)<br>
+            📃 XML (older web services, config files)<br>
+            📊 CSV (exports from Excel/tools)<br>
+            🌐 HTML (web pages with structure)
+          </div>
+        </div>
+      </div>
+
+      <div class="real-world">
+        <div class="rw-label">🇮🇳 Real-World Example</div>
+        <div class="rw-title">Swiggy's data — all three types</div>
+        <div class="rw-body">
+          <strong>Structured:</strong> Order table — order_id, customer_id, restaurant_id, total_amount, status<br>
+          <strong>Unstructured:</strong> Customer reviews — "The biryani was amazing but delivery was late 😤"<br>
+          <strong>Semi-structured:</strong> The API response from payment gateway in JSON format<br><br>
+          A data scientist at Swiggy uses SQL for the structured data, NLP for reviews, and JSON parsers for API data. SQL is always the foundation.
+        </div>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-icon">📌</div>
+        <div class="callout-body">
+          <div class="callout-title">90% of business data is structured or can be structured</div>
+          <div class="callout-text">SQL handles the vast majority of real-world data tasks in companies. Whether you go into data engineering, analytics, or ML — SQL knowledge is always needed. Modern databases like PostgreSQL even support JSON columns, bringing semi-structured data into the SQL world.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 4: Tables, Rows, Columns ─── -->
+    <div class="section" id="sec4">
+      <div class="section-header">
+        <div class="section-icon" style="background:#E1F5EE; font-size:22px;">📋</div>
+        <div>
+          <div class="section-num">Topic 4</div>
+          <h2 class="section-title">Tables, Rows & Columns — Anatomy of a Database</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:20px;">
+        In an RDBMS, all data lives in <strong>tables</strong>. A table is the fundamental building block — it has a name, columns (structure), and rows (data). Understanding this well makes everything else in SQL click.
+      </p>
+
+      <div class="diagram-box">
+        <div class="diagram-title">📋 The "Students" Table — Anatomy</div>
+        <div class="db-table-visual" style="min-width:100%;max-width:680px;">
+          <div class="tbl-head">📋 students <span style="font-size:10px;opacity:.7;margin-left:6px">← Table Name</span></div>
+          <div class="tbl-cols">
+            <div class="tbl-col">student_id <span style="color:#0F6E56">🔑 PK</span></div>
+            <div class="tbl-col">name</div>
+            <div class="tbl-col">email</div>
+            <div class="tbl-col">city</div>
+            <div class="tbl-col">batch</div>
+          </div>
+          <div class="tbl-row">
+            <div class="tbl-cell pk-cell">1</div>
+            <div class="tbl-cell">Priya Sharma</div>
+            <div class="tbl-cell">priya@email.com</div>
+            <div class="tbl-cell">Chennai</div>
+            <div class="tbl-cell">B2024</div>
+          </div>
+          <div class="tbl-row" style="background:#fafffe;">
+            <div class="tbl-cell pk-cell">2</div>
+            <div class="tbl-cell">Rahul Verma</div>
+            <div class="tbl-cell">rahul@email.com</div>
+            <div class="tbl-cell">Delhi</div>
+            <div class="tbl-cell">B2024</div>
+          </div>
+          <div class="tbl-row">
+            <div class="tbl-cell pk-cell">3</div>
+            <div class="tbl-cell">Ananya Iyer</div>
+            <div class="tbl-cell">ananya@email.com</div>
+            <div class="tbl-cell">Bangalore</div>
+            <div class="tbl-cell">B2025</div>
+          </div>
+          <div class="tbl-row" style="background:#fafffe;">
+            <div class="tbl-cell pk-cell">4</div>
+            <div class="tbl-cell">Karthik Nair</div>
+            <div class="tbl-cell">karthik@email.com</div>
+            <div class="tbl-cell">Mumbai</div>
+            <div class="tbl-cell">B2025</div>
+          </div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:24px;justify-content:center;flex-wrap:wrap;font-size:12px;color:var(--gray500);">
+          <div>↕️ Each <strong>horizontal line</strong> = a Row (Record)</div>
+          <div>↔️ Each <strong>vertical column</strong> = a Column (Field)</div>
+          <div>🔑 <strong>student_id</strong> = Primary Key (unique identifier)</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-word">Table (Relation)</div>
+          <div class="term-def">A named collection of related data organized in rows and columns. Like a spreadsheet tab.</div>
+          <div class="term-eg">e.g., students, orders, products, employees</div>
+        </div>
+        <div class="term-card">
+          <div class="term-word">Row (Record / Tuple)</div>
+          <div class="term-def">A single entry in a table — represents one real-world entity (one student, one order, etc.)</div>
+          <div class="term-eg">e.g., the row for student_id = 1 is Priya's record</div>
+        </div>
+        <div class="term-card">
+          <div class="term-word">Column (Attribute / Field)</div>
+          <div class="term-def">A named property that every row in the table has. Each column has a data type.</div>
+          <div class="term-eg">e.g., name is VARCHAR, student_id is INT</div>
+        </div>
+        <div class="term-card">
+          <div class="term-word">Cell</div>
+          <div class="term-def">The intersection of a row and column — holds a single value.</div>
+          <div class="term-eg">e.g., Row 1, Column "city" = "Chennai"</div>
+        </div>
+        <div class="term-card">
+          <div class="term-word">Schema</div>
+          <div class="term-def">The structure/blueprint of the database — which tables exist, their columns and data types.</div>
+          <div class="term-eg">e.g., the CREATE TABLE definition is part of the schema</div>
+        </div>
+        <div class="term-card">
+          <div class="term-word">Database</div>
+          <div class="term-def">A collection of related tables that together represent a system.</div>
+          <div class="term-eg">e.g., "guvi_lms" database contains students, courses, batches tables</div>
+        </div>
+      </div>
+
+      <div class="callout example">
+        <div class="callout-icon">🎯</div>
+        <div class="callout-body">
+          <div class="callout-title">Think of it this way</div>
+          <div class="callout-text">
+            <strong>Database</strong> = An entire school<br>
+            <strong>Table</strong> = A classroom register<br>
+            <strong>Column</strong> = A column in the register (Name, Roll No., Marks)<br>
+            <strong>Row</strong> = One student's entry in the register<br>
+            <strong>Cell</strong> = Priya's marks in Math
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 5: Keys & Relationships ─── -->
+    <div class="section" id="sec5">
+      <div class="section-header">
+        <div class="section-icon" style="background:#FAEEDA; font-size:22px;">🔑</div>
+        <div>
+          <div class="section-num">Topic 5</div>
+          <h2 class="section-title">Keys & Relationships</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:20px;">
+        Keys are what make the "Relational" in RDBMS meaningful. They uniquely identify rows and establish connections between tables. This is the core concept that separates databases from flat files.
+      </p>
+
+      <div class="card">
+        <div class="card-title">🔑 Primary Key (PK)</div>
+        <p style="font-size:13px;color:var(--gray700);line-height:1.6;margin-bottom:12px;">
+          A column (or combination of columns) that <strong>uniquely identifies each row</strong> in a table. No two rows can have the same Primary Key value, and it cannot be NULL.
+        </p>
+        <div class="callout tip">
+          <div class="callout-icon">📌</div>
+          <div class="callout-body">
+            <div class="callout-title">Rules for Primary Keys</div>
+            <div class="callout-text">✅ Must be UNIQUE — no two rows can share the same PK value<br>✅ Must be NOT NULL — every row must have a PK<br>✅ Should never change — once assigned, PK stays fixed<br>✅ Ideally a simple integer (student_id, order_id)</div>
+          </div>
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span>SQL — Primary Key</span><span class="code-lang">MySQL</span></div>
+          <div class="code-body">
+<span class="kw">CREATE TABLE</span> students (
+    student_id  <span class="kw">INT</span>          <span class="kw">PRIMARY KEY</span>,  <span class="cm">-- This is the PK</span>
+    name        <span class="kw">VARCHAR</span>(<span class="nm">100</span>) <span class="kw">NOT NULL</span>,
+    email       <span class="kw">VARCHAR</span>(<span class="nm">150</span>) <span class="kw">UNIQUE</span>,
+    city        <span class="kw">VARCHAR</span>(<span class="nm">50</span>)
+);
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔗 Foreign Key (FK)</div>
+        <p style="font-size:13px;color:var(--gray700);line-height:1.6;margin-bottom:12px;">
+          A column in one table that <strong>references the Primary Key of another table</strong>. This creates a link (relationship) between the two tables. Foreign Keys enforce referential integrity — you can't reference a row that doesn't exist.
+        </p>
+
+        <div class="diagram-box" style="text-align:left;">
+          <div class="diagram-title" style="text-align:center;">Relationship: Students ↔ Enrollments</div>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;align-items:flex-start;">
+            <div class="db-table-visual">
+              <div class="tbl-head">📋 students</div>
+              <div class="tbl-cols">
+                <div class="tbl-col">student_id 🔑</div>
+                <div class="tbl-col">name</div>
+                <div class="tbl-col">city</div>
+              </div>
+              <div class="tbl-row"><div class="tbl-cell pk-cell">1</div><div class="tbl-cell">Priya</div><div class="tbl-cell">Chennai</div></div>
+              <div class="tbl-row"><div class="tbl-cell pk-cell">2</div><div class="tbl-cell">Rahul</div><div class="tbl-cell">Delhi</div></div>
+              <div class="tbl-row"><div class="tbl-cell pk-cell">3</div><div class="tbl-cell">Ananya</div><div class="tbl-cell">Bangalore</div></div>
+            </div>
+            <div style="display:flex;align-items:center;font-size:28px;color:var(--teal-mid);padding-top:40px;">⟶</div>
+            <div class="db-table-visual">
+              <div class="tbl-head">📋 enrollments</div>
+              <div class="tbl-cols">
+                <div class="tbl-col">enroll_id 🔑</div>
+                <div class="tbl-col">student_id 🔗</div>
+                <div class="tbl-col">course</div>
+              </div>
+              <div class="tbl-row"><div class="tbl-cell pk-cell">101</div><div class="tbl-cell fk-cell">1</div><div class="tbl-cell">SQL</div></div>
+              <div class="tbl-row"><div class="tbl-cell pk-cell">102</div><div class="tbl-cell fk-cell">1</div><div class="tbl-cell">Python</div></div>
+              <div class="tbl-row"><div class="tbl-cell pk-cell">103</div><div class="tbl-cell fk-cell">2</div><div class="tbl-cell">SQL</div></div>
+              <div class="tbl-row"><div class="tbl-cell pk-cell">104</div><div class="tbl-cell fk-cell">3</div><div class="tbl-cell">ML</div></div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--gray500);">
+            🔑 = Primary Key &nbsp;|&nbsp; 🔗 FK: enrollments.student_id → students.student_id
+          </div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header"><span>SQL — Foreign Key</span><span class="code-lang">MySQL</span></div>
+          <div class="code-body">
+<span class="kw">CREATE TABLE</span> enrollments (
+    enroll_id   <span class="kw">INT</span> <span class="kw">PRIMARY KEY</span>,
+    student_id  <span class="kw">INT</span>,                     <span class="cm">-- This is the FK column</span>
+    course      <span class="kw">VARCHAR</span>(<span class="nm">100</span>),
+    <span class="kw">FOREIGN KEY</span> (student_id)
+        <span class="kw">REFERENCES</span> students(student_id)  <span class="cm">-- Links to students table</span>
+);
+          </div>
+        </div>
+
+        <div class="callout warning">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body">
+            <div class="callout-title">Referential Integrity in action</div>
+            <div class="callout-text">If you try to add an enrollment with student_id = 99 but student 99 doesn't exist in the students table — the database will <strong>REJECT</strong> that insert. This is referential integrity — the database protects you from bad data automatically.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🗝️ Other Key Types</div>
+        <div class="term-grid">
+          <div class="term-card">
+            <div class="term-word">Candidate Key</div>
+            <div class="term-def">Any column that could be a Primary Key (unique + not null). A table can have multiple candidates — only one is chosen as PK.</div>
+            <div class="term-eg">e.g., both student_id and email could be PKs — we choose student_id</div>
+          </div>
+          <div class="term-card">
+            <div class="term-word">Composite Key</div>
+            <div class="term-def">A Primary Key made of two or more columns together. Used when no single column is unique enough.</div>
+            <div class="term-eg">e.g., (student_id + course_id) together is unique in an enrollments table</div>
+          </div>
+          <div class="term-card">
+            <div class="term-word">Unique Key</div>
+            <div class="term-def">Like PK but allows one NULL. Ensures uniqueness but isn't the primary identifier.</div>
+            <div class="term-eg">e.g., email column — must be unique but can be null if not provided</div>
+          </div>
+          <div class="term-card">
+            <div class="term-word">Surrogate Key</div>
+            <div class="term-def">An auto-generated numeric key (like AUTO_INCREMENT) with no business meaning. Created purely to serve as PK.</div>
+            <div class="term-eg">e.g., student_id = 1, 2, 3… (not the Aadhaar number)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Try It 1 -->
+      <div class="try-box">
+        <div class="try-header">
+          <div class="try-title">✏️ Try It — Create Tables with Keys <span class="try-badge">Exercise 1</span></div>
+        </div>
+        <textarea class="try-editor" id="editor1" spellcheck="false">-- Try creating the students table with a Primary Key
+-- Then try adding the enrollments table with a Foreign Key
+
+CREATE TABLE students (
+    student_id  INT PRIMARY KEY AUTO_INCREMENT,
+    name        VARCHAR(100) NOT NULL,
+    email       VARCHAR(150) UNIQUE,
+    city        VARCHAR(50),
+    batch       VARCHAR(20)
+);
+
+-- Now create the enrollments table
+CREATE TABLE enrollments (
+    enroll_id   INT PRIMARY KEY AUTO_INCREMENT,
+    student_id  INT NOT NULL,
+    course_name VARCHAR(100) NOT NULL,
+    enrolled_on DATE,
+    FOREIGN KEY (student_id) REFERENCES students(student_id)
+);
+
+-- What happens if you try this?
+-- INSERT INTO enrollments (student_id, course_name) VALUES (999, 'SQL');
+-- Answer: ERROR! student_id 999 doesn't exist in students table</textarea>
+        <div class="try-footer">
+          <div class="try-hint">💡 Copy this to MySQL Workbench / pgAdmin / DB Fiddle to run it</div>
+          <div class="try-btns">
+            <button class="reset-btn" onclick="resetEditor('editor1', tryExercises[0])">Reset</button>
+            <button class="run-btn" onclick="showOutput('output1', 'ddl1')">▶ Check Answer</button>
+          </div>
+        </div>
+        <div class="try-output" id="output1">
+          <div class="output-label">✅ Expected Result</div>
+          <div class="result-msg success">✅ Both tables created successfully! The FOREIGN KEY constraint means you cannot insert a row into enrollments unless the student_id already exists in the students table. This is referential integrity in action.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 6: Data Types ─── -->
+    <div class="section" id="sec6">
+      <div class="section-header">
+        <div class="section-icon" style="background:#E6F1FB; font-size:22px;">🔢</div>
+        <div>
+          <div class="section-num">Topic 6</div>
+          <h2 class="section-title">Data Types in SQL</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:20px;">
+        Every column in a SQL table has a <strong>data type</strong> — it tells the database what kind of data to expect and how to store it. 
+        Choosing the right data type is important: it affects storage space, speed, and what operations you can do.
+      </p>
+
+      <div class="callout tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-body">
+          <div class="callout-title">Rule of thumb</div>
+          <div class="callout-text">Always use the <strong>smallest data type</strong> that covers your need. Don't use VARCHAR(1000) for a 2-letter country code. Don't use BIGINT for an age. The right type = less storage + faster queries.</div>
+        </div>
+      </div>
+
+      <table class="dt-table">
+        <thead>
+          <tr><th>Data Type</th><th>What it stores</th><th>Range / Size</th><th>Indian example</th></tr>
+        </thead>
+        <tbody>
+          <tr class="cat-row"><td colspan="4">📦 NUMERIC TYPES</td></tr>
+          <tr><td>TINYINT</td><td>Very small integer</td><td>0 to 255 (unsigned)</td><td>Age of a child</td></tr>
+          <tr><td>INT</td><td>Standard integer</td><td>−2B to +2B</td><td>student_id, order_id</td></tr>
+          <tr><td>BIGINT</td><td>Very large integer</td><td>±9.2 quintillion</td><td>Aadhaar number, phone number</td></tr>
+          <tr><td>DECIMAL(p,s)</td><td>Exact decimal number</td><td>p digits, s after decimal</td><td>Price: DECIMAL(10,2) → ₹1,29,999.00</td></tr>
+          <tr><td>FLOAT / DOUBLE</td><td>Approximate decimals</td><td>Large range</td><td>GPS coordinates, ML model scores</td></tr>
+          <tr class="cat-row"><td colspan="4">📝 STRING / TEXT TYPES</td></tr>
+          <tr><td>CHAR(n)</td><td>Fixed-length string</td><td>Exactly n chars</td><td>State code: CHAR(2) → 'TN', 'MH'</td></tr>
+          <tr><td>VARCHAR(n)</td><td>Variable-length string</td><td>Up to n chars</td><td>Name: VARCHAR(100), email: VARCHAR(150)</td></tr>
+          <tr><td>TEXT</td><td>Long text</td><td>Up to 65,535 chars</td><td>Product description, customer review</td></tr>
+          <tr><td>LONGTEXT</td><td>Very long text</td><td>Up to 4GB</td><td>Blog posts, legal documents</td></tr>
+          <tr class="cat-row"><td colspan="4">📅 DATE & TIME TYPES</td></tr>
+          <tr><td>DATE</td><td>Date only</td><td>YYYY-MM-DD</td><td>'2024-01-15' — order date</td></tr>
+          <tr><td>TIME</td><td>Time only</td><td>HH:MM:SS</td><td>'14:30:00' — delivery time</td></tr>
+          <tr><td>DATETIME</td><td>Date + Time</td><td>YYYY-MM-DD HH:MM:SS</td><td>'2024-01-15 14:30:00' — exact timestamp</td></tr>
+          <tr><td>TIMESTAMP</td><td>Auto-tracked datetime</td><td>UTC-based</td><td>created_at, updated_at columns</td></tr>
+          <tr class="cat-row"><td colspan="4">🔘 OTHER TYPES</td></tr>
+          <tr><td>BOOLEAN</td><td>True / False</td><td>0 or 1</td><td>is_active, is_verified, is_paid</td></tr>
+          <tr><td>ENUM</td><td>One of predefined values</td><td>List of strings</td><td>gender ENUM('M','F','Other')</td></tr>
+          <tr><td>JSON</td><td>JSON object/array</td><td>Up to 1GB</td><td>Storing address as JSON: {city, pin, state}</td></tr>
+        </tbody>
+      </table>
+
+      <!-- Try It 2 -->
+      <div class="try-box" style="margin-top:20px;">
+        <div class="try-header">
+          <div class="try-title">✏️ Try It — Design a table with proper data types <span class="try-badge">Exercise 2</span></div>
+        </div>
+        <textarea class="try-editor" id="editor2" spellcheck="false">-- Design the "orders" table for a Swiggy-like app
+-- Think about what data type each column should be!
+
+CREATE TABLE orders (
+    order_id       INT PRIMARY KEY AUTO_INCREMENT,
+    customer_id    INT NOT NULL,                     -- FK to customers
+    restaurant_id  INT NOT NULL,                     -- FK to restaurants
+    
+    order_amount   DECIMAL(8, 2) NOT NULL,           -- e.g., 349.50
+    delivery_fee   DECIMAL(6, 2) DEFAULT 0.00,
+    
+    order_status   ENUM('placed','preparing',
+                        'out_for_delivery',
+                        'delivered','cancelled'),
+    
+    order_time     DATETIME NOT NULL,                -- exact timestamp
+    delivered_at   DATETIME,                         -- NULL if not yet
+    
+    delivery_address VARCHAR(300),
+    is_paid        BOOLEAN DEFAULT FALSE,
+    
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+-- Challenge: What would you add for a rating system?
+-- Try adding: rating TINYINT CHECK (rating BETWEEN 1 AND 5)
+-- And:        review TEXT</textarea>
+        <div class="try-footer">
+          <div class="try-hint">💡 Notice DECIMAL for money (never FLOAT!), ENUM for status, DATETIME for timestamps</div>
+          <div class="try-btns">
+            <button class="reset-btn" onclick="resetEditor('editor2', tryExercises[1])">Reset</button>
+            <button class="run-btn" onclick="showOutput('output2', 'ddl2')">▶ Check Answer</button>
+          </div>
+        </div>
+        <div class="try-output" id="output2">
+          <div class="output-label">✅ Key Design Decisions</div>
+          <div class="result-msg success" style="display:block;margin-bottom:8px;">✅ DECIMAL(8,2) for money — never use FLOAT for currency (floating point errors!)</div>
+          <div class="result-msg success" style="display:block;margin-bottom:8px;">✅ ENUM for status — limits values to valid options only</div>
+          <div class="result-msg success" style="display:block;margin-bottom:8px;">✅ DATETIME for timestamps — stores exact date + time</div>
+          <div class="result-msg success" style="display:block;">✅ BOOLEAN DEFAULT FALSE for is_paid — starts as unpaid</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 7: Constraints ─── -->
+    <div class="section" id="sec7">
+      <div class="section-header">
+        <div class="section-icon" style="background:#FAECE7; font-size:22px;">🛡️</div>
+        <div>
+          <div class="section-num">Topic 7</div>
+          <h2 class="section-title">Constraints — Rules that Protect Your Data</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:20px;">
+        Constraints are <strong>rules you set on columns</strong> to control what data can be inserted. 
+        They prevent bad data from entering your database — the database enforces these rules automatically at all times.
+      </p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:20px;">
+        <div class="card" style="border-top:3px solid var(--teal-mid);">
+          <div class="card-title">NOT NULL</div>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.5;margin-bottom:8px;">Column must always have a value. Cannot be left empty/null.</p>
+          <div class="code-block"><div class="code-header"><span>SQL</span></div><div class="code-body" style="padding:10px 14px;font-size:12px;">name <span class="kw">VARCHAR</span>(<span class="nm">100</span>) <span class="kw">NOT NULL</span></div></div>
+          <div style="font-size:12px;color:var(--gray500);">Use: Any column that must always have data — name, email, order_amount</div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--blue);">
+          <div class="card-title">UNIQUE</div>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.5;margin-bottom:8px;">No two rows can have the same value. Allows one NULL.</p>
+          <div class="code-block"><div class="code-header"><span>SQL</span></div><div class="code-body" style="padding:10px 14px;font-size:12px;">email <span class="kw">VARCHAR</span>(<span class="nm">150</span>) <span class="kw">UNIQUE</span></div></div>
+          <div style="font-size:12px;color:var(--gray500);">Use: email, phone number, username, Aadhaar number</div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--indigo);">
+          <div class="card-title">DEFAULT</div>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.5;margin-bottom:8px;">Automatically fills a value if none is provided during INSERT.</p>
+          <div class="code-block"><div class="code-header"><span>SQL</span></div><div class="code-body" style="padding:10px 14px;font-size:12px;">is_active <span class="kw">BOOLEAN DEFAULT</span> <span class="nm">TRUE</span></div></div>
+          <div style="font-size:12px;color:var(--gray500);">Use: created_at, is_active, status columns</div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--amber);">
+          <div class="card-title">CHECK</div>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.5;margin-bottom:8px;">Ensures column value passes a condition. Rejects if condition fails.</p>
+          <div class="code-block"><div class="code-header"><span>SQL</span></div><div class="code-body" style="padding:10px 14px;font-size:12px;">age <span class="kw">INT CHECK</span> (age <span class="op">>=</span> <span class="nm">18</span>)</div></div>
+          <div style="font-size:12px;color:var(--gray500);">Use: age >= 18, rating BETWEEN 1 AND 5, salary > 0</div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--teal-mid);">
+          <div class="card-title">PRIMARY KEY</div>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.5;margin-bottom:8px;">Combines NOT NULL + UNIQUE. Identifies each row uniquely.</p>
+          <div class="code-block"><div class="code-header"><span>SQL</span></div><div class="code-body" style="padding:10px 14px;font-size:12px;">id <span class="kw">INT PRIMARY KEY AUTO_INCREMENT</span></div></div>
+          <div style="font-size:12px;color:var(--gray500);">Use: Every table should have exactly one PK</div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--coral);">
+          <div class="card-title">FOREIGN KEY</div>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.5;margin-bottom:8px;">Enforces that values in this column must exist in another table.</p>
+          <div class="code-block"><div class="code-header"><span>SQL</span></div><div class="code-body" style="padding:10px 14px;font-size:12px;"><span class="kw">FOREIGN KEY</span> (sid) <span class="kw">REFERENCES</span> students(id)</div></div>
+          <div style="font-size:12px;color:var(--gray500);">Use: Any column that references another table's PK</div>
+        </div>
+      </div>
+
+      <!-- Try It 3 -->
+      <div class="try-box">
+        <div class="try-header">
+          <div class="try-title">✏️ Try It — Constraints in action <span class="try-badge">Exercise 3</span></div>
+        </div>
+        <textarea class="try-editor" id="editor3" spellcheck="false">-- Create a complete "employees" table with ALL constraint types
+
+CREATE TABLE employees (
+    emp_id      INT PRIMARY KEY AUTO_INCREMENT,       -- PK
+    name        VARCHAR(100) NOT NULL,                 -- NOT NULL
+    email       VARCHAR(150) NOT NULL UNIQUE,          -- NOT NULL + UNIQUE
+    department  VARCHAR(50) NOT NULL,
+    salary      DECIMAL(10,2) CHECK (salary > 0),      -- CHECK
+    age         TINYINT CHECK (age BETWEEN 18 AND 65), -- CHECK with range
+    is_active   BOOLEAN DEFAULT TRUE,                  -- DEFAULT
+    joined_on   DATE DEFAULT (CURRENT_DATE),           -- DEFAULT to today
+    manager_id  INT,
+    FOREIGN KEY (manager_id) REFERENCES employees(emp_id)  -- self-referencing FK!
+);
+
+-- TEST THESE: Which ones will FAIL and why?
+-- INSERT INTO employees (name, email, department, salary, age)
+--   VALUES ('Priya', 'priya@co.com', 'Data', 75000, 25);  -- ✅ Works
+
+-- INSERT INTO employees (name, email, department, salary, age)
+--   VALUES (NULL, 'test@co.com', 'IT', 50000, 30);  -- ❌ Why?
+
+-- INSERT INTO employees (name, email, department, salary, age)
+--   VALUES ('Rahul', 'priya@co.com', 'IT', 50000, 30);  -- ❌ Why?
+
+-- INSERT INTO employees (name, email, department, salary, age)
+--   VALUES ('Kiran', 'kiran@co.com', 'HR', -100, 28);  -- ❌ Why?</textarea>
+        <div class="try-footer">
+          <div class="try-hint">💡 Notice the self-referencing FK for manager_id — an employee's manager is also an employee!</div>
+          <div class="try-btns">
+            <button class="reset-btn" onclick="resetEditor('editor3', tryExercises[2])">Reset</button>
+            <button class="run-btn" onclick="showOutput('output3', 'ddl3')">▶ See Explanations</button>
+          </div>
+        </div>
+        <div class="try-output" id="output3">
+          <div class="output-label">Constraint Violations Explained</div>
+          <div class="result-msg success" style="display:block;margin-bottom:6px;">✅ INSERT 1: Works — all constraints satisfied, is_active defaults to TRUE</div>
+          <div class="result-msg error" style="display:block;margin-bottom:6px;">❌ INSERT 2: FAILS — name is NULL but column has NOT NULL constraint</div>
+          <div class="result-msg error" style="display:block;margin-bottom:6px;">❌ INSERT 3: FAILS — email 'priya@co.com' already exists (UNIQUE violation)</div>
+          <div class="result-msg error" style="display:block;">❌ INSERT 4: FAILS — salary = -100 violates CHECK (salary > 0)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 8: ER Diagrams ─── -->
+    <div class="section" id="sec8">
+      <div class="section-header">
+        <div class="section-icon" style="background:#EEEDFE; font-size:22px;">🔷</div>
+        <div>
+          <div class="section-num">Topic 8</div>
+          <h2 class="section-title">Entity Relationship Diagrams (ERD)</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:20px;">
+        Before you write any SQL, database designers create an <strong>ER Diagram</strong> — a visual blueprint that shows all the tables, their columns, and how they relate to each other. Think of it as the architect's plan before building a house.
+      </p>
+
+      <div class="compare-grid">
+        <div class="compare-col">
+          <div class="compare-head" style="background:var(--indigo-light);color:var(--indigo);">ERD Symbols</div>
+          <div class="compare-body">
+            <div class="compare-row"><strong>Rectangle</strong> — Entity (Table)</div>
+            <div class="compare-row"><strong>Oval/Ellipse</strong> — Attribute (Column)</div>
+            <div class="compare-row"><strong>Diamond</strong> — Relationship between entities</div>
+            <div class="compare-row"><strong>Line</strong> — Connection between entity & attribute</div>
+            <div class="compare-row"><strong>Double oval</strong> — Multi-valued attribute</div>
+            <div class="compare-row"><strong>Underlined</strong> — Primary Key attribute</div>
+          </div>
+        </div>
+        <div class="compare-col">
+          <div class="compare-head" style="background:var(--teal-light);color:var(--teal);">Relationship Types</div>
+          <div class="compare-body">
+            <div class="compare-row"><strong>1:1</strong> — One-to-One: Each person has one Aadhaar</div>
+            <div class="compare-row"><strong>1:N</strong> — One-to-Many: One teacher teaches many students</div>
+            <div class="compare-row"><strong>M:N</strong> — Many-to-Many: Many students take many courses</div>
+            <div class="compare-row"><strong>Cardinality</strong> — How many of each side</div>
+            <div class="compare-row"><strong>Crow's foot</strong> — Modern notation for cardinality</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="real-world" style="margin-top:20px;">
+        <div class="rw-label">🎓 GUVI LMS — ER Diagram</div>
+        <div class="rw-title">Relationships in a Learning Management System</div>
+        <div class="rw-body">
+          <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;font-size:13px;">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--teal-light);border-radius:8px;">
+              <span style="font-weight:700;color:var(--teal);min-width:100px;">Students</span>
+              <span style="color:var(--teal-mid);font-weight:600;">1 : N</span>
+              <span style="font-weight:700;color:var(--teal);min-width:100px;">Enrollments</span>
+              <span style="color:var(--gray500);">— One student can have many enrollments</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--blue-light);border-radius:8px;">
+              <span style="font-weight:700;color:var(--blue);min-width:100px;">Courses</span>
+              <span style="color:var(--blue);font-weight:600;">1 : N</span>
+              <span style="font-weight:700;color:var(--blue);min-width:100px;">Enrollments</span>
+              <span style="color:var(--gray500);">— One course can have many students enrolled</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--indigo-light);border-radius:8px;">
+              <span style="font-weight:700;color:var(--indigo);min-width:100px;">Students</span>
+              <span style="color:var(--indigo);font-weight:600;">M : N</span>
+              <span style="font-weight:700;color:var(--indigo);min-width:100px;">Courses</span>
+              <span style="color:var(--gray500);">— Many students take many courses (via Enrollments table)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--amber-light);border-radius:8px;">
+              <span style="font-weight:700;color:var(--amber);min-width:100px;">Instructors</span>
+              <span style="color:var(--amber);font-weight:600;">1 : N</span>
+              <span style="font-weight:700;color:var(--amber);min-width:100px;">Courses</span>
+              <span style="color:var(--gray500);">— One instructor teaches many courses</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Try It 4 -->
+      <div class="try-box">
+        <div class="try-header">
+          <div class="try-title">✏️ Try It — Build the GUVI LMS schema <span class="try-badge">Exercise 4</span></div>
+        </div>
+        <textarea class="try-editor" id="editor4" spellcheck="false">-- Build the complete GUVI LMS database schema
+-- 4 tables: instructors, courses, students, enrollments
+
+CREATE TABLE instructors (
+    instructor_id  INT PRIMARY KEY AUTO_INCREMENT,
+    name           VARCHAR(100) NOT NULL,
+    email          VARCHAR(150) UNIQUE NOT NULL,
+    specialization VARCHAR(100),
+    joined_on      DATE
+);
+
+CREATE TABLE courses (
+    course_id    INT PRIMARY KEY AUTO_INCREMENT,
+    course_name  VARCHAR(150) NOT NULL,
+    duration_hrs INT CHECK (duration_hrs > 0),
+    level        ENUM('Beginner', 'Intermediate', 'Advanced'),
+    instructor_id INT,
+    FOREIGN KEY (instructor_id) REFERENCES instructors(instructor_id)
+);
+
+CREATE TABLE students (
+    student_id  INT PRIMARY KEY AUTO_INCREMENT,
+    name        VARCHAR(100) NOT NULL,
+    email       VARCHAR(150) UNIQUE NOT NULL,
+    phone       CHAR(10),
+    city        VARCHAR(50),
+    batch       VARCHAR(20)
+);
+
+CREATE TABLE enrollments (
+    enroll_id    INT PRIMARY KEY AUTO_INCREMENT,
+    student_id   INT NOT NULL,
+    course_id    INT NOT NULL,
+    enrolled_on  DATE DEFAULT (CURRENT_DATE),
+    status       ENUM('active','completed','dropped') DEFAULT 'active',
+    score        DECIMAL(5,2) CHECK (score BETWEEN 0 AND 100),
+    FOREIGN KEY (student_id) REFERENCES students(student_id),
+    FOREIGN KEY (course_id) REFERENCES courses(course_id)
+);
+
+-- Now try inserting some data:
+INSERT INTO instructors (name, email, specialization) 
+    VALUES ('Vinodhini', 'vinie@guvi.in', 'Data Science');
+
+INSERT INTO courses (course_name, duration_hrs, level, instructor_id)
+    VALUES ('SQL Mastery', 40, 'Beginner', 1);
+
+INSERT INTO students (name, email, phone, city, batch)
+    VALUES ('Priya Sharma', 'priya@gmail.com', '9876543210', 'Chennai', 'B2024');
+
+INSERT INTO enrollments (student_id, course_id, score)
+    VALUES (1, 1, 87.5);</textarea>
+        <div class="try-footer">
+          <div class="try-hint">💡 This is a real-world schema! Run this in any SQL tool to create and explore the GUVI LMS database</div>
+          <div class="try-btns">
+            <button class="reset-btn" onclick="resetEditor('editor4', tryExercises[3])">Reset</button>
+            <button class="run-btn" onclick="showOutput('output4', 'ddl4')">▶ Preview Data</button>
+          </div>
+        </div>
+        <div class="try-output" id="output4">
+          <div class="output-label">📋 After running all INSERTs — enrollments table view</div>
+          <table class="result-table">
+            <thead><tr><th>enroll_id</th><th>student_id</th><th>course_id</th><th>enrolled_on</th><th>status</th><th>score</th></tr></thead>
+            <tbody><tr><td>1</td><td>1 (Priya)</td><td>1 (SQL Mastery)</td><td>today</td><td>active</td><td>87.50</td></tr></tbody>
+          </table>
+          <div class="result-msg success" style="margin-top:10px;">✅ Complete LMS schema created with 4 linked tables! You can now query across all of them using JOINs (coming in Chapter 6).</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 9: QUIZ ─── -->
+    <div class="section" id="sec9">
+      <div class="section-header">
+        <div class="section-icon" style="background:#EEEDFE; font-size:22px;">🧠</div>
+        <div>
+          <div class="section-num">Topic 9</div>
+          <h2 class="section-title">Quiz & Review</h2>
+        </div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="quiz-header">
+          <div class="quiz-icon">🧠</div>
+          <div class="quiz-title">Chapter 1 — Knowledge Check</div>
+          <div class="quiz-count" id="q-count">Question 1 of 8</div>
+        </div>
+        <div class="quiz-body" id="quiz-body">
+          <!-- Rendered by JS -->
+        </div>
+        <div class="quiz-nav">
+          <div class="quiz-progress-dots" id="q-dots"></div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn" id="prev-btn" onclick="prevQ()" style="display:none">← Prev</button>
+            <button class="btn btn-primary" id="next-btn" onclick="nextQ()" style="display:none">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUMMARY -->
+      <div class="summary-box">
+        <div class="summary-title">✅ Chapter 1 — What You've Learned</div>
+        <div class="summary-grid">
+          <div class="summary-item"><div class="summary-check">✓</div>What a database is and why it's better than Excel</div>
+          <div class="summary-item"><div class="summary-check">✓</div>Difference between DBMS and RDBMS</div>
+          <div class="summary-item"><div class="summary-check">✓</div>Structured, unstructured, and semi-structured data</div>
+          <div class="summary-item"><div class="summary-check">✓</div>Tables, rows, columns — the building blocks</div>
+          <div class="summary-item"><div class="summary-check">✓</div>Primary Keys, Foreign Keys, Candidate & Composite Keys</div>
+          <div class="summary-item"><div class="summary-check">✓</div>SQL data types — when to use which</div>
+          <div class="summary-item"><div class="summary-check">✓</div>Constraints — NOT NULL, UNIQUE, DEFAULT, CHECK, FK</div>
+          <div class="summary-item"><div class="summary-check">✓</div>Entity Relationship Diagrams — reading and designing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAPTER NAV -->
+  <div class="chapter-nav">
+    <div style="font-size:13px;color:var(--gray300);">← No previous chapter</div>
+    <div class="nav-card" onclick="alert('Chapter 2: Data Warehousing & OLAP — coming next!')">
+      <div>
+        <div class="nav-card-dir">Next Chapter →</div>
+        <div class="nav-card-name">Chapter 2: Data Warehousing & OLAP</div>
+      </div>
+      ›
+    </div>
+  </div>
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ── NAV ──────────────────────────────────────────
+function setActive(el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── TABS ─────────────────────────────────────────
+function switchTab(btn, targetId){
+  const parent = btn.closest('.toggle-demo');
+  parent.querySelectorAll('.toggle-tab').forEach(t=>t.classList.remove('active'));
+  parent.querySelectorAll('.toggle-content').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(targetId).classList.add('active');
+}
+
+// ── TRY IT ───────────────────────────────────────
+const tryExercises = [
+`-- Try creating the students table with a Primary Key
+-- Then try adding the enrollments table with a Foreign Key
+
+CREATE TABLE students (
+    student_id  INT PRIMARY KEY AUTO_INCREMENT,
+    name        VARCHAR(100) NOT NULL,
+    email       VARCHAR(150) UNIQUE,
+    city        VARCHAR(50),
+    batch       VARCHAR(20)
+);
+
+-- Now create the enrollments table
+CREATE TABLE enrollments (
+    enroll_id   INT PRIMARY KEY AUTO_INCREMENT,
+    student_id  INT NOT NULL,
+    course_name VARCHAR(100) NOT NULL,
+    enrolled_on DATE,
+    FOREIGN KEY (student_id) REFERENCES students(student_id)
+);
+
+-- What happens if you try this?
+-- INSERT INTO enrollments (student_id, course_name) VALUES (999, 'SQL');
+-- Answer: ERROR! student_id 999 doesn't exist in students table`,
+
+`-- Design the "orders" table for a Swiggy-like app
+-- Think about what data type each column should be!
+
+CREATE TABLE orders (
+    order_id       INT PRIMARY KEY AUTO_INCREMENT,
+    customer_id    INT NOT NULL,
+    restaurant_id  INT NOT NULL,
+    order_amount   DECIMAL(8, 2) NOT NULL,
+    delivery_fee   DECIMAL(6, 2) DEFAULT 0.00,
+    order_status   ENUM('placed','preparing','out_for_delivery','delivered','cancelled'),
+    order_time     DATETIME NOT NULL,
+    delivered_at   DATETIME,
+    delivery_address VARCHAR(300),
+    is_paid        BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);`,
+
+`-- Create a complete "employees" table with ALL constraint types
+
+CREATE TABLE employees (
+    emp_id      INT PRIMARY KEY AUTO_INCREMENT,
+    name        VARCHAR(100) NOT NULL,
+    email       VARCHAR(150) NOT NULL UNIQUE,
+    department  VARCHAR(50) NOT NULL,
+    salary      DECIMAL(10,2) CHECK (salary > 0),
+    age         TINYINT CHECK (age BETWEEN 18 AND 65),
+    is_active   BOOLEAN DEFAULT TRUE,
+    joined_on   DATE DEFAULT (CURRENT_DATE),
+    manager_id  INT,
+    FOREIGN KEY (manager_id) REFERENCES employees(emp_id)
+);`,
+
+`-- Build the complete GUVI LMS database schema
+
+CREATE TABLE instructors (
+    instructor_id  INT PRIMARY KEY AUTO_INCREMENT,
+    name           VARCHAR(100) NOT NULL,
+    email          VARCHAR(150) UNIQUE NOT NULL,
+    specialization VARCHAR(100),
+    joined_on      DATE
+);
+
+CREATE TABLE courses (
+    course_id    INT PRIMARY KEY AUTO_INCREMENT,
+    course_name  VARCHAR(150) NOT NULL,
+    duration_hrs INT CHECK (duration_hrs > 0),
+    level        ENUM('Beginner', 'Intermediate', 'Advanced'),
+    instructor_id INT,
+    FOREIGN KEY (instructor_id) REFERENCES instructors(instructor_id)
+);
+
+CREATE TABLE students (
+    student_id  INT PRIMARY KEY AUTO_INCREMENT,
+    name        VARCHAR(100) NOT NULL,
+    email       VARCHAR(150) UNIQUE NOT NULL,
+    phone       CHAR(10),
+    city        VARCHAR(50),
+    batch       VARCHAR(20)
+);
+
+CREATE TABLE enrollments (
+    enroll_id    INT PRIMARY KEY AUTO_INCREMENT,
+    student_id   INT NOT NULL,
+    course_id    INT NOT NULL,
+    enrolled_on  DATE DEFAULT (CURRENT_DATE),
+    status       ENUM('active','completed','dropped') DEFAULT 'active',
+    score        DECIMAL(5,2) CHECK (score BETWEEN 0 AND 100),
+    FOREIGN KEY (student_id) REFERENCES students(student_id),
+    FOREIGN KEY (course_id) REFERENCES courses(course_id)
+);`
+];
+
+function resetEditor(id, val){ document.getElementById(id).value = val; }
+function showOutput(outId, type){
+  const el = document.getElementById(outId);
+  el.classList.add('visible');
+  el.scrollIntoView({behavior:'smooth', block:'nearest'});
+  updateProgress();
+}
+
+// ── QUIZ ─────────────────────────────────────────
+const questions = [
+  {
+    q: "What is the main difference between a DBMS and an RDBMS?",
+    opts: [
+      "DBMS is faster than RDBMS",
+      "RDBMS stores data in related tables and enforces relationships using keys",
+      "DBMS supports SQL while RDBMS does not",
+      "There is no difference — they mean the same thing"
+    ],
+    correct: 1,
+    explanation: "✅ Correct! RDBMS (Relational DBMS) stores data in structured tables and enforces relationships via Primary and Foreign Keys. DBMS is a general term for any data management software, while RDBMS specifically follows the relational model proposed by E.F. Codd."
+  },
+  {
+    q: "Priya's Instagram photos are an example of which type of data?",
+    opts: [
+      "Structured data",
+      "Semi-structured data",
+      "Unstructured data",
+      "Relational data"
+    ],
+    correct: 2,
+    explanation: "✅ Correct! Images are unstructured data — they have no predefined rows or columns. SQL cannot directly query image files. Tools like Computer Vision and deep learning are used for unstructured data."
+  },
+  {
+    q: "Which of the following is TRUE about a Primary Key?",
+    opts: [
+      "It can have duplicate values across rows",
+      "It can be NULL if the row has no identifier",
+      "It must be UNIQUE and NOT NULL in every row",
+      "A table can have multiple Primary Keys"
+    ],
+    correct: 2,
+    explanation: "✅ Correct! A Primary Key must be UNIQUE (no duplicates) and NOT NULL (every row must have it). A table can have only ONE Primary Key (though it can span multiple columns as a Composite PK)."
+  },
+  {
+    q: "You want to store the price of a product in Rupees (e.g., ₹1,299.99). Which data type should you use?",
+    opts: [
+      "FLOAT — it handles decimal numbers",
+      "DOUBLE — more precision than FLOAT",
+      "DECIMAL(10,2) — exact decimal storage",
+      "VARCHAR — store as text to avoid errors"
+    ],
+    correct: 2,
+    explanation: "✅ Correct! DECIMAL(10,2) is always used for currency. FLOAT and DOUBLE use binary floating-point representation which causes tiny rounding errors (e.g., 0.1 + 0.2 = 0.30000000000004). DECIMAL stores exact values — critical for money!"
+  },
+  {
+    q: "What happens if you try to INSERT a row with a FOREIGN KEY value that doesn't exist in the referenced table?",
+    opts: [
+      "The row is inserted with NULL instead",
+      "The database throws an error and rejects the INSERT",
+      "The referenced row is created automatically",
+      "The INSERT succeeds without any check"
+    ],
+    correct: 1,
+    explanation: "✅ Correct! This is called referential integrity. The database rejects any INSERT/UPDATE that would create an 'orphaned' Foreign Key — a value that points to a non-existent row. This protects data quality automatically."
+  },
+  {
+    q: "Which constraint ensures that a column cannot have two rows with the same value, but still allows NULL?",
+    opts: [
+      "NOT NULL",
+      "PRIMARY KEY",
+      "UNIQUE",
+      "CHECK"
+    ],
+    correct: 2,
+    explanation: "✅ Correct! UNIQUE allows one NULL (since NULL ≠ NULL in SQL), but ensures all non-null values are distinct. PRIMARY KEY is stricter — it's UNIQUE + NOT NULL. Use UNIQUE for email, phone, username etc."
+  },
+  {
+    q: "In the GUVI LMS schema, what type of relationship exists between Students and Courses?",
+    opts: [
+      "One-to-One (1:1)",
+      "One-to-Many (1:N)",
+      "Many-to-Many (M:N)",
+      "No relationship"
+    ],
+    correct: 2,
+    explanation: "✅ Correct! One student can take many courses, and one course can have many students. This is a Many-to-Many (M:N) relationship. In SQL, M:N relationships are always implemented via a junction/bridge table — in our case, the enrollments table."
+  },
+  {
+    q: "What is the purpose of the AUTO_INCREMENT attribute in MySQL?",
+    opts: [
+      "It automatically updates the row whenever any column changes",
+      "It automatically generates a sequential unique number for the column on each INSERT",
+      "It increases the column's size automatically when data grows",
+      "It is another name for the UNIQUE constraint"
+    ],
+    correct: 1,
+    explanation: "✅ Correct! AUTO_INCREMENT automatically assigns the next integer (1, 2, 3...) whenever a new row is inserted. You don't need to specify the ID value — the database handles it. PostgreSQL uses SERIAL or GENERATED ALWAYS AS IDENTITY for the same effect."
+  }
+];
+
+let currentQ = 0;
+const answers = new Array(questions.length).fill(null);
+
+function renderQuiz(){
+  const q = questions[currentQ];
+  document.getElementById('q-count').textContent = `Question ${currentQ+1} of ${questions.length}`;
+  const body = document.getElementById('quiz-body');
+  body.innerHTML = `
+    <div class="quiz-q">${currentQ+1}. ${q.q}</div>
+    <div class="quiz-options">
+      ${q.opts.map((o,i)=>`
+        <button class="quiz-opt ${answers[currentQ]===i?(i===q.correct?'correct':'wrong'):''}" 
+                onclick="answerQ(${i})" 
+                ${answers[currentQ]!==null?'disabled':''}>
+          <div class="opt-letter">${['A','B','C','D'][i]}</div>
+          ${o}
+        </button>`).join('')}
+    </div>
+    <div class="quiz-feedback ${answers[currentQ]!==null?'show':''} ${answers[currentQ]===q.correct?'correct':'wrong'}">
+      ${answers[currentQ]!==null ? q.explanation : ''}
+    </div>`;
+
+  const dots = document.getElementById('q-dots');
+  dots.innerHTML = questions.map((_,i)=>`
+    <div class="q-dot ${i===currentQ?'active':answers[i]===null?'':(answers[i]===questions[i].correct?'done-c':'done-w')}"></div>`).join('');
+
+  document.getElementById('prev-btn').style.display = currentQ > 0 ? 'block' : 'none';
+  document.getElementById('next-btn').style.display = answers[currentQ]!==null && currentQ < questions.length-1 ? 'block' : 'none';
+}
+
+function answerQ(idx){
+  if(answers[currentQ]!==null) return;
+  answers[currentQ] = idx;
+  updateProgress();
+  renderQuiz();
+}
+
+function nextQ(){ if(currentQ < questions.length-1){ currentQ++; renderQuiz(); } }
+function prevQ(){ if(currentQ > 0){ currentQ--; renderQuiz(); } }
+
+// ── PROGRESS ─────────────────────────────────────
+function updateProgress(){
+  const outputs = document.querySelectorAll('.try-output.visible').length;
+  const answered = answers.filter(a=>a!==null).length;
+  const total = tryExercises.length + questions.length;
+  const done = outputs + answered;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+}
+
+// ── SCROLL SPY ───────────────────────────────────
+const sections = ['sec1','sec2','sec3','sec4','sec5','sec6','sec7','sec8','sec9'];
+const navItems = document.querySelectorAll('.nav-item');
+window.addEventListener('scroll', ()=>{
+  let current = sections[0];
+  sections.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el && el.getBoundingClientRect().top < 120) current = id;
+  });
+  navItems.forEach(n=>{
+    n.classList.remove('active');
+    if(n.getAttribute('href') === '#'+current) n.classList.add('active');
+  });
+});
+
+// INIT
+renderQuiz();
+</script>
+</body>
+</html>

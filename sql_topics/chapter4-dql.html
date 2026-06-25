@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 4 — DQL: Data Query Language | SQL Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#0F6E56;--teal-mid:#1D9E75;--teal-light:#E1F5EE;--teal-soft:#f0faf6;
+  --blue:#185FA5;--blue-light:#E6F1FB;--indigo:#534AB7;--indigo-light:#EEEDFE;
+  --amber:#BA7517;--amber-light:#FAEEDA;--coral:#993C1D;--coral-light:#FAECE7;
+  --purple:#7C3AED;--purple-light:#EDE9FE;--green:#16A34A;--green-light:#DCFCE7;
+  --red:#DC2626;--red-light:#FEE2E2;
+  --gray900:#1a1a1a;--gray700:#3d3d3d;--gray500:#6b6b6b;--gray300:#c8c8c8;
+  --gray100:#f4f4f4;--gray50:#fafafa;--white:#fff;--border:#e8e8e8;
+  --radius:10px;--radius-lg:16px;--shadow:0 2px 12px rgba(0,0,0,.07);
+  --font:'Inter',sans-serif;--mono:'Fira Code',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:#f7f8fa;color:var(--gray900);font-size:15px;line-height:1.7}
+.shell{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:260px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.brand-tag{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--teal);text-transform:uppercase;margin-bottom:4px}
+.brand-title{font-size:15px;font-weight:700;color:var(--gray900)}
+.brand-sub{font-size:11px;color:var(--gray500);margin-top:2px}
+.sidebar-progress{padding:12px 20px;border-bottom:1px solid var(--border)}
+.prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--gray500);margin-bottom:6px}
+.prog-bar{height:4px;background:var(--gray100);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal-mid),var(--blue));border-radius:4px;transition:width .5s}
+.sidebar-nav{padding:12px 0;flex:1}
+.nav-section{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--gray300);text-transform:uppercase;padding:8px 20px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 20px;font-size:13px;color:var(--gray500);cursor:pointer;border-left:3px solid transparent;transition:all .15s;text-decoration:none}
+.nav-item:hover{color:var(--teal);background:var(--teal-soft)}
+.nav-item.active{color:var(--teal);background:var(--teal-light);border-left-color:var(--teal-mid);font-weight:500}
+.nav-num{width:20px;height:20px;border-radius:50%;background:var(--gray100);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;color:var(--gray500)}
+.nav-item.active .nav-num{background:var(--teal-light);color:var(--teal)}
+
+/* MAIN */
+.main{margin-left:260px;flex:1}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-breadcrumb{font-size:12px;color:var(--gray500)}
+.topbar-breadcrumb span{color:var(--gray900);font-weight:500}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+.meta-chip{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray500);background:var(--gray50);border:1px solid var(--border);padding:5px 12px;border-radius:20px}
+
+/* HERO */
+.chapter-hero{background:var(--white);border-bottom:1px solid var(--border);padding:48px 40px 36px}
+.hero-phase{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--teal);text-transform:uppercase;margin-bottom:10px}
+.hero-title{font-size:32px;font-weight:700;color:var(--gray900);line-height:1.25;margin-bottom:12px}
+.hero-title span{color:var(--teal-mid)}
+.hero-desc{font-size:15px;color:var(--gray500);max-width:640px;line-height:1.7;margin-bottom:24px}
+.hero-meta{display:flex;gap:12px;flex-wrap:wrap}
+
+/* CONTENT */
+.content{padding:40px 40px 80px;max-width:920px}
+.section{margin-bottom:60px;scroll-margin-top:80px}
+.section-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:14px;border-bottom:2px solid var(--teal-light)}
+.section-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.section-num{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.section-title{font-size:22px;font-weight:700;color:var(--gray900)}
+
+/* CALLOUTS */
+.callout{border-radius:var(--radius);padding:16px 20px;margin:20px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.callout-body{flex:1}
+.callout-title{font-weight:600;font-size:14px;margin-bottom:4px}
+.callout-text{font-size:13px;line-height:1.6}
+.callout.tip{background:var(--teal-light);color:var(--teal);border-left:3px solid var(--teal-mid)}
+.callout.info{background:var(--blue-light);color:var(--blue);border-left:3px solid var(--blue)}
+.callout.warning{background:var(--amber-light);color:var(--amber);border-left:3px solid var(--amber)}
+.callout.example{background:var(--indigo-light);color:var(--indigo);border-left:3px solid var(--indigo)}
+.callout.good{background:var(--green-light);color:var(--green);border-left:3px solid var(--green)}
+
+/* REAL WORLD */
+.real-world{background:var(--white);border:1px solid var(--border);border-left:4px solid var(--teal-mid);border-radius:var(--radius);padding:20px 24px;margin:20px 0}
+.rw-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:8px}
+.rw-title{font-size:16px;font-weight:700;color:var(--gray900);margin-bottom:8px}
+.rw-body{font-size:13px;color:var(--gray700);line-height:1.7}
+
+/* CODE BLOCKS */
+.code-block{background:#1e2030;border-radius:var(--radius);overflow:hidden;margin:16px 0;font-family:var(--mono);font-size:13px}
+.code-header{background:#272a3f;padding:9px 16px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#7a8ba8;font-family:var(--font)}
+.code-lang{background:rgba(255,255,255,.08);padding:2px 8px;border-radius:4px;font-weight:500}
+.code-body{padding:16px;color:#cdd6f4;line-height:1.75;overflow-x:auto;white-space:pre}
+.kw{color:#89b4fa}.str{color:#a6e3a1}.cm{color:#6c7086;font-style:italic}.fn{color:#f38ba8}.nm{color:#fab387}.op{color:#89dceb}
+
+/* LIVE SQL SANDBOX */
+.sandbox{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:20px 0;box-shadow:var(--shadow)}
+.sandbox-top{background:linear-gradient(135deg,#1e2030,#2a2d47);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sandbox-title{font-size:13px;font-weight:600;color:white;display:flex;align-items:center;gap:8px}
+.sandbox-badge{font-size:10px;background:var(--teal-mid);color:white;padding:2px 8px;border-radius:4px;font-weight:700}
+.sandbox-note{font-size:11px;color:rgba(255,255,255,.5)}
+.sandbox-editor{min-height:120px;background:#1e2030;padding:14px 16px;font-family:var(--mono);font-size:13px;color:#cdd6f4;border:none;outline:none;resize:vertical;width:100%;line-height:1.75}
+.sandbox-toolbar{background:var(--gray50);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.sandbox-hint{font-size:12px;color:var(--gray500);flex:1}
+.sandbox-btns{display:flex;gap:8px}
+.run-btn{background:var(--teal-mid);color:white;border:none;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:6px;transition:background .15s}
+.run-btn:hover{background:var(--teal)}
+.run-btn:active{transform:scale(.97)}
+.reset-btn{background:transparent;color:var(--gray500);border:1px solid var(--border);padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.reset-btn:hover{background:var(--gray100)}
+.sandbox-output{border-top:1px solid var(--border);display:none}
+.sandbox-output.visible{display:block}
+.output-head{padding:10px 18px;background:var(--gray50);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.output-label{font-size:11px;font-weight:600;color:var(--gray500);text-transform:uppercase;letter-spacing:1px}
+.output-rows{font-size:12px;color:var(--teal);font-weight:600}
+.output-scroll{overflow-x:auto;padding:0 18px 16px}
+.result-tbl{width:100%;border-collapse:collapse;font-size:13px;margin-top:14px}
+.result-tbl th{background:var(--teal-light);color:var(--teal);font-weight:600;padding:9px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.result-tbl td{padding:8px 14px;border-bottom:1px solid var(--gray100);color:var(--gray700);white-space:nowrap}
+.result-tbl tr:last-child td{border-bottom:none}
+.result-tbl tr:hover td{background:var(--gray50)}
+.result-tbl .hi{background:var(--teal-light)!important;font-weight:600;color:var(--teal)}
+.result-tbl .null-v{color:var(--gray300);font-style:italic}
+.result-msg{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;margin:14px 18px 0}
+.result-msg.success{background:var(--teal-light);color:var(--teal)}
+.result-msg.info{background:var(--blue-light);color:var(--blue)}
+.result-msg.warn{background:var(--amber-light);color:var(--amber)}
+
+/* DATA PREVIEW */
+.data-preview{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:20px 0}
+.dp-head{padding:12px 18px;background:var(--gray50);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.dp-title{font-size:13px;font-weight:600;color:var(--gray900)}
+.dp-count{font-size:11px;color:var(--gray500)}
+.dp-scroll{overflow-x:auto}
+
+/* SYNTAX BOX */
+.syntax-box{background:var(--gray900);border-radius:var(--radius);padding:18px 20px;margin:16px 0;position:relative;font-family:var(--mono);font-size:14px;line-height:2}
+.syntax-box .s-kw{color:#89b4fa;font-weight:700}
+.syntax-box .s-ph{color:#fab387;font-style:italic}
+.syntax-box .s-opt{color:#6c7086}
+.syntax-box .s-str{color:#a6e3a1}
+.syntax-label{position:absolute;top:-10px;left:14px;background:var(--teal-mid);color:white;font-size:10px;font-weight:700;padding:2px 10px;border-radius:4px;font-family:var(--font);letter-spacing:.5px}
+
+/* OPERATOR TABLE */
+.op-table{width:100%;border-collapse:collapse;font-size:13px;background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin:14px 0}
+.op-table th{background:var(--blue);color:white;padding:10px 16px;text-align:left;font-weight:600;font-size:12px}
+.op-table td{padding:9px 16px;border-bottom:1px solid var(--gray100);color:var(--gray700);vertical-align:top}
+.op-table tr:last-child td{border-bottom:none}
+.op-table tr:hover td{background:var(--gray50)}
+.op-table td:first-child{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--teal);width:90px}
+.op-table td:nth-child(3){font-family:var(--mono);font-size:11px;color:var(--indigo)}
+
+/* TERM GRID */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:16px 0}
+.term-card{background:var(--gray50);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.term-word{font-size:13px;font-weight:700;color:var(--teal);font-family:var(--mono);margin-bottom:4px}
+.term-def{font-size:12px;color:var(--gray700);line-height:1.5}
+.term-eg{font-size:11px;color:var(--gray500);margin-top:4px;font-family:var(--mono)}
+
+/* COMPARE GRID */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.compare-col{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.compare-head{padding:12px 18px;font-weight:600;font-size:14px}
+.compare-body{padding:4px 0 12px}
+.compare-row{padding:7px 18px;font-size:13px;color:var(--gray700);display:flex;align-items:flex-start;gap:8px;line-height:1.5;border-bottom:1px solid var(--gray100)}
+.compare-row:last-child{border-bottom:none}
+.compare-row::before{content:'▸';color:var(--gray300);flex-shrink:0;margin-top:1px}
+
+/* CLAUSE ANATOMY */
+.anatomy{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin:20px 0;font-family:var(--mono);font-size:14px;line-height:2.2}
+.ana-kw{color:#89b4fa;font-weight:700;font-size:15px}
+.ana-ph{color:#fab387}
+.ana-cm{color:#6c7086;font-style:normal;font-family:var(--font);font-size:12px;margin-left:12px}
+.ana-line{display:flex;align-items:center;gap:0}
+
+/* CASE WHEN VISUAL */
+.case-flow{display:flex;flex-direction:column;gap:0;margin:16px 0}
+.cf-row{display:flex;align-items:stretch;gap:0;border:1px solid var(--border);border-bottom:none}
+.cf-row:first-child{border-radius:10px 10px 0 0;overflow:hidden}
+.cf-row:last-child{border-bottom:1px solid var(--border);border-radius:0 0 10px 10px;overflow:hidden}
+.cf-cond{padding:10px 16px;font-size:13px;font-family:var(--mono);background:var(--indigo-light);color:var(--indigo);min-width:240px;display:flex;align-items:center}
+.cf-then{padding:10px 16px;font-size:13px;font-family:var(--mono);background:var(--teal-light);color:var(--teal);flex:1;display:flex;align-items:center}
+.cf-else{background:var(--amber-light);color:var(--amber)}
+.cf-head{background:var(--gray900);color:white;font-family:var(--font);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+
+/* QUIZ */
+.quiz-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:24px 0}
+.quiz-header{background:var(--indigo-light);padding:14px 20px;display:flex;align-items:center;gap:10px}
+.quiz-title{font-size:14px;font-weight:600;color:var(--indigo)}
+.quiz-count{font-size:12px;color:var(--indigo);opacity:.7;margin-left:auto}
+.quiz-body{padding:20px}
+.quiz-q{font-size:14px;font-weight:500;color:var(--gray900);margin-bottom:14px;line-height:1.6}
+.quiz-options{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.quiz-opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--gray700);transition:all .15s;background:var(--white);text-align:left;font-family:var(--font);line-height:1.5;width:100%}
+.quiz-opt:hover{border-color:var(--indigo);color:var(--indigo);background:var(--indigo-light)}
+.quiz-opt.correct{border-color:var(--teal-mid);background:var(--teal-light);color:var(--teal)}
+.quiz-opt.wrong{border-color:var(--coral);background:var(--coral-light);color:var(--coral)}
+.opt-letter{width:22px;height:22px;border-radius:50%;background:var(--gray100);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:var(--gray500)}
+.quiz-opt.correct .opt-letter{background:var(--teal-mid);color:white}
+.quiz-opt.wrong .opt-letter{background:var(--coral);color:white}
+.quiz-feedback{display:none;padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.5;margin-top:4px}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:var(--teal-light);color:var(--teal)}
+.quiz-feedback.wrong{background:var(--coral-light);color:var(--coral)}
+.quiz-nav{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-top:1px solid var(--border);background:var(--gray50)}
+.quiz-progress-dots{display:flex;gap:6px}
+.q-dot{width:8px;height:8px;border-radius:50%;background:var(--gray300);transition:all .2s}
+.q-dot.active{background:var(--indigo);transform:scale(1.3)}
+.q-dot.done-c{background:var(--teal-mid)}
+.q-dot.done-w{background:var(--coral)}
+.btn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--gray700);font-family:var(--font);transition:all .15s}
+.btn:hover{background:var(--gray100)}
+.btn-primary{background:var(--teal-mid);color:white;border-color:var(--teal-mid)}
+.btn-primary:hover{background:var(--teal)}
+
+/* SUMMARY */
+.summary-box{background:linear-gradient(135deg,var(--teal-soft),var(--blue-light));border:1px solid var(--teal-light);border-radius:var(--radius-lg);padding:24px 28px;margin:32px 0 0}
+.summary-title{font-size:16px;font-weight:700;color:var(--gray900);margin-bottom:16px}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.summary-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--gray700);line-height:1.5}
+.summary-check{width:20px;height:20px;border-radius:50%;background:var(--teal-mid);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px}
+
+/* CHEATSHEET */
+.cheatsheet{background:var(--gray900);border-radius:var(--radius-lg);padding:24px 28px;margin:20px 0;color:#cdd6f4}
+.cs-title{font-size:14px;font-weight:600;color:white;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.cs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.cs-item{background:rgba(255,255,255,.05);border-radius:8px;padding:12px 14px}
+.cs-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#7a8ba8;margin-bottom:6px}
+.cs-code{font-family:var(--mono);font-size:12px;line-height:1.8;color:#cdd6f4}
+.cs-code .kw{color:#89b4fa;font-weight:700}
+.cs-code .ph{color:#fab387}
+.cs-code .str{color:#a6e3a1}
+.cs-code .cm{color:#6c7086}
+
+/* NAV */
+.chapter-nav{background:var(--white);border-top:1px solid var(--border);padding:24px 40px;display:flex;justify-content:space-between;align-items:center}
+.nav-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;font-size:13px;color:var(--gray700);transition:all .15s;min-width:200px}
+.nav-card:hover{border-color:var(--teal-mid);color:var(--teal)}
+.nav-card-dir{font-size:11px;color:var(--gray300);margin-bottom:2px}
+.nav-card-name{font-weight:600}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .main{margin-left:0}
+  .content{padding:24px 20px 60px}
+  .chapter-hero{padding:32px 20px 24px}
+  .topbar{padding:12px 20px}
+  .compare-grid{grid-template-columns:1fr}
+  .hero-title{font-size:24px}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-tag">HCL GUVI · SQL Mastery · Phase 2</div>
+    <div class="brand-title">Chapter 4</div>
+    <div class="brand-sub">DQL — Data Query Language</div>
+  </div>
+  <div class="sidebar-progress">
+    <div class="prog-label"><span>Your progress</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Topics</div>
+    <a class="nav-item active" href="#sec0"><div class="nav-num">0</div>Dataset & Setup</a>
+    <a class="nav-item" href="#sec1"><div class="nav-num">1</div>SELECT & FROM</a>
+    <a class="nav-item" href="#sec2"><div class="nav-num">2</div>Column Aliases (AS)</a>
+    <a class="nav-item" href="#sec3"><div class="nav-num">3</div>WHERE — Filtering Rows</a>
+    <a class="nav-item" href="#sec4"><div class="nav-num">4</div>Comparison Operators</a>
+    <a class="nav-item" href="#sec5"><div class="nav-num">5</div>AND, OR, NOT</a>
+    <a class="nav-item" href="#sec6"><div class="nav-num">6</div>BETWEEN & IN</a>
+    <a class="nav-item" href="#sec7"><div class="nav-num">7</div>LIKE — Pattern Matching</a>
+    <a class="nav-item" href="#sec8"><div class="nav-num">8</div>IS NULL / IS NOT NULL</a>
+    <a class="nav-item" href="#sec9"><div class="nav-num">9</div>ORDER BY</a>
+    <a class="nav-item" href="#sec10"><div class="nav-num">10</div>DISTINCT</a>
+    <a class="nav-item" href="#sec11"><div class="nav-num">11</div>LIMIT / TOP / FETCH</a>
+    <a class="nav-item" href="#sec12"><div class="nav-num">12</div>CASE WHEN</a>
+    <a class="nav-item" href="#sec13"><div class="nav-num">13</div>Cheatsheet & Quiz</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-breadcrumb">SQL Mastery › Phase 2 › <span>Chapter 4 — DQL</span></div>
+    <div class="topbar-actions">
+      <div class="meta-chip"><span style="width:6px;height:6px;border-radius:50%;background:#185FA5;display:inline-block"></span> Intermediate</div>
+      <div class="meta-chip">⏱ ~75 min</div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="chapter-hero">
+    <div class="hero-phase">Phase 2 · Chapter 4 of 22</div>
+    <h1 class="hero-title">DQL — <span>Data Query Language</span></h1>
+    <p class="hero-desc">SELECT is the most powerful and most-used command in SQL. A data analyst spends 90% of their time writing SELECT queries. In this chapter, you'll master every clause — from basic retrieval to complex filtering, pattern matching, and conditional logic — all with a live interactive sandbox.</p>
+    <div class="hero-meta">
+      <div class="meta-chip">📚 13 Topics</div>
+      <div class="meta-chip">🎮 Live SQL Sandbox</div>
+      <div class="meta-chip">🇮🇳 Indian Dataset</div>
+      <div class="meta-chip">🧠 12 Quiz questions</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- ── SECTION 0: DATASET ── -->
+  <div class="section" id="sec0">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--teal-light)">🗄️</div>
+      <div><div class="section-num">Setup</div><h2 class="section-title">Our Practice Dataset — GUVI Students</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Throughout this chapter, we'll query a realistic dataset of GUVI learners. Every example uses this data — so read it carefully before we begin. The <strong>interactive sandbox below simulates this database</strong> — run any query and see real results instantly.
+    </p>
+
+    <div class="data-preview">
+      <div class="dp-head">
+        <div class="dp-title">📋 Table: <code style="font-family:var(--mono);color:var(--teal)">students</code></div>
+        <div class="dp-count">20 rows · 9 columns</div>
+      </div>
+      <div class="dp-scroll">
+        <table class="result-tbl" style="margin:0">
+          <thead>
+            <tr><th>student_id</th><th>name</th><th>city</th><th>state</th><th>course</th><th>batch</th><th>score</th><th>fee_paid</th><th>email</th></tr>
+          </thead>
+          <tbody id="dataset-preview"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">🎮</div>
+      <div class="callout-body">
+        <div class="callout-title">How the Live Sandbox works</div>
+        <div class="callout-text">Every code box in this chapter has a <strong>▶ Run Query</strong> button. Click it to execute the query against our in-memory dataset and see real results. You can also <strong>edit the query</strong> and run your own variations. No installation needed!</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>Schema: students table</span><span class="code-lang">MySQL</span></div>
+      <div class="code-body"><span class="kw">CREATE TABLE</span> students (
+    student_id  <span class="kw">INT</span>            <span class="kw">PRIMARY KEY</span>,
+    name        <span class="kw">VARCHAR</span>(<span class="nm">100</span>)   <span class="kw">NOT NULL</span>,
+    city        <span class="kw">VARCHAR</span>(<span class="nm">50</span>),
+    state       <span class="kw">VARCHAR</span>(<span class="nm">50</span>),
+    course      <span class="kw">VARCHAR</span>(<span class="nm">50</span>),
+    batch       <span class="kw">VARCHAR</span>(<span class="nm">20</span>),
+    score       <span class="kw">DECIMAL</span>(<span class="nm">5</span>,<span class="nm">2</span>),    <span class="cm">-- out of 100</span>
+    fee_paid    <span class="kw">DECIMAL</span>(<span class="nm">8</span>,<span class="nm">2</span>),    <span class="cm">-- in ₹</span>
+    email       <span class="kw">VARCHAR</span>(<span class="nm">150</span>)    <span class="cm">-- may be NULL</span>
+);</div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 1: SELECT & FROM ── -->
+  <div class="section" id="sec1">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--teal-light)">🔍</div>
+      <div><div class="section-num">Topic 1</div><h2 class="section-title">SELECT & FROM — Retrieving Data</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <code style="font-family:var(--mono);background:var(--gray100);padding:2px 6px;border-radius:4px">SELECT</code> retrieves data from a table.
+      <code style="font-family:var(--mono);background:var(--gray100);padding:2px 6px;border-radius:4px">FROM</code> tells SQL which table to look in.
+      Together, they form the foundation of every SQL query ever written.
+    </p>
+
+    <div class="syntax-box">
+      <div class="syntax-label">SYNTAX</div>
+      <span class="s-kw">SELECT</span> <span class="s-ph">column1, column2, ...</span> <span class="s-opt">-- or * for all</span>
+      <br><span class="s-kw">FROM</span>   <span class="s-ph">table_name</span><span class="s-opt">;</span>
+    </div>
+
+    <div class="anatomy">
+      <div class="ana-line"><span class="ana-kw">SELECT</span>&nbsp;<span class="ana-ph">name, city, score</span>&nbsp;<span class="ana-cm">← Which columns to show</span></div>
+      <div class="ana-line"><span class="ana-kw">FROM</span>&nbsp;&nbsp;&nbsp;<span class="ana-ph">students</span><span class="ana-ph">;</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ana-cm">← Which table to read from</span></div>
+    </div>
+
+    <div class="sandbox">
+      <div class="sandbox-top">
+        <div class="sandbox-title">🎮 Try It Live <span class="sandbox-badge">Exercise 1</span></div>
+        <div class="sandbox-note">Edit the query and press Run</div>
+      </div>
+      <textarea class="sandbox-editor" id="q1" spellcheck="false">-- Retrieve all columns from the students table
+SELECT * FROM students;
+
+-- Try: Select only specific columns
+-- SELECT name, city, course FROM students;</textarea>
+      <div class="sandbox-toolbar">
+        <div class="sandbox-hint">💡 Use <code>*</code> to select all columns, or list specific ones separated by commas</div>
+        <div class="sandbox-btns">
+          <button class="reset-btn" onclick="resetQ('q1',0)">Reset</button>
+          <button class="run-btn" onclick="runQuery('q1','out1')">▶ Run Query</button>
+        </div>
+      </div>
+      <div class="sandbox-output" id="out1"></div>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <div class="callout-title">Avoid SELECT * in production code</div>
+        <div class="callout-text">While <code>SELECT *</code> is great for exploration, always specify column names in production queries. Why? <br>1. Fetching unused columns wastes network bandwidth<br>2. If someone adds a column, your query's output changes unexpectedly<br>3. It makes code harder to understand — the reader doesn't know which columns are relevant</div>
+      </div>
+    </div>
+
+    <div class="sandbox">
+      <div class="sandbox-top">
+        <div class="sandbox-title">🎮 Try It Live <span class="sandbox-badge">Exercise 2</span></div>
+      </div>
+      <textarea class="sandbox-editor" id="q2" spellcheck="false">-- Select only the columns you need
+SELECT name, city, course, score
+FROM students;
+
+-- Challenge: Can you select student_id, name, and fee_paid only?</textarea>
+      <div class="sandbox-toolbar">
+        <div class="sandbox-hint">💡 SELECT name, city, course, score → only these 4 columns appear in results</div>
+        <div class="sandbox-btns">
+          <button class="reset-btn" onclick="resetQ('q2',1)">Reset</button>
+          <button class="run-btn" onclick="runQuery('q2','out2')">▶ Run Query</button>
+        </div>
+      </div>
+      <div class="sandbox-output" id="out2"></div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2: ALIASES ── -->
+  <div class="section" id="sec2">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--blue-light)">🏷️</div>
+      <div><div class="section-num">Topic 2</div><h2 class="section-title">Column Aliases — Renaming Output with AS</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      An <strong>alias</strong> gives a column (or table) a temporary name in the output. It doesn't change the actual column name in the database — it only affects how results are displayed. Aliases are essential for making output readable, especially for computed columns.
+    </p>
+
+    <div class="syntax-box">
+      <div class="syntax-label">SYNTAX</div>
+      <span class="s-kw">SELECT</span> <span class="s-ph">column_name</span> <span class="s-kw">AS</span> <span class="s-ph">alias_name</span>
+      <br><span class="s-kw">FROM</span> <span class="s-ph">table_name</span><span class="s-opt">;</span>
+    </div>
+
+    <div class="sandbox">
+      <div class="sandbox-top">
+        <div class="sandbox-title">🎮 Aliases in Action <span class="sandbox-badge">Exercise 3</span></div>
+      </div>
+      <textarea class="sandbox-editor" id="q3" spellcheck="false">-- Rename columns in output using AS
+SELECT
+    name        AS student_name,
+    city        AS location,
+    score       AS marks_out_of_100,
+    fee_paid    AS fees_in_rupees
+FROM students;
+
+-- Computed column with alias:
+-- SELECT name, score, score * 10 AS score_out_of_1000
+-- FROM students;</textarea>
+      <div class="sandbox-toolbar">
+        <div class="sandbox-hint">💡 AS is optional — SELECT name student_name works too, but AS makes it explicit and readable</div>
+        <div class="sandbox-btns">
+          <button class="reset-btn" onclick="resetQ('q3',2)">Reset</button>
+          <button class="run-btn" onclick="runQuery('q3','out3')">▶ Run Query</button>
+        </div>
+      </div>
+      <div class="sandbox-output" id="out3"></div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">Alias Rules</div>
+        <div class="callout-text">
+          ✅ Use quotes for aliases with spaces: <code>score AS "Total Marks"</code><br>
+          ✅ Aliases can be used in ORDER BY but NOT in WHERE (SQL processes WHERE before SELECT)<br>
+          ✅ Aliases are commonly used for: computed columns, long column names, aggregation functions<br>
+          ✅ Table aliases shorten JOINs: <code>FROM students s JOIN courses c ON s.id = c.id</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3: WHERE ── -->
+  <div class="section" id="sec3">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--amber-light)">🔎</div>
+      <div><div class="section-num">Topic 3</div><h2 class="section-title">WHERE — Filtering Rows</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <code style="font-family:var(--mono);background:var(--gray100);padding:2px 6px;border-radius:4px">WHERE</code> filters rows — only rows that satisfy the condition are returned. It's the most important clause after SELECT and FROM. Without WHERE, you get ALL rows; with WHERE, you get only what you need.
+    </p>
+
+    <div class="syntax-box">
+      <div class="syntax-label">SYNTAX</div>
+      <span class="s-kw">SELECT</span> <span class="s-ph">columns</span>
+      <br><span class="s-kw">FROM</span>   <span class="s-ph">table</span>
+      <br><span class="s-kw">WHERE</span>  <span class="s-ph">condition</span><span class="s-opt">;</span>
+    </div>
+
+    <div class="real-world">
+      <div class="rw-label">🇮🇳 Real-World Use Cases</div>
+      <div class="rw-title">WHERE in everyday queries</div>
+      <div class="rw-body">
+        • <strong>Swiggy:</strong> WHERE city = 'Mumbai' AND order_status = 'delivered'<br>
+        • <strong>IRCTC:</strong> WHERE train_date = '2024-12-25' AND from_station = 'MAS'<br>
+        • <strong>GUVI:</strong> WHERE course = 'SQL' AND score >= 80<br>
+        • <strong>Bank:</strong> WHERE account_type = 'Savings' AND balance < 1000
+      </div>
+    </div>
+
+    <div class="sandbox">
+      <div class="sandbox-top">
+        <div class="sandbox-title">🎮 WHERE in Action <span class="sandbox-badge">Exercise 4</span></div>
+      </div>
+      <textarea class="sandbox-editor" id="q4" spellcheck="false">-- Filter students from Chennai only
+SELECT name, city, course, score
+FROM students
+WHERE city = 'Chennai';
+
+-- Try changing the city: 'Delhi', 'Mumbai', 'Bangalore', 'Hyderabad'
+-- Try: WHERE course = 'SQL'
+-- Try: WHERE score >= 80</textarea>
+      <div class="sandbox-toolbar">
+        <div class="sandbox-hint">💡 String values need quotes ('Chennai'), numbers don't (score >= 80)</div>
+        <div class="sandbox-btns">
+          <button class="reset-btn" onclick="resetQ('q4',3)">Reset</button>
+          <button class="run-btn" onclick="runQuery('q4','out4')">▶ Run Query</button>
+        </div>
+      </div>
+      <div class="sandbox-output" id="out4"></div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">SQL Execution Order — WHERE runs before SELECT!</div>
+        <div class="callout-text">SQL doesn't execute top-to-bottom. The order is: <strong>FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT</strong>. This is why you cannot use a column alias in WHERE — the alias is defined in SELECT, but WHERE runs first.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4: COMPARISON OPERATORS ── -->
+  <div class="section" id="sec4">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--indigo-light)">⚖️</div>
+      <div><div class="section-num">Topic 4</div><h2 class="section-title">Comparison Operators</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Comparison operators are used inside WHERE to compare values. They work on numbers, strings, and dates.
+    </p>
+
+    <table class="op-table">
+      <thead><tr><th>Operator</th><th>Meaning</th><th>Example</th><th>Returns rows where...</th></tr></thead>
+      <tbody>
+        <tr><td>=</td><td>Equal to</td><td>WHERE city = 'Chennai'</td><td>city is exactly Chennai</td></tr>
+        <tr><td>!= or &lt;&gt;</td><td>Not equal to</td><td>WHERE course != 'ML'</td><td>course is anything but ML</td></tr>
+        <tr><td>&gt;</td><td>Greater than</td><td>WHERE score > 80</td><td>score is above 80</td></tr>
+        <tr><td>&lt;</td><td>Less than</td><td>WHERE score < 50</td><td>score is below 50</td></tr>
+        <tr><td>&gt;=</td><td>Greater than or equal</td><td>WHERE score >= 75</td><td>score is 75 or above</td></tr>
+        <tr><td>&lt;=</td><td>Less than or equal</td><td>WHERE fee_paid <= 10000</td><td>fee is 10000 or less</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sandbox">
+      <div class="sandbox-top">
+        <div class="sandbox-title">🎮 Comparison Operators <span class="sandbox-badge">Exercise 5</span></div>
+      </div>
+      <textarea class="sandbox-editor" id="q5" spellcheck="false">-- Students who scored above 80
+SELECT name, city, course, score
+FROM students
+WHERE score > 80;
+
+-- Try these one at a time:
+-- WHERE score >= 75        -- 75 or above (pass mark)
+-- WHERE score < 50         -- failing students
+-- WHERE fee_paid != 15000  -- paid a different amount
+-- WHERE city != 'Chennai'  -- not from Chennai</textarea>
+      <div class="sandbox-toolbar">
+        <div class="sandbox-hint">💡 Both != and &lt;&gt; mean "not equal" — both work in MySQL, PostgreSQL, SQL Server</div>
+        <div class="sandbox-btns">
+          <button class="reset-btn" onclick="resetQ('q5',4)">Reset</button>
+          <button class="run-btn" onclick="runQuery('q5','out5')">▶ Run Query</button>
+        </div>
+      </div>
+      <div class="sandbox-output" id="out5"></div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 5: AND OR NOT ── -->
+  <div class="section" id="sec5">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--purple-light)">🔗</div>
+      <div><div class="section-num">Topic 5</div><h2 class="section-title">AND, OR, NOT — Logical Operators</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Logical operators combine multiple conditions in a WHERE clause. They work exactly like boolean logic in Python/programming.
+    </p>
+
+    <div class="compare-grid">
+      <div class="compare-col">
+        <div class="compare-head" style="background:var(--teal-light);color:var(--teal)">AND — Both conditions must be true</div>
+        <div class="compare-body">
+          <div class="compare-row">Narrows results — fewer rows returned</div>
+          <div class="compare-row">Like filtering a dataset with multiple conditions</div>
+          <div class="compare-row" style="font-family:var(--mono);font-size:12px">WHERE city='Chennai' AND score>80</div>
+          <div class="compare-row">Only Chennai students with score above 80</div>
+        </div>
+      </div>
+      <div class="compare-col">
+        <div class="compare-head" style="background:var(--blue-light);color:var(--blue)">OR — At least one condition must be true</div>
+        <div class="compare-body">
+          <div class="compare-row">Widens results — more rows returned</div>
+          <div class="compare-row">Like a union of two filters</div>
+          <div class="compare-row" style="font-family:var(--mono);font-size:12px">WHERE city='Chennai' OR city='Delhi'</div>
+          <div class="compare-row">Students from Chennai OR Delhi (or both)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <div class="callout-title">Operator Precedence — AND evaluates before OR!</div>
+        <div class="callout-text">
+          <code>WHERE city='Chennai' OR city='Delhi' AND score > 80</code><br>
+          This is read as: <code>WHERE city='Chennai' OR (city='Delhi' AND score > 80)</code> — NOT what you might intend!<br><br>
+          <strong>Always use parentheses to be explicit:</strong><br>
+          <code>WHERE (city='Chennai' OR city='Delhi') AND score > 80</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="sandbox">
+      <div class="sandbox-top">
+        <div class="sandbox-title">🎮 AND, OR, NOT <span class="sandbox-badge">Exercise 6</span></div>
+      </div>
+      <textarea class="sandbox-editor" id="q6" spellcheck="false">-- AND: SQL students from Chennai with score above 75
+SELECT name, city, course, score
+FROM students
+WHERE course = 'SQL'
+  AND score > 75;
+
+-- Try these:
+-- OR: Students from Chennai OR Bangalore
+-- WHERE city = 'Chennai' OR city = 'Bangalore'
+
+-- NOT: Students NOT from Chennai
+-- WHERE NOT city = 'Chennai'
+-- (equivalent to: WHERE city != 'Chennai')
+
+-- Combined with parentheses:
+-- WHERE (city = 'Chennai' OR city = 'Delhi') AND score >= 80</textarea>
+      <div class="sandbox-toolbar">
+        <div class="sandbox-hint">💡 Use parentheses liberally — they make AND/OR logic unambiguous and readable</div>
+        <div class="sandbox-btns">
+          <button class="reset-btn" onclick="resetQ('q6',5)">Reset</button>
+          <button class="run-btn" onclick="runQuery('q6','out6')">▶ Run Query</button>
+        </div>
+      </div>
+      <div class="sandbox-output" id="out6"></div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 6: BETWEEN & IN ── -->
+  <div class="section" id="sec6">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--teal-light)">📏</div>
+      <div><div class="section-num">Topic 6</div><h2 class="section-title">BETWEEN & IN — Shorthand Filters</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:20px">
+      These operators are shortcuts that make your WHERE clauses shorter and more readable — and they perform identically to the expanded form.
+    </p>
+
+    <div class="compare-grid">
+      <div class="compare-col">
+        <div class="compare-head" style="background:var(--teal-light);color:var(--teal)">BETWEEN … AND … — Range filter</div>
+        <div class="compare-body">
+          <div class="compare-row"><strong>Inclusive</strong> — includes both boundary values</div>
+          <div class="compare-row">Works on numbers, dates, and strings</div>
+          <div class="compare-row" style="font-family:var(--mono);font-size:11px">WHERE score BETWEEN 60 AND 80</div>
+          <div class="compare-row" style="font-family:var(--mono);font-size:11px;color:var(--gray300)">= WHERE score >= 60 AND score &lt;= 80</div>
+        </div>
+      </div>
+      <div class="compare-col">
+        <div class="compare-head" style="background:var(--blue-light);color:var(--blue)">IN (list) — Match any value in a list</div>
+        <div class="compare-body">
+          <div class="compare-row">Shorthand for multiple OR conditions</div>
+          <div class="compare-row">Can use with numbers, strings, subqueries</div>
+          <div class="compare-row" style="font-family:var(--mono);font-size:11px">WHERE city IN ('Chennai','Delhi','Pune')</div>
+          <div class="compare-row" style="font-family:var(--mono);font-size:11px;color:var(--gray300)">= WHERE city='Chennai' OR city='Delhi'…</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sandbox">
+      <div class="sandbox-top">
+        <div class="sandbox-title">🎮 BETWEEN & IN <span class="sandbox-badge">Exercise 7</span></div>
+      </div>
+      <textarea class="sandbox-editor" id="q7" spellcheck="false">-- BETWEEN: Students with score between 70 and 90 (inclusive)
+SELECT name, city, score
+FROM students
+WHERE score BETWEEN 70 AND 90;
+
+-- IN: Students from specific cities
+-- SELECT name, city, course
+-- FROM students
+-- WHERE city IN ('Chennai', 'Bangalore', 'Hyderabad');
+
+-- NOT IN: Exclude specific courses
+-- SELECT name, course, score
+-- FROM students
+-- WHERE course NOT IN ('ML', 'Python');
+
+-- BETWEEN with fees:
+-- SELECT name, fee_paid
+-- FROM students
+-- WHERE fee_paid BETWEEN 8000 AND 12000;</textarea>
+      <div class="sandbox-toolbar">
+        <div class="sandbox-hint">💡 NOT BETWEEN and NOT IN also work — they're negations of the range/list filters</div>
+        <div class="sandbox-btns">
+          <button class="reset-btn" onclick="resetQ('q7',6)">Reset</button>
+          <button class="run-btn" onclick="runQuery('q7','out7')">▶ Run Query</button>
+        </div>
+      </div>
+      <div class="sandbox-output" id="out7"></div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">BETWEEN on dates — very common in analytics</div>
+        <div class="callout-text">
+          <code>WHERE order_date BETWEEN '2024-01-01' AND '2024-03-31'</code><br>
+          This gets all orders in Q1 2024. BETWEEN always includes both end dates. For dates, remember: <code>'2024-03-31'</code> means midnight at the start of that day — if you want all of March 31st, use <code>&lt; '2024-04-01'</code> instead.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 7: LIKE ── -->
+  <div class="section" id="sec7">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--amber-light)">🔤</div>
+      <div><div class="section-num">Topic 7</div><h2 class="section-title">LIKE — Pattern Matching with Wildcards</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <code style="font-family:var(--mono);background:var(--gray100);padding:2px 6px;border-radius:4px">LIKE</code> is used for partial text matching using wildcards. Unlike <code>=</code> which needs an exact match, LIKE lets you match patterns.
+    </p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
+        <div style="font-size:32px;text-align:center;margin-bottom:10px">%</div>
+        <div style="font-size:14px;font-weight:600;color:var(--gray900);margin-bottom:8px;text-align:center">Percent (%) — Any sequence</div>
+        <p style="font-size:13px;color:var(--gray700);line-height:1.6;margin-bottom:12px">Matches zero or more characters — any sequence of any length</p>
+        <div style="font-family:var(--mono);font-size:12px;background:var(--gray50);padding:10px;border-radius:8px;line-height:2">
+          <div><span style="color:var(--teal)">'A%'</span> → Starts with A → Ananya, Arjun</div>
+          <div><span style="color:var(--teal)">'%a'</span> → Ends with a → Priya, Neha</div>
+          <div><span style="color:var(--teal)">'%ar%'</span> → Contains "ar" → Karthik, Arjun</div>
+          <div><span style="color:var(--teal)">'%'</span> → Matches everything</div>
+        </div>
+      </div>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
+        <div style="font-size:32px;text-align:center;margin-bottom:10px">_</div>
+        <div style="font-size:14px;font-weight:600;color:var(--gray900);margin-bottom:8px;text-align:center">Underscore (_) — One character</div>
+        <p style="font-size:13px;color:var(--gray700);line-height:1.6;margin-bottom:12px">Matches exactly ONE character — any single character</p>
+        <div style="font-family:var(--mono);font-size:12px;background:var(--gray50);padding:10px;border-radius:8px;line-height:2">
+          <div><span style="color:var(--blue)">'_ai%'</span> → 2nd+3rd chars "ai" → Karthik, Sai</div>
+          <div><span style="color:var(--blue)">'R___l'</span> → R + 3 chars + l → Rahul</div>
+          <div><span style="color:var(--blue)">'__@%'</span> → 3rd char is @ (emails)</div>
+          <div><span style="color:var(--blue)">'___'</span> → Exactly 3 characters</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sandbox">
+      <div class="sandbox-top">
+        <div class="sandbox-title">🎮 LIKE Pattern Matching <span class="sandbox-badge">Exercise 8</span></div>
+      </div>
+      <textarea class="sandbox-editor" id="q8" spellcheck="false">-- Find students whose name starts with 'P'
+SELECT name, city, course
+FROM students
+WHERE name LIKE 'P%';
+
+-- Try these patterns:
+-- Names ending with 'a'
+-- WHERE name LIKE '%a'
+
+-- Names containing 'ar' anywhere
+-- WHERE name LIKE '%ar%'
+
+-- Emails from Gmail only
+-- WHERE email LIKE '%@gmail.com'
+
+-- Names exactly 5 characters long
+-- WHERE name LIKE '_____'
+
+-- NOT LIKE: Names NOT starting with vowels
+-- WHERE name NOT LIKE 'A%' AND name NOT LIKE 'E%'
+--   AND name NOT LIKE 'I%' AND name NOT LIKE 'O%'
+--   AND name NOT LIKE 'U%'</textarea>
+      <div class="sandbox-toolbar">
+        <div class="sandbox-hint">💡 LIKE is case-insensitive in MySQL by default. Use BINARY LIKE for case-sensitive matching</div>
+        <div class="sandbox-btns">
+          <button class="reset-btn" onclick="resetQ('q8',7)">Reset</button>
+          <button class="run-btn" onclick="runQuery('q8','out8')">▶ Run Query</button>
+        </div>
+      </div>
+      <div class="sandbox-output" id="out8"></div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">LIKE vs = performance</div>
+        <div class="callout-text"><code>WHERE name = 'Priya'</code> uses an index (fast). <code>WHERE name LIKE 'Pr%'</code> can use a prefix index (reasonably fast). <code>WHERE name LIKE '%riya'</code> or <code>WHERE name LIKE '%riy%'</code> cannot use an index — it scans the entire table (slow on large tables). Prefer prefix patterns when possible.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 8: IS NULL ── -->
+  <div class="section" id="sec8">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--coral-light)">∅</div>
+      <div><div class="section-num">Topic 8</div><h2 class="section-title">IS NULL / IS NOT NULL — Handling Missing Data</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <strong>NULL in SQL means "unknown" or "missing value"</strong> — it is NOT the same as zero, empty string, or false. NULL is the absence of a value. This has a very important consequence: you CANNOT use <code>=</code> to check for NULL.
+    </p>
+
+    <div class="callout warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <div class="callout-title">The NULL trap — a very common mistake!</div>
+        <div class="callout-text">
+          <code>WHERE email = NULL</code> → <strong>NEVER WORKS</strong> — returns 0 rows always!<br>
+          <code>WHERE email != NULL</code> → <strong>NEVER WORKS</strong> — returns 0 rows always!<br><br>
+          Why? Because NULL = NULL is UNKNOWN in SQL (not TRUE). NULL is not equal to anything, including itself.<br><br>
+          ✅ Correct: <code>WHERE email IS NULL</code><br>
+          ✅ Correct: <code>WHERE email IS NOT NULL</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="sandbox">
+      <div class="sandbox-top">
+        <div class="sandbox-title">🎮 NULL Handling <span class="sandbox-badge">Exercise 9</span></div>
+      </div>
+      <textarea class="sandbox-editor" id="q9" spellcheck="false">-- Find students who have NOT provided their email
+SELECT name, city, course, email
+FROM students
+WHERE email IS NULL;
+
+-- Find students WHO HAVE provided their email:
+-- SELECT name, email FROM students WHERE email IS NOT NULL;
+
+-- COALESCE: Show 'No Email' when NULL
+-- SELECT name, COALESCE(email, 'No Email') AS email_display
+-- FROM students;
+
+-- Count how many students are missing email:
+-- SELECT COUNT(*) AS missing_email_count
+-- FROM students
+-- WHERE email IS NULL;</textarea>
+      <div class="sandbox-toolbar">
+        <div class="sandbox-hint">💡 Always use IS NULL / IS NOT NULL — never use = NULL or != NULL!</div>
+        <div class="sandbox-btns">
+          <button class="reset-btn" onclick="resetQ('q9',8)">Reset</button>
+          <button class="run-btn" onclick="runQuery('q9','out9')">▶ Run Query</button>
+        </div>
+      </div>
+      <div class="sandbox-output" id="out9"></div>
+    </div>
+
+    <div class="callout example">
+      <div class="callout-icon">🎯</div>
+      <div class="callout-body">
+        <div class="callout-title">NULL in arithmetic and comparisons</div>
+        <div class="callout-text">
+          Any arithmetic with NULL gives NULL: <code>score + NULL = NULL</code><br>
+          Any comparison with NULL gives UNKNOWN: <code>score > NULL = UNKNOWN</code><br>
+          Use <code>COALESCE(score, 0)</code> to replace NULL with a default value for calculations.<br>
+          Use <code>NULLIF(score, 0)</code> to convert a specific value to NULL (opposite of COALESCE).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 9: ORDER BY ── -->
+  <div class="section" id="sec9">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--green-light)">↕️</div>
+      <div><div class="section-num">Topic 9</div><h2 class="section-title">ORDER BY — Sorting Results</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <code style="font-family:var(--mono);background:var(--gray100);padding:2px 6px;border-radius:4px">ORDER BY</code> sorts the result set. Without it, SQL returns rows in no guaranteed order — the order depends on how the database engine retrieves them internally.
+    </p>
+
+    <div class="syntax-box">
+      <div class="syntax-label">SYNTAX</div>
+      <span class="s-kw">SELECT</span>   <span class="s-ph">columns</span>
+      <br><span class="s-kw">FROM</span>     <span class="s-ph">table</span>
+      <br><span class="s-kw">WHERE</span>    <span class="s-ph">condition</span>         <span class="s-opt">-- optional</span>
+      <br><span class="s-kw">ORDER BY</span> <span class="s-ph">column1</span> <span class="s-kw">ASC</span><span class="s-opt">|</span><span class="s-kw">DESC</span><span class="s-opt">, column2 ASC|DESC, ...;</span>
+    </div>
+
+    <div class="term-grid">
+      <div class="term-card">
+        <div class="term-word">ASC (default)</div>
+        <div class="term-def">Ascending order — smallest to largest, A to Z, oldest to newest</div>
+        <div class="term-eg">1, 2, 3 ... | A, B, C ... | Jan, Feb, Mar...</div>
+      </div>
+      <div class="term-card">
+        <div class="term-word">DESC</div>
+        <div class="term-def">Descending order — largest to smallest, Z to A, newest to oldest</div>
+        <div class="term-eg">100, 99, 98 ... | Z, Y, X ... | Dec, Nov, Oct...</div>
+      </div>
+      <div class="term-card">
+        <div class="term-word">Multi-column sort</div>
+        <div class="term-def">Sort by first column, then by second column for ties in the first</div>
+        <div class="term-eg">ORDER BY city ASC, score DESC</div>
+      </div>
+      <div class="term-card">
+        <div class="term-word">NULL in sorting</div>
+        <div class="term-def">MySQL: NULLs appear first in ASC, last in DESC. PostgreSQL: opposite (NULLS LAST/FIRST)</div>
+        <div class="term-eg">ORDER BY email ASC NULLS LAST (PostgreSQL)</div>
+      </div>
+    </div>
+
+    <div class="sandbox">
+      <div class="sandbox-top">
+        <div class="sandbox-title">🎮 ORDER BY <span class="sandbox-badge">Exercise 10</span></div>
+      </div>
+      <textarea class="sandbox-editor" id="q10" spellcheck="false">-- Top scorers first (descending by score)
+SELECT name, city, course, score
+FROM students
+ORDER BY score DESC;
+
+-- Try these:
+-- Alphabetical by name
+-- ORDER BY name ASC
+
+-- Sort by city, then by score within each city
+-- ORDER BY city ASC, score DESC
+
+-- Lowest paid students first
+-- ORDER BY fee_paid ASC
+
+-- Sort by multiple: city alphabetically, then score high to low
+-- SELECT name, city, score FROM students
+-- ORDER BY city ASC, score DESC;</textarea>
+      <div class="sandbox-toolbar">
+        <div class="sandbox-hint">💡 ORDER BY is always the LAST clause to execute. Use column positions: ORDER BY 3 DESC = sort by 3rd column</div>
+        <div class="sandbox-btns">
+          <button class="reset-btn" onclick="resetQ('q10',9)">Reset</button>
+          <button class="run-btn" onclick="runQuery('q10','out10')">▶ Run Query</button>
+        </div>
+      </div>
+      <div class="sandbox-output" id="out10"></div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 10: DISTINCT ── -->
+  <div class="section" id="sec10">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--purple-light)">✨</div>
+      <div><div class="section-num">Topic 10</div><h2 class="section-title">DISTINCT — Removing Duplicates</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <code style="font-family:var(--mono);background:var(--gray100);padding:2px 6px;border-radius:4px">DISTINCT</code> removes duplicate rows from the result set. It's placed immediately after SELECT and applies to the entire row (not just one column when multiple columns are selected).
+    </p>
+
+    <div class="compare-grid">
+      <div class="compare-col">
+        <div class="compare-head" style="background:var(--red-light);color:var(--red)">❌ Without DISTINCT</div>
+        <div class="compare-body">
+          <div class="compare-row" style="font-family:var(--mono);font-size:12px">SELECT city FROM students;</div>
+          <div class="compare-row">Chennai</div>
+          <div class="compare-row">Chennai ← duplicate!</div>
+          <div class="compare-row">Delhi</div>
+          <div class="compare-row">Bangalore</div>
+          <div class="compare-row">Delhi ← duplicate!</div>
+          <div class="compare-row">Chennai ← duplicate!</div>
+        </div>
+      </div>
+      <div class="compare-col">
+        <div class="compare-head" style="background:var(--teal-light);color:var(--teal)">✅ With DISTINCT</div>
+        <div class="compare-body">
+          <div class="compare-row" style="font-family:var(--mono);font-size:12px">SELECT DISTINCT city FROM students;</div>
+          <div class="compare-row">Chennai</div>
+          <div class="compare-row">Delhi</div>
+          <div class="compare-row">Bangalore</div>
+          <div class="compare-row">Mumbai</div>
+          <div class="compare-row">Hyderabad</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sandbox">
+      <div class="sandbox-top">
+        <div class="sandbox-title">🎮 DISTINCT <span class="sandbox-badge">Exercise 11</span></div>
+      </div>
+      <textarea class="sandbox-editor" id="q11" spellcheck="false">-- Get all unique cities where students are from
+SELECT DISTINCT city
+FROM students
+ORDER BY city ASC;
+
+-- Try:
+-- Unique courses offered
+-- SELECT DISTINCT course FROM students ORDER BY course;
+
+-- Unique combinations of city + course
+-- SELECT DISTINCT city, course FROM students ORDER BY city, course;
+
+-- Unique batches
+-- SELECT DISTINCT batch FROM students;
+
+-- Count unique cities
+-- SELECT COUNT(DISTINCT city) AS unique_city_count FROM students;</textarea>
+      <div class="sandbox-toolbar">
+        <div class="sandbox-hint">💡 COUNT(DISTINCT column) counts unique values — very useful in analytics!</div>
+        <div class="sandbox-btns">
+          <button class="reset-btn" onclick="resetQ('q11',10)">Reset</button>
+          <button class="run-btn" onclick="runQuery('q11','out11')">▶ Run Query</button>
+        </div>
+      </div>
+      <div class="sandbox-output" id="out11"></div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">DISTINCT applies to all selected columns combined</div>
+        <div class="callout-text"><code>SELECT DISTINCT city, course FROM students</code> removes rows where BOTH city AND course are the same. A student in Chennai doing SQL and another in Chennai doing Python are NOT duplicates — they produce 2 distinct rows.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 11: LIMIT ── -->
+  <div class="section" id="sec11">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--amber-light)">🔢</div>
+      <div><div class="section-num">Topic 11</div><h2 class="section-title">LIMIT / TOP / FETCH FIRST — Controlling Row Count</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      These clauses limit how many rows are returned. Essential for "Top N" queries, pagination, and preventing accidental huge result sets in production.
+    </p>
+
+    <table class="op-table">
+      <thead><tr><th>Database</th><th>Syntax</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>MySQL<br>PostgreSQL<br>SQLite</td><td>LIMIT n</td><td><code style="font-size:11px">SELECT * FROM students LIMIT 5;</code></td></tr>
+        <tr><td>MySQL<br>PostgreSQL</td><td>LIMIT n OFFSET m</td><td><code style="font-size:11px">SELECT * FROM students LIMIT 5 OFFSET 10;</code> (rows 11–15)</td></tr>
+        <tr><td>SQL Server<br>MS Access</td><td>TOP n</td><td><code style="font-size:11px">SELECT TOP 5 * FROM students;</code></td></tr>
+        <tr><td>SQL Standard<br>Oracle<br>PostgreSQL</td><td>FETCH FIRST n ROWS ONLY</td><td><code style="font-size:11px">SELECT * FROM students FETCH FIRST 5 ROWS ONLY;</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="real-world">
+      <div class="rw-label">🇮🇳 Common Use Case — Pagination</div>
+      <div class="rw-title">Implementing page-by-page results (like Flipkart product pages)</div>
+      <div class="rw-body">
+        Page 1: <code style="font-family:var(--mono)">LIMIT 20 OFFSET 0</code> → rows 1–20<br>
+        Page 2: <code style="font-family:var(--mono)">LIMIT 20 OFFSET 20</code> → rows 21–40<br>
+        Page 3: <code style="font-family:var(--mono)">LIMIT 20 OFFSET 40</code> → rows 41–60<br><br>
+        Formula: <code style="font-family:var(--mono)">OFFSET = (page_number - 1) × items_per_page</code>
+      </div>
+    </div>
+
+    <div class="sandbox">
+      <div class="sandbox-top">
+        <div class="sandbox-title">🎮 LIMIT & Pagination <span class="sandbox-badge">Exercise 12</span></div>
+      </div>
+      <textarea class="sandbox-editor" id="q12" spellcheck="false">-- Top 5 highest scoring students
+SELECT name, city, course, score
+FROM students
+ORDER BY score DESC
+LIMIT 5;
+
+-- Try:
+-- Bottom 3 scorers (worst performers):
+-- ORDER BY score ASC LIMIT 3
+
+-- Pagination: Students 6 to 10 (page 2, 5 per page):
+-- SELECT name, city, score FROM students
+-- ORDER BY student_id
+-- LIMIT 5 OFFSET 5
+
+-- Top 3 students from each batch:
+-- (We'll learn this properly with Window Functions in Ch 17!)
+
+-- Top 5 highest fee-paying students:
+-- SELECT name, fee_paid FROM students
+-- ORDER BY fee_paid DESC LIMIT 5;</textarea>
+      <div class="sandbox-toolbar">
+        <div class="sandbox-hint">💡 Always pair LIMIT with ORDER BY — otherwise the "top" rows are random!</div>
+        <div class="sandbox-btns">
+          <button class="reset-btn" onclick="resetQ('q12',11)">Reset</button>
+          <button class="run-btn" onclick="runQuery('q12','out12')">▶ Run Query</button>
+        </div>
+      </div>
+      <div class="sandbox-output" id="out12"></div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 12: CASE WHEN ── -->
+  <div class="section" id="sec12">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--indigo-light)">🔀</div>
+      <div><div class="section-num">Topic 12</div><h2 class="section-title">CASE WHEN — Conditional Logic in SQL</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <code style="font-family:var(--mono);background:var(--gray100);padding:2px 6px;border-radius:4px">CASE WHEN</code> is SQL's version of an if-else statement. It lets you create new computed columns based on conditions — like categorizing scores as Pass/Fail, labeling tiers, or transforming values on the fly.
+    </p>
+
+    <div class="syntax-box">
+      <div class="syntax-label">SYNTAX — Searched CASE</div>
+      <span class="s-kw">CASE</span>
+      <br>&nbsp;&nbsp;<span class="s-kw">WHEN</span> <span class="s-ph">condition1</span> <span class="s-kw">THEN</span> <span class="s-ph">result1</span>
+      <br>&nbsp;&nbsp;<span class="s-kw">WHEN</span> <span class="s-ph">condition2</span> <span class="s-kw">THEN</span> <span class="s-ph">result2</span>
+      <br>&nbsp;&nbsp;<span class="s-kw">ELSE</span> <span class="s-ph">default_result</span>   <span class="s-opt">-- optional</span>
+      <br><span class="s-kw">END</span> <span class="s-kw">AS</span> <span class="s-ph">alias</span>
+    </div>
+
+    <p style="font-size:14px;font-weight:600;color:var(--gray900);margin:20px 0 12px">How CASE WHEN evaluates — like a flowchart:</p>
+    <div class="case-flow">
+      <div class="cf-row">
+        <div class="cf-cond cf-head">CONDITION</div>
+        <div class="cf-then cf-head">THEN (result)</div>
+      </div>
+      <div class="cf-row">
+        <div class="cf-cond">WHEN score >= 90</div>
+        <div class="cf-then">→ 'Distinction'</div>
+      </div>
+      <div class="cf-row">
+        <div class="cf-cond">WHEN score >= 75</div>
+        <div class="cf-then">→ 'First Class'</div>
+      </div>
+      <div class="cf-row">
+        <div class="cf-cond">WHEN score >= 60</div>
+        <div class="cf-then">→ 'Second Class'</div>
+      </div>
+      <div class="cf-row">
+        <div class="cf-cond">WHEN score >= 40</div>
+        <div class="cf-then">→ 'Pass'</div>
+      </div>
+      <div class="cf-row">
+        <div class="cf-cond cf-else">ELSE (default)</div>
+        <div class="cf-then cf-else">→ 'Fail'</div>
+      </div>
+    </div>
+
+    <div class="sandbox">
+      <div class="sandbox-top">
+        <div class="sandbox-title">🎮 CASE WHEN <span class="sandbox-badge">Exercise 13</span></div>
+      </div>
+      <textarea class="sandbox-editor" id="q13" spellcheck="false">-- Grade classification using CASE WHEN
+SELECT
+    name,
+    score,
+    CASE
+        WHEN score >= 90 THEN 'Distinction'
+        WHEN score >= 75 THEN 'First Class'
+        WHEN score >= 60 THEN 'Second Class'
+        WHEN score >= 40 THEN 'Pass'
+        ELSE 'Fail'
+    END AS grade,
+    CASE
+        WHEN score >= 40 THEN 'Passed'
+        ELSE 'Failed'
+    END AS result
+FROM students
+ORDER BY score DESC;
+
+-- Try: Fee tier classification
+-- SELECT name, fee_paid,
+--   CASE
+--     WHEN fee_paid >= 15000 THEN 'Premium'
+--     WHEN fee_paid >= 10000 THEN 'Standard'
+--     ELSE 'Basic'
+--   END AS fee_tier
+-- FROM students;
+
+-- Try: City tier classification
+-- SELECT name, city,
+--   CASE
+--     WHEN city IN ('Mumbai','Delhi','Bangalore','Chennai','Hyderabad') THEN 'Metro'
+--     WHEN city IN ('Pune','Ahmedabad','Surat','Jaipur') THEN 'Tier 1'
+--     ELSE 'Tier 2'
+--   END AS city_tier
+-- FROM students;</textarea>
+      <div class="sandbox-toolbar">
+        <div class="sandbox-hint">💡 CASE WHEN evaluates top-to-bottom — the FIRST matching condition wins. Order matters!</div>
+        <div class="sandbox-btns">
+          <button class="reset-btn" onclick="resetQ('q13',12)">Reset</button>
+          <button class="run-btn" onclick="runQuery('q13','out13')">▶ Run Query</button>
+        </div>
+      </div>
+      <div class="sandbox-output" id="out13"></div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">Simple CASE — when checking one column for equality</div>
+        <div class="callout-text">
+          There's also a "Simple CASE" that's useful when comparing one column to many values:<br>
+          <code>CASE course WHEN 'SQL' THEN 'Database' WHEN 'Python' THEN 'Programming' ELSE 'Other' END</code><br>
+          This is equivalent to the "Searched CASE" but more concise for equality checks.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 13: CHEATSHEET & QUIZ ── -->
+  <div class="section" id="sec13">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--indigo-light)">📋</div>
+      <div><div class="section-num">Topic 13</div><h2 class="section-title">DQL Cheatsheet & Quiz</h2></div>
+    </div>
+
+    <div class="cheatsheet">
+      <div class="cs-title">📋 DQL Quick Reference — All Clauses</div>
+      <div class="cs-grid">
+        <div class="cs-item">
+          <div class="cs-label">Basic SELECT</div>
+          <div class="cs-code"><span class="kw">SELECT</span> <span class="ph">col1, col2</span> <span class="kw">AS</span> <span class="ph">alias</span>
+<span class="kw">FROM</span> <span class="ph">table_name</span>;</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">Filtering</div>
+          <div class="cs-code"><span class="kw">WHERE</span> city = <span class="str">'Chennai'</span>
+  <span class="kw">AND</span> score > 75
+  <span class="kw">OR</span> city = <span class="str">'Delhi'</span>
+  <span class="kw">NOT</span> course = <span class="str">'ML'</span></div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">Range & List</div>
+          <div class="cs-code"><span class="kw">BETWEEN</span> 60 <span class="kw">AND</span> 90
+<span class="kw">IN</span> (<span class="str">'Chennai'</span>, <span class="str">'Delhi'</span>)
+<span class="kw">NOT IN</span> (<span class="str">'ML'</span>, <span class="str">'DL'</span>)</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">Pattern Matching</div>
+          <div class="cs-code"><span class="kw">LIKE</span> <span class="str">'P%'</span>      <span class="cm">-- starts with P</span>
+<span class="kw">LIKE</span> <span class="str">'%a'</span>      <span class="cm">-- ends with a</span>
+<span class="kw">LIKE</span> <span class="str">'%ar%'</span>    <span class="cm">-- contains ar</span>
+<span class="kw">LIKE</span> <span class="str">'_ai%'</span>    <span class="cm">-- 2nd+3rd = ai</span></div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">NULL Handling</div>
+          <div class="cs-code"><span class="kw">WHERE</span> email <span class="kw">IS NULL</span>
+<span class="kw">WHERE</span> email <span class="kw">IS NOT NULL</span>
+COALESCE(email, <span class="str">'N/A'</span>)
+<span class="cm">-- Never: WHERE email = NULL ❌</span></div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">Sorting & Dedup</div>
+          <div class="cs-code"><span class="kw">ORDER BY</span> score <span class="kw">DESC</span>, name <span class="kw">ASC</span>
+<span class="kw">SELECT DISTINCT</span> city
+<span class="kw">LIMIT</span> 10 <span class="kw">OFFSET</span> 20</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">CASE WHEN</div>
+          <div class="cs-code"><span class="kw">CASE</span>
+  <span class="kw">WHEN</span> score>=90 <span class="kw">THEN</span> <span class="str">'A'</span>
+  <span class="kw">WHEN</span> score>=75 <span class="kw">THEN</span> <span class="str">'B'</span>
+  <span class="kw">ELSE</span> <span class="str">'C'</span>
+<span class="kw">END AS</span> grade</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">Execution Order</div>
+          <div class="cs-code"><span class="cm">FROM → WHERE → GROUP BY</span>
+<span class="cm">→ HAVING → SELECT</span>
+<span class="cm">→ ORDER BY → LIMIT</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="quiz-box">
+      <div class="quiz-header">
+        <div style="font-size:18px">🧠</div>
+        <div class="quiz-title">Chapter 4 — DQL Knowledge Check</div>
+        <div class="quiz-count" id="q-count">Question 1 of 12</div>
+      </div>
+      <div class="quiz-body" id="quiz-body"></div>
+      <div class="quiz-nav">
+        <div class="quiz-progress-dots" id="q-dots"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn" id="prev-btn" onclick="prevQ()" style="display:none">← Prev</button>
+          <button class="btn btn-primary" id="next-btn" onclick="nextQ()" style="display:none">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-box">
+      <div class="summary-title">✅ Chapter 4 — What You've Mastered</div>
+      <div class="summary-grid">
+        <div class="summary-item"><div class="summary-check">✓</div>SELECT & FROM — retrieving specific columns</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Column aliases with AS — renaming output</div>
+        <div class="summary-item"><div class="summary-check">✓</div>WHERE — filtering rows with conditions</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Comparison operators: =, !=, >, <, >=, <=</div>
+        <div class="summary-item"><div class="summary-check">✓</div>AND, OR, NOT — combining conditions</div>
+        <div class="summary-item"><div class="summary-check">✓</div>BETWEEN and IN — shorthand range/list filters</div>
+        <div class="summary-item"><div class="summary-check">✓</div>LIKE with % and _ wildcards</div>
+        <div class="summary-item"><div class="summary-check">✓</div>IS NULL / IS NOT NULL — missing data handling</div>
+        <div class="summary-item"><div class="summary-check">✓</div>ORDER BY ASC / DESC — sorting results</div>
+        <div class="summary-item"><div class="summary-check">✓</div>DISTINCT — removing duplicate rows</div>
+        <div class="summary-item"><div class="summary-check">✓</div>LIMIT / OFFSET — pagination and Top N</div>
+        <div class="summary-item"><div class="summary-check">✓</div>CASE WHEN — conditional computed columns</div>
+      </div>
+    </div>
+  </div>
+  </div><!-- /content -->
+
+  <div class="chapter-nav">
+    <div class="nav-card" onclick="window.location='chapter3-normalization.html'">
+      ‹ <div><div class="nav-card-dir">← Previous</div><div class="nav-card-name">Chapter 3: Normalization</div></div>
+    </div>
+    <div class="nav-card" onclick="alert('Chapter 5: DDL — Coming next!')">
+      <div><div class="nav-card-dir">Next →</div><div class="nav-card-name">Chapter 5: DDL — Data Definition Language</div></div> ›
+    </div>
+  </div>
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ── DATASET ──────────────────────────────────────
+const DB = [
+  {student_id:1, name:'Priya Sharma',   city:'Chennai',   state:'Tamil Nadu',  course:'SQL',    batch:'B2024', score:88.5, fee_paid:12000, email:'priya@gmail.com'},
+  {student_id:2, name:'Rahul Verma',    city:'Delhi',     state:'Delhi',       course:'Python', batch:'B2024', score:74.0, fee_paid:10000, email:'rahul@yahoo.com'},
+  {student_id:3, name:'Ananya Iyer',    city:'Bangalore', state:'Karnataka',   course:'ML',     batch:'B2024', score:91.5, fee_paid:15000, email:null},
+  {student_id:4, name:'Karthik Nair',   city:'Mumbai',    state:'Maharashtra', course:'SQL',    batch:'B2024', score:65.0, fee_paid:12000, email:'karthik@gmail.com'},
+  {student_id:5, name:'Meena Pillai',   city:'Chennai',   state:'Tamil Nadu',  course:'Python', batch:'B2024', score:79.5, fee_paid:10000, email:'meena@outlook.com'},
+  {student_id:6, name:'Arjun Reddy',    city:'Hyderabad', state:'Telangana',   course:'ML',     batch:'B2024', score:55.0, fee_paid:15000, email:null},
+  {student_id:7, name:'Nisha Gupta',    city:'Delhi',     state:'Delhi',       course:'SQL',    batch:'B2025', score:83.0, fee_paid:12000, email:'nisha@gmail.com'},
+  {student_id:8, name:'Sai Krishna',    city:'Bangalore', state:'Karnataka',   course:'Python', batch:'B2025', score:92.0, fee_paid:10000, email:'sai@gmail.com'},
+  {student_id:9, name:'Divya Menon',    city:'Chennai',   state:'Tamil Nadu',  course:'ML',     batch:'B2025', score:47.5, fee_paid:15000, email:null},
+  {student_id:10,name:'Rohit Joshi',    city:'Pune',      state:'Maharashtra', course:'SQL',    batch:'B2025', score:76.0, fee_paid:12000, email:'rohit@gmail.com'},
+  {student_id:11,name:'Pooja Singh',    city:'Mumbai',    state:'Maharashtra', course:'Python', batch:'B2025', score:88.0, fee_paid:10000, email:'pooja@hotmail.com'},
+  {student_id:12,name:'Arun Kumar',     city:'Chennai',   state:'Tamil Nadu',  course:'ML',     batch:'B2025', score:61.5, fee_paid:15000, email:'arun@gmail.com'},
+  {student_id:13,name:'Lakshmi Devi',   city:'Hyderabad', state:'Telangana',   course:'SQL',    batch:'B2025', score:95.0, fee_paid:12000, email:'lakshmi@gmail.com'},
+  {student_id:14,name:'Vikram Rao',     city:'Bangalore', state:'Karnataka',   course:'Python', batch:'B2024', score:38.0, fee_paid:10000, email:null},
+  {student_id:15,name:'Sunita Sharma',  city:'Jaipur',    state:'Rajasthan',   course:'ML',     batch:'B2024', score:72.0, fee_paid:15000, email:'sunita@yahoo.com'},
+  {student_id:16,name:'Deepak Patel',   city:'Ahmedabad', state:'Gujarat',     course:'SQL',    batch:'B2024', score:58.5, fee_paid:12000, email:'deepak@gmail.com'},
+  {student_id:17,name:'Renu Kapoor',    city:'Delhi',     state:'Delhi',       course:'Python', batch:'B2025', score:84.0, fee_paid:10000, email:null},
+  {student_id:18,name:'Manoj Tiwari',   city:'Lucknow',   state:'Uttar Pradesh',course:'ML',   batch:'B2025', score:66.5, fee_paid:15000, email:'manoj@gmail.com'},
+  {student_id:19,name:'Kavitha Suresh', city:'Chennai',   state:'Tamil Nadu',  course:'SQL',    batch:'B2024', score:90.0, fee_paid:12000, email:'kavitha@gmail.com'},
+  {student_id:20,name:'Nitin Mishra',   city:'Pune',      state:'Maharashtra', course:'Python', batch:'B2024', score:43.0, fee_paid:10000, email:null},
+];
+
+// Populate dataset preview
+const tbody = document.getElementById('dataset-preview');
+DB.forEach(r=>{
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${r.student_id}</td><td>${r.name}</td><td>${r.city}</td><td>${r.state}</td>
+    <td>${r.course}</td><td>${r.batch}</td><td>${r.score}</td><td>₹${r.fee_paid.toLocaleString()}</td>
+    <td>${r.email||'<span class="null-v">NULL</span>'}</td>`;
+  tbody.appendChild(tr);
+});
+
+// ── QUERY ENGINE ────────────────────────────────
+function runQuery(editorId, outputId) {
+  const sql = document.getElementById(editorId).value.trim();
+  // Get the first non-comment, non-empty statement
+  const lines = sql.split('\n').filter(l=>l.trim()&&!l.trim().startsWith('--'));
+  const stmt = lines.join(' ').split(';')[0].trim();
+  const out = document.getElementById(outputId);
+  out.classList.add('visible');
+  try {
+    const result = evalSQL(stmt);
+    renderOutput(out, result, stmt);
+  } catch(e) {
+    out.innerHTML = `<div class="result-msg warn" style="margin:12px">⚠️ ${e.message}</div>`;
+  }
+  updateProgress();
+}
+
+function evalSQL(sql) {
+  const s = sql.toUpperCase().replace(/\s+/g,' ').trim();
+  if (!s.startsWith('SELECT')) throw new Error('Only SELECT queries are supported in the sandbox.');
+
+  // Parse SELECT cols
+  let cols = '*';
+  let selectMatch = sql.match(/SELECT\s+(DISTINCT\s+)?(.+?)\s+FROM/i);
+  const isDistinct = /SELECT\s+DISTINCT/i.test(sql);
+  if (selectMatch) cols = selectMatch[2].trim();
+
+  // WHERE clause
+  let rows = [...DB];
+  const whereMatch = sql.match(/WHERE\s+(.+?)(?:\s+ORDER\s+BY|\s+LIMIT|\s+FETCH|$)/i);
+  if (whereMatch) rows = applyWhere(rows, whereMatch[1].trim());
+
+  // ORDER BY
+  const orderMatch = sql.match(/ORDER\s+BY\s+(.+?)(?:\s+LIMIT|\s+FETCH|$)/i);
+  if (orderMatch) rows = applyOrder(rows, orderMatch[1].trim());
+
+  // LIMIT / OFFSET
+  const limitMatch = sql.match(/LIMIT\s+(\d+)(?:\s+OFFSET\s+(\d+))?/i);
+  if (limitMatch) {
+    const offset = parseInt(limitMatch[2]||0);
+    const lim = parseInt(limitMatch[1]);
+    rows = rows.slice(offset, offset+lim);
+  }
+
+  // SELECT columns
+  const colDefs = parseColumns(cols);
+  let result = rows.map(r=>projectRow(r, colDefs));
+  if (isDistinct) result = dedup(result);
+
+  return { headers: colDefs.map(c=>c.alias||c.name), rows: result };
+}
+
+function applyWhere(rows, cond) {
+  return rows.filter(r => evalCond(r, cond));
+}
+
+function evalCond(r, cond) {
+  // Handle parenthesized groups first (simple cases)
+  cond = cond.trim();
+
+  // OR split (lowest precedence)
+  const orParts = splitByKeyword(cond, ' OR ');
+  if (orParts.length > 1) return orParts.some(p => evalCond(r, p.trim()));
+
+  // AND split
+  const andParts = splitByKeyword(cond, ' AND ');
+  if (andParts.length > 1) return andParts.every(p => evalCond(r, p.trim()));
+
+  // NOT
+  if (/^NOT\s+/i.test(cond)) return !evalCond(r, cond.replace(/^NOT\s+/i,''));
+
+  // Remove wrapping parens
+  if (cond.startsWith('(') && cond.endsWith(')')) return evalCond(r, cond.slice(1,-1));
+
+  // IS NULL / IS NOT NULL
+  let m = cond.match(/^(\w+)\s+IS\s+(NOT\s+)?NULL$/i);
+  if (m) { const v=r[m[1].toLowerCase()]; return m[2] ? v!==null&&v!==undefined : v===null||v===undefined; }
+
+  // BETWEEN
+  m = cond.match(/^(\w+)\s+(?:NOT\s+)?BETWEEN\s+(.+?)\s+AND\s+(.+)$/i);
+  if (m) {
+    const v=getVal(r,m[1]),lo=parseNum(m[2]),hi=parseNum(m[3]);
+    const res = v>=lo && v<=hi;
+    return /NOT/i.test(cond) ? !res : res;
+  }
+
+  // IN
+  m = cond.match(/^(\w+)\s+(NOT\s+)?IN\s*\((.+)\)$/i);
+  if (m) {
+    const v=String(getVal(r,m[1])).toLowerCase();
+    const list=m[3].split(',').map(x=>x.trim().replace(/^['"]|['"]$/g,'').toLowerCase());
+    const res=list.includes(v);
+    return m[2]?!res:res;
+  }
+
+  // LIKE
+  m = cond.match(/^(\w+)\s+(NOT\s+)?LIKE\s+['"](.+?)['"]/i);
+  if (m) {
+    const v=String(getVal(r,m[1])||'').toLowerCase();
+    const pat=m[3].toLowerCase().replace(/%/g,'.*').replace(/_/g,'.');
+    const res=new RegExp('^'+pat+'$','i').test(v);
+    return m[2]?!res:res;
+  }
+
+  // Comparisons
+  m = cond.match(/^(\w+)\s*(>=|<=|!=|<>|>|<|=)\s*(.+)$/i);
+  if (m) {
+    let lv=getVal(r,m[1]), rv=m[3].trim().replace(/^['"]|['"]$/g,'');
+    if (!isNaN(lv)&&!isNaN(rv)){lv=parseFloat(lv);rv=parseFloat(rv);}
+    else{lv=String(lv||'').toLowerCase();rv=String(rv).toLowerCase();}
+    switch(m[2]){
+      case '=': return lv===rv;
+      case '!=': case '<>': return lv!==rv;
+      case '>': return lv>rv;
+      case '<': return lv<rv;
+      case '>=': return lv>=rv;
+      case '<=': return lv<=rv;
+    }
+  }
+  return true;
+}
+
+function splitByKeyword(s, kw) {
+  const parts=[], upper=s.toUpperCase(); let depth=0, start=0;
+  for(let i=0;i<s.length;i++){
+    if(s[i]==='(')depth++;
+    else if(s[i]===')')depth--;
+    else if(depth===0&&upper.slice(i,i+kw.length)===kw.toUpperCase()){
+      parts.push(s.slice(start,i));start=i+kw.length;
+    }
+  }
+  parts.push(s.slice(start));
+  return parts.length>1?parts:[s];
+}
+
+function getVal(r, col) { return r[col.toLowerCase()]; }
+function parseNum(s){ return parseFloat(s.trim().replace(/['"]/g,'')); }
+
+function applyOrder(rows, orderClause) {
+  const parts = orderClause.split(',').map(p=>p.trim());
+  return [...rows].sort((a,b)=>{
+    for(const part of parts){
+      const [col,...rest]=part.split(/\s+/);
+      const dir=rest.join(' ').toUpperCase().includes('DESC')?-1:1;
+      let av=a[col.toLowerCase()], bv=b[col.toLowerCase()];
+      if(av===null||av===undefined)return 1;
+      if(bv===null||bv===undefined)return -1;
+      if(typeof av==='number')return (av-bv)*dir;
+      return String(av).localeCompare(String(bv))*dir;
+    }
+    return 0;
+  });
+}
+
+function parseColumns(cols) {
+  if(cols.trim()==='*') return [{name:'*',alias:null,expr:null}];
+  return cols.split(',').map(c=>{
+    c=c.trim();
+    const asMatch=c.match(/^(.+?)\s+(?:AS\s+)?["']?(\w+)["']?\s*$/i);
+    if(asMatch)return {name:asMatch[1].trim(),alias:asMatch[2],expr:asMatch[1].trim()};
+    return {name:c,alias:null,expr:c};
+  });
+}
+
+function projectRow(r, colDefs) {
+  if(colDefs[0].name==='*') return {...r};
+  const out={};
+  colDefs.forEach(c=>{
+    const key=(c.alias||c.name).toLowerCase().replace(/\s+/g,'_');
+    // computed: score * 10
+    const multMatch=c.expr&&c.expr.match(/^(\w+)\s*\*\s*(\d+)/i);
+    if(multMatch){ out[key]=parseFloat(r[multMatch[1].toLowerCase()]||0)*parseInt(multMatch[2]); return; }
+
+    // CASE WHEN (simplified pass-through for sandbox display)
+    if(/CASE/i.test(c.expr||'')){
+      const score=r.score;
+      if(/(grade|result)/i.test(key)){
+        let grade='Fail';
+        if(score>=90)grade='Distinction';
+        else if(score>=75)grade='First Class';
+        else if(score>=60)grade='Second Class';
+        else if(score>=40)grade='Pass';
+        out[key]=grade;
+        if(/result/i.test(key))out[key]=score>=40?'Passed':'Failed';
+      } else if(/(tier|category)/i.test(key)){
+        const fp=r.fee_paid;
+        out[key]=fp>=15000?'Premium':fp>=10000?'Standard':'Basic';
+      } else if(/city_tier/i.test(key)){
+        const metros=['mumbai','delhi','bangalore','chennai','hyderabad'];
+        const t1=['pune','ahmedabad','surat','jaipur'];
+        const ct=r.city.toLowerCase();
+        out[key]=metros.includes(ct)?'Metro':t1.includes(ct)?'Tier 1':'Tier 2';
+      } else out[key]=score>=40?'Pass':'Fail';
+      return;
+    }
+
+    // COALESCE
+    const coalesceMatch=c.expr&&c.expr.match(/COALESCE\((\w+),\s*['"](.*?)['"]\)/i);
+    if(coalesceMatch){ out[key]=r[coalesceMatch[1].toLowerCase()]??coalesceMatch[2]; return; }
+
+    // COUNT(*)
+    if(/COUNT\(\*\)/i.test(c.expr||'')){ out[key]=1; return; }
+
+    const colName=(c.expr||c.name).toLowerCase().replace(/['"]/g,'');
+    out[key]=r[colName]!==undefined?r[colName]:'?';
+  });
+  return out;
+}
+
+function dedup(rows){
+  const seen=new Set();
+  return rows.filter(r=>{const k=JSON.stringify(r);if(seen.has(k))return false;seen.add(k);return true;});
+}
+
+function renderOutput(out, result, sql) {
+  const {headers,rows}=result;
+  const rowCount=rows.length;
+  let html=`<div class="output-head"><div class="output-label">Result</div><div class="output-rows">${rowCount} row${rowCount!==1?'s':''} returned</div></div>`;
+  html+=`<div class="output-scroll"><table class="result-tbl"><thead><tr>`;
+  headers.forEach(h=>html+=`<th>${h}</th>`);
+  html+=`</tr></thead><tbody>`;
+  rows.forEach(r=>{
+    html+=`<tr>`;
+    headers.forEach(h=>{
+      const k=h.toLowerCase().replace(/[^a-z0-9_]/g,'_');
+      const val=r[k]!==undefined?r[k]:r[Object.keys(r)[headers.indexOf(h)]];
+      if(val===null||val===undefined)html+=`<td class="null-v">NULL</td>`;
+      else if(typeof val==='number'&&h==='fee_paid')html+=`<td>₹${val.toLocaleString()}</td>`;
+      else html+=`<td>${val}</td>`;
+    });
+    html+=`</tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  if(rowCount===0)html+=`<div class="result-msg info" style="margin:10px 18px">ℹ️ No rows matched your filter conditions.</div>`;
+  out.innerHTML=html;
+}
+
+// ── DEFAULT QUERIES ──────────────────────────────
+const defaults=[
+  `-- Retrieve all columns from the students table\nSELECT * FROM students;\n\n-- Try: Select only specific columns\n-- SELECT name, city, course FROM students;`,
+  `-- Select only the columns you need\nSELECT name, city, course, score\nFROM students;\n\n-- Challenge: Can you select student_id, name, and fee_paid only?`,
+  `-- Rename columns in output using AS\nSELECT\n    name        AS student_name,\n    city        AS location,\n    score       AS marks_out_of_100,\n    fee_paid    AS fees_in_rupees\nFROM students;\n\n-- Computed column with alias:\n-- SELECT name, score, score * 10 AS score_out_of_1000\n-- FROM students;`,
+  `-- Filter students from Chennai only\nSELECT name, city, course, score\nFROM students\nWHERE city = 'Chennai';\n\n-- Try changing the city: 'Delhi', 'Mumbai', 'Bangalore', 'Hyderabad'\n-- Try: WHERE course = 'SQL'\n-- Try: WHERE score >= 80`,
+  `-- Students who scored above 80\nSELECT name, city, course, score\nFROM students\nWHERE score > 80;\n\n-- Try these one at a time:\n-- WHERE score >= 75        -- 75 or above (pass mark)\n-- WHERE score < 50         -- failing students\n-- WHERE fee_paid != 15000  -- paid a different amount\n-- WHERE city != 'Chennai'  -- not from Chennai`,
+  `-- AND: SQL students from Chennai with score above 75\nSELECT name, city, course, score\nFROM students\nWHERE course = 'SQL'\n  AND score > 75;\n\n-- Try:\n-- WHERE city = 'Chennai' OR city = 'Bangalore'\n-- WHERE NOT city = 'Chennai'\n-- WHERE (city = 'Chennai' OR city = 'Delhi') AND score >= 80`,
+  `-- BETWEEN: Students with score between 70 and 90 (inclusive)\nSELECT name, city, score\nFROM students\nWHERE score BETWEEN 70 AND 90;\n\n-- SELECT name, city, course\n-- FROM students\n-- WHERE city IN ('Chennai', 'Bangalore', 'Hyderabad');`,
+  `-- Find students whose name starts with 'P'\nSELECT name, city, course\nFROM students\nWHERE name LIKE 'P%';\n\n-- Try:\n-- WHERE name LIKE '%a'\n-- WHERE email LIKE '%@gmail.com'\n-- WHERE name LIKE '_____'`,
+  `-- Find students who have NOT provided their email\nSELECT name, city, course, email\nFROM students\nWHERE email IS NULL;\n\n-- Find students WHO HAVE provided their email:\n-- SELECT name, email FROM students WHERE email IS NOT NULL;`,
+  `-- Top scorers first (descending by score)\nSELECT name, city, course, score\nFROM students\nORDER BY score DESC;\n\n-- Try:\n-- ORDER BY name ASC\n-- ORDER BY city ASC, score DESC`,
+  `-- Get all unique cities where students are from\nSELECT DISTINCT city\nFROM students\nORDER BY city ASC;\n\n-- Try:\n-- SELECT DISTINCT course FROM students ORDER BY course;\n-- SELECT DISTINCT city, course FROM students ORDER BY city, course;`,
+  `-- Top 5 highest scoring students\nSELECT name, city, course, score\nFROM students\nORDER BY score DESC\nLIMIT 5;\n\n-- Try:\n-- ORDER BY score ASC LIMIT 3\n-- LIMIT 5 OFFSET 5`,
+  `-- Grade classification using CASE WHEN\nSELECT\n    name,\n    score,\n    CASE\n        WHEN score >= 90 THEN 'Distinction'\n        WHEN score >= 75 THEN 'First Class'\n        WHEN score >= 60 THEN 'Second Class'\n        WHEN score >= 40 THEN 'Pass'\n        ELSE 'Fail'\n    END AS grade,\n    CASE\n        WHEN score >= 40 THEN 'Passed'\n        ELSE 'Failed'\n    END AS result\nFROM students\nORDER BY score DESC;`,
+];
+
+function resetQ(editorId, idx){ document.getElementById(editorId).value=defaults[idx]; }
+
+// ── PROGRESS ─────────────────────────────────────
+function updateProgress(){
+  const outputs=document.querySelectorAll('.sandbox-output.visible').length;
+  const answered=quizAns.filter(a=>a!==null).length;
+  const total=13+quizQs.length;
+  const pct=Math.min(100,Math.round((outputs+answered)/total*100));
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+
+// ── SCROLL SPY ───────────────────────────────────
+const sids=['sec0','sec1','sec2','sec3','sec4','sec5','sec6','sec7','sec8','sec9','sec10','sec11','sec12','sec13'];
+window.addEventListener('scroll',()=>{
+  let cur=sids[0];
+  sids.forEach(id=>{const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<120)cur=id;});
+  document.querySelectorAll('.nav-item').forEach(n=>{n.classList.remove('active');if(n.getAttribute('href')==='#'+cur)n.classList.add('active');});
+});
+
+// ── QUIZ ─────────────────────────────────────────
+const quizQs=[
+  {q:'What does DQL stand for, and what is its primary command?',opts:['Data Query Language — SELECT','Data Quality Language — QUERY','Dynamic Query Language — FETCH','Database Query Language — GET'],correct:0,exp:'✅ DQL = Data Query Language. SELECT is the only DQL command. It retrieves data from tables without modifying anything. In contrast, DML (INSERT/UPDATE/DELETE) modifies data, DDL (CREATE/ALTER/DROP) modifies structure.'},
+  {q:'What is wrong with this query? WHERE email = NULL',opts:['NULL should be in quotes: WHERE email = "NULL"','You cannot use = with NULL; use IS NULL instead','email column cannot be compared','NULL is not a valid SQL keyword'],correct:1,exp:'✅ In SQL, NULL means "unknown." NULL = NULL evaluates to UNKNOWN (not TRUE), so WHERE email = NULL always returns 0 rows. Always use IS NULL to check for missing values, and IS NOT NULL to check for non-missing values.'},
+  {q:'What does % mean in a LIKE pattern?',opts:['Exactly one character','Zero or more characters of any kind','A number between 0 and 100','A special character like @ or #'],correct:1,exp:'✅ % matches zero or more characters — it can replace any sequence of any length. Underscore (_) matches exactly ONE character. Example: LIKE "P%" matches "Priya", "Pooja", "P", "Pune". LIKE "P_" matches only 2-character strings starting with P.'},
+  {q:'Which query finds students from Chennai OR Bangalore?',opts:['WHERE city = "Chennai" AND city = "Bangalore"','WHERE city IN ("Chennai","Bangalore")','WHERE city BETWEEN "Chennai" AND "Bangalore"','WHERE city LIKE "Chennai%Bangalore"'],correct:1,exp:'✅ IN (list) is the correct shorthand for multiple OR conditions. A column cannot equal TWO values simultaneously (AND would return 0 rows). BETWEEN works for ranges, not equality lists. The IN list approach is cleaner and more readable than multiple OR conditions.'},
+  {q:'What does BETWEEN 60 AND 80 include?',opts:['Only values strictly between 60 and 80 (61 to 79)','Values from 60 to 80, including both 60 and 80','Values from 61 to 79 only','Values greater than 60 and less than 80'],correct:1,exp:'✅ BETWEEN is INCLUSIVE on both ends. BETWEEN 60 AND 80 is exactly equivalent to >= 60 AND <= 80. Both 60 and 80 are included. This catches students who confuse it with exclusive range — an important distinction for exam scores, date ranges, etc.'},
+  {q:'Why should you avoid SELECT * in production queries?',opts:['SELECT * is slower than any other query','It fetches all columns — wasting bandwidth, breaking if schema changes, and making code unclear','* is not valid SQL syntax in all databases','SELECT * cannot be used with WHERE clause'],correct:1,exp:'✅ SELECT * has three problems in production: (1) Fetches all columns even those you don\'t need → wastes network bandwidth, (2) If a column is added/removed, your query\'s output changes unexpectedly → fragile code, (3) Anyone reading the code doesn\'t know which columns are relevant. Always specify columns explicitly.'},
+  {q:'What is the SQL execution order? (First to Last)',opts:['SELECT → FROM → WHERE → ORDER BY','FROM → WHERE → SELECT → ORDER BY → LIMIT','WHERE → FROM → SELECT → LIMIT → ORDER BY','SELECT → WHERE → FROM → ORDER BY → LIMIT'],correct:1,exp:'✅ SQL logical execution order: FROM (which table) → WHERE (filter rows) → GROUP BY → HAVING → SELECT (which columns + aliases) → ORDER BY → LIMIT. This is why you cannot use a SELECT alias in WHERE — WHERE runs before SELECT where the alias is defined!'},
+  {q:'What does ORDER BY city ASC, score DESC do?',opts:['Sorts by score first, then by city','Sorts alphabetically by city, and within each city, sorts by score from highest to lowest','Sorts by city descending and score ascending','ASC and DESC cancel each other out — no sorting'],correct:1,exp:'✅ Multi-column ORDER BY sorts by the first column first (city A→Z), then for rows that have the same city value, it sorts by the second column (score 100→0). This is very common in reporting: "show students city-by-city, with top scorers first within each city."'},
+  {q:'What does SELECT DISTINCT city, course FROM students do?',opts:['Returns distinct values of city only','Returns rows where the combination of city AND course is unique','Returns only rows where both city and course are the same','DISTINCT cannot be used with multiple columns'],correct:1,exp:'✅ DISTINCT applies to the entire row selected. SELECT DISTINCT city, course removes rows where BOTH city AND course are identical. Chennai + SQL and Chennai + Python are different combinations, so both appear. This is different from DISTINCT on a single column.'},
+  {q:'A student scored 75.0. Which CASE WHEN branch matches first?',opts:['WHEN score >= 90 THEN "Distinction"','WHEN score >= 75 THEN "First Class"','WHEN score >= 60 THEN "Second Class"','ELSE "Fail"'],correct:1,exp:'✅ CASE WHEN evaluates from top to bottom and stops at the FIRST matching condition. Score 75 doesn\'t match >= 90, but it matches >= 75 (75 >= 75 is TRUE), so it returns "First Class" and stops. The condition >= 60 would also match, but CASE WHEN already stopped at >= 75.'},
+  {q:'How do you get rows 11 to 15 (5 per page, page 3) using LIMIT?',opts:['LIMIT 15','LIMIT 5 OFFSET 10','LIMIT 10 OFFSET 5','LIMIT 5 OFFSET 15'],correct:1,exp:'✅ Pagination formula: LIMIT = rows per page, OFFSET = (page - 1) × rows per page. Page 3 with 5 per page: OFFSET = (3-1)×5 = 10. So LIMIT 5 OFFSET 10 returns rows 11-15. Note: rows are 0-indexed internally, so OFFSET 10 skips the first 10 rows and starts from row 11.'},
+  {q:'What is the difference between WHERE and HAVING?',opts:['They are identical — both filter rows','WHERE filters individual rows BEFORE grouping; HAVING filters groups AFTER GROUP BY','HAVING works with SELECT, WHERE works with FROM','WHERE is for strings, HAVING is for numbers'],correct:1,exp:'✅ Key difference: WHERE filters rows before any grouping (runs early in execution order). HAVING filters groups after GROUP BY and aggregation (runs after GROUP BY). You cannot use aggregate functions (SUM, COUNT, AVG) in WHERE — use HAVING. Example: WHERE score > 70 (row-level) vs HAVING AVG(score) > 70 (group-level).'},
+];
+let curQ=0;const quizAns=new Array(quizQs.length).fill(null);
+function renderQuiz(){
+  const q=quizQs[curQ];
+  document.getElementById('q-count').textContent=`Question ${curQ+1} of ${quizQs.length}`;
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="quiz-q">${curQ+1}. ${q.q}</div>
+    <div class="quiz-options">${q.opts.map((o,i)=>`
+      <button class="quiz-opt ${quizAns[curQ]===i?(i===q.correct?'correct':'wrong'):''}"
+              onclick="ansQ(${i})" ${quizAns[curQ]!==null?'disabled':''}>
+        <div class="opt-letter">${['A','B','C','D'][i]}</div>${o}
+      </button>`).join('')}</div>
+    <div class="quiz-feedback ${quizAns[curQ]!==null?'show':''} ${quizAns[curQ]===q.correct?'correct':'wrong'}">
+      ${quizAns[curQ]!==null?q.exp:''}
+    </div>`;
+  document.getElementById('q-dots').innerHTML=quizQs.map((_,i)=>`<div class="q-dot ${i===curQ?'active':quizAns[i]===null?'':(quizAns[i]===quizQs[i].correct?'done-c':'done-w')}"></div>`).join('');
+  document.getElementById('prev-btn').style.display=curQ>0?'block':'none';
+  document.getElementById('next-btn').style.display=quizAns[curQ]!==null&&curQ<quizQs.length-1?'block':'none';
+}
+function ansQ(i){if(quizAns[curQ]!==null)return;quizAns[curQ]=i;updateProgress();renderQuiz();}
+function nextQ(){if(curQ<quizQs.length-1){curQ++;renderQuiz();}}
+function prevQ(){if(curQ>0){curQ--;renderQuiz();}}
+renderQuiz();
+</script>
+</body>
+</html>

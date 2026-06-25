@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 2 — Data Warehousing & OLAP | SQL Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#0F6E56;--teal-mid:#1D9E75;--teal-light:#E1F5EE;--teal-soft:#f0faf6;
+  --blue:#185FA5;--blue-light:#E6F1FB;--indigo:#534AB7;--indigo-light:#EEEDFE;
+  --amber:#BA7517;--amber-light:#FAEEDA;--coral:#993C1D;--coral-light:#FAECE7;
+  --purple:#7C3AED;--purple-light:#EDE9FE;
+  --gray900:#1a1a1a;--gray700:#3d3d3d;--gray500:#6b6b6b;--gray300:#c8c8c8;
+  --gray100:#f4f4f4;--gray50:#fafafa;--white:#ffffff;--border:#e8e8e8;
+  --radius:10px;--radius-lg:16px;--shadow:0 2px 12px rgba(0,0,0,0.07);
+  --font:'Inter',sans-serif;--mono:'Fira Code',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:#f7f8fa;color:var(--gray900);font-size:15px;line-height:1.7}
+
+.shell{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:260px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.brand-tag{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--teal);text-transform:uppercase;margin-bottom:4px}
+.brand-title{font-size:15px;font-weight:700;color:var(--gray900);line-height:1.3}
+.brand-sub{font-size:11px;color:var(--gray500);margin-top:2px}
+.sidebar-progress{padding:12px 20px;border-bottom:1px solid var(--border)}
+.prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--gray500);margin-bottom:6px}
+.prog-bar{height:4px;background:var(--gray100);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal-mid),var(--blue));border-radius:4px;transition:width .5s ease}
+.sidebar-nav{padding:12px 0;flex:1}
+.nav-section{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--gray300);text-transform:uppercase;padding:8px 20px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 20px;font-size:13px;color:var(--gray500);cursor:pointer;border-left:3px solid transparent;transition:all .15s;text-decoration:none}
+.nav-item:hover{color:var(--teal);background:var(--teal-soft)}
+.nav-item.active{color:var(--teal);background:var(--teal-light);border-left-color:var(--teal-mid);font-weight:500}
+.nav-num{width:20px;height:20px;border-radius:50%;background:var(--gray100);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;color:var(--gray500)}
+.nav-item.active .nav-num{background:var(--teal-light);color:var(--teal)}
+
+/* MAIN */
+.main{margin-left:260px;flex:1}
+
+/* TOPBAR */
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-breadcrumb{font-size:12px;color:var(--gray500);display:flex;align-items:center;gap:6px}
+.topbar-breadcrumb span{color:var(--gray900);font-weight:500}
+.meta-chip{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray500);background:var(--gray50);border:1px solid var(--border);padding:5px 12px;border-radius:20px}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+
+/* HERO */
+.chapter-hero{background:var(--white);border-bottom:1px solid var(--border);padding:48px 40px 36px}
+.hero-phase{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--teal);text-transform:uppercase;margin-bottom:10px}
+.hero-title{font-size:32px;font-weight:700;color:var(--gray900);line-height:1.25;margin-bottom:12px}
+.hero-title span{color:var(--teal-mid)}
+.hero-desc{font-size:15px;color:var(--gray500);max-width:640px;line-height:1.7;margin-bottom:24px}
+.hero-meta{display:flex;gap:12px;flex-wrap:wrap}
+
+/* CONTENT */
+.content{padding:40px 40px 80px;max-width:880px}
+
+/* SECTION */
+.section{margin-bottom:56px;scroll-margin-top:80px}
+.section-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:14px;border-bottom:2px solid var(--teal-light)}
+.section-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.section-num{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.section-title{font-size:22px;font-weight:700;color:var(--gray900)}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:20px}
+.card-title{font-size:15px;font-weight:600;color:var(--gray900);margin-bottom:12px}
+
+/* CALLOUTS */
+.callout{border-radius:var(--radius);padding:16px 20px;margin:20px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.callout-body{flex:1}
+.callout-title{font-weight:600;font-size:14px;margin-bottom:4px}
+.callout-text{font-size:13px;line-height:1.6}
+.callout.info{background:var(--blue-light);color:var(--blue);border-left:3px solid var(--blue)}
+.callout.tip{background:var(--teal-light);color:var(--teal);border-left:3px solid var(--teal-mid)}
+.callout.warning{background:var(--amber-light);color:var(--amber);border-left:3px solid var(--amber)}
+.callout.example{background:var(--indigo-light);color:var(--indigo);border-left:3px solid var(--indigo)}
+.callout.purple{background:var(--purple-light);color:var(--purple);border-left:3px solid var(--purple)}
+
+/* COMPARE GRID */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.compare-col{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.compare-head{padding:14px 18px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px}
+.compare-body{padding:4px 0 12px}
+.compare-row{padding:8px 18px;font-size:13px;color:var(--gray700);display:flex;align-items:flex-start;gap:8px;line-height:1.5;border-bottom:1px solid var(--gray100)}
+.compare-row:last-child{border-bottom:none}
+.compare-row::before{content:'▸';color:var(--gray300);flex-shrink:0;margin-top:1px}
+
+/* REAL WORLD */
+.real-world{background:var(--white);border:1px solid var(--border);border-left:4px solid var(--teal-mid);border-radius:var(--radius);padding:20px 24px;margin:20px 0}
+.rw-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.rw-title{font-size:16px;font-weight:700;color:var(--gray900);margin-bottom:8px}
+.rw-body{font-size:13px;color:var(--gray700);line-height:1.7}
+
+/* TERM GRID */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:16px 0}
+.term-card{background:var(--gray50);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.term-word{font-size:13px;font-weight:700;color:var(--teal);font-family:var(--mono);margin-bottom:4px}
+.term-def{font-size:12px;color:var(--gray700);line-height:1.5}
+.term-eg{font-size:11px;color:var(--gray500);margin-top:4px;font-style:italic}
+
+/* CODE BLOCKS */
+.code-block{background:#1e2030;border-radius:var(--radius);overflow:hidden;margin:16px 0;font-family:var(--mono);font-size:13px}
+.code-header{background:#272a3f;padding:9px 16px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#7a8ba8;font-family:var(--font)}
+.code-lang{background:rgba(255,255,255,.08);padding:2px 8px;border-radius:4px;font-weight:500}
+.code-body{padding:16px;color:#cdd6f4;line-height:1.75;overflow-x:auto;white-space:pre}
+.code-body .kw{color:#89b4fa}.code-body .str{color:#a6e3a1}.code-body .cm{color:#6c7086;font-style:italic}.code-body .fn{color:#f38ba8}.code-body .nm{color:#fab387}.code-body .op{color:#89dceb}.code-body .tbl{color:#cba6f7}
+
+/* TRY IT */
+.try-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:20px 0}
+.try-header{background:linear-gradient(135deg,#1e2030,#272a3f);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;color:white}
+.try-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.try-badge{font-size:10px;background:var(--teal-mid);color:white;padding:2px 8px;border-radius:4px;font-weight:600}
+.try-editor{min-height:110px;background:#1e2030;padding:14px 16px;font-family:var(--mono);font-size:13px;color:#cdd6f4;border:none;outline:none;resize:vertical;width:100%;line-height:1.75}
+.try-footer{background:var(--gray50);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.try-hint{font-size:12px;color:var(--gray500)}
+.try-btns{display:flex;gap:8px}
+.run-btn{background:var(--teal-mid);color:white;border:none;padding:7px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:6px;transition:background .15s}
+.run-btn:hover{background:var(--teal)}
+.reset-btn{background:transparent;color:var(--gray500);border:1px solid var(--border);padding:7px 14px;border-radius:7px;font-size:13px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.reset-btn:hover{background:var(--gray100)}
+.try-output{border-top:1px solid var(--border);background:var(--white);padding:16px 18px;display:none}
+.try-output.visible{display:block}
+.output-label{font-size:11px;font-weight:600;color:var(--gray500);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.result-table{width:100%;border-collapse:collapse;font-size:13px}
+.result-table th{background:var(--teal-light);color:var(--teal);font-weight:600;padding:8px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.result-table td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--gray700)}
+.result-table tr:last-child td{border-bottom:none}
+.result-table tr:hover td{background:var(--gray50)}
+.result-msg{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;margin-bottom:6px}
+.result-msg.success{background:var(--teal-light);color:var(--teal)}
+.result-msg.info{background:var(--blue-light);color:var(--blue)}
+
+/* QUIZ */
+.quiz-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:24px 0}
+.quiz-header{background:var(--indigo-light);padding:14px 20px;display:flex;align-items:center;gap:10px}
+.quiz-title{font-size:14px;font-weight:600;color:var(--indigo)}
+.quiz-count{font-size:12px;color:var(--indigo);opacity:.7;margin-left:auto}
+.quiz-body{padding:20px}
+.quiz-q{font-size:14px;font-weight:500;color:var(--gray900);margin-bottom:14px;line-height:1.6}
+.quiz-options{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.quiz-opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--gray700);transition:all .15s;background:var(--white);text-align:left;font-family:var(--font);line-height:1.5;width:100%}
+.quiz-opt:hover{border-color:var(--indigo);color:var(--indigo);background:var(--indigo-light)}
+.quiz-opt.correct{border-color:var(--teal-mid);background:var(--teal-light);color:var(--teal)}
+.quiz-opt.wrong{border-color:var(--coral);background:var(--coral-light);color:var(--coral)}
+.opt-letter{width:22px;height:22px;border-radius:50%;background:var(--gray100);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:var(--gray500)}
+.quiz-opt.correct .opt-letter{background:var(--teal-mid);color:white}
+.quiz-opt.wrong .opt-letter{background:var(--coral);color:white}
+.quiz-feedback{display:none;padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.5;margin-top:4px}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:var(--teal-light);color:var(--teal)}
+.quiz-feedback.wrong{background:var(--coral-light);color:var(--coral)}
+.quiz-nav{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-top:1px solid var(--border);background:var(--gray50)}
+.quiz-progress-dots{display:flex;gap:6px}
+.q-dot{width:8px;height:8px;border-radius:50%;background:var(--gray300);transition:all .2s}
+.q-dot.active{background:var(--indigo);transform:scale(1.3)}
+.q-dot.done-c{background:var(--teal-mid)}
+.q-dot.done-w{background:var(--coral)}
+.btn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--gray700);font-family:var(--font);transition:all .15s}
+.btn:hover{background:var(--gray100)}
+.btn-primary{background:var(--teal-mid);color:var(--white);border-color:var(--teal-mid)}
+.btn-primary:hover{background:var(--teal)}
+
+/* SUMMARY */
+.summary-box{background:linear-gradient(135deg,var(--teal-soft),var(--blue-light));border:1px solid var(--teal-light);border-radius:var(--radius-lg);padding:24px 28px;margin:32px 0 0}
+.summary-title{font-size:16px;font-weight:700;color:var(--gray900);margin-bottom:16px}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.summary-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--gray700);line-height:1.5}
+.summary-check{width:20px;height:20px;border-radius:50%;background:var(--teal-mid);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px}
+
+/* CHAPTER NAV */
+.chapter-nav{background:var(--white);border-top:1px solid var(--border);padding:24px 40px;display:flex;justify-content:space-between;align-items:center}
+.nav-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;font-size:13px;color:var(--gray700);transition:all .15s;min-width:200px}
+.nav-card:hover{border-color:var(--teal-mid);color:var(--teal)}
+.nav-card-dir{font-size:11px;color:var(--gray300);margin-bottom:2px}
+.nav-card-name{font-weight:600}
+
+/* INTERACTIVE ANIMATIONS */
+.flow-diagram{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;margin:24px 0}
+.flow-box{background:var(--white);border:2px solid var(--border);border-radius:12px;padding:14px 18px;text-align:center;min-width:110px;position:relative;transition:all .3s}
+.flow-box:hover{border-color:var(--teal-mid);transform:translateY(-2px);box-shadow:var(--shadow)}
+.flow-box .fb-icon{font-size:24px;margin-bottom:6px}
+.flow-box .fb-label{font-size:11px;font-weight:700;color:var(--gray500);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.flow-box .fb-name{font-size:13px;font-weight:600;color:var(--gray900)}
+.flow-arrow{font-size:22px;color:var(--teal-light);padding:0 6px;flex-shrink:0}
+
+.layer-stack{display:flex;flex-direction:column;gap:0;margin:20px 0;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border)}
+.layer{padding:16px 24px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);cursor:pointer;transition:all .2s}
+.layer:last-child{border-bottom:none}
+.layer:hover{filter:brightness(.97)}
+.layer-icon{font-size:22px;flex-shrink:0}
+.layer-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;opacity:.7;margin-bottom:2px}
+.layer-name{font-size:14px;font-weight:700;margin-bottom:2px}
+.layer-desc{font-size:12px;opacity:.8;line-height:1.5}
+.layer-detail{display:none;padding:0 24px 16px 62px;font-size:13px;line-height:1.6;border-bottom:1px solid var(--border)}
+.layer-detail.open{display:block}
+
+/* SCHEMA VISUAL */
+.schema-wrap{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+.schema-table{border-radius:10px;overflow:hidden;border:2px solid var(--border);min-width:170px;font-size:12px;box-shadow:var(--shadow)}
+.schema-head{padding:10px 14px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;color:white}
+.schema-cols{background:rgba(255,255,255,.12)}
+.schema-col{padding:7px 14px;border-bottom:1px solid rgba(255,255,255,.15);display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.9)}
+.schema-col.pk{font-weight:700;color:white}
+.schema-col .col-type{font-size:10px;opacity:.6;margin-left:auto;font-family:var(--mono)}
+.fact-badge{font-size:10px;background:rgba(255,255,255,.2);padding:1px 6px;border-radius:4px;margin-left:4px}
+
+/* DIMENSION vs FACT */
+.df-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+
+/* INTERACTIVE TOGGLE */
+.toggle-demo{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:20px 0}
+.toggle-tabs{display:flex;border-bottom:1px solid var(--border)}
+.toggle-tab{flex:1;padding:12px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;color:var(--gray500);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font)}
+.toggle-tab.active{color:var(--teal);border-bottom-color:var(--teal-mid)}
+.toggle-content{display:none;padding:24px}
+.toggle-content.active{display:block}
+
+/* ANIMATED ETL */
+.etl-step{display:flex;align-items:flex-start;gap:16px;padding:16px 0;border-left:2px solid var(--teal-light);margin-left:16px;padding-left:24px;position:relative}
+.etl-step::before{content:'';position:absolute;left:-9px;top:20px;width:16px;height:16px;border-radius:50%;background:var(--teal-mid);border:3px solid white;box-shadow:0 0 0 2px var(--teal-mid)}
+.etl-step:last-child{border-left-color:transparent}
+.etl-step-title{font-size:14px;font-weight:600;color:var(--gray900);margin-bottom:4px}
+.etl-step-text{font-size:13px;color:var(--gray500);line-height:1.6}
+.etl-step-eg{font-size:12px;color:var(--teal);margin-top:4px;font-family:var(--mono)}
+
+/* OLTP vs OLAP interactive */
+.scenario-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin:16px 0}
+.scenario-title{font-size:14px;font-weight:600;margin-bottom:12px}
+.scenario-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.scenario-btn{padding:12px 16px;border-radius:10px;border:2px solid var(--border);cursor:pointer;font-size:13px;font-weight:500;font-family:var(--font);transition:all .2s;background:white}
+.scenario-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.scenario-btn.oltp{border-color:var(--blue-light);color:var(--blue)}
+.scenario-btn.olap{border-color:var(--teal-light);color:var(--teal)}
+.scenario-btn.selected-oltp{background:var(--blue-light);border-color:var(--blue)}
+.scenario-btn.selected-olap{background:var(--teal-light);border-color:var(--teal-mid)}
+.scenario-result{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;display:none}
+.scenario-result.show{display:block}
+
+/* STAR vs SNOWFLAKE */
+.schema-diagram{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin:16px 0;text-align:center}
+.center-box{background:var(--teal-mid);color:white;padding:12px 20px;border-radius:10px;font-weight:700;font-size:14px;display:inline-block;margin-bottom:8px}
+.dim-boxes{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:4px}
+.dim-box{background:var(--blue-light);color:var(--blue);padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;border:2px solid var(--blue)}
+.sub-dim-box{background:var(--indigo-light);color:var(--indigo);padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;border:1.5px solid var(--indigo);margin-top:4px}
+.schema-connect{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--gray300);font-size:12px}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .main{margin-left:0}
+  .content{padding:24px 20px 60px}
+  .chapter-hero{padding:32px 20px 24px}
+  .topbar{padding:12px 20px}
+  .compare-grid,.df-grid{grid-template-columns:1fr}
+  .hero-title{font-size:24px}
+  .scenario-options{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-tag">HCL GUVI · SQL Mastery</div>
+    <div class="brand-title">Chapter 2</div>
+    <div class="brand-sub">Data Warehousing & OLAP</div>
+  </div>
+  <div class="sidebar-progress">
+    <div class="prog-label"><span>Your progress</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Topics</div>
+    <a class="nav-item active" href="#sec1"><div class="nav-num">1</div>Why Data Warehousing?</a>
+    <a class="nav-item" href="#sec2"><div class="nav-num">2</div>OLTP vs OLAP</a>
+    <a class="nav-item" href="#sec3"><div class="nav-num">3</div>What is a Data Warehouse?</a>
+    <a class="nav-item" href="#sec4"><div class="nav-num">4</div>ETL Pipeline</a>
+    <a class="nav-item" href="#sec5"><div class="nav-num">5</div>Fact & Dimension Tables</a>
+    <a class="nav-item" href="#sec6"><div class="nav-num">6</div>Star vs Snowflake Schema</a>
+    <a class="nav-item" href="#sec7"><div class="nav-num">7</div>Data Mart, Lake & Lakehouse</a>
+    <a class="nav-item" href="#sec8"><div class="nav-num">8</div>Modern Data Stack</a>
+    <a class="nav-item" href="#sec9"><div class="nav-num">9</div>Quiz & Review</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-breadcrumb">SQL Mastery › Phase 1 › <span>Chapter 2 — Data Warehousing & OLAP</span></div>
+    <div class="topbar-actions">
+      <div class="meta-chip"><span style="width:6px;height:6px;border-radius:50%;background:#1D9E75;display:inline-block"></span> Beginner</div>
+      <div class="meta-chip">⏱ ~55 min</div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="chapter-hero">
+    <div class="hero-phase">Phase 1 · Chapter 2 of 22</div>
+    <h1 class="hero-title">Data Warehousing <span>& OLAP</span></h1>
+    <p class="hero-desc">
+      Your RDBMS is great for day-to-day operations — but what happens when your CEO asks
+      "Show me sales trends across all cities for the last 3 years"?
+      That's where Data Warehousing comes in. Learn the architecture that powers dashboards at Flipkart, Swiggy, and HDFC Bank.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-chip">📚 9 Topics</div>
+      <div class="meta-chip">✍️ 5 Try-It exercises</div>
+      <div class="meta-chip">🧠 8 Quiz questions</div>
+      <div class="meta-chip">🏆 Beginner level</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── SECTION 1: Why DWH ── -->
+    <div class="section" id="sec1">
+      <div class="section-header">
+        <div class="section-icon" style="background:var(--teal-light)">🤔</div>
+        <div>
+          <div class="section-num">Topic 1</div>
+          <h2 class="section-title">Why Do We Need Data Warehousing?</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+        In Chapter 1, you learned about databases — they store operational data (orders, users, payments).
+        But a regular database is built for <strong>speed of transactions</strong>, not <strong>speed of analysis</strong>.
+        As companies grow, they hit a wall when trying to analyze their own data.
+      </p>
+
+      <div class="real-world">
+        <div class="rw-label">🇮🇳 Real-World Problem</div>
+        <div class="rw-title">Imagine you're a Data Analyst at Flipkart</div>
+        <div class="rw-body">
+          Your manager asks: <em>"Give me the top 10 product categories by revenue, state-wise, for the last 24 months, compared to the previous 24 months."</em><br><br>
+          You run this query on the live orders database... and wait.<br>
+          <strong>5 minutes later</strong> — still running.<br>
+          <strong>20 minutes later</strong> — the database server is now <span style="color:var(--coral);font-weight:600">slow for all 10 million shoppers</span> because your analysis query is hogging resources.<br><br>
+          This is the exact problem Data Warehousing solves. 🎯
+        </div>
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-col">
+          <div class="compare-head" style="background:var(--blue-light);color:var(--blue)">⚡ Operational DB (Day-to-Day)</div>
+          <div class="compare-body">
+            <div class="compare-row">Handles thousands of small transactions per second</div>
+            <div class="compare-row">Optimized for INSERT, UPDATE, DELETE speed</div>
+            <div class="compare-row">Data is current — real-time</div>
+            <div class="compare-row">Running an analysis query SLOWS IT DOWN</div>
+            <div class="compare-row">Stores data for weeks/months (then archived)</div>
+            <div class="compare-row">Example: MySQL, PostgreSQL</div>
+          </div>
+        </div>
+        <div class="compare-col">
+          <div class="compare-head" style="background:var(--teal-light);color:var(--teal)">📊 Data Warehouse (Analysis)</div>
+          <div class="compare-body">
+            <div class="compare-row">Handles complex analytical queries across billions of rows</div>
+            <div class="compare-row">Optimized for SELECT, GROUP BY, aggregations</div>
+            <div class="compare-row">Data is historical — refreshed in batches</div>
+            <div class="compare-row">Analysis queries never affect live users</div>
+            <div class="compare-row">Stores years of historical data</div>
+            <div class="compare-row">Example: BigQuery, Snowflake, Redshift</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-body">
+          <div class="callout-title">The core idea</div>
+          <div class="callout-text">Think of it like this — your operational database is the <strong>kitchen</strong> where food is prepared (live, fast, hectic). Your data warehouse is the <strong>restaurant review website</strong> where all the historical data about meals, ratings, and revenue is stored and analyzed at leisure — without disturbing the kitchen.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: OLTP vs OLAP ── -->
+    <div class="section" id="sec2">
+      <div class="section-header">
+        <div class="section-icon" style="background:var(--blue-light)">⚖️</div>
+        <div>
+          <div class="section-num">Topic 2</div>
+          <h2 class="section-title">OLTP vs OLAP — The Core Difference</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:20px">
+        These two terms define <em>how</em> a system processes data. You will hear them constantly in data engineering and analytics roles.
+      </p>
+
+      <div class="compare-grid">
+        <div class="compare-col">
+          <div class="compare-head" style="background:var(--blue-light);color:var(--blue)">⚡ OLTP — Online Transaction Processing</div>
+          <div class="compare-body">
+            <div class="compare-row"><strong>Purpose:</strong> Run the business day-to-day</div>
+            <div class="compare-row"><strong>Operations:</strong> INSERT, UPDATE, DELETE constantly</div>
+            <div class="compare-row"><strong>Query type:</strong> Simple — "Get order #12345"</div>
+            <div class="compare-row"><strong>Data volume:</strong> Current data, KB to MB per query</div>
+            <div class="compare-row"><strong>Users:</strong> Developers, applications, end users</div>
+            <div class="compare-row"><strong>Speed:</strong> Milliseconds per transaction</div>
+            <div class="compare-row"><strong>Examples:</strong> Booking a train on IRCTC, placing Zomato order, ATM withdrawal</div>
+          </div>
+        </div>
+        <div class="compare-col">
+          <div class="compare-head" style="background:var(--teal-light);color:var(--teal)">📊 OLAP — Online Analytical Processing</div>
+          <div class="compare-body">
+            <div class="compare-row"><strong>Purpose:</strong> Analyze the business historically</div>
+            <div class="compare-row"><strong>Operations:</strong> Mostly SELECT, aggregations</div>
+            <div class="compare-row"><strong>Query type:</strong> Complex — "Sales by region last 3 years"</div>
+            <div class="compare-row"><strong>Data volume:</strong> Historical, GB to TB per query</div>
+            <div class="compare-row"><strong>Users:</strong> Analysts, data scientists, management</div>
+            <div class="compare-row"><strong>Speed:</strong> Seconds to minutes is acceptable</div>
+            <div class="compare-row"><strong>Examples:</strong> Sales trend dashboards, ML feature stores, business intelligence reports</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Scenario Picker -->
+      <div class="scenario-box">
+        <div class="scenario-title">🎮 Interactive: OLTP or OLAP? Classify each scenario!</div>
+        <div id="scenarios"></div>
+      </div>
+
+      <div class="term-grid" style="margin-top:20px">
+        <div class="term-card">
+          <div class="term-word">Normalization (OLTP)</div>
+          <div class="term-def">OLTP databases are highly normalized — data is split into many tables to avoid redundancy and make writes fast.</div>
+          <div class="term-eg">Students, Enrollments, Courses in separate tables</div>
+        </div>
+        <div class="term-card">
+          <div class="term-word">Denormalization (OLAP)</div>
+          <div class="term-def">OLAP warehouses often denormalize — combine data into fewer, wider tables to make reads/aggregations faster.</div>
+          <div class="term-eg">One big "sales_fact" table with all dimensions joined in</div>
+        </div>
+        <div class="term-card">
+          <div class="term-word">HTAP</div>
+          <div class="term-def">Hybrid Transactional/Analytical Processing — newer systems (like Google Spanner) do both OLTP and OLAP in one.</div>
+          <div class="term-eg">Used by some modern cloud databases</div>
+        </div>
+        <div class="term-card">
+          <div class="term-word">Latency</div>
+          <div class="term-def">OLTP needs low latency (ms). OLAP tolerates higher latency (seconds/minutes) because queries are complex.</div>
+          <div class="term-eg">ATM = ms. Monthly report = minutes is fine</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 3: What is a DWH ── -->
+    <div class="section" id="sec3">
+      <div class="section-header">
+        <div class="section-icon" style="background:var(--amber-light)">🏛️</div>
+        <div>
+          <div class="section-num">Topic 3</div>
+          <h2 class="section-title">What is a Data Warehouse?</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+        A <strong>Data Warehouse (DWH)</strong> is a centralized repository that collects, stores, and organizes
+        large volumes of <em>historical data</em> from multiple sources — specifically designed for analysis and reporting.
+        It is the backbone of Business Intelligence (BI).
+      </p>
+
+      <div class="callout example">
+        <div class="callout-icon">📖</div>
+        <div class="callout-body">
+          <div class="callout-title">Bill Inmon's Definition (Father of Data Warehousing)</div>
+          <div class="callout-text">A data warehouse is a <strong>Subject-Oriented, Integrated, Non-Volatile, and Time-Variant</strong> collection of data in support of management's decision-making process. — Bill Inmon, 1990</div>
+        </div>
+      </div>
+
+      <!-- 4 properties as a clickable layer stack -->
+      <p style="font-size:14px;font-weight:600;margin:20px 0 10px;color:var(--gray900)">👆 The 4 Core Properties of a Data Warehouse — click each to expand:</p>
+      <div class="layer-stack">
+        <div class="layer" style="background:var(--teal-light)" onclick="toggleLayer(this,'l1')">
+          <div class="layer-icon">🎯</div>
+          <div>
+            <div class="layer-label" style="color:var(--teal)">Property 1</div>
+            <div class="layer-name" style="color:var(--teal)">Subject-Oriented</div>
+            <div class="layer-desc" style="color:var(--teal)">Organized around key business subjects</div>
+          </div>
+          <span style="margin-left:auto;color:var(--teal);font-size:18px">›</span>
+        </div>
+        <div class="layer-detail" id="l1">
+          A DWH is organized around business subjects — Sales, Customers, Products, Finance — not around operational processes (like placing an order or processing a payment). This makes it easy for analysts to ask "Give me all data about our Sales" without knowing which 12 tables that spans.
+          <br><br><strong>Example:</strong> Instead of having orders, payments, returns, shipping tables separately — a DWH might have a "Sales" subject area that consolidates all of it.
+        </div>
+
+        <div class="layer" style="background:var(--blue-light)" onclick="toggleLayer(this,'l2')">
+          <div class="layer-icon">🔗</div>
+          <div>
+            <div class="layer-label" style="color:var(--blue)">Property 2</div>
+            <div class="layer-name" style="color:var(--blue)">Integrated</div>
+            <div class="layer-desc" style="color:var(--blue)">Data from ALL systems, unified into one format</div>
+          </div>
+          <span style="margin-left:auto;color:var(--blue);font-size:18px">›</span>
+        </div>
+        <div class="layer-detail" id="l2">
+          A DWH pulls data from multiple source systems — MySQL, Oracle, Excel files, APIs, third-party apps — and transforms them all into one consistent format. Inconsistencies are resolved during loading.
+          <br><br><strong>Example:</strong> One system calls it "Gender: M/F", another says "sex: Male/Female", a third uses "0/1". The DWH standardizes all three to "gender: Male/Female" during ETL.
+        </div>
+
+        <div class="layer" style="background:var(--indigo-light)" onclick="toggleLayer(this,'l3')">
+          <div class="layer-icon">🔒</div>
+          <div>
+            <div class="layer-label" style="color:var(--indigo)">Property 3</div>
+            <div class="layer-name" style="color:var(--indigo)">Non-Volatile</div>
+            <div class="layer-desc" style="color:var(--indigo)">Data is never updated or deleted — only added</div>
+          </div>
+          <span style="margin-left:auto;color:var(--indigo);font-size:18px">›</span>
+        </div>
+        <div class="layer-detail" id="l3">
+          Once data enters the warehouse, it is never changed or deleted. Analysts need to trust that historical data is stable — if you correct a mistake, you ADD a new corrected record, not modify the old one.
+          <br><br><strong>Example:</strong> If a customer's city was recorded wrong as "Bangalor" and later corrected to "Bangalore" in the source system — the DWH keeps the old record AND adds the corrected one with a timestamp. You can always see the full history.
+        </div>
+
+        <div class="layer" style="background:var(--amber-light)" onclick="toggleLayer(this,'l4')">
+          <div class="layer-icon">⏰</div>
+          <div>
+            <div class="layer-label" style="color:var(--amber)">Property 4</div>
+            <div class="layer-name" style="color:var(--amber)">Time-Variant</div>
+            <div class="layer-desc" style="color:var(--amber)">Every record has a time dimension — history matters</div>
+          </div>
+          <span style="margin-left:auto;color:var(--amber);font-size:18px">›</span>
+        </div>
+        <div class="layer-detail" id="l4">
+          Every record in a DWH is tagged with a time element. This allows you to compare data across different time periods — this month vs last month, this year vs last year, etc.
+          <br><br><strong>Example:</strong> A customer's record stores when they were acquired, when they first purchased, their purchase history over time. You can track their entire lifecycle as a customer — not just their current state.
+        </div>
+      </div>
+
+      <div class="real-world">
+        <div class="rw-label">🇮🇳 Real-World Example</div>
+        <div class="rw-title">HDFC Bank's Data Warehouse</div>
+        <div class="rw-body">
+          HDFC Bank has millions of customers with transactions across Credit Cards, Home Loans, Savings Accounts, Net Banking, and Mobile App — each running on different systems.<br><br>
+          Their DWH:<br>
+          ✅ <strong>Integrates</strong> all these systems into one unified customer view<br>
+          ✅ <strong>Stores 10+ years</strong> of transaction history (time-variant)<br>
+          ✅ <strong>Never modifies</strong> historical records (non-volatile)<br>
+          ✅ <strong>Organized by subject</strong>: Customer, Product, Risk, Compliance<br><br>
+          This allows risk teams to detect fraud patterns, product teams to identify upsell opportunities, and compliance teams to generate regulatory reports — all from one place.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 4: ETL ── -->
+    <div class="section" id="sec4">
+      <div class="section-header">
+        <div class="section-icon" style="background:var(--purple-light)">🔄</div>
+        <div>
+          <div class="section-num">Topic 4</div>
+          <h2 class="section-title">ETL — Extract, Transform, Load</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+        ETL is the process that <strong>moves data from source systems into the data warehouse</strong>.
+        It's the pipeline that runs (usually nightly or in near-real-time) to keep the warehouse fresh.
+        Understanding ETL is essential for data engineering roles.
+      </p>
+
+      <div class="flow-diagram">
+        <div class="flow-box" style="border-color:var(--blue)">
+          <div class="fb-icon">🗄️</div>
+          <div class="fb-label">Sources</div>
+          <div class="fb-name" style="color:var(--blue)">MySQL, APIs<br>Excel, CRM</div>
+        </div>
+        <div class="flow-arrow">⟶</div>
+        <div class="flow-box" style="border-color:var(--coral)">
+          <div class="fb-icon">📤</div>
+          <div class="fb-label">Extract</div>
+          <div class="fb-name" style="color:var(--coral)">Pull raw data<br>from sources</div>
+        </div>
+        <div class="flow-arrow">⟶</div>
+        <div class="flow-box" style="border-color:var(--amber)">
+          <div class="fb-icon">⚙️</div>
+          <div class="fb-label">Transform</div>
+          <div class="fb-name" style="color:var(--amber)">Clean, format,<br>standardize</div>
+        </div>
+        <div class="flow-arrow">⟶</div>
+        <div class="flow-box" style="border-color:var(--teal-mid)">
+          <div class="fb-icon">📥</div>
+          <div class="fb-label">Load</div>
+          <div class="fb-name" style="color:var(--teal)">Insert into<br>Warehouse</div>
+        </div>
+        <div class="flow-arrow">⟶</div>
+        <div class="flow-box" style="border-color:var(--indigo)">
+          <div class="fb-icon">📊</div>
+          <div class="fb-label">Consume</div>
+          <div class="fb-name" style="color:var(--indigo)">BI, Dashboards,<br>ML Models</div>
+        </div>
+      </div>
+
+      <div style="margin-top:8px">
+        <div class="etl-step">
+          <div>
+            <div class="etl-step-title">1️⃣ Extract — Get the raw data</div>
+            <div class="etl-step-text">Pull data from all source systems — RDBMS databases, REST APIs, flat files (CSV/Excel), third-party SaaS tools. The extraction must be done carefully to not slow down the source system. Common patterns: full extract (copy everything) or incremental extract (only new/changed records since last run).</div>
+            <div class="etl-step-eg">Example: Pull all orders from MySQL where order_date > last_run_timestamp</div>
+          </div>
+        </div>
+        <div class="etl-step">
+          <div>
+            <div class="etl-step-title">2️⃣ Transform — Clean and standardize</div>
+            <div class="etl-step-text">This is the heavy lifting. Raw data is messy — different formats, missing values, duplicates, inconsistent naming. Transform rules: standardize date formats, fix encoding issues, deduplicate records, handle NULLs, join related data, apply business logic (e.g., categorize orders by value tier).</div>
+            <div class="etl-step-eg">Example: Convert "01-15-2024" → "2024-01-15", "M" → "Male", NULL city → "Unknown"</div>
+          </div>
+        </div>
+        <div class="etl-step">
+          <div>
+            <div class="etl-step-title">3️⃣ Load — Write to the warehouse</div>
+            <div class="etl-step-text">Insert the cleaned, transformed data into the warehouse tables. Two strategies: Full Load (truncate and reload everything — simple but slow) or Incremental Load (append only new records — fast but complex). Most production systems use incremental load with upsert logic.</div>
+            <div class="etl-step-eg">Example: INSERT INTO fact_sales SELECT ... FROM staging_orders</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-icon">📌</div>
+        <div class="callout-body">
+          <div class="callout-title">ELT — The modern twist</div>
+          <div class="callout-text">Modern cloud warehouses (BigQuery, Snowflake) are so powerful that teams now use <strong>ELT</strong> — Extract, Load, <em>then</em> Transform. Raw data is loaded first, then transformed using SQL inside the warehouse itself. Tools like <strong>dbt</strong> (Data Build Tool) are built on this approach.</div>
+        </div>
+      </div>
+
+      <!-- Try It 1 -->
+      <div class="try-box">
+        <div class="try-header">
+          <div class="try-title">✏️ Try It — Write an ETL-style SQL Transform <span class="try-badge">Exercise 1</span></div>
+        </div>
+        <textarea class="try-editor" id="editor1" spellcheck="false">-- Simulate a Transform step in SQL
+-- Raw data from source has: inconsistent dates, NULL cities, old format
+
+-- 1. Create a staging table (raw data from source)
+CREATE TABLE staging_orders (
+    order_id      INT,
+    customer_name VARCHAR(100),
+    city          VARCHAR(50),       -- may be NULL
+    order_date    VARCHAR(20),       -- messy: '15-01-2024' or '2024/01/15'
+    amount        VARCHAR(20),       -- stored as text: '₹1,299.00'
+    gender        VARCHAR(10)        -- 'M', 'F', 'male', 'Male', 'MALE'
+);
+
+-- 2. Transform and load into clean warehouse table
+-- This is the "T" in ETL!
+INSERT INTO fact_orders
+SELECT
+    order_id,
+    customer_name,
+    COALESCE(city, 'Unknown')           AS city,        -- Handle NULLs
+    STR_TO_DATE(order_date, '%d-%m-%Y') AS order_date,  -- Fix date format
+    CAST(
+        REPLACE(REPLACE(amount,'₹',''),',','')
+        AS DECIMAL(10,2)
+    )                                   AS amount,      -- Clean amount
+    CASE
+        WHEN UPPER(gender) IN ('M','MALE')   THEN 'Male'
+        WHEN UPPER(gender) IN ('F','FEMALE') THEN 'Female'
+        ELSE 'Other'
+    END                                 AS gender       -- Standardize gender
+FROM staging_orders
+WHERE order_id IS NOT NULL              -- Remove bad rows
+  AND amount IS NOT NULL;
+
+-- This is real ETL SQL logic used in data engineering!</textarea>
+        <div class="try-footer">
+          <div class="try-hint">💡 COALESCE, STR_TO_DATE, CASE WHEN — these are your ETL tools in SQL</div>
+          <div class="try-btns">
+            <button class="reset-btn" onclick="resetEditor('editor1',ex[0])">Reset</button>
+            <button class="run-btn" onclick="showOutput('out1')">▶ See Result</button>
+          </div>
+        </div>
+        <div class="try-output" id="out1">
+          <div class="output-label">✅ Transform Result — cleaned data ready for warehouse</div>
+          <table class="result-table">
+            <thead><tr><th>order_id</th><th>customer_name</th><th>city</th><th>order_date</th><th>amount</th><th>gender</th></tr></thead>
+            <tbody>
+              <tr><td>1001</td><td>Priya Sharma</td><td>Chennai</td><td>2024-01-15</td><td>1299.00</td><td>Female</td></tr>
+              <tr><td>1002</td><td>Rahul Verma</td><td><em style="color:var(--teal)">Unknown</em></td><td>2024-01-15</td><td>849.00</td><td>Male</td></tr>
+              <tr><td>1003</td><td>Ananya Iyer</td><td>Bangalore</td><td>2024-01-16</td><td>2499.00</td><td>Female</td></tr>
+            </tbody>
+          </table>
+          <div class="result-msg success" style="margin-top:10px">✅ NULL city → "Unknown", dates standardized to YYYY-MM-DD, amounts cleaned to DECIMAL, gender normalized to Male/Female</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 5: Fact & Dimension ── -->
+    <div class="section" id="sec5">
+      <div class="section-header">
+        <div class="section-icon" style="background:var(--teal-light)">📋</div>
+        <div>
+          <div class="section-num">Topic 5</div>
+          <h2 class="section-title">Fact Tables & Dimension Tables</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+        The two most important concepts in Data Warehouse design. Every DWH is built around <strong>Fact Tables</strong>
+        and <strong>Dimension Tables</strong>. Understanding these will help you design any warehouse schema.
+      </p>
+
+      <div class="df-grid">
+        <div class="card" style="border-top:3px solid var(--teal-mid)">
+          <div class="card-title" style="color:var(--teal)">📊 Fact Table</div>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.6;margin-bottom:12px">
+            Contains the <strong>measurable, quantitative data</strong> — the actual business events or transactions. It's what you aggregate and analyze.
+          </p>
+          <ul style="font-size:13px;color:var(--gray700);line-height:1.9;padding-left:18px">
+            <li>Stores numeric measures (amount, quantity, score)</li>
+            <li>Has many rows — can be billions of records</li>
+            <li>References dimension tables via Foreign Keys</li>
+            <li>Rows are added constantly (non-volatile)</li>
+            <li>Almost never updated once inserted</li>
+          </ul>
+          <div style="margin-top:12px;padding:10px;background:var(--teal-light);border-radius:8px;font-size:12px;color:var(--teal)">
+            🇮🇳 Examples: fact_sales, fact_orders, fact_transactions, fact_page_views
+          </div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--blue)">
+          <div class="card-title" style="color:var(--blue)">📐 Dimension Table</div>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.6;margin-bottom:12px">
+            Contains the <strong>descriptive, contextual data</strong> — the "who, what, where, when" that gives meaning to the facts.
+          </p>
+          <ul style="font-size:13px;color:var(--gray700);line-height:1.9;padding-left:18px">
+            <li>Stores descriptive attributes (name, city, category)</li>
+            <li>Has far fewer rows than fact tables</li>
+            <li>Referenced by fact table via Foreign Keys</li>
+            <li>Can be updated (e.g., customer changes city)</li>
+            <li>Provides the "slice and dice" ability</li>
+          </ul>
+          <div style="margin-top:12px;padding:10px;background:var(--blue-light);border-radius:8px;font-size:12px;color:var(--blue)">
+            🇮🇳 Examples: dim_customer, dim_product, dim_date, dim_location
+          </div>
+        </div>
+      </div>
+
+      <div class="callout example">
+        <div class="callout-icon">🎯</div>
+        <div class="callout-body">
+          <div class="callout-title">The Cricket Analogy — Fact vs Dimension</div>
+          <div class="callout-text">
+            <strong>Fact table (fact_match):</strong> runs_scored=85, wickets=3, fours=6, sixes=2 — these are the NUMBERS<br>
+            <strong>dim_player:</strong> Virat Kohli, India, Right-handed, Mumbai Indians — WHO scored<br>
+            <strong>dim_match:</strong> IPL 2024, Mumbai vs Delhi, Wankhede Stadium — CONTEXT<br>
+            <strong>dim_date:</strong> April 2024, Sunday, Season 17 — WHEN<br><br>
+            You analyze: "How many runs did Kohli score in home matches in 2023 vs 2024?" — fact + multiple dimensions!
+          </div>
+        </div>
+      </div>
+
+      <!-- Schema Visuals -->
+      <div style="margin-top:20px">
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:16px;color:var(--gray900)">🇮🇳 Flipkart-style DWH Schema — Fact & Dimensions:</h3>
+        <div class="schema-wrap">
+          <div class="schema-table">
+            <div class="schema-head" style="background:var(--teal-mid)">📊 fact_orders <span class="fact-badge">FACT</span></div>
+            <div class="schema-cols">
+              <div class="schema-col pk">🔑 order_id <span class="col-type">BIGINT</span></div>
+              <div class="schema-col" style="color:rgba(255,255,255,.7)">🔗 customer_id <span class="col-type">FK</span></div>
+              <div class="schema-col" style="color:rgba(255,255,255,.7)">🔗 product_id <span class="col-type">FK</span></div>
+              <div class="schema-col" style="color:rgba(255,255,255,.7)">🔗 date_id <span class="col-type">FK</span></div>
+              <div class="schema-col" style="color:rgba(255,255,255,.7)">🔗 location_id <span class="col-type">FK</span></div>
+              <div class="schema-col">order_amount <span class="col-type">DECIMAL</span></div>
+              <div class="schema-col">quantity <span class="col-type">INT</span></div>
+              <div class="schema-col">discount_pct <span class="col-type">DECIMAL</span></div>
+              <div class="schema-col">is_returned <span class="col-type">BOOL</span></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div class="schema-table">
+              <div class="schema-head" style="background:var(--blue)">📐 dim_customer</div>
+              <div class="schema-cols">
+                <div class="schema-col pk">🔑 customer_id <span class="col-type">INT</span></div>
+                <div class="schema-col">name <span class="col-type">VARCHAR</span></div>
+                <div class="schema-col">city <span class="col-type">VARCHAR</span></div>
+                <div class="schema-col">tier <span class="col-type">ENUM</span></div>
+                <div class="schema-col">joined_year <span class="col-type">INT</span></div>
+              </div>
+            </div>
+            <div class="schema-table">
+              <div class="schema-head" style="background:var(--indigo)">📐 dim_product</div>
+              <div class="schema-cols">
+                <div class="schema-col pk">🔑 product_id <span class="col-type">INT</span></div>
+                <div class="schema-col">name <span class="col-type">VARCHAR</span></div>
+                <div class="schema-col">category <span class="col-type">VARCHAR</span></div>
+                <div class="schema-col">brand <span class="col-type">VARCHAR</span></div>
+                <div class="schema-col">price_tier <span class="col-type">VARCHAR</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div class="schema-table">
+              <div class="schema-head" style="background:var(--amber)">📐 dim_date</div>
+              <div class="schema-cols">
+                <div class="schema-col pk">🔑 date_id <span class="col-type">INT</span></div>
+                <div class="schema-col">full_date <span class="col-type">DATE</span></div>
+                <div class="schema-col">day_of_week <span class="col-type">VARCHAR</span></div>
+                <div class="schema-col">month <span class="col-type">INT</span></div>
+                <div class="schema-col">quarter <span class="col-type">INT</span></div>
+                <div class="schema-col">year <span class="col-type">INT</span></div>
+                <div class="schema-col">is_festival <span class="col-type">BOOL</span></div>
+              </div>
+            </div>
+            <div class="schema-table">
+              <div class="schema-head" style="background:var(--coral)">📐 dim_location</div>
+              <div class="schema-cols">
+                <div class="schema-col pk">🔑 location_id <span class="col-type">INT</span></div>
+                <div class="schema-col">city <span class="col-type">VARCHAR</span></div>
+                <div class="schema-col">state <span class="col-type">VARCHAR</span></div>
+                <div class="schema-col">zone <span class="col-type">VARCHAR</span></div>
+                <div class="schema-col">is_metro <span class="col-type">BOOL</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Try It 2 -->
+      <div class="try-box">
+        <div class="try-header">
+          <div class="try-title">✏️ Try It — Query across Fact + Dimension tables <span class="try-badge">Exercise 2</span></div>
+        </div>
+        <textarea class="try-editor" id="editor2" spellcheck="false">-- OLAP-style queries using Fact + Dimension tables
+-- (These are the types of queries a Data Analyst writes daily!)
+
+-- Query 1: Total sales by product category (last year)
+SELECT
+    p.category,
+    COUNT(o.order_id)           AS total_orders,
+    SUM(o.order_amount)         AS total_revenue,
+    ROUND(AVG(o.order_amount),2) AS avg_order_value
+FROM fact_orders o
+JOIN dim_product  p ON o.product_id  = p.product_id
+JOIN dim_date     d ON o.date_id     = d.date_id
+WHERE d.year = 2024
+GROUP BY p.category
+ORDER BY total_revenue DESC;
+
+-- Query 2: Which cities drove the most revenue in festive season?
+SELECT
+    l.city,
+    l.state,
+    SUM(o.order_amount) AS festive_revenue
+FROM fact_orders o
+JOIN dim_location l ON o.location_id = l.location_id
+JOIN dim_date     d ON o.date_id     = d.date_id
+WHERE d.is_festival = TRUE
+  AND d.year = 2024
+GROUP BY l.city, l.state
+ORDER BY festive_revenue DESC
+LIMIT 10;
+
+-- Query 3: Customer tier vs return rate
+SELECT
+    c.tier,
+    COUNT(o.order_id)                            AS total_orders,
+    SUM(CASE WHEN o.is_returned THEN 1 ELSE 0 END) AS returns,
+    ROUND(
+        SUM(CASE WHEN o.is_returned THEN 1 ELSE 0 END)
+        / COUNT(o.order_id) * 100, 2
+    )                                            AS return_rate_pct
+FROM fact_orders o
+JOIN dim_customer c ON o.customer_id = c.customer_id
+GROUP BY c.tier
+ORDER BY return_rate_pct DESC;</textarea>
+        <div class="try-footer">
+          <div class="try-hint">💡 Notice how every query joins fact_orders with ONE or MORE dimension tables — this is the DWH pattern!</div>
+          <div class="try-btns">
+            <button class="reset-btn" onclick="resetEditor('editor2',ex[1])">Reset</button>
+            <button class="run-btn" onclick="showOutput('out2')">▶ Preview Results</button>
+          </div>
+        </div>
+        <div class="try-output" id="out2">
+          <div class="output-label">📊 Query 1 Result — Revenue by Category 2024</div>
+          <table class="result-table">
+            <thead><tr><th>category</th><th>total_orders</th><th>total_revenue</th><th>avg_order_value</th></tr></thead>
+            <tbody>
+              <tr><td>Electronics</td><td>42,180</td><td>₹8,94,30,000</td><td>₹2,119</td></tr>
+              <tr><td>Fashion</td><td>1,18,450</td><td>₹5,22,18,000</td><td>₹441</td></tr>
+              <tr><td>Home & Kitchen</td><td>38,920</td><td>₹3,11,36,000</td><td>₹800</td></tr>
+              <tr><td>Books</td><td>65,300</td><td>₹78,36,000</td><td>₹120</td></tr>
+            </tbody>
+          </table>
+          <div class="result-msg success" style="margin-top:10px">✅ This is exactly how BI dashboards at e-commerce companies are powered — fact + dimension JOINs + GROUP BY aggregations!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 6: Star vs Snowflake ── -->
+    <div class="section" id="sec6">
+      <div class="section-header">
+        <div class="section-icon" style="background:var(--indigo-light)">⭐</div>
+        <div>
+          <div class="section-num">Topic 6</div>
+          <h2 class="section-title">Star Schema vs Snowflake Schema</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:20px">
+        These are the two most common <strong>warehouse schema designs</strong>. They differ in how dimension tables are structured — and each has clear tradeoffs.
+      </p>
+
+      <div class="toggle-demo">
+        <div class="toggle-tabs">
+          <button class="toggle-tab active" onclick="switchTab(this,'t-star')">⭐ Star Schema</button>
+          <button class="toggle-tab" onclick="switchTab(this,'t-snow')">❄️ Snowflake Schema</button>
+          <button class="toggle-tab" onclick="switchTab(this,'t-compare')">⚖️ Comparison</button>
+        </div>
+
+        <div class="toggle-content active" id="t-star">
+          <h4 style="font-size:15px;font-weight:600;margin-bottom:10px">⭐ Star Schema — Simple and Fast</h4>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.7;margin-bottom:16px">
+            The fact table sits in the center, surrounded by <strong>denormalized dimension tables</strong> — like a star. Each dimension is one single table with all attributes, even if there's some redundancy. This makes queries fast and simple.
+          </p>
+          <div class="schema-diagram">
+            <div style="text-align:center;margin-bottom:12px">
+              <div class="dim-box" style="display:inline-block;margin-bottom:8px">📐 dim_date</div><br>
+              <span style="color:var(--gray300)">│</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:12px">
+              <div class="dim-box">📐 dim_customer</div>
+              <span style="color:var(--gray300)">—</span>
+              <div class="center-box">📊 fact_orders</div>
+              <span style="color:var(--gray300)">—</span>
+              <div class="dim-box">📐 dim_product</div>
+            </div>
+            <div style="text-align:center;margin-top:8px">
+              <span style="color:var(--gray300)">│</span><br>
+              <div class="dim-box" style="display:inline-block;margin-top:8px">📐 dim_location</div>
+            </div>
+            <div style="margin-top:16px;font-size:12px;color:var(--gray500);text-align:center">Fact table in center · Flat dimension tables around it · Simple joins</div>
+          </div>
+          <div class="callout tip" style="margin-top:0">
+            <div class="callout-icon">✅</div>
+            <div class="callout-body">
+              <div class="callout-title">When to use Star Schema</div>
+              <div class="callout-text">Most production data warehouses use Star Schema. Fewer JOINs = faster queries. BI tools like Tableau, Power BI, Metabase work best with star schemas. <strong>Preferred choice for analytics teams.</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="toggle-content" id="t-snow">
+          <h4 style="font-size:15px;font-weight:600;margin-bottom:10px">❄️ Snowflake Schema — Normalized Dimensions</h4>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.7;margin-bottom:16px">
+            The fact table is in the center, but dimension tables are <strong>further split into sub-dimension tables</strong> — like a snowflake. Less redundancy but more JOINs required.
+          </p>
+          <div class="schema-diagram">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">
+              <div style="text-align:center">
+                <div class="dim-box" style="display:inline-block">📐 dim_product</div><br>
+                <span style="color:var(--gray300);font-size:20px">↓</span><br>
+                <div class="sub-dim-box" style="display:inline-block">📎 dim_category</div><br>
+                <span style="color:var(--gray300);font-size:20px">↓</span><br>
+                <div class="sub-dim-box" style="display:inline-block">📎 dim_subcategory</div>
+              </div>
+              <span style="color:var(--gray300);font-size:24px">—</span>
+              <div class="center-box">📊 fact_orders</div>
+              <span style="color:var(--gray300);font-size:24px">—</span>
+              <div style="text-align:center">
+                <div class="dim-box" style="display:inline-block">📐 dim_location</div><br>
+                <span style="color:var(--gray300);font-size:20px">↓</span><br>
+                <div class="sub-dim-box" style="display:inline-block">📎 dim_city</div><br>
+                <span style="color:var(--gray300);font-size:20px">↓</span><br>
+                <div class="sub-dim-box" style="display:inline-block">📎 dim_state</div>
+              </div>
+            </div>
+            <div style="margin-top:16px;font-size:12px;color:var(--gray500);text-align:center">Dimensions further normalized into sub-tables · Less storage · More JOINs</div>
+          </div>
+          <div class="callout warning">
+            <div class="callout-icon">⚠️</div>
+            <div class="callout-body">
+              <div class="callout-title">When to use Snowflake Schema</div>
+              <div class="callout-text">Use when storage space is critical, or when dimension attributes change frequently (like product categories being reorganized). The extra normalization reduces redundancy but requires more complex JOINs. Less common in modern cloud warehouses where storage is cheap.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="toggle-content" id="t-compare">
+          <div class="compare-grid" style="margin-bottom:0">
+            <div class="compare-col">
+              <div class="compare-head" style="background:var(--amber-light);color:var(--amber)">⭐ Star Schema</div>
+              <div class="compare-body">
+                <div class="compare-row">Dimension tables are denormalized (flat)</div>
+                <div class="compare-row">Fewer JOINs — simpler, faster queries</div>
+                <div class="compare-row">Some data redundancy in dimensions</div>
+                <div class="compare-row">Easy to understand and use</div>
+                <div class="compare-row">Best for BI tools and dashboards</div>
+                <div class="compare-row">Used by: most production DWHs</div>
+              </div>
+            </div>
+            <div class="compare-col">
+              <div class="compare-head" style="background:var(--blue-light);color:var(--blue)">❄️ Snowflake Schema</div>
+              <div class="compare-body">
+                <div class="compare-row">Dimension tables are normalized (split further)</div>
+                <div class="compare-row">More JOINs — complex queries</div>
+                <div class="compare-row">No redundancy — saves storage</div>
+                <div class="compare-row">More complex to maintain</div>
+                <div class="compare-row">Better for frequently-updated dimensions</div>
+                <div class="compare-row">Used by: legacy warehouses, strict storage</div>
+              </div>
+            </div>
+          </div>
+          <div class="callout tip" style="margin-top:16px">
+            <div class="callout-icon">💡</div>
+            <div class="callout-body">
+              <div class="callout-title">Industry Reality</div>
+              <div class="callout-text">In modern cloud data warehouses (BigQuery, Snowflake, Redshift), storage is cheap. Most companies use <strong>Star Schema</strong> because query speed and simplicity matter more than saving a few GBs. When in doubt — go with Star Schema.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Try It 3 -->
+      <div class="try-box">
+        <div class="try-header">
+          <div class="try-title">✏️ Try It — Design a Star Schema for GUVI LMS <span class="try-badge">Exercise 3</span></div>
+        </div>
+        <textarea class="try-editor" id="editor3" spellcheck="false">-- Design a Star Schema for GUVI's Learning Analytics
+-- Central fact: course completions / learning activity
+
+-- FACT TABLE — What happened?
+CREATE TABLE fact_learning (
+    learning_id    BIGINT PRIMARY KEY AUTO_INCREMENT,
+    student_id     INT,          -- FK → dim_student
+    course_id      INT,          -- FK → dim_course
+    date_id        INT,          -- FK → dim_date
+    batch_id       INT,          -- FK → dim_batch
+    
+    -- MEASURES (numbers we analyze)
+    videos_watched  INT DEFAULT 0,
+    quizzes_done    INT DEFAULT 0,
+    score           DECIMAL(5,2),
+    time_spent_hrs  DECIMAL(5,2),
+    is_completed    BOOLEAN DEFAULT FALSE,
+    
+    FOREIGN KEY (student_id) REFERENCES dim_student(student_id),
+    FOREIGN KEY (course_id)  REFERENCES dim_course(course_id),
+    FOREIGN KEY (date_id)    REFERENCES dim_date(date_id),
+    FOREIGN KEY (batch_id)   REFERENCES dim_batch(batch_id)
+);
+
+-- DIMENSION TABLES — The context
+CREATE TABLE dim_student (
+    student_id  INT PRIMARY KEY,
+    name        VARCHAR(100),
+    city        VARCHAR(50),
+    education   VARCHAR(50),    -- 'College', 'Working Professional'
+    age_group   VARCHAR(20)     -- '18-22', '23-28', '29-35'
+);
+
+CREATE TABLE dim_course (
+    course_id   INT PRIMARY KEY,
+    course_name VARCHAR(150),
+    category    VARCHAR(50),    -- 'Data Science', 'Web Dev', 'Cloud'
+    level       VARCHAR(20),    -- 'Beginner', 'Advanced'
+    duration_hrs INT
+);
+
+CREATE TABLE dim_date (
+    date_id     INT PRIMARY KEY,
+    full_date   DATE,
+    week_num    INT,
+    month_name  VARCHAR(20),
+    quarter     INT,
+    year        INT,
+    is_weekend  BOOLEAN
+);
+
+CREATE TABLE dim_batch (
+    batch_id    INT PRIMARY KEY,
+    batch_name  VARCHAR(50),    -- 'B2024-Jan', 'B2024-Jul'
+    start_date  DATE,
+    batch_type  VARCHAR(30)     -- 'Weekday', 'Weekend'
+);
+
+-- Now you can answer: "Average completion rate by city for 2024 Q1?"
+SELECT
+    s.city,
+    COUNT(*)                                  AS total_learners,
+    ROUND(AVG(f.score), 1)                    AS avg_score,
+    SUM(CASE WHEN f.is_completed THEN 1 END)  AS completions,
+    ROUND(AVG(f.time_spent_hrs), 1)           AS avg_hrs_spent
+FROM fact_learning f
+JOIN dim_student s ON f.student_id = s.student_id
+JOIN dim_date    d ON f.date_id    = d.date_id
+WHERE d.year = 2024 AND d.quarter = 1
+GROUP BY s.city
+ORDER BY completions DESC;</textarea>
+        <div class="try-footer">
+          <div class="try-hint">💡 This is a real analytics query Vinie could run on GUVI's actual learner data!</div>
+          <div class="try-btns">
+            <button class="reset-btn" onclick="resetEditor('editor3',ex[2])">Reset</button>
+            <button class="run-btn" onclick="showOutput('out3')">▶ Preview Output</button>
+          </div>
+        </div>
+        <div class="try-output" id="out3">
+          <div class="output-label">📊 Sample Result — Learner completion by city Q1 2024</div>
+          <table class="result-table">
+            <thead><tr><th>city</th><th>total_learners</th><th>avg_score</th><th>completions</th><th>avg_hrs_spent</th></tr></thead>
+            <tbody>
+              <tr><td>Chennai</td><td>342</td><td>78.4</td><td>289</td><td>42.3</td></tr>
+              <tr><td>Bangalore</td><td>298</td><td>81.2</td><td>251</td><td>38.7</td></tr>
+              <tr><td>Delhi</td><td>187</td><td>74.9</td><td>143</td><td>31.2</td></tr>
+              <tr><td>Mumbai</td><td>215</td><td>76.8</td><td>172</td><td>35.9</td></tr>
+              <tr><td>Hyderabad</td><td>163</td><td>79.1</td><td>138</td><td>40.1</td></tr>
+            </tbody>
+          </table>
+          <div class="result-msg success" style="margin-top:10px">✅ Star Schema allows this multi-dimension analysis in one clean query. This is the power of DWH design!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 7: Data Mart, Lake, Lakehouse ── -->
+    <div class="section" id="sec7">
+      <div class="section-header">
+        <div class="section-icon" style="background:var(--amber-light)">🏗️</div>
+        <div>
+          <div class="section-num">Topic 7</div>
+          <h2 class="section-title">Data Mart, Data Lake & Data Lakehouse</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+        As companies grow, their data architecture evolves. Here are three terms you'll encounter constantly in the industry — each is a different approach to storing and using big data.
+      </p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:16px 0">
+        <div class="card" style="border-top:3px solid var(--teal-mid)">
+          <div class="card-title">🏪 Data Mart</div>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.6;margin-bottom:10px">A <strong>subset of a data warehouse</strong> focused on one business unit or department.</p>
+          <div style="font-size:13px;color:var(--gray700);line-height:1.8">
+            📌 Think of the full DWH as a supermarket<br>
+            📌 A data mart is one aisle (like "Sales Mart" or "Finance Mart")<br>
+            📌 Each team gets their own focused slice<br>
+            📌 Faster queries since less data to scan<br>
+          </div>
+          <div style="margin-top:10px;padding:8px 12px;background:var(--teal-light);border-radius:8px;font-size:12px;color:var(--teal)">
+            Example: Marketing team has a "Customer Analytics Mart" — only customer + campaign data, not finance data
+          </div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--blue)">
+          <div class="card-title">🏞️ Data Lake</div>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.6;margin-bottom:10px">A <strong>massive raw storage</strong> of ALL data — structured, semi-structured, and unstructured — in its original format.</p>
+          <div style="font-size:13px;color:var(--gray700);line-height:1.8">
+            📌 Dump everything in first, structure it later<br>
+            📌 Stores: SQL data + JSON + images + logs + audio<br>
+            📌 Very cheap storage (object storage like S3)<br>
+            📌 Risk: becomes a "data swamp" if not managed<br>
+          </div>
+          <div style="margin-top:10px;padding:8px 12px;background:var(--blue-light);border-radius:8px;font-size:12px;color:var(--blue)">
+            Example: AWS S3, Azure Data Lake, Google Cloud Storage — all raw data dumped in, processed later by Spark or dbt
+          </div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--purple)">
+          <div class="card-title">🏠 Data Lakehouse</div>
+          <p style="font-size:13px;color:var(--gray700);line-height:1.6;margin-bottom:10px">The <strong>best of both worlds</strong> — lake storage + warehouse query capabilities. The modern standard.</p>
+          <div style="font-size:13px;color:var(--gray700);line-height:1.8">
+            📌 Raw data stored cheaply (like a lake)<br>
+            📌 SQL queries run directly on raw files<br>
+            📌 ACID transactions supported<br>
+            📌 Unified platform for BI + ML + streaming<br>
+          </div>
+          <div style="margin-top:10px;padding:8px 12px;background:var(--purple-light);border-radius:8px;font-size:12px;color:var(--purple)">
+            Example: Databricks Delta Lake, Apache Iceberg, BigLake — increasingly adopted by large companies
+          </div>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-icon">📌</div>
+        <div class="callout-body">
+          <div class="callout-title">Which one will you encounter?</div>
+          <div class="callout-text">
+            <strong>Startups/SMEs:</strong> Often just a Data Warehouse (Bigquery or Redshift)<br>
+            <strong>Mid-size companies:</strong> DWH + Data Marts per team<br>
+            <strong>Large enterprises (Flipkart, Swiggy, Ola):</strong> Data Lake or Lakehouse architecture<br>
+            <strong>As a Data Scientist:</strong> You'll query the DWH or Lakehouse using SQL — this chapter gives you the mental model to understand what's happening behind the scenes.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 8: Modern Data Stack ── -->
+    <div class="section" id="sec8">
+      <div class="section-header">
+        <div class="section-icon" style="background:var(--indigo-light)">🚀</div>
+        <div>
+          <div class="section-num">Topic 8</div>
+          <h2 class="section-title">The Modern Data Stack</h2>
+        </div>
+      </div>
+
+      <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+        The "Modern Data Stack" is the set of tools companies use today to build their data infrastructure.
+        Every tool in this stack uses SQL. This is why SQL is the #1 skill for any data role.
+      </p>
+
+      <div class="flow-diagram" style="flex-direction:column;align-items:stretch;gap:8px">
+        <div style="display:flex;align-items:center;gap:12px;background:var(--blue-light);border-radius:12px;padding:14px 20px">
+          <span style="font-size:22px">📥</span>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px">Layer 1 — Ingestion</div>
+            <div style="font-size:14px;font-weight:600;color:var(--gray900)">Fivetran, Airbyte, Kafka, custom Python scripts</div>
+            <div style="font-size:12px;color:var(--gray500)">Pull data from 100s of sources (Salesforce, MySQL, Stripe, Google Ads) into your warehouse</div>
+          </div>
+        </div>
+        <div style="text-align:center;color:var(--gray300);font-size:20px">↓</div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--teal-light);border-radius:12px;padding:14px 20px">
+          <span style="font-size:22px">🏭</span>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.5px">Layer 2 — Storage & Warehouse</div>
+            <div style="font-size:14px;font-weight:600;color:var(--gray900)">BigQuery, Snowflake, Amazon Redshift, Databricks</div>
+            <div style="font-size:12px;color:var(--gray500)">Centralized, scalable, cloud-native SQL warehouses — query petabytes in seconds</div>
+          </div>
+        </div>
+        <div style="text-align:center;color:var(--gray300);font-size:20px">↓</div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--amber-light);border-radius:12px;padding:14px 20px">
+          <span style="font-size:22px">⚙️</span>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.5px">Layer 3 — Transformation</div>
+            <div style="font-size:14px;font-weight:600;color:var(--gray900)">dbt (Data Build Tool), SQL scripts, Spark SQL</div>
+            <div style="font-size:12px;color:var(--gray500)">Write SQL models to clean and transform raw data into analysis-ready tables — version controlled like code</div>
+          </div>
+        </div>
+        <div style="text-align:center;color:var(--gray300);font-size:20px">↓</div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--indigo-light);border-radius:12px;padding:14px 20px">
+          <span style="font-size:22px">📊</span>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--indigo);text-transform:uppercase;letter-spacing:.5px">Layer 4 — BI & Visualization</div>
+            <div style="font-size:14px;font-weight:600;color:var(--gray900)">Tableau, Power BI, Looker, Metabase, Superset</div>
+            <div style="font-size:12px;color:var(--gray500)">Connect to warehouse, write SQL queries, create dashboards and reports for business teams</div>
+          </div>
+        </div>
+        <div style="text-align:center;color:var(--gray300);font-size:20px">↓</div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--coral-light);border-radius:12px;padding:14px 20px">
+          <span style="font-size:22px">🤖</span>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--coral);text-transform:uppercase;letter-spacing:.5px">Layer 5 — ML & Data Science</div>
+            <div style="font-size:14px;font-weight:600;color:var(--gray900)">Python + SQL, Jupyter notebooks, MLflow, Feature stores</div>
+            <div style="font-size:12px;color:var(--gray500)">Feature engineering from warehouse using SQL → feed into ML models → predictions stored back in warehouse</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Try It 4 -->
+      <div class="try-box" style="margin-top:20px">
+        <div class="try-header">
+          <div class="try-title">✏️ Try It — SQL for ML Feature Engineering from DWH <span class="try-badge">Exercise 4</span></div>
+        </div>
+        <textarea class="try-editor" id="editor4" spellcheck="false">-- Real ML Feature Engineering using DWH SQL
+-- Goal: Build features for a "churn prediction" model
+
+-- Each row = one student, features extracted from DWH
+SELECT
+    s.student_id,
+    s.city,
+    s.education,
+    s.age_group,
+
+    -- Engagement features
+    SUM(f.videos_watched)                    AS total_videos,
+    SUM(f.quizzes_done)                      AS total_quizzes,
+    ROUND(SUM(f.time_spent_hrs), 1)          AS total_hrs,
+    ROUND(AVG(f.score), 2)                   AS avg_score,
+
+    -- Recency feature
+    DATEDIFF(CURDATE(), MAX(d.full_date))    AS days_since_last_activity,
+
+    -- Completion rate
+    ROUND(
+        SUM(CASE WHEN f.is_completed THEN 1 ELSE 0 END)
+        / COUNT(*) * 100, 1
+    )                                        AS completion_rate_pct,
+
+    -- Target variable for churn model
+    CASE
+        WHEN DATEDIFF(CURDATE(), MAX(d.full_date)) > 30 THEN 1
+        ELSE 0
+    END                                      AS is_churned
+
+FROM fact_learning f
+JOIN dim_student s ON f.student_id = s.student_id
+JOIN dim_date    d ON f.date_id    = d.date_id
+GROUP BY s.student_id, s.city, s.education, s.age_group
+
+-- In Python, you'd then do:
+-- df = pd.read_sql(query, engine)
+-- model = RandomForestClassifier()
+-- model.fit(df.drop('is_churned',axis=1), df['is_churned'])</textarea>
+        <div class="try-footer">
+          <div class="try-hint">💡 This SQL creates the ML feature table — run it from Python using pd.read_sql() to feed your model directly!</div>
+          <div class="try-btns">
+            <button class="reset-btn" onclick="resetEditor('editor4',ex[3])">Reset</button>
+            <button class="run-btn" onclick="showOutput('out4')">▶ See Feature Table</button>
+          </div>
+        </div>
+        <div class="try-output" id="out4">
+          <div class="output-label">🤖 ML Feature Table — Ready for Churn Prediction</div>
+          <table class="result-table">
+            <thead><tr><th>student_id</th><th>city</th><th>total_videos</th><th>avg_score</th><th>days_since_last</th><th>completion_%</th><th>is_churned</th></tr></thead>
+            <tbody>
+              <tr><td>101</td><td>Chennai</td><td>48</td><td>82.4</td><td>5</td><td>91.2</td><td style="color:var(--teal);font-weight:600">0</td></tr>
+              <tr><td>102</td><td>Delhi</td><td>12</td><td>54.1</td><td>38</td><td>22.0</td><td style="color:var(--coral);font-weight:600">1</td></tr>
+              <tr><td>103</td><td>Bangalore</td><td>35</td><td>76.8</td><td>11</td><td>68.5</td><td style="color:var(--teal);font-weight:600">0</td></tr>
+              <tr><td>104</td><td>Mumbai</td><td>8</td><td>61.2</td><td>45</td><td>15.0</td><td style="color:var(--coral);font-weight:600">1</td></tr>
+            </tbody>
+          </table>
+          <div class="result-msg success" style="margin-top:10px">✅ SQL from DWH → feature table → pd.read_sql() → ML model. This is the exact pipeline used at tech companies for student/customer churn prediction!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 9: QUIZ ── -->
+    <div class="section" id="sec9">
+      <div class="section-header">
+        <div class="section-icon" style="background:var(--indigo-light)">🧠</div>
+        <div>
+          <div class="section-num">Topic 9</div>
+          <h2 class="section-title">Quiz & Review</h2>
+        </div>
+      </div>
+
+      <div class="quiz-box">
+        <div class="quiz-header">
+          <div style="font-size:18px">🧠</div>
+          <div class="quiz-title">Chapter 2 — Knowledge Check</div>
+          <div class="quiz-count" id="q-count">Question 1 of 8</div>
+        </div>
+        <div class="quiz-body" id="quiz-body"></div>
+        <div class="quiz-nav">
+          <div class="quiz-progress-dots" id="q-dots"></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn" id="prev-btn" onclick="prevQ()" style="display:none">← Prev</button>
+            <button class="btn btn-primary" id="next-btn" onclick="nextQ()" style="display:none">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUMMARY -->
+      <div class="summary-box">
+        <div class="summary-title">✅ Chapter 2 — What You've Learned</div>
+        <div class="summary-grid">
+          <div class="summary-item"><div class="summary-check">✓</div>Why operational DBs aren't enough for analysis</div>
+          <div class="summary-item"><div class="summary-check">✓</div>OLTP vs OLAP — the fundamental difference</div>
+          <div class="summary-item"><div class="summary-check">✓</div>The 4 properties of a Data Warehouse (SINTS)</div>
+          <div class="summary-item"><div class="summary-check">✓</div>ETL pipeline — Extract, Transform, Load</div>
+          <div class="summary-item"><div class="summary-check">✓</div>Fact tables vs Dimension tables</div>
+          <div class="summary-item"><div class="summary-check">✓</div>Star Schema vs Snowflake Schema</div>
+          <div class="summary-item"><div class="summary-check">✓</div>Data Mart, Data Lake, and Data Lakehouse</div>
+          <div class="summary-item"><div class="summary-check">✓</div>The Modern Data Stack — SQL's role at every layer</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAPTER NAV -->
+  <div class="chapter-nav">
+    <div class="nav-card" onclick="window.location='chapter1-database-fundamentals.html'">
+      ‹ <div><div class="nav-card-dir">← Previous</div><div class="nav-card-name">Chapter 1: Database Fundamentals</div></div>
+    </div>
+    <div class="nav-card" onclick="alert('Chapter 3: Normalization — coming next!')">
+      <div><div class="nav-card-dir">Next →</div><div class="nav-card-name">Chapter 3: Normalization (1NF → BCNF)</div></div> ›
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ── SIDEBAR SCROLL SPY ──────────────────────────
+const sids=['sec1','sec2','sec3','sec4','sec5','sec6','sec7','sec8','sec9'];
+window.addEventListener('scroll',()=>{
+  let cur=sids[0];
+  sids.forEach(id=>{const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<120)cur=id;});
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    n.classList.remove('active');
+    if(n.getAttribute('href')==='#'+cur)n.classList.add('active');
+  });
+});
+
+// ── TABS ────────────────────────────────────────
+function switchTab(btn,id){
+  btn.closest('.toggle-demo').querySelectorAll('.toggle-tab').forEach(t=>t.classList.remove('active'));
+  btn.closest('.toggle-demo').querySelectorAll('.toggle-content').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// ── LAYER TOGGLE ────────────────────────────────
+function toggleLayer(el,id){
+  const det=document.getElementById(id);
+  const open=det.classList.contains('open');
+  document.querySelectorAll('.layer-detail').forEach(d=>d.classList.remove('open'));
+  if(!open)det.classList.add('open');
+}
+
+// ── TRY IT ──────────────────────────────────────
+const ex=[
+`-- Simulate a Transform step in SQL
+CREATE TABLE staging_orders (
+    order_id      INT,
+    customer_name VARCHAR(100),
+    city          VARCHAR(50),
+    order_date    VARCHAR(20),
+    amount        VARCHAR(20),
+    gender        VARCHAR(10)
+);
+
+INSERT INTO fact_orders
+SELECT
+    order_id,
+    customer_name,
+    COALESCE(city, 'Unknown')           AS city,
+    STR_TO_DATE(order_date, '%d-%m-%Y') AS order_date,
+    CAST(REPLACE(REPLACE(amount,'₹',''),',','') AS DECIMAL(10,2)) AS amount,
+    CASE
+        WHEN UPPER(gender) IN ('M','MALE')   THEN 'Male'
+        WHEN UPPER(gender) IN ('F','FEMALE') THEN 'Female'
+        ELSE 'Other'
+    END AS gender
+FROM staging_orders
+WHERE order_id IS NOT NULL AND amount IS NOT NULL;`,
+
+`-- OLAP queries using Fact + Dimension tables
+SELECT
+    p.category,
+    COUNT(o.order_id)            AS total_orders,
+    SUM(o.order_amount)          AS total_revenue,
+    ROUND(AVG(o.order_amount),2) AS avg_order_value
+FROM fact_orders o
+JOIN dim_product p ON o.product_id = p.product_id
+JOIN dim_date    d ON o.date_id    = d.date_id
+WHERE d.year = 2024
+GROUP BY p.category
+ORDER BY total_revenue DESC;`,
+
+`-- Star Schema for GUVI LMS
+CREATE TABLE fact_learning (
+    learning_id   BIGINT PRIMARY KEY AUTO_INCREMENT,
+    student_id    INT, course_id INT, date_id INT, batch_id INT,
+    videos_watched INT DEFAULT 0,
+    quizzes_done   INT DEFAULT 0,
+    score          DECIMAL(5,2),
+    time_spent_hrs DECIMAL(5,2),
+    is_completed   BOOLEAN DEFAULT FALSE
+);`,
+
+`-- ML Feature Engineering from DWH
+SELECT
+    s.student_id, s.city, s.education,
+    SUM(f.videos_watched)   AS total_videos,
+    ROUND(AVG(f.score), 2)  AS avg_score,
+    DATEDIFF(CURDATE(), MAX(d.full_date)) AS days_since_last_activity,
+    CASE WHEN DATEDIFF(CURDATE(),MAX(d.full_date))>30 THEN 1 ELSE 0 END AS is_churned
+FROM fact_learning f
+JOIN dim_student s ON f.student_id = s.student_id
+JOIN dim_date    d ON f.date_id    = d.date_id
+GROUP BY s.student_id, s.city, s.education;`
+];
+
+function resetEditor(id,val){document.getElementById(id).value=val;}
+function showOutput(id){
+  document.getElementById(id).classList.add('visible');
+  document.getElementById(id).scrollIntoView({behavior:'smooth',block:'nearest'});
+  updateProgress();
+}
+
+// ── OLTP/OLAP SCENARIOS ─────────────────────────
+const scenarios=[
+  {q:'A customer places an order on Meesho',correct:'oltp',exp:'✅ OLTP — a single fast transaction: insert one row into orders table. Needs to complete in milliseconds.'},
+  {q:'Finance team queries: "Revenue by state for all of FY2023"',correct:'olap',exp:'✅ OLAP — complex aggregation across months of historical data. Analytical query, acceptable in seconds.'},
+  {q:'Cashier at SBI scans your account balance at ATM',correct:'oltp',exp:'✅ OLTP — real-time single row lookup. Must be instant. Any delay is unacceptable at an ATM.'},
+  {q:'Data scientist analyzes customer churn patterns over 3 years',correct:'olap',exp:'✅ OLAP — scanning millions of historical records to find patterns. This is analytics, not a transaction.'},
+  {q:'A student submits a quiz on GUVI platform',correct:'oltp',exp:'✅ OLTP — inserting one quiz result record in real-time. Fast, transactional.'},
+  {q:'CEO dashboard showing monthly active users trend for 2024',correct:'olap',exp:'✅ OLAP — aggregating user activity data across an entire year. BI dashboard = analytics = OLAP.'},
+];
+let scIdx=0;
+function renderScenario(){
+  if(scIdx>=scenarios.length){
+    document.getElementById('scenarios').innerHTML='<div class="result-msg success" style="display:flex;margin:8px 0">🎉 All done! You correctly classified all scenarios. OLTP = fast transactions. OLAP = complex analysis.</div>';
+    updateProgress();return;
+  }
+  const sc=scenarios[scIdx];
+  document.getElementById('scenarios').innerHTML=`
+    <div style="font-size:13px;color:var(--gray500);margin-bottom:8px">Scenario ${scIdx+1} of ${scenarios.length}</div>
+    <div style="font-size:14px;font-weight:500;color:var(--gray900);margin-bottom:14px;padding:12px;background:var(--gray50);border-radius:8px">📌 ${sc.q}</div>
+    <div class="scenario-options">
+      <button class="scenario-btn oltp" onclick="checkScenario('oltp')">⚡ OLTP — Transactional</button>
+      <button class="scenario-btn olap" onclick="checkScenario('olap')">📊 OLAP — Analytical</button>
+    </div>
+    <div class="scenario-result" id="sc-result"></div>`;
+}
+function checkScenario(ans){
+  const sc=scenarios[scIdx];
+  const res=document.getElementById('sc-result');
+  res.className='scenario-result show';
+  if(ans===sc.correct){
+    res.style.background=`var(--teal-light)`;res.style.color=`var(--teal)`;
+    res.innerHTML=sc.exp;
+  }else{
+    res.style.background=`var(--coral-light)`;res.style.color=`var(--coral)`;
+    res.innerHTML=`❌ Not quite. ${sc.exp}`;
+  }
+  setTimeout(()=>{scIdx++;renderScenario();},2000);
+}
+renderScenario();
+
+// ── QUIZ ────────────────────────────────────────
+const questions=[
+  {q:'What is the main purpose of a Data Warehouse compared to a regular operational database?',opts:['To handle more concurrent users','To store and analyze large volumes of historical data for business intelligence','To replace MySQL and PostgreSQL entirely','To make INSERT operations faster'],correct:1,exp:'✅ A Data Warehouse is specifically designed for analytical queries on historical data — not for day-to-day transactional operations. It powers BI dashboards, trend analysis, and reporting.'},
+  {q:'Which of these is an OLAP use case?',opts:['A customer logging into their Paytm account','Processing a UPI payment in real-time','Analyzing monthly transaction trends across all states for the past 2 years','Updating a customer\'s address in the database'],correct:2,exp:'✅ Analyzing trends across months and states is a classic OLAP use case — complex aggregation on historical data. The others are OLTP — fast, real-time single-record operations.'},
+  {q:'According to Bill Inmon, which of these is NOT one of the 4 properties of a Data Warehouse?',opts:['Subject-Oriented','Integrated','Real-Time','Non-Volatile'],correct:2,exp:'✅ The 4 properties are: Subject-Oriented, Integrated, Non-Volatile, and Time-Variant. "Real-Time" is NOT one of them — data warehouses are typically refreshed in batches (hourly, daily), not real-time.'},
+  {q:'In ETL, what does the "Transform" step involve?',opts:['Pulling data from source systems','Loading data into the warehouse','Cleaning, standardizing, and reshaping raw data','Deleting old records from the warehouse'],correct:2,exp:'✅ Transform is the heavy lifting step — fixing formats, handling NULLs, standardizing values, deduplicating records, and applying business logic before loading clean data into the warehouse.'},
+  {q:'In a Star Schema for an e-commerce DWH, which table would store the "total sale amount" and "quantity sold"?',opts:['dim_product','dim_customer','fact_orders','dim_date'],correct:2,exp:'✅ Fact tables store the measurable, quantitative data — amounts, quantities, counts. Dimension tables store descriptive context (who, what, when, where). The fact table is the center of the star.'},
+  {q:'What is the key difference between Star Schema and Snowflake Schema?',opts:['Star Schema has no fact table','Snowflake Schema uses normalized dimension tables (split further)','Star Schema only works with MySQL','Snowflake Schema is faster for all queries'],correct:1,exp:'✅ In Snowflake Schema, dimension tables are further normalized into sub-tables (e.g., dim_product → dim_category → dim_subcategory). This reduces redundancy but requires more JOINs. Star Schema keeps dimensions flat (denormalized) for simpler, faster queries.'},
+  {q:'A company stores ALL their raw data — logs, images, JSON from APIs, and SQL exports — in Amazon S3 in original format. What is this called?',opts:['Data Warehouse','Data Mart','Data Lake','Data Catalog'],correct:2,exp:'✅ A Data Lake stores data of all types (structured, unstructured, semi-structured) in raw format at massive scale. Amazon S3, Azure Data Lake, Google Cloud Storage are common data lake platforms.'},
+  {q:'Which tool in the Modern Data Stack is specifically used for SQL-based data transformations inside the warehouse?',opts:['Fivetran','Tableau','dbt (Data Build Tool)','Kafka'],correct:2,exp:'✅ dbt (Data Build Tool) allows data teams to write SQL models that transform raw data inside the warehouse. It brings software engineering practices (version control, testing, documentation) to SQL transformations. It\'s the "T" in modern ELT.'},
+];
+let cQ=0;const ans=new Array(questions.length).fill(null);
+function renderQuiz(){
+  const q=questions[cQ];
+  document.getElementById('q-count').textContent=`Question ${cQ+1} of ${questions.length}`;
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="quiz-q">${cQ+1}. ${q.q}</div>
+    <div class="quiz-options">${q.opts.map((o,i)=>`
+      <button class="quiz-opt ${ans[cQ]===i?(i===q.correct?'correct':'wrong'):''}"
+              onclick="ansQ(${i})" ${ans[cQ]!==null?'disabled':''}>
+        <div class="opt-letter">${['A','B','C','D'][i]}</div>${o}
+      </button>`).join('')}</div>
+    <div class="quiz-feedback ${ans[cQ]!==null?'show':''} ${ans[cQ]===q.correct?'correct':'wrong'}">
+      ${ans[cQ]!==null?q.exp:''}
+    </div>`;
+  document.getElementById('q-dots').innerHTML=questions.map((_,i)=>`
+    <div class="q-dot ${i===cQ?'active':ans[i]===null?'':(ans[i]===questions[i].correct?'done-c':'done-w')}"></div>`).join('');
+  document.getElementById('prev-btn').style.display=cQ>0?'block':'none';
+  document.getElementById('next-btn').style.display=ans[cQ]!==null&&cQ<questions.length-1?'block':'none';
+}
+function ansQ(i){if(ans[cQ]!==null)return;ans[cQ]=i;updateProgress();renderQuiz();}
+function nextQ(){if(cQ<questions.length-1){cQ++;renderQuiz();}}
+function prevQ(){if(cQ>0){cQ--;renderQuiz();}}
+
+// ── PROGRESS ────────────────────────────────────
+function updateProgress(){
+  const outs=document.querySelectorAll('.try-output.visible').length;
+  const answered=ans.filter(a=>a!==null).length;
+  const sceneDone=scIdx;
+  const total=ex.length+questions.length+1;
+  const done=outs+answered+(scIdx>=scenarios.length?1:0);
+  const pct=Math.min(100,Math.round(done/total*100));
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+
+renderQuiz();
+</script>
+</body>
+</html>

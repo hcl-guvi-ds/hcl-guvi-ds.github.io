@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 5 — DDL: Data Definition Language | SQL Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#0F6E56;--teal-mid:#1D9E75;--teal-light:#E1F5EE;--teal-soft:#f0faf6;
+  --blue:#185FA5;--blue-light:#E6F1FB;--indigo:#534AB7;--indigo-light:#EEEDFE;
+  --amber:#BA7517;--amber-light:#FAEEDA;--coral:#993C1D;--coral-light:#FAECE7;
+  --purple:#7C3AED;--purple-light:#EDE9FE;--green:#16A34A;--green-light:#DCFCE7;
+  --red:#DC2626;--red-light:#FEE2E2;--orange:#C2410C;--orange-light:#FFEDD5;
+  --gray900:#1a1a1a;--gray700:#3d3d3d;--gray500:#6b6b6b;--gray300:#c8c8c8;
+  --gray100:#f4f4f4;--gray50:#fafafa;--white:#fff;--border:#e8e8e8;
+  --radius:10px;--radius-lg:16px;--shadow:0 2px 12px rgba(0,0,0,.07);
+  --font:'Inter',sans-serif;--mono:'Fira Code',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:#f7f8fa;color:var(--gray900);font-size:15px;line-height:1.7}
+.shell{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:260px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.brand-tag{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--teal);text-transform:uppercase;margin-bottom:4px}
+.brand-title{font-size:15px;font-weight:700;color:var(--gray900)}
+.brand-sub{font-size:11px;color:var(--gray500);margin-top:2px}
+.sidebar-progress{padding:12px 20px;border-bottom:1px solid var(--border)}
+.prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--gray500);margin-bottom:6px}
+.prog-bar{height:4px;background:var(--gray100);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal-mid),var(--blue));border-radius:4px;transition:width .5s}
+.sidebar-nav{padding:12px 0;flex:1}
+.nav-section{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--gray300);text-transform:uppercase;padding:8px 20px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 20px;font-size:13px;color:var(--gray500);cursor:pointer;border-left:3px solid transparent;transition:all .15s;text-decoration:none}
+.nav-item:hover{color:var(--teal);background:var(--teal-soft)}
+.nav-item.active{color:var(--teal);background:var(--teal-light);border-left-color:var(--teal-mid);font-weight:500}
+.nav-num{width:20px;height:20px;border-radius:50%;background:var(--gray100);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;color:var(--gray500)}
+.nav-item.active .nav-num{background:var(--teal-light);color:var(--teal)}
+
+/* MAIN */
+.main{margin-left:260px;flex:1}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-breadcrumb{font-size:12px;color:var(--gray500)}
+.topbar-breadcrumb span{color:var(--gray900);font-weight:500}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+.meta-chip{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray500);background:var(--gray50);border:1px solid var(--border);padding:5px 12px;border-radius:20px}
+
+/* HERO */
+.chapter-hero{background:var(--white);border-bottom:1px solid var(--border);padding:48px 40px 36px}
+.hero-phase{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--teal);text-transform:uppercase;margin-bottom:10px}
+.hero-title{font-size:32px;font-weight:700;color:var(--gray900);line-height:1.25;margin-bottom:12px}
+.hero-title span{color:var(--teal-mid)}
+.hero-desc{font-size:15px;color:var(--gray500);max-width:640px;line-height:1.7;margin-bottom:24px}
+.hero-meta{display:flex;gap:12px;flex-wrap:wrap}
+
+/* CONTENT */
+.content{padding:40px 40px 80px;max-width:920px}
+.section{margin-bottom:60px;scroll-margin-top:80px}
+.section-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:14px;border-bottom:2px solid var(--teal-light)}
+.section-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.section-num{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.section-title{font-size:22px;font-weight:700;color:var(--gray900)}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:20px}
+.card-title{font-size:15px;font-weight:600;color:var(--gray900);margin-bottom:12px}
+
+/* CALLOUTS */
+.callout{border-radius:var(--radius);padding:16px 20px;margin:20px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.callout-body{flex:1}
+.callout-title{font-weight:600;font-size:14px;margin-bottom:4px}
+.callout-text{font-size:13px;line-height:1.6}
+.callout.tip{background:var(--teal-light);color:var(--teal);border-left:3px solid var(--teal-mid)}
+.callout.info{background:var(--blue-light);color:var(--blue);border-left:3px solid var(--blue)}
+.callout.warning{background:var(--amber-light);color:var(--amber);border-left:3px solid var(--amber)}
+.callout.danger{background:var(--red-light);color:var(--red);border-left:3px solid var(--red)}
+.callout.example{background:var(--indigo-light);color:var(--indigo);border-left:3px solid var(--indigo)}
+.callout.good{background:var(--green-light);color:var(--green);border-left:3px solid var(--green)}
+
+/* REAL WORLD */
+.real-world{background:var(--white);border:1px solid var(--border);border-left:4px solid var(--teal-mid);border-radius:var(--radius);padding:20px 24px;margin:20px 0}
+.rw-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:8px}
+.rw-title{font-size:16px;font-weight:700;color:var(--gray900);margin-bottom:8px}
+.rw-body{font-size:13px;color:var(--gray700);line-height:1.7}
+
+/* CODE BLOCKS */
+.code-block{background:#1e2030;border-radius:var(--radius);overflow:hidden;margin:16px 0;font-family:var(--mono);font-size:13px}
+.code-header{background:#272a3f;padding:9px 16px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#7a8ba8;font-family:var(--font)}
+.code-lang{background:rgba(255,255,255,.08);padding:2px 8px;border-radius:4px;font-weight:500}
+.code-body{padding:16px;color:#cdd6f4;line-height:1.75;overflow-x:auto;white-space:pre}
+.kw{color:#89b4fa}.str{color:#a6e3a1}.cm{color:#6c7086;font-style:italic}.fn{color:#f38ba8}.nm{color:#fab387}.op{color:#89dceb}.tbl{color:#cba6f7}.cn{color:#f9e2af}
+
+/* SYNTAX BOX */
+.syntax-box{background:var(--gray900);border-radius:var(--radius);padding:18px 20px;margin:16px 0;position:relative;font-family:var(--mono);font-size:13px;line-height:2}
+.syntax-box .s-kw{color:#89b4fa;font-weight:700}
+.syntax-box .s-ph{color:#fab387;font-style:italic}
+.syntax-box .s-opt{color:#6c7086}
+.syntax-label{position:absolute;top:-10px;left:14px;background:var(--teal-mid);color:white;font-size:10px;font-weight:700;padding:2px 10px;border-radius:4px;font-family:var(--font);letter-spacing:.5px}
+
+/* TRY IT */
+.try-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:20px 0}
+.try-header{background:linear-gradient(135deg,#1e2030,#272a3f);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;color:white;flex-wrap:wrap;gap:8px}
+.try-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.try-badge{font-size:10px;background:var(--teal-mid);color:white;padding:2px 8px;border-radius:4px;font-weight:600}
+.try-editor{min-height:110px;background:#1e2030;padding:14px 16px;font-family:var(--mono);font-size:13px;color:#cdd6f4;border:none;outline:none;resize:vertical;width:100%;line-height:1.75}
+.try-footer{background:var(--gray50);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.try-hint{font-size:12px;color:var(--gray500)}
+.try-btns{display:flex;gap:8px}
+.run-btn{background:var(--teal-mid);color:white;border:none;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:background .15s}
+.run-btn:hover{background:var(--teal)}
+.reset-btn{background:transparent;color:var(--gray500);border:1px solid var(--border);padding:8px 14px;border-radius:7px;font-size:13px;cursor:pointer;font-family:var(--font)}
+.reset-btn:hover{background:var(--gray100)}
+.try-output{border-top:1px solid var(--border);background:var(--white);padding:16px 18px;display:none}
+.try-output.visible{display:block}
+.output-label{font-size:11px;font-weight:600;color:var(--gray500);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.result-msg{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;margin-bottom:6px;line-height:1.5}
+.result-msg.success{background:var(--teal-light);color:var(--teal)}
+.result-msg.info{background:var(--blue-light);color:var(--blue)}
+.result-msg.warn{background:var(--amber-light);color:var(--amber)}
+.result-msg.danger{background:var(--red-light);color:var(--red)}
+
+/* SCHEMA VISUAL */
+.schema-visual{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin:16px 0}
+.sv-title{font-size:12px;font-weight:600;color:var(--gray500);text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.sv-table{border-radius:10px;overflow:hidden;border:2px solid var(--teal-mid);display:inline-block;min-width:200px;font-size:13px;box-shadow:var(--shadow);margin:6px}
+.sv-head{background:var(--teal-mid);color:white;padding:10px 16px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+.sv-col{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--border);font-size:12px;color:var(--gray700)}
+.sv-col:last-child{border-bottom:none}
+.sv-col .col-name{font-weight:600;color:var(--gray900);min-width:110px}
+.sv-col .col-type{font-family:var(--mono);font-size:11px;color:var(--blue);background:var(--blue-light);padding:1px 6px;border-radius:4px}
+.sv-col .col-constraint{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:auto}
+.pk-badge{background:var(--teal-light);color:var(--teal)}
+.fk-badge{background:var(--blue-light);color:var(--blue)}
+.nn-badge{background:var(--amber-light);color:var(--amber)}
+.uq-badge{background:var(--indigo-light);color:var(--indigo)}
+.df-badge{background:var(--green-light);color:var(--green)}
+.ck-badge{background:var(--purple-light);color:var(--purple)}
+
+/* COMPARE TABLE */
+.cmp-table{width:100%;border-collapse:collapse;font-size:13px;background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin:16px 0}
+.cmp-table th{padding:11px 16px;text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.cmp-table td{padding:10px 16px;border-bottom:1px solid var(--gray100);color:var(--gray700);vertical-align:top;line-height:1.5}
+.cmp-table tr:last-child td{border-bottom:none}
+.cmp-table tr:hover td{background:var(--gray50)}
+.cmp-table td:first-child{font-family:var(--mono);font-weight:700;font-size:12px;white-space:nowrap}
+
+/* DANGER ZONE */
+.danger-zone{background:var(--red-light);border:2px solid var(--red);border-radius:var(--radius-lg);padding:20px 24px;margin:20px 0}
+.dz-title{font-size:15px;font-weight:700;color:var(--red);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.dz-body{font-size:13px;color:var(--red);line-height:1.7}
+
+/* CONSTRAINT GRID */
+.constraint-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:16px 0}
+.constraint-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.constraint-head{padding:12px 16px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+.constraint-body{padding:12px 16px;font-size:13px;color:var(--gray700);line-height:1.6}
+.constraint-example{font-family:var(--mono);font-size:11px;background:var(--gray50);padding:6px 10px;border-radius:6px;margin-top:8px;color:var(--gray700)}
+
+/* FK VISUAL */
+.fk-diagram{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;align-items:flex-start;margin:20px 0;padding:20px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg)}
+.fk-table{border-radius:10px;overflow:hidden;border:2px solid var(--border);min-width:170px;font-size:12px}
+.fk-thead{padding:9px 14px;font-weight:700;font-size:13px;color:white}
+.fk-col{padding:7px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.fk-col:last-child{border-bottom:none}
+.fk-arrow-col{display:flex;align-items:center;padding:0 8px;font-size:24px;color:var(--teal-mid)}
+
+/* CASCADE VISUAL */
+.cascade-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:16px 0}
+.cascade-head{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cascade-title{font-size:14px;font-weight:600;color:var(--gray900)}
+.cascade-tabs{display:flex;gap:4px}
+.ctab{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--gray500);font-family:var(--font);transition:all .15s}
+.ctab.active{background:var(--teal-light);color:var(--teal);border-color:var(--teal-mid)}
+.cascade-body{padding:18px;display:none}
+.cascade-body.active{display:block}
+.cascade-flow{display:flex;align-items:center;gap:8px;padding:12px;background:var(--gray50);border-radius:8px;font-size:13px;flex-wrap:wrap;margin-bottom:8px}
+.cascade-action{font-weight:700;padding:4px 10px;border-radius:6px}
+
+/* ALTER VISUAL */
+.alter-demo{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:16px 0}
+.alter-tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto}
+.atab{padding:10px 16px;font-size:12px;font-weight:500;cursor:pointer;color:var(--gray500);border-bottom:2px solid transparent;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font);transition:all .15s}
+.atab.active{color:var(--teal);border-bottom-color:var(--teal-mid)}
+.alter-content{display:none;padding:18px}
+.alter-content.active{display:block}
+
+/* INDEX VISUAL */
+.index-compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.idx-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px}
+.idx-title{font-size:13px;font-weight:700;margin-bottom:10px}
+.idx-row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;font-size:12px;margin-bottom:4px;font-family:var(--mono)}
+
+/* TERM GRID */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:16px 0}
+.term-card{background:var(--gray50);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.term-word{font-size:13px;font-weight:700;color:var(--teal);font-family:var(--mono);margin-bottom:4px}
+.term-def{font-size:12px;color:var(--gray700);line-height:1.5}
+.term-eg{font-size:11px;color:var(--gray500);margin-top:4px;font-family:var(--mono)}
+
+/* QUIZ */
+.quiz-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:24px 0}
+.quiz-header{background:var(--indigo-light);padding:14px 20px;display:flex;align-items:center;gap:10px}
+.quiz-title{font-size:14px;font-weight:600;color:var(--indigo)}
+.quiz-count{font-size:12px;color:var(--indigo);opacity:.7;margin-left:auto}
+.quiz-body{padding:20px}
+.quiz-q{font-size:14px;font-weight:500;color:var(--gray900);margin-bottom:14px;line-height:1.6}
+.quiz-options{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.quiz-opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--gray700);transition:all .15s;background:var(--white);text-align:left;font-family:var(--font);line-height:1.5;width:100%}
+.quiz-opt:hover{border-color:var(--indigo);color:var(--indigo);background:var(--indigo-light)}
+.quiz-opt.correct{border-color:var(--teal-mid);background:var(--teal-light);color:var(--teal)}
+.quiz-opt.wrong{border-color:var(--coral);background:var(--coral-light);color:var(--coral)}
+.opt-letter{width:22px;height:22px;border-radius:50%;background:var(--gray100);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:var(--gray500)}
+.quiz-opt.correct .opt-letter{background:var(--teal-mid);color:white}
+.quiz-opt.wrong .opt-letter{background:var(--coral);color:white}
+.quiz-feedback{display:none;padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.5;margin-top:4px}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:var(--teal-light);color:var(--teal)}
+.quiz-feedback.wrong{background:var(--coral-light);color:var(--coral)}
+.quiz-nav{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-top:1px solid var(--border);background:var(--gray50)}
+.quiz-progress-dots{display:flex;gap:6px}
+.q-dot{width:8px;height:8px;border-radius:50%;background:var(--gray300);transition:all .2s}
+.q-dot.active{background:var(--indigo);transform:scale(1.3)}
+.q-dot.done-c{background:var(--teal-mid)}
+.q-dot.done-w{background:var(--coral)}
+.btn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--gray700);font-family:var(--font);transition:all .15s}
+.btn:hover{background:var(--gray100)}
+.btn-primary{background:var(--teal-mid);color:white;border-color:var(--teal-mid)}
+.btn-primary:hover{background:var(--teal)}
+
+/* CHEATSHEET */
+.cheatsheet{background:var(--gray900);border-radius:var(--radius-lg);padding:24px 28px;margin:20px 0;color:#cdd6f4}
+.cs-title{font-size:14px;font-weight:600;color:white;margin-bottom:16px}
+.cs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.cs-item{background:rgba(255,255,255,.05);border-radius:8px;padding:12px 14px}
+.cs-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#7a8ba8;margin-bottom:6px}
+.cs-code{font-family:var(--mono);font-size:12px;line-height:1.8;color:#cdd6f4;white-space:pre}
+.cs-code .kw{color:#89b4fa;font-weight:700}
+.cs-code .ph{color:#fab387}
+.cs-code .str{color:#a6e3a1}
+.cs-code .cm{color:#6c7086}
+
+/* SUMMARY */
+.summary-box{background:linear-gradient(135deg,var(--teal-soft),var(--blue-light));border:1px solid var(--teal-light);border-radius:var(--radius-lg);padding:24px 28px;margin:32px 0 0}
+.summary-title{font-size:16px;font-weight:700;color:var(--gray900);margin-bottom:16px}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.summary-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--gray700);line-height:1.5}
+.summary-check{width:20px;height:20px;border-radius:50%;background:var(--teal-mid);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px}
+
+/* CHAPTER NAV */
+.chapter-nav{background:var(--white);border-top:1px solid var(--border);padding:24px 40px;display:flex;justify-content:space-between;align-items:center}
+.nav-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;font-size:13px;color:var(--gray700);transition:all .15s;min-width:200px}
+.nav-card:hover{border-color:var(--teal-mid);color:var(--teal)}
+.nav-card-dir{font-size:11px;color:var(--gray300);margin-bottom:2px}
+.nav-card-name{font-weight:600}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .main{margin-left:0}
+  .content{padding:24px 20px 60px}
+  .chapter-hero{padding:32px 20px 24px}
+  .topbar{padding:12px 20px}
+  .index-compare{grid-template-columns:1fr}
+  .hero-title{font-size:24px}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-tag">HCL GUVI · SQL Mastery · Phase 2</div>
+    <div class="brand-title">Chapter 5</div>
+    <div class="brand-sub">DDL — Data Definition Language</div>
+  </div>
+  <div class="sidebar-progress">
+    <div class="prog-label"><span>Progress</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Topics</div>
+    <a class="nav-item active" href="#sec1"><div class="nav-num">1</div>DDL Overview</a>
+    <a class="nav-item" href="#sec2"><div class="nav-num">2</div>CREATE DATABASE</a>
+    <a class="nav-item" href="#sec3"><div class="nav-num">3</div>Data Types</a>
+    <a class="nav-item" href="#sec4"><div class="nav-num">4</div>CREATE TABLE</a>
+    <a class="nav-item" href="#sec5"><div class="nav-num">5</div>Constraints</a>
+    <a class="nav-item" href="#sec6"><div class="nav-num">6</div>PRIMARY KEY</a>
+    <a class="nav-item" href="#sec7"><div class="nav-num">7</div>FOREIGN KEY</a>
+    <a class="nav-item" href="#sec8"><div class="nav-num">8</div>ON DELETE Actions</a>
+    <a class="nav-item" href="#sec9"><div class="nav-num">9</div>ALTER TABLE</a>
+    <a class="nav-item" href="#sec10"><div class="nav-num">10</div>DROP, TRUNCATE, DELETE</a>
+    <a class="nav-item" href="#sec11"><div class="nav-num">11</div>RENAME</a>
+    <a class="nav-item" href="#sec12"><div class="nav-num">12</div>CREATE INDEX</a>
+    <a class="nav-item" href="#sec13"><div class="nav-num">13</div>Cheatsheet & Quiz</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-breadcrumb">SQL Mastery › Phase 2 › <span>Chapter 5 — DDL</span></div>
+    <div class="topbar-actions">
+      <div class="meta-chip"><span style="width:6px;height:6px;border-radius:50%;background:#185FA5;display:inline-block"></span>Intermediate</div>
+      <div class="meta-chip">⏱ ~70 min</div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="chapter-hero">
+    <div class="hero-phase">Phase 2 · Chapter 5 of 22</div>
+    <h1 class="hero-title">DDL — <span>Data Definition Language</span></h1>
+    <p class="hero-desc">DDL is where you build the skeleton of your database — creating tables, defining columns, setting constraints, adding indexes, and modifying structure. Every data engineer, DBA, and backend developer writes DDL daily. Master this chapter and you'll be designing production-grade schemas from scratch.</p>
+    <div class="hero-meta">
+      <div class="meta-chip">📚 13 Topics</div>
+      <div class="meta-chip">🏗️ Schema Builder</div>
+      <div class="meta-chip">🇮🇳 Indian Examples</div>
+      <div class="meta-chip">🧠 12 Quiz Questions</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- ── SECTION 1: DDL OVERVIEW ── -->
+  <div class="section" id="sec1">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--teal-light)">🏗️</div>
+      <div><div class="section-num">Topic 1</div><h2 class="section-title">DDL Overview — What & Why</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <strong>DDL (Data Definition Language)</strong> is the set of SQL commands used to <strong>define and manage the structure</strong> of a database — tables, columns, indexes, constraints, and databases themselves. DDL doesn't touch the data — it builds the container that holds data.
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:20px 0">
+      <div style="background:var(--white);border:2px solid var(--teal-mid);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">🏗️</div>
+        <div style="font-weight:700;font-size:14px;color:var(--teal);font-family:var(--mono)">CREATE</div>
+        <div style="font-size:12px;color:var(--gray500);margin-top:4px">Build new databases, tables, indexes</div>
+      </div>
+      <div style="background:var(--white);border:2px solid var(--blue);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">✏️</div>
+        <div style="font-weight:700;font-size:14px;color:var(--blue);font-family:var(--mono)">ALTER</div>
+        <div style="font-size:12px;color:var(--gray500);margin-top:4px">Modify existing table structure</div>
+      </div>
+      <div style="background:var(--white);border:2px solid var(--coral);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">🗑️</div>
+        <div style="font-weight:700;font-size:14px;color:var(--coral);font-family:var(--mono)">DROP</div>
+        <div style="font-size:12px;color:var(--gray500);margin-top:4px">Delete tables, databases, indexes</div>
+      </div>
+      <div style="background:var(--white);border:2px solid var(--amber);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">🔄</div>
+        <div style="font-weight:700;font-size:14px;color:var(--amber);font-family:var(--mono)">TRUNCATE</div>
+        <div style="font-size:12px;color:var(--gray500);margin-top:4px">Empty all rows, keep structure</div>
+      </div>
+      <div style="background:var(--white);border:2px solid var(--indigo);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">📝</div>
+        <div style="font-weight:700;font-size:14px;color:var(--indigo);font-family:var(--mono)">RENAME</div>
+        <div style="font-size:12px;color:var(--gray500);margin-top:4px">Rename tables or columns</div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">DDL is Auto-Committed</div>
+        <div class="callout-text">Unlike DML (INSERT/UPDATE/DELETE) which you can ROLLBACK, most DDL commands in MySQL are <strong>auto-committed immediately</strong> — there's no "undo." DROP TABLE? Gone forever. This is why careful DDL usage is critical. Always test on staging environments before production!</div>
+      </div>
+    </div>
+
+    <div class="real-world">
+      <div class="rw-label">🇮🇳 Real-World Scenario</div>
+      <div class="rw-title">When do Data Scientists write DDL?</div>
+      <div class="rw-body">
+        ✅ Creating tables to store scraped data from e-commerce sites<br>
+        ✅ Setting up staging tables for ETL pipelines<br>
+        ✅ Adding columns to store ML prediction scores<br>
+        ✅ Creating index on a slow-performing column after profiling<br>
+        ✅ Modifying table structure as requirements evolve<br>
+        ✅ Building the GUVI LMS schema from scratch for a new batch
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2: CREATE DATABASE ── -->
+  <div class="section" id="sec2">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--blue-light)">🏛️</div>
+      <div><div class="section-num">Topic 2</div><h2 class="section-title">CREATE DATABASE & SCHEMA</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Before creating tables, you need a <strong>database</strong> to hold them. A database is the top-level container — it groups related tables together. In MySQL, DATABASE and SCHEMA are synonymous.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header"><span>CREATE DATABASE — Full Syntax</span><span class="code-lang">MySQL</span></div>
+      <div class="code-body"><span class="cm">-- Create a new database</span>
+<span class="kw">CREATE DATABASE</span> <span class="tbl">guvi_lms</span>;
+
+<span class="cm">-- Safe version: only creates if it doesn't already exist</span>
+<span class="kw">CREATE DATABASE IF NOT EXISTS</span> <span class="tbl">guvi_lms</span>;
+
+<span class="cm">-- With character set (UTF-8 supports all Indian languages!)</span>
+<span class="kw">CREATE DATABASE</span> <span class="tbl">guvi_lms</span>
+    <span class="kw">CHARACTER SET</span> utf8mb4
+    <span class="kw">COLLATE</span> utf8mb4_unicode_ci;
+
+<span class="cm">-- Switch to using this database</span>
+<span class="kw">USE</span> <span class="tbl">guvi_lms</span>;
+
+<span class="cm">-- See all databases</span>
+<span class="kw">SHOW DATABASES</span>;
+
+<span class="cm">-- See current database</span>
+<span class="kw">SELECT DATABASE</span>();
+
+<span class="cm">-- Drop a database (⚠️ IRREVERSIBLE!)</span>
+<span class="kw">DROP DATABASE IF EXISTS</span> <span class="tbl">guvi_lms</span>;</div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">Always use utf8mb4 for Indian applications</div>
+        <div class="callout-text"><code>utf8mb4</code> supports all Unicode characters including Hindi, Tamil, Telugu, and even emojis! The older <code>utf8</code> in MySQL only supports up to 3-byte characters. For any app that stores Indian language text, always specify <code>CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci</code>.</div>
+      </div>
+    </div>
+
+    <div class="try-box">
+      <div class="try-header"><div class="try-title">✏️ Try It — Create and Inspect Databases <span class="try-badge">Exercise 1</span></div></div>
+      <textarea class="try-editor" id="e1" spellcheck="false">-- Step 1: Create the GUVI Learning Management System database
+CREATE DATABASE IF NOT EXISTS guvi_lms
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
+-- Step 2: Select it as the active database
+USE guvi_lms;
+
+-- Step 3: See all available databases
+SHOW DATABASES;
+
+-- PostgreSQL equivalent (uses SCHEMA instead):
+-- CREATE SCHEMA guvi_lms;
+-- SET search_path TO guvi_lms;
+
+-- SQLite doesn't have separate databases — each .db file IS a database
+-- In SQLite: just open/create the file: sqlite3 guvi_lms.db</textarea>
+      <div class="try-footer">
+        <div class="try-hint">💡 In tools like MySQL Workbench, you'll see the new DB appear in the left panel after CREATE DATABASE</div>
+        <div class="try-btns">
+          <button class="reset-btn" onclick="resetE('e1',0)">Reset</button>
+          <button class="run-btn" onclick="showOut('o1')">▶ See Output</button>
+        </div>
+      </div>
+      <div class="try-output" id="o1">
+        <div class="output-label">Expected Output</div>
+        <div class="result-msg success">✅ Database 'guvi_lms' created successfully with utf8mb4 charset</div>
+        <div class="result-msg info">📋 SHOW DATABASES → information_schema | guvi_lms | mysql | performance_schema | sys</div>
+        <div class="result-msg success">✅ USE guvi_lms → Database changed. Now all CREATE TABLE commands will create tables inside guvi_lms.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3: DATA TYPES ── -->
+  <div class="section" id="sec3">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--amber-light)">🔢</div>
+      <div><div class="section-num">Topic 3</div><h2 class="section-title">Choosing the Right Data Types</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Every column in a table has a <strong>data type</strong> that tells MySQL what kind of value to store and how to store it. Choosing the right type saves storage space and makes queries faster.
+    </p>
+
+    <table class="cmp-table">
+      <thead><tr style="background:var(--teal-mid);color:white"><th>Type</th><th>Use For</th><th>Storage</th><th>Indian Example</th></tr></thead>
+      <tbody>
+        <tr style="background:var(--teal-soft)"><td colspan="4" style="font-weight:700;color:var(--teal);font-family:var(--font);font-size:11px;text-transform:uppercase;letter-spacing:.5px">📦 INTEGER TYPES</td></tr>
+        <tr><td>TINYINT</td><td>Very small integers</td><td>1 byte (0–255)</td><td>age, rating (1–5), month</td></tr>
+        <tr><td>SMALLINT</td><td>Small integers</td><td>2 bytes (−32K–32K)</td><td>year, quantity under 32k</td></tr>
+        <tr><td>INT</td><td>Standard integers</td><td>4 bytes (±2 billion)</td><td>student_id, order_id, count</td></tr>
+        <tr><td>BIGINT</td><td>Very large integers</td><td>8 bytes (±9.2 × 10¹⁸)</td><td>Aadhaar (12 digits), phone number, large IDs</td></tr>
+        <tr style="background:var(--blue-light)"><td colspan="4" style="font-weight:700;color:var(--blue);font-family:var(--font);font-size:11px;text-transform:uppercase;letter-spacing:.5px">💰 DECIMAL / FLOAT TYPES</td></tr>
+        <tr><td>DECIMAL(p,s)</td><td>Exact money values</td><td>Variable</td><td>price DECIMAL(10,2) → ₹1,29,999.00</td></tr>
+        <tr><td>FLOAT / DOUBLE</td><td>Scientific / approximate</td><td>4 / 8 bytes</td><td>GPS lat/long, ML model weights</td></tr>
+        <tr style="background:var(--amber-light)"><td colspan="4" style="font-weight:700;color:var(--amber);font-family:var(--font);font-size:11px;text-transform:uppercase;letter-spacing:.5px">📝 STRING TYPES</td></tr>
+        <tr><td>CHAR(n)</td><td>Fixed-length strings</td><td>Always n bytes</td><td>state_code CHAR(2), gender CHAR(1)</td></tr>
+        <tr><td>VARCHAR(n)</td><td>Variable-length strings</td><td>Actual length + 1-2</td><td>name VARCHAR(100), email VARCHAR(150)</td></tr>
+        <tr><td>TEXT</td><td>Long text content</td><td>Up to 65 KB</td><td>description, review, bio</td></tr>
+        <tr><td>LONGTEXT</td><td>Very long text</td><td>Up to 4 GB</td><td>resume, legal documents, blog posts</td></tr>
+        <tr style="background:var(--indigo-light)"><td colspan="4" style="font-weight:700;color:var(--indigo);font-family:var(--font);font-size:11px;text-transform:uppercase;letter-spacing:.5px">📅 DATE / TIME TYPES</td></tr>
+        <tr><td>DATE</td><td>Date only</td><td>3 bytes</td><td>dob, order_date, join_date</td></tr>
+        <tr><td>TIME</td><td>Time only</td><td>3 bytes</td><td>class_start_time, delivery_time</td></tr>
+        <tr><td>DATETIME</td><td>Date + time (no timezone)</td><td>8 bytes</td><td>created_at, last_login</td></tr>
+        <tr><td>TIMESTAMP</td><td>Date + time (UTC, auto)</td><td>4 bytes</td><td>updated_at (auto-updates)</td></tr>
+        <tr style="background:var(--green-light)"><td colspan="4" style="font-weight:700;color:var(--green);font-family:var(--font);font-size:11px;text-transform:uppercase;letter-spacing:.5px">🔘 SPECIAL TYPES</td></tr>
+        <tr><td>BOOLEAN</td><td>True/False flags</td><td>1 byte (TINYINT(1))</td><td>is_active, is_paid, is_verified</td></tr>
+        <tr><td>ENUM</td><td>One of a fixed list</td><td>1–2 bytes</td><td>status ENUM('active','inactive','banned')</td></tr>
+        <tr><td>JSON</td><td>JSON objects/arrays</td><td>Variable</td><td>address JSON, metadata JSON (MySQL 5.7+)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <div class="callout-title">Golden Rules for Data Types</div>
+        <div class="callout-text">
+          💰 <strong>Always use DECIMAL for money</strong> — FLOAT causes rounding errors (0.1 + 0.2 ≠ 0.3 in binary!)<br>
+          📱 <strong>Phone numbers → VARCHAR(15)</strong> — not INT (leading zeros, +91, formatting matter)<br>
+          🆔 <strong>Aadhaar → CHAR(12) or VARCHAR(12)</strong> — not BIGINT (leading zeros!)<br>
+          📅 <strong>Use TIMESTAMP for auto-updated timestamps</strong>, DATETIME for fixed timestamps<br>
+          📝 <strong>VARCHAR vs TEXT</strong> → Use VARCHAR (< 255 chars) for indexed columns, TEXT for large content
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4: CREATE TABLE ── -->
+  <div class="section" id="sec4">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--teal-light)">📋</div>
+      <div><div class="section-num">Topic 4</div><h2 class="section-title">CREATE TABLE — Building Your First Tables</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <code style="font-family:var(--mono);background:var(--gray100);padding:2px 6px;border-radius:4px">CREATE TABLE</code> is the most important DDL command. It defines the blueprint for a table — column names, data types, and constraints.
+    </p>
+
+    <div class="syntax-box">
+      <div class="syntax-label">SYNTAX</div>
+      <span class="s-kw">CREATE TABLE</span> <span class="s-opt">[IF NOT EXISTS]</span> <span class="s-ph">table_name</span> (
+  <br>&nbsp;&nbsp;<span class="s-ph">column1</span> <span class="s-ph">datatype</span> <span class="s-opt">[constraints]</span>,
+  <br>&nbsp;&nbsp;<span class="s-ph">column2</span> <span class="s-ph">datatype</span> <span class="s-opt">[constraints]</span>,
+  <br>&nbsp;&nbsp;<span class="s-opt">...</span>
+  <br>&nbsp;&nbsp;<span class="s-opt">[table-level constraints]</span>
+  <br>)<span class="s-opt">;</span>
+    </div>
+
+    <div class="try-box">
+      <div class="try-header"><div class="try-title">✏️ Try It — Build the GUVI LMS Schema <span class="try-badge">Exercise 2</span></div></div>
+      <textarea class="try-editor" id="e2" spellcheck="false">-- Build a complete, well-designed schema step by step
+
+-- Table 1: instructors (no FK dependencies)
+CREATE TABLE IF NOT EXISTS instructors (
+    instructor_id  INT            PRIMARY KEY AUTO_INCREMENT,
+    name           VARCHAR(100)   NOT NULL,
+    email          VARCHAR(150)   NOT NULL UNIQUE,
+    phone          VARCHAR(15),
+    specialization VARCHAR(100),
+    experience_yrs TINYINT        CHECK (experience_yrs >= 0),
+    is_active      BOOLEAN        DEFAULT TRUE,
+    joined_on      DATE,
+    created_at     TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table 2: courses (depends on instructors)
+CREATE TABLE IF NOT EXISTS courses (
+    course_id    INT            PRIMARY KEY AUTO_INCREMENT,
+    course_name  VARCHAR(150)   NOT NULL,
+    category     ENUM('Data Science','Web Dev','Cloud','DevOps','AI/ML') NOT NULL,
+    level        ENUM('Beginner','Intermediate','Advanced') DEFAULT 'Beginner',
+    duration_hrs INT            NOT NULL CHECK (duration_hrs > 0),
+    fee          DECIMAL(8, 2)  NOT NULL CHECK (fee >= 0),
+    instructor_id INT,
+    is_published  BOOLEAN        DEFAULT FALSE,
+    FOREIGN KEY (instructor_id) REFERENCES instructors(instructor_id)
+        ON DELETE SET NULL
+);
+
+-- Table 3: students
+CREATE TABLE IF NOT EXISTS students (
+    student_id  INT            PRIMARY KEY AUTO_INCREMENT,
+    name        VARCHAR(100)   NOT NULL,
+    email       VARCHAR(150)   NOT NULL UNIQUE,
+    phone       VARCHAR(15),
+    city        VARCHAR(50),
+    state       VARCHAR(50),
+    dob         DATE,
+    gender      ENUM('Male','Female','Other'),
+    created_at  TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table 4: enrollments (junction table)
+CREATE TABLE IF NOT EXISTS enrollments (
+    enrollment_id INT            PRIMARY KEY AUTO_INCREMENT,
+    student_id    INT            NOT NULL,
+    course_id     INT            NOT NULL,
+    enrolled_on   DATE           DEFAULT (CURRENT_DATE),
+    status        ENUM('active','completed','dropped') DEFAULT 'active',
+    score         DECIMAL(5, 2)  CHECK (score BETWEEN 0 AND 100),
+    fee_paid      DECIMAL(8, 2)  NOT NULL,
+    UNIQUE (student_id, course_id),   -- one enrollment per student per course
+    FOREIGN KEY (student_id) REFERENCES students(student_id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (course_id)  REFERENCES courses(course_id)
+        ON DELETE RESTRICT
+);</textarea>
+      <div class="try-footer">
+        <div class="try-hint">💡 Order matters: create tables with no FK dependencies first (instructors, students), then tables that reference them</div>
+        <div class="try-btns">
+          <button class="reset-btn" onclick="resetE('e2',1)">Reset</button>
+          <button class="run-btn" onclick="showOut('o2')">▶ Verify Schema</button>
+        </div>
+      </div>
+      <div class="try-output" id="o2">
+        <div class="output-label">Schema Created — Visual Preview</div>
+        <div class="schema-visual">
+          <div class="sv-title">📋 guvi_lms Database Schema</div>
+          <div style="display:flex;flex-wrap:wrap;gap:12px">
+            <div class="sv-table">
+              <div class="sv-head">📋 instructors</div>
+              <div class="sv-col"><span class="col-name">instructor_id</span><span class="col-type">INT</span><span class="col-constraint pk-badge">PK · AI</span></div>
+              <div class="sv-col"><span class="col-name">name</span><span class="col-type">VARCHAR(100)</span><span class="col-constraint nn-badge">NOT NULL</span></div>
+              <div class="sv-col"><span class="col-name">email</span><span class="col-type">VARCHAR(150)</span><span class="col-constraint uq-badge">UNIQUE</span></div>
+              <div class="sv-col"><span class="col-name">experience_yrs</span><span class="col-type">TINYINT</span><span class="col-constraint ck-badge">CHECK ≥ 0</span></div>
+              <div class="sv-col"><span class="col-name">is_active</span><span class="col-type">BOOLEAN</span><span class="col-constraint df-badge">DEFAULT TRUE</span></div>
+              <div class="sv-col"><span class="col-name">created_at</span><span class="col-type">TIMESTAMP</span><span class="col-constraint df-badge">DEFAULT NOW</span></div>
+            </div>
+            <div class="sv-table">
+              <div class="sv-head">📋 courses</div>
+              <div class="sv-col"><span class="col-name">course_id</span><span class="col-type">INT</span><span class="col-constraint pk-badge">PK · AI</span></div>
+              <div class="sv-col"><span class="col-name">course_name</span><span class="col-type">VARCHAR(150)</span><span class="col-constraint nn-badge">NOT NULL</span></div>
+              <div class="sv-col"><span class="col-name">fee</span><span class="col-type">DECIMAL(8,2)</span><span class="col-constraint ck-badge">CHECK ≥ 0</span></div>
+              <div class="sv-col"><span class="col-name">instructor_id</span><span class="col-type">INT</span><span class="col-constraint fk-badge">FK → instructors</span></div>
+            </div>
+            <div class="sv-table">
+              <div class="sv-head">📋 students</div>
+              <div class="sv-col"><span class="col-name">student_id</span><span class="col-type">INT</span><span class="col-constraint pk-badge">PK · AI</span></div>
+              <div class="sv-col"><span class="col-name">name</span><span class="col-type">VARCHAR(100)</span><span class="col-constraint nn-badge">NOT NULL</span></div>
+              <div class="sv-col"><span class="col-name">email</span><span class="col-type">VARCHAR(150)</span><span class="col-constraint uq-badge">UNIQUE</span></div>
+              <div class="sv-col"><span class="col-name">gender</span><span class="col-type">ENUM</span><span class="col-constraint ck-badge">Male/Female/Other</span></div>
+            </div>
+            <div class="sv-table">
+              <div class="sv-head">📋 enrollments</div>
+              <div class="sv-col"><span class="col-name">enrollment_id</span><span class="col-type">INT</span><span class="col-constraint pk-badge">PK · AI</span></div>
+              <div class="sv-col"><span class="col-name">student_id</span><span class="col-type">INT</span><span class="col-constraint fk-badge">FK → students</span></div>
+              <div class="sv-col"><span class="col-name">course_id</span><span class="col-type">INT</span><span class="col-constraint fk-badge">FK → courses</span></div>
+              <div class="sv-col"><span class="col-name">score</span><span class="col-type">DECIMAL(5,2)</span><span class="col-constraint ck-badge">0–100</span></div>
+              <div class="sv-col"><span class="col-name">status</span><span class="col-type">ENUM</span><span class="col-constraint df-badge">DEFAULT active</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="result-msg success">✅ All 4 tables created successfully! FK relationships enforced between them.</div>
+        <div class="result-msg info">💡 CREATE TABLE IF NOT EXISTS is always safe — no error if the table already exists.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 5: CONSTRAINTS ── -->
+  <div class="section" id="sec5">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--indigo-light)">🛡️</div>
+      <div><div class="section-num">Topic 5</div><h2 class="section-title">Constraints — Enforcing Data Rules</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Constraints are rules applied to columns that the database enforces automatically — every INSERT and UPDATE is checked against them. They're your first line of defense against bad data.
+    </p>
+
+    <div class="constraint-grid">
+      <div class="constraint-card">
+        <div class="constraint-head" style="background:var(--amber-light);color:var(--amber)">🔶 NOT NULL</div>
+        <div class="constraint-body">
+          Column must always have a value — cannot be left empty (NULL).<br>
+          Use for columns that are <em>required</em> in every row.
+          <div class="constraint-example">name VARCHAR(100) NOT NULL,
+email VARCHAR(150) NOT NULL</div>
+        </div>
+      </div>
+      <div class="constraint-card">
+        <div class="constraint-head" style="background:var(--indigo-light);color:var(--indigo)">🔷 UNIQUE</div>
+        <div class="constraint-body">
+          No two rows can have the same value. Allows one NULL (since NULL ≠ NULL).
+          <div class="constraint-example">email VARCHAR(150) UNIQUE,
+-- or table-level:
+UNIQUE (email)</div>
+        </div>
+      </div>
+      <div class="constraint-card">
+        <div class="constraint-head" style="background:var(--green-light);color:var(--green)">🟢 DEFAULT</div>
+        <div class="constraint-body">
+          Automatically fills this value when none is provided on INSERT.
+          <div class="constraint-example">is_active BOOLEAN DEFAULT TRUE,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+status ENUM(...) DEFAULT 'active'</div>
+        </div>
+      </div>
+      <div class="constraint-card">
+        <div class="constraint-head" style="background:var(--purple-light);color:var(--purple)">🔮 CHECK</div>
+        <div class="constraint-body">
+          Row is only accepted if the condition evaluates to TRUE. Rejects invalid values.
+          <div class="constraint-example">age TINYINT CHECK (age BETWEEN 18 AND 100),
+score DECIMAL CHECK (score >= 0 AND score <= 100),
+fee DECIMAL CHECK (fee > 0)</div>
+        </div>
+      </div>
+      <div class="constraint-card">
+        <div class="constraint-head" style="background:var(--teal-light);color:var(--teal)">🔑 PRIMARY KEY</div>
+        <div class="constraint-body">
+          Uniquely identifies each row. Combines NOT NULL + UNIQUE. One per table.
+          <div class="constraint-example">id INT PRIMARY KEY AUTO_INCREMENT,
+-- or composite:
+PRIMARY KEY (student_id, course_id)</div>
+        </div>
+      </div>
+      <div class="constraint-card">
+        <div class="constraint-head" style="background:var(--blue-light);color:var(--blue)">🔗 FOREIGN KEY</div>
+        <div class="constraint-body">
+          Links to another table's PK. Enforces referential integrity — referenced row must exist.
+          <div class="constraint-example">FOREIGN KEY (student_id)
+  REFERENCES students(student_id)
+  ON DELETE CASCADE</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="try-box">
+      <div class="try-header"><div class="try-title">✏️ Try It — Constraints in Action <span class="try-badge">Exercise 3</span></div></div>
+      <textarea class="try-editor" id="e3" spellcheck="false">-- Demonstrate all constraints working together
+CREATE TABLE employees (
+    emp_id      INT            PRIMARY KEY AUTO_INCREMENT,     -- PK
+    name        VARCHAR(100)   NOT NULL,                       -- NOT NULL
+    email       VARCHAR(150)   NOT NULL UNIQUE,                -- NOT NULL + UNIQUE
+    department  VARCHAR(50)    NOT NULL DEFAULT 'General',     -- DEFAULT
+    salary      DECIMAL(10,2)  NOT NULL CHECK (salary > 0),    -- CHECK
+    age         TINYINT        CHECK (age BETWEEN 18 AND 65),  -- CHECK
+    gender      ENUM('Male','Female','Other'),                  -- ENUM restricts values
+    is_active   BOOLEAN        DEFAULT TRUE,                   -- DEFAULT
+    joined_on   DATE           DEFAULT (CURRENT_DATE),         -- DEFAULT to today
+    manager_id  INT,
+    -- Table-level: named constraints (best practice for ALTER later)
+    CONSTRAINT chk_salary CHECK (salary BETWEEN 10000 AND 10000000),
+    CONSTRAINT fk_manager FOREIGN KEY (manager_id)
+        REFERENCES employees(emp_id)   -- self-referencing FK!
+);
+
+-- Test which INSERTs succeed and which fail:
+
+-- ✅ Valid INSERT
+INSERT INTO employees (name, email, salary, age)
+VALUES ('Priya Sharma', 'priya@guvi.in', 75000, 28);
+
+-- ❌ NOT NULL violation
+-- INSERT INTO employees (email, salary) VALUES ('test@guvi.in', 50000);
+
+-- ❌ UNIQUE violation
+-- INSERT INTO employees (name, email, salary, age)
+-- VALUES ('Rahul', 'priya@guvi.in', 60000, 30);
+
+-- ❌ CHECK violation (salary too low)
+-- INSERT INTO employees (name, email, salary, age)
+-- VALUES ('Ananya', 'ananya@guvi.in', -500, 25);</textarea>
+      <div class="try-footer">
+        <div class="try-hint">💡 Named constraints (CONSTRAINT fk_manager ...) make it easy to DROP or ALTER them later</div>
+        <div class="try-btns">
+          <button class="reset-btn" onclick="resetE('e3',2)">Reset</button>
+          <button class="run-btn" onclick="showOut('o3')">▶ See Results</button>
+        </div>
+      </div>
+      <div class="try-output" id="o3">
+        <div class="output-label">Constraint Test Results</div>
+        <div class="result-msg success">✅ INSERT 1 (valid): Row inserted. emp_id = 1 auto-assigned, is_active = TRUE (default), joined_on = today's date (default)</div>
+        <div class="result-msg danger">❌ INSERT 2 (NULL name): ERROR 1048 — Column 'name' cannot be null</div>
+        <div class="result-msg danger">❌ INSERT 3 (duplicate email): ERROR 1062 — Duplicate entry 'priya@guvi.in' for key 'email'</div>
+        <div class="result-msg danger">❌ INSERT 4 (negative salary): ERROR 3819 — CHECK constraint 'chk_salary' is violated</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 6: PRIMARY KEY ── -->
+  <div class="section" id="sec6">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--teal-light)">🔑</div>
+      <div><div class="section-num">Topic 6</div><h2 class="section-title">PRIMARY KEY — Single & Composite</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      The Primary Key (PK) is the most important constraint — it <strong>uniquely identifies every row</strong> in a table.
+      A table can have only ONE PK, but that PK can span multiple columns (Composite PK).
+    </p>
+
+    <div class="code-block">
+      <div class="code-header"><span>Primary Key — All Variations</span><span class="code-lang">MySQL</span></div>
+      <div class="code-body"><span class="cm">-- Method 1: Inline (single column PK)</span>
+<span class="kw">CREATE TABLE</span> students (
+    student_id  <span class="kw">INT</span> <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+    name        <span class="kw">VARCHAR</span>(<span class="nm">100</span>)
+);
+
+<span class="cm">-- Method 2: Table-level (single or composite)</span>
+<span class="kw">CREATE TABLE</span> enrollments (
+    student_id  <span class="kw">INT</span>          <span class="kw">NOT NULL</span>,
+    course_id   <span class="kw">INT</span>          <span class="kw">NOT NULL</span>,
+    enrolled_on <span class="kw">DATE</span>,
+    <span class="kw">PRIMARY KEY</span> (student_id, course_id)  <span class="cm">-- Composite PK</span>
+);
+
+<span class="cm">-- AUTO_INCREMENT: MySQL auto-generates sequential numbers</span>
+<span class="cm">-- PostgreSQL uses SERIAL or GENERATED ALWAYS AS IDENTITY</span>
+<span class="cm">-- SQLite uses INTEGER PRIMARY KEY AUTOINCREMENT</span>
+
+<span class="cm">-- Natural Key vs Surrogate Key:</span>
+<span class="cm">-- Natural: email, Aadhaar, PAN (real-world identifier)</span>
+<span class="cm">-- Surrogate: id INT AUTO_INCREMENT (DB-generated, no real meaning)</span>
+<span class="cm">-- Best practice: Use SURROGATE KEYS as PK — they never change!</span>
+
+<span class="cm">-- UUID as PK (used in distributed systems):</span>
+<span class="cm">-- id CHAR(36) PRIMARY KEY DEFAULT (UUID())</span></div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">When to use Composite PK?</div>
+        <div class="callout-text">
+          Use composite PK for <strong>junction/link tables</strong> where the combination of two FKs is unique:<br>
+          • enrollments: (student_id, course_id) — a student enrolls in a course once<br>
+          • order_items: (order_id, product_id) — one product per order line<br>
+          • friends: (user_id, friend_id) — user A friends user B once<br><br>
+          If you find yourself needing a surrogate PK on a junction table anyway (for referencing from other tables), add one as enrollment_id INT AUTO_INCREMENT.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 7: FOREIGN KEY ── -->
+  <div class="section" id="sec7">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--blue-light)">🔗</div>
+      <div><div class="section-num">Topic 7</div><h2 class="section-title">FOREIGN KEY — Referential Integrity</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      A Foreign Key (FK) is a column that references the Primary Key of another table. It enforces <strong>referential integrity</strong> — you cannot insert a FK value that doesn't exist in the referenced table, and you cannot delete a referenced row without handling the children first.
+    </p>
+
+    <div class="fk-diagram">
+      <div class="fk-table">
+        <div class="fk-thead" style="background:var(--teal-mid)">📋 students (Parent)</div>
+        <div class="fk-col" style="background:var(--teal-light);font-weight:700;color:var(--teal)">🔑 student_id (PK)</div>
+        <div class="fk-col">name</div>
+        <div class="fk-col">email</div>
+        <div style="padding:6px 14px;font-size:11px;color:var(--gray300);border-top:1px solid var(--border)">student_id = 1,2,3...</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px">
+        <div style="font-size:22px;color:var(--teal-mid)">→</div>
+        <div style="font-size:10px;color:var(--gray500);text-align:center">FK enforces<br>this link</div>
+      </div>
+      <div class="fk-table">
+        <div class="fk-thead" style="background:var(--blue)">📋 enrollments (Child)</div>
+        <div class="fk-col" style="background:var(--teal-light);font-weight:700;color:var(--teal)">🔑 enrollment_id (PK)</div>
+        <div class="fk-col" style="color:var(--blue);font-weight:600">🔗 student_id (FK)</div>
+        <div class="fk-col">course_id</div>
+        <div class="fk-col">score</div>
+        <div style="padding:6px 14px;font-size:11px;color:var(--gray300);border-top:1px solid var(--border)">student_id must exist in students!</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>FOREIGN KEY — Full Syntax</span><span class="code-lang">MySQL</span></div>
+      <div class="code-body"><span class="kw">CREATE TABLE</span> enrollments (
+    enrollment_id <span class="kw">INT</span>   <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+    student_id    <span class="kw">INT</span>   <span class="kw">NOT NULL</span>,
+    course_id     <span class="kw">INT</span>   <span class="kw">NOT NULL</span>,
+
+    <span class="cm">-- Inline FK (simple)</span>
+    <span class="cm">-- student_id INT REFERENCES students(student_id)</span>
+
+    <span class="cm">-- Table-level FK (recommended — allows naming + ON DELETE)</span>
+    <span class="kw">CONSTRAINT</span> <span class="cn">fk_enroll_student</span> <span class="kw">FOREIGN KEY</span> (student_id)
+        <span class="kw">REFERENCES</span> students(student_id)
+        <span class="kw">ON DELETE CASCADE</span>
+        <span class="kw">ON UPDATE CASCADE</span>,
+
+    <span class="kw">CONSTRAINT</span> <span class="cn">fk_enroll_course</span> <span class="kw">FOREIGN KEY</span> (course_id)
+        <span class="kw">REFERENCES</span> courses(course_id)
+        <span class="kw">ON DELETE RESTRICT</span>
+);
+
+<span class="cm">-- Check existing foreign keys on a table:</span>
+<span class="kw">SHOW CREATE TABLE</span> enrollments;
+
+<span class="cm">-- Drop a specific FK constraint:</span>
+<span class="kw">ALTER TABLE</span> enrollments <span class="kw">DROP FOREIGN KEY</span> <span class="cn">fk_enroll_student</span>;</div>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <div class="callout-title">FK Rules to Remember</div>
+        <div class="callout-text">
+          1. Parent table must be created BEFORE child table<br>
+          2. Referenced column must be PK or UNIQUE in parent table<br>
+          3. Child column data type must match parent column data type EXACTLY<br>
+          4. In MySQL, FK only works with InnoDB engine (not MyISAM!)<br>
+          5. Always name your FK constraints — makes debugging and altering easier
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 8: ON DELETE ── -->
+  <div class="section" id="sec8">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--coral-light)">⚡</div>
+      <div><div class="section-num">Topic 8</div><h2 class="section-title">ON DELETE / ON UPDATE Actions</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      When you try to DELETE a parent row or UPDATE a parent's PK that has child rows referencing it, the database needs to know what to do. This is controlled by <strong>ON DELETE</strong> and <strong>ON UPDATE</strong> actions.
+    </p>
+
+    <div class="cascade-box">
+      <div class="cascade-head">
+        <div class="cascade-title">🎮 Interactive — Which action to use when?</div>
+        <div class="cascade-tabs">
+          <button class="ctab active" onclick="switchCascade(this,'cas-cascade')">CASCADE</button>
+          <button class="ctab" onclick="switchCascade(this,'cas-setnull')">SET NULL</button>
+          <button class="ctab" onclick="switchCascade(this,'cas-restrict')">RESTRICT</button>
+          <button class="ctab" onclick="switchCascade(this,'cas-noaction')">NO ACTION</button>
+          <button class="ctab" onclick="switchCascade(this,'cas-setdefault')">SET DEFAULT</button>
+        </div>
+      </div>
+
+      <div class="cascade-body active" id="cas-cascade">
+        <div class="cascade-flow">
+          <span>DELETE student_id=1 from students</span>
+          <span style="font-size:20px">→</span>
+          <span class="cascade-action" style="background:var(--red-light);color:var(--red)">CASCADE</span>
+          <span style="font-size:20px">→</span>
+          <span>ALL enrollments WHERE student_id=1 are also deleted automatically</span>
+        </div>
+        <p style="font-size:13px;color:var(--gray700);line-height:1.7;margin-top:8px">
+          <strong>ON DELETE CASCADE</strong> automatically deletes child rows when the parent row is deleted.<br><br>
+          ✅ <strong>Use when:</strong> Child rows have no meaning without the parent. If you delete a student, their enrollments should also disappear.<br>
+          ❌ <strong>Avoid when:</strong> Child data must be preserved for audit trails, history, or compliance. Deleting an instructor should NOT delete the courses — you'd lose the course catalog!
+        </p>
+        <div class="code-block" style="margin-top:8px">
+          <div class="code-body" style="padding:12px 16px"><span class="kw">FOREIGN KEY</span> (student_id) <span class="kw">REFERENCES</span> students(student_id) <span class="kw">ON DELETE CASCADE</span></div>
+        </div>
+      </div>
+
+      <div class="cascade-body" id="cas-setnull">
+        <div class="cascade-flow">
+          <span>DELETE instructor_id=5 from instructors</span>
+          <span style="font-size:20px">→</span>
+          <span class="cascade-action" style="background:var(--amber-light);color:var(--amber)">SET NULL</span>
+          <span style="font-size:20px">→</span>
+          <span>courses.instructor_id = NULL (course still exists, but unassigned)</span>
+        </div>
+        <p style="font-size:13px;color:var(--gray700);line-height:1.7;margin-top:8px">
+          <strong>ON DELETE SET NULL</strong> sets the FK column to NULL when the parent row is deleted.<br><br>
+          ✅ <strong>Use when:</strong> The child can exist without the parent but should show the relationship is gone. If an instructor leaves GUVI, courses still exist — they just need a new instructor.<br>
+          ⚠️ <strong>Requirement:</strong> The FK column must be NULLable (not NOT NULL).
+        </p>
+        <div class="code-block" style="margin-top:8px">
+          <div class="code-body" style="padding:12px 16px"><span class="kw">FOREIGN KEY</span> (instructor_id) <span class="kw">REFERENCES</span> instructors(instructor_id) <span class="kw">ON DELETE SET NULL</span></div>
+        </div>
+      </div>
+
+      <div class="cascade-body" id="cas-restrict">
+        <div class="cascade-flow">
+          <span>DELETE course_id=3 from courses</span>
+          <span style="font-size:20px">→</span>
+          <span class="cascade-action" style="background:var(--red-light);color:var(--red)">RESTRICT</span>
+          <span style="font-size:20px">→</span>
+          <span style="color:var(--red);font-weight:600">ERROR! Cannot delete — active enrollments reference this course</span>
+        </div>
+        <p style="font-size:13px;color:var(--gray700);line-height:1.7;margin-top:8px">
+          <strong>ON DELETE RESTRICT</strong> blocks the DELETE if any child rows reference the parent. This is the SAFEST option — prevents accidental data loss.<br><br>
+          ✅ <strong>Use when:</strong> You should never delete a parent that has children. A course with active enrollments should NEVER be deleted — admin must manually resolve enrollments first.<br>
+          📌 In MySQL, RESTRICT and NO ACTION behave identically.
+        </p>
+        <div class="code-block" style="margin-top:8px">
+          <div class="code-body" style="padding:12px 16px"><span class="kw">FOREIGN KEY</span> (course_id) <span class="kw">REFERENCES</span> courses(course_id) <span class="kw">ON DELETE RESTRICT</span></div>
+        </div>
+      </div>
+
+      <div class="cascade-body" id="cas-noaction">
+        <div class="cascade-flow">
+          <span>DELETE parent row</span>
+          <span style="font-size:20px">→</span>
+          <span class="cascade-action" style="background:var(--gray100);color:var(--gray700)">NO ACTION</span>
+          <span style="font-size:20px">→</span>
+          <span>Same as RESTRICT in MySQL (deferred check in some DBs)</span>
+        </div>
+        <p style="font-size:13px;color:var(--gray700);line-height:1.7;margin-top:8px">
+          <strong>ON DELETE NO ACTION</strong> in MySQL behaves identically to RESTRICT — the delete is blocked if children exist. In standard SQL (Oracle, PostgreSQL), NO ACTION defers the check to end-of-transaction, while RESTRICT checks immediately.<br><br>
+          📌 Default when no action is specified: NO ACTION / RESTRICT.
+        </p>
+      </div>
+
+      <div class="cascade-body" id="cas-setdefault">
+        <div class="cascade-flow">
+          <span>DELETE parent row</span>
+          <span style="font-size:20px">→</span>
+          <span class="cascade-action" style="background:var(--green-light);color:var(--green)">SET DEFAULT</span>
+          <span style="font-size:20px">→</span>
+          <span>FK column set to its DEFAULT value</span>
+        </div>
+        <p style="font-size:13px;color:var(--gray700);line-height:1.7;margin-top:8px">
+          <strong>ON DELETE SET DEFAULT</strong> sets the FK column to its default value when parent is deleted. Rarely used in MySQL (not fully supported in InnoDB). More common in PostgreSQL.<br><br>
+          ✅ <strong>Use when:</strong> You have a "catch-all" parent record (e.g., a default instructor ID = 0) to assign unassigned children to.
+        </p>
+      </div>
+    </div>
+
+    <div class="callout example">
+      <div class="callout-icon">🎯</div>
+      <div class="callout-body">
+        <div class="callout-title">Quick Decision Guide — Which action to choose?</div>
+        <div class="callout-text">
+          "If parent is deleted, what should happen to children?"<br>
+          → Children should die too? → <strong>CASCADE</strong><br>
+          → Children should remain but unlinked? → <strong>SET NULL</strong><br>
+          → Prevent deletion until children are removed manually? → <strong>RESTRICT</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 9: ALTER TABLE ── -->
+  <div class="section" id="sec9">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--amber-light)">✏️</div>
+      <div><div class="section-num">Topic 9</div><h2 class="section-title">ALTER TABLE — Modifying Existing Tables</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <code style="font-family:var(--mono);background:var(--gray100);padding:2px 6px;border-radius:4px">ALTER TABLE</code> lets you modify a table's structure after it's been created — adding columns, changing data types, dropping columns, renaming, and modifying constraints. This is used constantly as requirements evolve.
+    </p>
+
+    <div class="alter-demo">
+      <div class="alter-tabs">
+        <button class="atab active" onclick="switchAlter(this,'alt-add')">ADD Column</button>
+        <button class="atab" onclick="switchAlter(this,'alt-modify')">MODIFY Column</button>
+        <button class="atab" onclick="switchAlter(this,'alt-drop')">DROP Column</button>
+        <button class="atab" onclick="switchAlter(this,'alt-constraint')">Add/Drop Constraints</button>
+        <button class="atab" onclick="switchAlter(this,'alt-rename')">RENAME Column</button>
+      </div>
+
+      <div class="alter-content active" id="alt-add">
+        <div class="code-block" style="margin:0">
+          <div class="code-header"><span>ADD COLUMN — Adding new columns to existing table</span><span class="code-lang">MySQL</span></div>
+          <div class="code-body"><span class="cm">-- Add a single column</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">ADD COLUMN</span> linkedin_url <span class="kw">VARCHAR</span>(<span class="nm">200</span>);
+
+<span class="cm">-- Add column at a specific position</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">ADD COLUMN</span> middle_name <span class="kw">VARCHAR</span>(<span class="nm">50</span>) <span class="kw">AFTER</span> name;
+
+<span class="cm">-- Add column as the FIRST column</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">ADD COLUMN</span> student_code <span class="kw">VARCHAR</span>(<span class="nm">20</span>) <span class="kw">FIRST</span>;
+
+<span class="cm">-- Add multiple columns at once</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">ADD COLUMN</span> github_url <span class="kw">VARCHAR</span>(<span class="nm">200</span>),
+    <span class="kw">ADD COLUMN</span> portfolio_url <span class="kw">VARCHAR</span>(<span class="nm">200</span>),
+    <span class="kw">ADD COLUMN</span> updated_at <span class="kw">TIMESTAMP DEFAULT</span> <span class="fn">CURRENT_TIMESTAMP</span>
+                          <span class="kw">ON UPDATE</span> <span class="fn">CURRENT_TIMESTAMP</span>;</div>
+        </div>
+      </div>
+
+      <div class="alter-content" id="alt-modify">
+        <div class="code-block" style="margin:0">
+          <div class="code-header"><span>MODIFY COLUMN — Change data type or constraints</span><span class="code-lang">MySQL</span></div>
+          <div class="code-body"><span class="cm">-- Change data type (e.g., expand VARCHAR size)</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">MODIFY COLUMN</span> name <span class="kw">VARCHAR</span>(<span class="nm">200</span>) <span class="kw">NOT NULL</span>;
+
+<span class="cm">-- Add NOT NULL to existing column</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">MODIFY COLUMN</span> phone <span class="kw">VARCHAR</span>(<span class="nm">15</span>) <span class="kw">NOT NULL</span>;
+
+<span class="cm">-- Change ENUM options</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">courses</span>
+    <span class="kw">MODIFY COLUMN</span> level
+        <span class="kw">ENUM</span>(<span class="str">'Beginner'</span>,<span class="str">'Intermediate'</span>,<span class="str">'Advanced'</span>,<span class="str">'Expert'</span>)
+        <span class="kw">DEFAULT</span> <span class="str">'Beginner'</span>;
+
+<span class="cm">-- PostgreSQL uses CHANGE differently:</span>
+<span class="cm">-- ALTER TABLE students ALTER COLUMN name TYPE VARCHAR(200);</span>
+<span class="cm">-- ALTER TABLE students ALTER COLUMN name SET NOT NULL;</span></div>
+        </div>
+      </div>
+
+      <div class="alter-content" id="alt-drop">
+        <div class="code-block" style="margin:0">
+          <div class="code-header"><span>DROP COLUMN — Remove columns</span><span class="code-lang">MySQL</span></div>
+          <div class="code-body"><span class="cm">-- Drop a single column (⚠️ DATA IS LOST FOREVER)</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">DROP COLUMN</span> linkedin_url;
+
+<span class="cm">-- Drop multiple columns at once</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">DROP COLUMN</span> github_url,
+    <span class="kw">DROP COLUMN</span> portfolio_url;
+
+<span class="cm">-- ⚠️ CANNOT drop a column that is a Foreign Key</span>
+<span class="cm">-- Must drop the FK constraint FIRST, then drop the column</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">enrollments</span>
+    <span class="kw">DROP FOREIGN KEY</span> <span class="cn">fk_enroll_student</span>,  <span class="cm">-- drop FK first</span>
+    <span class="kw">DROP COLUMN</span> student_id;                  <span class="cm">-- then drop column</span></div>
+        </div>
+      </div>
+
+      <div class="alter-content" id="alt-constraint">
+        <div class="code-block" style="margin:0">
+          <div class="code-header"><span>ADD / DROP Constraints with ALTER TABLE</span><span class="code-lang">MySQL</span></div>
+          <div class="code-body"><span class="cm">-- Add a UNIQUE constraint to existing column</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">ADD CONSTRAINT</span> <span class="cn">uq_student_phone</span> <span class="kw">UNIQUE</span> (phone);
+
+<span class="cm">-- Add a CHECK constraint</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">ADD CONSTRAINT</span> <span class="cn">chk_age</span> <span class="kw">CHECK</span> (age <span class="kw">BETWEEN</span> <span class="nm">16</span> <span class="kw">AND</span> <span class="nm">80</span>);
+
+<span class="cm">-- Add a FOREIGN KEY</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">courses</span>
+    <span class="kw">ADD CONSTRAINT</span> <span class="cn">fk_courses_instructor</span>
+    <span class="kw">FOREIGN KEY</span> (instructor_id) <span class="kw">REFERENCES</span> instructors(instructor_id);
+
+<span class="cm">-- Drop a UNIQUE constraint</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">DROP INDEX</span> <span class="cn">uq_student_phone</span>;  <span class="cm">-- UNIQUE constraints are indexes in MySQL</span>
+
+<span class="cm">-- Drop a CHECK constraint (MySQL 8+)</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">DROP CHECK</span> <span class="cn">chk_age</span>;
+
+<span class="cm">-- Drop a FOREIGN KEY</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">courses</span>
+    <span class="kw">DROP FOREIGN KEY</span> <span class="cn">fk_courses_instructor</span>;</div>
+        </div>
+      </div>
+
+      <div class="alter-content" id="alt-rename">
+        <div class="code-block" style="margin:0">
+          <div class="code-header"><span>RENAME Column (MySQL 8.0+)</span><span class="code-lang">MySQL 8+</span></div>
+          <div class="code-body"><span class="cm">-- Rename a column (MySQL 8.0+)</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">RENAME COLUMN</span> dob <span class="kw">TO</span> date_of_birth;
+
+<span class="cm">-- For older MySQL: use CHANGE (must re-specify data type)</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">CHANGE</span> dob date_of_birth <span class="kw">DATE</span>;  <span class="cm">-- old_name new_name datatype</span>
+
+<span class="cm">-- Rename entire table</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span> <span class="kw">RENAME TO</span> <span class="tbl">learners</span>;
+
+<span class="cm">-- Or use RENAME TABLE (moves between databases too!)</span>
+<span class="kw">RENAME TABLE</span> <span class="tbl">students</span> <span class="kw">TO</span> <span class="tbl">learners</span>;
+<span class="kw">RENAME TABLE</span> <span class="tbl">guvi_lms.students</span> <span class="kw">TO</span> <span class="tbl">guvi_prod.learners</span>;</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="try-box">
+      <div class="try-header"><div class="try-title">✏️ Try It — Real ALTER TABLE Workflow <span class="try-badge">Exercise 4</span></div></div>
+      <textarea class="try-editor" id="e4" spellcheck="false">-- Real scenario: GUVI adds new features, schema must evolve
+
+-- Step 1: Add social media columns to students
+ALTER TABLE students
+    ADD COLUMN linkedin_url  VARCHAR(200) AFTER email,
+    ADD COLUMN github_url    VARCHAR(200) AFTER linkedin_url,
+    ADD COLUMN updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                             ON UPDATE CURRENT_TIMESTAMP;
+
+-- Step 2: Expand name field for longer names
+ALTER TABLE students
+    MODIFY COLUMN name VARCHAR(200) NOT NULL;
+
+-- Step 3: Add a pincode column for better analytics
+ALTER TABLE students
+    ADD COLUMN pincode CHAR(6) AFTER state;
+
+-- Step 4: Add a check constraint for pincode
+ALTER TABLE students
+    ADD CONSTRAINT chk_pincode
+    CHECK (pincode REGEXP '^[0-9]{6}$');
+
+-- Step 5: Verify the new structure
+DESCRIBE students;
+-- or: SHOW COLUMNS FROM students;</textarea>
+      <div class="try-footer">
+        <div class="try-hint">💡 ALTER TABLE can be slow on large tables — millions of rows need structure changes. Plan during low-traffic windows!</div>
+        <div class="try-btns">
+          <button class="reset-btn" onclick="resetE('e4',3)">Reset</button>
+          <button class="run-btn" onclick="showOut('o4')">▶ See Changes</button>
+        </div>
+      </div>
+      <div class="try-output" id="o4">
+        <div class="output-label">After all ALTER TABLE operations — DESCRIBE students</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="background:var(--teal-mid);color:white"><th style="padding:8px 12px;text-align:left">Field</th><th style="padding:8px 12px;text-align:left">Type</th><th style="padding:8px 12px;text-align:left">Null</th><th style="padding:8px 12px;text-align:left">Key</th><th style="padding:8px 12px;text-align:left">Default</th></tr></thead>
+          <tbody>
+            <tr><td style="padding:7px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);color:var(--teal);font-weight:600">student_id</td><td style="padding:7px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px">int</td><td style="padding:7px 12px;border-bottom:1px solid var(--border)">NO</td><td style="padding:7px 12px;border-bottom:1px solid var(--border);color:var(--teal);font-weight:600">PRI</td><td style="padding:7px 12px;border-bottom:1px solid var(--border)">AUTO_INCREMENT</td></tr>
+            <tr><td style="padding:7px 12px;border-bottom:1px solid var(--border);font-family:var(--mono)">name</td><td style="padding:7px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px">varchar(200) ✨</td><td style="padding:7px 12px;border-bottom:1px solid var(--border)">NO</td><td style="padding:7px 12px;border-bottom:1px solid var(--border)"></td><td style="padding:7px 12px;border-bottom:1px solid var(--border)">NULL</td></tr>
+            <tr><td style="padding:7px 12px;border-bottom:1px solid var(--border);font-family:var(--mono)">email</td><td style="padding:7px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px">varchar(150)</td><td style="padding:7px 12px;border-bottom:1px solid var(--border)">NO</td><td style="padding:7px 12px;border-bottom:1px solid var(--border);color:var(--indigo)">UNI</td><td style="padding:7px 12px;border-bottom:1px solid var(--border)">NULL</td></tr>
+            <tr><td style="padding:7px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);color:var(--teal)">linkedin_url ✨</td><td style="padding:7px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px">varchar(200)</td><td style="padding:7px 12px;border-bottom:1px solid var(--border)">YES</td><td style="padding:7px 12px;border-bottom:1px solid var(--border)"></td><td style="padding:7px 12px;border-bottom:1px solid var(--border)">NULL</td></tr>
+            <tr><td style="padding:7px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);color:var(--teal)">github_url ✨</td><td style="padding:7px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px">varchar(200)</td><td style="padding:7px 12px;border-bottom:1px solid var(--border)">YES</td><td style="padding:7px 12px;border-bottom:1px solid var(--border)"></td><td style="padding:7px 12px;border-bottom:1px solid var(--border)">NULL</td></tr>
+            <tr><td style="padding:7px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);color:var(--teal)">pincode ✨</td><td style="padding:7px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px">char(6)</td><td style="padding:7px 12px;border-bottom:1px solid var(--border)">YES</td><td style="padding:7px 12px;border-bottom:1px solid var(--border)"></td><td style="padding:7px 12px;border-bottom:1px solid var(--border)">NULL</td></tr>
+            <tr><td style="padding:7px 12px;font-family:var(--mono);color:var(--teal)">updated_at ✨</td><td style="padding:7px 12px;font-family:var(--mono);font-size:12px">timestamp</td><td style="padding:7px 12px">YES</td><td style="padding:7px 12px"></td><td style="padding:7px 12px">CURRENT_TIMESTAMP on update</td></tr>
+          </tbody>
+        </table>
+        <div class="result-msg success" style="margin-top:10px">✅ All 4 ALTER TABLE operations applied. ✨ = newly added/modified columns.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 10: DROP, TRUNCATE, DELETE ── -->
+  <div class="section" id="sec10">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--red-light)">🗑️</div>
+      <div><div class="section-num">Topic 10</div><h2 class="section-title">DROP vs TRUNCATE vs DELETE — Know the Difference</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Three commands can remove data — but they work very differently. This is one of the most <strong>commonly asked interview questions</strong>. Know these differences cold.
+    </p>
+
+    <table class="cmp-table">
+      <thead><tr style="background:var(--gray900);color:white"><th>Property</th><th style="color:#f38ba8">DROP TABLE</th><th style="color:#fab387">TRUNCATE TABLE</th><th style="color:#a6e3a1">DELETE FROM</th></tr></thead>
+      <tbody>
+        <tr><td>What it removes</td><td>Entire table (structure + data)</td><td>All rows (data only, keeps structure)</td><td>Specific rows (or all if no WHERE)</td></tr>
+        <tr><td>Table structure after</td><td>❌ Gone — table doesn't exist</td><td>✅ Table still exists, empty</td><td>✅ Table still exists</td></tr>
+        <tr><td>Can be rolled back?</td><td>❌ No (auto-commit DDL)</td><td>❌ No in MySQL (DDL)</td><td>✅ Yes (DML — can ROLLBACK)</td></tr>
+        <tr><td>Triggers fire?</td><td>❌ No</td><td>❌ No</td><td>✅ Yes (DELETE triggers run)</td></tr>
+        <tr><td>WHERE clause?</td><td>❌ N/A</td><td>❌ Not allowed</td><td>✅ Required for partial delete</td></tr>
+        <tr><td>AUTO_INCREMENT reset?</td><td>N/A (table gone)</td><td>✅ Resets to 1</td><td>❌ Continues from last value</td></tr>
+        <tr><td>Performance on large tables</td><td>Fast (single operation)</td><td>Very fast (no row-by-row)</td><td>Slow (logs every row deleted)</td></tr>
+        <tr><td>Honors FK constraints?</td><td>❌ May fail if referenced</td><td>❌ May fail if referenced</td><td>✅ Yes, honored</td></tr>
+        <tr><td>Category</td><td>DDL</td><td>DDL (MySQL), DML (PostgreSQL)</td><td>DML</td></tr>
+      </tbody>
+    </table>
+
+    <div class="danger-zone">
+      <div class="dz-title">💀 DANGER ZONE — Irreversible Commands</div>
+      <div class="dz-body">
+        <strong>DROP TABLE students;</strong> → Table is gone. All data, constraints, indexes — permanently deleted. No undo.<br>
+        <strong>TRUNCATE TABLE students;</strong> → All rows gone. Structure remains but data is irrecoverable in MySQL.<br><br>
+        <strong>Best practices:</strong><br>
+        ✅ Always backup before DROP or TRUNCATE in production<br>
+        ✅ Use <code>DROP TABLE IF EXISTS</code> to avoid errors in scripts<br>
+        ✅ In production, prefer <code>DELETE WHERE ...</code> + ROLLBACK capability<br>
+        ✅ If you must TRUNCATE, disable FK checks first: <code>SET FOREIGN_KEY_CHECKS = 0;</code>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>DROP, TRUNCATE, DELETE — Syntax & Usage</span><span class="code-lang">MySQL</span></div>
+      <div class="code-body"><span class="cm">-- DROP TABLE (complete removal)</span>
+<span class="kw">DROP TABLE</span> students;                    <span class="cm">-- errors if doesn't exist</span>
+<span class="kw">DROP TABLE IF EXISTS</span> students;          <span class="cm">-- safe version</span>
+<span class="kw">DROP TABLE IF EXISTS</span> enrollments, students;  <span class="cm">-- drop multiple</span>
+
+<span class="cm">-- TRUNCATE (empty all rows, keep structure)</span>
+<span class="kw">TRUNCATE TABLE</span> students;               <span class="cm">-- removes all rows fast</span>
+<span class="cm">-- To truncate a table with FK children:</span>
+<span class="kw">SET FOREIGN_KEY_CHECKS</span> = <span class="nm">0</span>;
+<span class="kw">TRUNCATE TABLE</span> students;
+<span class="kw">SET FOREIGN_KEY_CHECKS</span> = <span class="nm">1</span>;
+
+<span class="cm">-- DELETE (selective row removal — DML, covered in Ch 6)</span>
+<span class="kw">DELETE FROM</span> students <span class="kw">WHERE</span> student_id = <span class="nm">5</span>;  <span class="cm">-- specific row</span>
+<span class="kw">DELETE FROM</span> students <span class="kw">WHERE</span> city = <span class="str">'Delhi'</span>;  <span class="cm">-- multiple rows</span>
+<span class="kw">DELETE FROM</span> students;                        <span class="cm">-- all rows (recoverable)</span></div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 11: RENAME ── -->
+  <div class="section" id="sec11">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--indigo-light)">📝</div>
+      <div><div class="section-num">Topic 11</div><h2 class="section-title">RENAME — Tables & Columns</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Renaming keeps data intact while changing the name. It's common during schema refactoring, migrations, and feature updates.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header"><span>RENAME — All Variations</span><span class="code-lang">MySQL / PostgreSQL</span></div>
+      <div class="code-body"><span class="cm">── MySQL ──────────────────────────────────────────</span>
+<span class="cm">-- Rename a TABLE (Method 1 — MySQL specific)</span>
+<span class="kw">RENAME TABLE</span> <span class="tbl">students</span> <span class="kw">TO</span> <span class="tbl">learners</span>;
+
+<span class="cm">-- Rename multiple tables atomically</span>
+<span class="kw">RENAME TABLE</span>
+    <span class="tbl">students</span>    <span class="kw">TO</span> <span class="tbl">learners</span>,
+    <span class="tbl">courses</span>     <span class="kw">TO</span> <span class="tbl">programs</span>,
+    <span class="tbl">instructors</span> <span class="kw">TO</span> <span class="tbl">mentors</span>;
+
+<span class="cm">-- Rename a table (Method 2 — using ALTER TABLE)</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span> <span class="kw">RENAME TO</span> <span class="tbl">learners</span>;
+
+<span class="cm">-- Rename a COLUMN (MySQL 8.0+)</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">RENAME COLUMN</span> dob <span class="kw">TO</span> date_of_birth;
+
+<span class="cm">-- Rename column (older MySQL — must repeat data type!)</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">CHANGE</span> dob date_of_birth <span class="kw">DATE</span>;
+
+<span class="cm">── PostgreSQL ────────────────────────────────────</span>
+<span class="cm">-- Rename table</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span> <span class="kw">RENAME TO</span> <span class="tbl">learners</span>;
+
+<span class="cm">-- Rename column</span>
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span>
+    <span class="kw">RENAME COLUMN</span> dob <span class="kw">TO</span> date_of_birth;
+
+<span class="cm">-- Rename database (PostgreSQL)</span>
+<span class="kw">ALTER DATABASE</span> guvi_lms <span class="kw">RENAME TO</span> guvi_production;</div>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <div class="callout-title">Rename ripple effects</div>
+        <div class="callout-text">Renaming a table/column doesn't automatically update: stored procedures, views, application code, BI reports, or foreign key references in other tools. Always search your codebase for the old name after renaming in the DB!</div>
+      </div>
+    </div>
+
+    <div class="try-box">
+      <div class="try-header"><div class="try-title">✏️ Try It — Full DDL Lifecycle: Create → Alter → Rename → Drop <span class="try-badge">Exercise 5</span></div></div>
+      <textarea class="try-editor" id="e5" spellcheck="false">-- Complete DDL lifecycle for a "temp_projects" table
+
+-- STEP 1: Create
+CREATE TABLE temp_projects (
+    project_id  INT          PRIMARY KEY AUTO_INCREMENT,
+    title       VARCHAR(100) NOT NULL,
+    student_id  INT,
+    status      ENUM('planned','active','completed') DEFAULT 'planned',
+    created_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+);
+
+-- STEP 2: Add columns that were forgotten
+ALTER TABLE temp_projects
+    ADD COLUMN description TEXT AFTER title,
+    ADD COLUMN score       DECIMAL(5,2) CHECK (score BETWEEN 0 AND 100),
+    ADD COLUMN submitted_on DATE;
+
+-- STEP 3: Rename a column
+ALTER TABLE temp_projects
+    RENAME COLUMN title TO project_title;  -- MySQL 8.0+
+
+-- STEP 4: Modify a column type
+ALTER TABLE temp_projects
+    MODIFY COLUMN project_title VARCHAR(200) NOT NULL;
+
+-- STEP 5: Rename the table
+RENAME TABLE temp_projects TO student_projects;
+
+-- STEP 6: Verify final structure
+DESCRIBE student_projects;
+
+-- STEP 7: When done, clean up
+-- DROP TABLE IF EXISTS student_projects;
+
+-- SHOW CREATE TABLE to see full DDL:
+SHOW CREATE TABLE student_projects;</textarea>
+      <div class="try-footer">
+        <div class="try-hint">💡 SHOW CREATE TABLE is your best friend — shows the exact CREATE TABLE SQL for any existing table!</div>
+        <div class="try-btns">
+          <button class="reset-btn" onclick="resetE('e5',4)">Reset</button>
+          <button class="run-btn" onclick="showOut('o5')">▶ See Final Structure</button>
+        </div>
+      </div>
+      <div class="try-output" id="o5">
+        <div class="output-label">Final DESCRIBE student_projects</div>
+        <div class="result-msg success">✅ CREATE: temp_projects created with 5 columns</div>
+        <div class="result-msg success">✅ ALTER ADD: description, score, submitted_on added</div>
+        <div class="result-msg success">✅ RENAME COLUMN: title → project_title</div>
+        <div class="result-msg success">✅ MODIFY: project_title now VARCHAR(200) NOT NULL</div>
+        <div class="result-msg success">✅ RENAME TABLE: temp_projects → student_projects (data intact!)</div>
+        <div class="result-msg info">📋 SHOW CREATE TABLE reveals: CREATE TABLE `student_projects` (`project_id` int NOT NULL AUTO_INCREMENT, `project_title` varchar(200) NOT NULL, `description` text, `status` enum('planned','active','completed') DEFAULT 'planned', `score` decimal(5,2) ...);</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 12: INDEXES ── -->
+  <div class="section" id="sec12">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--green-light)">⚡</div>
+      <div><div class="section-num">Topic 12</div><h2 class="section-title">CREATE INDEX / DROP INDEX</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      An <strong>index</strong> is a separate data structure that the database maintains to speed up queries. Without indexes, every query scans every row (full table scan). With indexes, the database jumps directly to the relevant rows — like using a book's index instead of reading every page.
+    </p>
+
+    <div class="index-compare">
+      <div class="idx-box" style="border-left:3px solid var(--red)">
+        <div class="idx-title" style="color:var(--red)">❌ Without Index — Full Table Scan</div>
+        <p style="font-size:12px;color:var(--gray500);margin-bottom:10px">Query: WHERE city = 'Chennai'</p>
+        <div class="idx-row" style="background:var(--red-light);color:var(--red)">🔍 Row 1: Mumbai — not Chennai, skip</div>
+        <div class="idx-row" style="background:var(--red-light);color:var(--red)">🔍 Row 2: Delhi — not Chennai, skip</div>
+        <div class="idx-row" style="background:var(--green-light);color:var(--green)">✅ Row 3: Chennai — MATCH!</div>
+        <div class="idx-row" style="background:var(--red-light);color:var(--red)">🔍 Row 4: Bangalore — skip</div>
+        <div class="idx-row" style="background:var(--red-light);color:var(--red)">🔍 Row 5: Hyderabad — skip</div>
+        <div style="font-size:12px;color:var(--red);margin-top:8px;padding:8px;background:var(--red-light);border-radius:6px">Checks ALL 1,000,000 rows even for 10 matches. O(n) — very slow!</div>
+      </div>
+      <div class="idx-box" style="border-left:3px solid var(--teal-mid)">
+        <div class="idx-title" style="color:var(--teal)">✅ With Index on city — Index Seek</div>
+        <p style="font-size:12px;color:var(--gray500);margin-bottom:10px">B-tree index: cities sorted alphabetically</p>
+        <div class="idx-row" style="background:var(--teal-light);color:var(--teal)">📖 Index: Ahmedabad → rows [45,890]</div>
+        <div class="idx-row" style="background:var(--teal-light);color:var(--teal)">📖 Index: Bangalore → rows [12,67,234]</div>
+        <div class="idx-row" style="background:var(--green-light);color:var(--green);font-weight:700">⚡ Chennai → rows [3,88,299,401] → Jump!</div>
+        <div class="idx-row" style="background:var(--teal-light);color:var(--teal)">📖 Delhi → rows [2,15,789]</div>
+        <div style="font-size:12px;color:var(--teal);margin-top:8px;padding:8px;background:var(--teal-light);border-radius:6px">Jumps directly to Chennai rows using B-tree. O(log n) — lightning fast!</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>CREATE INDEX — All Types & Syntax</span><span class="code-lang">MySQL</span></div>
+      <div class="code-body"><span class="cm">-- Basic single-column index</span>
+<span class="kw">CREATE INDEX</span> <span class="cn">idx_student_city</span> <span class="kw">ON</span> <span class="tbl">students</span>(city);
+
+<span class="cm">-- UNIQUE index (enforces uniqueness + speeds up lookup)</span>
+<span class="kw">CREATE UNIQUE INDEX</span> <span class="cn">idx_student_email</span> <span class="kw">ON</span> <span class="tbl">students</span>(email);
+
+<span class="cm">-- Composite index (multiple columns)</span>
+<span class="kw">CREATE INDEX</span> <span class="cn">idx_city_course</span> <span class="kw">ON</span> <span class="tbl">students</span>(city, course);
+<span class="cm">-- Useful for: WHERE city = 'Chennai' AND course = 'SQL'</span>
+<span class="cm">-- ⚠️ Column order matters! Index on (city, course) helps:</span>
+<span class="cm">--   WHERE city = ?                         ✅</span>
+<span class="cm">--   WHERE city = ? AND course = ?          ✅</span>
+<span class="cm">--   WHERE course = ?                       ❌ (skips left prefix)</span>
+
+<span class="cm">-- FULLTEXT index (for text search)</span>
+<span class="kw">CREATE FULLTEXT INDEX</span> <span class="cn">idx_ft_description</span> <span class="kw">ON</span> <span class="tbl">courses</span>(description);
+<span class="cm">-- Use with: MATCH(description) AGAINST('machine learning')</span>
+
+<span class="cm">-- Create index inline during table creation (recommended)</span>
+<span class="kw">CREATE TABLE</span> <span class="tbl">orders</span> (
+    order_id    <span class="kw">INT PRIMARY KEY AUTO_INCREMENT</span>,
+    customer_id <span class="kw">INT NOT NULL</span>,
+    status      <span class="kw">VARCHAR</span>(<span class="nm">20</span>),
+    created_at  <span class="kw">TIMESTAMP</span>,
+    <span class="kw">INDEX</span> <span class="cn">idx_customer</span> (customer_id),       <span class="cm">-- FK index</span>
+    <span class="kw">INDEX</span> <span class="cn">idx_status_date</span> (status, created_at) <span class="cm">-- composite</span>
+);
+
+<span class="cm">-- View indexes on a table</span>
+<span class="kw">SHOW INDEX FROM</span> <span class="tbl">students</span>;
+<span class="kw">SHOW INDEXES FROM</span> <span class="tbl">students</span>;
+
+<span class="cm">-- Drop an index</span>
+<span class="kw">DROP INDEX</span> <span class="cn">idx_student_city</span> <span class="kw">ON</span> <span class="tbl">students</span>;
+<span class="kw">ALTER TABLE</span> <span class="tbl">students</span> <span class="kw">DROP INDEX</span> <span class="cn">idx_student_city</span>;</div>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <div class="callout-title">Index Tradeoffs — Don't over-index!</div>
+        <div class="callout-text">
+          Every index: ✅ Speeds up SELECT with that column in WHERE/JOIN/ORDER BY<br>
+          Every index: ❌ Slows down INSERT/UPDATE/DELETE (index must be maintained)<br>
+          Every index: ❌ Uses disk space<br><br>
+          <strong>Rule of thumb:</strong> Index columns you filter or join on regularly. Don't index every column. A table with 10 indexes is a sign of over-engineering — aim for 3–5 carefully chosen indexes per table.
+        </div>
+      </div>
+    </div>
+
+    <div class="try-box">
+      <div class="try-header"><div class="try-title">✏️ Try It — Index Strategy for guvi_lms <span class="try-badge">Exercise 6</span></div></div>
+      <textarea class="try-editor" id="e6" spellcheck="false">-- Optimal index strategy after building the GUVI LMS schema
+
+-- RULE 1: FK columns always need indexes (for JOIN performance)
+CREATE INDEX idx_enroll_student ON enrollments(student_id);
+CREATE INDEX idx_enroll_course  ON enrollments(course_id);
+CREATE INDEX idx_course_instructor ON courses(instructor_id);
+
+-- RULE 2: Columns used in WHERE filters
+CREATE INDEX idx_student_city    ON students(city);
+CREATE INDEX idx_student_state   ON students(state);
+CREATE INDEX idx_course_category ON courses(category);
+CREATE INDEX idx_enroll_status   ON enrollments(status);
+
+-- RULE 3: Composite for common query patterns
+-- "Find active SQL students from Tamil Nadu"
+CREATE INDEX idx_student_state_city ON students(state, city);
+
+-- "Dashboard: active enrollments by date"
+CREATE INDEX idx_enroll_status_date ON enrollments(status, enrolled_on);
+
+-- RULE 4: Verify with EXPLAIN
+EXPLAIN
+SELECT s.name, s.city, e.score
+FROM students s
+JOIN enrollments e ON s.student_id = e.student_id
+WHERE s.city = 'Chennai'
+  AND e.status = 'completed'
+ORDER BY e.score DESC;
+-- Look for type='ref' or 'eq_ref' (index used)
+-- Avoid type='ALL' (full scan — need an index!)</textarea>
+      <div class="try-footer">
+        <div class="try-hint">💡 PK columns are auto-indexed. UNIQUE columns create an implicit index. Add manual indexes for FK + WHERE columns.</div>
+        <div class="try-btns">
+          <button class="reset-btn" onclick="resetE('e6',5)">Reset</button>
+          <button class="run-btn" onclick="showOut('o6')">▶ See Index Plan</button>
+        </div>
+      </div>
+      <div class="try-output" id="o6">
+        <div class="output-label">EXPLAIN Output — After Adding Indexes</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:var(--teal-mid);color:white"><th style="padding:7px 10px;text-align:left">table</th><th style="padding:7px 10px;text-align:left">type</th><th style="padding:7px 10px;text-align:left">possible_keys</th><th style="padding:7px 10px;text-align:left">key (used)</th><th style="padding:7px 10px;text-align:left">rows</th><th style="padding:7px 10px;text-align:left">Extra</th></tr></thead>
+          <tbody>
+            <tr style="background:var(--green-light)"><td style="padding:7px 10px;border-bottom:1px solid var(--border)">students</td><td style="padding:7px 10px;border-bottom:1px solid var(--border);color:var(--green);font-weight:700">ref</td><td style="padding:7px 10px;border-bottom:1px solid var(--border);font-size:11px">idx_student_city</td><td style="padding:7px 10px;border-bottom:1px solid var(--border);font-weight:600;color:var(--teal)">idx_student_city</td><td style="padding:7px 10px;border-bottom:1px solid var(--border);color:var(--green)">312</td><td style="padding:7px 10px;border-bottom:1px solid var(--border)">Using index</td></tr>
+            <tr style="background:var(--green-light)"><td style="padding:7px 10px">enrollments</td><td style="padding:7px 10px;color:var(--green);font-weight:700">ref</td><td style="padding:7px 10px;font-size:11px">idx_enroll_student, idx_enroll_status_date</td><td style="padding:7px 10px;font-weight:600;color:var(--teal)">idx_enroll_student</td><td style="padding:7px 10px;color:var(--green)">4</td><td style="padding:7px 10px">Using where; Using filesort</td></tr>
+          </tbody>
+        </table>
+        <div class="result-msg success" style="margin-top:10px">✅ Both tables use indexes (type=ref). Students: 312 rows scanned (not 20k). Enrollments: only 4 rows per student. Massive improvement!</div>
+        <div class="result-msg info">💡 "Using filesort" means ORDER BY couldn't use an index — add idx_enroll_score ON enrollments(score DESC) to fix it.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 13: CHEATSHEET & QUIZ ── -->
+  <div class="section" id="sec13">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--indigo-light)">📋</div>
+      <div><div class="section-num">Topic 13</div><h2 class="section-title">DDL Cheatsheet & Quiz</h2></div>
+    </div>
+
+    <div class="cheatsheet">
+      <div class="cs-title">📋 DDL Quick Reference</div>
+      <div class="cs-grid">
+        <div class="cs-item">
+          <div class="cs-label">Create Database & Table</div>
+          <div class="cs-code"><span class="kw">CREATE DATABASE IF NOT EXISTS</span> <span class="ph">db</span>;
+<span class="kw">USE</span> <span class="ph">db</span>;
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> <span class="ph">t</span> (
+  <span class="ph">id</span>  <span class="kw">INT</span> <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+  <span class="ph">col</span> <span class="kw">VARCHAR</span>(100) <span class="kw">NOT NULL</span>
+);</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">Constraints</div>
+          <div class="cs-code"><span class="kw">NOT NULL</span>           <span class="cm">-- required</span>
+<span class="kw">UNIQUE</span>             <span class="cm">-- no duplicates</span>
+<span class="kw">DEFAULT</span> <span class="ph">value</span>      <span class="cm">-- auto-fill</span>
+<span class="kw">CHECK</span> (<span class="ph">condition</span>)  <span class="cm">-- validate</span>
+<span class="kw">PRIMARY KEY</span>        <span class="cm">-- unique identifier</span>
+<span class="kw">FOREIGN KEY</span> ...    <span class="cm">-- referential integrity</span></div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">ALTER TABLE</div>
+          <div class="cs-code"><span class="kw">ADD COLUMN</span> <span class="ph">col</span> <span class="ph">type</span>
+<span class="kw">MODIFY COLUMN</span> <span class="ph">col</span> <span class="ph">new_type</span>
+<span class="kw">DROP COLUMN</span> <span class="ph">col</span>
+<span class="kw">RENAME COLUMN</span> <span class="ph">old</span> <span class="kw">TO</span> <span class="ph">new</span>
+<span class="kw">RENAME TO</span> <span class="ph">new_name</span>
+<span class="kw">ADD CONSTRAINT</span> <span class="ph">name</span> <span class="kw">CHECK</span>(...)
+<span class="kw">DROP FOREIGN KEY</span> <span class="ph">name</span></div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">Remove Commands</div>
+          <div class="cs-code"><span class="kw">DROP TABLE IF EXISTS</span> <span class="ph">t</span>;   <span class="cm">-- ☠️ all gone</span>
+<span class="kw">TRUNCATE TABLE</span> <span class="ph">t</span>;          <span class="cm">-- rows gone, structure ok</span>
+<span class="kw">DELETE FROM</span> <span class="ph">t WHERE</span> ...;    <span class="cm">-- safe, rollbackable</span>
+<span class="kw">DROP DATABASE IF EXISTS</span> <span class="ph">db</span>;</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">Indexes</div>
+          <div class="cs-code"><span class="kw">CREATE INDEX</span> <span class="ph">idx_name</span> <span class="kw">ON</span> <span class="ph">t</span>(<span class="ph">col</span>);
+<span class="kw">CREATE UNIQUE INDEX</span> <span class="ph">idx</span> <span class="kw">ON</span> <span class="ph">t</span>(<span class="ph">col</span>);
+<span class="kw">DROP INDEX</span> <span class="ph">idx_name</span> <span class="kw">ON</span> <span class="ph">t</span>;
+<span class="kw">SHOW INDEX FROM</span> <span class="ph">t</span>;
+<span class="kw">EXPLAIN SELECT</span> ... <span class="cm">-- verify usage</span></div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">ON DELETE Actions</div>
+          <div class="cs-code"><span class="kw">ON DELETE CASCADE</span>     <span class="cm">-- delete children</span>
+<span class="kw">ON DELETE SET NULL</span>    <span class="cm">-- nullify FK</span>
+<span class="kw">ON DELETE RESTRICT</span>   <span class="cm">-- block delete</span>
+<span class="kw">ON DELETE NO ACTION</span>  <span class="cm">-- same as RESTRICT</span>
+<span class="kw">ON UPDATE CASCADE</span>    <span class="cm">-- propagate PK change</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="quiz-box">
+      <div class="quiz-header">
+        <div style="font-size:18px">🧠</div>
+        <div class="quiz-title">Chapter 5 — DDL Knowledge Check</div>
+        <div class="quiz-count" id="q-count">Question 1 of 12</div>
+      </div>
+      <div class="quiz-body" id="quiz-body"></div>
+      <div class="quiz-nav">
+        <div class="quiz-progress-dots" id="q-dots"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn" id="prev-btn" onclick="prevQ()" style="display:none">← Prev</button>
+          <button class="btn btn-primary" id="next-btn" onclick="nextQ()" style="display:none">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-box">
+      <div class="summary-title">✅ Chapter 5 — What You've Mastered</div>
+      <div class="summary-grid">
+        <div class="summary-item"><div class="summary-check">✓</div>DDL overview — CREATE, ALTER, DROP, TRUNCATE, RENAME</div>
+        <div class="summary-item"><div class="summary-check">✓</div>CREATE DATABASE with charset & collation</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Choosing correct data types for every scenario</div>
+        <div class="summary-item"><div class="summary-check">✓</div>CREATE TABLE with IF NOT EXISTS</div>
+        <div class="summary-item"><div class="summary-check">✓</div>All 6 constraints: NOT NULL, UNIQUE, DEFAULT, CHECK, PK, FK</div>
+        <div class="summary-item"><div class="summary-check">✓</div>PRIMARY KEY: single, composite, surrogate vs natural</div>
+        <div class="summary-item"><div class="summary-check">✓</div>FOREIGN KEY: referential integrity enforcement</div>
+        <div class="summary-item"><div class="summary-check">✓</div>ON DELETE: CASCADE, SET NULL, RESTRICT, NO ACTION</div>
+        <div class="summary-item"><div class="summary-check">✓</div>ALTER TABLE: ADD, MODIFY, DROP, RENAME columns & constraints</div>
+        <div class="summary-item"><div class="summary-check">✓</div>DROP vs TRUNCATE vs DELETE — critical differences</div>
+        <div class="summary-item"><div class="summary-check">✓</div>RENAME TABLE and columns</div>
+        <div class="summary-item"><div class="summary-check">✓</div>CREATE INDEX, UNIQUE INDEX, composite index strategy</div>
+      </div>
+    </div>
+  </div>
+  </div><!-- /content -->
+
+  <div class="chapter-nav">
+    <div class="nav-card" onclick="window.location='chapter4-dql.html'">
+      ‹ <div><div class="nav-card-dir">← Previous</div><div class="nav-card-name">Chapter 4: DQL</div></div>
+    </div>
+    <div class="nav-card" onclick="alert('Chapter 6: DML — INSERT, UPDATE, DELETE coming next!')">
+      <div><div class="nav-card-dir">Next →</div><div class="nav-card-name">Chapter 6: DML — Data Manipulation</div></div> ›
+    </div>
+  </div>
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ── SCROLL SPY ──────────────────────────────────
+const sids=['sec1','sec2','sec3','sec4','sec5','sec6','sec7','sec8','sec9','sec10','sec11','sec12','sec13'];
+window.addEventListener('scroll',()=>{
+  let cur=sids[0];
+  sids.forEach(id=>{const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<120)cur=id;});
+  document.querySelectorAll('.nav-item').forEach(n=>{n.classList.remove('active');if(n.getAttribute('href')==='#'+cur)n.classList.add('active');});
+});
+
+// ── ALTER TABS ──────────────────────────────────
+function switchAlter(btn,id){
+  btn.closest('.alter-demo').querySelectorAll('.atab').forEach(t=>t.classList.remove('active'));
+  btn.closest('.alter-demo').querySelectorAll('.alter-content').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// ── CASCADE TABS ────────────────────────────────
+function switchCascade(btn,id){
+  btn.closest('.cascade-box').querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));
+  btn.closest('.cascade-box').querySelectorAll('.cascade-body').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// ── TRY IT ──────────────────────────────────────
+const defaults=[
+`-- Step 1: Create the GUVI Learning Management System database
+CREATE DATABASE IF NOT EXISTS guvi_lms
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
+-- Step 2: Select it as the active database
+USE guvi_lms;
+
+-- Step 3: See all available databases
+SHOW DATABASES;`,
+
+`-- Build a complete, well-designed schema step by step
+CREATE TABLE IF NOT EXISTS instructors (
+    instructor_id  INT            PRIMARY KEY AUTO_INCREMENT,
+    name           VARCHAR(100)   NOT NULL,
+    email          VARCHAR(150)   NOT NULL UNIQUE,
+    phone          VARCHAR(15),
+    specialization VARCHAR(100),
+    experience_yrs TINYINT        CHECK (experience_yrs >= 0),
+    is_active      BOOLEAN        DEFAULT TRUE,
+    joined_on      DATE,
+    created_at     TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
+);`,
+
+`-- Demonstrate all constraints working together
+CREATE TABLE employees (
+    emp_id      INT            PRIMARY KEY AUTO_INCREMENT,
+    name        VARCHAR(100)   NOT NULL,
+    email       VARCHAR(150)   NOT NULL UNIQUE,
+    department  VARCHAR(50)    NOT NULL DEFAULT 'General',
+    salary      DECIMAL(10,2)  NOT NULL CHECK (salary > 0),
+    age         TINYINT        CHECK (age BETWEEN 18 AND 65),
+    is_active   BOOLEAN        DEFAULT TRUE,
+    joined_on   DATE           DEFAULT (CURRENT_DATE)
+);`,
+
+`-- Real scenario: GUVI adds new features, schema must evolve
+ALTER TABLE students
+    ADD COLUMN linkedin_url  VARCHAR(200) AFTER email,
+    ADD COLUMN github_url    VARCHAR(200) AFTER linkedin_url,
+    ADD COLUMN updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                             ON UPDATE CURRENT_TIMESTAMP;`,
+
+`-- Complete DDL lifecycle for a "temp_projects" table
+CREATE TABLE temp_projects (
+    project_id  INT          PRIMARY KEY AUTO_INCREMENT,
+    title       VARCHAR(100) NOT NULL,
+    student_id  INT,
+    status      ENUM('planned','active','completed') DEFAULT 'planned',
+    created_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+);`,
+
+`-- Optimal index strategy after building the GUVI LMS schema
+CREATE INDEX idx_enroll_student ON enrollments(student_id);
+CREATE INDEX idx_enroll_course  ON enrollments(course_id);
+CREATE INDEX idx_student_city    ON students(city);
+SHOW INDEX FROM students;`
+];
+
+function resetE(id,idx){document.getElementById(id).value=defaults[idx];}
+function showOut(id){
+  document.getElementById(id).classList.add('visible');
+  document.getElementById(id).scrollIntoView({behavior:'smooth',block:'nearest'});
+  updateProgress();
+}
+
+// ── PROGRESS ─────────────────────────────────────
+function updateProgress(){
+  const outs=document.querySelectorAll('.try-output.visible').length;
+  const answered=qAns.filter(a=>a!==null).length;
+  const pct=Math.min(100,Math.round((outs+answered)/(6+12)*100));
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+
+// ── QUIZ ─────────────────────────────────────────
+const qList=[
+  {q:'What does DDL stand for, and which commands does it include?',opts:['Data Deletion Language — DELETE, REMOVE, ERASE','Data Definition Language — CREATE, ALTER, DROP, TRUNCATE, RENAME','Data Display Language — SHOW, DESCRIBE, EXPLAIN','Dynamic Data Language — INSERT, UPDATE, MERGE'],correct:1,exp:'✅ DDL = Data Definition Language. It defines and manages database STRUCTURE — tables, columns, constraints, indexes. CREATE (build), ALTER (modify), DROP (delete), TRUNCATE (empty), RENAME (rename). Unlike DML (INSERT/UPDATE/DELETE) which manipulates data, DDL changes the schema.'},
+  {q:'You want to store a product price like ₹1,29,999.50. Which data type should you use?',opts:['FLOAT(10,2) — decimal numbers','INT — integers only','DECIMAL(10,2) — exact decimal storage','VARCHAR(20) — store as text'],correct:2,exp:'✅ DECIMAL(10,2) is mandatory for money. FLOAT uses binary floating-point which causes rounding errors (0.1 + 0.2 = 0.30000000000004 in binary). DECIMAL stores exact decimal values — critical for financial calculations. Always use DECIMAL for currency!'},
+  {q:'Which constraint automatically generates a unique number for each new row in MySQL?',opts:['UNIQUE','SEQUENCE','AUTO_INCREMENT','GENERATED'],correct:2,exp:'✅ AUTO_INCREMENT in MySQL automatically assigns the next integer (1, 2, 3...) to a PRIMARY KEY column when a new row is inserted. You never specify the ID — the database handles it. PostgreSQL uses SERIAL or GENERATED ALWAYS AS IDENTITY. SQLite uses INTEGER PRIMARY KEY AUTOINCREMENT.'},
+  {q:'A table has FOREIGN KEY (instructor_id) REFERENCES instructors(instructor_id) ON DELETE SET NULL. What happens when you delete instructor_id = 5?',opts:['All courses taught by instructor 5 are deleted','The DELETE is blocked — cannot delete referenced rows','Courses where instructor_id = 5 have instructor_id set to NULL','instructor_id = 5 is set to its DEFAULT value'],correct:2,exp:'✅ ON DELETE SET NULL sets the FK column to NULL when the parent row is deleted. The courses still exist — they just become "unassigned" (instructor_id = NULL). This requires the instructor_id column to be NULLable (not NOT NULL). Useful when children can exist independently.'},
+  {q:'What is the difference between TRUNCATE and DELETE?',opts:['TRUNCATE deletes specific rows; DELETE deletes all rows','TRUNCATE is DML and can be rolled back; DELETE is DDL and cannot','TRUNCATE removes all rows instantly (cannot be rolled back in MySQL) and resets AUTO_INCREMENT; DELETE is DML, can be rolled back, fires triggers, and keeps AUTO_INCREMENT','They are identical — just different syntax for the same operation'],correct:2,exp:'✅ Key differences: TRUNCATE is DDL in MySQL (auto-committed, can\'t rollback, no triggers, resets AUTO_INCREMENT). DELETE is DML (can rollback with transaction, fires DELETE triggers, doesn\'t reset AUTO_INCREMENT). For removing all rows safely with rollback capability → DELETE. For fast cleanup of huge tables → TRUNCATE.'},
+  {q:'You run: ALTER TABLE students ADD COLUMN age TINYINT CHECK (age BETWEEN 18 AND 65). A student tries to register with age = 15. What happens?',opts:['The row is inserted with age = 15','The row is inserted with age = NULL (default)','The INSERT fails with a CHECK constraint violation error','The age is automatically corrected to 18'],correct:2,exp:'✅ CHECK constraint rejects any value that doesn\'t satisfy the condition. Age 15 fails BETWEEN 18 AND 65, so the INSERT is rejected with an error. The database never stores invalid data when CHECK constraints are in place. Note: MySQL silently ignored CHECK constraints before version 8.0.16 — always verify your MySQL version!'},
+  {q:'Which column ordering rule applies to composite indexes?',opts:['Alphabetical order of column names','The order doesn\'t matter — all combinations are indexed','Left-prefix rule: queries must use the leftmost column(s) to benefit from the index','Always put the column with most unique values first'],correct:2,exp:'✅ Left-prefix rule: A composite index on (city, course) helps queries using city alone or city + course together. It does NOT help a query filtering on course alone (missing the left prefix). Always put the most selective column or the most commonly filtered column leftmost in composite indexes.'},
+  {q:'What is referential integrity?',opts:['Ensuring all references in the code are correct','The database guarantees that FK values must exist as PK values in the referenced table — no orphaned references allowed','All rows in a table must have unique values','The index on the PK column is maintained correctly'],correct:1,exp:'✅ Referential integrity means: if enrollments.student_id = 5, then student_id = 5 MUST exist in the students table. The FK constraint enforces this — you cannot insert a child row with a non-existent parent, and you cannot delete a parent that has children (without CASCADE or SET NULL). This prevents "orphaned" records.'},
+  {q:'You want to rename the "dob" column to "date_of_birth" in MySQL 8.0+. Which syntax is correct?',opts:['RENAME COLUMN dob TO date_of_birth;','ALTER TABLE students RENAME COLUMN dob TO date_of_birth;','ALTER TABLE students CHANGE dob date_of_birth;','UPDATE COLUMN dob = date_of_birth IN students;'],correct:1,exp:'✅ MySQL 8.0+ supports: ALTER TABLE students RENAME COLUMN dob TO date_of_birth; For older MySQL, use CHANGE which requires repeating the data type: ALTER TABLE students CHANGE dob date_of_birth DATE; PostgreSQL uses the same syntax as MySQL 8.0+.'},
+  {q:'Which ON DELETE action should you use for: "If a student is deleted, their enrollments should also be deleted automatically"?',opts:['ON DELETE SET NULL','ON DELETE RESTRICT','ON DELETE CASCADE','ON DELETE NO ACTION'],correct:2,exp:'✅ ON DELETE CASCADE: When the parent (student) is deleted, all child rows (enrollments) referencing that student are automatically deleted. Perfect for dependent data that has no meaning without the parent. Use RESTRICT when you want to PREVENT deletion (force admin to handle manually). Use SET NULL when children should remain but unlinked.'},
+  {q:'What does CREATE TABLE IF NOT EXISTS do?',opts:['Creates the table only if the database is empty','Creates the table and throws an error if it already exists','Creates the table only if it doesn\'t already exist — no error if it does','Creates a temporary table that exists only for the current session'],correct:2,exp:'✅ IF NOT EXISTS is a safety guard: if the table already exists, the command is silently ignored (no error). Without IF NOT EXISTS: CREATE TABLE existing_table → ERROR 1050 (Table already exists). Always use IF NOT EXISTS in scripts that might run multiple times — like migrations or setup scripts.'},
+  {q:'Which statement about indexes is TRUE?',opts:['Indexes always speed up both reads and writes','Adding an index to a column slows down SELECT but speeds up INSERT/UPDATE','Indexes speed up SELECT queries but slow down INSERT/UPDATE/DELETE because the index must be maintained','All columns should be indexed for maximum performance'],correct:2,exp:'✅ Indexes are a tradeoff: they dramatically speed up SELECT (WHERE/JOIN/ORDER BY) by avoiding full table scans. But every INSERT/UPDATE/DELETE must also update all indexes on that table — slowing writes. A table with 15 indexes will be very fast to read but painfully slow to write. Target 3–5 well-chosen indexes per table.'},
+];
+let cQ=0;const qAns=new Array(qList.length).fill(null);
+function renderQuiz(){
+  const q=qList[cQ];
+  document.getElementById('q-count').textContent=`Question ${cQ+1} of ${qList.length}`;
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="quiz-q">${cQ+1}. ${q.q}</div>
+    <div class="quiz-options">${q.opts.map((o,i)=>`
+      <button class="quiz-opt ${qAns[cQ]===i?(i===q.correct?'correct':'wrong'):''}"
+              onclick="ansQ(${i})" ${qAns[cQ]!==null?'disabled':''}>
+        <div class="opt-letter">${['A','B','C','D'][i]}</div>${o}
+      </button>`).join('')}</div>
+    <div class="quiz-feedback ${qAns[cQ]!==null?'show':''} ${qAns[cQ]===q.correct?'correct':'wrong'}">
+      ${qAns[cQ]!==null?q.exp:''}
+    </div>`;
+  document.getElementById('q-dots').innerHTML=qList.map((_,i)=>`<div class="q-dot ${i===cQ?'active':qAns[i]===null?'':(qAns[i]===qList[i].correct?'done-c':'done-w')}"></div>`).join('');
+  document.getElementById('prev-btn').style.display=cQ>0?'block':'none';
+  document.getElementById('next-btn').style.display=qAns[cQ]!==null&&cQ<qList.length-1?'block':'none';
+}
+function ansQ(i){if(qAns[cQ]!==null)return;qAns[cQ]=i;updateProgress();renderQuiz();}
+function nextQ(){if(cQ<qList.length-1){cQ++;renderQuiz();}}
+function prevQ(){if(cQ>0){cQ--;renderQuiz();}}
+renderQuiz();
+</script>
+</body>
+</html>

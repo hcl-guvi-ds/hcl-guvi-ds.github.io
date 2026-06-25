@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 3 — Normalization | SQL Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#0F6E56;--teal-mid:#1D9E75;--teal-light:#E1F5EE;--teal-soft:#f0faf6;
+  --blue:#185FA5;--blue-light:#E6F1FB;--indigo:#534AB7;--indigo-light:#EEEDFE;
+  --amber:#BA7517;--amber-light:#FAEEDA;--coral:#993C1D;--coral-light:#FAECE7;
+  --purple:#7C3AED;--purple-light:#EDE9FE;--green:#16A34A;--green-light:#DCFCE7;
+  --red:#DC2626;--red-light:#FEE2E2;
+  --gray900:#1a1a1a;--gray700:#3d3d3d;--gray500:#6b6b6b;--gray300:#c8c8c8;
+  --gray100:#f4f4f4;--gray50:#fafafa;--white:#fff;--border:#e8e8e8;
+  --radius:10px;--radius-lg:16px;--shadow:0 2px 12px rgba(0,0,0,.07);
+  --font:'Inter',sans-serif;--mono:'Fira Code',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:#f7f8fa;color:var(--gray900);font-size:15px;line-height:1.7}
+.shell{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:260px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.brand-tag{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--teal);text-transform:uppercase;margin-bottom:4px}
+.brand-title{font-size:15px;font-weight:700;color:var(--gray900);line-height:1.3}
+.brand-sub{font-size:11px;color:var(--gray500);margin-top:2px}
+.sidebar-progress{padding:12px 20px;border-bottom:1px solid var(--border)}
+.prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--gray500);margin-bottom:6px}
+.prog-bar{height:4px;background:var(--gray100);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal-mid),var(--blue));border-radius:4px;transition:width .5s}
+.sidebar-nav{padding:12px 0;flex:1}
+.nav-section{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--gray300);text-transform:uppercase;padding:8px 20px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 20px;font-size:13px;color:var(--gray500);cursor:pointer;border-left:3px solid transparent;transition:all .15s;text-decoration:none}
+.nav-item:hover{color:var(--teal);background:var(--teal-soft)}
+.nav-item.active{color:var(--teal);background:var(--teal-light);border-left-color:var(--teal-mid);font-weight:500}
+.nav-num{width:20px;height:20px;border-radius:50%;background:var(--gray100);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;color:var(--gray500)}
+.nav-item.active .nav-num{background:var(--teal-light);color:var(--teal)}
+
+/* MAIN */
+.main{margin-left:260px;flex:1}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-breadcrumb{font-size:12px;color:var(--gray500);display:flex;align-items:center;gap:6px}
+.topbar-breadcrumb span{color:var(--gray900);font-weight:500}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+.meta-chip{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray500);background:var(--gray50);border:1px solid var(--border);padding:5px 12px;border-radius:20px}
+
+/* HERO */
+.chapter-hero{background:var(--white);border-bottom:1px solid var(--border);padding:48px 40px 36px}
+.hero-phase{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--teal);text-transform:uppercase;margin-bottom:10px}
+.hero-title{font-size:32px;font-weight:700;color:var(--gray900);line-height:1.25;margin-bottom:12px}
+.hero-title span{color:var(--teal-mid)}
+.hero-desc{font-size:15px;color:var(--gray500);max-width:640px;line-height:1.7;margin-bottom:24px}
+.hero-meta{display:flex;gap:12px;flex-wrap:wrap}
+
+/* CONTENT */
+.content{padding:40px 40px 80px;max-width:900px}
+.section{margin-bottom:60px;scroll-margin-top:80px}
+.section-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:14px;border-bottom:2px solid var(--teal-light)}
+.section-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.section-num{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.section-title{font-size:22px;font-weight:700;color:var(--gray900)}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:20px}
+.card-title{font-size:15px;font-weight:600;color:var(--gray900);margin-bottom:12px}
+
+/* CALLOUTS */
+.callout{border-radius:var(--radius);padding:16px 20px;margin:20px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.callout-body{flex:1}
+.callout-title{font-weight:600;font-size:14px;margin-bottom:4px}
+.callout-text{font-size:13px;line-height:1.6}
+.callout.tip{background:var(--teal-light);color:var(--teal);border-left:3px solid var(--teal-mid)}
+.callout.info{background:var(--blue-light);color:var(--blue);border-left:3px solid var(--blue)}
+.callout.warning{background:var(--amber-light);color:var(--amber);border-left:3px solid var(--amber)}
+.callout.example{background:var(--indigo-light);color:var(--indigo);border-left:3px solid var(--indigo)}
+.callout.bad{background:var(--red-light);color:var(--red);border-left:3px solid var(--red)}
+.callout.good{background:var(--green-light);color:var(--green);border-left:3px solid var(--green)}
+
+/* REAL WORLD */
+.real-world{background:var(--white);border:1px solid var(--border);border-left:4px solid var(--teal-mid);border-radius:var(--radius);padding:20px 24px;margin:20px 0}
+.rw-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:8px}
+.rw-title{font-size:16px;font-weight:700;color:var(--gray900);margin-bottom:8px}
+.rw-body{font-size:13px;color:var(--gray700);line-height:1.7}
+
+/* TABLE VISUALS */
+.tbl-wrap{overflow-x:auto;margin:14px 0}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.tbl th{background:var(--teal-mid);color:white;padding:9px 14px;text-align:left;font-weight:600;font-size:12px;white-space:nowrap}
+.tbl td{padding:8px 14px;border-bottom:1px solid var(--gray100);color:var(--gray700);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--gray50)}
+.tbl.bad th{background:var(--coral)}
+.tbl.mid th{background:var(--amber)}
+.tbl.good th{background:var(--teal-mid)}
+.tbl .pk{font-weight:700;color:var(--teal)}
+.tbl .fk{color:var(--blue)}
+.tbl .prob{background:#fff0f0;color:var(--red);font-style:italic}
+.tbl .dup{background:#fff8e1}
+.tbl .null-cell{color:var(--gray300);font-style:italic}
+.tbl-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+
+/* NF BADGE */
+.nf-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-right:6px}
+.nf-1{background:#FEE2E2;color:#DC2626}
+.nf-2{background:var(--amber-light);color:var(--amber)}
+.nf-3{background:var(--blue-light);color:var(--blue)}
+.nf-bc{background:var(--indigo-light);color:var(--indigo)}
+.nf-4{background:var(--purple-light);color:var(--purple)}
+.nf-5{background:var(--green-light);color:var(--green)}
+
+/* BEFORE AFTER */
+.before-after{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.ba-col{}
+.ba-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:6px 12px;border-radius:8px 8px 0 0;display:flex;align-items:center;gap:6px}
+.ba-bad{background:var(--coral);color:white}
+.ba-good{background:var(--teal-mid);color:white}
+
+/* FD BOX */
+.fd-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin:10px 0;font-family:var(--mono);font-size:13px}
+.fd-arrow{color:var(--teal-mid);font-weight:700;margin:0 8px}
+.fd-desc{font-family:var(--font);font-size:12px;color:var(--gray500);margin-top:6px}
+.fd-bad{border-left:3px solid var(--red);background:var(--red-light)}
+.fd-good{border-left:3px solid var(--teal-mid);background:var(--teal-light)}
+
+/* CODE BLOCKS */
+.code-block{background:#1e2030;border-radius:var(--radius);overflow:hidden;margin:16px 0;font-family:var(--mono);font-size:13px}
+.code-header{background:#272a3f;padding:9px 16px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#7a8ba8;font-family:var(--font)}
+.code-lang{background:rgba(255,255,255,.08);padding:2px 8px;border-radius:4px;font-weight:500}
+.code-body{padding:16px;color:#cdd6f4;line-height:1.75;overflow-x:auto;white-space:pre}
+.kw{color:#89b4fa}.str{color:#a6e3a1}.cm{color:#6c7086;font-style:italic}.fn{color:#f38ba8}.nm{color:#fab387}.op{color:#89dceb}
+
+/* TRY IT */
+.try-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:20px 0}
+.try-header{background:linear-gradient(135deg,#1e2030,#272a3f);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;color:white}
+.try-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.try-badge{font-size:10px;background:var(--teal-mid);color:white;padding:2px 8px;border-radius:4px;font-weight:600}
+.try-editor{min-height:110px;background:#1e2030;padding:14px 16px;font-family:var(--mono);font-size:13px;color:#cdd6f4;border:none;outline:none;resize:vertical;width:100%;line-height:1.75}
+.try-footer{background:var(--gray50);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.try-hint{font-size:12px;color:var(--gray500)}
+.try-btns{display:flex;gap:8px}
+.run-btn{background:var(--teal-mid);color:white;border:none;padding:7px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);transition:background .15s}
+.run-btn:hover{background:var(--teal)}
+.reset-btn{background:transparent;color:var(--gray500);border:1px solid var(--border);padding:7px 14px;border-radius:7px;font-size:13px;cursor:pointer;font-family:var(--font)}
+.reset-btn:hover{background:var(--gray100)}
+.try-output{border-top:1px solid var(--border);background:var(--white);padding:16px 18px;display:none}
+.try-output.visible{display:block}
+.output-label{font-size:11px;font-weight:600;color:var(--gray500);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.result-msg{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;margin-bottom:6px;line-height:1.5}
+.result-msg.success{background:var(--teal-light);color:var(--teal)}
+.result-msg.info{background:var(--blue-light);color:var(--blue)}
+.result-msg.warn{background:var(--amber-light);color:var(--amber)}
+
+/* QUIZ */
+.quiz-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:24px 0}
+.quiz-header{background:var(--indigo-light);padding:14px 20px;display:flex;align-items:center;gap:10px}
+.quiz-title{font-size:14px;font-weight:600;color:var(--indigo)}
+.quiz-count{font-size:12px;color:var(--indigo);opacity:.7;margin-left:auto}
+.quiz-body{padding:20px}
+.quiz-q{font-size:14px;font-weight:500;color:var(--gray900);margin-bottom:14px;line-height:1.6}
+.quiz-options{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.quiz-opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--gray700);transition:all .15s;background:var(--white);text-align:left;font-family:var(--font);line-height:1.5;width:100%}
+.quiz-opt:hover{border-color:var(--indigo);color:var(--indigo);background:var(--indigo-light)}
+.quiz-opt.correct{border-color:var(--teal-mid);background:var(--teal-light);color:var(--teal)}
+.quiz-opt.wrong{border-color:var(--coral);background:var(--coral-light);color:var(--coral)}
+.opt-letter{width:22px;height:22px;border-radius:50%;background:var(--gray100);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:var(--gray500)}
+.quiz-opt.correct .opt-letter{background:var(--teal-mid);color:white}
+.quiz-opt.wrong .opt-letter{background:var(--coral);color:white}
+.quiz-feedback{display:none;padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.5;margin-top:4px}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:var(--teal-light);color:var(--teal)}
+.quiz-feedback.wrong{background:var(--coral-light);color:var(--coral)}
+.quiz-nav{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-top:1px solid var(--border);background:var(--gray50)}
+.quiz-progress-dots{display:flex;gap:6px}
+.q-dot{width:8px;height:8px;border-radius:50%;background:var(--gray300);transition:all .2s}
+.q-dot.active{background:var(--indigo);transform:scale(1.3)}
+.q-dot.done-c{background:var(--teal-mid)}
+.q-dot.done-w{background:var(--coral)}
+.btn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--gray700);font-family:var(--font);transition:all .15s}
+.btn:hover{background:var(--gray100)}
+.btn-primary{background:var(--teal-mid);color:white;border-color:var(--teal-mid)}
+.btn-primary:hover{background:var(--teal)}
+
+/* SUMMARY */
+.summary-box{background:linear-gradient(135deg,var(--teal-soft),var(--blue-light));border:1px solid var(--teal-light);border-radius:var(--radius-lg);padding:24px 28px;margin:32px 0 0}
+.summary-title{font-size:16px;font-weight:700;color:var(--gray900);margin-bottom:16px}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.summary-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--gray700);line-height:1.5}
+.summary-check{width:20px;height:20px;border-radius:50%;background:var(--teal-mid);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px}
+
+/* CHAPTER NAV */
+.chapter-nav{background:var(--white);border-top:1px solid var(--border);padding:24px 40px;display:flex;justify-content:space-between;align-items:center}
+.nav-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;font-size:13px;color:var(--gray700);transition:all .15s;min-width:200px}
+.nav-card:hover{border-color:var(--teal-mid);color:var(--teal)}
+.nav-card-dir{font-size:11px;color:var(--gray300);margin-bottom:2px}
+.nav-card-name{font-weight:600}
+
+/* NORMALIZATION STEPPER */
+.nf-stepper{display:flex;gap:0;margin:24px 0;overflow-x:auto;padding-bottom:4px}
+.nf-step{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.nf-step-box{padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:2px solid transparent;transition:all .2s;text-align:center;min-width:90px}
+.nf-step-box.active{transform:translateY(-3px);box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.nf-arrow-box{display:flex;align-items:center;padding:0 4px;font-size:18px;color:var(--gray300);margin-top:-20px}
+.nf-step-label{font-size:10px;color:var(--gray500);margin-top:6px;text-align:center}
+
+/* INTERACTIVE NORMALIZER */
+.inter-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:20px 0}
+.inter-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.inter-title{font-size:14px;font-weight:600;color:var(--gray900)}
+.tab-row{display:flex;gap:4px}
+.tab-btn{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--gray500);font-family:var(--font);transition:all .15s}
+.tab-btn.active{background:var(--teal-light);color:var(--teal);border-color:var(--teal-mid)}
+.inter-body{padding:20px;display:none}
+.inter-body.active{display:block}
+
+/* VIOLATION TAGS */
+.vtag{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;margin-left:4px;vertical-align:middle}
+.vtag-red{background:var(--red-light);color:var(--red)}
+.vtag-amber{background:var(--amber-light);color:var(--amber)}
+.vtag-ok{background:var(--green-light);color:var(--green)}
+
+/* COMPARE GRID */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.compare-col{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.compare-head{padding:14px 18px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px}
+.compare-body{padding:4px 0 12px}
+.compare-row{padding:8px 18px;font-size:13px;color:var(--gray700);display:flex;align-items:flex-start;gap:8px;line-height:1.5;border-bottom:1px solid var(--gray100)}
+.compare-row:last-child{border-bottom:none}
+.compare-row::before{content:'▸';color:var(--gray300);flex-shrink:0;margin-top:1px}
+
+/* TERM GRID */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:16px 0}
+.term-card{background:var(--gray50);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.term-word{font-size:13px;font-weight:700;color:var(--teal);font-family:var(--mono);margin-bottom:4px}
+.term-def{font-size:12px;color:var(--gray700);line-height:1.5}
+.term-eg{font-size:11px;color:var(--gray500);margin-top:4px;font-style:italic}
+
+/* INTERVIEW BOX */
+.interview-q{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);margin:14px 0;overflow:hidden}
+.iq-head{padding:14px 18px;display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--gray50)}
+.iq-head:hover{background:var(--gray100)}
+.iq-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--indigo-light);color:var(--indigo)}
+.iq-q{font-size:13px;font-weight:500;color:var(--gray900);flex:1}
+.iq-arrow{font-size:16px;color:var(--gray300);transition:transform .2s;flex-shrink:0}
+.iq-arrow.open{transform:rotate(90deg)}
+.iq-body{display:none;padding:16px 18px;font-size:13px;color:var(--gray700);line-height:1.7;border-top:1px solid var(--border)}
+.iq-body.open{display:block}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .main{margin-left:0}
+  .content{padding:24px 20px 60px}
+  .chapter-hero{padding:32px 20px 24px}
+  .topbar{padding:12px 20px}
+  .before-after,.compare-grid{grid-template-columns:1fr}
+  .hero-title{font-size:24px}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ── SIDEBAR ── -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-tag">HCL GUVI · SQL Mastery</div>
+    <div class="brand-title">Chapter 3</div>
+    <div class="brand-sub">Normalization (1NF → BCNF)</div>
+  </div>
+  <div class="sidebar-progress">
+    <div class="prog-label"><span>Your progress</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Topics</div>
+    <a class="nav-item active" href="#sec1"><div class="nav-num">1</div>Why Normalization?</a>
+    <a class="nav-item" href="#sec2"><div class="nav-num">2</div>Functional Dependencies</a>
+    <a class="nav-item" href="#sec3"><div class="nav-num">3</div>1NF — Atomic Values</a>
+    <a class="nav-item" href="#sec4"><div class="nav-num">4</div>2NF — Partial Dependencies</a>
+    <a class="nav-item" href="#sec5"><div class="nav-num">5</div>3NF — Transitive Dependencies</a>
+    <a class="nav-item" href="#sec6"><div class="nav-num">6</div>BCNF — Boyce-Codd</a>
+    <a class="nav-item" href="#sec7"><div class="nav-num">7</div>4NF & 5NF</a>
+    <a class="nav-item" href="#sec8"><div class="nav-num">8</div>Step-by-Step: Full Example</a>
+    <a class="nav-item" href="#sec9"><div class="nav-num">9</div>Denormalization</a>
+    <a class="nav-item" href="#sec10"><div class="nav-num">10</div>Tradeoffs & Indexes</a>
+    <a class="nav-item" href="#sec11"><div class="nav-num">11</div>Interview Questions</div></a>
+    <a class="nav-item" href="#sec12"><div class="nav-num">12</div>Quiz & Review</a>
+  </div>
+</nav>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-breadcrumb">SQL Mastery › Phase 1 › <span>Chapter 3 — Normalization</span></div>
+    <div class="topbar-actions">
+      <div class="meta-chip"><span style="width:6px;height:6px;border-radius:50%;background:#1D9E75;display:inline-block"></span> Beginner → Intermediate</div>
+      <div class="meta-chip">⏱ ~70 min</div>
+    </div>
+  </div>
+
+  <div class="chapter-hero">
+    <div class="hero-phase">Phase 1 · Chapter 3 of 22</div>
+    <h1 class="hero-title">Normalization — <span>Designing Clean Schemas</span></h1>
+    <p class="hero-desc">Ever seen a database where fixing one thing breaks three others? Where the same data is stored in 10 places? That's the problem normalization solves. Learn how to design schemas that are clean, efficient, and maintainable — the skill that separates good SQL developers from great ones.</p>
+    <div class="hero-meta">
+      <div class="meta-chip">📚 12 Topics</div>
+      <div class="meta-chip">✍️ 5 Try-It exercises</div>
+      <div class="meta-chip">🧠 10 Quiz questions</div>
+      <div class="meta-chip">💼 Interview Q&A included</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- ── SECTION 1: WHY NORMALIZATION ── -->
+  <div class="section" id="sec1">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--coral-light)">🤯</div>
+      <div><div class="section-num">Topic 1</div><h2 class="section-title">Why Normalization? — The Redundancy Problem</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Normalization is the process of <strong>organizing a database to reduce data redundancy and improve data integrity</strong>.
+      Without it, your database becomes a maintenance nightmare — updating one thing requires changing it in 50 places, and forgetting one leads to inconsistent, contradictory data.
+    </p>
+
+    <p style="font-size:14px;font-weight:600;color:var(--gray900);margin-bottom:10px">🚨 The Problem Table — everything in one messy place:</p>
+    <div class="tbl-wrap">
+      <table class="tbl bad">
+        <thead><tr><th>order_id</th><th>customer_name</th><th>customer_phone</th><th>customer_city</th><th>product_name</th><th>category</th><th>category_mgr</th><th>qty</th><th>price</th></tr></thead>
+        <tbody>
+          <tr><td>1001</td><td class="dup">Priya Sharma</td><td class="dup">9876543210</td><td class="dup">Chennai</td><td>iPhone 15</td><td class="dup">Electronics</td><td class="dup">Ramesh</td><td>1</td><td>79999</td></tr>
+          <tr><td>1002</td><td class="dup">Priya Sharma</td><td class="dup">9876543210</td><td class="dup">Chennai</td><td>AirPods Pro</td><td class="dup">Electronics</td><td class="dup">Ramesh</td><td>2</td><td>19999</td></tr>
+          <tr><td>1003</td><td>Rahul Verma</td><td>9811223344</td><td>Delhi</td><td>Nike Shoes</td><td>Fashion</td><td>Sunita</td><td>1</td><td>4999</td></tr>
+          <tr><td>1004</td><td class="dup">Priya Sharma</td><td class="dup">9876543210</td><td class="dup">Chennai</td><td class="prob">Apple Watch</td><td class="prob">Wearables</td><td class="prob">Ramesh</td><td>1</td><td>39999</td></tr>
+          <tr><td>1005</td><td>Ananya Iyer</td><td>9900112233</td><td>Bangalore</td><td>HP Laptop</td><td class="dup">Electronics</td><td class="dup">Ramesh</td><td>1</td><td>55999</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:12px;color:var(--red);margin-bottom:16px">🔴 Highlighted = duplicated data &nbsp;|&nbsp; <em>Italics</em> = inconsistency</p>
+
+    <p style="font-size:14px;font-weight:600;color:var(--gray900);margin:20px 0 12px">This design has 4 serious problems (called "Anomalies"):</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px">
+      <div class="card" style="border-top:3px solid var(--red)">
+        <div class="card-title" style="color:var(--red)">🔴 Update Anomaly</div>
+        <p style="font-size:13px;color:var(--gray700);line-height:1.6">If Priya changes her phone number, you must update it in <strong>every row</strong> she appears in. Miss one → data is inconsistent.</p>
+        <div style="font-size:12px;color:var(--red);margin-top:8px;padding:6px;background:var(--red-light);border-radius:6px">Priya has 3 orders → 3 rows to update. 1 missed → 2 phone numbers in DB!</div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--amber)">
+        <div class="card-title" style="color:var(--amber)">🟡 Insertion Anomaly</div>
+        <p style="font-size:13px;color:var(--gray700);line-height:1.6">You cannot add a new product <strong>until an order exists for it</strong>. No order → no way to store the product.</p>
+        <div style="font-size:12px;color:var(--amber);margin-top:8px;padding:6px;background:var(--amber-light);border-radius:6px">Want to add "Samsung TV" to your catalog before anyone orders it? Impossible!</div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--coral)">
+        <div class="card-title" style="color:var(--coral)">🔴 Deletion Anomaly</div>
+        <p style="font-size:13px;color:var(--gray700);line-height:1.6">If Rahul's order is deleted, you <strong>lose all information</strong> about Rahul as a customer too — it was only stored in that one order row.</p>
+        <div style="font-size:12px;color:var(--coral);margin-top:8px;padding:6px;background:var(--coral-light);border-radius:6px">Delete the last order → accidentally delete the customer's record!</div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--indigo)">
+        <div class="card-title" style="color:var(--indigo)">🟣 Data Redundancy</div>
+        <p style="font-size:13px;color:var(--gray700);line-height:1.6">Priya's name, phone, and city are stored <strong>3 times</strong>. "Electronics" category and manager "Ramesh" appear in multiple rows.</p>
+        <div style="font-size:12px;color:var(--indigo);margin-top:8px;padding:6px;background:var(--indigo-light);border-radius:6px">Wastes storage + creates risk of inconsistency</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">Normalization Goal: One Fact, One Place</div>
+        <div class="callout-text">The principle is simple — every piece of information should be stored <strong>exactly once</strong>. Each table should describe one and only one thing. This eliminates anomalies and makes updates, inserts, and deletes safe and simple.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2: FUNCTIONAL DEPENDENCIES ── -->
+  <div class="section" id="sec2">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--blue-light)">🔗</div>
+      <div><div class="section-num">Topic 2</div><h2 class="section-title">Functional Dependencies — The Foundation</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Before you can normalize, you need to understand <strong>Functional Dependencies (FD)</strong>. An FD tells you: 
+      <em>"If I know the value of column A, I can always determine the value of column B."</em> 
+      Written as: <strong>A → B</strong> (A determines B, or B is functionally dependent on A).
+    </p>
+
+    <div class="callout example">
+      <div class="callout-icon">📖</div>
+      <div class="callout-body">
+        <div class="callout-title">Reading Functional Dependencies</div>
+        <div class="callout-text">
+          <strong>student_id → name, city, email</strong><br>
+          "Knowing the student_id, I can always determine the student's name, city, and email."<br>
+          (student_id is the determinant; name, city, email are determined attributes)
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;font-weight:600;color:var(--gray900);margin:20px 0 12px">Types of Functional Dependencies:</p>
+
+    <div class="fd-box fd-good">
+      <div><span style="color:var(--teal);font-weight:700">student_id</span><span class="fd-arrow">→</span><span>name, email, city, batch</span></div>
+      <div class="fd-desc">✅ Full FD — student_id alone determines all student attributes. This is what we want!</div>
+    </div>
+    <div class="fd-box fd-good">
+      <div><span style="color:var(--teal);font-weight:700">product_id</span><span class="fd-arrow">→</span><span>product_name, category, price</span></div>
+      <div class="fd-desc">✅ Full FD — product_id alone determines all product details.</div>
+    </div>
+    <div class="fd-box fd-bad">
+      <div><span style="color:var(--red);font-weight:700">(order_id, product_id)</span><span class="fd-arrow">→</span><span>qty, discount</span> &nbsp; <span style="color:var(--teal)">✅</span></div>
+      <div><span style="color:var(--red);font-weight:700">product_id</span><span class="fd-arrow">→</span><span>product_name, category</span> &nbsp; <span style="color:var(--red)">⚠️ Partial FD!</span></div>
+      <div class="fd-desc">❌ Partial Dependency — product_name depends only on product_id, not on the full key (order_id, product_id). This violates 2NF.</div>
+    </div>
+    <div class="fd-box fd-bad">
+      <div><span style="color:var(--red);font-weight:700">student_id</span><span class="fd-arrow">→</span><span>zip_code</span><span class="fd-arrow">→</span><span>city, state</span></div>
+      <div class="fd-desc">❌ Transitive Dependency — city doesn't depend directly on student_id; it depends on zip_code which depends on student_id. This violates 3NF.</div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">How to identify FDs in practice</div>
+        <div class="callout-text">
+          Ask these questions about each non-key column:<br>
+          1. <strong>Does it depend on the whole key, or just part of it?</strong> → Partial FD (2NF problem)<br>
+          2. <strong>Does it depend on a non-key column?</strong> → Transitive FD (3NF problem)<br>
+          3. <strong>Can the same value in this column determine different values in another?</strong> → BCNF problem
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3: 1NF ── -->
+  <div class="section" id="sec3">
+    <div class="section-header">
+      <div class="section-icon" style="background:#FEE2E2">1️⃣</div>
+      <div><div class="section-num">Topic 3</div><h2 class="section-title">First Normal Form (1NF) — Atomic Values</h2></div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <span class="nf-badge nf-1">1NF</span>
+      <span style="font-size:14px;color:var(--gray700)">A table is in 1NF if it has no repeating groups and every cell contains only one (atomic) value.</span>
+    </div>
+
+    <p style="font-size:14px;font-weight:600;color:var(--gray900);margin-bottom:6px">Rules for 1NF:</p>
+    <ul style="font-size:13px;color:var(--gray700);line-height:2;padding-left:20px;margin-bottom:16px">
+      <li>Every column must have <strong>atomic (indivisible) values</strong> — no lists, no multiple values in one cell</li>
+      <li>No <strong>repeating column groups</strong> (like phone1, phone2, phone3)</li>
+      <li>Each row must be <strong>uniquely identifiable</strong> (has a Primary Key)</li>
+      <li>All values in a column must be of the <strong>same data type</strong></li>
+    </ul>
+
+    <div class="inter-box">
+      <div class="inter-head">
+        <div class="inter-title">🎮 Interactive — Convert to 1NF</div>
+        <div class="tab-row">
+          <button class="tab-btn active" onclick="switchInter(this,'nf1-before')">❌ Violates 1NF</button>
+          <button class="tab-btn" onclick="switchInter(this,'nf1-after')">✅ Correct 1NF</button>
+        </div>
+      </div>
+
+      <div class="inter-body active" id="nf1-before">
+        <p style="font-size:13px;color:var(--gray700);margin-bottom:14px">This student table <strong>violates 1NF</strong> in two ways — can you spot them?</p>
+        <div class="tbl-wrap">
+          <table class="tbl bad">
+            <thead><tr><th>student_id</th><th>name</th><th>phone_numbers <span class="vtag vtag-red">VIOLATION</span></th><th>courses_enrolled <span class="vtag vtag-red">VIOLATION</span></th><th>city</th></tr></thead>
+            <tbody>
+              <tr><td class="pk">1</td><td>Priya Sharma</td><td class="prob">9876543210, 9988776655</td><td class="prob">SQL, Python, ML</td><td>Chennai</td></tr>
+              <tr><td class="pk">2</td><td>Rahul Verma</td><td>9811223344</td><td class="prob">SQL, Web Dev</td><td>Delhi</td></tr>
+              <tr><td class="pk">3</td><td>Ananya Iyer</td><td class="prob">9900112233, 9900112244</td><td>ML</td><td>Bangalore</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout bad" style="margin-top:12px">
+          <div class="callout-icon">❌</div>
+          <div class="callout-body">
+            <div class="callout-title">Violations Found</div>
+            <div class="callout-text">
+              1. <strong>phone_numbers</strong> — contains multiple values in one cell ("9876543210, 9988776655"). Not atomic!<br>
+              2. <strong>courses_enrolled</strong> — contains a list of courses ("SQL, Python, ML"). Not atomic! Cannot filter by individual course.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="inter-body" id="nf1-after">
+        <p style="font-size:13px;color:var(--gray700);margin-bottom:14px">After applying 1NF — atomic values, separate rows, separate tables:</p>
+        <div style="font-size:13px;font-weight:600;color:var(--gray900);margin-bottom:8px">Table 1: students</div>
+        <div class="tbl-wrap">
+          <table class="tbl good">
+            <thead><tr><th>student_id 🔑</th><th>name</th><th>city</th></tr></thead>
+            <tbody>
+              <tr><td class="pk">1</td><td>Priya Sharma</td><td>Chennai</td></tr>
+              <tr><td class="pk">2</td><td>Rahul Verma</td><td>Delhi</td></tr>
+              <tr><td class="pk">3</td><td>Ananya Iyer</td><td>Bangalore</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:var(--gray900);margin:14px 0 8px">Table 2: student_phones (separate table for multi-valued attribute)</div>
+        <div class="tbl-wrap">
+          <table class="tbl good">
+            <thead><tr><th>phone_id 🔑</th><th>student_id 🔗</th><th>phone_number</th><th>type</th></tr></thead>
+            <tbody>
+              <tr><td class="pk">1</td><td class="fk">1</td><td>9876543210</td><td>Primary</td></tr>
+              <tr><td class="pk">2</td><td class="fk">1</td><td>9988776655</td><td>Alternate</td></tr>
+              <tr><td class="pk">3</td><td class="fk">2</td><td>9811223344</td><td>Primary</td></tr>
+              <tr><td class="pk">4</td><td class="fk">3</td><td>9900112233</td><td>Primary</td></tr>
+              <tr><td class="pk">5</td><td class="fk">3</td><td>9900112244</td><td>Alternate</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:var(--gray900);margin:14px 0 8px">Table 3: enrollments (separate table for courses)</div>
+        <div class="tbl-wrap">
+          <table class="tbl good">
+            <thead><tr><th>enroll_id 🔑</th><th>student_id 🔗</th><th>course</th></tr></thead>
+            <tbody>
+              <tr><td class="pk">1</td><td class="fk">1</td><td>SQL</td></tr>
+              <tr><td class="pk">2</td><td class="fk">1</td><td>Python</td></tr>
+              <tr><td class="pk">3</td><td class="fk">1</td><td>ML</td></tr>
+              <tr><td class="pk">4</td><td class="fk">2</td><td>SQL</td></tr>
+              <tr><td class="pk">5</td><td class="fk">2</td><td>Web Dev</td></tr>
+              <tr><td class="pk">6</td><td class="fk">3</td><td>ML</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout good" style="margin-top:12px">
+          <div class="callout-icon">✅</div>
+          <div class="callout-body">
+            <div class="callout-title">1NF Achieved!</div>
+            <div class="callout-text">Every cell has one atomic value. Multi-valued attributes (phones, courses) moved to separate tables with FK relationships. Now you can query: SELECT * FROM enrollments WHERE course = 'SQL' — impossible before!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Try It 1 -->
+    <div class="try-box">
+      <div class="try-header">
+        <div class="try-title">✏️ Try It — Fix this 1NF violation <span class="try-badge">Exercise 1</span></div>
+      </div>
+      <textarea class="try-editor" id="editor1" spellcheck="false">-- This table violates 1NF. Fix it!
+-- Problem: 'skills' column has multiple comma-separated values
+
+-- BAD TABLE (violates 1NF):
+-- employee_id | name    | skills                    | department
+-- 1           | Priya   | Python, SQL, ML           | Data Science
+-- 2           | Karthik | Java, Spring, Docker      | Backend
+-- 3           | Meena   | SQL, Tableau, Power BI    | Analytics
+
+-- YOUR TASK: Create normalized tables that satisfy 1NF
+-- Hint: You need 2 tables — employees and employee_skills
+
+CREATE TABLE employees (
+    employee_id  INT PRIMARY KEY AUTO_INCREMENT,
+    name         VARCHAR(100) NOT NULL,
+    department   VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE employee_skills (
+    skill_id     INT PRIMARY KEY AUTO_INCREMENT,
+    employee_id  INT NOT NULL,
+    skill        VARCHAR(50) NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+);
+
+-- Now insert the data:
+INSERT INTO employees (name, department) VALUES
+    ('Priya',   'Data Science'),
+    ('Karthik', 'Backend'),
+    ('Meena',   'Analytics');
+
+INSERT INTO employee_skills (employee_id, skill) VALUES
+    (1, 'Python'), (1, 'SQL'), (1, 'ML'),
+    (2, 'Java'), (2, 'Spring'), (2, 'Docker'),
+    (3, 'SQL'), (3, 'Tableau'), (3, 'Power BI');
+
+-- Query: Which employees know SQL?
+SELECT e.name, e.department
+FROM employees e
+JOIN employee_skills s ON e.employee_id = s.employee_id
+WHERE s.skill = 'SQL';</textarea>
+      <div class="try-footer">
+        <div class="try-hint">💡 Notice: after 1NF you can easily query "employees who know SQL" — impossible with the comma-separated version!</div>
+        <div class="try-btns">
+          <button class="reset-btn" onclick="resetEditor('editor1',ex[0])">Reset</button>
+          <button class="run-btn" onclick="showOutput('out1')">▶ See Result</button>
+        </div>
+      </div>
+      <div class="try-output" id="out1">
+        <div class="output-label">Query Result: Employees who know SQL</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="background:var(--teal-light)"><th style="padding:8px 12px;text-align:left;color:var(--teal);font-size:11px">name</th><th style="padding:8px 12px;text-align:left;color:var(--teal);font-size:11px">department</th></tr></thead>
+          <tbody>
+            <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border)">Priya</td><td style="padding:8px 12px;border-bottom:1px solid var(--border)">Data Science</td></tr>
+            <tr><td style="padding:8px 12px">Meena</td><td style="padding:8px 12px">Analytics</td></tr>
+          </tbody>
+        </table>
+        <div class="result-msg success" style="margin-top:10px">✅ 1NF allows you to query individual values. With comma-separated skills, SQL WHERE would have failed!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4: 2NF ── -->
+  <div class="section" id="sec4">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--amber-light)">2️⃣</div>
+      <div><div class="section-num">Topic 4</div><h2 class="section-title">Second Normal Form (2NF) — Remove Partial Dependencies</h2></div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <span class="nf-badge nf-1">1NF</span><span style="color:var(--gray300)">+</span>
+      <span class="nf-badge nf-2">2NF</span>
+      <span style="font-size:14px;color:var(--gray700)">Must be in 1NF <strong>AND</strong> every non-key column must depend on the <em>entire</em> Primary Key (no partial dependencies).</span>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">2NF only applies when the Primary Key has MULTIPLE columns (Composite PK)</div>
+        <div class="callout-text">If your table has a single-column PK, it's automatically in 2NF (there can't be a "partial" dependency on a single-column key). 2NF issues arise in junction/linking tables like (student_id, course_id) as a composite PK.</div>
+      </div>
+    </div>
+
+    <div class="inter-box">
+      <div class="inter-head">
+        <div class="inter-title">🎮 Interactive — Spot and Fix 2NF Violations</div>
+        <div class="tab-row">
+          <button class="tab-btn active" onclick="switchInter(this,'nf2-before')">❌ Violates 2NF</button>
+          <button class="tab-btn" onclick="switchInter(this,'nf2-after')">✅ Fixed — 2NF</button>
+        </div>
+      </div>
+
+      <div class="inter-body active" id="nf2-before">
+        <p style="font-size:13px;color:var(--gray700);margin-bottom:8px">PK is composite: <strong>(student_id, course_id)</strong>. Which columns depend only on part of this key?</p>
+        <div class="tbl-wrap">
+          <table class="tbl bad">
+            <thead>
+              <tr>
+                <th>student_id 🔑</th><th>course_id 🔑</th>
+                <th>score <span class="vtag vtag-ok">OK</span></th>
+                <th>student_name <span class="vtag vtag-red">PARTIAL</span></th>
+                <th>student_city <span class="vtag vtag-red">PARTIAL</span></th>
+                <th>course_name <span class="vtag vtag-red">PARTIAL</span></th>
+                <th>instructor <span class="vtag vtag-red">PARTIAL</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="pk">1</td><td class="pk">101</td><td>88</td><td class="dup">Priya</td><td class="dup">Chennai</td><td class="dup">SQL</td><td class="dup">Vinie</td></tr>
+              <tr><td class="pk">1</td><td class="pk">102</td><td>75</td><td class="dup">Priya</td><td class="dup">Chennai</td><td class="dup">Python</td><td class="dup">Karthik</td></tr>
+              <tr><td class="pk">2</td><td class="pk">101</td><td>92</td><td>Rahul</td><td>Delhi</td><td class="dup">SQL</td><td class="dup">Vinie</td></tr>
+              <tr><td class="pk">3</td><td class="pk">103</td><td>80</td><td>Ananya</td><td>Bangalore</td><td>ML</td><td>Sai</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout bad" style="margin-top:12px">
+          <div class="callout-icon">❌</div>
+          <div class="callout-body">
+            <div class="callout-title">Partial Dependencies Found</div>
+            <div class="callout-text">
+              • <strong>student_name, student_city</strong> depend only on <strong>student_id</strong> (not on course_id) → partial dependency<br>
+              • <strong>course_name, instructor</strong> depend only on <strong>course_id</strong> (not on student_id) → partial dependency<br>
+              • Only <strong>score</strong> depends on both (student_id + course_id) → this is correct ✅
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="inter-body" id="nf2-after">
+        <p style="font-size:13px;color:var(--gray700);margin-bottom:12px">Split the table: each partial dependency gets its own table.</p>
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--gray900)">Table 1: students (student_id → student_name, city)</div>
+        <div class="tbl-wrap">
+          <table class="tbl good">
+            <thead><tr><th>student_id 🔑</th><th>student_name</th><th>city</th></tr></thead>
+            <tbody>
+              <tr><td class="pk">1</td><td>Priya</td><td>Chennai</td></tr>
+              <tr><td class="pk">2</td><td>Rahul</td><td>Delhi</td></tr>
+              <tr><td class="pk">3</td><td>Ananya</td><td>Bangalore</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:13px;font-weight:600;margin:14px 0 8px;color:var(--gray900)">Table 2: courses (course_id → course_name, instructor)</div>
+        <div class="tbl-wrap">
+          <table class="tbl good">
+            <thead><tr><th>course_id 🔑</th><th>course_name</th><th>instructor</th></tr></thead>
+            <tbody>
+              <tr><td class="pk">101</td><td>SQL</td><td>Vinie</td></tr>
+              <tr><td class="pk">102</td><td>Python</td><td>Karthik</td></tr>
+              <tr><td class="pk">103</td><td>ML</td><td>Sai</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:13px;font-weight:600;margin:14px 0 8px;color:var(--gray900)">Table 3: enrollments — only (student_id, course_id, score)</div>
+        <div class="tbl-wrap">
+          <table class="tbl good">
+            <thead><tr><th>student_id 🔑🔗</th><th>course_id 🔑🔗</th><th>score</th></tr></thead>
+            <tbody>
+              <tr><td class="pk fk">1</td><td class="pk fk">101</td><td>88</td></tr>
+              <tr><td class="pk fk">1</td><td class="pk fk">102</td><td>75</td></tr>
+              <tr><td class="pk fk">2</td><td class="pk fk">101</td><td>92</td></tr>
+              <tr><td class="pk fk">3</td><td class="pk fk">103</td><td>80</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout good" style="margin-top:12px">
+          <div class="callout-icon">✅</div>
+          <div class="callout-body">
+            <div class="callout-title">2NF Achieved!</div>
+            <div class="callout-text">Every non-key column now depends on the FULL primary key of its table. Updating Priya's city → 1 update in students table. Changing a course name → 1 update in courses table.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 5: 3NF ── -->
+  <div class="section" id="sec5">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--blue-light)">3️⃣</div>
+      <div><div class="section-num">Topic 5</div><h2 class="section-title">Third Normal Form (3NF) — Remove Transitive Dependencies</h2></div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <span class="nf-badge nf-1">1NF</span><span style="color:var(--gray300)">+</span>
+      <span class="nf-badge nf-2">2NF</span><span style="color:var(--gray300)">+</span>
+      <span class="nf-badge nf-3">3NF</span>
+      <span style="font-size:14px;color:var(--gray700)">No non-key column should depend on another non-key column.</span>
+    </div>
+
+    <div class="callout example">
+      <div class="callout-icon">📖</div>
+      <div class="callout-body">
+        <div class="callout-title">What is a Transitive Dependency?</div>
+        <div class="callout-text">
+          If A → B → C, then C transitively depends on A through B.<br>
+          <strong>student_id → zip_code → city</strong><br>
+          City doesn't directly depend on student_id — it depends on zip_code, which depends on student_id. This "chain" is a transitive dependency.
+        </div>
+      </div>
+    </div>
+
+    <div class="inter-box">
+      <div class="inter-head">
+        <div class="inter-title">🎮 Interactive — Spot and Fix 3NF Violations</div>
+        <div class="tab-row">
+          <button class="tab-btn active" onclick="switchInter(this,'nf3-before')">❌ Violates 3NF</button>
+          <button class="tab-btn" onclick="switchInter(this,'nf3-after')">✅ Fixed — 3NF</button>
+        </div>
+      </div>
+      <div class="inter-body active" id="nf3-before">
+        <p style="font-size:13px;color:var(--gray700);margin-bottom:8px">Already in 2NF, but has transitive dependencies:</p>
+        <div class="tbl-wrap">
+          <table class="tbl mid">
+            <thead>
+              <tr>
+                <th>student_id 🔑</th><th>name</th><th>zip_code <span class="vtag vtag-amber">TRANS</span></th><th>city <span class="vtag vtag-red">VIA ZIP</span></th><th>state <span class="vtag vtag-red">VIA ZIP</span></th><th>dept_id <span class="vtag vtag-amber">TRANS</span></th><th>dept_name <span class="vtag vtag-red">VIA DEPT</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="pk">1</td><td>Priya</td><td class="dup">600001</td><td class="prob">Chennai</td><td class="prob">Tamil Nadu</td><td class="dup">D01</td><td class="prob">Data Science</td></tr>
+              <tr><td class="pk">2</td><td>Rahul</td><td>110001</td><td>Delhi</td><td>Delhi</td><td class="dup">D01</td><td class="prob">Data Science</td></tr>
+              <tr><td class="pk">3</td><td>Ananya</td><td class="dup">560001</td><td class="prob">Bangalore</td><td class="prob">Karnataka</td><td>D02</td><td>Backend Dev</td></tr>
+              <tr><td class="pk">4</td><td>Karthik</td><td class="dup">600001</td><td class="prob">Chennai</td><td class="prob">Tamil Nadu</td><td>D02</td><td>Backend Dev</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout bad" style="margin-top:12px">
+          <div class="callout-icon">❌</div>
+          <div class="callout-body">
+            <div class="callout-title">Transitive Dependencies Found</div>
+            <div class="callout-text">
+              • <strong>student_id → zip_code → city, state</strong> → city and state depend on zip_code (not directly on student_id)<br>
+              • <strong>student_id → dept_id → dept_name</strong> → dept_name depends on dept_id (not on student_id)<br>
+              <br>Problem: If Chennai changes its zip codes, we update "Chennai" in every student row. Dept name change → update everywhere!
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="inter-body" id="nf3-after">
+        <p style="font-size:13px;color:var(--gray700);margin-bottom:12px">Remove transitive dependencies by creating separate tables for zip codes and departments:</p>
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--gray900)">students table — only direct dependencies on student_id</div>
+        <div class="tbl-wrap">
+          <table class="tbl good">
+            <thead><tr><th>student_id 🔑</th><th>name</th><th>zip_code 🔗</th><th>dept_id 🔗</th></tr></thead>
+            <tbody>
+              <tr><td class="pk">1</td><td>Priya</td><td class="fk">600001</td><td class="fk">D01</td></tr>
+              <tr><td class="pk">2</td><td>Rahul</td><td class="fk">110001</td><td class="fk">D01</td></tr>
+              <tr><td class="pk">3</td><td>Ananya</td><td class="fk">560001</td><td class="fk">D02</td></tr>
+              <tr><td class="pk">4</td><td>Karthik</td><td class="fk">600001</td><td class="fk">D02</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:13px;font-weight:600;margin:14px 0 8px;color:var(--gray900)">zip_codes table — zip → city, state</div>
+        <div class="tbl-wrap">
+          <table class="tbl good">
+            <thead><tr><th>zip_code 🔑</th><th>city</th><th>state</th></tr></thead>
+            <tbody>
+              <tr><td class="pk">600001</td><td>Chennai</td><td>Tamil Nadu</td></tr>
+              <tr><td class="pk">110001</td><td>Delhi</td><td>Delhi</td></tr>
+              <tr><td class="pk">560001</td><td>Bangalore</td><td>Karnataka</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:13px;font-weight:600;margin:14px 0 8px;color:var(--gray900)">departments table — dept_id → dept_name</div>
+        <div class="tbl-wrap">
+          <table class="tbl good">
+            <thead><tr><th>dept_id 🔑</th><th>dept_name</th></tr></thead>
+            <tbody>
+              <tr><td class="pk">D01</td><td>Data Science</td></tr>
+              <tr><td class="pk">D02</td><td>Backend Dev</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout good">
+          <div class="callout-icon">✅</div>
+          <div class="callout-body">
+            <div class="callout-title">3NF Achieved!</div>
+            <div class="callout-text">No non-key column depends on another non-key column. Rename "Data Science" dept? 1 update in departments table — reflects across all students automatically via FK!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 6: BCNF ── -->
+  <div class="section" id="sec6">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--indigo-light)">🔷</div>
+      <div><div class="section-num">Topic 6</div><h2 class="section-title">Boyce-Codd Normal Form (BCNF)</h2></div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <span class="nf-badge nf-1">1NF</span><span style="color:var(--gray300)">+</span>
+      <span class="nf-badge nf-2">2NF</span><span style="color:var(--gray300)">+</span>
+      <span class="nf-badge nf-3">3NF</span><span style="color:var(--gray300)">+</span>
+      <span class="nf-badge nf-bc">BCNF</span>
+      <span style="font-size:14px;color:var(--gray700)">Stronger version of 3NF. For every FD X → Y, X must be a superkey.</span>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      BCNF is a slightly stronger form than 3NF. A table is in BCNF if for every functional dependency <strong>X → Y</strong>,
+      <strong>X must be a superkey</strong> (a set of columns that can uniquely identify every row).
+      In plain English: <em>the only things that determine column values should be the key — nothing else.</em>
+    </p>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">3NF vs BCNF — The subtle difference</div>
+        <div class="callout-text">A table can be in 3NF but NOT in BCNF when a non-key column (that's part of a candidate key) determines another attribute. This is rare but important in theory and interviews.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">BCNF Violation Example — Subject-Teacher-Student</div>
+      <p style="font-size:13px;color:var(--gray700);margin-bottom:12px">Scenario: Each student takes a subject, each subject is taught by only one teacher per student's batch, but each teacher teaches only one subject.</p>
+      <div class="tbl-wrap">
+        <table class="tbl bad">
+          <thead><tr><th>student_id 🔑</th><th>subject 🔑</th><th>teacher <span class="vtag vtag-red">BCNF ISSUE</span></th></tr></thead>
+          <tbody>
+            <tr><td class="pk">1</td><td class="pk">SQL</td><td class="prob">Vinie</td></tr>
+            <tr><td class="pk">1</td><td class="pk">Python</td><td class="prob">Karthik</td></tr>
+            <tr><td class="pk">2</td><td class="pk">SQL</td><td class="prob">Vinie</td></tr>
+            <tr><td class="pk">2</td><td class="pk">ML</td><td class="prob">Sai</td></tr>
+            <tr><td class="pk">3</td><td class="pk">Python</td><td class="prob">Karthik</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin:12px 0">
+        <div class="fd-box fd-bad">
+          <div><span style="color:var(--red)">teacher</span><span class="fd-arrow">→</span>subject &nbsp;<span style="color:var(--red);font-size:12px">(Each teacher teaches only one subject)</span></div>
+          <div class="fd-desc">❌ BCNF Violation: "teacher" is not a superkey, but "teacher → subject" is a valid FD. This causes redundancy — if Vinie always teaches SQL, that fact is repeated for every student.</div>
+        </div>
+      </div>
+      <div class="before-after">
+        <div class="ba-col">
+          <div class="ba-label ba-bad">❌ BCNF Violated</div>
+          <div style="font-size:13px;color:var(--gray700);padding:12px;background:var(--red-light);border-radius:0 0 8px 8px;line-height:1.7">
+            If Vinie switches from SQL to Python — update EVERY row where teacher = 'Vinie'. Miss one → inconsistency.
+          </div>
+        </div>
+        <div class="ba-col">
+          <div class="ba-label ba-good">✅ BCNF Fixed — 2 Tables</div>
+          <div style="font-size:13px;color:var(--gray700);padding:12px;background:var(--green-light);border-radius:0 0 8px 8px;line-height:1.7">
+            Table 1: <strong>teacher_subject</strong>(teacher PK → subject)<br>
+            Table 2: <strong>student_teacher</strong>(student_id + teacher → composite PK)<br>
+            Change Vinie's subject → 1 update in teacher_subject.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">BCNF in Practice</div>
+        <div class="callout-text">Most well-designed 3NF databases are also in BCNF. BCNF violations are rare and usually appear in tables with multiple overlapping candidate keys. In interviews, being able to explain the difference between 3NF and BCNF is highly valued.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 7: 4NF & 5NF ── -->
+  <div class="section" id="sec7">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--purple-light)">4️⃣</div>
+      <div><div class="section-num">Topic 7</div><h2 class="section-title">4NF & 5NF — Advanced Normal Forms</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      4NF and 5NF address very specific edge cases. In practice, most production databases target 3NF or BCNF. 
+      You'll encounter these mainly in academic settings and advanced database design interviews.
+    </p>
+
+    <div class="compare-grid">
+      <div class="card" style="border-top:3px solid var(--purple)">
+        <div class="card-title" style="color:var(--purple)"><span class="nf-badge nf-4">4NF</span>Fourth Normal Form</div>
+        <p style="font-size:13px;color:var(--gray700);line-height:1.6;margin-bottom:12px">
+          A table is in 4NF if it is in BCNF and has <strong>no multi-valued dependencies</strong> that are not FDs.
+        </p>
+        <div class="callout example" style="margin:0 0 12px">
+          <div class="callout-icon">📖</div>
+          <div class="callout-body">
+            <div class="callout-title">Multi-valued Dependency</div>
+            <div class="callout-text">employee →→ skills (employee has multiple skills independently of projects)<br>employee →→ projects (employee works on multiple projects independently)<br>These two facts are independent — storing them in the same table causes redundancy.</div>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="tbl bad">
+            <thead><tr><th>employee</th><th>skill <span class="vtag vtag-red">MVD</span></th><th>project <span class="vtag vtag-red">MVD</span></th></tr></thead>
+            <tbody>
+              <tr><td>Priya</td><td class="dup">Python</td><td class="dup">Alpha</td></tr>
+              <tr><td>Priya</td><td class="dup">Python</td><td class="dup">Beta</td></tr>
+              <tr><td>Priya</td><td class="dup">SQL</td><td class="dup">Alpha</td></tr>
+              <tr><td>Priya</td><td class="dup">SQL</td><td class="dup">Beta</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:12px;color:var(--gray500);margin-top:8px">Fix: Split into <em>emp_skills(emp, skill)</em> and <em>emp_projects(emp, project)</em></p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--green)">
+        <div class="card-title" style="color:var(--green)"><span class="nf-badge nf-5">5NF</span>Fifth Normal Form (PJNF)</div>
+        <p style="font-size:13px;color:var(--gray700);line-height:1.6;margin-bottom:12px">
+          A table is in 5NF if it is in 4NF and every <strong>join dependency</strong> is implied by its candidate keys. Also called Project-Join Normal Form.
+        </p>
+        <div class="callout tip" style="margin:0 0 12px">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <div class="callout-title">When does 5NF apply?</div>
+            <div class="callout-text">When a table's information can be reconstructed by joining 3 or more smaller tables, and doing so doesn't create spurious (incorrect) rows. This is extremely rare in practice — most databases don't go beyond 3NF/BCNF.</div>
+          </div>
+        </div>
+        <div class="callout info">
+          <div class="callout-icon">🎯</div>
+          <div class="callout-body">
+            <div class="callout-title">Practical Advice</div>
+            <div class="callout-text">In your data science and engineering career, target <strong>3NF or BCNF</strong>. 4NF and 5NF are important to know for theory, academic exams, and senior-level interviews — but you'll rarely design for them in production systems.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 8: STEP BY STEP FULL EXAMPLE ── -->
+  <div class="section" id="sec8">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--teal-light)">🔧</div>
+      <div><div class="section-num">Topic 8</div><h2 class="section-title">Step-by-Step: Normalize a Real Messy Table</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Let's take a completely unnormalized table and walk through every step — UNF → 1NF → 2NF → 3NF — with the same dataset. This is the most important exercise in normalization.
+    </p>
+
+    <div class="inter-box">
+      <div class="inter-head">
+        <div class="inter-title">📋 GUVI Course Registration — Full Normalization Walkthrough</div>
+        <div class="tab-row">
+          <button class="tab-btn active" onclick="switchInter(this,'step-unf')">🔴 UNF</button>
+          <button class="tab-btn" onclick="switchInter(this,'step-1nf')">🟡 1NF</button>
+          <button class="tab-btn" onclick="switchInter(this,'step-2nf')">🟠 2NF</button>
+          <button class="tab-btn" onclick="switchInter(this,'step-3nf')">✅ 3NF</button>
+        </div>
+      </div>
+
+      <div class="inter-body active" id="step-unf">
+        <div class="tbl-label" style="color:var(--red)">❌ Unnormalized Form — The Mess</div>
+        <div class="tbl-wrap">
+          <table class="tbl bad">
+            <thead><tr><th>reg_id</th><th>student_name</th><th>student_phone</th><th>student_city</th><th>pincode</th><th>courses_registered</th><th>instructors</th><th>fees_paid</th><th>batch</th><th>batch_start</th></tr></thead>
+            <tbody>
+              <tr><td>R001</td><td class="dup">Priya Sharma</td><td class="dup">9876543210</td><td class="dup">Chennai</td><td class="dup">600001</td><td class="prob">SQL, Python</td><td class="prob">Vinie, Karthik</td><td>15000</td><td class="dup">B2024</td><td class="dup">Jan 2024</td></tr>
+              <tr><td>R002</td><td class="dup">Priya Sharma</td><td class="dup">9876543210</td><td class="dup">Chennai</td><td class="dup">600001</td><td class="prob">ML</td><td class="prob">Sai</td><td>8000</td><td class="dup">B2024</td><td class="dup">Jan 2024</td></tr>
+              <tr><td>R003</td><td>Rahul Verma</td><td>9811223344</td><td>Delhi</td><td>110001</td><td class="prob">SQL, ML</td><td class="prob">Vinie, Sai</td><td>16000</td><td class="dup">B2024</td><td class="dup">Jan 2024</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout bad" style="margin-top:12px">
+          <div class="callout-icon">❌</div>
+          <div class="callout-body">
+            <div class="callout-title">Problems in this table</div>
+            <div class="callout-text">1. Multiple values in one cell (courses_registered, instructors) — violates 1NF<br>2. Priya's info repeated across rows — update anomaly<br>3. Batch info repeated — redundancy<br>4. Pincode → city transitive dependency<br>5. No clean primary key</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="inter-body" id="step-1nf">
+        <div class="tbl-label" style="color:var(--amber)">🟡 After 1NF — One value per cell, composite PK</div>
+        <div class="tbl-wrap">
+          <table class="tbl mid">
+            <thead><tr><th>reg_id 🔑</th><th>course 🔑</th><th>student_name</th><th>student_phone</th><th>city</th><th>pincode</th><th>instructor</th><th>fees_paid</th><th>batch</th><th>batch_start</th></tr></thead>
+            <tbody>
+              <tr><td class="pk">R001</td><td class="pk">SQL</td><td class="dup">Priya Sharma</td><td class="dup">9876543210</td><td class="dup prob">Chennai</td><td class="dup prob">600001</td><td>Vinie</td><td class="dup">15000</td><td class="dup">B2024</td><td class="dup">Jan 2024</td></tr>
+              <tr><td class="pk">R001</td><td class="pk">Python</td><td class="dup">Priya Sharma</td><td class="dup">9876543210</td><td class="dup prob">Chennai</td><td class="dup prob">600001</td><td>Karthik</td><td class="dup">15000</td><td class="dup">B2024</td><td class="dup">Jan 2024</td></tr>
+              <tr><td class="pk">R002</td><td class="pk">ML</td><td class="dup">Priya Sharma</td><td class="dup">9876543210</td><td class="dup prob">Chennai</td><td class="dup prob">600001</td><td>Sai</td><td>8000</td><td class="dup">B2024</td><td class="dup">Jan 2024</td></tr>
+              <tr><td class="pk">R003</td><td class="pk">SQL</td><td>Rahul Verma</td><td>9811223344</td><td>Delhi</td><td>110001</td><td>Vinie</td><td class="dup">16000</td><td class="dup">B2024</td><td class="dup">Jan 2024</td></tr>
+              <tr><td class="pk">R003</td><td class="pk">ML</td><td>Rahul Verma</td><td>9811223344</td><td>Delhi</td><td>110001</td><td>Sai</td><td class="dup">16000</td><td class="dup">B2024</td><td class="dup">Jan 2024</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="result-msg info">📌 1NF: Fixed multi-valued cells. Composite PK = (reg_id, course). But still has partial dependencies — student info & batch info repeat!</div>
+      </div>
+
+      <div class="inter-body" id="step-2nf">
+        <div class="tbl-label" style="color:var(--amber)">🟠 After 2NF — Partial dependencies removed</div>
+        <p style="font-size:13px;color:var(--gray700);margin-bottom:12px">Split into 3 tables: registrations (fact), students, courses. PK: (student_id, course_id)</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+          <div>
+            <div class="tbl-label" style="color:var(--teal)">students</div>
+            <div class="tbl-wrap">
+              <table class="tbl good">
+                <thead><tr><th>student_id 🔑</th><th>name</th><th>phone</th><th>city <span class="vtag vtag-amber">Still issue</span></th><th>pincode</th></tr></thead>
+                <tbody>
+                  <tr><td class="pk">S01</td><td>Priya</td><td>9876543210</td><td class="prob">Chennai</td><td class="prob">600001</td></tr>
+                  <tr><td class="pk">S02</td><td>Rahul</td><td>9811223344</td><td>Delhi</td><td>110001</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="tbl-label" style="color:var(--teal)">courses</div>
+            <div class="tbl-wrap">
+              <table class="tbl good">
+                <thead><tr><th>course_id 🔑</th><th>course_name</th><th>instructor</th></tr></thead>
+                <tbody>
+                  <tr><td class="pk">C01</td><td>SQL</td><td>Vinie</td></tr>
+                  <tr><td class="pk">C02</td><td>Python</td><td>Karthik</td></tr>
+                  <tr><td class="pk">C03</td><td>ML</td><td>Sai</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="tbl-label" style="color:var(--teal)">registrations (fact — only full-key dependencies)</div>
+        <div class="tbl-wrap">
+          <table class="tbl good">
+            <thead><tr><th>student_id 🔑🔗</th><th>course_id 🔑🔗</th><th>fees_paid</th><th>batch_id 🔗</th></tr></thead>
+            <tbody>
+              <tr><td class="pk fk">S01</td><td class="pk fk">C01</td><td>15000</td><td class="fk">B2024</td></tr>
+              <tr><td class="pk fk">S01</td><td class="pk fk">C02</td><td>15000</td><td class="fk">B2024</td></tr>
+              <tr><td class="pk fk">S01</td><td class="pk fk">C03</td><td>8000</td><td class="fk">B2024</td></tr>
+              <tr><td class="pk fk">S02</td><td class="pk fk">C01</td><td>16000</td><td class="fk">B2024</td></tr>
+              <tr><td class="pk fk">S02</td><td class="pk fk">C03</td><td>16000</td><td class="fk">B2024</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="result-msg info">📌 2NF: Partial dependencies removed. But students table still has pincode→city transitive dependency. Also batch info moved to FK — needs its own table!</div>
+      </div>
+
+      <div class="inter-body" id="step-3nf">
+        <div class="tbl-label" style="color:var(--teal)">✅ After 3NF — Clean, final schema (5 tables)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+          <div>
+            <div class="tbl-label" style="color:var(--teal)">students</div>
+            <div class="tbl-wrap">
+              <table class="tbl good">
+                <thead><tr><th>student_id 🔑</th><th>name</th><th>phone</th><th>pincode 🔗</th></tr></thead>
+                <tbody>
+                  <tr><td class="pk">S01</td><td>Priya</td><td>9876…</td><td class="fk">600001</td></tr>
+                  <tr><td class="pk">S02</td><td>Rahul</td><td>9811…</td><td class="fk">110001</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="tbl-label" style="color:var(--teal)">pincodes</div>
+            <div class="tbl-wrap">
+              <table class="tbl good">
+                <thead><tr><th>pincode 🔑</th><th>city</th><th>state</th></tr></thead>
+                <tbody>
+                  <tr><td class="pk">600001</td><td>Chennai</td><td>Tamil Nadu</td></tr>
+                  <tr><td class="pk">110001</td><td>Delhi</td><td>Delhi</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="tbl-label" style="color:var(--teal)">batches</div>
+            <div class="tbl-wrap">
+              <table class="tbl good">
+                <thead><tr><th>batch_id 🔑</th><th>batch_name</th><th>start_date</th></tr></thead>
+                <tbody>
+                  <tr><td class="pk">1</td><td>B2024</td><td>Jan 2024</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
+            <div class="tbl-label" style="color:var(--teal)">courses</div>
+            <div class="tbl-wrap">
+              <table class="tbl good">
+                <thead><tr><th>course_id 🔑</th><th>name</th><th>instructor</th></tr></thead>
+                <tbody>
+                  <tr><td class="pk">C01</td><td>SQL</td><td>Vinie</td></tr>
+                  <tr><td class="pk">C02</td><td>Python</td><td>Karthik</td></tr>
+                  <tr><td class="pk">C03</td><td>ML</td><td>Sai</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="tbl-label" style="color:var(--teal)">registrations</div>
+            <div class="tbl-wrap">
+              <table class="tbl good">
+                <thead><tr><th>student_id 🔑🔗</th><th>course_id 🔑🔗</th><th>batch_id 🔗</th><th>fees_paid</th></tr></thead>
+                <tbody>
+                  <tr><td class="pk fk">S01</td><td class="pk fk">C01</td><td class="fk">1</td><td>15000</td></tr>
+                  <tr><td class="pk fk">S01</td><td class="pk fk">C02</td><td class="fk">1</td><td>15000</td></tr>
+                  <tr><td class="pk fk">S02</td><td class="pk fk">C01</td><td class="fk">1</td><td>16000</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="callout good" style="margin-top:12px">
+          <div class="callout-icon">✅</div>
+          <div class="callout-body">
+            <div class="callout-title">3NF Complete — 5 clean tables from 1 messy table</div>
+            <div class="callout-text">Every piece of data stored exactly once. Change a city? 1 update in pincodes. Change instructor? 1 update in courses. Add a new pincode area? Just add to pincodes table. Zero anomalies!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Try It 2 -->
+    <div class="try-box">
+      <div class="try-header">
+        <div class="try-title">✏️ Try It — Write the CREATE statements for the 3NF schema <span class="try-badge">Exercise 2</span></div>
+      </div>
+      <textarea class="try-editor" id="editor2" spellcheck="false">-- Write the full 3NF schema for the GUVI Registration system
+-- 5 tables: pincodes, students, batches, courses, registrations
+
+CREATE TABLE pincodes (
+    pincode    CHAR(6)      PRIMARY KEY,
+    city       VARCHAR(50)  NOT NULL,
+    state      VARCHAR(50)  NOT NULL
+);
+
+CREATE TABLE students (
+    student_id INT          PRIMARY KEY AUTO_INCREMENT,
+    name       VARCHAR(100) NOT NULL,
+    phone      CHAR(10)     UNIQUE,
+    pincode    CHAR(6),
+    FOREIGN KEY (pincode) REFERENCES pincodes(pincode)
+);
+
+CREATE TABLE batches (
+    batch_id    INT         PRIMARY KEY AUTO_INCREMENT,
+    batch_name  VARCHAR(20) NOT NULL,
+    start_date  DATE        NOT NULL,
+    batch_type  ENUM('Weekday','Weekend') DEFAULT 'Weekday'
+);
+
+CREATE TABLE courses (
+    course_id   INT          PRIMARY KEY AUTO_INCREMENT,
+    course_name VARCHAR(100) NOT NULL,
+    instructor  VARCHAR(100),
+    duration_hrs INT         CHECK (duration_hrs > 0),
+    fee         DECIMAL(8,2) NOT NULL
+);
+
+CREATE TABLE registrations (
+    student_id  INT            NOT NULL,
+    course_id   INT            NOT NULL,
+    batch_id    INT            NOT NULL,
+    enrolled_on DATE           DEFAULT (CURRENT_DATE),
+    fees_paid   DECIMAL(8,2)   NOT NULL,
+    status      ENUM('active','completed','dropped') DEFAULT 'active',
+    PRIMARY KEY (student_id, course_id),
+    FOREIGN KEY (student_id) REFERENCES students(student_id),
+    FOREIGN KEY (course_id)  REFERENCES courses(course_id),
+    FOREIGN KEY (batch_id)   REFERENCES batches(batch_id)
+);
+
+-- This is now fully 3NF normalized!
+-- Test: Can you get Priya's city?
+-- SELECT s.name, p.city, p.state
+-- FROM students s JOIN pincodes p ON s.pincode = p.pincode
+-- WHERE s.name = 'Priya Sharma';</textarea>
+      <div class="try-footer">
+        <div class="try-hint">💡 Notice: city is NOT in students table — it comes via JOIN to pincodes. That's 3NF!</div>
+        <div class="try-btns">
+          <button class="reset-btn" onclick="resetEditor('editor2',ex[1])">Reset</button>
+          <button class="run-btn" onclick="showOutput('out2')">▶ Verify Schema</button>
+        </div>
+      </div>
+      <div class="try-output" id="out2">
+        <div class="output-label">✅ 3NF Schema Verification</div>
+        <div class="result-msg success">✅ pincodes — PK: pincode. No transitive deps.</div>
+        <div class="result-msg success">✅ students — PK: student_id. Pincode → city removed (FK to pincodes). No transitive deps.</div>
+        <div class="result-msg success">✅ batches — PK: batch_id. All attributes depend directly on batch_id.</div>
+        <div class="result-msg success">✅ courses — PK: course_id. All attributes depend directly on course_id.</div>
+        <div class="result-msg success">✅ registrations — Composite PK (student_id, course_id). fees_paid + status depend on full key. batch_id is FK.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 9: DENORMALIZATION ── -->
+  <div class="section" id="sec9">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--amber-light)">🔄</div>
+      <div><div class="section-num">Topic 9</div><h2 class="section-title">Denormalization — When to Break the Rules</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Denormalization is the intentional process of <strong>introducing redundancy</strong> into a database that has already been normalized.
+      This sounds counterintuitive — but in the real world, sometimes performance matters more than perfection.
+    </p>
+
+    <div class="callout warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <div class="callout-title">Denormalization is NOT the same as bad design</div>
+        <div class="callout-text">Denormalization is a <strong>deliberate, informed tradeoff</strong> made after normalization. You first normalize, understand the structure, then selectively denormalize specific parts for performance. Never start with a denormalized design.</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;font-weight:600;color:var(--gray900);margin:20px 0 12px">When to Denormalize:</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:20px">
+      <div class="card" style="border-left:3px solid var(--amber)">
+        <div class="card-title" style="font-size:13px">📊 Read-Heavy Workloads</div>
+        <p style="font-size:12px;color:var(--gray700);line-height:1.6">When your app reads data far more than it writes, JOINs across many tables slow things down. Pre-joining into one wide table speeds up reads at the cost of write complexity.</p>
+        <div style="font-size:12px;color:var(--amber);margin-top:6px">Example: Storing customer_name directly in orders table to avoid JOIN every time</div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--amber)">
+        <div class="card-title" style="font-size:13px">🏎️ High-Performance Dashboards</div>
+        <p style="font-size:12px;color:var(--gray700);line-height:1.6">BI dashboards that run complex GROUP BY + JOIN queries on millions of rows. Pre-aggregating totals into summary tables drastically speeds up dashboard load time.</p>
+        <div style="font-size:12px;color:var(--amber);margin-top:6px">Example: daily_sales_summary table with pre-computed totals per city</div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--amber)">
+        <div class="card-title" style="font-size:13px">🗄️ Data Warehousing</div>
+        <p style="font-size:12px;color:var(--gray700);line-height:1.6">DWH Fact tables are intentionally denormalized (Star Schema). The redundancy is acceptable because DWH data is read-only — no update anomalies.</p>
+        <div style="font-size:12px;color:var(--amber);margin-top:6px">Example: fact_orders stores customer_city directly (not via FK)</div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--amber)">
+        <div class="card-title" style="font-size:13px">⚡ Caching Frequently Accessed Data</div>
+        <p style="font-size:12px;color:var(--gray700);line-height:1.6">Store computed values (like order_total, avg_score) directly to avoid expensive recalculations every time. Update the cached value whenever source data changes.</p>
+        <div style="font-size:12px;color:var(--amber);margin-top:6px">Example: student.completion_rate stored and updated by trigger</div>
+      </div>
+    </div>
+
+    <div class="try-box">
+      <div class="try-header">
+        <div class="try-title">✏️ Try It — Denormalization for performance <span class="try-badge">Exercise 3</span></div>
+      </div>
+      <textarea class="try-editor" id="editor3" spellcheck="false">-- Scenario: An e-commerce app shows order cards with customer name + city.
+-- Normalized version requires a JOIN every time.
+-- For 10M orders/day, this JOIN is expensive.
+
+-- NORMALIZED (correct but slow for high read volume):
+SELECT
+    o.order_id,
+    o.order_amount,
+    o.order_status,
+    c.name       AS customer_name,   -- JOIN needed
+    c.city       AS customer_city    -- JOIN needed
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+WHERE o.order_id = 12345;
+
+-- DENORMALIZED (faster reads — customer data stored directly in orders):
+-- ALTER TABLE orders ADD COLUMN customer_name VARCHAR(100);
+-- ALTER TABLE orders ADD COLUMN customer_city VARCHAR(50);
+
+SELECT
+    order_id,
+    order_amount,
+    order_status,
+    customer_name,  -- No JOIN needed!
+    customer_city   -- No JOIN needed!
+FROM orders
+WHERE order_id = 12345;
+
+-- TRADEOFF: If customer changes their name/city,
+-- you must update EVERY order row for that customer.
+-- This is acceptable because: orders are mostly historical,
+-- and name changes are rare.
+
+-- Pre-aggregated summary table (another common denorm):
+CREATE TABLE daily_sales_summary (
+    summary_date  DATE         PRIMARY KEY,
+    city          VARCHAR(50),
+    total_orders  INT,
+    total_revenue DECIMAL(14,2),
+    avg_order_val DECIMAL(10,2),
+    PRIMARY KEY (summary_date, city)
+);
+-- Populated nightly by a batch job — dashboards query this
+-- instead of scanning millions of order rows!</textarea>
+      <div class="try-footer">
+        <div class="try-hint">💡 Denormalization is always a conscious tradeoff — document WHY you did it!</div>
+        <div class="try-btns">
+          <button class="reset-btn" onclick="resetEditor('editor3',ex[2])">Reset</button>
+          <button class="run-btn" onclick="showOutput('out3')">▶ See Tradeoffs</button>
+        </div>
+      </div>
+      <div class="try-output" id="out3">
+        <div class="output-label">Denormalization Tradeoffs</div>
+        <div class="result-msg success">✅ No JOIN = faster reads. Perfect for high-traffic read endpoints (product pages, order history).</div>
+        <div class="result-msg warn">⚠️ If a customer changes their name — must UPDATE all historical order rows. Use a trigger or batch job to keep in sync.</div>
+        <div class="result-msg success">✅ Pre-aggregated daily_sales_summary = dashboard loads in ms instead of minutes. Populate nightly via ETL.</div>
+        <div class="result-msg info">📌 Rule: Only denormalize after profiling and confirming the performance issue. Don't optimize prematurely!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 10: TRADEOFFS & INDEXES ── -->
+  <div class="section" id="sec10">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--blue-light)">⚖️</div>
+      <div><div class="section-num">Topic 10</div><h2 class="section-title">Tradeoffs & Index Design After Normalization</h2></div>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-col">
+        <div class="compare-head" style="background:var(--teal-light);color:var(--teal)">✅ Benefits of Normalization</div>
+        <div class="compare-body">
+          <div class="compare-row">Eliminates data redundancy — one truth, one place</div>
+          <div class="compare-row">Prevents update, insert, delete anomalies</div>
+          <div class="compare-row">Data integrity enforced by FK constraints</div>
+          <div class="compare-row">Smaller individual table sizes → better cache hits</div>
+          <div class="compare-row">Easier maintenance and schema evolution</div>
+          <div class="compare-row">Write operations (INSERT/UPDATE) are faster</div>
+        </div>
+      </div>
+      <div class="compare-col">
+        <div class="compare-head" style="background:var(--amber-light);color:var(--amber)">⚠️ Costs of Normalization</div>
+        <div class="compare-body">
+          <div class="compare-row">More tables → more JOINs needed for queries</div>
+          <div class="compare-row">Complex queries are harder to write</div>
+          <div class="compare-row">Read performance can degrade on large JOINs</div>
+          <div class="compare-row">More tables = more schema to manage</div>
+          <div class="compare-row">ORM tools can generate inefficient queries</div>
+          <div class="compare-row">Aggregation queries need to JOIN many tables</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="font-size:16px;font-weight:600;margin:24px 0 14px;color:var(--gray900)">🔍 Index Design After Normalization</h3>
+    <p style="font-size:13px;color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      After normalization creates many tables, you need indexes to make JOINs fast. The key rule: <strong>always index Foreign Key columns</strong> — they are the most queried columns during JOINs.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header"><span>Index Strategy After Normalization</span><span class="code-lang">MySQL / PostgreSQL</span></div>
+      <div class="code-body"><span class="cm">-- Rule 1: Primary Keys are automatically indexed (no action needed)</span>
+
+<span class="cm">-- Rule 2: Always index Foreign Key columns (used in every JOIN)</span>
+<span class="kw">CREATE INDEX</span> idx_enroll_student  <span class="kw">ON</span> registrations(student_id);
+<span class="kw">CREATE INDEX</span> idx_enroll_course   <span class="kw">ON</span> registrations(course_id);
+<span class="kw">CREATE INDEX</span> idx_enroll_batch    <span class="kw">ON</span> registrations(batch_id);
+<span class="kw">CREATE INDEX</span> idx_student_pincode <span class="kw">ON</span> students(pincode);
+
+<span class="cm">-- Rule 3: Index columns used in WHERE clause filters</span>
+<span class="kw">CREATE INDEX</span> idx_student_city    <span class="kw">ON</span> students(city);
+<span class="kw">CREATE INDEX</span> idx_reg_status      <span class="kw">ON</span> registrations(status);
+<span class="kw">CREATE INDEX</span> idx_reg_enrolled_on <span class="kw">ON</span> registrations(enrolled_on);
+
+<span class="cm">-- Rule 4: Composite index for frequent combined filters</span>
+<span class="kw">CREATE INDEX</span> idx_reg_student_status <span class="kw">ON</span> registrations(student_id, status);
+<span class="cm">-- Useful for: WHERE student_id = 5 AND status = 'active'</span>
+
+<span class="cm">-- Rule 5: Index columns used in ORDER BY / GROUP BY</span>
+<span class="kw">CREATE INDEX</span> idx_reg_date_student <span class="kw">ON</span> registrations(enrolled_on, student_id);
+
+<span class="cm">-- Rule 6: Don't over-index! Every index:</span>
+<span class="cm">-- ✅ Speeds up SELECT</span>
+<span class="cm">-- ❌ Slows down INSERT/UPDATE/DELETE (index must be updated too)</span>
+<span class="cm">-- ❌ Uses disk space</span>
+<span class="cm">-- Balance: index what you query, not everything</span></div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">The Golden Rule of Normalization + Indexing</div>
+        <div class="callout-text"><strong>Normalize for correctness, index for performance.</strong> Get your schema right first (3NF), then optimize with indexes. If performance still suffers after indexing, consider selective denormalization. This is the order every experienced DBA follows.</div>
+      </div>
+    </div>
+
+    <div class="try-box">
+      <div class="try-header">
+        <div class="try-title">✏️ Try It — Use EXPLAIN to see index impact <span class="try-badge">Exercise 4</span></div>
+      </div>
+      <textarea class="try-editor" id="editor4" spellcheck="false">-- Use EXPLAIN to see if your query uses indexes or full table scan
+
+-- Without index (Full Table Scan — slow):
+EXPLAIN
+SELECT s.name, r.fees_paid
+FROM students s
+JOIN registrations r ON s.student_id = r.student_id
+WHERE r.status = 'completed'       -- No index on status
+  AND s.pincode = '600001';        -- No index on pincode
+
+-- After adding indexes:
+CREATE INDEX idx_reg_status      ON registrations(status);
+CREATE INDEX idx_student_pincode ON students(pincode);
+
+-- With index (Index Seek — fast):
+EXPLAIN
+SELECT s.name, r.fees_paid
+FROM students s
+JOIN registrations r ON s.student_id = r.student_id
+WHERE r.status = 'completed'      -- Now uses idx_reg_status
+  AND s.pincode = '600001';       -- Now uses idx_student_pincode
+
+-- What to look for in EXPLAIN output:
+-- 'type: ALL'    → Full table scan (BAD for large tables)
+-- 'type: ref'    → Index used (GOOD)
+-- 'type: eq_ref' → Unique index used (BEST for JOINs)
+-- 'rows: 1'      → Only 1 row examined (Perfect!)
+-- 'rows: 100000' → 100k rows scanned (Add an index!)</textarea>
+      <div class="try-footer">
+        <div class="try-hint">💡 Always run EXPLAIN before and after adding indexes — let the numbers guide you!</div>
+        <div class="try-btns">
+          <button class="reset-btn" onclick="resetEditor('editor4',ex[3])">Reset</button>
+          <button class="run-btn" onclick="showOutput('out4')">▶ See EXPLAIN Output</button>
+        </div>
+      </div>
+      <div class="try-output" id="out4">
+        <div class="output-label">EXPLAIN Output Comparison</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px">
+          <thead><tr style="background:var(--coral);color:white"><th style="padding:8px 10px;text-align:left">Before Index</th><th style="padding:8px 10px;text-align:left">table</th><th style="padding:8px 10px;text-align:left">type</th><th style="padding:8px 10px;text-align:left">rows</th><th style="padding:8px 10px;text-align:left">Extra</th></tr></thead>
+          <tbody>
+            <tr style="background:var(--red-light)"><td style="padding:7px 10px;border-bottom:1px solid var(--border)">❌ SLOW</td><td style="padding:7px 10px;border-bottom:1px solid var(--border)">students</td><td style="padding:7px 10px;border-bottom:1px solid var(--border);color:var(--red);font-weight:600">ALL</td><td style="padding:7px 10px;border-bottom:1px solid var(--border);color:var(--red)">45,200</td><td style="padding:7px 10px;border-bottom:1px solid var(--border)">Using where</td></tr>
+            <tr style="background:var(--red-light)"><td style="padding:7px 10px">❌ SLOW</td><td style="padding:7px 10px">registrations</td><td style="padding:7px 10px;color:var(--red);font-weight:600">ALL</td><td style="padding:7px 10px;color:var(--red)">189,340</td><td style="padding:7px 10px">Using where</td></tr>
+          </tbody>
+        </table>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:var(--teal-mid);color:white"><th style="padding:8px 10px;text-align:left">After Index</th><th style="padding:8px 10px;text-align:left">table</th><th style="padding:8px 10px;text-align:left">type</th><th style="padding:8px 10px;text-align:left">rows</th><th style="padding:8px 10px;text-align:left">Extra</th></tr></thead>
+          <tbody>
+            <tr style="background:var(--green-light)"><td style="padding:7px 10px;border-bottom:1px solid var(--border)">✅ FAST</td><td style="padding:7px 10px;border-bottom:1px solid var(--border)">students</td><td style="padding:7px 10px;border-bottom:1px solid var(--border);color:var(--green);font-weight:600">ref</td><td style="padding:7px 10px;border-bottom:1px solid var(--border);color:var(--green)">312</td><td style="padding:7px 10px;border-bottom:1px solid var(--border)">Using index</td></tr>
+            <tr style="background:var(--green-light)"><td style="padding:7px 10px">✅ FAST</td><td style="padding:7px 10px">registrations</td><td style="padding:7px 10px;color:var(--green);font-weight:600">ref</td><td style="padding:7px 10px;color:var(--green)">1,240</td><td style="padding:7px 10px">Using index</td></tr>
+          </tbody>
+        </table>
+        <div class="result-msg success" style="margin-top:10px">✅ Index reduced rows scanned from 234,540 to 1,552 — a 150× improvement! Same query, same data, just indexed.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 11: INTERVIEW QUESTIONS ── -->
+  <div class="section" id="sec11">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--indigo-light)">💼</div>
+      <div><div class="section-num">Topic 11</div><h2 class="section-title">Normalization in Interview Questions</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Normalization is one of the <strong>most commonly asked topics</strong> in SQL, Data Engineering, and Backend developer interviews. Click each question to reveal the model answer.
+    </p>
+
+    <div class="interview-q">
+      <div class="iq-head" onclick="toggleIQ(this)">
+        <span class="iq-badge">Basic</span>
+        <span class="iq-q">What is normalization and why is it important?</span>
+        <span class="iq-arrow">›</span>
+      </div>
+      <div class="iq-body">
+        Normalization is the process of organizing a relational database to reduce data redundancy and improve data integrity. It involves decomposing a large table into smaller, well-structured tables connected by relationships.<br><br>
+        <strong>Why it matters:</strong> Without normalization, databases suffer from update anomalies (changing one thing in multiple places), insertion anomalies (can't add data without unrelated data), and deletion anomalies (deleting one thing accidentally removes unrelated data). Normalization eliminates all three.<br><br>
+        <strong>A good answer adds:</strong> In OLTP systems (operational databases), we normalize to 3NF. In OLAP systems (data warehouses), we often intentionally denormalize for query performance.
+      </div>
+    </div>
+
+    <div class="interview-q">
+      <div class="iq-head" onclick="toggleIQ(this)">
+        <span class="iq-badge">Basic</span>
+        <span class="iq-q">Explain 1NF, 2NF, and 3NF with examples.</span>
+        <span class="iq-arrow">›</span>
+      </div>
+      <div class="iq-body">
+        <strong>1NF (First Normal Form):</strong> Every column must have atomic (single) values. No repeating groups.<br>
+        Example violation: <code>courses = 'SQL, Python, ML'</code> → Fix: separate rows for each course.<br><br>
+        <strong>2NF (Second Normal Form):</strong> Must be in 1NF + no partial dependencies. Every non-key column must depend on the FULL composite PK.<br>
+        Example: Table with PK (student_id, course_id) — if student_name depends only on student_id → partial dependency → move student_name to a students table.<br><br>
+        <strong>3NF (Third Normal Form):</strong> Must be in 2NF + no transitive dependencies. Non-key columns must not depend on other non-key columns.<br>
+        Example: student_id → zip_code → city. City depends on zip_code (not student_id) → transitive dependency → create a zip_codes table.
+      </div>
+    </div>
+
+    <div class="interview-q">
+      <div class="iq-head" onclick="toggleIQ(this)">
+        <span class="iq-badge">Intermediate</span>
+        <span class="iq-q">What is the difference between 3NF and BCNF?</span>
+        <span class="iq-arrow">›</span>
+      </div>
+      <div class="iq-body">
+        Both 3NF and BCNF deal with functional dependencies, but BCNF is stricter.<br><br>
+        <strong>3NF rule:</strong> For every FD X → Y, either: (a) X is a superkey, OR (b) Y is part of some candidate key.<br>
+        <strong>BCNF rule:</strong> For every FD X → Y, X MUST be a superkey — no exceptions.<br><br>
+        <strong>Example where 3NF ≠ BCNF:</strong> A table (Student, Subject, Teacher) where each teacher teaches only one subject. Here "Teacher → Subject" is a valid FD, but Teacher is not a superkey. This satisfies 3NF (Teacher is part of a candidate key) but violates BCNF.<br><br>
+        <strong>Practical answer:</strong> Most well-designed 3NF databases are also in BCNF. BCNF violations are rare — they appear only when a table has multiple overlapping candidate keys. In production, targeting 3NF is standard.
+      </div>
+    </div>
+
+    <div class="interview-q">
+      <div class="iq-head" onclick="toggleIQ(this)">
+        <span class="iq-badge">Intermediate</span>
+        <span class="iq-q">What is denormalization? When would you use it?</span>
+        <span class="iq-arrow">›</span>
+      </div>
+      <div class="iq-body">
+        Denormalization is the deliberate introduction of redundancy into a normalized database to improve read performance. It is NOT bad design — it is an informed tradeoff.<br><br>
+        <strong>When to denormalize:</strong><br>
+        1. <strong>Read-heavy systems</strong> where JOINs across many tables are expensive (e.g., e-commerce product pages)<br>
+        2. <strong>Data warehouses</strong> — Star Schema is intentionally denormalized (fact tables store dimension values directly)<br>
+        3. <strong>BI dashboards</strong> — pre-aggregated summary tables avoid scanning billions of rows<br>
+        4. <strong>High-traffic APIs</strong> — storing computed values to avoid real-time calculations<br><br>
+        <strong>Key point:</strong> Always normalize first, then denormalize specific bottlenecks backed by profiling data (EXPLAIN output). Never denormalize preemptively.
+      </div>
+    </div>
+
+    <div class="interview-q">
+      <div class="iq-head" onclick="toggleIQ(this)">
+        <span class="iq-badge">Advanced</span>
+        <span class="iq-q">Given this table, identify what normal form it's in and normalize it to 3NF:<br><code style="font-size:12px">orders(order_id, customer_id, customer_name, customer_city, product_id, product_name, category, qty, price)</code></span>
+        <span class="iq-arrow">›</span>
+      </div>
+      <div class="iq-body">
+        <strong>Current normal form: 1NF</strong> (assuming atomic values, single PK)<br><br>
+        <strong>Functional Dependencies identified:</strong><br>
+        • order_id → customer_id, product_id, qty (full FD on PK — OK)<br>
+        • customer_id → customer_name, customer_city (partial — depends only on customer_id, not full key if composite)<br>
+        • product_id → product_name, category, price (partial — depends only on product_id)<br>
+        • category → category_manager (if exists) — transitive<br><br>
+        <strong>2NF Fix:</strong> Split into orders(order_id, customer_id, product_id, qty), customers(customer_id, name, city), products(product_id, name, category, price)<br><br>
+        <strong>3NF Fix:</strong> If category has its own attributes (manager, budget) — create categories(category_id, category_name, manager). Products gets category_id FK.<br><br>
+        <strong>Final 3NF tables:</strong> customers, categories, products, orders — all linked by FKs.
+      </div>
+    </div>
+
+    <div class="interview-q">
+      <div class="iq-head" onclick="toggleIQ(this)">
+        <span class="iq-badge">Advanced</span>
+        <span class="iq-q">How does normalization affect query performance, and how do you mitigate that?</span>
+        <span class="iq-arrow">›</span>
+      </div>
+      <div class="iq-body">
+        Normalization can hurt read performance because data is spread across many tables, requiring JOINs to reassemble it. A query that was a simple SELECT on one table now needs 3-4 JOINs.<br><br>
+        <strong>Mitigation strategies:</strong><br>
+        1. <strong>Indexes on FKs</strong> — the most impactful fix. CREATE INDEX on every Foreign Key column. This makes JOIN lookups O(log n) instead of O(n).<br>
+        2. <strong>Composite indexes</strong> for frequent (WHERE column_a = ? AND column_b = ?) patterns<br>
+        3. <strong>Covering indexes</strong> — include all columns a query needs in the index to avoid heap lookups<br>
+        4. <strong>Materialized views</strong> — pre-compute expensive JOINs and store as a physical table (PostgreSQL supports this natively)<br>
+        5. <strong>Caching</strong> — cache JOIN results in Redis/Memcached for frequently accessed read-only data<br>
+        6. <strong>Selective denormalization</strong> — after profiling identifies bottlenecks, selectively store redundant columns<br><br>
+        <strong>Rule:</strong> Normalize → Index → Profile → Cache → Denormalize. In that order.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 12: QUIZ ── -->
+  <div class="section" id="sec12">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--indigo-light)">🧠</div>
+      <div><div class="section-num">Topic 12</div><h2 class="section-title">Quiz & Review</h2></div>
+    </div>
+
+    <div class="quiz-box">
+      <div class="quiz-header">
+        <div style="font-size:18px">🧠</div>
+        <div class="quiz-title">Chapter 3 — Normalization Knowledge Check</div>
+        <div class="quiz-count" id="q-count">Question 1 of 10</div>
+      </div>
+      <div class="quiz-body" id="quiz-body"></div>
+      <div class="quiz-nav">
+        <div class="quiz-progress-dots" id="q-dots"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn" id="prev-btn" onclick="prevQ()" style="display:none">← Prev</button>
+          <button class="btn btn-primary" id="next-btn" onclick="nextQ()" style="display:none">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-box">
+      <div class="summary-title">✅ Chapter 3 — What You've Learned</div>
+      <div class="summary-grid">
+        <div class="summary-item"><div class="summary-check">✓</div>Why normalization — update, insert, delete anomalies</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Functional Dependencies — identifying determinants</div>
+        <div class="summary-item"><div class="summary-check">✓</div>1NF — atomic values, no repeating groups</div>
+        <div class="summary-item"><div class="summary-check">✓</div>2NF — remove partial dependencies on composite PK</div>
+        <div class="summary-item"><div class="summary-check">✓</div>3NF — remove transitive dependencies</div>
+        <div class="summary-item"><div class="summary-check">✓</div>BCNF — every determinant must be a superkey</div>
+        <div class="summary-item"><div class="summary-check">✓</div>4NF & 5NF — multi-valued & join dependencies</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Step-by-step normalization of a real messy table</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Denormalization — when and why to break the rules</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Index design strategy after normalization</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Interview Q&A — 6 common normalization questions</div>
+      </div>
+    </div>
+  </div>
+  </div><!-- /content -->
+
+  <div class="chapter-nav">
+    <div class="nav-card" onclick="window.location='chapter2-data-warehousing.html'">
+      ‹ <div><div class="nav-card-dir">← Previous</div><div class="nav-card-name">Chapter 2: Data Warehousing</div></div>
+    </div>
+    <div class="nav-card" onclick="alert('Chapter 4: DQL — SELECT, WHERE, ORDER BY — coming next!')">
+      <div><div class="nav-card-dir">Next →</div><div class="nav-card-name">Chapter 4: DQL — Data Query Language</div></div> ›
+    </div>
+  </div>
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ── SCROLL SPY ──────────────────────────────────
+const sids=['sec1','sec2','sec3','sec4','sec5','sec6','sec7','sec8','sec9','sec10','sec11','sec12'];
+window.addEventListener('scroll',()=>{
+  let cur=sids[0];
+  sids.forEach(id=>{const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<120)cur=id;});
+  document.querySelectorAll('.nav-item').forEach(n=>{n.classList.remove('active');if(n.getAttribute('href')==='#'+cur)n.classList.add('active');});
+});
+
+// ── INTERACTIVE TABS ─────────────────────────────
+function switchInter(btn,id){
+  const box=btn.closest('.inter-box');
+  box.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  box.querySelectorAll('.inter-body').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// ── INTERVIEW Q TOGGLE ───────────────────────────
+function toggleIQ(hdr){
+  const body=hdr.nextElementSibling;
+  const arrow=hdr.querySelector('.iq-arrow');
+  const open=body.classList.contains('open');
+  document.querySelectorAll('.iq-body').forEach(b=>b.classList.remove('open'));
+  document.querySelectorAll('.iq-arrow').forEach(a=>a.classList.remove('open'));
+  if(!open){body.classList.add('open');arrow.classList.add('open');}
+  updateProgress();
+}
+
+// ── TRY IT ───────────────────────────────────────
+const ex=[
+`-- Fix 1NF violation: 'skills' has multiple comma-separated values
+CREATE TABLE employees (
+    employee_id  INT PRIMARY KEY AUTO_INCREMENT,
+    name         VARCHAR(100) NOT NULL,
+    department   VARCHAR(50) NOT NULL
+);
+CREATE TABLE employee_skills (
+    skill_id     INT PRIMARY KEY AUTO_INCREMENT,
+    employee_id  INT NOT NULL,
+    skill        VARCHAR(50) NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+);
+INSERT INTO employees (name, department) VALUES
+    ('Priya','Data Science'),('Karthik','Backend'),('Meena','Analytics');
+INSERT INTO employee_skills (employee_id, skill) VALUES
+    (1,'Python'),(1,'SQL'),(1,'ML'),
+    (2,'Java'),(2,'Spring'),(2,'Docker'),
+    (3,'SQL'),(3,'Tableau'),(3,'Power BI');
+SELECT e.name, e.department FROM employees e
+JOIN employee_skills s ON e.employee_id=s.employee_id WHERE s.skill='SQL';`,
+
+`-- 3NF Schema for GUVI Registration
+CREATE TABLE pincodes (pincode CHAR(6) PRIMARY KEY, city VARCHAR(50) NOT NULL, state VARCHAR(50) NOT NULL);
+CREATE TABLE students (student_id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(100) NOT NULL, phone CHAR(10) UNIQUE, pincode CHAR(6), FOREIGN KEY (pincode) REFERENCES pincodes(pincode));
+CREATE TABLE batches (batch_id INT PRIMARY KEY AUTO_INCREMENT, batch_name VARCHAR(20) NOT NULL, start_date DATE NOT NULL, batch_type ENUM('Weekday','Weekend') DEFAULT 'Weekday');
+CREATE TABLE courses (course_id INT PRIMARY KEY AUTO_INCREMENT, course_name VARCHAR(100) NOT NULL, instructor VARCHAR(100), duration_hrs INT CHECK (duration_hrs>0), fee DECIMAL(8,2) NOT NULL);
+CREATE TABLE registrations (student_id INT NOT NULL, course_id INT NOT NULL, batch_id INT NOT NULL, enrolled_on DATE DEFAULT (CURRENT_DATE), fees_paid DECIMAL(8,2) NOT NULL, status ENUM('active','completed','dropped') DEFAULT 'active', PRIMARY KEY(student_id,course_id), FOREIGN KEY(student_id) REFERENCES students(student_id), FOREIGN KEY(course_id) REFERENCES courses(course_id), FOREIGN KEY(batch_id) REFERENCES batches(batch_id));`,
+
+`-- Denormalization for performance
+-- Normalized (JOIN required):
+SELECT o.order_id, o.order_amount, c.name, c.city
+FROM orders o JOIN customers c ON o.customer_id=c.customer_id WHERE o.order_id=12345;
+-- Denormalized (no JOIN):
+SELECT order_id, order_amount, customer_name, customer_city FROM orders WHERE order_id=12345;`,
+
+`-- EXPLAIN index impact
+EXPLAIN SELECT s.name, r.fees_paid FROM students s
+JOIN registrations r ON s.student_id=r.student_id
+WHERE r.status='completed' AND s.pincode='600001';
+CREATE INDEX idx_reg_status ON registrations(status);
+CREATE INDEX idx_student_pincode ON students(pincode);
+EXPLAIN SELECT s.name, r.fees_paid FROM students s
+JOIN registrations r ON s.student_id=r.student_id
+WHERE r.status='completed' AND s.pincode='600001';`
+];
+function resetEditor(id,val){document.getElementById(id).value=val;}
+function showOutput(id){document.getElementById(id).classList.add('visible');document.getElementById(id).scrollIntoView({behavior:'smooth',block:'nearest'});updateProgress();}
+
+// ── QUIZ ─────────────────────────────────────────
+const questions=[
+  {q:'Which of the following is a violation of 1NF?',opts:['A column named "phone" contains the value "9876543210"','A column named "courses" contains "SQL, Python, ML" in a single cell','A table has a composite primary key (student_id, course_id)','A table has a column with NULL values'],correct:1,exp:'✅ 1NF requires atomic (single) values in each cell. "SQL, Python, ML" is a list — not atomic. Storing multiple values in one cell violates 1NF because you cannot filter by individual values easily.'},
+  {q:'When does a 2NF violation occur?',opts:['When a table has no Primary Key','When a non-key column depends only on PART of a composite Primary Key','When two rows have the same values in all columns','When a column contains NULL values'],correct:1,exp:'✅ 2NF violation = Partial Dependency. If the PK is composite (e.g., student_id + course_id) and a non-key column (e.g., student_name) depends only on student_id — that\'s partial. The fix: move student_name to a separate students table.'},
+  {q:'A table has: employee_id → department_id → department_name. This is an example of:',opts:['Partial dependency (2NF violation)','Transitive dependency (3NF violation)','Multi-valued dependency (4NF violation)','No violation — this is correct design'],correct:1,exp:'✅ Transitive Dependency! department_name doesn\'t depend directly on employee_id — it depends on department_id, which depends on employee_id. The chain A → B → C means C transitively depends on A. Fix: create a departments table with department_id as PK and department_name as attribute.'},
+  {q:'What is the key difference between 3NF and BCNF?',opts:['3NF allows NULL values while BCNF does not','In BCNF, every determinant must be a superkey — no exceptions. 3NF allows some non-superkey determinants','BCNF requires more tables than 3NF','3NF is for OLTP and BCNF is for OLAP databases'],correct:1,exp:'✅ BCNF is stricter. In 3NF, a non-superkey can be a determinant IF the determined attribute is part of a candidate key. BCNF eliminates this exception — every determinant must be a superkey. Most 3NF tables are also in BCNF; violations are rare.'},
+  {q:'You have a table: students(student_id, name, phone, zip_code, city, state). The FD is: zip_code → city, state. What violation is this?',opts:['1NF — non-atomic values','2NF — partial dependency','3NF — transitive dependency','No violation'],correct:2,exp:'✅ 3NF violation — Transitive Dependency! student_id → zip_code → city, state. City and state depend on zip_code (not directly on student_id). Fix: create a zip_codes table (zip_code PK, city, state) and keep only zip_code as FK in students.'},
+  {q:'Which of these is a valid reason to DENORMALIZE a database?',opts:['The database has too many tables and you want fewer','A read-heavy dashboard query is slow because of expensive JOINs across 6 tables','Normalization is only useful for small databases','The DBA prefers simpler table designs'],correct:1,exp:'✅ Denormalization is justified when read performance suffers due to expensive JOINs in high-traffic workloads. You first normalize, then selectively denormalize specific bottlenecks identified through profiling (EXPLAIN). Option A is an invalid reason — having many tables is fine and expected in normalized schemas.'},
+  {q:'After normalizing a schema into 5 tables, which columns should you index FIRST to improve JOIN performance?',opts:['All columns in every table','Only the Primary Key columns (they\'re auto-indexed)','Foreign Key columns used in JOIN conditions','Columns with the most distinct values'],correct:2,exp:'✅ Foreign Key columns! Primary Keys are automatically indexed. FKs are used in every JOIN condition — they\'re the most important columns to index after normalization. For example, in registrations(student_id FK, course_id FK), both student_id and course_id should have indexes.'},
+  {q:'What does a "4NF violation" (Multi-valued Dependency) look like?',opts:['A column containing multiple values in one cell','Two independent multi-valued attributes of an entity stored in the same table, causing unnecessary row combinations','A column that depends on a non-key column','A table with no primary key'],correct:1,exp:'✅ 4NF violation occurs when two independent multi-valued facts (like "employee skills" and "employee projects") are stored in the same table. Because they\'re independent, the DB must store every combination (skill × project), creating redundancy. Fix: separate tables for emp_skills and emp_projects.'},
+  {q:'Which statement about normalization is TRUE?',opts:['Normalization always improves both read and write performance','Normalization improves write performance but can hurt read performance if not paired with proper indexing','Normalization only applies to databases with more than 100 tables','Once normalized to 3NF, a database needs no further optimization'],correct:1,exp:'✅ Normalization improves write performance (no redundant data to maintain) and data integrity. But it can hurt read performance because data is split across many tables requiring JOINs. The solution: index Foreign Keys and frequently queried columns. "Normalize for correctness, index for performance."'},
+  {q:'A student table has: student_id (PK), name, email (UNIQUE), city, gpa. Assuming atomic values, what Normal Form is this table already in?',opts:['Unnormalized Form (UNF)','1NF only','2NF only','3NF (and likely BCNF)'],correct:3,exp:'✅ This table is in 3NF (and BCNF). Why? Single-column PK means no partial dependencies (2NF is auto-satisfied). All non-key columns (name, email, city, gpa) depend directly on student_id — no transitive dependencies. For BCNF: the only FD is student_id → {name,email,city,gpa}, and student_id is a superkey. Clean design!'},
+];
+let cQ=0;const ans=new Array(questions.length).fill(null);
+function renderQuiz(){
+  const q=questions[cQ];
+  document.getElementById('q-count').textContent=`Question ${cQ+1} of ${questions.length}`;
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="quiz-q">${cQ+1}. ${q.q}</div>
+    <div class="quiz-options">${q.opts.map((o,i)=>`
+      <button class="quiz-opt ${ans[cQ]===i?(i===q.correct?'correct':'wrong'):''}"
+              onclick="ansQ(${i})" ${ans[cQ]!==null?'disabled':''}>
+        <div class="opt-letter">${['A','B','C','D'][i]}</div>${o}
+      </button>`).join('')}</div>
+    <div class="quiz-feedback ${ans[cQ]!==null?'show':''} ${ans[cQ]===q.correct?'correct':'wrong'}">
+      ${ans[cQ]!==null?q.exp:''}
+    </div>`;
+  document.getElementById('q-dots').innerHTML=questions.map((_,i)=>`<div class="q-dot ${i===cQ?'active':ans[i]===null?'':(ans[i]===questions[i].correct?'done-c':'done-w')}"></div>`).join('');
+  document.getElementById('prev-btn').style.display=cQ>0?'block':'none';
+  document.getElementById('next-btn').style.display=ans[cQ]!==null&&cQ<questions.length-1?'block':'none';
+}
+function ansQ(i){if(ans[cQ]!==null)return;ans[cQ]=i;updateProgress();renderQuiz();}
+function nextQ(){if(cQ<questions.length-1){cQ++;renderQuiz();}}
+function prevQ(){if(cQ>0){cQ--;renderQuiz();}}
+
+// ── PROGRESS ─────────────────────────────────────
+function updateProgress(){
+  const outs=document.querySelectorAll('.try-output.visible').length;
+  const answered=ans.filter(a=>a!==null).length;
+  const iqs=document.querySelectorAll('.iq-body.open').length;
+  const total=ex.length+questions.length+2;
+  const done=outs+answered+iqs;
+  const pct=Math.min(100,Math.round(done/total*100));
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+
+renderQuiz();
+</script>
+</body>
+</html>
