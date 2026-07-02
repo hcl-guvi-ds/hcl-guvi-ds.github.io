@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 16 — CTEs: Common Table Expressions | SQL Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --teal:#0d9488;--tl:#ccfbf1;--td:#0f766e;
+  --blue:#2563eb;--bl:#dbeafe;
+  --indigo:#4f46e5;--il:#e0e7ff;
+  --amber:#d97706;--al:#fef3c7;
+  --red:#dc2626;--rl:#fee2e2;
+  --green:#16a34a;--gl:#dcfce7;
+  --purple:#7c3aed;--pl:#ede9fe;
+  --orange:#ea580c;--ol:#ffedd5;
+  --cyan:#0891b2;--cyanl:#cffafe;
+  --bg:#f8fafc;--surface:#fff;
+  --border:#e2e8f0;--text:#0f172a;--muted:#64748b;
+  --sw:272px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+.sidebar{width:var(--sw);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;display:flex;flex-direction:column;}
+.sbh{padding:20px 18px 16px;background:linear-gradient(135deg,#083344,#1e1b4b);border-bottom:1px solid var(--border);}
+.sbh .badge{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#67e8f9;margin-bottom:4px;}
+.sbh h2{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;line-height:1.3;}
+.sbh p{font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;}
+.sbp{padding:14px 18px;border-bottom:1px solid var(--border);}
+.pbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;}
+.pb{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+.pf{height:100%;background:linear-gradient(90deg,var(--cyan),var(--indigo));border-radius:99px;transition:width .4s;}
+.sbn{flex:1;padding:8px 0;}
+.nsl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 18px 4px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;font-size:13px;color:var(--muted);font-weight:500;}
+.ni:hover{background:var(--bg);color:var(--text);}
+.ni.active{border-left-color:var(--cyan);background:var(--cyanl);color:var(--cyan);font-weight:600;}
+.ni.done{color:var(--green);}
+.nc{margin-left:auto;font-size:13px;}
+.main{margin-left:var(--sw);flex:1;min-width:0;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.tbl{display:flex;align-items:center;gap:12px;}
+.chp{background:var(--cyanl);color:var(--cyan);font-family:'Sora',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.05em;}
+.topbar h1{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;}
+.nb{display:flex;gap:8px;}
+.nbtn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s;}
+.nbtn.pri{background:var(--cyan);color:#fff;border-color:var(--cyan);}
+.nbtn:hover{border-color:var(--cyan);color:var(--cyan);}
+.nbtn.pri:hover{background:#0e7490;}
+.sec{display:none;padding:36px 44px 64px;max-width:1000px;}
+.sec.active{display:block;}
+.hero{background:linear-gradient(135deg,#083344 0%,#1e1b4b 100%);border-radius:16px;padding:36px 40px;color:#fff;margin-bottom:32px;position:relative;overflow:hidden;}
+.hero::after{content:'🌳';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-size:90px;opacity:.13;}
+.hero .ey{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#67e8f9;margin-bottom:8px;}
+.hero h2{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;line-height:1.2;margin-bottom:10px;}
+.hero p{font-size:14px;opacity:.82;line-height:1.65;max-width:560px;}
+.st{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.ss{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:20px;}
+.ct{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.cb{background:#0f172a;border-radius:10px;padding:18px 22px;margin:14px 0;overflow-x:auto;position:relative;}
+.cb pre{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.82;color:#e2e8f0;white-space:pre;}
+.cl{position:absolute;top:10px;right:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+.kw{color:#7dd3fc;}.fn{color:#a5f3fc;}.str{color:#86efac;}.cm{color:#475569;font-style:italic;}.op{color:#f9a8d4;}.num{color:#fcd34d;}.cte{color:#67e8f9;font-weight:700;}.rec{color:#fb923c;font-weight:700;}
+.co{border-radius:10px;padding:14px 18px;margin:16px 0;display:flex;gap:12px;font-size:13.5px;line-height:1.65;}
+.ci{font-size:18px;flex-shrink:0;margin-top:1px;}
+.co strong{display:block;font-weight:700;margin-bottom:3px;}
+.co.tip{background:var(--tl);border-left:4px solid var(--teal);color:#134e4a;}
+.co.warn{background:var(--al);border-left:4px solid var(--amber);color:#78350f;}
+.co.info{background:var(--bl);border-left:4px solid var(--blue);color:#1e3a5f;}
+.co.danger{background:var(--rl);border-left:4px solid var(--red);color:#7f1d1d;}
+.co.success{background:var(--gl);border-left:4px solid var(--green);color:#14532d;}
+.co.purple{background:var(--pl);border-left:4px solid var(--purple);color:#3b0764;}
+.co.cyan{background:var(--cyanl);border-left:4px solid var(--cyan);color:#083344;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+.dtbl{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+.dtbl th{background:#0f172a;color:#fff;padding:9px 14px;text-align:left;font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;}
+.dtbl td{padding:9px 14px;border-bottom:1px solid var(--border);color:#334155;}
+.dtbl tr:nth-child(even) td{background:#f8fafc;}
+
+/* CTE ANATOMY DIAGRAM */
+.anatomy{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:24px;margin:20px 0;}
+.anatomy-parts{display:flex;flex-direction:column;gap:10px;}
+.anatomy-row{display:flex;align-items:center;gap:14px;}
+.anatomy-code{font-family:'JetBrains Mono',monospace;font-size:13px;background:#0f172a;color:#e2e8f0;padding:8px 14px;border-radius:7px;flex-shrink:0;min-width:200px;}
+.anatomy-desc{font-size:12.5px;color:var(--muted);}
+.anatomy-tag{padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;font-family:'Sora',sans-serif;}
+
+/* COMPARISON */
+.comp-table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0;}
+.comp-table th{padding:10px 14px;text-align:left;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;border-bottom:2px solid var(--border);}
+.comp-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+.comp-table tr:nth-child(even) td{background:#f8fafc;}
+.win{color:var(--green);font-weight:700;}
+
+/* ════ SIGNATURE: RECURSIVE TREE BUILDER ════ */
+.treebuilder{background:var(--surface);border:2px solid var(--cyan);border-radius:16px;overflow:hidden;margin:24px 0;}
+.tb-head{background:linear-gradient(90deg,#083344,#1e1b4b);padding:18px 24px;}
+.tb-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;}
+.tb-sub{font-size:12px;color:#67e8f9;margin-top:3px;}
+.tb-tabs{display:flex;gap:4px;padding:14px 24px 0;border-bottom:2px solid var(--border);background:#fafafa;flex-wrap:wrap;}
+.tbtab{padding:8px 16px;font-size:12.5px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;color:var(--muted);font-family:'Sora',sans-serif;border-radius:6px 6px 0 0;}
+.tbtab:hover{color:var(--cyan);}
+.tbtab.active{border-bottom-color:var(--cyan);color:var(--cyan);background:#fff;}
+.tb-body{padding:24px;}
+.tb-controls{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;}
+.tb-btn{padding:9px 18px;border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer;border:none;background:var(--cyan);color:#fff;font-family:'Sora',sans-serif;transition:background .15s;}
+.tb-btn:hover{background:#0e7490;}
+.tb-btn:disabled{background:var(--border);color:var(--muted);cursor:default;}
+.tb-reset{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;background:#1e293b;color:#94a3b8;font-family:'Sora',sans-serif;}
+.tb-reset:hover{color:#fff;}
+.tb-iteration{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);margin-left:auto;}
+.tb-visual{background:#0f172a;border-radius:12px;padding:24px;min-height:280px;display:flex;flex-direction:column;align-items:center;gap:16px;overflow-x:auto;}
+.tb-level{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;opacity:0;animation:treeIn .5s forwards;}
+@keyframes treeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.tb-node{border-radius:9px;padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;text-align:center;min-width:90px;border:2px solid;}
+.tb-node.lvl-0{background:#7c3aed;border-color:#a78bfa;color:#fff;}
+.tb-node.lvl-1{background:#2563eb;border-color:#93c5fd;color:#fff;}
+.tb-node.lvl-2{background:#0d9488;border-color:#5eead4;color:#fff;}
+.tb-node.lvl-3{background:#d97706;border-color:#fcd34d;color:#fff;}
+.tb-node .node-sub{font-size:9px;font-weight:400;opacity:.85;margin-top:2px;}
+.tb-cte-result{margin-top:16px;}
+.tb-result-table{width:100%;border-collapse:collapse;font-size:12px;font-family:'JetBrains Mono',monospace;}
+.tb-result-table th{background:#0f172a;color:#fff;padding:7px 12px;text-align:left;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;}
+.tb-result-table td{padding:7px 12px;border-bottom:1px solid var(--border);}
+.tb-result-table tr.new-row{background:var(--cyanl)!important;animation:fadeInRow .5s;}
+@keyframes fadeInRow{from{opacity:0}to{opacity:1}}
+.tb-depth-indent{font-family:'JetBrains Mono',monospace;}
+.tb-query-display{background:#0f172a;border-radius:9px;padding:14px 18px;margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#e2e8f0;line-height:1.7;}
+.tb-explain{background:#f8fafc;border-radius:9px;padding:12px 16px;margin-top:12px;font-size:12.5px;color:#334155;line-height:1.6;border-left:4px solid var(--cyan);}
+
+.steps{list-style:none;margin:16px 0;}
+.step{display:flex;gap:14px;margin-bottom:16px;}
+.sn{width:28px;height:28px;background:var(--cyan);color:#fff;border-radius:50%;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.sb2{flex:1;}
+.sb2 strong{font-weight:700;font-size:14px;display:block;margin-bottom:3px;}
+.sb2 p{font-size:13.5px;color:#334155;line-height:1.6;}
+
+.sandbox{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+.sbh2{background:#0f172a;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;}
+.sbt{font-family:'JetBrains Mono',monospace;font-size:12px;color:#94a3b8;font-weight:600;display:flex;align-items:center;gap:8px;}
+.sbact{display:flex;gap:8px;}
+.sbbtn{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;transition:all .15s;}
+.sbbtn.run{background:var(--teal);color:#fff;}
+.sbbtn.run:hover{background:var(--td);}
+.sbbtn.clr{background:#1e293b;color:#94a3b8;}
+.sbbtn.clr:hover{color:#fff;}
+.sbed{width:100%;min-height:130px;background:#1e293b;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:13px;padding:16px 18px;border:none;outline:none;resize:vertical;line-height:1.8;}
+.sbout{padding:14px 18px;min-height:60px;font-family:'JetBrains Mono',monospace;font-size:12.5px;border-top:1px solid var(--border);background:#f8fafc;color:#334155;line-height:1.6;}
+.ot{border-collapse:collapse;width:100%;margin-top:8px;font-size:12px;}
+.ot th{background:#0f172a;color:#fff;padding:7px 12px;text-align:left;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;}
+.ot td{padding:7px 12px;border-bottom:1px solid #e2e8f0;}
+.ot tr:nth-child(even) td{background:#f1f5f9;}
+
+.qw{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;}
+.qq{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;line-height:1.4;}
+.qopts{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.qopt{padding:12px 16px;border:2px solid var(--border);border-radius:9px;cursor:pointer;font-size:14px;font-weight:500;transition:all .15s;display:flex;align-items:center;gap:10px;}
+.qopt:hover{border-color:var(--cyan);background:var(--cyanl);}
+.qopt.correct{border-color:var(--green);background:var(--gl);color:var(--green);}
+.qopt.wrong{border-color:var(--red);background:var(--rl);color:var(--red);}
+.ok{width:24px;height:24px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Sora',sans-serif;}
+.qfb{display:none;padding:12px 16px;border-radius:9px;font-size:13.5px;line-height:1.5;margin-bottom:14px;}
+.qfb.show{display:block;}
+.qfb.correct{background:var(--gl);color:#14532d;border-left:4px solid var(--green);}
+.qfb.wrong{background:var(--rl);color:#7f1d1d;border-left:4px solid var(--red);}
+.qnav{display:flex;justify-content:space-between;align-items:center;}
+.qsc{font-family:'Sora',sans-serif;font-size:14px;color:var(--muted);}
+.qbtn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;background:var(--cyan);color:#fff;}
+.qbtn:hover{background:#0e7490;}
+.qprog{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.done{text-align:center;padding:48px 32px;background:linear-gradient(135deg,var(--cyanl),var(--il));border-radius:16px;border:1px solid var(--border);margin-top:32px;}
+.done .trophy{font-size:56px;margin-bottom:12px;}
+.done h3{font-family:'Sora',sans-serif;font-size:24px;font-weight:800;margin-bottom:8px;}
+.done p{color:var(--muted);font-size:14px;max-width:440px;margin:0 auto 20px;}
+.donebtn{padding:12px 28px;background:linear-gradient(135deg,var(--cyan),var(--indigo));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;}
+#cvc{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}.sec{padding:24px 20px 40px}.g2,.g3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="cvc"></canvas>
+
+<aside class="sidebar">
+  <div class="sbh">
+    <div class="badge">SQL Mastery Course</div>
+    <h2>Chapter 16: CTEs</h2>
+    <p>WITH Clause · Chaining · Recursive</p>
+  </div>
+  <div class="sbp">
+    <div class="pbl"><span>Progress</span><span id="pp">0%</span></div>
+    <div class="pb"><div class="pf" id="pf" style="width:0%"></div></div>
+  </div>
+  <nav class="sbn">
+    <div class="nsl">Content</div>
+    <div class="ni active" data-s="intro"     onclick="showS('intro',this)">    <span>🏠</span> Introduction              <span class="nc" id="chk-intro"></span></div>
+    <div class="ni" data-s="syntax"    onclick="showS('syntax',this)">   <span>📖</span> WITH Clause Syntax         <span class="nc" id="chk-syntax"></span></div>
+    <div class="ni" data-s="chaining"  onclick="showS('chaining',this)"> <span>🔗</span> Multiple CTEs — Chaining    <span class="nc" id="chk-chaining"></span></div>
+    <div class="ni" data-s="vssubq"    onclick="showS('vssubq',this)">   <span>⚖️</span> CTE vs Subquery            <span class="nc" id="chk-vssubq"></span></div>
+    <div class="ni" data-s="aggreg"    onclick="showS('aggreg',this)">   <span>∑</span> CTEs with Aggregations     <span class="nc" id="chk-aggreg"></span></div>
+    <div class="ni" data-s="recanatomy" onclick="showS('recanatomy',this)"><span>🌳</span> Recursive CTE Anatomy      <span class="nc" id="chk-recanatomy"></span></div>
+    <div class="ni" data-s="treebuilder" onclick="showS('treebuilder',this)"><span>🎮</span> Live Tree Builder ✨     <span class="nc" id="chk-treebuilder"></span></div>
+    <div class="ni" data-s="orgchart" onclick="showS('orgchart',this)">  <span>👔</span> Employee → Manager Chain   <span class="nc" id="chk-orgchart"></span></div>
+    <div class="ni" data-s="category" onclick="showS('category',this)">  <span>📂</span> Category → Subcategory     <span class="nc" id="chk-category"></span></div>
+    <div class="ni" data-s="seqgen"   onclick="showS('seqgen',this)">    <span>🔢</span> Sequence Generation         <span class="nc" id="chk-seqgen"></span></div>
+    <div class="ni" data-s="sandbox"  onclick="showS('sandbox',this)">   <span>💻</span> Practice Sandbox            <span class="nc" id="chk-sandbox"></span></div>
+    <div class="ni" data-s="quiz"     onclick="showS('quiz',this)">      <span>🧠</span> Chapter Quiz                <span class="nc" id="chk-quiz"></span></div>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="tbl"><span class="chp">Chapter 16</span><h1>CTEs — Common Table Expressions</h1></div>
+    <div class="nb">
+      <button class="nbtn" onclick="prevS()">← Prev</button>
+      <button class="nbtn pri" onclick="nextS()">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══ INTRO ══ -->
+  <section class="sec active" id="sec-intro">
+    <div class="hero">
+      <div class="ey">Chapter 16 · CTEs — Common Table Expressions</div>
+      <h2>Name Your Logic.<br/>Read Your Query Like a Story.</h2>
+      <p>A CTE lets you break a complex query into named, readable steps — and even query a table's own hierarchy, like an org chart or category tree, using recursion. This is where SQL starts to feel like clean, structured code.</p>
+    </div>
+    <h2 class="st">What is a CTE?</h2>
+    <p class="ss">A Common Table Expression (CTE) is a temporary, named result set defined using the <code>WITH</code> keyword. It exists only for the duration of the query that follows it — think of it as a "variable" that holds a table.</p>
+
+    <div class="g2">
+      <div class="card" style="border-left:4px solid var(--cyan);margin-bottom:0">
+        <div class="ct" style="color:var(--cyan)">📦 Non-Recursive CTE</div>
+        <p style="font-size:13px">A named subquery used to break complex logic into readable steps. Runs once, like a temporary view that only exists for one query.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--orange);margin-bottom:0">
+        <div class="ct" style="color:var(--orange)">🌳 Recursive CTE</div>
+        <p style="font-size:13px">A CTE that references itself — perfect for hierarchies like org charts, category trees, or generating number sequences.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔍 Before & After — Why CTEs Matter</div>
+      <div class="cb"><span class="cl">❌ Nested subquery — hard to read</span><pre><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> (
+  <span class="kw">SELECT</span> batch_id, <span class="fn">AVG</span>(score) <span class="kw">AS</span> avg_score
+  <span class="kw">FROM</span> (
+    <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_learners <span class="kw">WHERE</span> quiz_score <span class="kw">IS NOT NULL</span>
+  ) <span class="kw">AS</span> valid_learners
+  <span class="kw">GROUP BY</span> batch_id
+) <span class="kw">AS</span> batch_avgs
+<span class="kw">WHERE</span> avg_score <span class="op">></span> <span class="num">75</span>;</pre></div>
+      <div class="cb"><span class="cl">✅ Same logic with CTE — reads top to bottom</span><pre><span class="kw">WITH</span> <span class="cte">valid_learners</span> <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_learners <span class="kw">WHERE</span> quiz_score <span class="kw">IS NOT NULL</span>
+),
+<span class="cte">batch_avgs</span> <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> batch_id, <span class="fn">AVG</span>(quiz_score) <span class="kw">AS</span> avg_score
+  <span class="kw">FROM</span>   <span class="cte">valid_learners</span>
+  <span class="kw">GROUP BY</span> batch_id
+)
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="cte">batch_avgs</span> <span class="kw">WHERE</span> avg_score <span class="op">></span> <span class="num">75</span>;</pre></div>
+      <div class="co success"><span class="ci">✅</span><div>Same logic, same performance — but the CTE version reads like a story: "first get valid_learners, then compute batch_avgs, then filter." Each step has a name.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ SYNTAX ══ -->
+  <section class="sec" id="sec-syntax">
+    <h2 class="st">📖 WITH Clause — Syntax & Structure</h2>
+    <p class="ss">Every CTE follows the same basic shape: WITH, a name, AS, parentheses containing a query, then your main query that references the CTE name.</p>
+
+    <div class="card">
+      <div class="ct">🧬 Anatomy of a CTE</div>
+      <div class="anatomy">
+        <div class="anatomy-parts">
+          <div class="anatomy-row">
+            <div class="anatomy-code">WITH</div>
+            <div class="anatomy-desc">Keyword that starts the CTE definition block</div>
+          </div>
+          <div class="anatomy-row">
+            <div class="anatomy-code">top_scorers</div>
+            <div class="anatomy-desc">The CTE's name — used like a table name later in the query</div>
+          </div>
+          <div class="anatomy-row">
+            <div class="anatomy-code">AS ( ... )</div>
+            <div class="anatomy-desc">The SELECT query whose result becomes the CTE's "virtual table"</div>
+          </div>
+          <div class="anatomy-row">
+            <div class="anatomy-code">SELECT * FROM top_scorers</div>
+            <div class="anatomy-desc">Main query — references the CTE name as if it were a real table</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 Single CTE — Complete Example</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">WITH</span> <span class="cte">top_scorers</span> <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> student_id, name, batch_id, quiz_score
+    <span class="kw">FROM</span>   guvi_learners
+    <span class="kw">WHERE</span>  quiz_score <span class="op">>=</span> <span class="num">85</span>
+)
+<span class="kw">SELECT</span> batch_id, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> top_scorer_count
+<span class="kw">FROM</span>   <span class="cte">top_scorers</span>
+<span class="kw">GROUP BY</span> batch_id
+<span class="kw">ORDER BY</span> top_scorer_count <span class="kw">DESC</span>;</pre></div>
+      <div class="co tip"><span class="ci">💡</span><div><strong>The CTE only exists for ONE query.</strong>Once the main SELECT finishes running, <code>top_scorers</code> disappears. You can't reference it in a separate, later query — unlike a VIEW, which persists until DROPped.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📋 Specifying Column Names (Optional)</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- You can explicitly name CTE output columns</span>
+<span class="kw">WITH</span> <span class="cte">batch_stats</span> (batch, learner_count, avg_score) <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> batch_id, <span class="fn">COUNT</span>(<span class="op">*</span>), <span class="fn">AVG</span>(quiz_score)
+    <span class="kw">FROM</span>   guvi_learners
+    <span class="kw">GROUP BY</span> batch_id
+)
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="cte">batch_stats</span> <span class="kw">WHERE</span> avg_score <span class="op">></span> <span class="num">75</span>;
+<span class="cm">-- Columns are now named: batch, learner_count, avg_score</span></pre></div>
+    </div>
+  </section>
+
+  <!-- ══ CHAINING ══ -->
+  <section class="sec" id="sec-chaining">
+    <h2 class="st">🔗 Multiple CTEs — Chaining Logic</h2>
+    <p class="ss">You can define several CTEs in one WITH clause, separated by commas. Later CTEs can reference earlier ones — building up complex logic step by step.</p>
+
+    <div class="card">
+      <div class="ct">📖 Chaining Syntax</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">WITH</span>
+  <span class="cte">cte_one</span> <span class="kw">AS</span> ( <span class="kw">SELECT</span> ... ),
+  <span class="cte">cte_two</span> <span class="kw">AS</span> ( <span class="kw">SELECT</span> ... <span class="kw">FROM</span> <span class="cte">cte_one</span> ),   <span class="cm">← can reference cte_one</span>
+  <span class="cte">cte_three</span> <span class="kw">AS</span> ( <span class="kw">SELECT</span> ... <span class="kw">FROM</span> <span class="cte">cte_two</span> ) <span class="cm">← can reference cte_two</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="cte">cte_three</span>;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI Example — 3-Step Chained CTE</div>
+      <p style="margin-bottom:10px">Goal: Find batches whose average score is above the OVERALL average — broken into clear, named steps.</p>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">WITH</span>
+  <span class="cm">-- Step 1: Clean data — only learners who attempted the quiz</span>
+  <span class="cte">valid_learners</span> <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_learners <span class="kw">WHERE</span> quiz_score <span class="kw">IS NOT NULL</span>
+  ),
+
+  <span class="cm">-- Step 2: Compute the overall class average (uses Step 1)</span>
+  <span class="cte">overall_avg</span> <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> <span class="fn">AVG</span>(quiz_score) <span class="kw">AS</span> avg_score <span class="kw">FROM</span> <span class="cte">valid_learners</span>
+  ),
+
+  <span class="cm">-- Step 3: Compute per-batch average (uses Step 1)</span>
+  <span class="cte">batch_avgs</span> <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> batch_id, <span class="fn">AVG</span>(quiz_score) <span class="kw">AS</span> batch_avg
+    <span class="kw">FROM</span>   <span class="cte">valid_learners</span>
+    <span class="kw">GROUP BY</span> batch_id
+  )
+
+<span class="cm">-- Final query: compare Step 3 against Step 2</span>
+<span class="kw">SELECT</span> b.batch_id, <span class="fn">ROUND</span>(b.batch_avg,<span class="num">1</span>) <span class="kw">AS</span> batch_avg, <span class="fn">ROUND</span>(o.avg_score,<span class="num">1</span>) <span class="kw">AS</span> overall_avg
+<span class="kw">FROM</span>   <span class="cte">batch_avgs</span> b
+<span class="kw">CROSS JOIN</span> <span class="cte">overall_avg</span> o
+<span class="kw">WHERE</span>  b.batch_avg <span class="op">></span> o.avg_score
+<span class="kw">ORDER BY</span> b.batch_avg <span class="kw">DESC</span>;</pre></div>
+      <div class="co success"><span class="ci">✅</span><div>Notice how each CTE has a clear, single purpose — and the final query reads almost like English: "compare batch_avgs against overall_avg." This is the readability win CTEs provide over deeply nested subqueries.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ CTE VS SUBQUERY ══ -->
+  <section class="sec" id="sec-vssubq">
+    <h2 class="st">⚖️ CTE vs Subquery — When to Prefer Which</h2>
+    <p class="ss">CTEs and subqueries can often solve the same problem — the choice usually comes down to readability and reuse, not performance.</p>
+
+    <div class="card">
+      <div class="ct">📊 Full Comparison</div>
+      <table class="comp-table">
+        <thead><tr><th>Factor</th><th>Subquery</th><th>CTE</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Readability</strong></td><td>Degrades fast with nesting</td><td class="win">✅ Stays clean — each step is named</td></tr>
+          <tr><td><strong>Reuse within query</strong></td><td>Must repeat the subquery each time</td><td class="win">✅ Reference the CTE multiple times by name</td></tr>
+          <tr><td><strong>Recursion</strong></td><td>❌ Not possible</td><td class="win">✅ Recursive CTEs handle hierarchies</td></tr>
+          <tr><td><strong>Performance</strong></td><td>Same execution plan typically</td><td>Same execution plan typically (engine-dependent)</td></tr>
+          <tr><td><strong>Debugging</strong></td><td>Must isolate nested logic manually</td><td class="win">✅ Test each CTE independently by running it alone</td></tr>
+          <tr><td><strong>Scope</strong></td><td>Lives inside the query, single use</td><td>Lives inside the query, but can be referenced multiple times</td></tr>
+          <tr><td><strong>Best for</strong></td><td>Quick one-off filters, single EXISTS checks</td><td>Multi-step logic, hierarchies, anything reused 2+ times</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔁 The "Reuse" Advantage — A Concrete Example</div>
+      <div class="cb"><span class="cl">❌ Subquery — must repeat the calculation</span><pre><span class="kw">SELECT</span>
+  batch_id,
+  (<span class="kw">SELECT</span> <span class="fn">AVG</span>(quiz_score) <span class="kw">FROM</span> guvi_learners) <span class="kw">AS</span> overall_avg,
+  <span class="fn">AVG</span>(quiz_score) <span class="kw">AS</span> batch_avg,
+  <span class="fn">AVG</span>(quiz_score) <span class="op">-</span> (<span class="kw">SELECT</span> <span class="fn">AVG</span>(quiz_score) <span class="kw">FROM</span> guvi_learners) <span class="kw">AS</span> diff
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">GROUP BY</span> batch_id;
+<span class="cm">-- The same subquery is repeated TWICE — wasteful and error-prone</span></pre></div>
+      <div class="cb"><span class="cl">✅ CTE — compute once, reference many times</span><pre><span class="kw">WITH</span> <span class="cte">overall</span> <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> <span class="fn">AVG</span>(quiz_score) <span class="kw">AS</span> avg_score <span class="kw">FROM</span> guvi_learners
+)
+<span class="kw">SELECT</span>
+  g.batch_id,
+  o.avg_score      <span class="kw">AS</span> overall_avg,
+  <span class="fn">AVG</span>(g.quiz_score) <span class="kw">AS</span> batch_avg,
+  <span class="fn">AVG</span>(g.quiz_score) <span class="op">-</span> o.avg_score <span class="kw">AS</span> diff
+<span class="kw">FROM</span>   guvi_learners g
+<span class="kw">CROSS JOIN</span> <span class="cte">overall</span> o
+<span class="kw">GROUP BY</span> g.batch_id, o.avg_score;</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ AGGREGATIONS ══ -->
+  <section class="sec" id="sec-aggreg">
+    <h2 class="st">∑ CTEs with Aggregations</h2>
+    <p class="ss">CTEs shine when building multi-step aggregate reports — each step computes a different metric, and the final query combines them.</p>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI Example — Full Batch Performance Dashboard</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">WITH</span>
+  <span class="cte">enrollment_counts</span> <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> batch_id, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> total_enrolled
+    <span class="kw">FROM</span>   guvi_learners
+    <span class="kw">GROUP BY</span> batch_id
+  ),
+  <span class="cte">score_stats</span> <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> batch_id,
+           <span class="fn">ROUND</span>(<span class="fn">AVG</span>(quiz_score),<span class="num">1</span>) <span class="kw">AS</span> avg_score,
+           <span class="fn">MAX</span>(quiz_score) <span class="kw">AS</span> top_score,
+           <span class="fn">MIN</span>(quiz_score) <span class="kw">AS</span> low_score
+    <span class="kw">FROM</span>   guvi_learners
+    <span class="kw">WHERE</span>  quiz_score <span class="kw">IS NOT NULL</span>
+    <span class="kw">GROUP BY</span> batch_id
+  ),
+  <span class="cte">pass_rates</span> <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> batch_id,
+           <span class="fn">ROUND</span>(<span class="num">100.0</span> <span class="op">*</span> <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> quiz_score <span class="op">>=</span> <span class="num">75</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="op">/</span> <span class="fn">COUNT</span>(<span class="op">*</span>), <span class="num">1</span>) <span class="kw">AS</span> pass_pct
+    <span class="kw">FROM</span>   guvi_learners
+    <span class="kw">WHERE</span>  quiz_score <span class="kw">IS NOT NULL</span>
+    <span class="kw">GROUP BY</span> batch_id
+  )
+
+<span class="kw">SELECT</span>
+  e.batch_id,
+  e.total_enrolled,
+  s.avg_score, s.top_score, s.low_score,
+  p.pass_pct
+<span class="kw">FROM</span>   <span class="cte">enrollment_counts</span> e
+<span class="kw">JOIN</span>   <span class="cte">score_stats</span>       s <span class="kw">ON</span> e.batch_id <span class="op">=</span> s.batch_id
+<span class="kw">JOIN</span>   <span class="cte">pass_rates</span>        p <span class="kw">ON</span> e.batch_id <span class="op">=</span> p.batch_id
+<span class="kw">ORDER BY</span> p.pass_pct <span class="kw">DESC</span>;</pre></div>
+      <table class="dtbl" style="margin-top:12px">
+        <thead><tr><th>batch_id</th><th>total_enrolled</th><th>avg_score</th><th>top_score</th><th>pass_pct</th></tr></thead>
+        <tbody>
+          <tr><td>B01</td><td>42</td><td>84.2</td><td>96</td><td>90.0%</td></tr>
+          <tr><td>B02</td><td>38</td><td>81.6</td><td>94</td><td>86.8%</td></tr>
+          <tr><td>B03</td><td>35</td><td>78.9</td><td>91</td><td>80.0%</td></tr>
+        </tbody>
+      </table>
+      <div class="co tip"><span class="ci">💡</span><div>Three independent CTEs (each computing a different metric), then joined together. This is far easier to debug than one giant nested query — you can test <code>SELECT * FROM enrollment_counts</code> in isolation to verify each step.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🪟 CTE + Window Function — Ranking Within Groups</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">WITH</span> <span class="cte">ranked_learners</span> <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+      name, batch_id, quiz_score,
+      <span class="fn">RANK</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> batch_id <span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>) <span class="kw">AS</span> batch_rank
+    <span class="kw">FROM</span>   guvi_learners
+    <span class="kw">WHERE</span>  quiz_score <span class="kw">IS NOT NULL</span>
+)
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="cte">ranked_learners</span> <span class="kw">WHERE</span> batch_rank <span class="op"><=</span> <span class="num">3</span>;
+<span class="cm">-- Top 3 scorers per batch — CTEs pair beautifully with window functions</span></pre></div>
+    </div>
+  </section>
+
+  <!-- ══ RECURSIVE ANATOMY ══ -->
+  <section class="sec" id="sec-recanatomy">
+    <h2 class="st">🌳 Recursive CTE Anatomy</h2>
+    <p class="ss">A recursive CTE has two parts joined by UNION ALL: a base case (the starting point) and a recursive case (which references the CTE itself, building on previous results).</p>
+
+    <div class="card">
+      <div class="ct">📖 Recursive CTE Syntax</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">WITH RECURSIVE</span> <span class="cte">cte_name</span> <span class="kw">AS</span> (
+    <span class="cm">-- ① BASE CASE — the starting point (runs once)</span>
+    <span class="kw">SELECT</span> columns <span class="kw">FROM</span> table <span class="kw">WHERE</span> starting_condition
+
+    <span class="kw">UNION ALL</span>
+
+    <span class="cm">-- ② RECURSIVE CASE — references the CTE itself!</span>
+    <span class="kw">SELECT</span> t.columns
+    <span class="kw">FROM</span>   table t
+    <span class="kw">JOIN</span>   <span class="rec">cte_name</span> <span class="kw">ON</span> t.parent_id <span class="op">=</span> <span class="rec">cte_name</span>.id
+)
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="cte">cte_name</span>;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔄 How Recursion Actually Executes</div>
+      <ul class="steps">
+        <li class="step"><div class="sn">1</div><div class="sb2"><strong>Base case runs first</strong><p>Produces the initial set of rows — e.g., the top-level CEO with no manager, or root categories with no parent.</p></div></li>
+        <li class="step"><div class="sn">2</div><div class="sb2"><strong>Recursive case runs using the base result</strong><p>Joins the table against the CTE's CURRENT result set, finding the "next level down" (direct reports of the CEO, or subcategories of root categories).</p></div></li>
+        <li class="step"><div class="sn">3</div><div class="sb2"><strong>New rows are added via UNION ALL</strong><p>The newly found rows get appended to the growing result set.</p></div></li>
+        <li class="step"><div class="sn">4</div><div class="sb2"><strong>Step 2 repeats using the NEW rows</strong><p>The recursive case runs again, this time finding the next level down from what was just added.</p></div></li>
+        <li class="step"><div class="sn">5</div><div class="sb2"><strong>Stops when no new rows are found</strong><p>When the recursive case returns zero new rows (no more children/reports), the recursion stops automatically.</p></div></li>
+      </ul>
+    </div>
+
+    <div class="co danger">
+      <span class="ci">🚨</span>
+      <div><strong>Always guard against infinite loops!</strong>If your hierarchy has a cycle (A reports to B, B reports to A — a data error), the recursion could run forever. Always add a depth limit as a safety net.</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🛡️ Depth Limiting — Preventing Infinite Loops</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">WITH RECURSIVE</span> <span class="cte">org_chain</span> <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> employee_id, name, manager_id, <span class="num">1</span> <span class="kw">AS</span> depth   <span class="cm">← start at depth 1</span>
+    <span class="kw">FROM</span>   employees
+    <span class="kw">WHERE</span>  manager_id <span class="kw">IS NULL</span>          <span class="cm">-- top of the hierarchy (CEO)</span>
+
+    <span class="kw">UNION ALL</span>
+
+    <span class="kw">SELECT</span> e.employee_id, e.name, e.manager_id, oc.depth <span class="op">+</span> <span class="num">1</span>  <span class="cm">← increment depth</span>
+    <span class="kw">FROM</span>   employees e
+    <span class="kw">JOIN</span>   <span class="rec">org_chain</span> oc <span class="kw">ON</span> e.manager_id <span class="op">=</span> oc.employee_id
+    <span class="kw">WHERE</span>  oc.depth <span class="op"><</span> <span class="num">10</span>            <span class="cm">← 🛡️ SAFETY NET: stop after 10 levels max</span>
+)
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="cte">org_chain</span>;
+
+<span class="cm">-- MySQL also has a global safety limit:</span>
+<span class="kw">SET</span> cte_max_recursion_depth <span class="op">=</span> <span class="num">100</span>;   <span class="cm">-- session-level cap</span></pre></div>
+    </div>
+  </section>
+
+  <!-- ══ TREE BUILDER (SIGNATURE) ══ -->
+  <section class="sec" id="sec-treebuilder">
+    <h2 class="st">🎮 Live Recursive Tree Builder</h2>
+    <p class="ss">Watch a recursive CTE execute one iteration at a time. Click "Next Iteration" to see exactly how the base case and recursive case build the tree, level by level — just like the database engine does internally.</p>
+
+    <div class="treebuilder">
+      <div class="tb-head">
+        <div class="tb-title">🌳 Recursive Execution Visualiser</div>
+        <div class="tb-sub">Choose a hierarchy, then step through the recursion</div>
+      </div>
+      <div class="tb-tabs">
+        <div class="tbtab active" onclick="setTreeTab('org',this)">👔 Org Chart</div>
+        <div class="tbtab" onclick="setTreeTab('category',this)">📂 Category Tree</div>
+      </div>
+      <div class="tb-body">
+        <div class="tb-controls">
+          <button class="tb-btn" id="tb-next" onclick="treeNextStep()">▶ Next Iteration</button>
+          <button class="tb-reset" onclick="treeReset()">↺ Reset</button>
+          <span class="tb-iteration" id="tb-iteration">Iteration: 0 (not started)</span>
+        </div>
+        <div class="tb-visual" id="tb-visual"></div>
+        <div class="tb-cte-result">
+          <div style="font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">📊 CTE Result Set So Far</div>
+          <table class="tb-result-table" id="tb-result-table"></table>
+        </div>
+        <div class="tb-query-display" id="tb-query-display"></div>
+        <div class="tb-explain" id="tb-explain">Click "Next Iteration" to begin — the base case will run first.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ORG CHART ══ -->
+  <section class="sec" id="sec-orgchart">
+    <h2 class="st">👔 Employee → Manager Chain (Full Example)</h2>
+    <p class="ss">The classic recursive CTE use case: traversing an organisational hierarchy from the top down, with each employee showing their full reporting chain depth.</p>
+
+    <div class="card">
+      <div class="ct">📋 Sample Data — employees table</div>
+      <table class="dtbl">
+        <thead><tr><th>employee_id</th><th>name</th><th>manager_id</th><th>role</th></tr></thead>
+        <tbody>
+          <tr><td>E01</td><td>Anand Krishnan</td><td class="tb-depth-indent" style="color:#94a3b8;font-style:italic">NULL</td><td>CEO</td></tr>
+          <tr><td>E02</td><td>Divya Menon</td><td>E01</td><td>VP Engineering</td></tr>
+          <tr><td>E03</td><td>Rohit Verma</td><td>E01</td><td>VP Sales</td></tr>
+          <tr><td>E04</td><td>Priya Sharma</td><td>E02</td><td>Engineering Manager</td></tr>
+          <tr><td>E05</td><td>Sneha Nair</td><td>E04</td><td>Senior Developer</td></tr>
+          <tr><td>E06</td><td>Arjun Patel</td><td>E04</td><td>Developer</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">🌳 Full Recursive CTE — Department Hierarchy Tree</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">WITH RECURSIVE</span> <span class="cte">org_hierarchy</span> <span class="kw">AS</span> (
+    <span class="cm">-- BASE CASE: the CEO (no manager)</span>
+    <span class="kw">SELECT</span>
+      employee_id, name, role, manager_id,
+      <span class="num">1</span>                      <span class="kw">AS</span> level,
+      name                    <span class="kw">AS</span> chain_path
+    <span class="kw">FROM</span>   employees
+    <span class="kw">WHERE</span>  manager_id <span class="kw">IS NULL</span>
+
+    <span class="kw">UNION ALL</span>
+
+    <span class="cm">-- RECURSIVE CASE: find direct reports of everyone already in the tree</span>
+    <span class="kw">SELECT</span>
+      e.employee_id, e.name, e.role, e.manager_id,
+      oh.level <span class="op">+</span> <span class="num">1</span>,
+      <span class="fn">CONCAT</span>(oh.chain_path, <span class="str">' → '</span>, e.name)   <span class="cm">-- build the readable chain</span>
+    <span class="kw">FROM</span>   employees e
+    <span class="kw">JOIN</span>   <span class="rec">org_hierarchy</span> oh <span class="kw">ON</span> e.manager_id <span class="op">=</span> oh.employee_id
+    <span class="kw">WHERE</span>  oh.level <span class="op"><</span> <span class="num">10</span>            <span class="cm">-- safety limit</span>
+)
+<span class="kw">SELECT</span>
+  <span class="fn">REPEAT</span>(<span class="str">'  '</span>, level<span class="op">-</span><span class="num">1</span>) || name <span class="kw">AS</span> indented_name,
+  role, level, chain_path
+<span class="kw">FROM</span>   <span class="cte">org_hierarchy</span>
+<span class="kw">ORDER BY</span> chain_path;</pre></div>
+      <table class="dtbl" style="margin-top:12px">
+        <thead><tr><th>indented_name</th><th>role</th><th>level</th></tr></thead>
+        <tbody>
+          <tr><td>Anand Krishnan</td><td>CEO</td><td>1</td></tr>
+          <tr><td>&nbsp;&nbsp;Divya Menon</td><td>VP Engineering</td><td>2</td></tr>
+          <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Priya Sharma</td><td>Engineering Manager</td><td>3</td></tr>
+          <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sneha Nair</td><td>Senior Developer</td><td>4</td></tr>
+          <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arjun Patel</td><td>Developer</td><td>4</td></tr>
+          <tr><td>&nbsp;&nbsp;Rohit Verma</td><td>VP Sales</td><td>2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">🎯 Bonus — Find an Employee's Full Management Chain Upward</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Reverse direction: from an employee UP to the CEO</span>
+<span class="kw">WITH RECURSIVE</span> <span class="cte">chain_up</span> <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> employee_id, name, manager_id, <span class="num">1</span> <span class="kw">AS</span> steps_up
+    <span class="kw">FROM</span>   employees
+    <span class="kw">WHERE</span>  employee_id <span class="op">=</span> <span class="str">'E06'</span>      <span class="cm">-- start with Arjun Patel</span>
+
+    <span class="kw">UNION ALL</span>
+
+    <span class="kw">SELECT</span> e.employee_id, e.name, e.manager_id, cu.steps_up <span class="op">+</span> <span class="num">1</span>
+    <span class="kw">FROM</span>   employees e
+    <span class="kw">JOIN</span>   <span class="rec">chain_up</span> cu <span class="kw">ON</span> e.employee_id <span class="op">=</span> cu.manager_id
+)
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="cte">chain_up</span> <span class="kw">ORDER BY</span> steps_up;
+<span class="cm">-- Result: Arjun Patel → Priya Sharma → Divya Menon → Anand Krishnan</span></pre></div>
+    </div>
+  </section>
+
+  <!-- ══ CATEGORY ══ -->
+  <section class="sec" id="sec-category">
+    <h2 class="st">📂 Category → Subcategory Tree</h2>
+    <p class="ss">The second classic recursive use case — e-commerce category trees, where categories can have unlimited nested subcategories (Zomato's cuisine types, an online store's product catalog).</p>
+
+    <div class="card">
+      <div class="ct">📋 Sample Data — categories table (Zomato cuisine types)</div>
+      <table class="dtbl">
+        <thead><tr><th>category_id</th><th>name</th><th>parent_id</th></tr></thead>
+        <tbody>
+          <tr><td>C01</td><td>Food</td><td class="tb-depth-indent" style="color:#94a3b8;font-style:italic">NULL</td></tr>
+          <tr><td>C02</td><td>Indian</td><td>C01</td></tr>
+          <tr><td>C03</td><td>South Indian</td><td>C02</td></tr>
+          <tr><td>C04</td><td>Dosa</td><td>C03</td></tr>
+          <tr><td>C05</td><td>Idli</td><td>C03</td></tr>
+          <tr><td>C06</td><td>North Indian</td><td>C02</td></tr>
+          <tr><td>C07</td><td>Chinese</td><td>C01</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">🌳 Full Recursive CTE — Category Tree Listing</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">WITH RECURSIVE</span> <span class="cte">category_tree</span> <span class="kw">AS</span> (
+    <span class="cm">-- BASE CASE: top-level categories (no parent)</span>
+    <span class="kw">SELECT</span> category_id, name, parent_id, <span class="num">1</span> <span class="kw">AS</span> depth
+    <span class="kw">FROM</span>   categories
+    <span class="kw">WHERE</span>  parent_id <span class="kw">IS NULL</span>
+
+    <span class="kw">UNION ALL</span>
+
+    <span class="cm">-- RECURSIVE CASE: find children of categories already found</span>
+    <span class="kw">SELECT</span> c.category_id, c.name, c.parent_id, ct.depth <span class="op">+</span> <span class="num">1</span>
+    <span class="kw">FROM</span>   categories c
+    <span class="kw">JOIN</span>   <span class="rec">category_tree</span> ct <span class="kw">ON</span> c.parent_id <span class="op">=</span> ct.category_id
+    <span class="kw">WHERE</span>  ct.depth <span class="op"><</span> <span class="num">10</span>
+)
+<span class="kw">SELECT</span>
+  <span class="fn">CONCAT</span>(<span class="fn">REPEAT</span>(<span class="str">'— '</span>, depth<span class="op">-</span><span class="num">1</span>), name) <span class="kw">AS</span> category_tree,
+  depth
+<span class="kw">FROM</span>   <span class="cte">category_tree</span>
+<span class="kw">ORDER BY</span> category_id;</pre></div>
+      <table class="dtbl" style="margin-top:12px">
+        <thead><tr><th>category_tree</th><th>depth</th></tr></thead>
+        <tbody>
+          <tr><td>Food</td><td>1</td></tr>
+          <tr><td>— Indian</td><td>2</td></tr>
+          <tr><td>— — South Indian</td><td>3</td></tr>
+          <tr><td>— — — Dosa</td><td>4</td></tr>
+          <tr><td>— — — Idli</td><td>4</td></tr>
+          <tr><td>— — North Indian</td><td>3</td></tr>
+          <tr><td>— Chinese</td><td>2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">🎯 Get ALL Descendants of a Specific Category</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- All subcategories under "Indian" — useful for "show all related dishes"</span>
+<span class="kw">WITH RECURSIVE</span> <span class="cte">indian_subtree</span> <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> category_id, name, parent_id
+    <span class="kw">FROM</span>   categories
+    <span class="kw">WHERE</span>  name <span class="op">=</span> <span class="str">'Indian'</span>          <span class="cm">-- start point, not necessarily root</span>
+
+    <span class="kw">UNION ALL</span>
+
+    <span class="kw">SELECT</span> c.category_id, c.name, c.parent_id
+    <span class="kw">FROM</span>   categories c
+    <span class="kw">JOIN</span>   <span class="rec">indian_subtree</span> ist <span class="kw">ON</span> c.parent_id <span class="op">=</span> ist.category_id
+)
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="cte">indian_subtree</span>;
+<span class="cm">-- Returns: Indian, South Indian, North Indian, Dosa, Idli — everything underneath</span></pre></div>
+    </div>
+  </section>
+
+  <!-- ══ SEQUENCE ══ -->
+  <section class="sec" id="sec-seqgen">
+    <h2 class="st">🔢 Sequence Generation with Recursive CTEs</h2>
+    <p class="ss">Beyond hierarchies, recursive CTEs are also the standard way to generate number sequences or date ranges — useful for calendars, gap-filling, and report scaffolding.</p>
+
+    <div class="card">
+      <div class="ct">🔢 Generate a Number Sequence</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">WITH RECURSIVE</span> <span class="cte">numbers</span> <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> <span class="num">1</span> <span class="kw">AS</span> n              <span class="cm">-- base case: start at 1</span>
+    <span class="kw">UNION ALL</span>
+    <span class="kw">SELECT</span> n <span class="op">+</span> <span class="num">1</span> <span class="kw">FROM</span> <span class="rec">numbers</span> <span class="kw">WHERE</span> n <span class="op"><</span> <span class="num">10</span>  <span class="cm">-- recursive case: count up to 10</span>
+)
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="cte">numbers</span>;
+<span class="cm">-- Output: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10</span></pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📅 Generate a Date Range — Fill Gaps in Reports</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Generate every date in June 2024 — even days with NO orders</span>
+<span class="kw">WITH RECURSIVE</span> <span class="cte">date_series</span> <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> <span class="str">'2024-06-01'</span> <span class="kw">AS</span> the_date
+    <span class="kw">UNION ALL</span>
+    <span class="kw">SELECT</span> <span class="fn">DATE_ADD</span>(the_date, <span class="kw">INTERVAL</span> <span class="num">1</span> <span class="kw">DAY</span>)
+    <span class="kw">FROM</span>   <span class="rec">date_series</span>
+    <span class="kw">WHERE</span>  the_date <span class="op"><</span> <span class="str">'2024-06-30'</span>
+)
+<span class="kw">SELECT</span>
+  ds.the_date,
+  <span class="fn">COALESCE</span>(<span class="fn">SUM</span>(o.amount), <span class="num">0</span>) <span class="kw">AS</span> daily_revenue   <span class="cm">-- 0 for days with no orders!</span>
+<span class="kw">FROM</span>   <span class="cte">date_series</span> ds
+<span class="kw">LEFT JOIN</span> zomato_orders o <span class="kw">ON</span> <span class="fn">DATE</span>(o.order_date) <span class="op">=</span> ds.the_date
+<span class="kw">GROUP BY</span> ds.the_date
+<span class="kw">ORDER BY</span> ds.the_date;
+<span class="cm">-- Every day appears in the report, even days with zero sales — no gaps!</span></pre></div>
+      <div class="co success"><span class="ci">✅</span><div>This pattern solves a very common reporting problem: a normal GROUP BY only shows dates that HAVE data. The recursive date series guarantees every single day appears in the output, with 0 filled in for days with no activity.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ SANDBOX ══ -->
+  <section class="sec" id="sec-sandbox">
+    <h2 class="st">💻 Practice Sandbox</h2>
+    <p class="ss">Practice writing CTEs and recursive CTEs. The sandbox recognises patterns and returns realistic output.</p>
+
+    <div class="sandbox">
+      <div class="sbh2">
+        <div class="sbt"><span>🖥️</span> SQL Sandbox — CTEs & Recursive CTEs</div>
+        <div class="sbact">
+          <button class="sbbtn clr" onclick="clearSB()">Clear</button>
+          <button class="sbbtn run" onclick="runSB()">▶ Run</button>
+        </div>
+      </div>
+      <textarea class="sbed" id="sbed" spellcheck="false" placeholder="-- Try these patterns:
+-- WITH top_scorers AS (SELECT * FROM guvi_learners WHERE quiz_score >= 85) SELECT * FROM top_scorers;
+-- WITH RECURSIVE org_chart AS (SELECT * FROM employees WHERE manager_id IS NULL UNION ALL ...) SELECT * FROM org_chart;
+-- WITH RECURSIVE numbers AS (SELECT 1 AS n UNION ALL SELECT n+1 FROM numbers WHERE n < 10) SELECT * FROM numbers;
+-- WITH a AS (...), b AS (SELECT * FROM a) SELECT * FROM b;
+"></textarea>
+      <div class="sbout" id="sbout"><span style="color:var(--muted);font-size:12px">▶ Output will appear here</span></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📝 Practice Challenges</div>
+      <ul class="steps">
+        <li class="step"><div class="sn">1</div><div class="sb2"><strong>Single CTE</strong><p>Create a CTE called high_performers showing students with quiz_score > 90, then count them per batch.</p></div></li>
+        <li class="step"><div class="sn">2</div><div class="sb2"><strong>Chained CTEs</strong><p>Build a 3-step chain: clean data → compute batch stats → filter to top batches. Name each step clearly.</p></div></li>
+        <li class="step"><div class="sn">3</div><div class="sb2"><strong>Recursive org chart</strong><p>Write a recursive CTE that lists every employee with their depth level, starting from the CEO.</p></div></li>
+        <li class="step"><div class="sn">4</div><div class="sb2"><strong>Category tree</strong><p>Write a recursive CTE that lists all subcategories under "Indian" cuisine, however deeply nested.</p></div></li>
+        <li class="step"><div class="sn">5</div><div class="sb2"><strong>Number sequence</strong><p>Generate numbers 1 to 20 using a recursive CTE — useful for generating test data or report scaffolding.</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ QUIZ ══ -->
+  <section class="sec" id="sec-quiz">
+    <h2 class="st">🧠 Chapter 16 Quiz</h2>
+    <p class="ss">Test your mastery of CTEs, chaining, and recursive hierarchies.</p>
+    <div class="qw">
+      <div class="qprog" id="qprog">Question 1 of 8</div>
+      <div class="qq" id="qq"></div>
+      <ul class="qopts" id="qopts"></ul>
+      <div class="qfb" id="qfb"></div>
+      <div class="qnav">
+        <span class="qsc" id="qsc">Score: 0 / 0</span>
+        <button class="qbtn" id="qnext" onclick="nextQ()" style="display:none">Next Question →</button>
+      </div>
+    </div>
+    <div class="done" id="done-card" style="display:none">
+      <div class="trophy">🏆</div>
+      <h3 id="done-title">Chapter Complete!</h3>
+      <p id="done-msg">You've mastered CTEs and recursive hierarchies — a true SQL power skill!</p>
+      <button class="donebtn" onclick="doConfetti()">🎉 Celebrate!</button>
+    </div>
+  </section>
+</main>
+
+<script>
+const SECS=['intro','syntax','chaining','vssubq','aggreg','recanatomy','treebuilder','orgchart','category','seqgen','sandbox','quiz'];
+let ci=0;const doneSet=new Set();
+function showS(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  ci=SECS.indexOf(id);window.scrollTo(0,0);
+}
+function nextS(){if(ci<SECS.length-1){markDone(SECS[ci]);const n=SECS[ci+1];showS(n,document.querySelector(`[data-s="${n}"]`));}}
+function prevS(){if(ci>0){const p=SECS[ci-1];showS(p,document.querySelector(`[data-s="${p}"]`));}}
+function markDone(id){
+  doneSet.add(id);
+  const c=document.getElementById('chk-'+id);if(c)c.textContent='✓';
+  const n=document.querySelector(`[data-s="${id}"]`);if(n)n.classList.add('done');
+  const pct=Math.round((doneSet.size/SECS.length)*100);
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('pp').textContent=pct+'%';
+}
+
+// ── TREE BUILDER ──
+const TREE_DATA={
+  org:{
+    label:'employees',
+    nodes:{
+      'E01':{name:'Anand Krishnan',sub:'CEO',parent:null},
+      'E02':{name:'Divya Menon',sub:'VP Engineering',parent:'E01'},
+      'E03':{name:'Rohit Verma',sub:'VP Sales',parent:'E01'},
+      'E04':{name:'Priya Sharma',sub:'Eng. Manager',parent:'E02'},
+      'E05':{name:'Sneha Nair',sub:'Sr. Developer',parent:'E04'},
+      'E06':{name:'Arjun Patel',sub:'Developer',parent:'E04'},
+    },
+    baseQuery:`SELECT employee_id, name, manager_id, 1 AS level
+FROM   employees
+WHERE  manager_id IS NULL`,
+    recQuery:(lvl)=>`SELECT e.employee_id, e.name, e.manager_id, oh.level + 1
+FROM   employees e
+JOIN   org_hierarchy oh ON e.manager_id = oh.employee_id
+-- Finding all employees whose manager_id is in level ${lvl}`,
+    cols:['employee_id','name','level'],
+  },
+  category:{
+    label:'categories',
+    nodes:{
+      'C01':{name:'Food',sub:'root',parent:null},
+      'C02':{name:'Indian',sub:'cuisine',parent:'C01'},
+      'C07':{name:'Chinese',sub:'cuisine',parent:'C01'},
+      'C03':{name:'South Indian',sub:'subtype',parent:'C02'},
+      'C06':{name:'North Indian',sub:'subtype',parent:'C02'},
+      'C04':{name:'Dosa',sub:'dish',parent:'C03'},
+      'C05':{name:'Idli',sub:'dish',parent:'C03'},
+    },
+    baseQuery:`SELECT category_id, name, parent_id, 1 AS depth
+FROM   categories
+WHERE  parent_id IS NULL`,
+    recQuery:(lvl)=>`SELECT c.category_id, c.name, c.parent_id, ct.depth + 1
+FROM   categories c
+JOIN   category_tree ct ON c.parent_id = ct.category_id
+-- Finding all categories whose parent_id is in depth ${lvl}`,
+    cols:['category_id','name','depth'],
+  }
+};
+
+let curTreeTab='org';
+let treeIteration=0;
+let treeFoundIds=[];
+let treeResultRows=[];
+
+function setTreeTab(tab,el){
+  document.querySelectorAll('.tbtab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  curTreeTab=tab;
+  treeReset();
+}
+
+function treeReset(){
+  treeIteration=0;
+  treeFoundIds=[];
+  treeResultRows=[];
+  document.getElementById('tb-visual').innerHTML='';
+  document.getElementById('tb-result-table').innerHTML='';
+  document.getElementById('tb-iteration').textContent='Iteration: 0 (not started)';
+  document.getElementById('tb-query-display').textContent='';
+  document.getElementById('tb-explain').textContent='Click "Next Iteration" to begin — the base case will run first.';
+  document.getElementById('tb-next').disabled=false;
+  document.getElementById('tb-next').textContent='▶ Next Iteration';
+}
+
+function treeNextStep(){
+  const data=TREE_DATA[curTreeTab];
+  treeIteration++;
+
+  let newIds=[];
+  if(treeIteration===1){
+    // base case: nodes with no parent
+    newIds=Object.keys(data.nodes).filter(id=>data.nodes[id].parent===null);
+    document.getElementById('tb-query-display').innerHTML=`<span style="color:#67e8f9">WITH RECURSIVE</span> ${curTreeTab==='org'?'org_hierarchy':'category_tree'} <span style="color:#7dd3fc">AS</span> (
+  <span style="color:#475569">-- BASE CASE (Iteration 1)</span>
+${data.baseQuery.split('\n').map(l=>'  '+l).join('\n')}
+  ...`;
+    document.getElementById('tb-explain').innerHTML=`<strong>Base case executes:</strong> finds the root node(s) — the starting point with no parent. This becomes Level 1 of the tree.`;
+  } else {
+    // recursive: find children of previously found ids
+    newIds=Object.keys(data.nodes).filter(id=>treeFoundIds.includes(data.nodes[id].parent) && !treeFoundIds.includes(id));
+    document.getElementById('tb-query-display').innerHTML=`<span style="color:#67e8f9">WITH RECURSIVE</span> ${curTreeTab==='org'?'org_hierarchy':'category_tree'} <span style="color:#7dd3fc">AS</span> (
+  ...
+  <span style="color:#475569">-- RECURSIVE CASE (Iteration ${treeIteration})</span>
+${data.recQuery(treeIteration-1).split('\n').map(l=>'  '+l).join('\n')}
+)`;
+    if(newIds.length>0){
+      document.getElementById('tb-explain').innerHTML=`<strong>Recursive case executes again:</strong> joins the table against the CTE's current results (Level ${treeIteration-1}), finding all children — producing Level ${treeIteration}. ${newIds.length} new row(s) found.`;
+    } else {
+      document.getElementById('tb-explain').innerHTML=`<strong>✅ Recursion complete!</strong> The recursive case found 0 new rows this time — there are no more children to find. SQL automatically stops here. Final result has ${treeResultRows.length} total rows across ${treeIteration-1} levels.`;
+      document.getElementById('tb-next').disabled=true;
+      document.getElementById('tb-next').textContent='✅ Recursion Complete';
+      markDone('treebuilder');
+    }
+  }
+
+  if(newIds.length>0){
+    treeFoundIds=treeFoundIds.concat(newIds);
+    // render visual level
+    const visual=document.getElementById('tb-visual');
+    const levelDiv=document.createElement('div');
+    levelDiv.className='tb-level';
+    levelDiv.style.animationDelay='0.05s';
+    newIds.forEach(id=>{
+      const n=data.nodes[id];
+      const node=document.createElement('div');
+      node.className=`tb-node lvl-${Math.min(treeIteration-1,3)}`;
+      node.innerHTML=`${n.name}<div class="node-sub">${n.sub}</div>`;
+      levelDiv.appendChild(node);
+    });
+    visual.appendChild(levelDiv);
+
+    // add to result rows
+    newIds.forEach(id=>{
+      const n=data.nodes[id];
+      treeResultRows.push([id,n.name,treeIteration]);
+    });
+    renderTreeResultTable(data.cols);
+  }
+
+  document.getElementById('tb-iteration').textContent=`Iteration: ${treeIteration} | Total rows so far: ${treeResultRows.length}`;
+}
+
+function renderTreeResultTable(cols){
+  const tbl=document.getElementById('tb-result-table');
+  tbl.innerHTML=`<tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr>`+
+    treeResultRows.map((r,i)=>{
+      const isNew=i>=treeResultRows.length-((curTreeTab==='org'?TREE_DATA.org:TREE_DATA.category).nodes ? 99:0);
+      return `<tr class="${i===treeResultRows.length-1||r[2]===treeIteration?'new-row':''}">${r.map(c=>`<td>${c}</td>`).join('')}</tr>`;
+    }).join('');
+}
+
+setTreeTab('org',document.querySelector('.tbtab'));
+
+// ── SANDBOX ──
+const SBP=[
+  {re:/with recursive.*numbers/is,res:()=>`<span style="color:var(--green)">✓ Recursive sequence generated</span>
+<table class="ot"><tr><th>n</th></tr>
+<tr><td>1</td></tr><tr><td>2</td></tr><tr><td>3</td></tr><tr><td>...</td></tr><tr><td>10</td></tr>
+</table>`},
+  {re:/with recursive.*(org|employee|manager)/is,res:()=>`<span style="color:var(--green)">✓ Recursive org chart traversal</span>
+<table class="ot"><tr><th>name</th><th>level</th></tr>
+<tr><td>Anand Krishnan</td><td>1</td></tr>
+<tr><td>Divya Menon</td><td>2</td></tr>
+<tr><td>Priya Sharma</td><td>3</td></tr>
+<tr><td>Sneha Nair</td><td>4</td></tr>
+</table>`},
+  {re:/with recursive.*(categor|subcategor)/is,res:()=>`<span style="color:var(--green)">✓ Recursive category tree</span>
+<table class="ot"><tr><th>category_tree</th><th>depth</th></tr>
+<tr><td>Indian</td><td>1</td></tr>
+<tr><td>— South Indian</td><td>2</td></tr>
+<tr><td>— — Dosa</td><td>3</td></tr>
+<tr><td>— — Idli</td><td>3</td></tr>
+</table>`},
+  {re:/with\s+\w+\s+as.*,.*\w+\s+as/is,res:()=>`<span style="color:var(--green)">✓ Chained CTEs executed (multi-step)</span>
+<table class="ot"><tr><th>batch_id</th><th>batch_avg</th><th>overall_avg</th></tr>
+<tr><td>B01</td><td>84.2</td><td>79.4</td></tr>
+<tr><td>B02</td><td>81.6</td><td>79.4</td></tr>
+</table>`},
+  {re:/with\s+\w+\s+as/is,res:()=>`<span style="color:var(--green)">✓ CTE executed</span>
+<table class="ot"><tr><th>student_id</th><th>name</th><th>quiz_score</th></tr>
+<tr><td>S05</td><td>Meera Iyer</td><td>93</td></tr>
+<tr><td>S03</td><td>Sneha Nair</td><td>91</td></tr>
+</table>`},
+];
+function runSB(){
+  const sql=document.getElementById('sbed').value.trim();
+  const out=document.getElementById('sbout');
+  if(!sql){out.innerHTML='<span style="color:var(--muted)">⚠️ Enter a SQL query first.</span>';return;}
+  for(const p of SBP){if(p.re.test(sql)){out.innerHTML=p.res();return;}}
+  out.innerHTML='<span style="color:var(--green)">✓ Query OK — try WITH ... AS, chained CTEs, or WITH RECURSIVE!</span>';
+}
+function clearSB(){
+  document.getElementById('sbed').value='';
+  document.getElementById('sbout').innerHTML='<span style="color:var(--muted);font-size:12px">▶ Output will appear here</span>';
+}
+
+// ── QUIZ ──
+const QS=[
+  {q:"What are the two required parts of a recursive CTE, joined by UNION ALL?",opts:["A SELECT and an INSERT statement","A base case (anchor) and a recursive case that references the CTE itself","A WHERE clause and a HAVING clause","An INNER JOIN and a LEFT JOIN"],ans:1,exp:"Every recursive CTE has a base case (the starting point, like the CEO with no manager) and a recursive case (which joins back to the CTE itself to find the next level down). UNION ALL combines results from both parts as the recursion progresses."},
+  {q:"How long does a CTE's result set exist?",opts:["Permanently, like a table","Until the database restarts","Only for the duration of the single query it's defined in","Until you run DROP CTE"],ans:2,exp:"A CTE is scoped to a single query. Once that query finishes executing, the CTE disappears — there's no DROP CTE because there's nothing persistent to drop. This differs from a VIEW, which persists until explicitly dropped."},
+  {q:"What is the main readability advantage of chaining multiple CTEs over nested subqueries?",opts:["CTEs always run faster","Each CTE has a clear name, so the query reads top-to-bottom like a story instead of inside-out like nested parentheses","CTEs use less disk space","Nested subqueries are not allowed in modern SQL"],ans:1,exp:"With chained CTEs (WITH a AS (...), b AS (SELECT FROM a), ...), each step has a descriptive name and the final query references those names — making the logic flow readable top-to-bottom, unlike deeply nested subqueries that must be read from the inside out."},
+  {q:"Why is a safety limit like WHERE depth < 10 critical in a recursive CTE?",opts:["It makes the query run faster","It prevents an infinite loop if the hierarchy data contains a cycle (e.g., A reports to B, B reports to A)","It is required syntax — recursive CTEs won't run without it","It limits the number of columns returned"],ans:1,exp:"If hierarchy data has a cycle due to a data error, the recursive case could keep finding 'new' rows forever, causing an infinite loop. A depth limit (or MySQL's cte_max_recursion_depth setting) acts as a safety net, forcing the recursion to stop after a maximum number of levels."},
+  {q:"In a recursive CTE for an org chart, what does the recursive case typically JOIN on?",opts:["employee_id = employee_id (joining the table to itself on the same column)","manager_id (or parent_id) of the new rows against the employee_id (or category_id) of rows already found in the CTE","department_id across two unrelated tables","No JOIN is needed in the recursive case"],ans:1,exp:"The recursive case finds 'children' by joining the table's foreign-key column (manager_id, parent_id) against the CTE's own primary-key-like column (employee_id, category_id) from rows already discovered — this is what makes each iteration find the 'next level down'."},
+  {q:"When would you prefer a recursive CTE over a regular subquery?",opts:["Whenever performance matters most","When the data structure is hierarchical (org charts, category trees) and you don't know the depth in advance","Only for generating random numbers","Never — subqueries can do everything a recursive CTE can"],ans:1,exp:"Recursive CTEs are uniquely suited for traversing hierarchies of unknown or variable depth — like a category tree that might be 2 levels deep in one branch and 6 levels deep in another. A regular subquery cannot reference itself, so it cannot solve this class of problem."},
+  {q:"What does WITH RECURSIVE numbers AS (SELECT 1 AS n UNION ALL SELECT n+1 FROM numbers WHERE n < 5) SELECT * FROM numbers; produce?",opts:["Just the number 5","An error — this syntax is invalid","1, 2, 3, 4, 5","1 only, since UNION ALL doesn't allow recursion on literals"],ans:2,exp:"This is the classic number-sequence pattern. The base case starts at 1; the recursive case adds 1 each iteration as long as n < 5. The recursion produces 1, 2, 3, 4, 5, then stops because n+1 would be 6, which fails the WHERE n < 5 condition for the NEXT iteration's input."},
+  {q:"A CTE referencing itself in a non-recursive WITH clause (without the RECURSIVE keyword) will:",opts:["Work fine — MySQL infers recursion automatically","Cause a syntax/logic error — you must explicitly use WITH RECURSIVE for self-referencing CTEs","Run once and silently produce no rows","Automatically convert to a stored procedure"],ans:1,exp:"To create a self-referencing (recursive) CTE, you must explicitly write WITH RECURSIVE — not just WITH. Without the RECURSIVE keyword, the database does not allow the CTE to reference itself in its own definition."},
+];
+let qi=0,score=0,answered=false;
+function renderQ(){
+  const q=QS[qi];
+  document.getElementById('qprog').textContent=`Question ${qi+1} of ${QS.length}`;
+  document.getElementById('qq').textContent=q.q;
+  document.getElementById('qopts').innerHTML=q.opts.map((o,i)=>
+    `<li class="qopt" onclick="selQ(${i})" id="qo-${i}"><span class="ok">${String.fromCharCode(65+i)}</span>${o}</li>`).join('');
+  document.getElementById('qfb').className='qfb';
+  document.getElementById('qfb').innerHTML='';
+  document.getElementById('qnext').style.display='none';
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi}`;
+  answered=false;
+}
+function selQ(i){
+  if(answered)return;answered=true;
+  const q=QS[qi];
+  document.querySelectorAll('.qopt').forEach((o,j)=>{
+    if(j===q.ans)o.classList.add('correct');
+    else if(j===i)o.classList.add('wrong');
+  });
+  if(i===q.ans)score++;
+  const fb=document.getElementById('qfb');
+  fb.className=`qfb show ${i===q.ans?'correct':'wrong'}`;
+  fb.innerHTML=`<strong>${i===q.ans?'✅ Correct!':'❌ Not quite.'}</strong> ${q.exp}`;
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi+1}`;
+  const nb=document.getElementById('qnext');
+  nb.style.display='inline-block';
+  nb.textContent=qi<QS.length-1?'Next Question →':'See Results 🎉';
+}
+function nextQ(){qi++;if(qi<QS.length)renderQ();else showResults();}
+function showResults(){
+  document.querySelector('.qw').style.display='none';
+  const dc=document.getElementById('done-card');dc.style.display='block';
+  const pct=Math.round((score/QS.length)*100);
+  document.getElementById('done-title').textContent=pct>=80?'🎉 CTE Master!':pct>=60?'👍 Good Work!':'💪 Keep Practising!';
+  document.getElementById('done-msg').textContent=`You scored ${score} out of ${QS.length} (${pct}%). ${pct>=80?'You can now write clean, readable multi-step queries and traverse any hierarchy!':'Review the base case / recursive case structure, and always remember depth limits!'}`;
+  markDone('quiz');
+  if(pct>=70)doConfetti();
+}
+renderQ();
+
+function doConfetti(){
+  const cv=document.getElementById('cvc');const ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  const cols=['#0891b2','#4f46e5','#0d9488','#2563eb','#d97706','#16a34a','#7c3aed'];
+  const pp=Array.from({length:150},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height-cv.height,r:Math.random()*9+4,color:cols[Math.floor(Math.random()*cols.length)],tilt:Math.random()*10-10,spd:Math.random()*3+1.5}));
+  let fr=0;
+  function draw(){ctx.clearRect(0,0,cv.width,cv.height);pp.forEach(p=>{ctx.beginPath();ctx.ellipse(p.x,p.y,p.r,p.r/2,p.tilt,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();p.y+=p.spd;p.x+=Math.sin(fr/18)*1.5;p.tilt+=.08;if(p.y>cv.height){p.y=-10;p.x=Math.random()*cv.width;}});fr++;if(fr<220)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);}
+  draw();
+}
+</script>
+</body>
+</html>

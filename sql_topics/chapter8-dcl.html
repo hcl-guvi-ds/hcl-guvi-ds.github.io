@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 8 — DCL: Data Control Language | SQL Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --teal:       #0d9488;
+    --teal-light: #ccfbf1;
+    --teal-dark:  #0f766e;
+    --blue:       #2563eb;
+    --blue-light: #dbeafe;
+    --indigo:     #4f46e5;
+    --indigo-light:#e0e7ff;
+    --amber:      #d97706;
+    --amber-light:#fef3c7;
+    --red:        #dc2626;
+    --red-light:  #fee2e2;
+    --green:      #16a34a;
+    --green-light:#dcfce7;
+    --purple:     #7c3aed;
+    --purple-light:#ede9fe;
+    --bg:         #f8fafc;
+    --surface:    #ffffff;
+    --border:     #e2e8f0;
+    --text:       #0f172a;
+    --text-muted: #64748b;
+    --sidebar-w:  280px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-header {
+    padding: 20px 18px 16px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, var(--teal-dark), var(--indigo));
+  }
+  .sidebar-header .badge {
+    font-family: 'Sora', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--teal-light);
+    margin-bottom: 4px;
+  }
+  .sidebar-header h2 {
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+  }
+  .sidebar-header p {
+    font-size: 11px;
+    color: rgba(255,255,255,.65);
+    margin-top: 3px;
+  }
+
+  .sidebar-progress {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .progress-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .progress-bar { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg,var(--teal),var(--indigo)); border-radius: 99px; transition: width .4s ease; }
+
+  .sidebar-nav { flex: 1; padding: 10px 0; }
+  .nav-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-muted);
+    padding: 10px 18px 4px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 18px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all .15s;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .nav-item:hover { background: var(--bg); color: var(--text); }
+  .nav-item.active { border-left-color: var(--teal); background: var(--teal-light); color: var(--teal-dark); font-weight: 600; }
+  .nav-item.done { color: var(--green); }
+  .nav-item .nav-icon { font-size: 15px; flex-shrink: 0; }
+  .nav-check { margin-left: auto; font-size: 13px; }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    min-width: 0;
+  }
+
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .chapter-pill {
+    background: var(--indigo-light);
+    color: var(--indigo);
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 99px;
+    letter-spacing: .05em;
+  }
+  .topbar h1 {
+    font-family: 'Sora', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .nav-btns { display: flex; gap: 8px; }
+  .nav-btn {
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    transition: all .15s;
+  }
+  .nav-btn.primary { background: var(--teal); color: #fff; border-color: var(--teal); }
+  .nav-btn:hover { border-color: var(--teal); color: var(--teal); }
+  .nav-btn.primary:hover { background: var(--teal-dark); }
+
+  /* ── CONTENT SECTIONS ── */
+  .content-section { display: none; padding: 40px 48px 60px; max-width: 960px; }
+  .content-section.active { display: block; }
+
+  .section-hero {
+    background: linear-gradient(135deg, #0f766e 0%, #4338ca 100%);
+    border-radius: 16px;
+    padding: 36px 40px;
+    color: #fff;
+    margin-bottom: 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .section-hero::after {
+    content: '🔐';
+    position: absolute;
+    right: 36px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 72px;
+    opacity: .15;
+  }
+  .section-hero .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--teal-light);
+    margin-bottom: 8px;
+  }
+  .section-hero h2 {
+    font-family: 'Sora', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  .section-hero p { font-size: 14px; opacity: .85; line-height: 1.6; max-width: 560px; }
+
+  .section-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .section-subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card p { font-size: 14px; line-height: 1.7; color: #334155; }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .info-card .ic-icon { font-size: 24px; margin-bottom: 8px; }
+  .info-card .ic-title { font-family: 'Sora',sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .info-card .ic-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+  /* ── CODE ── */
+  .code-block {
+    background: #0f172a;
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin: 14px 0;
+    overflow-x: auto;
+    position: relative;
+  }
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #e2e8f0;
+    white-space: pre;
+  }
+  .code-label {
+    position: absolute;
+    top: 10px; right: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .kw  { color: #7dd3fc; }   /* keyword */
+  .fn  { color: #a5f3fc; }   /* function */
+  .str { color: #86efac; }   /* string */
+  .cm  { color: #64748b; font-style: italic; } /* comment */
+  .op  { color: #f9a8d4; }   /* operator */
+  .num { color: #fcd34d; }   /* number */
+  .id  { color: #e2e8f0; }
+  .priv{ color: #fb923c; }   /* privilege */
+
+  /* ── CALLOUTS ── */
+  .callout {
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    display: flex;
+    gap: 12px;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout strong { display: block; font-weight: 700; margin-bottom: 3px; }
+  .callout.tip    { background: var(--teal-light);   border-left: 4px solid var(--teal);   color: #134e4a; }
+  .callout.warn   { background: var(--amber-light);  border-left: 4px solid var(--amber);  color: #78350f; }
+  .callout.info   { background: var(--blue-light);   border-left: 4px solid var(--blue);   color: #1e3a5f; }
+  .callout.danger { background: var(--red-light);    border-left: 4px solid var(--red);    color: #7f1d1d; }
+  .callout.success{ background: var(--green-light);  border-left: 4px solid var(--green);  color: #14532d; }
+
+  /* ── PRIVILEGE TABLE ── */
+  .priv-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .priv-table th { background: #0f172a; color: #fff; padding: 10px 14px; text-align: left; font-family:'Sora',sans-serif; font-size: 12px; font-weight: 700; }
+  .priv-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: #334155; }
+  .priv-table tr:hover td { background: var(--bg); }
+  .badge-pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .badge-read  { background: var(--green-light);  color: var(--green); }
+  .badge-write { background: var(--blue-light);   color: var(--blue); }
+  .badge-admin { background: var(--red-light);    color: var(--red); }
+  .badge-ddl   { background: var(--amber-light);  color: var(--amber); }
+
+  /* ── ROLE DIAGRAM ── */
+  .role-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin: 20px 0;
+    text-align: center;
+  }
+  .role-boxes { display: flex; justify-content: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .role-box {
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    font-family: 'Sora', sans-serif;
+    min-width: 130px;
+    border: 2px solid transparent;
+  }
+  .role-box.analyst  { background: var(--green-light);  color: var(--green);  border-color: var(--green); }
+  .role-box.dev      { background: var(--blue-light);   color: var(--blue);   border-color: var(--blue); }
+  .role-box.admin    { background: var(--red-light);    color: var(--red);    border-color: var(--red); }
+  .role-box .role-icon { font-size: 22px; margin-bottom: 4px; }
+  .role-arrow { font-size: 20px; color: var(--text-muted); margin-top: 8px; }
+  .role-perms { font-size: 12px; font-weight: 400; color: var(--text-muted); margin-top: 3px; }
+
+  /* ── SANDBOX ── */
+  .sandbox {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .sandbox-header {
+    background: #0f172a;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .sandbox-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sandbox-title span { font-size: 16px; }
+  .sandbox-actions { display: flex; gap: 8px; }
+  .sandbox-btn {
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    font-family: 'Sora', sans-serif;
+    transition: all .15s;
+  }
+  .sandbox-btn.run   { background: var(--teal); color: #fff; }
+  .sandbox-btn.run:hover { background: var(--teal-dark); }
+  .sandbox-btn.clear { background: #1e293b; color: #94a3b8; }
+  .sandbox-btn.clear:hover { color: #fff; }
+  .sandbox-editor {
+    width: 100%;
+    min-height: 120px;
+    background: #1e293b;
+    color: #e2e8f0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 16px 18px;
+    border: none;
+    outline: none;
+    resize: vertical;
+    line-height: 1.7;
+  }
+  .sandbox-output {
+    padding: 14px 18px;
+    min-height: 60px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    border-top: 1px solid var(--border);
+    background: #f8fafc;
+    color: #334155;
+    line-height: 1.6;
+  }
+  .output-success { color: var(--green); }
+  .output-error   { color: var(--red); }
+  .output-table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+  .output-table th { background: #0f172a; color: #fff; padding: 6px 12px; font-size: 11px; text-align: left; }
+  .output-table td { padding: 6px 12px; border-bottom: 1px solid #e2e8f0; font-size: 12px; }
+  .output-table tr:nth-child(even) td { background: #f1f5f9; }
+
+  /* ── STEPS ── */
+  .steps { list-style: none; margin: 16px 0; }
+  .step-item {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 28px; height: 28px;
+    background: var(--indigo);
+    color: #fff;
+    border-radius: 50%;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-body { flex: 1; }
+  .step-body strong { font-weight: 700; font-size: 14px; display: block; margin-bottom: 3px; }
+  .step-body p { font-size: 13.5px; color: #334155; line-height: 1.6; }
+
+  /* ── QUIZ ── */
+  .quiz-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; }
+  .quiz-question { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 18px; line-height: 1.4; }
+  .quiz-options { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+  .quiz-option {
+    padding: 12px 16px;
+    border: 2px solid var(--border);
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .quiz-option:hover { border-color: var(--teal); background: var(--teal-light); }
+  .quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); }
+  .quiz-option.wrong   { border-color: var(--red);   background: var(--red-light);   color: var(--red); }
+  .quiz-option .opt-key {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    font-size: 11px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-family: 'Sora', sans-serif;
+  }
+  .quiz-feedback { display: none; padding: 12px 16px; border-radius: 9px; font-size: 13.5px; line-height: 1.5; margin-bottom: 14px; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: var(--green-light); color: #14532d; border-left: 4px solid var(--green); }
+  .quiz-feedback.wrong   { background: var(--red-light);   color: #7f1d1d; border-left: 4px solid var(--red); }
+  .quiz-nav { display: flex; justify-content: space-between; align-items: center; }
+  .quiz-score { font-family: 'Sora', sans-serif; font-size: 14px; color: var(--text-muted); }
+  .quiz-btn {
+    padding: 9px 22px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    font-family: 'Sora', sans-serif;
+    background: var(--teal);
+    color: #fff;
+    transition: background .15s;
+  }
+  .quiz-btn:hover { background: var(--teal-dark); }
+  .quiz-progress { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+
+  /* ── LEAST PRIVILEGE DEMO ── */
+  .lp-demo {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 20px 0;
+  }
+  .lp-header {
+    background: linear-gradient(90deg, #0f172a, #1e293b);
+    padding: 16px 20px;
+    color: #fff;
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .lp-user-tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .lp-tab {
+    padding: 11px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all .15s;
+    color: var(--text-muted);
+  }
+  .lp-tab.active { border-bottom-color: var(--teal); color: var(--teal); }
+  .lp-body { padding: 20px; }
+  .lp-perm-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .lp-perm {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .lp-perm.allowed { background: var(--green-light); color: #166534; }
+  .lp-perm.denied  { background: var(--red-light);   color: #991b1b; }
+  .lp-perm .perm-icon { font-size: 16px; }
+
+  /* ── COMPLETION ── */
+  .completion-card {
+    text-align: center;
+    padding: 48px 32px;
+    background: linear-gradient(135deg, var(--teal-light), var(--indigo-light));
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    margin-top: 32px;
+  }
+  .completion-card .trophy { font-size: 56px; margin-bottom: 12px; }
+  .completion-card h3 { font-family: 'Sora', sans-serif; font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+  .completion-card p { color: var(--text-muted); font-size: 14px; max-width: 380px; margin: 0 auto 20px; }
+  .complete-btn {
+    padding: 12px 28px;
+    background: linear-gradient(135deg, var(--teal), var(--indigo));
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+  }
+
+  /* confetti canvas */
+  #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+
+  /* responsive */
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); }
+    .main { margin-left: 0; }
+    .content-section { padding: 24px 20px 40px; }
+    .info-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="badge">SQL Mastery Course</div>
+    <h2>Chapter 8: DCL</h2>
+    <p>Data Control Language</p>
+  </div>
+
+  <div class="sidebar-progress">
+    <div class="progress-label">
+      <span>Progress</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Content</div>
+    <div class="nav-item active" data-sec="intro" onclick="showSection('intro',this)">
+      <span class="nav-icon">🏠</span> Introduction to DCL
+      <span class="nav-check" id="chk-intro"></span>
+    </div>
+    <div class="nav-item" data-sec="users" onclick="showSection('users',this)">
+      <span class="nav-icon">👤</span> CREATE &amp; DROP USER
+      <span class="nav-check" id="chk-users"></span>
+    </div>
+    <div class="nav-item" data-sec="grant" onclick="showSection('grant',this)">
+      <span class="nav-icon">✅</span> GRANT Command
+      <span class="nav-check" id="chk-grant"></span>
+    </div>
+    <div class="nav-item" data-sec="revoke" onclick="showSection('revoke',this)">
+      <span class="nav-icon">🚫</span> REVOKE Command
+      <span class="nav-check" id="chk-revoke"></span>
+    </div>
+    <div class="nav-item" data-sec="roles" onclick="showSection('roles',this)">
+      <span class="nav-icon">🎭</span> Roles &amp; Hierarchies
+      <span class="nav-check" id="chk-roles"></span>
+    </div>
+    <div class="nav-item" data-sec="privileges" onclick="showSection('privileges',this)">
+      <span class="nav-icon">🔐</span> Privilege Levels
+      <span class="nav-check" id="chk-privileges"></span>
+    </div>
+    <div class="nav-item" data-sec="rowlevel" onclick="showSection('rowlevel',this)">
+      <span class="nav-icon">🔒</span> Row-Level Security
+      <span class="nav-check" id="chk-rowlevel"></span>
+    </div>
+    <div class="nav-item" data-sec="hclguvi" onclick="showSection('hclguvi',this)">
+      <span class="nav-icon">🏢</span> HCL GUVI Case Study
+      <span class="nav-check" id="chk-hclguvi"></span>
+    </div>
+    <div class="nav-item" data-sec="sandbox" onclick="showSection('sandbox',this)">
+      <span class="nav-icon">💻</span> Practice Sandbox
+      <span class="nav-check" id="chk-sandbox"></span>
+    </div>
+    <div class="nav-item" data-sec="quiz" onclick="showSection('quiz',this)">
+      <span class="nav-icon">🧠</span> Chapter Quiz
+      <span class="nav-check" id="chk-quiz"></span>
+    </div>
+  </nav>
+</aside>
+
+<!-- ══════════ MAIN ══════════ -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="chapter-pill">Chapter 8</span>
+      <h1>DCL — Data Control Language</h1>
+    </div>
+    <div class="nav-btns">
+      <button class="nav-btn" onclick="prevSection()">← Prev</button>
+      <button class="nav-btn primary" onclick="nextSection()">Next →</button>
+    </div>
+  </div>
+
+  <!-- ═══ INTRO ═══ -->
+  <section class="content-section active" id="sec-intro">
+    <div class="section-hero">
+      <div class="eyebrow">Chapter 8 · Data Control Language</div>
+      <h2>Who Can See What?<br/>Control Your Database Like a Pro</h2>
+      <p>DCL commands decide who can access what in your database. Think of it as the security guard of SQL — granting access to those who need it, and revoking it when they don't.</p>
+    </div>
+
+    <h2 class="section-title">What is DCL?</h2>
+    <p class="section-subtitle">DCL stands for <strong>Data Control Language</strong>. It is the set of SQL commands used to control access permissions on database objects like tables, views, and procedures.</p>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="ic-icon">✅</div>
+        <div class="ic-title">GRANT</div>
+        <div class="ic-desc">Give specific permissions to a user or role — like allowing an analyst to SELECT from a table.</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-icon">🚫</div>
+        <div class="ic-title">REVOKE</div>
+        <div class="ic-desc">Take back permissions from a user or role — useful when someone leaves a team or changes role.</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-icon">👤</div>
+        <div class="ic-title">CREATE USER</div>
+        <div class="ic-desc">Add a new database user with a username and password so they can log in.</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-icon">🎭</div>
+        <div class="ic-title">Roles</div>
+        <div class="ic-desc">Group permissions under a named role (like "analyst") and assign that role to multiple users at once.</div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">🎓</span>
+      <div><strong>Real-world analogy</strong>At HCL GUVI, the HR team can view student records but can't edit course content. The tech team can deploy code but can't touch payroll. DCL is exactly how these access boundaries are enforced in databases.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🗂️ DCL vs Other SQL Categories</div>
+      <table class="priv-table">
+        <thead><tr><th>Category</th><th>Commands</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><strong>DDL</strong></td><td>CREATE, ALTER, DROP</td><td>Structure of database</td></tr>
+          <tr><td><strong>DML</strong></td><td>SELECT, INSERT, UPDATE, DELETE</td><td>Data manipulation</td></tr>
+          <tr><td><strong>TCL</strong></td><td>COMMIT, ROLLBACK</td><td>Transaction control</td></tr>
+          <tr><td style="color:var(--teal);font-weight:700"><strong>DCL</strong></td><td style="color:var(--teal)">GRANT, REVOKE</td><td style="color:var(--teal)">Access control ← You are here</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <div><strong>Why does this matter?</strong>In production databases at companies like Zomato, IRCTC, or HDFC Bank, thousands of users and applications connect to the database. Without proper access control, a junior intern could accidentally (or intentionally!) delete financial records. DCL prevents that.</div>
+    </div>
+  </section>
+
+  <!-- ═══ USERS ═══ -->
+  <section class="content-section" id="sec-users">
+    <h2 class="section-title">👤 CREATE USER &amp; DROP USER</h2>
+    <p class="section-subtitle">Before you grant any permissions, you first need to create users in your database. Think of it as registering people into the system.</p>
+
+    <div class="card">
+      <div class="card-title">🆕 CREATE USER — Syntax</div>
+      <p>Creates a new database user with a username and password.</p>
+      <div class="code-block">
+        <span class="code-label">MySQL / MariaDB</span>
+        <pre><span class="kw">CREATE USER</span> <span class="str">'username'</span><span class="op">@</span><span class="str">'host'</span> <span class="kw">IDENTIFIED BY</span> <span class="str">'password'</span>;</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏢 HCL GUVI Example — Creating Team Users</div>
+      <div class="code-block">
+        <span class="code-label">SQL</span>
+        <pre><span class="cm">-- Create analyst user (read-only)</span>
+<span class="kw">CREATE USER</span> <span class="str">'priya_analyst'</span><span class="op">@</span><span class="str">'localhost'</span>
+  <span class="kw">IDENTIFIED BY</span> <span class="str">'SecurePass@123'</span>;
+
+<span class="cm">-- Create developer user (read + write)</span>
+<span class="kw">CREATE USER</span> <span class="str">'ravi_dev'</span><span class="op">@</span><span class="str">'localhost'</span>
+  <span class="kw">IDENTIFIED BY</span> <span class="str">'DevPass@456'</span>;
+
+<span class="cm">-- Create admin user (full access)</span>
+<span class="kw">CREATE USER</span> <span class="str">'admin_guvi'</span><span class="op">@</span><span class="str">'%'</span>
+  <span class="kw">IDENTIFIED BY</span> <span class="str">'Admin@SuperSecure!'</span>;</pre>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div><strong>The @'host' part matters!</strong>
+        <code>'user'@'localhost'</code> → can only connect from the same machine.<br/>
+        <code>'user'@'%'</code> → can connect from anywhere (use with caution!).<br/>
+        <code>'user'@'192.168.1.10'</code> → can connect only from that specific IP.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔍 Check Existing Users</div>
+      <div class="code-block">
+        <span class="code-label">SQL</span>
+        <pre><span class="cm">-- See all users in MySQL</span>
+<span class="kw">SELECT</span> user, host <span class="kw">FROM</span> mysql.user;
+
+<span class="cm">-- Check grants for a specific user</span>
+<span class="kw">SHOW GRANTS FOR</span> <span class="str">'priya_analyst'</span><span class="op">@</span><span class="str">'localhost'</span>;</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🗑️ DROP USER — Remove a User</div>
+      <p>When an employee leaves, always drop their user account to revoke all access.</p>
+      <div class="code-block">
+        <span class="code-label">SQL</span>
+        <pre><span class="cm">-- Remove user completely</span>
+<span class="kw">DROP USER</span> <span class="str">'priya_analyst'</span><span class="op">@</span><span class="str">'localhost'</span>;
+
+<span class="cm">-- Drop only if exists (no error if user doesn't exist)</span>
+<span class="kw">DROP USER IF EXISTS</span> <span class="str">'ravi_dev'</span><span class="op">@</span><span class="str">'localhost'</span>;</pre>
+      </div>
+    </div>
+
+    <div class="callout danger">
+      <span class="callout-icon">🚨</span>
+      <div><strong>Security Best Practice</strong>Never use root for application connections. Always create a dedicated user with only the permissions that application needs. This is called the <em>Principle of Least Privilege</em>.</div>
+    </div>
+  </section>
+
+  <!-- ═══ GRANT ═══ -->
+  <section class="content-section" id="sec-grant">
+    <h2 class="section-title">✅ GRANT — Give Permissions</h2>
+    <p class="section-subtitle">GRANT is how you give users permission to perform specific actions on database objects. Always be specific — grant only what's needed.</p>
+
+    <div class="card">
+      <div class="card-title">📋 GRANT Syntax</div>
+      <div class="code-block">
+        <span class="code-label">Syntax</span>
+        <pre><span class="kw">GRANT</span> <span class="priv">privilege_list</span>
+  <span class="kw">ON</span> database_name.table_name
+  <span class="kw">TO</span> <span class="str">'user'</span><span class="op">@</span><span class="str">'host'</span>
+  [<span class="kw">WITH GRANT OPTION</span>];</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏢 GUVI Example — Granting Privileges</div>
+      <div class="code-block">
+        <span class="code-label">SQL</span>
+        <pre><span class="cm">-- Allow analyst to only read student data</span>
+<span class="kw">GRANT</span> <span class="priv">SELECT</span>
+  <span class="kw">ON</span> guvi_db.students
+  <span class="kw">TO</span> <span class="str">'priya_analyst'</span><span class="op">@</span><span class="str">'localhost'</span>;
+
+<span class="cm">-- Allow developer to read and write courses</span>
+<span class="kw">GRANT</span> <span class="priv">SELECT, INSERT, UPDATE, DELETE</span>
+  <span class="kw">ON</span> guvi_db.courses
+  <span class="kw">TO</span> <span class="str">'ravi_dev'</span><span class="op">@</span><span class="str">'localhost'</span>;
+
+<span class="cm">-- Allow admin full access to entire GUVI database</span>
+<span class="kw">GRANT</span> <span class="priv">ALL PRIVILEGES</span>
+  <span class="kw">ON</span> guvi_db.<span class="op">*</span>
+  <span class="kw">TO</span> <span class="str">'admin_guvi'</span><span class="op">@</span><span class="str">'%'</span>;
+
+<span class="cm">-- Apply immediately</span>
+<span class="kw">FLUSH PRIVILEGES</span>;</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔑 Available Privileges</div>
+      <table class="priv-table">
+        <thead><tr><th>Privilege</th><th>Type</th><th>What it allows</th></tr></thead>
+        <tbody>
+          <tr><td><code>SELECT</code></td><td><span class="badge-pill badge-read">Read</span></td><td>Read / query data</td></tr>
+          <tr><td><code>INSERT</code></td><td><span class="badge-pill badge-write">Write</span></td><td>Add new rows</td></tr>
+          <tr><td><code>UPDATE</code></td><td><span class="badge-pill badge-write">Write</span></td><td>Modify existing rows</td></tr>
+          <tr><td><code>DELETE</code></td><td><span class="badge-pill badge-write">Write</span></td><td>Remove rows</td></tr>
+          <tr><td><code>CREATE</code></td><td><span class="badge-pill badge-ddl">DDL</span></td><td>Create tables/databases</td></tr>
+          <tr><td><code>DROP</code></td><td><span class="badge-pill badge-ddl">DDL</span></td><td>Delete tables/databases</td></tr>
+          <tr><td><code>ALTER</code></td><td><span class="badge-pill badge-ddl">DDL</span></td><td>Modify table structure</td></tr>
+          <tr><td><code>INDEX</code></td><td><span class="badge-pill badge-ddl">DDL</span></td><td>Create/drop indexes</td></tr>
+          <tr><td><code>EXECUTE</code></td><td><span class="badge-pill badge-write">Write</span></td><td>Run stored procedures</td></tr>
+          <tr><td><code>ALL PRIVILEGES</code></td><td><span class="badge-pill badge-admin">Admin</span></td><td>Everything (use sparingly!)</td></tr>
+          <tr><td><code>GRANT OPTION</code></td><td><span class="badge-pill badge-admin">Admin</span></td><td>Can grant their privileges to others</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔗 GRANT with GRANT OPTION</div>
+      <p>This special option lets a user pass on their privileges to other users. Use it carefully — only for trusted senior users.</p>
+      <div class="code-block">
+        <span class="code-label">SQL</span>
+        <pre><span class="cm">-- Ravi can now give SELECT access to others</span>
+<span class="kw">GRANT</span> <span class="priv">SELECT</span>
+  <span class="kw">ON</span> guvi_db.students
+  <span class="kw">TO</span> <span class="str">'ravi_dev'</span><span class="op">@</span><span class="str">'localhost'</span>
+  <span class="kw">WITH GRANT OPTION</span>;</pre>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <div><strong>ON *.* vs ON db.* vs ON db.table</strong><br/>
+        <code>ON *.*</code> → all databases, all tables (global)<br/>
+        <code>ON guvi_db.*</code> → all tables in guvi_db<br/>
+        <code>ON guvi_db.students</code> → only students table
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ REVOKE ═══ -->
+  <section class="content-section" id="sec-revoke">
+    <h2 class="section-title">🚫 REVOKE — Take Back Permissions</h2>
+    <p class="section-subtitle">REVOKE is the opposite of GRANT. It removes previously granted privileges from a user. It does not delete the user — just takes back specific access rights.</p>
+
+    <div class="card">
+      <div class="card-title">📋 REVOKE Syntax</div>
+      <div class="code-block">
+        <span class="code-label">Syntax</span>
+        <pre><span class="kw">REVOKE</span> <span class="priv">privilege_list</span>
+  <span class="kw">ON</span> database_name.table_name
+  <span class="kw">FROM</span> <span class="str">'user'</span><span class="op">@</span><span class="str">'host'</span>;</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏢 GUVI Example — Revoking Privileges</div>
+      <div class="code-block">
+        <span class="code-label">SQL</span>
+        <pre><span class="cm">-- Priya moved teams — remove her write access</span>
+<span class="kw">REVOKE</span> <span class="priv">INSERT, UPDATE, DELETE</span>
+  <span class="kw">ON</span> guvi_db.courses
+  <span class="kw">FROM</span> <span class="str">'priya_analyst'</span><span class="op">@</span><span class="str">'localhost'</span>;
+
+<span class="cm">-- Ravi left company — remove ALL his privileges</span>
+<span class="kw">REVOKE</span> <span class="priv">ALL PRIVILEGES</span>
+  <span class="kw">ON</span> guvi_db.<span class="op">*</span>
+  <span class="kw">FROM</span> <span class="str">'ravi_dev'</span><span class="op">@</span><span class="str">'localhost'</span>;
+
+<span class="cm">-- Revoke Grant Option from Ravi</span>
+<span class="kw">REVOKE GRANT OPTION</span>
+  <span class="kw">ON</span> guvi_db.students
+  <span class="kw">FROM</span> <span class="str">'ravi_dev'</span><span class="op">@</span><span class="str">'localhost'</span>;</pre>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div><strong>REVOKE doesn't cascade automatically in MySQL</strong>If Ravi used GRANT OPTION to give Priya access, revoking Ravi's privilege does NOT remove Priya's access in MySQL. You must revoke from each user explicitly. PostgreSQL handles this differently with CASCADE.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚖️ GRANT vs REVOKE — Side by Side</div>
+      <table class="priv-table">
+        <thead><tr><th>Aspect</th><th>GRANT</th><th>REVOKE</th></tr></thead>
+        <tbody>
+          <tr><td>Purpose</td><td>Give permissions</td><td>Take back permissions</td></tr>
+          <tr><td>Keyword</td><td>TO user</td><td>FROM user</td></tr>
+          <tr><td>Effect</td><td>User gains access</td><td>User loses access</td></tr>
+          <tr><td>User deleted?</td><td>No</td><td>No — only access removed</td></tr>
+          <tr><td>Best practice</td><td>Grant minimum needed</td><td>Revoke when role changes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══ ROLES ═══ -->
+  <section class="content-section" id="sec-roles">
+    <h2 class="section-title">🎭 Roles &amp; Role Hierarchies</h2>
+    <p class="section-subtitle">Instead of granting permissions to each user individually, you can group permissions into a <strong>Role</strong> and assign that role to multiple users. Much easier to manage!</p>
+
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div><strong>Think of it like job titles</strong>At GUVI, the "Analyst" role can view reports. The "Developer" role can also edit data. Instead of setting 50 permissions per person, you assign them a role — and change it once if the role changes.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🆕 CREATE ROLE &amp; Assign</div>
+      <div class="code-block">
+        <span class="code-label">MySQL 8+ / PostgreSQL</span>
+        <pre><span class="cm">-- Step 1: Create the roles</span>
+<span class="kw">CREATE ROLE</span> <span class="str">'analyst'</span>;
+<span class="kw">CREATE ROLE</span> <span class="str">'developer'</span>;
+<span class="kw">CREATE ROLE</span> <span class="str">'db_admin'</span>;
+
+<span class="cm">-- Step 2: Grant privileges to the role</span>
+<span class="kw">GRANT</span> <span class="priv">SELECT</span>
+  <span class="kw">ON</span> guvi_db.<span class="op">*</span>
+  <span class="kw">TO</span> <span class="str">'analyst'</span>;
+
+<span class="kw">GRANT</span> <span class="priv">SELECT, INSERT, UPDATE, DELETE</span>
+  <span class="kw">ON</span> guvi_db.<span class="op">*</span>
+  <span class="kw">TO</span> <span class="str">'developer'</span>;
+
+<span class="kw">GRANT</span> <span class="priv">ALL PRIVILEGES</span>
+  <span class="kw">ON</span> guvi_db.<span class="op">*</span>
+  <span class="kw">TO</span> <span class="str">'db_admin'</span>;
+
+<span class="cm">-- Step 3: Assign roles to users</span>
+<span class="kw">GRANT</span> <span class="str">'analyst'</span>  <span class="kw">TO</span> <span class="str">'priya_analyst'</span><span class="op">@</span><span class="str">'localhost'</span>;
+<span class="kw">GRANT</span> <span class="str">'developer'</span> <span class="kw">TO</span> <span class="str">'ravi_dev'</span><span class="op">@</span><span class="str">'localhost'</span>;
+<span class="kw">GRANT</span> <span class="str">'db_admin'</span>  <span class="kw">TO</span> <span class="str">'admin_guvi'</span><span class="op">@</span><span class="str">'%'</span>;</pre>
+      </div>
+    </div>
+
+    <div class="role-diagram">
+      <h4 style="font-family:'Sora',sans-serif;font-size:15px;font-weight:700;margin-bottom:20px;color:var(--text)">GUVI Role Architecture</h4>
+      <div class="role-boxes">
+        <div class="role-box analyst">
+          <div class="role-icon">📊</div>
+          analyst<br/><span class="role-perms">SELECT only</span>
+        </div>
+        <div class="role-box dev">
+          <div class="role-icon">💻</div>
+          developer<br/><span class="role-perms">SELECT + DML</span>
+        </div>
+        <div class="role-box admin">
+          <div class="role-icon">🛡️</div>
+          db_admin<br/><span class="role-perms">ALL PRIVILEGES</span>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--text-muted);margin-top:4px">↓ assigned to ↓</div>
+      <div style="font-size:13px;color:var(--text);margin-top:8px;font-weight:500">
+        priya_analyst &nbsp;·&nbsp; team_analysts &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; ravi_dev &nbsp;·&nbsp; sneha_dev &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; admin_guvi
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔗 Role Hierarchies — Roles within Roles</div>
+      <p>In PostgreSQL, you can even grant a role to another role — creating a hierarchy.</p>
+      <div class="code-block">
+        <span class="code-label">PostgreSQL</span>
+        <pre><span class="cm">-- developer inherits all analyst permissions too</span>
+<span class="kw">GRANT</span> analyst <span class="kw">TO</span> developer;
+
+<span class="cm">-- db_admin inherits developer (which includes analyst)</span>
+<span class="kw">GRANT</span> developer <span class="kw">TO</span> db_admin;
+
+<span class="cm">-- Now db_admin has everything:</span>
+<span class="cm">-- analyst permissions + developer permissions + admin privileges</span></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔍 SHOW GRANTS — Check Who Has What</div>
+      <div class="code-block">
+        <span class="code-label">MySQL</span>
+        <pre><span class="cm">-- Check grants for a user</span>
+<span class="kw">SHOW GRANTS FOR</span> <span class="str">'priya_analyst'</span><span class="op">@</span><span class="str">'localhost'</span>;
+
+<span class="cm">-- Check grants for a role</span>
+<span class="kw">SHOW GRANTS FOR</span> <span class="str">'analyst'</span>;
+
+<span class="cm">-- Check current user's own grants</span>
+<span class="kw">SHOW GRANTS</span>;</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PRIVILEGES ═══ -->
+  <section class="content-section" id="sec-privileges">
+    <h2 class="section-title">🔐 Privilege Levels</h2>
+    <p class="section-subtitle">SQL lets you grant privileges at different levels of granularity — from the entire server down to a single column.</p>
+
+    <ul class="steps">
+      <li class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Global Level — ON *.*</strong>
+          <p>Applies to ALL databases on the server. Only for super admins.</p>
+          <div class="code-block"><pre><span class="kw">GRANT</span> <span class="priv">ALL PRIVILEGES</span> <span class="kw">ON</span> <span class="op">*.*</span> <span class="kw">TO</span> <span class="str">'superadmin'</span><span class="op">@</span><span class="str">'localhost'</span>;</pre></div>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Database Level — ON db.*</strong>
+          <p>Applies to all tables within a specific database.</p>
+          <div class="code-block"><pre><span class="kw">GRANT</span> <span class="priv">SELECT, INSERT</span> <span class="kw">ON</span> guvi_db.<span class="op">*</span> <span class="kw">TO</span> <span class="str">'ravi_dev'</span><span class="op">@</span><span class="str">'localhost'</span>;</pre></div>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Table Level — ON db.table</strong>
+          <p>Applies to one specific table only. Most common in practice.</p>
+          <div class="code-block"><pre><span class="kw">GRANT</span> <span class="priv">SELECT</span> <span class="kw">ON</span> guvi_db.students <span class="kw">TO</span> <span class="str">'priya_analyst'</span><span class="op">@</span><span class="str">'localhost'</span>;</pre></div>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>Column Level — ON specific columns</strong>
+          <p>Grant access to specific columns only — great for hiding sensitive data like salary or Aadhaar number.</p>
+          <div class="code-block"><pre><span class="cm">-- Priya can see name and email, but NOT salary or aadhaar</span>
+<span class="kw">GRANT</span> <span class="priv">SELECT</span> (student_name, email, course)
+  <span class="kw">ON</span> guvi_db.students
+  <span class="kw">TO</span> <span class="str">'priya_analyst'</span><span class="op">@</span><span class="str">'localhost'</span>;</pre></div>
+        </div>
+      </li>
+    </ul>
+
+    <div class="callout success">
+      <span class="callout-icon">✅</span>
+      <div><strong>Principle of Least Privilege (PoLP)</strong>Always grant only the minimum permissions a user needs to do their job. If an analyst only needs to read reports, don't give them INSERT or DELETE. This reduces the risk of accidental or malicious data changes.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏦 Real-world Example — HDFC Bank DB</div>
+      <div class="code-block">
+        <span class="code-label">SQL</span>
+        <pre><span class="cm">-- Customer service rep can see name + balance but NOT account_pin</span>
+<span class="kw">GRANT</span> <span class="priv">SELECT</span> (customer_name, balance, branch)
+  <span class="kw">ON</span> hdfc_db.accounts
+  <span class="kw">TO</span> <span class="str">'support_rep'</span><span class="op">@</span><span class="str">'localhost'</span>;
+
+<span class="cm">-- Auditors can read transactions but not modify anything</span>
+<span class="kw">GRANT</span> <span class="priv">SELECT</span>
+  <span class="kw">ON</span> hdfc_db.transactions
+  <span class="kw">TO</span> <span class="str">'auditor_team'</span><span class="op">@</span><span class="str">'%'</span>;</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ROW LEVEL ═══ -->
+  <section class="content-section" id="sec-rowlevel">
+    <h2 class="section-title">🔒 Row-Level Security (RLS)</h2>
+    <p class="section-subtitle">Column-level privileges hide columns. Row-Level Security (RLS) filters which <em>rows</em> a user can see. This is a PostgreSQL feature — MySQL uses views to simulate it.</p>
+
+    <div class="callout info">
+      <span class="callout-icon">📖</span>
+      <div><strong>Real-world scenario</strong>At GUVI, each instructor should only see their own batch's students — not all students across all batches. Row-Level Security makes this automatic.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🐘 PostgreSQL — Enable Row-Level Security</div>
+      <div class="code-block">
+        <span class="code-label">PostgreSQL</span>
+        <pre><span class="cm">-- Step 1: Enable RLS on the table</span>
+<span class="kw">ALTER TABLE</span> students <span class="kw">ENABLE ROW LEVEL SECURITY</span>;
+
+<span class="cm">-- Step 2: Create policy — instructor sees only their batch</span>
+<span class="kw">CREATE POLICY</span> instructor_policy
+  <span class="kw">ON</span> students
+  <span class="kw">FOR</span> <span class="priv">SELECT</span>
+  <span class="kw">USING</span> (instructor_id <span class="op">=</span> current_user_id());
+
+<span class="cm">-- Step 3: Grant table access (RLS handles row filtering)</span>
+<span class="kw">GRANT</span> <span class="priv">SELECT</span> <span class="kw">ON</span> students <span class="kw">TO</span> instructor_role;</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🐬 MySQL — Simulate RLS with Views</div>
+      <p>MySQL doesn't have native RLS, but you can use views to achieve the same effect.</p>
+      <div class="code-block">
+        <span class="code-label">MySQL</span>
+        <pre><span class="cm">-- Create a view that filters rows by instructor</span>
+<span class="kw">CREATE VIEW</span> my_students <span class="kw">AS</span>
+  <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> students
+  <span class="kw">WHERE</span> instructor_id <span class="op">=</span> <span class="fn">CURRENT_USER</span>();
+
+<span class="cm">-- Grant access to the VIEW, not the base table</span>
+<span class="kw">GRANT</span> <span class="priv">SELECT</span> <span class="kw">ON</span> guvi_db.my_students
+  <span class="kw">TO</span> <span class="str">'instructor_rahul'</span><span class="op">@</span><span class="str">'localhost'</span>;
+
+<span class="cm">-- Rahul sees ONLY his own students when he queries my_students</span></pre>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <div><strong>Views are powerful for access control</strong>Using views, you can expose only the safe, filtered version of your data to users — hiding sensitive rows, columns, or joining data appropriately. This is widely used at companies like Zomato (restaurant owners see only their own restaurant's data).</div>
+    </div>
+  </section>
+
+  <!-- ═══ HCL GUVI CASE STUDY ═══ -->
+  <section class="content-section" id="sec-hclguvi">
+    <h2 class="section-title">🏢 HCL GUVI Case Study</h2>
+    <p class="section-subtitle">Let's build a complete access control system for the HCL GUVI learning platform — with analyst, developer, and admin roles — from scratch.</p>
+
+    <div class="callout info">
+      <span class="callout-icon">🎯</span>
+      <div><strong>Scenario</strong>HCL GUVI's database (guvi_db) has tables: students, courses, enrollments, payments, instructors, reports. We need 3 types of users:<br/>
+        📊 <strong>Analyst (Priya)</strong> — read-only access for reports<br/>
+        💻 <strong>Developer (Ravi)</strong> — read-write for courses & enrollments<br/>
+        🛡️ <strong>Admin (Kiran)</strong> — full access to everything
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 Complete Implementation Script</div>
+      <div class="code-block">
+        <span class="code-label">Complete DCL Script — guvi_db</span>
+        <pre><span class="cm">-- ═══════════════════════════════════════════
+-- HCL GUVI DB — Access Control Setup
+-- ═══════════════════════════════════════════</span>
+
+<span class="cm">-- STEP 1: Create Users</span>
+<span class="kw">CREATE USER</span> <span class="str">'priya_analyst'</span><span class="op">@</span><span class="str">'localhost'</span> <span class="kw">IDENTIFIED BY</span> <span class="str">'Analyst@2024'</span>;
+<span class="kw">CREATE USER</span> <span class="str">'ravi_dev'</span><span class="op">@</span><span class="str">'localhost'</span>     <span class="kw">IDENTIFIED BY</span> <span class="str">'Dev@Secure2024'</span>;
+<span class="kw">CREATE USER</span> <span class="str">'kiran_admin'</span><span class="op">@</span><span class="str">'%'</span>         <span class="kw">IDENTIFIED BY</span> <span class="str">'AdminK!r@n9999'</span>;
+
+<span class="cm">-- STEP 2: Create Roles</span>
+<span class="kw">CREATE ROLE</span> <span class="str">'guvi_analyst'</span>;
+<span class="kw">CREATE ROLE</span> <span class="str">'guvi_developer'</span>;
+<span class="kw">CREATE ROLE</span> <span class="str">'guvi_admin'</span>;
+
+<span class="cm">-- STEP 3: Grant privileges to roles</span>
+
+<span class="cm">-- Analyst: read-only on reports, students</span>
+<span class="kw">GRANT</span> <span class="priv">SELECT</span> <span class="kw">ON</span> guvi_db.students     <span class="kw">TO</span> <span class="str">'guvi_analyst'</span>;
+<span class="kw">GRANT</span> <span class="priv">SELECT</span> <span class="kw">ON</span> guvi_db.enrollments  <span class="kw">TO</span> <span class="str">'guvi_analyst'</span>;
+<span class="kw">GRANT</span> <span class="priv">SELECT</span> <span class="kw">ON</span> guvi_db.reports      <span class="kw">TO</span> <span class="str">'guvi_analyst'</span>;
+<span class="cm">-- Column-level: no salary/aadhaar for analyst</span>
+<span class="kw">GRANT</span> <span class="priv">SELECT</span> (name, email, batch, course)
+  <span class="kw">ON</span> guvi_db.students <span class="kw">TO</span> <span class="str">'guvi_analyst'</span>;
+
+<span class="cm">-- Developer: full DML on courses & enrollments</span>
+<span class="kw">GRANT</span> <span class="priv">SELECT, INSERT, UPDATE, DELETE</span>
+  <span class="kw">ON</span> guvi_db.courses      <span class="kw">TO</span> <span class="str">'guvi_developer'</span>;
+<span class="kw">GRANT</span> <span class="priv">SELECT, INSERT, UPDATE, DELETE</span>
+  <span class="kw">ON</span> guvi_db.enrollments  <span class="kw">TO</span> <span class="str">'guvi_developer'</span>;
+<span class="kw">GRANT</span> <span class="priv">SELECT</span>
+  <span class="kw">ON</span> guvi_db.students     <span class="kw">TO</span> <span class="str">'guvi_developer'</span>;
+
+<span class="cm">-- Admin: everything</span>
+<span class="kw">GRANT</span> <span class="priv">ALL PRIVILEGES</span> <span class="kw">ON</span> guvi_db.<span class="op">*</span> <span class="kw">TO</span> <span class="str">'guvi_admin'</span>;
+
+<span class="cm">-- STEP 4: Assign roles to users</span>
+<span class="kw">GRANT</span> <span class="str">'guvi_analyst'</span>   <span class="kw">TO</span> <span class="str">'priya_analyst'</span><span class="op">@</span><span class="str">'localhost'</span>;
+<span class="kw">GRANT</span> <span class="str">'guvi_developer'</span> <span class="kw">TO</span> <span class="str">'ravi_dev'</span><span class="op">@</span><span class="str">'localhost'</span>;
+<span class="kw">GRANT</span> <span class="str">'guvi_admin'</span>     <span class="kw">TO</span> <span class="str">'kiran_admin'</span><span class="op">@</span><span class="str">'%'</span>;
+
+<span class="kw">FLUSH PRIVILEGES</span>;</pre>
+      </div>
+    </div>
+
+    <!-- Interactive Least Privilege Demo -->
+    <div class="lp-demo">
+      <div class="lp-header">🔍 Interactive: What Can Each User Do?</div>
+      <div class="lp-user-tabs">
+        <div class="lp-tab active" onclick="showUserPerms('analyst', this)">📊 Priya (Analyst)</div>
+        <div class="lp-tab" onclick="showUserPerms('dev', this)">💻 Ravi (Developer)</div>
+        <div class="lp-tab" onclick="showUserPerms('admin', this)">🛡️ Kiran (Admin)</div>
+      </div>
+      <div class="lp-body" id="lp-content">
+        <ul class="lp-perm-list" id="perm-list"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SANDBOX ═══ -->
+  <section class="content-section" id="sec-sandbox">
+    <h2 class="section-title">💻 Practice Sandbox</h2>
+    <p class="section-subtitle">Try writing DCL commands below. The sandbox simulates command execution with realistic output.</p>
+
+    <div class="sandbox">
+      <div class="sandbox-header">
+        <div class="sandbox-title"><span>🖥️</span> SQL Sandbox — DCL Practice</div>
+        <div class="sandbox-actions">
+          <button class="sandbox-btn clear" onclick="clearSandbox()">Clear</button>
+          <button class="sandbox-btn run" onclick="runSandbox()">▶ Run</button>
+        </div>
+      </div>
+      <textarea class="sandbox-editor" id="sandbox-editor" spellcheck="false" placeholder="-- Try DCL commands here...
+-- Examples:
+-- CREATE USER 'test_user'@'localhost' IDENTIFIED BY 'Pass@123';
+-- GRANT SELECT ON guvi_db.students TO 'test_user'@'localhost';
+-- SHOW GRANTS FOR 'test_user'@'localhost';
+-- REVOKE SELECT ON guvi_db.students FROM 'test_user'@'localhost';
+-- DROP USER 'test_user'@'localhost';
+"></textarea>
+      <div class="sandbox-output" id="sandbox-output">
+        <span style="color:var(--text-muted);font-size:12px">▶ Output will appear here after you click Run</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📝 Try These Challenges</div>
+      <ul class="steps">
+        <li class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Create a user</strong>
+            <p>Create a user called <code>sneha_intern</code> with host <code>localhost</code></p>
+          </div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Grant read-only</strong>
+            <p>Grant SELECT on <code>guvi_db.students</code> to <code>sneha_intern</code></p>
+          </div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Check her grants</strong>
+            <p>Use SHOW GRANTS to confirm what she has access to</p>
+          </div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Revoke &amp; clean up</strong>
+            <p>She completed her internship — REVOKE all access, then DROP USER</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══ QUIZ ═══ -->
+  <section class="content-section" id="sec-quiz">
+    <h2 class="section-title">🧠 Chapter 8 Quiz</h2>
+    <p class="section-subtitle">Test your understanding of DCL — GRANT, REVOKE, roles, and privilege levels.</p>
+
+    <div class="quiz-wrap">
+      <div class="quiz-progress" id="quiz-progress">Question 1 of 7</div>
+      <div class="quiz-question" id="quiz-question"></div>
+      <ul class="quiz-options" id="quiz-options"></ul>
+      <div class="quiz-feedback" id="quiz-feedback"></div>
+      <div class="quiz-nav">
+        <span class="quiz-score" id="quiz-score">Score: 0 / 0</span>
+        <button class="quiz-btn" id="quiz-next-btn" onclick="nextQuestion()" style="display:none">Next Question →</button>
+      </div>
+    </div>
+
+    <div class="completion-card" id="completion-card" style="display:none">
+      <div class="trophy">🏆</div>
+      <h3 id="completion-title">Chapter Complete!</h3>
+      <p id="completion-msg">Great work mastering DCL — one of the most important security skills in SQL!</p>
+      <button class="complete-btn" onclick="triggerConfetti()">🎉 Celebrate!</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ── NAVIGATION ──
+const sections = ['intro','users','grant','revoke','roles','privileges','rowlevel','hclguvi','sandbox','quiz'];
+let currentIdx = 0;
+const visited = new Set(['intro']);
+
+function showSection(id, el) {
+  document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  currentIdx = sections.indexOf(id);
+  visited.add(id);
+  updateProgress();
+  window.scrollTo(0, 0);
+}
+
+function nextSection() {
+  if (currentIdx < sections.length - 1) {
+    const next = sections[currentIdx + 1];
+    const el = document.querySelector(`[data-sec="${next}"]`);
+    showSection(next, el);
+    markDone(sections[currentIdx]);
+  }
+}
+
+function prevSection() {
+  if (currentIdx > 0) {
+    const prev = sections[currentIdx - 1];
+    const el = document.querySelector(`[data-sec="${prev}"]`);
+    showSection(prev, el);
+  }
+}
+
+function markDone(id) {
+  const chk = document.getElementById('chk-' + id);
+  if (chk) chk.textContent = '✓';
+  const navItem = document.querySelector(`[data-sec="${id}"]`);
+  if (navItem) navItem.classList.add('done');
+  doneSet.add(id);
+  updateProgress();
+}
+
+const doneSet = new Set();
+function updateProgress() {
+  const pct = Math.round((doneSet.size / sections.length) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+}
+
+// ── PERMISSIONS DEMO ──
+const permsData = {
+  analyst: [
+    { allowed: true,  text: 'SELECT students (name, email, batch, course)' },
+    { allowed: true,  text: 'SELECT enrollments' },
+    { allowed: true,  text: 'SELECT reports' },
+    { allowed: false, text: 'INSERT / UPDATE / DELETE — any table' },
+    { allowed: false, text: 'SELECT students.salary, students.aadhaar' },
+    { allowed: false, text: 'CREATE / DROP / ALTER tables' },
+    { allowed: false, text: 'Access payments table' },
+  ],
+  dev: [
+    { allowed: true,  text: 'SELECT, INSERT, UPDATE, DELETE — courses' },
+    { allowed: true,  text: 'SELECT, INSERT, UPDATE, DELETE — enrollments' },
+    { allowed: true,  text: 'SELECT students (all columns)' },
+    { allowed: false, text: 'DROP or ALTER any table' },
+    { allowed: false, text: 'Access payments / instructors tables' },
+    { allowed: false, text: 'Create new users or roles' },
+    { allowed: false, text: 'GRANT privileges to others' },
+  ],
+  admin: [
+    { allowed: true, text: 'SELECT, INSERT, UPDATE, DELETE — all tables' },
+    { allowed: true, text: 'CREATE / DROP / ALTER tables' },
+    { allowed: true, text: 'Create users, roles, grant privileges' },
+    { allowed: true, text: 'Access payments, salary, aadhaar columns' },
+    { allowed: true, text: 'REVOKE any privilege' },
+    { allowed: true, text: 'SHOW GRANTS for any user' },
+    { allowed: true, text: 'Full access to entire guvi_db' },
+  ]
+};
+
+function showUserPerms(type, tabEl) {
+  document.querySelectorAll('.lp-tab').forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+  const list = document.getElementById('perm-list');
+  list.innerHTML = permsData[type].map(p =>
+    `<li class="lp-perm ${p.allowed ? 'allowed' : 'denied'}">
+      <span class="perm-icon">${p.allowed ? '✅' : '❌'}</span>
+      ${p.text}
+    </li>`
+  ).join('');
+}
+// init analyst tab
+showUserPerms('analyst', document.querySelector('.lp-tab'));
+
+// ── SANDBOX ──
+const sandboxOutputs = {
+  'create user': (sql) => {
+    const m = sql.match(/'([^']+)'@'([^']+)'/);
+    if (m) return `<span class="output-success">✓ Query OK, 0 rows affected<br/>User '${m[1]}'@'${m[2]}' created successfully.</span>`;
+    return `<span class="output-error">✗ Syntax Error: Check CREATE USER syntax.</span>`;
+  },
+  'grant': (sql) => {
+    const mPriv = sql.match(/grant\s+([\w\s,*()]+?)\s+on/i);
+    const mTo = sql.match(/to\s+'([^']+)'/i);
+    if (mTo) return `<span class="output-success">✓ Query OK, 0 rows affected<br/>Privileges granted to '${mTo[1]}' successfully.</span>`;
+    return `<span class="output-success">✓ Query OK, 0 rows affected</span>`;
+  },
+  'revoke': (sql) => {
+    const mFrom = sql.match(/from\s+'([^']+)'/i);
+    if (mFrom) return `<span class="output-success">✓ Query OK, 0 rows affected<br/>Privileges revoked from '${mFrom[1]}' successfully.</span>`;
+    return `<span class="output-success">✓ Query OK, 0 rows affected</span>`;
+  },
+  'show grants': (sql) => {
+    const m = sql.match(/for\s+'([^']+)'@'([^']+)'/i);
+    const user = m ? m[1] : 'current_user';
+    return `<table class="output-table">
+      <tr><th>Grants for ${user}@localhost</th></tr>
+      <tr><td>GRANT SELECT ON guvi_db.students TO '${user}'@'localhost'</td></tr>
+      <tr><td>GRANT USAGE ON *.* TO '${user}'@'localhost'</td></tr>
+    </table>`;
+  },
+  'drop user': (sql) => {
+    const m = sql.match(/'([^']+)'@'([^']+)'/);
+    if (m) return `<span class="output-success">✓ Query OK, 0 rows affected<br/>User '${m[1]}'@'${m[2]}' dropped successfully.</span>`;
+    return `<span class="output-error">✗ Error: User not found.</span>`;
+  },
+  'flush': () => `<span class="output-success">✓ Query OK, 0 rows affected<br/>Privileges flushed and reloaded.</span>`,
+  'create role': (sql) => {
+    const m = sql.match(/'([^']+)'/);
+    return `<span class="output-success">✓ Query OK, 0 rows affected<br/>Role '${m ? m[1] : 'role'}' created successfully.</span>`;
+  },
+};
+
+function runSandbox() {
+  const sql = document.getElementById('sandbox-editor').value.trim();
+  const out = document.getElementById('sandbox-output');
+  if (!sql) { out.innerHTML = '<span style="color:var(--text-muted)">⚠️ Please enter a SQL command first.</span>'; return; }
+  const lower = sql.toLowerCase();
+  let result = null;
+  for (const [key, fn] of Object.entries(sandboxOutputs)) {
+    if (lower.startsWith(key)) { result = fn(sql); break; }
+  }
+  if (!result) {
+    if (lower.includes('select') || lower.includes('insert')) {
+      result = '<span style="color:var(--text-muted)">ℹ️ DML commands run, but DCL commands (GRANT, REVOKE, etc.) are the focus here. Try a DCL command!</span>';
+    } else {
+      result = `<span class="output-success">✓ Query OK, 0 rows affected</span>`;
+    }
+  }
+  out.innerHTML = result;
+}
+
+function clearSandbox() {
+  document.getElementById('sandbox-editor').value = '';
+  document.getElementById('sandbox-output').innerHTML = '<span style="color:var(--text-muted);font-size:12px">▶ Output will appear here after you click Run</span>';
+}
+
+// ── QUIZ ──
+const questions = [
+  {
+    q: "Which SQL command is used to give a user permission to read data from a table?",
+    opts: ["ALLOW SELECT", "GRANT SELECT", "PERMIT READ", "ENABLE ACCESS"],
+    ans: 1,
+    exp: "GRANT SELECT ON table TO user is the correct DCL syntax to give read permission."
+  },
+  {
+    q: "What does the '@' symbol represent in CREATE USER 'priya'@'localhost'?",
+    opts: ["Email address", "Password separator", "Host from which user can connect", "Database name"],
+    ans: 2,
+    exp: "The @'host' part specifies which host the user can connect from. 'localhost' means only from the same machine."
+  },
+  {
+    q: "Which command checks what permissions a specific user has?",
+    opts: ["LIST GRANTS FOR user", "SHOW GRANTS FOR user", "VIEW PRIVILEGES FOR user", "CHECK ACCESS FOR user"],
+    ans: 1,
+    exp: "SHOW GRANTS FOR 'username'@'host' displays all privileges granted to that user."
+  },
+  {
+    q: "Priya left the company. Which is the CORRECT order of actions?",
+    opts: [
+      "DROP USER → REVOKE all privileges",
+      "REVOKE all privileges → DROP USER",
+      "DELETE USER → REMOVE privileges",
+      "GRANT 0 privileges → DROP USER"
+    ],
+    ans: 1,
+    exp: "REVOKE first, then DROP USER. In MySQL, DROP USER auto-revokes, but best practice is to revoke explicitly before dropping."
+  },
+  {
+    q: "What does 'WITH GRANT OPTION' allow?",
+    opts: [
+      "The user can create new tables",
+      "The user can grant their own privileges to other users",
+      "The user gets admin rights automatically",
+      "The grant never expires"
+    ],
+    ans: 1,
+    exp: "WITH GRANT OPTION allows that user to pass on the privileges they received to other users — use it carefully!"
+  },
+  {
+    q: "Which privilege level is most specific / narrow?",
+    opts: ["ON *.*  (global)", "ON db.* (database-level)", "ON db.table (table-level)", "ON db.table (column-level)"],
+    ans: 3,
+    exp: "Column-level is the most granular — you can grant access to specific columns only, hiding sensitive data like salary or Aadhaar."
+  },
+  {
+    q: "At GUVI, the 'analyst' role has SELECT only. If you grant the 'developer' role on top of analyst, what can the developer now do?",
+    opts: [
+      "Only SELECT (analyst overrides)",
+      "SELECT + DML (INSERT, UPDATE, DELETE) — both roles combine",
+      "Nothing — roles conflict and cancel out",
+      "Only DML — analyst role is lost"
+    ],
+    ans: 1,
+    exp: "Roles accumulate! A user assigned both analyst and developer roles gets the union of all their permissions."
+  }
+];
+
+let qIdx = 0, score = 0, answered = false;
+
+function renderQuestion() {
+  const q = questions[qIdx];
+  document.getElementById('quiz-progress').textContent = `Question ${qIdx + 1} of ${questions.length}`;
+  document.getElementById('quiz-question').textContent = q.q;
+  document.getElementById('quiz-options').innerHTML = q.opts.map((o, i) =>
+    `<li class="quiz-option" onclick="selectOption(${i})" id="opt-${i}">
+      <span class="opt-key">${String.fromCharCode(65+i)}</span>${o}
+    </li>`
+  ).join('');
+  document.getElementById('quiz-feedback').className = 'quiz-feedback';
+  document.getElementById('quiz-feedback').innerHTML = '';
+  document.getElementById('quiz-next-btn').style.display = 'none';
+  document.getElementById('quiz-score').textContent = `Score: ${score} / ${qIdx}`;
+  answered = false;
+}
+
+function selectOption(i) {
+  if (answered) return;
+  answered = true;
+  const q = questions[qIdx];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts[i].classList.add(i === q.ans ? 'correct' : 'wrong');
+  if (i !== q.ans) opts[q.ans].classList.add('correct');
+  if (i === q.ans) score++;
+  const fb = document.getElementById('quiz-feedback');
+  fb.className = `quiz-feedback show ${i === q.ans ? 'correct' : 'wrong'}`;
+  fb.innerHTML = `<strong>${i === q.ans ? '✅ Correct!' : '❌ Not quite.'}</strong> ${q.exp}`;
+  document.getElementById('quiz-score').textContent = `Score: ${score} / ${qIdx + 1}`;
+  const nextBtn = document.getElementById('quiz-next-btn');
+  nextBtn.style.display = 'inline-block';
+  nextBtn.textContent = qIdx < questions.length - 1 ? 'Next Question →' : 'See Results 🎉';
+}
+
+function nextQuestion() {
+  qIdx++;
+  if (qIdx < questions.length) {
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  document.getElementById('quiz-wrap') && null;
+  document.querySelector('.quiz-wrap').style.display = 'none';
+  const card = document.getElementById('completion-card');
+  card.style.display = 'block';
+  const pct = Math.round((score / questions.length) * 100);
+  document.getElementById('completion-title').textContent =
+    pct >= 80 ? '🎉 Excellent Work!' : pct >= 60 ? '👍 Good Job!' : '💪 Keep Practicing!';
+  document.getElementById('completion-msg').textContent =
+    `You scored ${score} out of ${questions.length} (${pct}%). ${pct >= 80 ? 'You have mastered DCL concepts!' : 'Review the sections you found tricky and try again.'}`;
+  markDone('quiz');
+  if (pct >= 70) triggerConfetti();
+}
+
+renderQuestion();
+
+// ── CONFETTI ──
+function triggerConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const pieces = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height - canvas.height,
+    r: Math.random() * 8 + 4,
+    d: Math.random() * 5 + 2,
+    color: ['#0d9488','#4f46e5','#2563eb','#d97706','#16a34a','#7c3aed'][Math.floor(Math.random()*6)],
+    tilt: Math.random() * 10 - 10,
+    speed: Math.random() * 3 + 1
+  }));
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.beginPath();
+      ctx.ellipse(p.x, p.y, p.r, p.r/2, p.tilt, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+      p.y += p.speed;
+      p.x += Math.sin(frame / 20) * 1.5;
+      p.tilt += 0.1;
+      if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
+    });
+    frame++;
+    if (frame < 200) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+</script>
+</body>
+</html>

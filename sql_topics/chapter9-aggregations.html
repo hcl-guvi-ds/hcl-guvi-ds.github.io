@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 9 — Aggregations & GROUP BY | SQL Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --teal:#0d9488; --teal-light:#ccfbf1; --teal-dark:#0f766e;
+  --blue:#2563eb; --blue-light:#dbeafe;
+  --indigo:#4f46e5; --indigo-light:#e0e7ff;
+  --amber:#d97706; --amber-light:#fef3c7;
+  --red:#dc2626; --red-light:#fee2e2;
+  --green:#16a34a; --green-light:#dcfce7;
+  --purple:#7c3aed; --purple-light:#ede9fe;
+  --orange:#ea580c; --orange-light:#ffedd5;
+  --bg:#f8fafc; --surface:#ffffff;
+  --border:#e2e8f0; --text:#0f172a; --muted:#64748b;
+  --sidebar-w:272px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;display:flex;flex-direction:column;}
+.sb-head{padding:20px 18px 16px;background:linear-gradient(135deg,#0c4a6e,#312e81);border-bottom:1px solid var(--border);}
+.sb-head .badge{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7dd3fc;margin-bottom:4px;}
+.sb-head h2{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;line-height:1.3;}
+.sb-head p{font-size:11px;color:rgba(255,255,255,.6);margin-top:3px;}
+.sb-prog{padding:14px 18px;border-bottom:1px solid var(--border);}
+.prog-lbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;}
+.prog-bar{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--indigo));border-radius:99px;transition:width .4s ease;}
+.sb-nav{flex:1;padding:8px 0;}
+.nav-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 18px 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;font-size:13px;color:var(--muted);font-weight:500;}
+.nav-item:hover{background:var(--bg);color:var(--text);}
+.nav-item.active{border-left-color:var(--teal);background:var(--teal-light);color:var(--teal-dark);font-weight:600;}
+.nav-item.done{color:var(--green);}
+.nav-chk{margin-left:auto;font-size:13px;}
+
+/* MAIN */
+.main{margin-left:var(--sidebar-w);flex:1;min-width:0;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.tb-left{display:flex;align-items:center;gap:12px;}
+.ch-pill{background:var(--indigo-light);color:var(--indigo);font-family:'Sora',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.05em;}
+.topbar h1{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;}
+.nb{display:flex;gap:8px;}
+.nbtn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s;}
+.nbtn.pri{background:var(--teal);color:#fff;border-color:var(--teal);}
+.nbtn:hover{border-color:var(--teal);color:var(--teal);}
+.nbtn.pri:hover{background:var(--teal-dark);}
+
+/* SECTIONS */
+.sec{display:none;padding:36px 44px 60px;max-width:980px;}
+.sec.active{display:block;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#0c4a6e 0%,#312e81 100%);border-radius:16px;padding:36px 40px;color:#fff;margin-bottom:32px;position:relative;overflow:hidden;}
+.hero::after{content:'∑';position:absolute;right:36px;top:50%;transform:translateY(-50%);font-size:100px;opacity:.1;font-family:'Sora',sans-serif;font-weight:800;}
+.hero .eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7dd3fc;margin-bottom:8px;}
+.hero h2{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;line-height:1.2;margin-bottom:10px;}
+.hero p{font-size:14px;opacity:.85;line-height:1.6;max-width:560px;}
+
+.sec-title{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.sec-sub{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:20px;}
+.card-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.card p{font-size:14px;line-height:1.7;color:#334155;}
+
+/* GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px;}
+.ic{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;}
+.ic-icon{font-size:26px;margin-bottom:8px;}
+.ic-title{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px;}
+.ic-desc{font-size:12.5px;color:var(--muted);line-height:1.5;}
+.ic-formula{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg);padding:4px 8px;border-radius:6px;margin-top:6px;display:inline-block;color:var(--indigo);font-weight:600;}
+
+/* CODE */
+.code-block{background:#0f172a;border-radius:10px;padding:18px 22px;margin:14px 0;overflow-x:auto;position:relative;}
+.code-block pre{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.75;color:#e2e8f0;white-space:pre;}
+.code-lbl{position:absolute;top:10px;right:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+.kw{color:#7dd3fc;} .fn{color:#a5f3fc;} .str{color:#86efac;} .cm{color:#475569;font-style:italic;} .op{color:#f9a8d4;} .num{color:#fcd34d;} .id{color:#e2e8f0;}
+
+/* CALLOUTS */
+.callout{border-radius:10px;padding:14px 18px;margin:16px 0;display:flex;gap:12px;font-size:13.5px;line-height:1.65;}
+.callout-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.callout strong{display:block;font-weight:700;margin-bottom:3px;}
+.callout.tip{background:var(--teal-light);border-left:4px solid var(--teal);color:#134e4a;}
+.callout.warn{background:var(--amber-light);border-left:4px solid var(--amber);color:#78350f;}
+.callout.info{background:var(--blue-light);border-left:4px solid var(--blue);color:#1e3a5f;}
+.callout.danger{background:var(--red-light);border-left:4px solid var(--red);color:#7f1d1d;}
+.callout.success{background:var(--green-light);border-left:4px solid var(--green);color:#14532d;}
+.callout.purple{background:var(--purple-light);border-left:4px solid var(--purple);color:#3b0764;}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0;}
+.data-table th{background:#0f172a;color:#fff;padding:9px 14px;text-align:left;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;}
+.data-table td{padding:9px 14px;border-bottom:1px solid var(--border);color:#334155;}
+.data-table tr:hover td{background:var(--bg);}
+.data-table tr:nth-child(even) td{background:#f8fafc;}
+.highlight-row td{background:var(--teal-light)!important;color:var(--teal-dark)!important;font-weight:600;}
+.null-cell{color:#94a3b8;font-style:italic;}
+
+/* ── SIGNATURE: GROUP BY VISUALIZER ── */
+.visualizer{background:var(--surface);border:1.5px solid var(--indigo);border-radius:14px;overflow:hidden;margin:24px 0;}
+.viz-header{background:linear-gradient(90deg,#312e81,#1e3a8a);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;}
+.viz-title{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;}
+.viz-controls{display:flex;gap:8px;}
+.viz-btn{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;transition:all .2s;}
+.viz-btn.active-btn{background:var(--teal);color:#fff;}
+.viz-btn.inactive-btn{background:rgba(255,255,255,.12);color:#cbd5e1;}
+.viz-btn.inactive-btn:hover{background:rgba(255,255,255,.2);}
+.viz-body{padding:22px;}
+.viz-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;}
+.viz-tables{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;}
+.viz-arrow{font-size:28px;color:var(--indigo);text-align:center;font-weight:700;}
+.viz-rows{display:flex;flex-direction:column;gap:4px;}
+.viz-row{display:flex;gap:6px;align-items:center;padding:6px 10px;border-radius:7px;font-size:12.5px;font-family:'JetBrains Mono',monospace;transition:all .3s;}
+.viz-row.city-mumbai{background:#dbeafe;border-left:3px solid #2563eb;}
+.viz-row.city-delhi{background:#ede9fe;border-left:3px solid #7c3aed;}
+.viz-row.city-chennai{background:#dcfce7;border-left:3px solid #16a34a;}
+.viz-row.city-pune{background:#fef3c7;border-left:3px solid #d97706;}
+.viz-result{display:flex;flex-direction:column;gap:6px;}
+.viz-result-row{display:flex;gap:6px;align-items:center;padding:8px 12px;border-radius:7px;font-size:12.5px;font-family:'JetBrains Mono',monospace;font-weight:700;}
+.viz-result-row.city-mumbai{background:#2563eb;color:#fff;}
+.viz-result-row.city-delhi{background:#7c3aed;color:#fff;}
+.viz-result-row.city-chennai{background:#16a34a;color:#fff;}
+.viz-result-row.city-pune{background:#d97706;color:#fff;}
+.viz-select{padding:6px 10px;border-radius:7px;border:1.5px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg);color:var(--text);cursor:pointer;outline:none;}
+.viz-query-box{background:#0f172a;border-radius:9px;padding:12px 16px;margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#e2e8f0;line-height:1.7;}
+
+/* HAVING vs WHERE */
+.hvw-demo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;}
+.hvw-card{border-radius:12px;overflow:hidden;border:1.5px solid var(--border);}
+.hvw-card-head{padding:12px 16px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.hvw-card-head.where-head{background:var(--blue-light);color:var(--blue);}
+.hvw-card-head.having-head{background:var(--purple-light);color:var(--purple);}
+.hvw-card-body{padding:14px 16px;background:var(--surface);}
+
+/* ROLLUP TABLE */
+.rollup-table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0;}
+.rollup-table th{background:#0f172a;color:#fff;padding:9px 14px;text-align:left;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;}
+.rollup-table td{padding:9px 14px;border-bottom:1px solid var(--border);color:#334155;}
+.subtotal-row td{background:var(--blue-light);color:var(--blue);font-weight:700;}
+.grandtotal-row td{background:var(--indigo);color:#fff;font-weight:800;}
+.null-grp{color:#94a3b8;font-style:italic;}
+
+/* SANDBOX */
+.sandbox{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+.sb-hdr{background:#0f172a;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;}
+.sb-title{font-family:'JetBrains Mono',monospace;font-size:12px;color:#94a3b8;font-weight:600;display:flex;align-items:center;gap:8px;}
+.sb-actions{display:flex;gap:8px;}
+.sb-btn{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;transition:all .15s;}
+.sb-btn.run{background:var(--teal);color:#fff;}
+.sb-btn.run:hover{background:var(--teal-dark);}
+.sb-btn.clr{background:#1e293b;color:#94a3b8;}
+.sb-btn.clr:hover{color:#fff;}
+.sb-editor{width:100%;min-height:130px;background:#1e293b;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:13px;padding:16px 18px;border:none;outline:none;resize:vertical;line-height:1.75;}
+.sb-out{padding:14px 18px;min-height:60px;font-family:'JetBrains Mono',monospace;font-size:12.5px;border-top:1px solid var(--border);background:#f8fafc;color:#334155;line-height:1.6;}
+.out-ok{color:var(--green);} .out-err{color:var(--red);}
+.out-table{border-collapse:collapse;width:100%;margin-top:8px;}
+.out-table th{background:#0f172a;color:#fff;padding:6px 12px;font-size:11px;text-align:left;font-family:'Sora',sans-serif;}
+.out-table td{padding:6px 12px;border-bottom:1px solid #e2e8f0;font-size:12px;}
+.out-table tr:nth-child(even) td{background:#f1f5f9;}
+
+/* STEPS */
+.steps{list-style:none;margin:16px 0;}
+.step{display:flex;gap:14px;margin-bottom:16px;}
+.step-n{width:28px;height:28px;background:var(--indigo);color:#fff;border-radius:50%;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.step-b{flex:1;}
+.step-b strong{font-weight:700;font-size:14px;display:block;margin-bottom:3px;}
+.step-b p{font-size:13.5px;color:#334155;line-height:1.6;}
+
+/* QUIZ */
+.quiz-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;}
+.quiz-q{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;line-height:1.4;}
+.quiz-opts{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.quiz-opt{padding:12px 16px;border:2px solid var(--border);border-radius:9px;cursor:pointer;font-size:14px;font-weight:500;transition:all .15s;display:flex;align-items:center;gap:10px;}
+.quiz-opt:hover{border-color:var(--teal);background:var(--teal-light);}
+.quiz-opt.correct{border-color:var(--green);background:var(--green-light);color:var(--green);}
+.quiz-opt.wrong{border-color:var(--red);background:var(--red-light);color:var(--red);}
+.opt-key{width:24px;height:24px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Sora',sans-serif;}
+.quiz-fb{display:none;padding:12px 16px;border-radius:9px;font-size:13.5px;line-height:1.5;margin-bottom:14px;}
+.quiz-fb.show{display:block;}
+.quiz-fb.correct{background:var(--green-light);color:#14532d;border-left:4px solid var(--green);}
+.quiz-fb.wrong{background:var(--red-light);color:#7f1d1d;border-left:4px solid var(--red);}
+.quiz-nav{display:flex;justify-content:space-between;align-items:center;}
+.quiz-score{font-family:'Sora',sans-serif;font-size:14px;color:var(--muted);}
+.quiz-btn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;background:var(--teal);color:#fff;transition:background .15s;}
+.quiz-btn:hover{background:var(--teal-dark);}
+.quiz-prog{font-size:12px;color:var(--muted);margin-bottom:16px;}
+
+/* COMPLETION */
+.done-card{text-align:center;padding:48px 32px;background:linear-gradient(135deg,var(--teal-light),var(--indigo-light));border-radius:16px;border:1px solid var(--border);margin-top:32px;}
+.done-card .trophy{font-size:56px;margin-bottom:12px;}
+.done-card h3{font-family:'Sora',sans-serif;font-size:24px;font-weight:800;margin-bottom:8px;}
+.done-card p{color:var(--muted);font-size:14px;max-width:380px;margin:0 auto 20px;}
+.done-btn{padding:12px 28px;background:linear-gradient(135deg,var(--teal),var(--indigo));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;}
+
+/* LIVE CALC */
+.live-calc{background:var(--surface);border:1.5px solid var(--teal);border-radius:12px;overflow:hidden;margin:20px 0;}
+.lc-head{background:var(--teal);padding:12px 18px;color:#fff;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.lc-body{padding:18px;}
+.lc-numbers{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.lc-num-tag{background:var(--teal-light);color:var(--teal-dark);padding:6px 12px;border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;}
+.lc-num-tag.null-tag{background:var(--border);color:var(--muted);font-style:italic;}
+.lc-results{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;}
+.lc-result{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:12px;text-align:center;}
+.lc-result .fn-name{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);font-weight:600;margin-bottom:4px;}
+.lc-result .fn-val{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:var(--indigo);}
+
+#confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;}
+@media(max-width:900px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;}.sec{padding:24px 20px 40px;}.grid2,.grid3{grid-template-columns:1fr;}.viz-tables{grid-template-columns:1fr;}.hvw-demo{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-head">
+    <div class="badge">SQL Mastery Course</div>
+    <h2>Chapter 9: Aggregations</h2>
+    <p>GROUP BY · HAVING · ROLLUP</p>
+  </div>
+  <div class="sb-prog">
+    <div class="prog-lbl"><span>Progress</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-lbl">Content</div>
+    <div class="nav-item active" data-sec="intro" onclick="showSec('intro',this)"><span>🏠</span> Introduction<span class="nav-chk" id="chk-intro"></span></div>
+    <div class="nav-item" data-sec="functions" onclick="showSec('functions',this)"><span>∑</span> Aggregate Functions<span class="nav-chk" id="chk-functions"></span></div>
+    <div class="nav-item" data-sec="nulls" onclick="showSec('nulls',this)"><span>∅</span> NULL Handling<span class="nav-chk" id="chk-nulls"></span></div>
+    <div class="nav-item" data-sec="groupby" onclick="showSec('groupby',this)"><span>📦</span> GROUP BY<span class="nav-chk" id="chk-groupby"></span></div>
+    <div class="nav-item" data-sec="having" onclick="showSec('having',this)"><span>🔍</span> HAVING Clause<span class="nav-chk" id="chk-having"></span></div>
+    <div class="nav-item" data-sec="order" onclick="showSec('order',this)"><span>↕️</span> ORDER BY + Aggregations<span class="nav-chk" id="chk-order"></span></div>
+    <div class="nav-item" data-sec="rollup" onclick="showSec('rollup',this)"><span>📊</span> ROLLUP & GROUPING SETS<span class="nav-chk" id="chk-rollup"></span></div>
+    <div class="nav-item" data-sec="realworld" onclick="showSec('realworld',this)"><span>🇮🇳</span> Real-World Examples<span class="nav-chk" id="chk-realworld"></span></div>
+    <div class="nav-item" data-sec="sandbox" onclick="showSec('sandbox',this)"><span>💻</span> Practice Sandbox<span class="nav-chk" id="chk-sandbox"></span></div>
+    <div class="nav-item" data-sec="quiz" onclick="showSec('quiz',this)"><span>🧠</span> Chapter Quiz<span class="nav-chk" id="chk-quiz"></span></div>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="tb-left">
+      <span class="ch-pill">Chapter 9</span>
+      <h1>Aggregations & GROUP BY</h1>
+    </div>
+    <div class="nb">
+      <button class="nbtn" onclick="prevSec()">← Prev</button>
+      <button class="nbtn pri" onclick="nextSec()">Next →</button>
+    </div>
+  </div>
+
+  <!-- ═══ INTRO ═══ -->
+  <section class="sec active" id="sec-intro">
+    <div class="hero">
+      <div class="eyebrow">Chapter 9 · Aggregations & GROUP BY</div>
+      <h2>From Thousands of Rows<br/>to Meaningful Summaries</h2>
+      <p>Aggregation functions collapse many rows into a single answer. GROUP BY lets you do that per group. Together, they power every dashboard, report, and business insight you'll ever build.</p>
+    </div>
+
+    <h2 class="sec-title">What is Aggregation?</h2>
+    <p class="sec-sub">Instead of looking at every row, aggregation <strong>summarises</strong> data. Instead of seeing 50,000 orders, you see <em>"Total orders in Mumbai: 12,400"</em>. That's aggregation.</p>
+
+    <div class="grid3">
+      <div class="ic"><div class="ic-icon">🔢</div><div class="ic-title">COUNT</div><div class="ic-desc">How many rows / values?</div><div class="ic-formula">COUNT(*)</div></div>
+      <div class="ic"><div class="ic-icon">➕</div><div class="ic-title">SUM</div><div class="ic-desc">Total of a numeric column</div><div class="ic-formula">SUM(amount)</div></div>
+      <div class="ic"><div class="ic-icon">📐</div><div class="ic-title">AVG</div><div class="ic-desc">Mean / average value</div><div class="ic-formula">AVG(score)</div></div>
+      <div class="ic"><div class="ic-icon">⬇️</div><div class="ic-title">MIN</div><div class="ic-desc">Smallest value in column</div><div class="ic-formula">MIN(price)</div></div>
+      <div class="ic"><div class="ic-icon">⬆️</div><div class="ic-title">MAX</div><div class="ic-desc">Largest value in column</div><div class="ic-formula">MAX(price)</div></div>
+      <div class="ic"><div class="ic-icon">🔗</div><div class="ic-title">GROUP_CONCAT</div><div class="ic-desc">Join values as a string</div><div class="ic-formula">GROUP_CONCAT(name)</div></div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">🎓</span>
+      <div><strong>Real-world analogy</strong>Imagine your teacher marks 40 students. Aggregation is how the school generates the <em>class report</em> — average score, highest mark, lowest mark, pass count. You don't need to see 40 rows; you need the summary.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 The ORDER SQL Executes (Important!)</div>
+      <p style="margin-bottom:12px">SQL doesn't run in the order you write it. Understanding this explains why HAVING exists:</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;">
+        <div style="background:#dbeafe;color:#1e3a5f;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">FROM</div>
+        <div style="color:var(--muted)">→</div>
+        <div style="background:#ede9fe;color:#3b0764;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">WHERE</div>
+        <div style="color:var(--muted)">→</div>
+        <div style="background:#dcfce7;color:#14532d;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">GROUP BY</div>
+        <div style="color:var(--muted)">→</div>
+        <div style="background:#fef3c7;color:#78350f;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">HAVING</div>
+        <div style="color:var(--muted)">→</div>
+        <div style="background:#fee2e2;color:#7f1d1d;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">SELECT</div>
+        <div style="color:var(--muted)">→</div>
+        <div style="background:#0f172a;color:#fff;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">ORDER BY</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FUNCTIONS ═══ -->
+  <section class="sec" id="sec-functions">
+    <h2 class="sec-title">∑ Aggregate Functions</h2>
+    <p class="sec-sub">Let's go deep on each function with real examples from HCL GUVI's learner database.</p>
+
+    <!-- LIVE CALC -->
+    <div class="live-calc">
+      <div class="lc-head">🔢 Live Calculator — See all functions in action on this dataset</div>
+      <div class="lc-body">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Scores of GUVI learners in a quiz (NULL = did not attempt):</p>
+        <div class="lc-numbers">
+          <span class="lc-num-tag">85</span><span class="lc-num-tag">92</span><span class="lc-num-tag">78</span>
+          <span class="lc-num-tag">NULL" class="null-tag">NULL</span><span class="lc-num-tag">65</span>
+          <span class="lc-num-tag">90</span><span class="lc-num-tag">NULL" class="null-tag">NULL</span>
+          <span class="lc-num-tag">88</span><span class="lc-num-tag">74</span><span class="lc-num-tag">95</span>
+        </div>
+        <div class="lc-results">
+          <div class="lc-result"><div class="fn-name">COUNT(*)</div><div class="fn-val">10</div><div style="font-size:11px;color:var(--muted)">all rows</div></div>
+          <div class="lc-result"><div class="fn-name">COUNT(score)</div><div class="fn-val">8</div><div style="font-size:11px;color:var(--muted)">non-NULL only</div></div>
+          <div class="lc-result"><div class="fn-name">SUM(score)</div><div class="fn-val">667</div><div style="font-size:11px;color:var(--muted)">ignores NULL</div></div>
+          <div class="lc-result"><div class="fn-name">AVG(score)</div><div class="fn-val">83.4</div><div style="font-size:11px;color:var(--muted)">667 ÷ 8</div></div>
+          <div class="lc-result"><div class="fn-name">MIN(score)</div><div class="fn-val">65</div><div style="font-size:11px;color:var(--muted)">lowest</div></div>
+          <div class="lc-result"><div class="fn-name">MAX(score)</div><div class="fn-val">95</div><div style="font-size:11px;color:var(--muted)">highest</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔢 COUNT(*) vs COUNT(column) — Key Difference</div>
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <div><strong>This is a very common interview question!</strong><br/>
+        <code>COUNT(*)</code> counts ALL rows including NULLs.<br/>
+        <code>COUNT(column)</code> counts only rows where that column is NOT NULL.
+        </div>
+      </div>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- How many students enrolled in GUVI?</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="op">*</span>)           <span class="kw">AS</span> total_rows,
+       <span class="fn">COUNT</span>(score)        <span class="kw">AS</span> students_who_attempted,
+       <span class="fn">COUNT</span>(<span class="fn">DISTINCT</span> city) <span class="kw">AS</span> unique_cities
+<span class="kw">FROM</span>   guvi_learners;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">➕ SUM() — Total Revenue</div>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- Total course fee collected by GUVI this month</span>
+<span class="kw">SELECT</span> <span class="fn">SUM</span>(fee_paid)         <span class="kw">AS</span> total_revenue,
+       <span class="fn">SUM</span>(fee_paid <span class="op">*</span> <span class="num">0.18</span>) <span class="kw">AS</span> gst_collected
+<span class="kw">FROM</span>   payments
+<span class="kw">WHERE</span>  payment_date <span class="kw">BETWEEN</span> <span class="str">'2024-06-01'</span> <span class="kw">AND</span> <span class="str">'2024-06-30'</span>;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📐 AVG() — Average Score by Batch</div>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- Average quiz score per batch (ignores NULL automatically)</span>
+<span class="kw">SELECT</span> batch_id,
+       <span class="fn">ROUND</span>(<span class="fn">AVG</span>(quiz_score), <span class="num">2</span>) <span class="kw">AS</span> avg_score
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">GROUP BY</span> batch_id
+<span class="kw">ORDER BY</span> avg_score <span class="kw">DESC</span>;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⬇️⬆️ MIN() and MAX()</div>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- Best and worst scores per course on Zomato platform</span>
+<span class="kw">SELECT</span> course_name,
+       <span class="fn">MIN</span>(rating)  <span class="kw">AS</span> lowest_rating,
+       <span class="fn">MAX</span>(rating)  <span class="kw">AS</span> highest_rating,
+       <span class="fn">MAX</span>(rating) <span class="op">-</span> <span class="fn">MIN</span>(rating) <span class="kw">AS</span> range_val
+<span class="kw">FROM</span>   course_reviews
+<span class="kw">GROUP BY</span> course_name;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔗 GROUP_CONCAT() / STRING_AGG() — Join Values</div>
+      <p style="margin-bottom:10px">Concatenates all values in a group into one string — great for showing a list per category.</p>
+      <div class="code-block"><span class="code-lbl">MySQL — GROUP_CONCAT</span><pre><span class="cm">-- List all students per batch as a comma-separated string</span>
+<span class="kw">SELECT</span> batch_id,
+       <span class="fn">GROUP_CONCAT</span>(student_name <span class="kw">ORDER BY</span> student_name <span class="kw">SEPARATOR</span> <span class="str">', '</span>)
+         <span class="kw">AS</span> student_list,
+       <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> total_students
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">GROUP BY</span> batch_id;</pre></div>
+      <div class="code-block"><span class="code-lbl">PostgreSQL — STRING_AGG</span><pre><span class="cm">-- Same in PostgreSQL</span>
+<span class="kw">SELECT</span> batch_id,
+       <span class="fn">STRING_AGG</span>(student_name, <span class="str">', '</span> <span class="kw">ORDER BY</span> student_name) <span class="kw">AS</span> student_list
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">GROUP BY</span> batch_id;</pre></div>
+    </div>
+  </section>
+
+  <!-- ═══ NULLS ═══ -->
+  <section class="sec" id="sec-nulls">
+    <h2 class="sec-title">∅ NULL Handling in Aggregations</h2>
+    <p class="sec-sub">NULLs behave in a specific (and sometimes surprising) way in aggregate functions. Getting this wrong leads to incorrect reports.</p>
+
+    <div class="callout danger">
+      <span class="callout-icon">🚨</span>
+      <div><strong>Golden Rule of NULLs in Aggregations</strong>All aggregate functions (SUM, AVG, MIN, MAX, COUNT(col)) <strong>skip NULL values</strong>. Only COUNT(*) includes them.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 Sample Data — GUVI Learners</div>
+      <table class="data-table">
+        <thead><tr><th>student_id</th><th>name</th><th>quiz_score</th><th>city</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Priya</td><td>85</td><td>Mumbai</td></tr>
+          <tr><td>2</td><td>Ravi</td><td class="null-cell">NULL</td><td>Delhi</td></tr>
+          <tr><td>3</td><td>Sneha</td><td>92</td><td>Chennai</td></tr>
+          <tr><td>4</td><td>Arjun</td><td class="null-cell">NULL</td><td>Mumbai</td></tr>
+          <tr><td>5</td><td>Meera</td><td>78</td><td>Pune</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🧮 What Each Function Returns with NULLs</div>
+      <table class="data-table">
+        <thead><tr><th>Function</th><th>Result</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td><code>COUNT(*)</code></td><td><strong>5</strong></td><td>Counts all rows</td></tr>
+          <tr><td><code>COUNT(quiz_score)</code></td><td><strong>3</strong></td><td>Only rows where quiz_score is not NULL</td></tr>
+          <tr><td><code>SUM(quiz_score)</code></td><td><strong>255</strong></td><td>85 + 92 + 78 (NULLs skipped)</td></tr>
+          <tr><td><code>AVG(quiz_score)</code></td><td><strong>85.0</strong></td><td>255 ÷ 3 (NOT 255 ÷ 5 !)</td></tr>
+          <tr><td><code>MIN(quiz_score)</code></td><td><strong>78</strong></td><td>Smallest non-NULL</td></tr>
+          <tr><td><code>MAX(quiz_score)</code></td><td><strong>92</strong></td><td>Largest non-NULL</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div><strong>AVG Trap!</strong>AVG(quiz_score) = 85, NOT 51 (255÷5). This means "students who did not attempt" are excluded from the average — which may or may not be what you want. Always clarify the business requirement.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🛠️ Handling NULLs Explicitly with COALESCE</div>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- Treat NULL scores as 0 in the average</span>
+<span class="kw">SELECT</span> <span class="fn">AVG</span>(<span class="fn">COALESCE</span>(quiz_score, <span class="num">0</span>)) <span class="kw">AS</span> avg_including_absent
+<span class="kw">FROM</span>   guvi_learners;
+<span class="cm">-- Result: (85+0+92+0+78)/5 = 51.0</span>
+
+<span class="cm">-- Count students who did NOT attempt</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">-</span> <span class="fn">COUNT</span>(quiz_score) <span class="kw">AS</span> absent_students
+<span class="kw">FROM</span>   guvi_learners;</pre></div>
+    </div>
+  </section>
+
+  <!-- ═══ GROUP BY ═══ -->
+  <section class="sec" id="sec-groupby">
+    <h2 class="sec-title">📦 GROUP BY — Single & Multiple Columns</h2>
+    <p class="sec-sub">GROUP BY collapses all rows with the same value in a column into a single group — then you apply an aggregate function to each group.</p>
+
+    <!-- SIGNATURE VISUALIZER -->
+    <div class="visualizer">
+      <div class="viz-header">
+        <div class="viz-title">✨ Interactive GROUP BY Visualizer — Watch rows collapse into groups</div>
+        <div class="viz-controls">
+          <select class="viz-select" id="agg-fn" onchange="updateViz()">
+            <option value="count">COUNT(*)</option>
+            <option value="sum">SUM(amount)</option>
+            <option value="avg">AVG(amount)</option>
+            <option value="max">MAX(amount)</option>
+          </select>
+        </div>
+      </div>
+      <div class="viz-body">
+        <div class="viz-tables">
+          <div>
+            <div class="viz-label">📋 Raw orders table (10 rows)</div>
+            <div class="viz-rows" id="viz-raw-rows"></div>
+          </div>
+          <div class="viz-arrow">⟹</div>
+          <div>
+            <div class="viz-label" id="viz-result-label">📊 After GROUP BY city</div>
+            <div class="viz-result" id="viz-results"></div>
+          </div>
+        </div>
+        <div class="viz-query-box" id="viz-query"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📖 GROUP BY Syntax</div>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="kw">SELECT</span>   group_column, <span class="fn">AGG_FUNCTION</span>(value_column)
+<span class="kw">FROM</span>     table_name
+<span class="kw">WHERE</span>    condition          <span class="cm">-- filter rows BEFORE grouping</span>
+<span class="kw">GROUP BY</span> group_column
+<span class="kw">ORDER BY</span> <span class="fn">AGG_FUNCTION</span>(value_column) <span class="kw">DESC</span>;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏙️ GROUP BY Single Column — Sales by City (Zomato)</div>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- Total orders and revenue per city</span>
+<span class="kw">SELECT</span>   city,
+         <span class="fn">COUNT</span>(<span class="op">*</span>)       <span class="kw">AS</span> total_orders,
+         <span class="fn">SUM</span>(amount)    <span class="kw">AS</span> total_revenue,
+         <span class="fn">AVG</span>(amount)    <span class="kw">AS</span> avg_order_value
+<span class="kw">FROM</span>     zomato_orders
+<span class="kw">WHERE</span>    order_date <span class="op">>=</span> <span class="str">'2024-01-01'</span>
+<span class="kw">GROUP BY</span> city
+<span class="kw">ORDER BY</span> total_revenue <span class="kw">DESC</span>;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📅 GROUP BY Multiple Columns — Monthly Sales by City</div>
+      <p style="margin-bottom:10px">You can group by more than one column — each unique combination becomes its own group.</p>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- Monthly sales by city — GROUP BY two columns</span>
+<span class="kw">SELECT</span>   city,
+         <span class="fn">MONTH</span>(order_date)  <span class="kw">AS</span> month,
+         <span class="fn">COUNT</span>(<span class="op">*</span>)           <span class="kw">AS</span> orders,
+         <span class="fn">SUM</span>(amount)        <span class="kw">AS</span> revenue
+<span class="kw">FROM</span>     zomato_orders
+<span class="kw">GROUP BY</span> city, <span class="fn">MONTH</span>(order_date)
+<span class="kw">ORDER BY</span> city, month;</pre></div>
+      <table class="data-table" style="margin-top:12px">
+        <thead><tr><th>city</th><th>month</th><th>orders</th><th>revenue</th></tr></thead>
+        <tbody>
+          <tr><td>Chennai</td><td>1</td><td>3,210</td><td>₹4,82,000</td></tr>
+          <tr><td>Chennai</td><td>2</td><td>2,950</td><td>₹4,31,000</td></tr>
+          <tr><td>Delhi</td><td>1</td><td>8,100</td><td>₹12,50,000</td></tr>
+          <tr><td>Delhi</td><td>2</td><td>7,800</td><td>₹11,90,000</td></tr>
+          <tr><td>Mumbai</td><td>1</td><td>11,200</td><td>₹18,30,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div><strong>Common Mistake!</strong>Every column in your SELECT that is NOT inside an aggregate function MUST appear in the GROUP BY clause. If you write <code>SELECT city, student_name, COUNT(*)</code> with <code>GROUP BY city</code> — that's an error! student_name must either be in GROUP BY or wrapped in an aggregate.</div>
+    </div>
+  </section>
+
+  <!-- ═══ HAVING ═══ -->
+  <section class="sec" id="sec-having">
+    <h2 class="sec-title">🔍 HAVING — Filter on Aggregated Results</h2>
+    <p class="sec-sub">WHERE filters individual rows before grouping. HAVING filters groups after aggregation. This is one of the most important distinctions in SQL.</p>
+
+    <div class="hvw-demo">
+      <div class="hvw-card">
+        <div class="hvw-card-head where-head">🔵 WHERE — filters ROWS (before grouping)</div>
+        <div class="hvw-card-body">
+          <p style="font-size:13px;color:#334155;margin-bottom:10px">Applied to individual rows. Cannot use aggregate functions here.</p>
+          <div class="code-block" style="margin:0"><pre><span class="kw">SELECT</span>   city, <span class="fn">COUNT</span>(<span class="op">*</span>)
+<span class="kw">FROM</span>     orders
+<span class="kw">WHERE</span>    amount <span class="op">></span> <span class="num">500</span>
+<span class="cm">-- ↑ filter rows first</span>
+<span class="kw">GROUP BY</span> city;</pre></div>
+        </div>
+      </div>
+      <div class="hvw-card">
+        <div class="hvw-card-head having-head">🟣 HAVING — filters GROUPS (after grouping)</div>
+        <div class="hvw-card-body">
+          <p style="font-size:13px;color:#334155;margin-bottom:10px">Applied to groups. Can use aggregate functions here.</p>
+          <div class="code-block" style="margin:0"><pre><span class="kw">SELECT</span>   city, <span class="fn">COUNT</span>(<span class="op">*</span>)
+<span class="kw">FROM</span>     orders
+<span class="kw">GROUP BY</span> city
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">></span> <span class="num">1000</span>
+<span class="cm">-- ↑ filter groups after</span></pre></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <div><strong>Memory trick 🧠</strong>"WHERE filters what goes IN. HAVING filters what comes OUT."<br/>WHERE → rows going into the group. HAVING → groups coming out of GROUP BY.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 HAVING vs WHERE — Quick Comparison</div>
+      <table class="data-table">
+        <thead><tr><th>Feature</th><th>WHERE</th><th>HAVING</th></tr></thead>
+        <tbody>
+          <tr><td>When it runs</td><td>Before GROUP BY</td><td>After GROUP BY</td></tr>
+          <tr><td>Works on</td><td>Individual rows</td><td>Aggregated groups</td></tr>
+          <tr><td>Can use aggregates?</td><td>❌ No</td><td>✅ Yes</td></tr>
+          <tr><td>Can use column names?</td><td>✅ Yes</td><td>✅ Yes</td></tr>
+          <tr><td>Example</td><td><code>WHERE amount > 500</code></td><td><code>HAVING COUNT(*) > 10</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏢 GUVI Example — Batches with Average Score above 75</div>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- Find batches where average quiz score exceeds 75</span>
+<span class="kw">SELECT</span>   batch_id,
+         <span class="fn">COUNT</span>(<span class="op">*</span>)                      <span class="kw">AS</span> learners,
+         <span class="fn">ROUND</span>(<span class="fn">AVG</span>(quiz_score), <span class="num">2</span>)    <span class="kw">AS</span> avg_score
+<span class="kw">FROM</span>     guvi_learners
+<span class="kw">WHERE</span>    quiz_score <span class="kw">IS NOT NULL</span>      <span class="cm">-- remove absent students first</span>
+<span class="kw">GROUP BY</span> batch_id
+<span class="kw">HAVING</span>   <span class="fn">AVG</span>(quiz_score) <span class="op">></span> <span class="num">75</span>      <span class="cm">-- filter groups by their avg</span>
+<span class="kw">ORDER BY</span> avg_score <span class="kw">DESC</span>;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🚂 IRCTC Example — Popular Routes</div>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- Routes with more than 500 bookings and avg ticket > ₹800</span>
+<span class="kw">SELECT</span>   source_city,
+         destination_city,
+         <span class="fn">COUNT</span>(<span class="op">*</span>)         <span class="kw">AS</span> total_bookings,
+         <span class="fn">AVG</span>(ticket_price) <span class="kw">AS</span> avg_price
+<span class="kw">FROM</span>     irctc_bookings
+<span class="kw">WHERE</span>    booking_date <span class="op">>=</span> <span class="str">'2024-01-01'</span>
+<span class="kw">GROUP BY</span> source_city, destination_city
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">></span> <span class="num">500</span>
+   <span class="kw">AND</span>   <span class="fn">AVG</span>(ticket_price) <span class="op">></span> <span class="num">800</span>
+<span class="kw">ORDER BY</span> total_bookings <span class="kw">DESC</span>;</pre></div>
+    </div>
+  </section>
+
+  <!-- ═══ ORDER ═══ -->
+  <section class="sec" id="sec-order">
+    <h2 class="sec-title">↕️ ORDER BY with Aggregations</h2>
+    <p class="sec-sub">You can sort by aggregate function results directly — extremely useful for finding top-performers, highest sales, worst-rated, etc.</p>
+
+    <div class="card">
+      <div class="card-title">📊 Sorting by Aggregate Functions</div>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- Top 5 cities by total Zomato revenue</span>
+<span class="kw">SELECT</span>   city,
+         <span class="fn">COUNT</span>(<span class="op">*</span>)    <span class="kw">AS</span> orders,
+         <span class="fn">SUM</span>(amount) <span class="kw">AS</span> revenue
+<span class="kw">FROM</span>     zomato_orders
+<span class="kw">GROUP BY</span> city
+<span class="kw">ORDER BY</span> <span class="fn">SUM</span>(amount) <span class="kw">DESC</span>
+<span class="kw">LIMIT</span>    <span class="num">5</span>;</pre></div>
+
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- You can also ORDER BY alias (works in MySQL/PostgreSQL)</span>
+<span class="kw">SELECT</span>   city,
+         <span class="fn">SUM</span>(amount) <span class="kw">AS</span> revenue
+<span class="kw">FROM</span>     zomato_orders
+<span class="kw">GROUP BY</span> city
+<span class="kw">ORDER BY</span> revenue <span class="kw">DESC</span>;  <span class="cm">-- alias works here!</span></pre></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏫 GUVI — Learner Completion Rate (Sorted)</div>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- Completion rate per batch, best first</span>
+<span class="kw">SELECT</span>
+  batch_id,
+  <span class="fn">COUNT</span>(<span class="op">*</span>)                                     <span class="kw">AS</span> total_learners,
+  <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> completed <span class="op">=</span> <span class="str">'Y'</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> completed_count,
+  <span class="fn">ROUND</span>(
+    <span class="num">100.0</span> <span class="op">*</span> <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> completed <span class="op">=</span> <span class="str">'Y'</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="op">/</span> <span class="fn">COUNT</span>(<span class="op">*</span>),
+    <span class="num">1</span>
+  )                                              <span class="kw">AS</span> completion_pct
+<span class="kw">FROM</span>     guvi_learners
+<span class="kw">GROUP BY</span> batch_id
+<span class="kw">ORDER BY</span> completion_pct <span class="kw">DESC</span>;</pre></div>
+    </div>
+
+    <div class="callout success">
+      <span class="callout-icon">✅</span>
+      <div><strong>CASE WHEN inside SUM — a powerful pattern!</strong><code>SUM(CASE WHEN condition THEN 1 ELSE 0 END)</code> counts rows matching a condition. This is how you calculate counts for specific values without a subquery.</div>
+    </div>
+  </section>
+
+  <!-- ═══ ROLLUP ═══ -->
+  <section class="sec" id="sec-rollup">
+    <h2 class="sec-title">📊 ROLLUP & GROUPING SETS</h2>
+    <p class="sec-sub">ROLLUP automatically adds subtotals and a grand total row to your GROUP BY results — perfect for financial and analytics reports.</p>
+
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div><strong>What is ROLLUP?</strong>Imagine GROUP BY gives you sales per city per month. ROLLUP additionally gives you:<br/>
+        → Total sales per city (across all months)<br/>
+        → Grand total (across all cities and months)
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 ROLLUP Syntax</div>
+      <div class="code-block"><span class="code-lbl">MySQL / PostgreSQL</span><pre><span class="kw">SELECT</span>   city, <span class="fn">MONTH</span>(order_date) <span class="kw">AS</span> month, <span class="fn">SUM</span>(amount) <span class="kw">AS</span> revenue
+<span class="kw">FROM</span>     zomato_orders
+<span class="kw">GROUP BY</span> city, <span class="fn">MONTH</span>(order_date) <span class="kw">WITH ROLLUP</span>;
+<span class="cm">-- MySQL syntax: WITH ROLLUP at end of GROUP BY</span>
+
+<span class="cm">-- PostgreSQL syntax:</span>
+<span class="kw">GROUP BY</span> <span class="fn">ROLLUP</span>(city, <span class="fn">MONTH</span>(order_date));</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 ROLLUP Output — Zomato Monthly Sales</div>
+      <p style="margin-bottom:12px">Notice how NULL in the result means "total for that level":</p>
+      <table class="rollup-table">
+        <thead><tr><th>city</th><th>month</th><th>revenue</th><th>meaning</th></tr></thead>
+        <tbody>
+          <tr><td>Mumbai</td><td>1</td><td>₹18,30,000</td><td>Mumbai, January</td></tr>
+          <tr><td>Mumbai</td><td>2</td><td>₹16,50,000</td><td>Mumbai, February</td></tr>
+          <tr class="subtotal-row"><td>Mumbai</td><td class="null-grp">NULL</td><td>₹34,80,000</td><td>↑ Mumbai subtotal</td></tr>
+          <tr><td>Delhi</td><td>1</td><td>₹12,50,000</td><td>Delhi, January</td></tr>
+          <tr><td>Delhi</td><td>2</td><td>₹11,90,000</td><td>Delhi, February</td></tr>
+          <tr class="subtotal-row"><td>Delhi</td><td class="null-grp">NULL</td><td>₹24,40,000</td><td>↑ Delhi subtotal</td></tr>
+          <tr class="grandtotal-row"><td class="null-grp">NULL</td><td class="null-grp">NULL</td><td>₹59,20,000</td><td>↑ GRAND TOTAL</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔍 Use GROUPING() to Label NULL vs Actual NULL</div>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- GROUPING() returns 1 if NULL came from ROLLUP, 0 if real NULL</span>
+<span class="kw">SELECT</span>
+  <span class="kw">CASE WHEN</span> <span class="fn">GROUPING</span>(city) <span class="op">=</span> <span class="num">1</span> <span class="kw">THEN</span> <span class="str">'ALL CITIES'</span> <span class="kw">ELSE</span> city <span class="kw">END</span> <span class="kw">AS</span> city,
+  <span class="kw">CASE WHEN</span> <span class="fn">GROUPING</span>(month) <span class="op">=</span> <span class="num">1</span> <span class="kw">THEN</span> <span class="str">'ALL MONTHS'</span> <span class="kw">ELSE</span> <span class="fn">CAST</span>(month <span class="kw">AS</span> <span class="kw">CHAR</span>) <span class="kw">END</span> <span class="kw">AS</span> month,
+  <span class="fn">SUM</span>(amount) <span class="kw">AS</span> revenue
+<span class="kw">FROM</span>     zomato_orders
+<span class="kw">GROUP BY</span> city, month <span class="kw">WITH ROLLUP</span>;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🧩 GROUPING SETS — Custom Grouping Combinations</div>
+      <p style="margin-bottom:10px">GROUPING SETS lets you define exactly which combinations you want — more flexible than ROLLUP.</p>
+      <div class="code-block"><span class="code-lbl">PostgreSQL / SQL Standard</span><pre><span class="cm">-- Get totals by (city, month), by city alone, and grand total</span>
+<span class="kw">SELECT</span>   city, month, <span class="fn">SUM</span>(amount)
+<span class="kw">FROM</span>     zomato_orders
+<span class="kw">GROUP BY</span> <span class="fn">GROUPING SETS</span> (
+  (city, month),  <span class="cm">-- group by both</span>
+  (city),         <span class="cm">-- group by city only</span>
+  ()              <span class="cm">-- grand total</span>
+);</pre></div>
+    </div>
+
+    <div class="callout purple">
+      <span class="callout-icon">🎯</span>
+      <div><strong>When to use what?</strong><br/>
+        <strong>ROLLUP</strong> → hierarchical data (year → month → day, country → city → branch)<br/>
+        <strong>GROUPING SETS</strong> → custom combinations (want city total but NOT month total)
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ REAL WORLD ═══ -->
+  <section class="sec" id="sec-realworld">
+    <h2 class="sec-title">🇮🇳 Real-World Examples</h2>
+    <p class="sec-sub">Three complete case studies: monthly sales by city, average score by batch, and learner completion rates — all using Indian datasets.</p>
+
+    <div class="card">
+      <div class="card-title">🍕 Case 1 — Monthly Sales by City (Zomato)</div>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- Monthly order summary by city</span>
+<span class="kw">SELECT</span>
+  city,
+  <span class="fn">MONTHNAME</span>(order_date)       <span class="kw">AS</span> month_name,
+  <span class="fn">COUNT</span>(<span class="op">*</span>)                   <span class="kw">AS</span> total_orders,
+  <span class="fn">SUM</span>(amount)               <span class="kw">AS</span> total_revenue,
+  <span class="fn">ROUND</span>(<span class="fn">AVG</span>(amount), <span class="num">2</span>)     <span class="kw">AS</span> avg_order_value,
+  <span class="fn">MAX</span>(amount)               <span class="kw">AS</span> largest_order
+<span class="kw">FROM</span>   zomato_orders
+<span class="kw">WHERE</span>  <span class="fn">YEAR</span>(order_date) <span class="op">=</span> <span class="num">2024</span>
+<span class="kw">GROUP BY</span> city, <span class="fn">MONTHNAME</span>(order_date), <span class="fn">MONTH</span>(order_date)
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">></span> <span class="num">100</span>
+<span class="kw">ORDER BY</span> city, <span class="fn">MONTH</span>(order_date);</pre></div>
+      <table class="data-table" style="margin-top:12px">
+        <thead><tr><th>city</th><th>month</th><th>orders</th><th>revenue</th><th>avg value</th></tr></thead>
+        <tbody>
+          <tr><td>Bangalore</td><td>January</td><td>9,840</td><td>₹14,76,000</td><td>₹150</td></tr>
+          <tr><td>Bangalore</td><td>February</td><td>8,920</td><td>₹13,38,000</td><td>₹150</td></tr>
+          <tr><td>Chennai</td><td>January</td><td>3,210</td><td>₹4,82,000</td><td>₹150</td></tr>
+          <tr><td>Mumbai</td><td>January</td><td>11,200</td><td>₹18,30,000</td><td>₹163</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📚 Case 2 — Average Score by Batch (GUVI)</div>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- Performance report per batch — only batches with 10+ learners</span>
+<span class="kw">SELECT</span>
+  batch_id,
+  <span class="fn">COUNT</span>(<span class="op">*</span>)                    <span class="kw">AS</span> total_learners,
+  <span class="fn">COUNT</span>(quiz_score)           <span class="kw">AS</span> attempted,
+  <span class="fn">ROUND</span>(<span class="fn">AVG</span>(quiz_score), <span class="num">1</span>)  <span class="kw">AS</span> avg_score,
+  <span class="fn">MIN</span>(quiz_score)             <span class="kw">AS</span> lowest,
+  <span class="fn">MAX</span>(quiz_score)             <span class="kw">AS</span> highest,
+  <span class="fn">GROUP_CONCAT</span>(
+    <span class="kw">CASE WHEN</span> quiz_score <span class="op">>=</span> <span class="num">90</span>
+    <span class="kw">THEN</span> student_name <span class="kw">END</span>
+    <span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>
+    <span class="kw">SEPARATOR</span> <span class="str">', '</span>
+  )                           <span class="kw">AS</span> top_scorers
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">GROUP BY</span> batch_id
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">>=</span> <span class="num">10</span>
+<span class="kw">ORDER BY</span> avg_score <span class="kw">DESC</span>;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📈 Case 3 — Learner Completion Rates (GUVI)</div>
+      <div class="code-block"><span class="code-lbl">SQL</span><pre><span class="cm">-- Course completion rates — with HAVING to flag struggling batches</span>
+<span class="kw">SELECT</span>
+  course_name,
+  batch_id,
+  <span class="fn">COUNT</span>(<span class="op">*</span>)                                        <span class="kw">AS</span> enrolled,
+  <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> status <span class="op">=</span> <span class="str">'Completed'</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> completed,
+  <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> status <span class="op">=</span> <span class="str">'Dropped'</span>   <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> dropped,
+  <span class="fn">ROUND</span>(
+    <span class="num">100.0</span> <span class="op">*</span> <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> status <span class="op">=</span> <span class="str">'Completed'</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>)
+    <span class="op">/</span> <span class="fn">COUNT</span>(<span class="op">*</span>), <span class="num">1</span>
+  )                                                <span class="kw">AS</span> completion_pct
+<span class="kw">FROM</span>   guvi_enrollments
+<span class="kw">GROUP BY</span> course_name, batch_id
+<span class="kw">HAVING</span>   completion_pct <span class="op"><</span> <span class="num">60</span>       <span class="cm">-- flag batches needing attention</span>
+<span class="kw">ORDER BY</span> completion_pct <span class="kw">ASC</span>;       <span class="cm">-- worst first</span></pre></div>
+    </div>
+  </section>
+
+  <!-- ═══ SANDBOX ═══ -->
+  <section class="sec" id="sec-sandbox">
+    <h2 class="sec-title">💻 Practice Sandbox</h2>
+    <p class="sec-sub">Write aggregation queries and see realistic results. The sandbox recognises patterns and returns meaningful output.</p>
+
+    <div class="sandbox">
+      <div class="sb-hdr">
+        <div class="sb-title"><span>🖥️</span> SQL Sandbox — Aggregations Practice</div>
+        <div class="sb-actions">
+          <button class="sb-btn clr" onclick="clearSB()">Clear</button>
+          <button class="sb-btn run" onclick="runSB()">▶ Run</button>
+        </div>
+      </div>
+      <textarea class="sb-editor" id="sb-editor" spellcheck="false" placeholder="-- Try aggregation queries here!
+-- Examples:
+-- SELECT city, COUNT(*) AS orders FROM zomato_orders GROUP BY city;
+-- SELECT batch_id, AVG(quiz_score) FROM guvi_learners GROUP BY batch_id HAVING AVG(quiz_score) > 75;
+-- SELECT city, SUM(amount) FROM zomato_orders GROUP BY city ORDER BY SUM(amount) DESC LIMIT 5;
+-- SELECT COUNT(*), COUNT(quiz_score), AVG(quiz_score) FROM guvi_learners;
+"></textarea>
+      <div class="sb-out" id="sb-out"><span style="color:var(--muted);font-size:12px">▶ Output will appear here after clicking Run</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📝 Practice Challenges</div>
+      <ul class="steps">
+        <li class="step"><div class="step-n">1</div><div class="step-b"><strong>Basic COUNT</strong><p>Count total students in guvi_learners. Then count only those who have a quiz_score (not NULL).</p></div></li>
+        <li class="step"><div class="step-n">2</div><div class="step-b"><strong>GROUP BY city</strong><p>Find total revenue (SUM) and number of orders (COUNT) per city from zomato_orders. Sort by revenue descending.</p></div></li>
+        <li class="step"><div class="step-n">3</div><div class="step-b"><strong>HAVING filter</strong><p>Find batches from guvi_learners where the average score is above 75 and at least 5 students are in the batch.</p></div></li>
+        <li class="step"><div class="step-n">4</div><div class="step-b"><strong>Multiple GROUP BY</strong><p>Get monthly revenue by city for zomato_orders where month is in 2024. Group by city AND month.</p></div></li>
+        <li class="step"><div class="step-n">5</div><div class="step-b"><strong>ROLLUP</strong><p>Run the monthly city sales query WITH ROLLUP to see subtotals per city and a grand total.</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══ QUIZ ═══ -->
+  <section class="sec" id="sec-quiz">
+    <h2 class="sec-title">🧠 Chapter 9 Quiz</h2>
+    <p class="sec-sub">Test your understanding of aggregations, GROUP BY, HAVING, and ROLLUP.</p>
+
+    <div class="quiz-wrap">
+      <div class="quiz-prog" id="quiz-prog">Question 1 of 8</div>
+      <div class="quiz-q" id="quiz-q"></div>
+      <ul class="quiz-opts" id="quiz-opts"></ul>
+      <div class="quiz-fb" id="quiz-fb"></div>
+      <div class="quiz-nav">
+        <span class="quiz-score" id="quiz-score">Score: 0 / 0</span>
+        <button class="quiz-btn" id="quiz-next" onclick="nextQ()" style="display:none">Next Question →</button>
+      </div>
+    </div>
+
+    <div class="done-card" id="done-card" style="display:none">
+      <div class="trophy">🏆</div>
+      <h3 id="done-title">Chapter Complete!</h3>
+      <p id="done-msg">You've mastered Aggregations & GROUP BY — the backbone of every SQL report!</p>
+      <button class="done-btn" onclick="doConfetti()">🎉 Celebrate!</button>
+    </div>
+  </section>
+</main>
+
+<script>
+// ── NAV ──
+const SECS = ['intro','functions','nulls','groupby','having','order','rollup','realworld','sandbox','quiz'];
+let curIdx = 0;
+const doneSet = new Set();
+
+function showSec(id, el) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  curIdx = SECS.indexOf(id);
+  window.scrollTo(0, 0);
+}
+function nextSec() {
+  if (curIdx < SECS.length - 1) {
+    markDone(SECS[curIdx]);
+    const next = SECS[curIdx + 1];
+    showSec(next, document.querySelector(`[data-sec="${next}"]`));
+  }
+}
+function prevSec() {
+  if (curIdx > 0) {
+    const prev = SECS[curIdx - 1];
+    showSec(prev, document.querySelector(`[data-sec="${prev}"]`));
+  }
+}
+function markDone(id) {
+  doneSet.add(id);
+  const chk = document.getElementById('chk-' + id);
+  if (chk) chk.textContent = '✓';
+  const ni = document.querySelector(`[data-sec="${id}"]`);
+  if (ni) ni.classList.add('done');
+  const pct = Math.round((doneSet.size / SECS.length) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+}
+
+// ── GROUP BY VISUALIZER ──
+const rawData = [
+  {city:'Mumbai', amount:320, cls:'city-mumbai'},
+  {city:'Delhi',  amount:180, cls:'city-delhi'},
+  {city:'Mumbai', amount:450, cls:'city-mumbai'},
+  {city:'Chennai',amount:290, cls:'city-chennai'},
+  {city:'Delhi',  amount:210, cls:'city-delhi'},
+  {city:'Pune',   amount:150, cls:'city-pune'},
+  {city:'Mumbai', amount:380, cls:'city-mumbai'},
+  {city:'Chennai',amount:330, cls:'city-chennai'},
+  {city:'Pune',   amount:200, cls:'city-pune'},
+  {city:'Delhi',  amount:260, cls:'city-delhi'},
+];
+
+const agg = {
+  count: { fn: rows => rows.length, label: 'COUNT(*)', unit: 'orders' },
+  sum:   { fn: rows => rows.reduce((a,r) => a+r.amount,0), label: 'SUM(amount)', unit: '₹' },
+  avg:   { fn: rows => Math.round(rows.reduce((a,r)=>a+r.amount,0)/rows.length), label: 'AVG(amount)', unit: '₹' },
+  max:   { fn: rows => Math.max(...rows.map(r=>r.amount)), label: 'MAX(amount)', unit: '₹' },
+};
+
+function updateViz() {
+  const fn = document.getElementById('agg-fn').value;
+  const a = agg[fn];
+  const rawDiv = document.getElementById('viz-raw-rows');
+  rawDiv.innerHTML = rawData.map(r =>
+    `<div class="viz-row ${r.cls}"><strong>${r.city}</strong><span style="margin-left:auto;font-size:11px">₹${r.amount}</span></div>`
+  ).join('');
+
+  const groups = {};
+  rawData.forEach(r => { if (!groups[r.city]) groups[r.city] = {rows:[],cls:r.cls}; groups[r.city].rows.push(r); });
+  const resDiv = document.getElementById('viz-results');
+  resDiv.innerHTML = Object.entries(groups).map(([city, g]) => {
+    const val = a.fn(g.rows);
+    return `<div class="viz-result-row ${g.cls}">
+      <strong>${city}</strong>
+      <span style="margin-left:auto">${a.unit === '₹' ? '₹' : ''}${val} ${a.unit === 'orders' ? a.unit : ''}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('viz-query').innerHTML =
+    `<span style="color:#7dd3fc">SELECT</span>   city, <span style="color:#a5f3fc">${a.label}</span> AS result\n<span style="color:#7dd3fc">FROM</span>     zomato_orders\n<span style="color:#7dd3fc">GROUP BY</span> city;`;
+  document.getElementById('viz-result-label').textContent = `📊 After GROUP BY city — ${a.label}`;
+}
+updateViz();
+
+// ── SANDBOX ──
+const sbPatterns = [
+  { re: /count\(\*\).*count\(quiz_score\)/is, result: () => `<table class="out-table"><tr><th>COUNT(*)</th><th>COUNT(quiz_score)</th><th>AVG(quiz_score)</th></tr><tr><td>847</td><td>721</td><td>79.4</td></tr></table>` },
+  { re: /group by city.*order by/is, result: () => `<table class="out-table"><tr><th>city</th><th>total_orders</th><th>total_revenue</th></tr><tr><td>Mumbai</td><td>11,200</td><td>₹18,30,000</td></tr><tr><td>Delhi</td><td>8,100</td><td>₹12,50,000</td></tr><tr><td>Bangalore</td><td>9,840</td><td>₹14,76,000</td></tr><tr><td>Chennai</td><td>3,210</td><td>₹4,82,000</td></tr><tr><td>Pune</td><td>2,800</td><td>₹4,20,000</td></tr></table>` },
+  { re: /group by city/is, result: () => `<table class="out-table"><tr><th>city</th><th>result</th></tr><tr><td>Mumbai</td><td>11,200</td></tr><tr><td>Delhi</td><td>8,100</td></tr><tr><td>Bangalore</td><td>9,840</td></tr><tr><td>Chennai</td><td>3,210</td></tr><tr><td>Pune</td><td>2,800</td></tr></table>` },
+  { re: /having.*avg.*>\s*75/is, result: () => `<table class="out-table"><tr><th>batch_id</th><th>avg_score</th><th>learners</th></tr><tr><td>AIML-B34</td><td>84.2</td><td>42</td></tr><tr><td>AIML-B37</td><td>81.6</td><td>38</td></tr><tr><td>DS-B12</td><td>78.9</td><td>35</td></tr></table>` },
+  { re: /having/is, result: () => `<table class="out-table"><tr><th>batch_id</th><th>count</th><th>avg_score</th></tr><tr><td>AIML-B34</td><td>42</td><td>84.2</td></tr><tr><td>AIML-B37</td><td>38</td><td>81.6</td></tr></table>` },
+  { re: /with rollup/is, result: () => `<table class="out-table"><tr><th>city</th><th>month</th><th>revenue</th></tr><tr><td>Mumbai</td><td>1</td><td>₹18,30,000</td></tr><tr><td>Mumbai</td><td>NULL (subtotal)</td><td>₹34,80,000</td></tr><tr><td>Delhi</td><td>1</td><td>₹12,50,000</td></tr><tr><td>Delhi</td><td>NULL (subtotal)</td><td>₹24,40,000</td></tr><tr style="background:#4f46e5;color:#fff"><td>NULL (grand total)</td><td>NULL</td><td>₹59,20,000</td></tr></table>` },
+  { re: /group by.*month/is, result: () => `<table class="out-table"><tr><th>city</th><th>month</th><th>orders</th><th>revenue</th></tr><tr><td>Bangalore</td><td>January</td><td>9,840</td><td>₹14,76,000</td></tr><tr><td>Mumbai</td><td>January</td><td>11,200</td><td>₹18,30,000</td></tr><tr><td>Delhi</td><td>January</td><td>8,100</td><td>₹12,50,000</td></tr></table>` },
+  { re: /count|sum|avg|min|max/is, result: () => `<table class="out-table"><tr><th>COUNT(*)</th><th>SUM(amount)</th><th>AVG(amount)</th><th>MIN(amount)</th><th>MAX(amount)</th></tr><tr><td>49,350</td><td>₹74,02,500</td><td>₹150.1</td><td>₹50</td><td>₹2,400</td></tr></table>` },
+];
+
+function runSB() {
+  const sql = document.getElementById('sb-editor').value.trim();
+  const out = document.getElementById('sb-out');
+  if (!sql) { out.innerHTML = '<span style="color:var(--muted)">⚠️ Enter a SQL query first.</span>'; return; }
+  for (const p of sbPatterns) {
+    if (p.re.test(sql)) { out.innerHTML = '<span class="out-ok">✓ Query OK</span>' + p.result(); return; }
+  }
+  out.innerHTML = '<span class="out-ok">✓ Query OK, 0 rows returned — try a query with COUNT, SUM, AVG, GROUP BY!</span>';
+}
+function clearSB() {
+  document.getElementById('sb-editor').value = '';
+  document.getElementById('sb-out').innerHTML = '<span style="color:var(--muted);font-size:12px">▶ Output will appear here after clicking Run</span>';
+}
+
+// ── QUIZ ──
+const Qs = [
+  { q:"What is the difference between COUNT(*) and COUNT(column)?", opts:["No difference — they are the same","COUNT(*) counts all rows including NULLs; COUNT(column) counts only non-NULL values","COUNT(*) is faster; COUNT(column) is more accurate","COUNT(column) counts all rows; COUNT(*) skips NULLs"], ans:1, exp:"COUNT(*) counts every row. COUNT(column) only counts rows where that column has a value (not NULL). This is a very common interview question!" },
+  { q:"You want to find batches with an average score above 80. Which clause do you use?", opts:["WHERE AVG(score) > 80","FILTER AVG(score) > 80","HAVING AVG(score) > 80","GROUP FILTER AVG(score) > 80"], ans:2, exp:"HAVING is used to filter on aggregated results (after GROUP BY). WHERE runs before grouping and cannot use aggregate functions." },
+  { q:"In what ORDER does SQL actually execute these clauses?", opts:["SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY","FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY","WHERE → FROM → GROUP BY → SELECT → HAVING → ORDER BY","FROM → GROUP BY → WHERE → HAVING → SELECT → ORDER BY"], ans:1, exp:"SQL execution order: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY. This is why you can't use SELECT aliases in WHERE, but can use them in ORDER BY." },
+  { q:"Table has scores: 85, NULL, 92, NULL, 78. What does AVG(score) return?", opts:["71.0 (sum÷5)","85.0 (sum÷3)","NULL (because NULLs exist)","83.67 (average of 85,92,78 = 255÷3)"], ans:3, exp:"AVG ignores NULLs. So AVG(score) = (85+92+78)/3 = 255/3 = 85.0. Only the 3 non-NULL values are used." },
+  { q:"Which statement is INVALID in SQL?", opts:["SELECT city, COUNT(*) FROM orders GROUP BY city","SELECT city, SUM(amount) FROM orders GROUP BY city HAVING SUM(amount) > 10000","SELECT city, student_name, COUNT(*) FROM orders GROUP BY city","SELECT city FROM orders GROUP BY city ORDER BY COUNT(*) DESC"], ans:2, exp:"student_name is not in an aggregate function AND not in the GROUP BY clause — this is invalid. Every non-aggregated column in SELECT must appear in GROUP BY." },
+  { q:"What does GROUP BY city, MONTH(order_date) WITH ROLLUP add to your results?", opts:["Only a grand total row","Subtotals per city and a grand total row","Only subtotals per city","It removes duplicates from the results"], ans:1, exp:"ROLLUP adds a subtotal row for each group (per city, across all months) and a final grand total row (across all cities and months). NULLs in the result indicate these rollup rows." },
+  { q:"What does GROUP_CONCAT() do?", opts:["Groups rows by a value and counts them","Concatenates column values from multiple rows into one comma-separated string","Sums up all values in a group","Finds the group with the maximum count"], ans:1, exp:"GROUP_CONCAT() (MySQL) / STRING_AGG() (PostgreSQL) joins values from multiple rows in a group into a single string — great for listing names, tags, or IDs per group." },
+  { q:"You want the top 3 cities by total revenue. What goes at the end of your query?", opts:["HAVING revenue > 10000 LIMIT 3","ORDER BY SUM(amount) DESC LIMIT 3","GROUP BY revenue LIMIT 3","FILTER BY revenue TOP 3"], ans:1, exp:"ORDER BY SUM(amount) DESC sorts highest revenue first, then LIMIT 3 takes only the top 3. This is the standard pattern for 'top N' queries with aggregations." },
+];
+
+let qIdx=0, score=0, answered=false;
+
+function renderQ() {
+  const q = Qs[qIdx];
+  document.getElementById('quiz-prog').textContent = `Question ${qIdx+1} of ${Qs.length}`;
+  document.getElementById('quiz-q').textContent = q.q;
+  document.getElementById('quiz-opts').innerHTML = q.opts.map((o,i)=>
+    `<li class="quiz-opt" onclick="selOpt(${i})" id="qopt-${i}">
+      <span class="opt-key">${String.fromCharCode(65+i)}</span>${o}
+    </li>`).join('');
+  document.getElementById('quiz-fb').className='quiz-fb';
+  document.getElementById('quiz-fb').innerHTML='';
+  document.getElementById('quiz-next').style.display='none';
+  document.getElementById('quiz-score').textContent=`Score: ${score} / ${qIdx}`;
+  answered=false;
+}
+
+function selOpt(i) {
+  if (answered) return;
+  answered=true;
+  const q=Qs[qIdx];
+  document.querySelectorAll('.quiz-opt').forEach((o,j)=>{
+    if (j===q.ans) o.classList.add('correct');
+    else if (j===i) o.classList.add('wrong');
+  });
+  if (i===q.ans) score++;
+  const fb=document.getElementById('quiz-fb');
+  fb.className=`quiz-fb show ${i===q.ans?'correct':'wrong'}`;
+  fb.innerHTML=`<strong>${i===q.ans?'✅ Correct!':'❌ Not quite.'}</strong> ${q.exp}`;
+  document.getElementById('quiz-score').textContent=`Score: ${score} / ${qIdx+1}`;
+  const nb=document.getElementById('quiz-next');
+  nb.style.display='inline-block';
+  nb.textContent=qIdx<Qs.length-1?'Next Question →':'See Results 🎉';
+}
+
+function nextQ() {
+  qIdx++;
+  if (qIdx<Qs.length) renderQ();
+  else showResults();
+}
+
+function showResults() {
+  document.querySelector('.quiz-wrap').style.display='none';
+  const dc=document.getElementById('done-card');
+  dc.style.display='block';
+  const pct=Math.round((score/Qs.length)*100);
+  document.getElementById('done-title').textContent=pct>=80?'🎉 Aggregation Master!':pct>=60?'👍 Good Work!':'💪 Keep Practicing!';
+  document.getElementById('done-msg').textContent=`You scored ${score} out of ${Qs.length} (${pct}%). ${pct>=80?'You can now write any GROUP BY report with confidence!':'Review HAVING vs WHERE and NULL handling — key concepts!'}`;
+  markDone('quiz');
+  if (pct>=70) doConfetti();
+}
+
+renderQ();
+
+// ── CONFETTI ──
+function doConfetti() {
+  const canvas=document.getElementById('confetti-canvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  const colors=['#0d9488','#4f46e5','#2563eb','#d97706','#16a34a','#7c3aed','#ea580c'];
+  const pieces=Array.from({length:130},()=>({
+    x:Math.random()*canvas.width, y:Math.random()*canvas.height-canvas.height,
+    r:Math.random()*9+4, color:colors[Math.floor(Math.random()*colors.length)],
+    tilt:Math.random()*10-10, speed:Math.random()*3+1.5
+  }));
+  let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p=>{
+      ctx.beginPath();ctx.ellipse(p.x,p.y,p.r,p.r/2,p.tilt,0,Math.PI*2);
+      ctx.fillStyle=p.color;ctx.fill();
+      p.y+=p.speed; p.x+=Math.sin(frame/18)*1.5; p.tilt+=0.08;
+      if(p.y>canvas.height){p.y=-10;p.x=Math.random()*canvas.width;}
+    });
+    frame++;
+    if(frame<220) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  draw();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 10 — SQL Joins | SQL Mastery Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --teal:#0d9488;--tl:#ccfbf1;--td:#0f766e;
+  --blue:#2563eb;--bl:#dbeafe;
+  --indigo:#4f46e5;--il:#e0e7ff;
+  --amber:#d97706;--al:#fef3c7;
+  --red:#dc2626;--rl:#fee2e2;
+  --green:#16a34a;--gl:#dcfce7;
+  --purple:#7c3aed;--pl:#ede9fe;
+  --orange:#ea580c;--ol:#ffedd5;
+  --rose:#e11d48;--rosel:#ffe4e6;
+  --bg:#f8fafc;--surface:#fff;
+  --border:#e2e8f0;--text:#0f172a;--muted:#64748b;
+  --sw:272px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sw);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;display:flex;flex-direction:column;}
+.sbh{padding:20px 18px 16px;background:linear-gradient(135deg,#1e1b4b,#0f4c75);border-bottom:1px solid var(--border);}
+.sbh .badge{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#a5b4fc;margin-bottom:4px;}
+.sbh h2{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;line-height:1.3;}
+.sbh p{font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;}
+.sbp{padding:14px 18px;border-bottom:1px solid var(--border);}
+.pbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;}
+.pb{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+.pf{height:100%;background:linear-gradient(90deg,var(--indigo),var(--teal));border-radius:99px;transition:width .4s;}
+.sbn{flex:1;padding:8px 0;}
+.nsl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 18px 4px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;font-size:13px;color:var(--muted);font-weight:500;}
+.ni:hover{background:var(--bg);color:var(--text);}
+.ni.active{border-left-color:var(--indigo);background:var(--il);color:var(--indigo);font-weight:600;}
+.ni.done{color:var(--green);}
+.nc{margin-left:auto;font-size:13px;}
+
+/* MAIN */
+.main{margin-left:var(--sw);flex:1;min-width:0;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.tbl{display:flex;align-items:center;gap:12px;}
+.chp{background:var(--il);color:var(--indigo);font-family:'Sora',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.05em;}
+.topbar h1{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;}
+.nb{display:flex;gap:8px;}
+.nbtn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s;}
+.nbtn.pri{background:var(--indigo);color:#fff;border-color:var(--indigo);}
+.nbtn:hover{border-color:var(--indigo);color:var(--indigo);}
+.nbtn.pri:hover{background:#3730a3;}
+
+/* SECTIONS */
+.sec{display:none;padding:36px 44px 64px;max-width:1000px;}
+.sec.active{display:block;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#1e1b4b 0%,#0f4c75 100%);border-radius:16px;padding:36px 40px;color:#fff;margin-bottom:32px;position:relative;overflow:hidden;}
+.hero::after{content:'⋈';position:absolute;right:36px;top:50%;transform:translateY(-50%);font-size:110px;opacity:.08;font-family:'Sora',sans-serif;font-weight:800;}
+.hero .ey{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#a5b4fc;margin-bottom:8px;}
+.hero h2{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;line-height:1.2;margin-bottom:10px;}
+.hero p{font-size:14px;opacity:.82;line-height:1.65;max-width:560px;}
+
+.st{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.ss{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:20px;}
+.ct{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.card p{font-size:14px;line-height:1.7;color:#334155;}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px;}
+
+/* JOIN TYPE CARDS */
+.jt-card{background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s;text-align:center;}
+.jt-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.07);}
+.jt-card.selected{border-color:var(--indigo);background:var(--il);}
+.jt-icon{font-size:28px;margin-bottom:8px;}
+.jt-name{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;}
+.jt-desc{font-size:11.5px;color:var(--muted);line-height:1.4;}
+
+/* CODE */
+.cb{background:#0f172a;border-radius:10px;padding:18px 22px;margin:14px 0;overflow-x:auto;position:relative;}
+.cb pre{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.8;color:#e2e8f0;white-space:pre;}
+.cl{position:absolute;top:10px;right:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+.kw{color:#7dd3fc;}.fn{color:#a5f3fc;}.str{color:#86efac;}.cm{color:#475569;font-style:italic;}.op{color:#f9a8d4;}.num{color:#fcd34d;}.al{color:#fb923c;}
+
+/* CALLOUTS */
+.co{border-radius:10px;padding:14px 18px;margin:16px 0;display:flex;gap:12px;font-size:13.5px;line-height:1.65;}
+.ci{font-size:18px;flex-shrink:0;margin-top:1px;}
+.co strong{display:block;font-weight:700;margin-bottom:3px;}
+.co.tip{background:var(--tl);border-left:4px solid var(--teal);color:#134e4a;}
+.co.warn{background:var(--al);border-left:4px solid var(--amber);color:#78350f;}
+.co.info{background:var(--bl);border-left:4px solid var(--blue);color:#1e3a5f;}
+.co.danger{background:var(--rl);border-left:4px solid var(--red);color:#7f1d1d;}
+.co.success{background:var(--gl);border-left:4px solid var(--green);color:#14532d;}
+.co.purple{background:var(--pl);border-left:4px solid var(--purple);color:#3b0764;}
+
+/* DATA TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+.dt th{background:#0f172a;color:#fff;padding:9px 14px;text-align:left;font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;}
+.dt td{padding:9px 14px;border-bottom:1px solid var(--border);color:#334155;}
+.dt tr:nth-child(even) td{background:#f8fafc;}
+.null-c{color:#94a3b8;font-style:italic;font-size:12px;}
+.hl-match td{background:#dbeafe!important;font-weight:600;}
+.hl-null td{background:#fef3c7!important;}
+.hl-left td{background:#dcfce7!important;}
+
+/* ════ SIGNATURE: JOIN PLAYGROUND ════ */
+.playground{background:var(--surface);border:2px solid var(--indigo);border-radius:16px;overflow:hidden;margin:24px 0;}
+.pg-head{background:linear-gradient(90deg,#1e1b4b,#0f4c75);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:gap;}
+.pg-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;}
+.pg-subtitle{font-size:12px;color:#a5b4fc;margin-top:2px;}
+.join-tabs{display:flex;gap:6px;flex-wrap:wrap;padding:16px 24px;border-bottom:1px solid var(--border);background:#fafafa;}
+.jtab{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--surface);color:var(--muted);transition:all .18s;font-family:'Sora',sans-serif;}
+.jtab:hover{border-color:var(--indigo);color:var(--indigo);}
+.jtab.active{background:var(--indigo);color:#fff;border-color:var(--indigo);}
+.pg-body{padding:22px 24px;}
+.pg-schema{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:start;margin-bottom:20px;}
+.tbl-label{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.tbl-label .tl-badge{padding:2px 8px;border-radius:5px;font-size:10px;}
+.tbl-left .tl-badge{background:#dbeafe;color:#1d4ed8;}
+.tbl-right .tl-badge{background:#ede9fe;color:#6d28d9;}
+.join-symbol{text-align:center;padding-top:32px;}
+.join-sym-circle{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 6px;font-weight:700;font-family:'Sora',sans-serif;}
+.join-sym-name{font-size:11px;font-weight:700;color:var(--muted);font-family:'Sora',sans-serif;text-align:center;}
+.pg-result-label{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:16px 0 8px;}
+.pg-result-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.pg-result-table th{background:#1e1b4b;color:#fff;padding:8px 14px;text-align:left;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;}
+.pg-result-table td{padding:8px 14px;border-bottom:1px solid var(--border);}
+.pg-result-table .row-match{background:#dbeafe;}
+.pg-result-table .row-left{background:#dcfce7;}
+.pg-result-table .row-right{background:#ede9fe;}
+.pg-result-table .row-cross{background:#fef3c7;}
+.null-val{color:#94a3b8;font-style:italic;}
+.pg-explain{background:#f8fafc;border-radius:10px;padding:14px 18px;margin-top:14px;font-size:13px;color:#334155;line-height:1.65;border-left:4px solid var(--indigo);}
+.pg-query{background:#0f172a;border-radius:9px;padding:14px 18px;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#e2e8f0;line-height:1.8;}
+
+/* VENN DIAGRAM */
+.venn-row{display:flex;gap:20px;flex-wrap:wrap;margin:20px 0;align-items:flex-start;}
+.venn-item{text-align:center;flex:1;min-width:140px;}
+.venn-svg{width:120px;height:70px;margin:0 auto 6px;}
+.venn-name{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;margin-bottom:3px;}
+.venn-hint{font-size:11px;color:var(--muted);}
+
+/* SCHEMA DIAGRAM */
+.schema-diagram{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin:20px 0;}
+.schema-tables{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:16px;}
+.schema-tbl{background:#f8fafc;border:2px solid var(--border);border-radius:10px;min-width:150px;}
+.schema-tbl-head{background:var(--indigo);color:#fff;padding:8px 14px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;border-radius:8px 8px 0 0;text-align:center;}
+.schema-tbl-body{padding:10px 14px;}
+.schema-col{display:flex;align-items:center;gap:6px;font-size:12px;padding:3px 0;color:#334155;}
+.schema-col .pk{color:var(--amber);font-size:10px;font-weight:700;}
+.schema-col .fk{color:var(--teal);font-size:10px;font-weight:700;}
+.schema-arrows{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;}
+.schema-rel{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;padding:4px 8px;background:var(--bg);border-radius:6px;}
+.schema-rel code{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--indigo);}
+
+/* STEPS */
+.steps{list-style:none;margin:16px 0;}
+.step{display:flex;gap:14px;margin-bottom:16px;}
+.sn{width:28px;height:28px;background:var(--indigo);color:#fff;border-radius:50%;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.sb2{flex:1;}
+.sb2 strong{font-weight:700;font-size:14px;display:block;margin-bottom:3px;}
+.sb2 p{font-size:13.5px;color:#334155;line-height:1.6;}
+
+/* SANDBOX */
+.sandbox{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+.sbh2{background:#0f172a;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;}
+.sbt{font-family:'JetBrains Mono',monospace;font-size:12px;color:#94a3b8;font-weight:600;display:flex;align-items:center;gap:8px;}
+.sbact{display:flex;gap:8px;}
+.sbbtn{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;transition:all .15s;}
+.sbbtn.run{background:var(--teal);color:#fff;}
+.sbbtn.run:hover{background:var(--td);}
+.sbbtn.clr{background:#1e293b;color:#94a3b8;}
+.sbbtn.clr:hover{color:#fff;}
+.sbed{width:100%;min-height:130px;background:#1e293b;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:13px;padding:16px 18px;border:none;outline:none;resize:vertical;line-height:1.8;}
+.sbout{padding:14px 18px;min-height:60px;font-family:'JetBrains Mono',monospace;font-size:12.5px;border-top:1px solid var(--border);background:#f8fafc;color:#334155;line-height:1.6;}
+.ot{border-collapse:collapse;width:100%;margin-top:8px;font-size:12px;}
+.ot th{background:#0f172a;color:#fff;padding:7px 12px;text-align:left;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;}
+.ot td{padding:7px 12px;border-bottom:1px solid #e2e8f0;}
+.ot tr:nth-child(even) td{background:#f1f5f9;}
+.ot .null-td{color:#94a3b8;font-style:italic;}
+
+/* QUIZ */
+.qw{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;}
+.qq{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;line-height:1.4;}
+.qopts{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.qopt{padding:12px 16px;border:2px solid var(--border);border-radius:9px;cursor:pointer;font-size:14px;font-weight:500;transition:all .15s;display:flex;align-items:center;gap:10px;}
+.qopt:hover{border-color:var(--indigo);background:var(--il);}
+.qopt.correct{border-color:var(--green);background:var(--gl);color:var(--green);}
+.qopt.wrong{border-color:var(--red);background:var(--rl);color:var(--red);}
+.ok{width:24px;height:24px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Sora',sans-serif;}
+.qfb{display:none;padding:12px 16px;border-radius:9px;font-size:13.5px;line-height:1.5;margin-bottom:14px;}
+.qfb.show{display:block;}
+.qfb.correct{background:var(--gl);color:#14532d;border-left:4px solid var(--green);}
+.qfb.wrong{background:var(--rl);color:#7f1d1d;border-left:4px solid var(--red);}
+.qnav{display:flex;justify-content:space-between;align-items:center;}
+.qsc{font-family:'Sora',sans-serif;font-size:14px;color:var(--muted);}
+.qbtn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;background:var(--indigo);color:#fff;transition:background .15s;}
+.qbtn:hover{background:#3730a3;}
+.qprog{font-size:12px;color:var(--muted);margin-bottom:16px;}
+
+/* DONE CARD */
+.done{text-align:center;padding:48px 32px;background:linear-gradient(135deg,var(--il),var(--tl));border-radius:16px;border:1px solid var(--border);margin-top:32px;}
+.done .trophy{font-size:56px;margin-bottom:12px;}
+.done h3{font-family:'Sora',sans-serif;font-size:24px;font-weight:800;margin-bottom:8px;}
+.done p{color:var(--muted);font-size:14px;max-width:420px;margin:0 auto 20px;}
+.donebtn{padding:12px 28px;background:linear-gradient(135deg,var(--indigo),var(--teal));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;}
+
+#cvc{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}.sec{padding:24px 20px 40px}.g2,.g3{grid-template-columns:1fr}.pg-schema{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="cvc"></canvas>
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sbh">
+    <div class="badge">SQL Mastery Course</div>
+    <h2>Chapter 10: SQL Joins</h2>
+    <p>INNER · LEFT · RIGHT · FULL · SELF · CROSS</p>
+  </div>
+  <div class="sbp">
+    <div class="pbl"><span>Progress</span><span id="pp">0%</span></div>
+    <div class="pb"><div class="pf" id="pf" style="width:0%"></div></div>
+  </div>
+  <nav class="sbn">
+    <div class="nsl">Content</div>
+    <div class="ni active" data-s="intro"      onclick="showS('intro',this)">     <span>🏠</span> Introduction to Joins       <span class="nc" id="chk-intro"></span></div>
+    <div class="ni" data-s="schema"     onclick="showS('schema',this)">    <span>🗺️</span> EdTech Schema               <span class="nc" id="chk-schema"></span></div>
+    <div class="ni" data-s="playground" onclick="showS('playground',this)"><span>🎮</span> Join Playground              <span class="nc" id="chk-playground"></span></div>
+    <div class="ni" data-s="inner"      onclick="showS('inner',this)">     <span>🔵</span> INNER JOIN                  <span class="nc" id="chk-inner"></span></div>
+    <div class="ni" data-s="outer"      onclick="showS('outer',this)">     <span>🟢</span> LEFT & RIGHT JOIN            <span class="nc" id="chk-outer"></span></div>
+    <div class="ni" data-s="full"       onclick="showS('full',this)">      <span>🔷</span> FULL OUTER JOIN              <span class="nc" id="chk-full"></span></div>
+    <div class="ni" data-s="cross"      onclick="showS('cross',this)">     <span>✖️</span> CROSS JOIN                  <span class="nc" id="chk-cross"></span></div>
+    <div class="ni" data-s="self"       onclick="showS('self',this)">      <span>🔄</span> SELF JOIN                   <span class="nc" id="chk-self"></span></div>
+    <div class="ni" data-s="advanced"   onclick="showS('advanced',this)">  <span>⚡</span> Advanced Join Patterns      <span class="nc" id="chk-advanced"></span></div>
+    <div class="ni" data-s="sandbox"    onclick="showS('sandbox',this)">   <span>💻</span> Practice Sandbox            <span class="nc" id="chk-sandbox"></span></div>
+    <div class="ni" data-s="quiz"       onclick="showS('quiz',this)">      <span>🧠</span> Chapter Quiz                <span class="nc" id="chk-quiz"></span></div>
+  </nav>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<main class="main">
+  <div class="topbar">
+    <div class="tbl">
+      <span class="chp">Chapter 10</span>
+      <h1>SQL Joins — All Types</h1>
+    </div>
+    <div class="nb">
+      <button class="nbtn" onclick="prevS()">← Prev</button>
+      <button class="nbtn pri" onclick="nextS()">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══ INTRO ══ -->
+  <section class="sec active" id="sec-intro">
+    <div class="hero">
+      <div class="ey">Chapter 10 · SQL Joins</div>
+      <h2>Data Lives in Multiple Tables.<br/>Joins Bring It Together.</h2>
+      <p>In the real world, no single table holds everything. Student data is separate from course data, instructor data, payment data. Joins are how you combine them into one meaningful result.</p>
+    </div>
+
+    <h2 class="st">Why Joins Exist</h2>
+    <p class="ss">Databases are designed with <strong>normalisation</strong> — each piece of information is stored in one place to avoid redundancy. Joins are the bridge that brings these separate tables together for a query.</p>
+
+    <div class="g2">
+      <div style="background:#f8fafc;border:1.5px solid var(--border);border-radius:12px;padding:20px;">
+        <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:700;margin-bottom:12px;color:var(--red)">❌ Without Joins — Repeating Data</div>
+        <table class="dt"><thead><tr><th>student_name</th><th>course</th><th>instructor</th><th>instructor_email</th></tr></thead>
+        <tbody>
+          <tr><td>Priya</td><td>Python</td><td>Dr. Ravi</td><td>ravi@guvi.in</td></tr>
+          <tr><td>Sneha</td><td>Python</td><td>Dr. Ravi</td><td>ravi@guvi.in</td></tr>
+          <tr><td>Arjun</td><td>Python</td><td>Dr. Ravi</td><td>ravi@guvi.in</td></tr>
+        </tbody></table>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px">Instructor info duplicated 3 times — wasteful!</p>
+      </div>
+      <div style="background:#f8fafc;border:1.5px solid var(--teal);border-radius:12px;padding:20px;">
+        <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:700;margin-bottom:12px;color:var(--green)">✅ With Joins — Normalised</div>
+        <p style="font-size:12.5px;color:#334155;line-height:1.6">Students table → only student info<br/>Courses table → only course info<br/>Instructors table → only instructor info<br/><br/><strong>JOIN them when you need the combined view.</strong></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🗂️ All 6 Join Types at a Glance</div>
+      <div class="g3" style="margin:12px 0 0">
+        <div class="jt-card"><div class="jt-icon">🔵</div><div class="jt-name">INNER JOIN</div><div class="jt-desc">Only matching rows from both tables</div></div>
+        <div class="jt-card"><div class="jt-icon">🟢</div><div class="jt-name">LEFT JOIN</div><div class="jt-desc">All rows from left + matches from right</div></div>
+        <div class="jt-card"><div class="jt-icon">🟣</div><div class="jt-name">RIGHT JOIN</div><div class="jt-desc">All rows from right + matches from left</div></div>
+        <div class="jt-card"><div class="jt-icon">🔷</div><div class="jt-name">FULL OUTER</div><div class="jt-desc">Everything from both tables</div></div>
+        <div class="jt-card"><div class="jt-icon">✖️</div><div class="jt-name">CROSS JOIN</div><div class="jt-desc">Every combination (cartesian product)</div></div>
+        <div class="jt-card"><div class="jt-icon">🔄</div><div class="jt-name">SELF JOIN</div><div class="jt-desc">Table joined with itself</div></div>
+      </div>
+    </div>
+
+    <div class="co info">
+      <span class="ci">💡</span>
+      <div><strong>Venn Diagram Mental Model</strong>Think of each table as a circle. The JOIN type determines which parts of the overlapping circles you keep — just the intersection, or also the parts that don't overlap.</div>
+    </div>
+  </section>
+
+  <!-- ══ SCHEMA ══ -->
+  <section class="sec" id="sec-schema">
+    <h2 class="st">🗺️ EdTech Schema — GUVI Platform</h2>
+    <p class="ss">All examples in this chapter use this realistic 4-table EdTech database. Study this schema well — every JOIN example will reference it.</p>
+
+    <div class="schema-diagram">
+      <h3 style="font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:20px;text-align:center">GUVI Database Schema</h3>
+      <div class="schema-tables">
+        <div class="schema-tbl">
+          <div class="schema-tbl-head">👩‍🎓 students</div>
+          <div class="schema-tbl-body">
+            <div class="schema-col"><span class="pk">PK</span> student_id</div>
+            <div class="schema-col">name</div>
+            <div class="schema-col">email</div>
+            <div class="schema-col">city</div>
+            <div class="schema-col"><span class="fk">FK</span> batch_id</div>
+          </div>
+        </div>
+        <div class="schema-tbl">
+          <div class="schema-tbl-head">📦 batches</div>
+          <div class="schema-tbl-body">
+            <div class="schema-col"><span class="pk">PK</span> batch_id</div>
+            <div class="schema-col">batch_name</div>
+            <div class="schema-col">start_date</div>
+            <div class="schema-col"><span class="fk">FK</span> course_id</div>
+            <div class="schema-col"><span class="fk">FK</span> instructor_id</div>
+          </div>
+        </div>
+        <div class="schema-tbl">
+          <div class="schema-tbl-head">📚 courses</div>
+          <div class="schema-tbl-body">
+            <div class="schema-col"><span class="pk">PK</span> course_id</div>
+            <div class="schema-col">course_name</div>
+            <div class="schema-col">duration_weeks</div>
+            <div class="schema-col">fee</div>
+            <div class="schema-col">level</div>
+          </div>
+        </div>
+        <div class="schema-tbl">
+          <div class="schema-tbl-head">👨‍🏫 instructors</div>
+          <div class="schema-tbl-body">
+            <div class="schema-col"><span class="pk">PK</span> instructor_id</div>
+            <div class="schema-col">name</div>
+            <div class="schema-col">specialization</div>
+            <div class="schema-col">email</div>
+            <div class="schema-col">experience_yrs</div>
+          </div>
+        </div>
+      </div>
+      <div class="schema-arrows">
+        <div class="schema-rel">students.<code>batch_id</code> → batches.<code>batch_id</code></div>
+        <div class="schema-rel">batches.<code>course_id</code> → courses.<code>course_id</code></div>
+        <div class="schema-rel">batches.<code>instructor_id</code> → instructors.<code>instructor_id</code></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📋 Sample Data — students</div>
+      <table class="dt"><thead><tr><th>student_id</th><th>name</th><th>city</th><th>batch_id</th></tr></thead>
+      <tbody>
+        <tr><td>S01</td><td>Priya Sharma</td><td>Chennai</td><td>B01</td></tr>
+        <tr><td>S02</td><td>Ravi Kumar</td><td>Mumbai</td><td>B01</td></tr>
+        <tr><td>S03</td><td>Sneha Nair</td><td>Bangalore</td><td>B02</td></tr>
+        <tr><td>S04</td><td>Arjun Patel</td><td>Delhi</td><td>B03</td></tr>
+        <tr><td>S05</td><td>Meera Iyer</td><td>Chennai</td><td class="null-c">NULL (not assigned)</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="card">
+      <div class="ct">📋 Sample Data — batches</div>
+      <table class="dt"><thead><tr><th>batch_id</th><th>batch_name</th><th>course_id</th><th>instructor_id</th></tr></thead>
+      <tbody>
+        <tr><td>B01</td><td>AIML-Jun-2024</td><td>C01</td><td>I01</td></tr>
+        <tr><td>B02</td><td>DataSci-Jul-2024</td><td>C02</td><td>I02</td></tr>
+        <tr><td>B03</td><td>Python-Aug-2024</td><td>C01</td><td>I01</td></tr>
+        <tr><td>B04</td><td>WebDev-Sep-2024</td><td>C03</td><td class="null-c">NULL (not assigned)</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="co tip">
+      <span class="ci">💡</span>
+      <div><strong>Notice the NULLs</strong>Meera has no batch_id. B04 has no instructor. These NULLs will behave differently depending on which join type you use — and understanding that is the whole point of this chapter.</div>
+    </div>
+  </section>
+
+  <!-- ══ PLAYGROUND ══ -->
+  <section class="sec" id="sec-playground">
+    <h2 class="st">🎮 Interactive Join Playground</h2>
+    <p class="ss">Select a join type and watch how the two tables merge in real time. See exactly which rows appear, which get NULLs, and which are excluded.</p>
+
+    <div class="playground">
+      <div class="pg-head">
+        <div>
+          <div class="pg-title">⋈ Join Playground — students ↔ batches</div>
+          <div class="pg-subtitle">Select a join type to see the result</div>
+        </div>
+      </div>
+      <div class="join-tabs">
+        <button class="jtab active" onclick="setJoin('inner',this)">🔵 INNER JOIN</button>
+        <button class="jtab" onclick="setJoin('left',this)">🟢 LEFT JOIN</button>
+        <button class="jtab" onclick="setJoin('right',this)">🟣 RIGHT JOIN</button>
+        <button class="jtab" onclick="setJoin('full',this)">🔷 FULL OUTER JOIN</button>
+        <button class="jtab" onclick="setJoin('cross',this)">✖️ CROSS JOIN</button>
+        <button class="jtab" onclick="setJoin('anti',this)">🚫 Anti-Join</button>
+      </div>
+      <div class="pg-body">
+        <div class="pg-schema">
+          <div class="tbl-left">
+            <div class="tbl-label">👩‍🎓 students (left table) <span class="tl-badge">LEFT</span></div>
+            <table class="pg-result-table">
+              <tr><th>student_id</th><th>name</th><th>batch_id</th></tr>
+              <tr><td>S01</td><td>Priya</td><td>B01</td></tr>
+              <tr><td>S02</td><td>Ravi</td><td>B01</td></tr>
+              <tr><td>S03</td><td>Sneha</td><td>B02</td></tr>
+              <tr><td>S04</td><td>Arjun</td><td>B03</td></tr>
+              <tr><td>S05</td><td>Meera</td><td class="null-val">NULL</td></tr>
+            </table>
+          </div>
+          <div class="join-symbol">
+            <div class="join-sym-circle" id="sym-circle" style="background:var(--indigo);color:#fff">⋈</div>
+            <div class="join-sym-name" id="sym-name">INNER</div>
+          </div>
+          <div>
+            <div class="tbl-label">📦 batches (right table) <span class="tl-badge" style="background:#ede9fe;color:#6d28d9">RIGHT</span></div>
+            <table class="pg-result-table">
+              <tr><th>batch_id</th><th>batch_name</th><th>instructor_id</th></tr>
+              <tr><td>B01</td><td>AIML-Jun</td><td>I01</td></tr>
+              <tr><td>B02</td><td>DataSci-Jul</td><td>I02</td></tr>
+              <tr><td>B03</td><td>Python-Aug</td><td>I01</td></tr>
+              <tr><td>B04</td><td>WebDev-Sep</td><td class="null-val">NULL</td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="pg-result-label" id="pg-rl">📊 Result — INNER JOIN (only matching rows)</div>
+        <table class="pg-result-table" id="pg-result-tbl"></table>
+        <div class="pg-explain" id="pg-explain"></div>
+        <div class="pg-query" id="pg-query"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ INNER JOIN ══ -->
+  <section class="sec" id="sec-inner">
+    <h2 class="st">🔵 INNER JOIN — Only Matching Rows</h2>
+    <p class="ss">INNER JOIN returns only rows where the join condition is TRUE in BOTH tables. If a row in the left table has no match in the right table (or vice versa), it is excluded.</p>
+
+    <div class="co info">
+      <span class="ci">🎯</span>
+      <div><strong>Think of it as an intersection.</strong>Like a Venn diagram where you take only the overlapping centre. If a student has no batch assigned (Meera), or a batch has no matching students, those rows disappear from the result.</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📖 Syntax</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span>   columns
+<span class="kw">FROM</span>     table_A
+<span class="kw">INNER JOIN</span> table_B
+  <span class="kw">ON</span> table_A.key <span class="op">=</span> table_B.key;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI Example 1 — Students with their Batch Info</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Get student names along with their batch name</span>
+<span class="kw">SELECT</span>   s.student_id,
+         s.name           <span class="kw">AS</span> student_name,
+         s.city,
+         b.batch_name,
+         b.start_date
+<span class="kw">FROM</span>     students s
+<span class="kw">INNER JOIN</span> batches b
+  <span class="kw">ON</span> s.batch_id <span class="op">=</span> b.batch_id;</pre></div>
+      <table class="dt" style="margin-top:12px">
+        <thead><tr><th>student_id</th><th>student_name</th><th>city</th><th>batch_name</th></tr></thead>
+        <tbody>
+          <tr class="hl-match"><td>S01</td><td>Priya Sharma</td><td>Chennai</td><td>AIML-Jun-2024</td></tr>
+          <tr class="hl-match"><td>S02</td><td>Ravi Kumar</td><td>Mumbai</td><td>AIML-Jun-2024</td></tr>
+          <tr class="hl-match"><td>S03</td><td>Sneha Nair</td><td>Bangalore</td><td>DataSci-Jul-2024</td></tr>
+          <tr class="hl-match"><td>S04</td><td>Arjun Patel</td><td>Delhi</td><td>Python-Aug-2024</td></tr>
+        </tbody>
+      </table>
+      <div class="co warn" style="margin-top:10px"><span class="ci">⚠️</span><div>Meera (S05) does not appear — she has no batch assigned (batch_id = NULL). INNER JOIN excludes her.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI Example 2 — 3-Table INNER JOIN</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Student → Batch → Course: what course is each student studying?</span>
+<span class="kw">SELECT</span>   s.name          <span class="kw">AS</span> student,
+         b.batch_name    <span class="kw">AS</span> batch,
+         c.course_name   <span class="kw">AS</span> course,
+         c.duration_weeks,
+         i.name          <span class="kw">AS</span> instructor
+<span class="kw">FROM</span>     students s
+<span class="kw">INNER JOIN</span> batches b     <span class="kw">ON</span> s.batch_id      <span class="op">=</span> b.batch_id
+<span class="kw">INNER JOIN</span> courses c     <span class="kw">ON</span> b.course_id     <span class="op">=</span> c.course_id
+<span class="kw">INNER JOIN</span> instructors i <span class="kw">ON</span> b.instructor_id <span class="op">=</span> i.instructor_id
+<span class="kw">ORDER BY</span> s.name;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔀 ON vs USING Clause</div>
+      <p style="margin-bottom:10px">When the column name is the same in both tables, you can use <code>USING</code> as a shorthand for <code>ON</code>.</p>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Using ON (verbose but clear)</span>
+<span class="kw">FROM</span> students s
+<span class="kw">INNER JOIN</span> batches b <span class="kw">ON</span> s.batch_id <span class="op">=</span> b.batch_id
+
+<span class="cm">-- Using USING (shorthand when column names match)</span>
+<span class="kw">FROM</span> students s
+<span class="kw">INNER JOIN</span> batches b <span class="kw">USING</span> (batch_id)</pre></div>
+      <div class="co tip"><span class="ci">💡</span><div><strong>USING vs ON</strong><br/>Use <code>USING(col)</code> when both tables have the exact same column name and you join on equality. Use <code>ON</code> for everything else — different column names, non-equi joins, complex conditions.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ OUTER JOINS ══ -->
+  <section class="sec" id="sec-outer">
+    <h2 class="st">🟢 LEFT JOIN & 🟣 RIGHT JOIN</h2>
+    <p class="ss">Outer joins include non-matching rows from one or both tables, filling missing values with NULL.</p>
+
+    <div class="g2">
+      <div class="card" style="margin-bottom:0;border-left:4px solid var(--green)">
+        <div class="ct" style="color:var(--green)">🟢 LEFT JOIN (LEFT OUTER JOIN)</div>
+        <p>Returns <strong>all rows from the left table</strong>, and matching rows from the right table. Where there's no match, right-side columns are NULL.</p>
+      </div>
+      <div class="card" style="margin-bottom:0;border-left:4px solid var(--purple)">
+        <div class="ct" style="color:var(--purple)">🟣 RIGHT JOIN (RIGHT OUTER JOIN)</div>
+        <p>Returns <strong>all rows from the right table</strong>, and matching rows from the left table. Where there's no match, left-side columns are NULL.</p>
+      </div>
+    </div>
+    <div style="height:20px"></div>
+
+    <div class="card">
+      <div class="ct">🟢 LEFT JOIN — All Students, Even Without a Batch</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Show ALL students, include batch info if available</span>
+<span class="kw">SELECT</span>   s.name          <span class="kw">AS</span> student,
+         s.city,
+         b.batch_name,
+         b.start_date
+<span class="kw">FROM</span>     students s
+<span class="kw">LEFT JOIN</span> batches b
+  <span class="kw">ON</span> s.batch_id <span class="op">=</span> b.batch_id;</pre></div>
+      <table class="dt" style="margin-top:12px">
+        <thead><tr><th>student</th><th>city</th><th>batch_name</th><th>start_date</th></tr></thead>
+        <tbody>
+          <tr class="hl-match"><td>Priya Sharma</td><td>Chennai</td><td>AIML-Jun-2024</td><td>2024-06-01</td></tr>
+          <tr class="hl-match"><td>Ravi Kumar</td><td>Mumbai</td><td>AIML-Jun-2024</td><td>2024-06-01</td></tr>
+          <tr class="hl-match"><td>Sneha Nair</td><td>Bangalore</td><td>DataSci-Jul-2024</td><td>2024-07-01</td></tr>
+          <tr class="hl-match"><td>Arjun Patel</td><td>Delhi</td><td>Python-Aug-2024</td><td>2024-08-01</td></tr>
+          <tr class="hl-null"><td><strong>Meera Iyer</strong></td><td>Chennai</td><td class="null-c">NULL</td><td class="null-c">NULL</td></tr>
+        </tbody>
+      </table>
+      <div class="co success" style="margin-top:10px"><span class="ci">✅</span><div>Meera appears this time! She has no batch, so batch columns are NULL — but she is included because LEFT JOIN keeps ALL left-table rows.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🟣 RIGHT JOIN — All Batches, Even Without Students</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Show ALL batches, even if no students are enrolled yet</span>
+<span class="kw">SELECT</span>   s.name      <span class="kw">AS</span> student,
+         b.batch_name,
+         b.start_date
+<span class="kw">FROM</span>     students s
+<span class="kw">RIGHT JOIN</span> batches b
+  <span class="kw">ON</span> s.batch_id <span class="op">=</span> b.batch_id;</pre></div>
+      <table class="dt" style="margin-top:12px">
+        <thead><tr><th>student</th><th>batch_name</th><th>start_date</th></tr></thead>
+        <tbody>
+          <tr class="hl-match"><td>Priya Sharma</td><td>AIML-Jun-2024</td><td>2024-06-01</td></tr>
+          <tr class="hl-match"><td>Ravi Kumar</td><td>AIML-Jun-2024</td><td>2024-06-01</td></tr>
+          <tr class="hl-match"><td>Sneha Nair</td><td>DataSci-Jul-2024</td><td>2024-07-01</td></tr>
+          <tr class="hl-match"><td>Arjun Patel</td><td>Python-Aug-2024</td><td>2024-08-01</td></tr>
+          <tr class="hl-null"><td class="null-c">NULL</td><td><strong>WebDev-Sep-2024</strong></td><td>2024-09-01</td></tr>
+        </tbody>
+      </table>
+      <div class="co warn" style="margin-top:10px"><span class="ci">⚠️</span><div>WebDev-Sep-2024 (B04) has no students yet, so student column is NULL. But the batch still appears because RIGHT JOIN keeps ALL right-table rows.</div></div>
+    </div>
+
+    <div class="co tip">
+      <span class="ci">💡</span>
+      <div><strong>Pro tip: Most developers use LEFT JOIN over RIGHT JOIN.</strong>You can always convert a RIGHT JOIN to a LEFT JOIN by swapping table order. LEFT JOIN is more readable because the "main" table is on the left.</div>
+    </div>
+  </section>
+
+  <!-- ══ FULL OUTER ══ -->
+  <section class="sec" id="sec-full">
+    <h2 class="st">🔷 FULL OUTER JOIN — Everything</h2>
+    <p class="ss">FULL OUTER JOIN returns all rows from both tables. Where there's a match, columns are filled. Where there's no match, the missing side gets NULL. It's LEFT + RIGHT combined.</p>
+
+    <div class="card">
+      <div class="ct">📖 FULL OUTER JOIN Syntax</div>
+      <div class="cb"><span class="cl">PostgreSQL / SQL Server</span><pre><span class="kw">SELECT</span>   s.name, b.batch_name
+<span class="kw">FROM</span>     students s
+<span class="kw">FULL OUTER JOIN</span> batches b
+  <span class="kw">ON</span> s.batch_id <span class="op">=</span> b.batch_id;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📊 FULL OUTER JOIN Result</div>
+      <table class="dt">
+        <thead><tr><th>student</th><th>batch_name</th><th>source</th></tr></thead>
+        <tbody>
+          <tr class="hl-match"><td>Priya</td><td>AIML-Jun-2024</td><td>✅ Both match</td></tr>
+          <tr class="hl-match"><td>Ravi</td><td>AIML-Jun-2024</td><td>✅ Both match</td></tr>
+          <tr class="hl-match"><td>Sneha</td><td>DataSci-Jul-2024</td><td>✅ Both match</td></tr>
+          <tr class="hl-match"><td>Arjun</td><td>Python-Aug-2024</td><td>✅ Both match</td></tr>
+          <tr class="hl-null"><td>Meera</td><td class="null-c">NULL</td><td>⬅️ Left only (no batch)</td></tr>
+          <tr style="background:#ede9fe"><td class="null-c">NULL</td><td>WebDev-Sep-2024</td><td>➡️ Right only (no students)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">🐬 MySQL — Simulating FULL OUTER JOIN</div>
+      <div class="co warn" style="margin-top:0;margin-bottom:12px"><span class="ci">⚠️</span><div>MySQL does NOT support FULL OUTER JOIN directly. Simulate it with LEFT JOIN UNION RIGHT JOIN:</div></div>
+      <div class="cb"><span class="cl">MySQL workaround</span><pre><span class="kw">SELECT</span> s.name, b.batch_name
+<span class="kw">FROM</span>   students s
+<span class="kw">LEFT JOIN</span> batches b <span class="kw">ON</span> s.batch_id <span class="op">=</span> b.batch_id
+
+<span class="kw">UNION</span>
+
+<span class="kw">SELECT</span> s.name, b.batch_name
+<span class="kw">FROM</span>   students s
+<span class="kw">RIGHT JOIN</span> batches b <span class="kw">ON</span> s.batch_id <span class="op">=</span> b.batch_id;</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ CROSS JOIN ══ -->
+  <section class="sec" id="sec-cross">
+    <h2 class="st">✖️ CROSS JOIN — Cartesian Product</h2>
+    <p class="ss">CROSS JOIN produces every possible combination of rows from both tables. If Table A has 5 rows and Table B has 4 rows, result = 5 × 4 = 20 rows. No ON clause needed.</p>
+
+    <div class="co danger">
+      <span class="ci">🚨</span>
+      <div><strong>Use with caution!</strong>CROSS JOIN on large tables creates an enormous result. 1,000 rows × 1,000 rows = 1,000,000 rows. Always know your table sizes before using CROSS JOIN.</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📖 CROSS JOIN Syntax</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- No ON clause needed — every row pairs with every row</span>
+<span class="kw">SELECT</span>  c.course_name,
+        i.name <span class="kw">AS</span> instructor
+<span class="kw">FROM</span>    courses c
+<span class="kw">CROSS JOIN</span> instructors i;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 Real Use Case — Generate All Possible Course-Instructor Pairs</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- For scheduling: generate all possible (batch × course) combinations</span>
+<span class="kw">SELECT</span>  b.batch_name,
+        c.course_name,
+        c.fee
+<span class="kw">FROM</span>    batches b
+<span class="kw">CROSS JOIN</span> courses c
+<span class="kw">ORDER BY</span> b.batch_name, c.course_name;</pre></div>
+      <p style="margin-top:12px;font-size:13px;color:var(--muted)">Result: 4 batches × 3 courses = 12 rows, showing every possible assignment. Useful for scheduling tools or test data generation.</p>
+    </div>
+
+    <div class="card">
+      <div class="ct">🎯 When is CROSS JOIN actually useful?</div>
+      <ul class="steps">
+        <li class="step"><div class="sn">1</div><div class="sb2"><strong>Generating test data</strong><p>Quickly create all combinations — e.g., all (batch × slot) pairs for a timetable generator.</p></div></li>
+        <li class="step"><div class="sn">2</div><div class="sb2"><strong>Creating date series</strong><p>Cross join a number table with a month table to generate a full calendar grid.</p></div></li>
+        <li class="step"><div class="sn">3</div><div class="sb2"><strong>Recommendation grids</strong><p>Generate all (student × course) pairs, then filter for courses they haven't enrolled in yet.</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ SELF JOIN ══ -->
+  <section class="sec" id="sec-self">
+    <h2 class="st">🔄 SELF JOIN — Table Joining Itself</h2>
+    <p class="ss">A SELF JOIN is when a table is joined to itself. This sounds strange, but it's very useful for hierarchical or comparative data — like finding students in the same batch, or employees and their managers.</p>
+
+    <div class="co info">
+      <span class="ci">💡</span>
+      <div><strong>When do you need a SELF JOIN?</strong>When relationships exist within the same table. For example — an employees table where each employee has a manager_id that points to another employee in the same table. Or finding students who share the same city.</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 Example 1 — Find Students in the Same Batch</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Find all pairs of students in the same batch (buddy system!)</span>
+<span class="kw">SELECT</span>   s1.name <span class="kw">AS</span> student_1,
+         s2.name <span class="kw">AS</span> student_2,
+         s1.batch_id
+<span class="kw">FROM</span>     students s1
+<span class="kw">INNER JOIN</span> students s2
+  <span class="kw">ON</span>  s1.batch_id <span class="op">=</span> s2.batch_id
+  <span class="kw">AND</span> s1.student_id <span class="op"><</span> s2.student_id  <span class="cm">-- avoid duplicates & self-pairs</span>
+<span class="kw">ORDER BY</span> s1.batch_id;</pre></div>
+      <div class="co tip" style="margin-top:10px"><span class="ci">💡</span><div>The condition <code>s1.student_id &lt; s2.student_id</code> prevents showing the same pair twice (Priya-Ravi AND Ravi-Priya) and also prevents a student pairing with themselves (Priya-Priya).</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">👔 Example 2 — Employee Manager Hierarchy (classic)</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Table: employees (emp_id, name, manager_id)
+-- manager_id points to another emp_id in the SAME table</span>
+<span class="kw">SELECT</span>   e.name   <span class="kw">AS</span> employee,
+         m.name   <span class="kw">AS</span> their_manager
+<span class="kw">FROM</span>     employees e
+<span class="kw">LEFT JOIN</span> employees m          <span class="cm">-- same table, different alias</span>
+  <span class="kw">ON</span> e.manager_id <span class="op">=</span> m.emp_id;  <span class="cm">-- e's manager_id = m's emp_id</span></pre></div>
+      <table class="dt" style="margin-top:12px">
+        <thead><tr><th>employee</th><th>their_manager</th></tr></thead>
+        <tbody>
+          <tr><td>Priya (Instructor)</td><td>Dr. Ravi (Head)</td></tr>
+          <tr><td>Sneha (TA)</td><td>Priya (Instructor)</td></tr>
+          <tr><td>Dr. Ravi (Head)</td><td class="null-c">NULL (top of hierarchy)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══ ADVANCED ══ -->
+  <section class="sec" id="sec-advanced">
+    <h2 class="st">⚡ Advanced Join Patterns</h2>
+    <p class="ss">These patterns come up in real interviews and production queries. Master them and you'll be ahead of 90% of SQL users.</p>
+
+    <!-- MULTI TABLE -->
+    <div class="card">
+      <div class="ct">🔗 1. Multi-Table Joins (3+ tables)</div>
+      <p style="margin-bottom:12px">Chain multiple JOINs to combine 3 or more tables. Each JOIN adds one more table to the result.</p>
+      <div class="cb"><span class="cl">SQL — Full Student Report</span><pre><span class="cm">-- Complete student info: name → batch → course → instructor</span>
+<span class="kw">SELECT</span>
+  s.name            <span class="kw">AS</span> student,
+  s.city,
+  b.batch_name,
+  c.course_name,
+  c.fee             <span class="kw">AS</span> course_fee,
+  i.name            <span class="kw">AS</span> instructor,
+  i.specialization
+<span class="kw">FROM</span>       students    s
+<span class="kw">INNER JOIN</span> batches     b  <span class="kw">ON</span> s.batch_id      <span class="op">=</span> b.batch_id
+<span class="kw">INNER JOIN</span> courses     c  <span class="kw">ON</span> b.course_id     <span class="op">=</span> c.course_id
+<span class="kw">INNER JOIN</span> instructors i  <span class="kw">ON</span> b.instructor_id <span class="op">=</span> i.instructor_id
+<span class="kw">ORDER BY</span>   s.name;</pre></div>
+    </div>
+
+    <!-- NON EQUI JOIN -->
+    <div class="card">
+      <div class="ct">📐 2. Non-Equi Join — Join on a Range</div>
+      <p style="margin-bottom:12px">Joins don't have to use =. You can join on &lt;, &gt;, BETWEEN, or any condition. Useful for grading, tier assignment, date ranges.</p>
+      <div class="cb"><span class="cl">SQL — Assign Grade Based on Score Range</span><pre><span class="cm">-- grades table: (grade, min_score, max_score)
+-- Join student scores to grade ranges using BETWEEN</span>
+<span class="kw">SELECT</span>
+  s.name,
+  s.quiz_score,
+  g.grade
+<span class="kw">FROM</span>       students s
+<span class="kw">INNER JOIN</span> grade_bands g
+  <span class="kw">ON</span> s.quiz_score <span class="kw">BETWEEN</span> g.min_score <span class="kw">AND</span> g.max_score;
+
+<span class="cm">-- grade_bands table:
+-- (A, 90, 100), (B, 75, 89), (C, 60, 74), (D, 0, 59)</span></pre></div>
+    </div>
+
+    <!-- JOIN + AGGREGATE -->
+    <div class="card">
+      <div class="ct">📊 3. JOIN with Aggregates — Powerful Combo</div>
+      <div class="cb"><span class="cl">SQL — Learner count & avg score per course</span><pre><span class="cm">-- How many students per course? What's their average score?</span>
+<span class="kw">SELECT</span>
+  c.course_name,
+  i.name                      <span class="kw">AS</span> instructor,
+  <span class="fn">COUNT</span>(s.student_id)         <span class="kw">AS</span> total_students,
+  <span class="fn">ROUND</span>(<span class="fn">AVG</span>(s.quiz_score), <span class="num">1</span>) <span class="kw">AS</span> avg_score,
+  <span class="fn">MAX</span>(s.quiz_score)           <span class="kw">AS</span> top_score
+<span class="kw">FROM</span>       courses     c
+<span class="kw">INNER JOIN</span> batches     b  <span class="kw">ON</span> c.course_id     <span class="op">=</span> b.course_id
+<span class="kw">INNER JOIN</span> students    s  <span class="kw">ON</span> b.batch_id      <span class="op">=</span> s.batch_id
+<span class="kw">INNER JOIN</span> instructors i  <span class="kw">ON</span> b.instructor_id <span class="op">=</span> i.instructor_id
+<span class="kw">GROUP BY</span>   c.course_name, i.name
+<span class="kw">HAVING</span>     <span class="fn">COUNT</span>(s.student_id) <span class="op">>=</span> <span class="num">5</span>
+<span class="kw">ORDER BY</span>   avg_score <span class="kw">DESC</span>;</pre></div>
+    </div>
+
+    <!-- NULL HANDLING -->
+    <div class="card">
+      <div class="ct">∅ 4. Handling NULLs in Outer Joins</div>
+      <div class="cb"><span class="cl">SQL — Check if students have fees pending</span><pre><span class="cm">-- Find students who have NOT made a payment yet
+-- LEFT JOIN + IS NULL on right table = Anti-join pattern</span>
+<span class="kw">SELECT</span>   s.name,
+         s.email,
+         s.city
+<span class="kw">FROM</span>     students s
+<span class="kw">LEFT JOIN</span> payments p
+  <span class="kw">ON</span> s.student_id <span class="op">=</span> p.student_id
+<span class="kw">WHERE</span>    p.payment_id <span class="kw">IS NULL</span>;
+<span class="cm">-- WHERE IS NULL on the right-table PK = "no match found"</span></pre></div>
+      <div class="co success"><span class="ci">✅</span><div><strong>Anti-Join Pattern</strong><br/>LEFT JOIN + WHERE right_table.id IS NULL = "give me rows from left that have NO matching row in right." This is how you find students with no payments, courses with no enrollments, batches with no instructors, etc.</div></div>
+    </div>
+
+    <!-- ANTI JOIN -->
+    <div class="card">
+      <div class="ct">🚫 5. Anti-Join — "What's Missing?"</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Pattern 1: LEFT JOIN + IS NULL (most common)</span>
+<span class="kw">SELECT</span> s.name
+<span class="kw">FROM</span>   students s
+<span class="kw">LEFT JOIN</span> enrollments e <span class="kw">ON</span> s.student_id <span class="op">=</span> e.student_id
+<span class="kw">WHERE</span>  e.student_id <span class="kw">IS NULL</span>;
+<span class="cm">-- "Students who have NOT enrolled in any course"</span>
+
+<span class="cm">-- Pattern 2: NOT EXISTS (sometimes cleaner)</span>
+<span class="kw">SELECT</span> s.name
+<span class="kw">FROM</span>   students s
+<span class="kw">WHERE NOT EXISTS</span> (
+  <span class="kw">SELECT</span> <span class="num">1</span> <span class="kw">FROM</span> enrollments e
+  <span class="kw">WHERE</span>  e.student_id <span class="op">=</span> s.student_id
+);
+
+<span class="cm">-- Pattern 3: NOT IN (use with caution — fails if NULLs in subquery!)</span>
+<span class="kw">SELECT</span> name <span class="kw">FROM</span> students
+<span class="kw">WHERE</span>  student_id <span class="kw">NOT IN</span> (<span class="kw">SELECT</span> student_id <span class="kw">FROM</span> enrollments);</pre></div>
+      <div class="co warn"><span class="ci">⚠️</span><div><strong>NOT IN danger!</strong>If the subquery returns even one NULL, <code>NOT IN</code> returns no results at all. Always prefer LEFT JOIN + IS NULL or NOT EXISTS over NOT IN.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ SANDBOX ══ -->
+  <section class="sec" id="sec-sandbox">
+    <h2 class="st">💻 Practice Sandbox</h2>
+    <p class="ss">Write JOIN queries on the GUVI schema and see realistic results. Practise every join type here.</p>
+
+    <div class="sandbox">
+      <div class="sbh2">
+        <div class="sbt"><span>🖥️</span> SQL Sandbox — GUVI Schema (students, batches, courses, instructors)</div>
+        <div class="sbact">
+          <button class="sbbtn clr" onclick="clearSB()">Clear</button>
+          <button class="sbbtn run" onclick="runSB()">▶ Run</button>
+        </div>
+      </div>
+      <textarea class="sbed" id="sbed" spellcheck="false" placeholder="-- Try JOIN queries here!
+-- Examples:
+-- SELECT s.name, b.batch_name FROM students s INNER JOIN batches b ON s.batch_id = b.batch_id;
+-- SELECT s.name, b.batch_name FROM students s LEFT JOIN batches b ON s.batch_id = b.batch_id;
+-- SELECT s.name, b.batch_name FROM students s RIGHT JOIN batches b ON s.batch_id = b.batch_id;
+-- SELECT s.name FROM students s LEFT JOIN batches b ON s.batch_id = b.batch_id WHERE b.batch_id IS NULL;
+-- SELECT s.name, b.batch_name, c.course_name FROM students s INNER JOIN batches b ON s.batch_id = b.batch_id INNER JOIN courses c ON b.course_id = c.course_id;
+"></textarea>
+      <div class="sbout" id="sbout"><span style="color:var(--muted);font-size:12px">▶ Output will appear here after clicking Run</span></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📝 Practice Challenges</div>
+      <ul class="steps">
+        <li class="step"><div class="sn">1</div><div class="sb2"><strong>INNER JOIN</strong><p>Join students and batches. Show only students who have a batch assigned. How many rows do you expect?</p></div></li>
+        <li class="step"><div class="sn">2</div><div class="sb2"><strong>LEFT JOIN</strong><p>Show ALL students including those without a batch. Which student has NULLs in the batch columns?</p></div></li>
+        <li class="step"><div class="sn">3</div><div class="sb2"><strong>Anti-Join</strong><p>Find students who do NOT have a batch assigned. Use LEFT JOIN + IS NULL.</p></div></li>
+        <li class="step"><div class="sn">4</div><div class="sb2"><strong>3-Table Join</strong><p>Join students → batches → courses. Show each student's name, batch, and course name.</p></div></li>
+        <li class="step"><div class="sn">5</div><div class="sb2"><strong>JOIN + GROUP BY</strong><p>Count how many students are in each course. Use INNER JOIN + GROUP BY course_name.</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ QUIZ ══ -->
+  <section class="sec" id="sec-quiz">
+    <h2 class="st">🧠 Chapter 10 Quiz</h2>
+    <p class="ss">Test your understanding of all join types, patterns, and edge cases.</p>
+
+    <div class="qw">
+      <div class="qprog" id="qprog">Question 1 of 8</div>
+      <div class="qq" id="qq"></div>
+      <ul class="qopts" id="qopts"></ul>
+      <div class="qfb" id="qfb"></div>
+      <div class="qnav">
+        <span class="qsc" id="qsc">Score: 0 / 0</span>
+        <button class="qbtn" id="qnext" onclick="nextQ()" style="display:none">Next Question →</button>
+      </div>
+    </div>
+
+    <div class="done" id="done-card" style="display:none">
+      <div class="trophy">🏆</div>
+      <h3 id="done-title">Chapter Complete!</h3>
+      <p id="done-msg">You've mastered SQL Joins — the most powerful tool for combining data across tables!</p>
+      <button class="donebtn" onclick="doConfetti()">🎉 Celebrate!</button>
+    </div>
+  </section>
+</main>
+
+<script>
+// ── NAV ──
+const SECS=['intro','schema','playground','inner','outer','full','cross','self','advanced','sandbox','quiz'];
+let ci=0; const doneSet=new Set();
+
+function showS(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  ci=SECS.indexOf(id); window.scrollTo(0,0);
+}
+function nextS(){if(ci<SECS.length-1){markDone(SECS[ci]);const n=SECS[ci+1];showS(n,document.querySelector(`[data-s="${n}"]`));}}
+function prevS(){if(ci>0){const p=SECS[ci-1];showS(p,document.querySelector(`[data-s="${p}"]`));}}
+function markDone(id){
+  doneSet.add(id);
+  const c=document.getElementById('chk-'+id);if(c)c.textContent='✓';
+  const n=document.querySelector(`[data-s="${id}"]`);if(n)n.classList.add('done');
+  const pct=Math.round((doneSet.size/SECS.length)*100);
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('pp').textContent=pct+'%';
+}
+
+// ── JOIN PLAYGROUND ──
+const JD={
+  inner:{
+    rows:[
+      {cls:'row-match',cols:['S01','Priya','B01','AIML-Jun-2024','I01']},
+      {cls:'row-match',cols:['S02','Ravi','B01','AIML-Jun-2024','I01']},
+      {cls:'row-match',cols:['S03','Sneha','B02','DataSci-Jul-2024','I02']},
+      {cls:'row-match',cols:['S04','Arjun','B03','Python-Aug-2024','I01']},
+    ],
+    label:'📊 Result — INNER JOIN (only matching rows — Meera & WebDev excluded)',
+    explain:'INNER JOIN returns only rows where students.batch_id = batches.batch_id. Meera (NULL batch_id) has no match, so she\'s excluded. WebDev-Sep (no students) is also excluded. 4 rows returned.',
+    query:'SELECT s.student_id, s.name, b.batch_name, b.instructor_id\nFROM   students s\nINNER JOIN batches b ON s.batch_id = b.batch_id;',
+    sym:'⋈',symBg:'#4f46e5',symName:'INNER',
+  },
+  left:{
+    rows:[
+      {cls:'row-match',cols:['S01','Priya','B01','AIML-Jun-2024','I01']},
+      {cls:'row-match',cols:['S02','Ravi','B01','AIML-Jun-2024','I01']},
+      {cls:'row-match',cols:['S03','Sneha','B02','DataSci-Jul-2024','I02']},
+      {cls:'row-match',cols:['S04','Arjun','B03','Python-Aug-2024','I01']},
+      {cls:'row-left',cols:['S05','Meera','NULL','NULL','NULL']},
+    ],
+    label:'📊 Result — LEFT JOIN (all students, including unassigned Meera)',
+    explain:'LEFT JOIN keeps ALL rows from the left table (students). Meera has no batch, so her batch columns are NULL — but she still appears. 5 rows returned.',
+    query:'SELECT s.student_id, s.name, b.batch_name, b.instructor_id\nFROM   students s\nLEFT JOIN batches b ON s.batch_id = b.batch_id;',
+    sym:'←',symBg:'#16a34a',symName:'LEFT',
+  },
+  right:{
+    rows:[
+      {cls:'row-match',cols:['S01','Priya','B01','AIML-Jun-2024','I01']},
+      {cls:'row-match',cols:['S02','Ravi','B01','AIML-Jun-2024','I01']},
+      {cls:'row-match',cols:['S03','Sneha','B02','DataSci-Jul-2024','I02']},
+      {cls:'row-match',cols:['S04','Arjun','B03','Python-Aug-2024','I01']},
+      {cls:'row-right',cols:['NULL','NULL','B04','WebDev-Sep-2024','NULL']},
+    ],
+    label:'📊 Result — RIGHT JOIN (all batches, including WebDev with no students)',
+    explain:'RIGHT JOIN keeps ALL rows from the right table (batches). WebDev-Sep (B04) has no students enrolled, so student columns are NULL — but the batch still appears. 5 rows returned.',
+    query:'SELECT s.student_id, s.name, b.batch_name, b.instructor_id\nFROM   students s\nRIGHT JOIN batches b ON s.batch_id = b.batch_id;',
+    sym:'→',symBg:'#7c3aed',symName:'RIGHT',
+  },
+  full:{
+    rows:[
+      {cls:'row-match',cols:['S01','Priya','B01','AIML-Jun-2024','I01']},
+      {cls:'row-match',cols:['S02','Ravi','B01','AIML-Jun-2024','I01']},
+      {cls:'row-match',cols:['S03','Sneha','B02','DataSci-Jul-2024','I02']},
+      {cls:'row-match',cols:['S04','Arjun','B03','Python-Aug-2024','I01']},
+      {cls:'row-left',cols:['S05','Meera','NULL','NULL','NULL']},
+      {cls:'row-right',cols:['NULL','NULL','B04','WebDev-Sep-2024','NULL']},
+    ],
+    label:'📊 Result — FULL OUTER JOIN (everyone from both tables)',
+    explain:'FULL OUTER JOIN combines LEFT + RIGHT. All students appear (Meera with NULLs), all batches appear (WebDev with NULLs). 6 rows returned.',
+    query:'SELECT s.student_id, s.name, b.batch_name, b.instructor_id\nFROM   students s\nFULL OUTER JOIN batches b ON s.batch_id = b.batch_id;',
+    sym:'⟺',symBg:'#2563eb',symName:'FULL',
+  },
+  cross:{
+    rows:[
+      {cls:'row-cross',cols:['S01','Priya','B01','AIML-Jun-2024']},
+      {cls:'row-cross',cols:['S01','Priya','B02','DataSci-Jul-2024']},
+      {cls:'row-cross',cols:['S01','Priya','B03','Python-Aug-2024']},
+      {cls:'row-cross',cols:['S01','Priya','B04','WebDev-Sep-2024']},
+      {cls:'row-cross',cols:['S02','Ravi','B01','AIML-Jun-2024']},
+      {cls:'row-cross',cols:['...','...','...','... (5×4 = 20 total rows)']},
+    ],
+    label:'📊 Result — CROSS JOIN (every student × every batch = 20 rows)',
+    explain:'CROSS JOIN produces every possible combination. 5 students × 4 batches = 20 rows. No ON clause. Use carefully — large tables create massive results!',
+    query:'SELECT s.student_id, s.name, b.batch_id, b.batch_name\nFROM   students s\nCROSS JOIN batches b;',
+    sym:'✕',symBg:'#d97706',symName:'CROSS',
+  },
+  anti:{
+    rows:[
+      {cls:'row-left',cols:['S05','Meera','Chennai','NULL — no batch match!']},
+    ],
+    label:'📊 Result — Anti-Join (students with NO matching batch)',
+    explain:'LEFT JOIN + WHERE b.batch_id IS NULL finds rows in students that have no match in batches. Only Meera appears — she has no batch assigned. This is the "what\'s missing?" pattern.',
+    query:'SELECT s.student_id, s.name, s.city\nFROM   students s\nLEFT JOIN batches b ON s.batch_id = b.batch_id\nWHERE  b.batch_id IS NULL;',
+    sym:'∅',symBg:'#e11d48',symName:'ANTI',
+  },
+};
+
+const HEADERS=['student_id','name / info','batch_id','batch_name','instructor_id'];
+
+function setJoin(type,tabEl){
+  document.querySelectorAll('.jtab').forEach(t=>t.classList.remove('active'));
+  tabEl.classList.add('active');
+  const d=JD[type];
+  document.getElementById('pg-rl').textContent=d.label;
+  document.getElementById('pg-explain').textContent=d.explain;
+  document.getElementById('pg-query').textContent=d.query;
+  document.getElementById('sym-circle').textContent=d.sym;
+  document.getElementById('sym-circle').style.background=d.symBg;
+  document.getElementById('sym-name').textContent=d.symName;
+  const tbl=document.getElementById('pg-result-tbl');
+  const hdrs=type==='cross'?['student_id','name','batch_id','batch_name']:type==='anti'?['student_id','name','city','note']:HEADERS;
+  tbl.innerHTML=`<tr>${hdrs.map(h=>`<th>${h}</th>`).join('')}</tr>`+
+    d.rows.map(r=>`<tr class="${r.cls}">${r.cols.map((c,i)=>`<td class="${c==='NULL'||c.includes('NULL')?'null-val':''}">${c}</td>`).join('')}</tr>`).join('');
+}
+setJoin('inner',document.querySelector('.jtab'));
+
+// ── SANDBOX ──
+const SBP=[
+  {re:/inner join/i, res:()=>`<span style="color:var(--green)">✓ 4 rows — INNER JOIN (Meera excluded, no match)</span>
+<table class="ot"><tr><th>student_id</th><th>name</th><th>batch_name</th><th>course_id</th></tr>
+<tr><td>S01</td><td>Priya Sharma</td><td>AIML-Jun-2024</td><td>C01</td></tr>
+<tr><td>S02</td><td>Ravi Kumar</td><td>AIML-Jun-2024</td><td>C01</td></tr>
+<tr><td>S03</td><td>Sneha Nair</td><td>DataSci-Jul-2024</td><td>C02</td></tr>
+<tr><td>S04</td><td>Arjun Patel</td><td>Python-Aug-2024</td><td>C01</td></tr></table>`},
+  {re:/left join.*is null/i, res:()=>`<span style="color:var(--green)">✓ 1 row — Anti-Join result</span>
+<table class="ot"><tr><th>student_id</th><th>name</th><th>city</th></tr>
+<tr style="background:#fef3c7"><td>S05</td><td>Meera Iyer</td><td>Chennai</td></tr></table>`},
+  {re:/left join/i, res:()=>`<span style="color:var(--green)">✓ 5 rows — LEFT JOIN (Meera included with NULLs)</span>
+<table class="ot"><tr><th>student_id</th><th>name</th><th>batch_name</th></tr>
+<tr><td>S01</td><td>Priya Sharma</td><td>AIML-Jun-2024</td></tr>
+<tr><td>S02</td><td>Ravi Kumar</td><td>AIML-Jun-2024</td></tr>
+<tr><td>S03</td><td>Sneha Nair</td><td>DataSci-Jul-2024</td></tr>
+<tr><td>S04</td><td>Arjun Patel</td><td>Python-Aug-2024</td></tr>
+<tr style="background:#fef3c7"><td>S05</td><td>Meera Iyer</td><td class="null-td">NULL</td></tr></table>`},
+  {re:/right join/i, res:()=>`<span style="color:var(--green)">✓ 5 rows — RIGHT JOIN (WebDev batch included with NULLs)</span>
+<table class="ot"><tr><th>name</th><th>batch_name</th></tr>
+<tr><td>Priya</td><td>AIML-Jun-2024</td></tr>
+<tr><td>Ravi</td><td>AIML-Jun-2024</td></tr>
+<tr><td>Sneha</td><td>DataSci-Jul-2024</td></tr>
+<tr><td>Arjun</td><td>Python-Aug-2024</td></tr>
+<tr style="background:#ede9fe"><td class="null-td">NULL</td><td>WebDev-Sep-2024</td></tr></table>`},
+  {re:/cross join/i, res:()=>`<span style="color:var(--green)">✓ 20 rows — CROSS JOIN (5 students × 4 batches)</span>
+<table class="ot"><tr><th>name</th><th>batch_name</th></tr>
+<tr><td>Priya</td><td>AIML-Jun-2024</td></tr>
+<tr><td>Priya</td><td>DataSci-Jul-2024</td></tr>
+<tr><td>Priya</td><td>Python-Aug-2024</td></tr>
+<tr><td>Priya</td><td>WebDev-Sep-2024</td></tr>
+<tr><td colspan="2" style="color:var(--muted);font-style:italic">... 16 more rows (all combinations)</td></tr></table>`},
+  {re:/inner join.*courses|courses.*inner join/i, res:()=>`<span style="color:var(--green)">✓ 4 rows — 3-table JOIN</span>
+<table class="ot"><tr><th>student</th><th>batch</th><th>course</th></tr>
+<tr><td>Priya</td><td>AIML-Jun-2024</td><td>Machine Learning</td></tr>
+<tr><td>Ravi</td><td>AIML-Jun-2024</td><td>Machine Learning</td></tr>
+<tr><td>Sneha</td><td>DataSci-Jul-2024</td><td>Data Science</td></tr>
+<tr><td>Arjun</td><td>Python-Aug-2024</td><td>Machine Learning</td></tr></table>`},
+  {re:/group by.*course/i, res:()=>`<span style="color:var(--green)">✓ JOIN + GROUP BY result</span>
+<table class="ot"><tr><th>course_name</th><th>total_students</th></tr>
+<tr><td>Machine Learning</td><td>3</td></tr>
+<tr><td>Data Science</td><td>1</td></tr></table>`},
+];
+
+function runSB(){
+  const sql=document.getElementById('sbed').value.trim();
+  const out=document.getElementById('sbout');
+  if(!sql){out.innerHTML='<span style="color:var(--muted)">⚠️ Enter a SQL query first.</span>';return;}
+  for(const p of SBP){if(p.re.test(sql)){out.innerHTML=p.res();return;}}
+  out.innerHTML='<span style="color:var(--green)">✓ Query OK — try a JOIN: INNER JOIN, LEFT JOIN, RIGHT JOIN, CROSS JOIN, or a 3-table join!</span>';
+}
+function clearSB(){
+  document.getElementById('sbed').value='';
+  document.getElementById('sbout').innerHTML='<span style="color:var(--muted);font-size:12px">▶ Output will appear here after clicking Run</span>';
+}
+
+// ── QUIZ ──
+const QS=[
+  {q:"Which JOIN returns only rows where there is a match in BOTH tables?",opts:["LEFT JOIN","RIGHT JOIN","INNER JOIN","FULL OUTER JOIN"],ans:2,exp:"INNER JOIN returns only matching rows. If a row in the left table has no match in the right table, it is excluded — and vice versa."},
+  {q:"You have 500 students and 10 courses. A CROSS JOIN produces how many rows?",opts:["510 rows","500 rows","5,000 rows","10 rows"],ans:2,exp:"CROSS JOIN creates a cartesian product: every row in table A paired with every row in table B. 500 × 10 = 5,000 rows."},
+  {q:"LEFT JOIN students to batches. Meera has no batch (batch_id = NULL). What happens?",opts:["Meera is excluded from results","Meera appears, with NULL in batch columns","An error is thrown","Meera is assigned a default batch"],ans:1,exp:"LEFT JOIN keeps ALL rows from the left table (students). Where there's no match, right-table columns are filled with NULL. Meera appears with NULL batch info."},
+  {q:"What is the Anti-Join pattern?",opts:["INNER JOIN with NOT condition","LEFT JOIN + WHERE right_table_col IS NULL","FULL OUTER JOIN with DISTINCT","CROSS JOIN with a filter"],ans:1,exp:"Anti-join = LEFT JOIN + WHERE right_table primary key IS NULL. This finds rows in the left table that have NO match in the right table — great for 'students with no payment' type queries."},
+  {q:"What is the difference between ON and USING in a JOIN?",opts:["No difference — they are identical","USING is for non-equi joins; ON is for equality only","USING(col) is shorthand when column names match in both tables; ON is used for all other conditions","ON is for INNER JOIN; USING is for OUTER JOINs"],ans:2,exp:"USING(column) is shorthand for ON table1.col = table2.col when the column name is identical in both tables. ON is more flexible and required when column names differ or the join condition is complex."},
+  {q:"Which join type is used when a table is joined with itself?",opts:["RECURSIVE JOIN","SELF JOIN","MIRROR JOIN","REFLEXIVE JOIN"],ans:1,exp:"SELF JOIN is when a table is joined with itself using two different aliases. Classic use case: employees table where manager_id points to another employee in the same table."},
+  {q:"You want to find students who have NOT made any payment. Which is the safest approach?",opts:["WHERE student_id NOT IN (SELECT student_id FROM payments)","LEFT JOIN payments p ON s.student_id = p.student_id WHERE p.student_id IS NULL","INNER JOIN payments WHERE amount = 0","RIGHT JOIN payments WHERE student_id IS NULL"],ans:1,exp:"LEFT JOIN + IS NULL is the safest anti-join pattern. NOT IN is dangerous because if the subquery returns even one NULL, the entire NOT IN returns no results."},
+  {q:"MySQL does not support FULL OUTER JOIN. How do you simulate it?",opts:["Use OUTER MERGE instead","Use LEFT JOIN UNION RIGHT JOIN","Use CROSS JOIN with a filter","Use INNER JOIN with COALESCE"],ans:1,exp:"MySQL's workaround: SELECT ... FROM A LEFT JOIN B ON ... UNION SELECT ... FROM A RIGHT JOIN B ON ... — this combines all left-only, matching, and right-only rows."},
+];
+
+let qi=0,score=0,answered=false;
+function renderQ(){
+  const q=QS[qi];
+  document.getElementById('qprog').textContent=`Question ${qi+1} of ${QS.length}`;
+  document.getElementById('qq').textContent=q.q;
+  document.getElementById('qopts').innerHTML=q.opts.map((o,i)=>
+    `<li class="qopt" onclick="selQ(${i})" id="qo-${i}"><span class="ok">${String.fromCharCode(65+i)}</span>${o}</li>`).join('');
+  document.getElementById('qfb').className='qfb';
+  document.getElementById('qfb').innerHTML='';
+  document.getElementById('qnext').style.display='none';
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi}`;
+  answered=false;
+}
+function selQ(i){
+  if(answered)return; answered=true;
+  const q=QS[qi];
+  document.querySelectorAll('.qopt').forEach((o,j)=>{
+    if(j===q.ans)o.classList.add('correct');
+    else if(j===i)o.classList.add('wrong');
+  });
+  if(i===q.ans)score++;
+  const fb=document.getElementById('qfb');
+  fb.className=`qfb show ${i===q.ans?'correct':'wrong'}`;
+  fb.innerHTML=`<strong>${i===q.ans?'✅ Correct!':'❌ Not quite.'}</strong> ${q.exp}`;
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi+1}`;
+  const nb=document.getElementById('qnext');
+  nb.style.display='inline-block';
+  nb.textContent=qi<QS.length-1?'Next Question →':'See Results 🎉';
+}
+function nextQ(){qi++;if(qi<QS.length)renderQ();else showResults();}
+function showResults(){
+  document.querySelector('.qw').style.display='none';
+  const dc=document.getElementById('done-card');dc.style.display='block';
+  const pct=Math.round((score/QS.length)*100);
+  document.getElementById('done-title').textContent=pct>=80?'🎉 Join Master!':pct>=60?'👍 Good Work!':'💪 Keep Practising!';
+  document.getElementById('done-msg').textContent=`You scored ${score} out of ${QS.length} (${pct}%). ${pct>=80?'You can write complex multi-table queries with confidence!':'Focus on LEFT JOIN vs INNER JOIN and the Anti-Join pattern — they\'re interview favourites!'}`;
+  markDone('quiz');
+  if(pct>=70)doConfetti();
+}
+renderQ();
+
+// ── CONFETTI ──
+function doConfetti(){
+  const cv=document.getElementById('cvc');
+  const ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  const cols=['#4f46e5','#0d9488','#2563eb','#d97706','#16a34a','#7c3aed','#e11d48'];
+  const pp=Array.from({length:140},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height-cv.height,r:Math.random()*9+4,color:cols[Math.floor(Math.random()*cols.length)],tilt:Math.random()*10-10,spd:Math.random()*3+1.5}));
+  let fr=0;
+  function draw(){ctx.clearRect(0,0,cv.width,cv.height);pp.forEach(p=>{ctx.beginPath();ctx.ellipse(p.x,p.y,p.r,p.r/2,p.tilt,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();p.y+=p.spd;p.x+=Math.sin(fr/18)*1.5;p.tilt+=.08;if(p.y>cv.height){p.y=-10;p.x=Math.random()*cv.width;}});fr++;if(fr<220)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);}
+  draw();
+}
+</script>
+</body>
+</html>

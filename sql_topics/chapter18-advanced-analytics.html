@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 18 — Advanced Analytics Patterns | SQL Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --rose:#e11d48;--roseL:#fff1f2;--roseMid:#fda4af;
+  --violet:#7c3aed;--violetL:#f5f3ff;
+  --amber:#d97706;--amberL:#fffbeb;
+  --emerald:#059669;--emeraldL:#ecfdf5;
+  --sky:#0284c7;--skyL:#f0f9ff;
+  --slate:#334155;--slateL:#f8fafc;
+  --ink:#0f172a;--muted:#64748b;--border:#e2e8f0;
+  --surface:#fff;--bg:#f8fafc;
+  --sw:272px;
+  --teal:#0d9488;--tl:#ccfbf1;--td:#0f766e;
+  --green:#16a34a;--gl:#dcfce7;
+  --red:#dc2626;--rl:#fee2e2;
+  --blue:#2563eb;--bl:#dbeafe;
+  --indigo:#4f46e5;--il:#e0e7ff;
+  --orange:#ea580c;--ol:#ffedd5;
+  --purple:#7c3aed;--pl:#ede9fe;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);display:flex;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sw);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;display:flex;flex-direction:column;}
+.sbh{padding:20px 18px 16px;background:linear-gradient(135deg,#0c0a1a,#1a0a2e,#0a1628);border-bottom:1px solid var(--border);}
+.sbh .badge{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#f472b6;margin-bottom:4px;}
+.sbh h2{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;line-height:1.3;}
+.sbh p{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;}
+.sbp{padding:14px 18px;border-bottom:1px solid var(--border);}
+.pbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;}
+.pb{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+.pf{height:100%;background:linear-gradient(90deg,var(--rose),var(--violet));border-radius:99px;transition:width .4s;}
+.sbn{flex:1;padding:8px 0;}
+.nsl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 18px 4px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;font-size:13px;color:var(--muted);font-weight:500;}
+.ni:hover{background:var(--bg);color:var(--ink);}
+.ni.active{border-left-color:var(--rose);background:var(--roseL);color:var(--rose);font-weight:600;}
+.ni.done{color:var(--emerald);}
+.nc{margin-left:auto;font-size:13px;}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sw);flex:1;min-width:0;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.tbl{display:flex;align-items:center;gap:12px;}
+.chp{background:var(--roseL);color:var(--rose);font-family:'Sora',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.05em;}
+.expert-tag{background:linear-gradient(90deg,var(--violet),var(--rose));color:#fff;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;padding:2px 9px;border-radius:99px;letter-spacing:.06em;}
+.topbar h1{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;}
+.nb{display:flex;gap:8px;}
+.nbtn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s;}
+.nbtn.pri{background:var(--rose);color:#fff;border-color:var(--rose);}
+.nbtn:hover{border-color:var(--rose);color:var(--rose);}
+.nbtn.pri:hover{background:#be123c;}
+
+/* ── SECTIONS ── */
+.sec{display:none;padding:36px 44px 64px;max-width:1020px;}
+.sec.active{display:block;}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#0c0a1a 0%,#1a0a2e 50%,#0a1628 100%);border-radius:16px;padding:40px;color:#fff;margin-bottom:32px;position:relative;overflow:hidden;}
+.hero-grid{display:flex;gap:32px;align-items:center;}
+.hero-text{flex:1;}
+.hero-pills{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.hero-pill{font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.06em;text-transform:uppercase;}
+.hp-rose{background:rgba(225,29,72,.25);color:#fda4af;border:1px solid rgba(225,29,72,.4);}
+.hp-violet{background:rgba(124,58,237,.25);color:#c4b5fd;border:1px solid rgba(124,58,237,.4);}
+.hp-sky{background:rgba(2,132,199,.25);color:#7dd3fc;border:1px solid rgba(2,132,199,.4);}
+.hero h2{font-family:'Sora',sans-serif;font-size:30px;font-weight:800;line-height:1.2;margin-bottom:12px;}
+.hero h2 span{background:linear-gradient(90deg,#f472b6,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{font-size:14px;opacity:.8;line-height:1.7;max-width:500px;}
+.hero-visual{width:200px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;}
+.hero-stat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px 14px;text-align:center;}
+.hero-stat-num{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#f472b6;}
+.hero-stat-label{font-size:10px;color:rgba(255,255,255,.55);margin-top:2px;}
+
+/* ── CARDS & CONTENT ── */
+.st{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.ss{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:20px;}
+.ct{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+
+/* ── CODE ── */
+.cb{background:#0c0a1a;border-radius:10px;padding:18px 22px;margin:14px 0;overflow-x:auto;position:relative;}
+.cb pre{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.82;color:#e2e8f0;white-space:pre;}
+.cl{position:absolute;top:10px;right:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+.kw{color:#7dd3fc;}.fn{color:#a5f3fc;}.str{color:#86efac;}.cm{color:#475569;font-style:italic;}.op{color:#f9a8d4;}.num{color:#fcd34d;}.py{color:#fb923c;font-weight:700;}.hl{color:#f472b6;font-weight:700;}
+
+/* ── CALLOUTS ── */
+.co{border-radius:10px;padding:14px 18px;margin:16px 0;display:flex;gap:12px;font-size:13.5px;line-height:1.65;}
+.ci{font-size:18px;flex-shrink:0;margin-top:1px;}
+.co strong{display:block;font-weight:700;margin-bottom:3px;}
+.co.tip{background:var(--tl);border-left:4px solid var(--teal);color:#134e4a;}
+.co.warn{background:var(--amberL);border-left:4px solid var(--amber);color:#78350f;}
+.co.info{background:var(--bl);border-left:4px solid var(--blue);color:#1e3a5f;}
+.co.success{background:var(--gl);border-left:4px solid var(--emerald);color:#14532d;}
+.co.rose{background:var(--roseL);border-left:4px solid var(--rose);color:#881337;}
+.co.violet{background:var(--violetL);border-left:4px solid var(--violet);color:#3b0764;}
+
+/* ── GRIDS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+
+/* ── TABLES ── */
+.dtbl{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+.dtbl th{background:#0c0a1a;color:#fff;padding:9px 14px;text-align:left;font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;}
+.dtbl td{padding:9px 14px;border-bottom:1px solid var(--border);color:#334155;}
+.dtbl tr:nth-child(even) td{background:#f8fafc;}
+.td-rose{color:var(--rose);font-weight:700;}
+.td-green{color:var(--emerald);font-weight:700;}
+.td-muted{color:var(--muted);font-style:italic;}
+
+/* ── FUNNEL VISUAL ── */
+.funnel-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;padding:20px 0;}
+.funnel-stage{border-radius:8px;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#fff;transition:width .5s;position:relative;}
+.funnel-stage .f-label{flex:1;}
+.funnel-stage .f-count{font-family:'JetBrains Mono',monospace;font-weight:700;}
+.funnel-stage .f-pct{font-size:11px;font-weight:600;opacity:.85;margin-left:10px;}
+.funnel-arrow{color:var(--muted);font-size:14px;text-align:center;}
+.dropoff-tag{font-size:10px;font-weight:700;background:rgba(225,29,72,.2);color:#f43f5e;padding:2px 8px;border-radius:99px;margin-left:8px;}
+
+/* ── COHORT TABLE ── */
+.cohort-wrap{overflow-x:auto;margin:16px 0;}
+.cohort-tbl{border-collapse:collapse;font-size:12px;font-family:'JetBrains Mono',monospace;min-width:600px;}
+.cohort-tbl th{background:#0c0a1a;color:#fff;padding:8px 12px;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;text-align:center;}
+.cohort-tbl td{padding:8px 12px;border:1px solid var(--border);text-align:center;}
+.cohort-tbl .cohort-label{background:#f8fafc;font-weight:700;text-align:left;color:var(--ink);}
+.c-heat-5{background:#14532d;color:#fff;}
+.c-heat-4{background:#16a34a;color:#fff;}
+.c-heat-3{background:#4ade80;color:#14532d;}
+.c-heat-2{background:#bbf7d0;color:#166534;}
+.c-heat-1{background:#f0fdf4;color:#166534;}
+.c-heat-0{background:#f8fafc;color:var(--muted);}
+
+/* ── PIPELINE BUILDER (SIGNATURE) ── */
+.pipeline{background:var(--surface);border:2px solid var(--rose);border-radius:16px;overflow:hidden;margin:24px 0;}
+.pl-head{background:linear-gradient(90deg,#0c0a1a,#1a0a2e);padding:20px 26px;}
+.pl-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px;}
+.pl-sub{font-size:12px;color:#f472b6;margin-top:4px;}
+.pl-stages{display:flex;gap:0;border-bottom:2px solid var(--border);background:#fafafa;overflow-x:auto;}
+.pl-stage-tab{padding:12px 18px;font-size:12px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;color:var(--muted);font-family:'Sora',sans-serif;white-space:nowrap;display:flex;align-items:center;gap:7px;}
+.pl-stage-tab:hover{color:var(--rose);}
+.pl-stage-tab.active{border-bottom-color:var(--rose);color:var(--rose);background:#fff;}
+.pl-stage-tab .stage-num{width:20px;height:20px;border-radius:50%;background:var(--border);color:var(--muted);font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:800;}
+.pl-stage-tab.active .stage-num{background:var(--rose);color:#fff;}
+.pl-body{padding:26px;}
+.pl-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.pl-panel{background:#f8fafc;border-radius:10px;overflow:hidden;}
+.pl-panel-head{padding:10px 16px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;}
+.pl-sql-head{background:#0c0a1a;color:#fff;}
+.pl-out-head{background:var(--roseL);color:var(--rose);}
+.pl-sql-body{background:#0c0a1a;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#e2e8f0;line-height:1.8;min-height:180px;}
+.pl-out-body{padding:14px 16px;font-size:12px;color:var(--slate);min-height:180px;}
+.pl-explain{background:var(--violetL);border-radius:9px;padding:12px 16px;margin-top:14px;font-size:12.5px;color:#3b0764;line-height:1.65;border-left:4px solid var(--violet);}
+.pl-controls{display:flex;gap:10px;align-items:center;margin-bottom:18px;}
+.pl-btn{padding:9px 20px;border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer;border:none;background:var(--rose);color:#fff;font-family:'Sora',sans-serif;transition:background .15s;}
+.pl-btn:hover{background:#be123c;}
+.pl-btn.sec-btn{background:var(--violetL);color:var(--violet);}
+.pl-btn.sec-btn:hover{background:#ede9fe;}
+.pl-progress{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);margin-left:auto;}
+
+/* mini output table */
+.mini-tbl{width:100%;border-collapse:collapse;font-size:11.5px;font-family:'JetBrains Mono',monospace;}
+.mini-tbl th{background:#0c0a1a;color:#fff;padding:6px 10px;text-align:left;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;}
+.mini-tbl td{padding:6px 10px;border-bottom:1px solid var(--border);}
+.mini-tbl tr:nth-child(even) td{background:#f8fafc;}
+.mini-tbl .hi{background:#fce7f3!important;font-weight:700;color:var(--rose);}
+
+/* python output */
+.py-out{background:#0c0a1a;border-radius:8px;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#4ade80;line-height:1.7;min-height:100px;}
+.chart-mock{background:#f8fafc;border-radius:8px;padding:16px;border:1.5px solid var(--border);}
+.chart-bars{display:flex;align-items:flex-end;gap:8px;height:100px;margin-top:8px;}
+.chart-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+.chart-bar{width:100%;border-radius:4px 4px 0 0;transition:height .6s;}
+.chart-label{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+
+/* ── SESSIONISATION DIAGRAM ── */
+.session-timeline{display:flex;flex-wrap:wrap;gap:4px;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid var(--border);margin:14px 0;}
+.ev{padding:6px 12px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;border:2px solid;}
+.ev-s1{background:#fce7f3;border-color:#f472b6;color:#be185d;}
+.ev-s2{background:#ede9fe;border-color:#a78bfa;color:#6d28d9;}
+.ev-s3{background:#ecfdf5;border-color:#34d399;color:#065f46;}
+.session-break{display:flex;align-items:center;padding:0 4px;color:var(--muted);font-size:11px;font-family:'Sora',sans-serif;font-weight:700;}
+
+/* STEPS */
+.steps{list-style:none;margin:16px 0;}
+.step{display:flex;gap:14px;margin-bottom:16px;}
+.sn{width:28px;height:28px;background:var(--rose);color:#fff;border-radius:50%;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.sb2{flex:1;}
+.sb2 strong{font-weight:700;font-size:14px;display:block;margin-bottom:3px;}
+.sb2 p{font-size:13.5px;color:#334155;line-height:1.6;}
+
+/* PIVOT DEMO */
+.pivot-demo{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;margin:16px 0;}
+.pivot-arrow{font-size:24px;color:var(--muted);text-align:center;}
+
+/* SANDBOX */
+.sandbox{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+.sbh2{background:#0c0a1a;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;}
+.sbt{font-family:'JetBrains Mono',monospace;font-size:12px;color:#94a3b8;font-weight:600;display:flex;align-items:center;gap:8px;}
+.sbact{display:flex;gap:8px;}
+.sbbtn{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;transition:all .15s;}
+.sbbtn.run{background:var(--teal);color:#fff;}
+.sbbtn.clr{background:#1e293b;color:#94a3b8;}
+.sbbtn.clr:hover{color:#fff;}
+.sbed{width:100%;min-height:130px;background:#1e293b;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:13px;padding:16px 18px;border:none;outline:none;resize:vertical;line-height:1.8;}
+.sbout{padding:14px 18px;min-height:60px;font-family:'JetBrains Mono',monospace;font-size:12.5px;border-top:1px solid var(--border);background:#f8fafc;color:#334155;line-height:1.6;}
+.ot{border-collapse:collapse;width:100%;margin-top:8px;font-size:12px;}
+.ot th{background:#0c0a1a;color:#fff;padding:7px 12px;text-align:left;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;}
+.ot td{padding:7px 12px;border-bottom:1px solid #e2e8f0;}
+.ot tr:nth-child(even) td{background:#f1f5f9;}
+
+/* QUIZ */
+.qw{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;}
+.qq{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;line-height:1.4;}
+.qopts{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.qopt{padding:12px 16px;border:2px solid var(--border);border-radius:9px;cursor:pointer;font-size:14px;font-weight:500;transition:all .15s;display:flex;align-items:center;gap:10px;}
+.qopt:hover{border-color:var(--rose);background:var(--roseL);}
+.qopt.correct{border-color:var(--emerald);background:var(--gl);color:var(--emerald);}
+.qopt.wrong{border-color:var(--red);background:var(--rl);color:var(--red);}
+.ok{width:24px;height:24px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Sora',sans-serif;}
+.qfb{display:none;padding:12px 16px;border-radius:9px;font-size:13.5px;line-height:1.5;margin-bottom:14px;}
+.qfb.show{display:block;}
+.qfb.correct{background:var(--gl);color:#14532d;border-left:4px solid var(--emerald);}
+.qfb.wrong{background:var(--rl);color:#7f1d1d;border-left:4px solid var(--red);}
+.qnav{display:flex;justify-content:space-between;align-items:center;}
+.qsc{font-family:'Sora',sans-serif;font-size:14px;color:var(--muted);}
+.qbtn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;background:var(--rose);color:#fff;}
+.qbtn:hover{background:#be123c;}
+.qprog{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.done{text-align:center;padding:48px 32px;background:linear-gradient(135deg,#0c0a1a,#1a0a2e);border-radius:16px;border:1px solid var(--border);margin-top:32px;color:#fff;}
+.done .trophy{font-size:60px;margin-bottom:14px;}
+.done h3{font-family:'Sora',sans-serif;font-size:26px;font-weight:800;margin-bottom:8px;background:linear-gradient(90deg,#f472b6,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.done p{color:rgba(255,255,255,.7);font-size:14px;max-width:480px;margin:0 auto 22px;}
+.donebtn{padding:12px 28px;background:linear-gradient(135deg,var(--rose),var(--violet));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;}
+#cvc{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}.main{margin-left:0}.sec{padding:24px 20px 40px}
+  .g2,.g3{grid-template-columns:1fr}.pl-layout{grid-template-columns:1fr}.pivot-demo{grid-template-columns:1fr}
+  .hero-grid{flex-direction:column}.hero-visual{width:100%;flex-direction:row}
+}
+</style>
+</head>
+<body>
+<canvas id="cvc"></canvas>
+
+<aside class="sidebar">
+  <div class="sbh">
+    <div class="badge">SQL Mastery · Expert Level</div>
+    <h2>Chapter 18: Advanced Analytics</h2>
+    <p>Cohort · Funnel · Pivot · SQL→ML</p>
+  </div>
+  <div class="sbp">
+    <div class="pbl"><span>Progress</span><span id="pp">0%</span></div>
+    <div class="pb"><div class="pf" id="pf" style="width:0%"></div></div>
+  </div>
+  <nav class="sbn">
+    <div class="nsl">Analytics Patterns</div>
+    <div class="ni active" data-s="intro"     onclick="showS('intro',this)">    <span>🏠</span> Introduction              <span class="nc" id="chk-intro"></span></div>
+    <div class="ni" data-s="cohort"    onclick="showS('cohort',this)">   <span>🧲</span> Cohort Analysis           <span class="nc" id="chk-cohort"></span></div>
+    <div class="ni" data-s="funnel"    onclick="showS('funnel',this)">   <span>🔻</span> Funnel Analysis           <span class="nc" id="chk-funnel"></span></div>
+    <div class="ni" data-s="session"   onclick="showS('session',this)">  <span>🔗</span> Sessionisation            <span class="nc" id="chk-session"></span></div>
+    <div class="ni" data-s="yoy"       onclick="showS('yoy',this)">      <span>📆</span> YoY / QoQ Comparisons     <span class="nc" id="chk-yoy"></span></div>
+    <div class="ni" data-s="pivot"     onclick="showS('pivot',this)">    <span>↔️</span> Pivot &amp; Unpivot        <span class="nc" id="chk-pivot"></span></div>
+    <div class="ni" data-s="attribution" onclick="showS('attribution',this)"><span>🎯</span> Attribution Models      <span class="nc" id="chk-attribution"></span></div>
+    <div class="nsl">SQL for Data Science</div>
+    <div class="ni" data-s="features"  onclick="showS('features',this)"> <span>⚙️</span> Feature Engineering       <span class="nc" id="chk-features"></span></div>
+    <div class="ni" data-s="outliers"  onclick="showS('outliers',this)"> <span>📡</span> Outliers &amp; Percentiles  <span class="nc" id="chk-outliers"></span></div>
+    <div class="ni" data-s="timeseries" onclick="showS('timeseries',this)"><span>📈</span> Time-series Gap Filling  <span class="nc" id="chk-timeseries"></span></div>
+    <div class="ni" data-s="pipeline"  onclick="showS('pipeline',this)"> <span>🎮</span> Build: Analytics Pipeline ✨ <span class="nc" id="chk-pipeline"></span></div>
+    <div class="ni" data-s="sandbox"   onclick="showS('sandbox',this)">  <span>💻</span> Practice Sandbox          <span class="nc" id="chk-sandbox"></span></div>
+    <div class="ni" data-s="quiz"      onclick="showS('quiz',this)">     <span>🧠</span> Chapter Quiz              <span class="nc" id="chk-quiz"></span></div>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="tbl">
+      <span class="chp">Chapter 18</span>
+      <span class="expert-tag">EXPERT</span>
+      <h1>Advanced Analytics Patterns</h1>
+    </div>
+    <div class="nb">
+      <button class="nbtn" onclick="prevS()">← Prev</button>
+      <button class="nbtn pri" onclick="nextS()">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══ INTRO ══ -->
+  <section class="sec active" id="sec-intro">
+    <div class="hero">
+      <div class="hero-grid">
+        <div class="hero-text">
+          <div class="hero-pills">
+            <span class="hero-pill hp-rose">Cohort Analysis</span>
+            <span class="hero-pill hp-violet">Funnel Analysis</span>
+            <span class="hero-pill hp-sky">SQL → ML Pipeline</span>
+          </div>
+          <h2>SQL that thinks like a<br/><span>Data Scientist.</span></h2>
+          <p>Beyond querying rows — this chapter teaches the analytics patterns used in real product teams at Zomato, GUVI, and IRCTC: retention cohorts, conversion funnels, feature engineering, outlier detection, and wiring SQL directly into a Python ML pipeline.</p>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-stat"><div class="hero-stat-num">7</div><div class="hero-stat-label">Analytics Patterns</div></div>
+          <div class="hero-stat"><div class="hero-stat-num">SQL→</div><div class="hero-stat-label">Python · pandas · ML</div></div>
+          <div class="hero-stat"><div class="hero-stat-num">1</div><div class="hero-stat-label">Full Pipeline Build</div></div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="st">What's an Analytics Pattern?</h2>
+    <p class="ss">A pattern is a repeatable SQL structure that solves a whole class of business questions. Once you recognise the pattern, you can apply it to any dataset.</p>
+    <div class="g3">
+      <div class="card" style="border-top:4px solid var(--rose);margin-bottom:0">
+        <div class="ct" style="color:var(--rose)">🧲 Cohort</div>
+        <p style="font-size:13px">Group users by their start date and track how many stick around week over week. The core of retention analysis.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--violet);margin-bottom:0">
+        <div class="ct" style="color:var(--violet)">🔻 Funnel</div>
+        <p style="font-size:13px">Track how many users progress through stages — sign-up → activate → pay — and where they drop off.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--sky);margin-bottom:0">
+        <div class="ct" style="color:var(--sky)">⚙️ Feature Engineering</div>
+        <p style="font-size:13px">Use SQL to compute model-ready features — recency, frequency, monetary value — before handing off to Python.</p>
+      </div>
+    </div>
+    <div class="co rose" style="margin-top:20px">
+      <span class="ci">🎓</span>
+      <div><strong>Prerequisites check</strong>This is an Expert chapter. It assumes comfort with window functions (Ch 17), CTEs (Ch 16), and GROUP BY aggregations (Ch 9). The Python sections assume basic pandas familiarity.</div>
+    </div>
+  </section>
+
+  <!-- ══ COHORT ══ -->
+  <section class="sec" id="sec-cohort">
+    <h2 class="st">🧲 Cohort Analysis Using Window Functions</h2>
+    <p class="ss">A cohort is a group of users who share the same start event — usually their first activity month. Cohort analysis answers: "of the users who started in January, what % were still active in February? March?"</p>
+
+    <div class="card">
+      <div class="ct">🎯 Why Cohort Analysis Matters</div>
+      <p style="font-size:13.5px;line-height:1.7">If you just look at total active users each month, a growing user base can hide terrible retention. Cohort analysis separates "new users keeping the number up" from "old users still coming back."</p>
+      <div class="co rose"><span class="ci">🏫</span><div><strong>GUVI example:</strong>Cohort = learners who enrolled in the same month. Retention = did they log in and complete at least one lesson in each subsequent month?</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔨 Step 1 — Find Each User's Cohort Month</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Step 1: assign each learner their cohort (first-ever enrollment month)</span>
+<span class="kw">WITH</span> cohorts <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    student_id,
+    <span class="fn">DATE_FORMAT</span>(<span class="fn">MIN</span>(enrolled_on), <span class="str">'%Y-%m'</span>) <span class="kw">AS</span> cohort_month
+  <span class="kw">FROM</span>   guvi_learners
+  <span class="kw">GROUP BY</span> student_id
+),
+
+<span class="cm">-- Step 2: join every activity to the cohort month, compute "months since start"</span>
+activity <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    a.student_id,
+    c.cohort_month,
+    <span class="fn">DATE_FORMAT</span>(a.activity_date, <span class="str">'%Y-%m'</span>) <span class="kw">AS</span> activity_month,
+    <span class="fn">TIMESTAMPDIFF</span>(<span class="kw">MONTH</span>,
+      <span class="fn">STR_TO_DATE</span>(<span class="fn">CONCAT</span>(c.cohort_month,<span class="str">'-01'</span>),<span class="str">'%Y-%m-%d'</span>),
+      <span class="fn">STR_TO_DATE</span>(<span class="fn">CONCAT</span>(<span class="fn">DATE_FORMAT</span>(a.activity_date,<span class="str">'%Y-%m'</span>),<span class="str">'-01'</span>),<span class="str">'%Y-%m-%d'</span>)
+    ) <span class="kw">AS</span> month_number
+  <span class="kw">FROM</span>   user_activity a
+  <span class="kw">JOIN</span>   cohorts c <span class="kw">ON</span> a.student_id <span class="op">=</span> c.student_id
+),
+
+<span class="cm">-- Step 3: count distinct users retained per cohort × month_number</span>
+retained <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    cohort_month, month_number,
+    <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> student_id) <span class="kw">AS</span> retained_users
+  <span class="kw">FROM</span>   activity
+  <span class="kw">GROUP BY</span> cohort_month, month_number
+),
+
+cohort_sizes <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> cohort_month, retained_users <span class="kw">AS</span> cohort_size
+  <span class="kw">FROM</span>   retained
+  <span class="kw">WHERE</span>  month_number <span class="op">=</span> <span class="num">0</span>
+)
+
+<span class="kw">SELECT</span>
+  r.cohort_month,
+  r.month_number,
+  r.retained_users,
+  cs.cohort_size,
+  <span class="fn">ROUND</span>(<span class="num">100.0</span> <span class="op">*</span> r.retained_users <span class="op">/</span> cs.cohort_size, <span class="num">1</span>) <span class="kw">AS</span> retention_pct
+<span class="kw">FROM</span>   retained r
+<span class="kw">JOIN</span>   cohort_sizes cs <span class="kw">ON</span> r.cohort_month <span class="op">=</span> cs.cohort_month
+<span class="kw">ORDER BY</span> r.cohort_month, r.month_number;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📊 Cohort Retention Heatmap — GUVI Learners</div>
+      <div class="cohort-wrap">
+        <table class="cohort-tbl">
+          <thead>
+            <tr>
+              <th style="text-align:left">Cohort</th>
+              <th>M+0</th><th>M+1</th><th>M+2</th><th>M+3</th><th>M+4</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="cohort-label">2024-Jan (120)</td><td class="c-heat-5">100%</td><td class="c-heat-4">72%</td><td class="c-heat-3">55%</td><td class="c-heat-2">41%</td><td class="c-heat-1">33%</td></tr>
+            <tr><td class="cohort-label">2024-Feb (95)</td><td class="c-heat-5">100%</td><td class="c-heat-4">68%</td><td class="c-heat-3">52%</td><td class="c-heat-2">39%</td><td class="c-heat-0">—</td></tr>
+            <tr><td class="cohort-label">2024-Mar (140)</td><td class="c-heat-5">100%</td><td class="c-heat-4">75%</td><td class="c-heat-3">58%</td><td class="c-heat-0">—</td><td class="c-heat-0">—</td></tr>
+            <tr><td class="cohort-label">2024-Apr (88)</td><td class="c-heat-5">100%</td><td class="c-heat-3">61%</td><td class="c-heat-0">—</td><td class="c-heat-0">—</td><td class="c-heat-0">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="co tip"><span class="ci">💡</span><div><strong>Reading the heatmap:</strong> Darker green = higher retention. March cohort retained 75% in M+1 — the best of all cohorts. The Jan cohort had only 33% left by M+4. This tells you: what was different about the March batch that drove better retention?</div></div>
+    </div>
+  </section>
+
+  <!-- ══ FUNNEL ══ -->
+  <section class="sec" id="sec-funnel">
+    <h2 class="st">🔻 Funnel Analysis — Stage Drop-off Rates</h2>
+    <p class="ss">A funnel tracks how many users complete each step of a process — and crucially, where they fall off. Every product has a funnel: registration → course start → first quiz → certificate.</p>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI Learner Activation Funnel</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span>
+  <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> student_id)                                              <span class="kw">AS</span> registered,
+  <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="kw">CASE</span> <span class="kw">WHEN</span> first_login  <span class="kw">IS NOT NULL</span> <span class="kw">THEN</span> student_id <span class="kw">END</span>)   <span class="kw">AS</span> activated,
+  <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="kw">CASE</span> <span class="kw">WHEN</span> first_lesson <span class="kw">IS NOT NULL</span> <span class="kw">THEN</span> student_id <span class="kw">END</span>)   <span class="kw">AS</span> started_learning,
+  <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="kw">CASE</span> <span class="kw">WHEN</span> quiz_score   <span class="kw">IS NOT NULL</span> <span class="kw">THEN</span> student_id <span class="kw">END</span>)   <span class="kw">AS</span> attempted_quiz,
+  <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="kw">CASE</span> <span class="kw">WHEN</span> certificate  <span class="op">=</span> <span class="str">'Y'</span>         <span class="kw">THEN</span> student_id <span class="kw">END</span>)   <span class="kw">AS</span> certified
+<span class="kw">FROM</span>   guvi_learners;</pre></div>
+
+      <div class="funnel-wrap" id="funnelViz"></div>
+      <div class="co info"><span class="ci">💡</span><div><strong>The biggest drop-off</strong> in this funnel is between Registered → Activated (only 73% actually log in). This is the #1 improvement opportunity — investigate the onboarding email sequence.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📅 Funnel with Time Constraint — "Within 7 Days"</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Ordered funnel: each step must happen AFTER the previous, within 7 days</span>
+<span class="kw">WITH</span> funnel_steps <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    student_id,
+    enrolled_on,
+    <span class="fn">MIN</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> event_type <span class="op">=</span> <span class="str">'login'</span>       <span class="kw">THEN</span> event_time <span class="kw">END</span>) <span class="kw">AS</span> t_login,
+    <span class="fn">MIN</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> event_type <span class="op">=</span> <span class="str">'lesson_open'</span> <span class="kw">THEN</span> event_time <span class="kw">END</span>) <span class="kw">AS</span> t_lesson,
+    <span class="fn">MIN</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> event_type <span class="op">=</span> <span class="str">'quiz_submit'</span> <span class="kw">THEN</span> event_time <span class="kw">END</span>) <span class="kw">AS</span> t_quiz
+  <span class="kw">FROM</span>   guvi_events
+  <span class="kw">GROUP BY</span> student_id, enrolled_on
+)
+<span class="kw">SELECT</span>
+  <span class="fn">COUNT</span>(<span class="op">*</span>)                                                         <span class="kw">AS</span> step1_enrolled,
+  <span class="fn">COUNT</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> t_login  <span class="op"><=</span> enrolled_on <span class="op">+</span> <span class="kw">INTERVAL</span> <span class="num">7</span> <span class="kw">DAY</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">END</span>) <span class="kw">AS</span> step2_login,
+  <span class="fn">COUNT</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> t_lesson <span class="op"><=</span> enrolled_on <span class="op">+</span> <span class="kw">INTERVAL</span> <span class="num">7</span> <span class="kw">DAY</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">END</span>) <span class="kw">AS</span> step3_lesson,
+  <span class="fn">COUNT</span>(<span class="kw">CASE</span> <span class="kw">WHEN</span> t_quiz   <span class="op"><=</span> enrolled_on <span class="op">+</span> <span class="kw">INTERVAL</span> <span class="num">7</span> <span class="kw">DAY</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">END</span>) <span class="kw">AS</span> step4_quiz
+<span class="kw">FROM</span>   funnel_steps;</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ SESSION ══ -->
+  <section class="sec" id="sec-session">
+    <h2 class="st">🔗 Sessionisation — Grouping User Events</h2>
+    <p class="ss">Sessionisation groups raw event logs into "sessions" — bursts of user activity separated by idle gaps. A session typically ends when no activity occurs for 30 minutes.</p>
+
+    <div class="card">
+      <div class="ct">🔍 The Challenge — Raw Events Have No Session IDs</div>
+      <div class="session-timeline">
+        <div class="ev ev-s1">login<br/><span style="font-size:9px">10:00</span></div>
+        <div class="ev ev-s1">page_view<br/><span style="font-size:9px">10:05</span></div>
+        <div class="ev ev-s1">quiz_open<br/><span style="font-size:9px">10:22</span></div>
+        <div class="session-break">⏸ 45 min gap →</div>
+        <div class="ev ev-s2">login<br/><span style="font-size:9px">11:10</span></div>
+        <div class="ev ev-s2">video<br/><span style="font-size:9px">11:25</span></div>
+        <div class="session-break">⏸ 35 min →</div>
+        <div class="ev ev-s3">page_view<br/><span style="font-size:9px">12:05</span></div>
+        <div class="ev ev-s3">submit<br/><span style="font-size:9px">12:18</span></div>
+      </div>
+      <p style="font-size:12.5px;color:var(--muted);margin-top:4px">Gaps &gt;30 min = new session. Pink = Session 1, Purple = Session 2, Green = Session 3.</p>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔨 Sessionisation with Window Functions</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">WITH</span> events_with_prev <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    student_id, event_time, event_type,
+    <span class="fn">LAG</span>(event_time) <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> student_id <span class="kw">ORDER BY</span> event_time)
+      <span class="kw">AS</span> prev_event_time
+  <span class="kw">FROM</span>   guvi_events
+),
+session_flags <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> <span class="op">*</span>,
+    <span class="cm">-- flag = 1 when gap from previous event > 30 minutes → NEW session</span>
+    <span class="kw">CASE</span>
+      <span class="kw">WHEN</span> prev_event_time <span class="kw">IS NULL</span>
+        <span class="kw">OR</span> <span class="fn">TIMESTAMPDIFF</span>(<span class="kw">MINUTE</span>, prev_event_time, event_time) <span class="op">></span> <span class="num">30</span>
+      <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span>
+    <span class="kw">END</span> <span class="kw">AS</span> new_session_flag
+  <span class="kw">FROM</span>   events_with_prev
+)
+<span class="kw">SELECT</span>
+  student_id, event_time, event_type,
+  <span class="cm">-- running sum of new_session_flag = unique session number per student</span>
+  <span class="fn">SUM</span>(new_session_flag) <span class="kw">OVER</span> (
+    <span class="kw">PARTITION BY</span> student_id
+    <span class="kw">ORDER BY</span> event_time
+  ) <span class="kw">AS</span> session_id
+<span class="kw">FROM</span>   session_flags;</pre></div>
+      <div class="co tip"><span class="ci">💡</span><div><strong>The trick:</strong>When we flag the start of each session as 1 and all other events as 0, a running SUM of that flag produces a unique, incrementing session number per user. This is the standard sessionisation pattern used by Zomato, Swiggy, and every product analytics team.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ YOY ══ -->
+  <section class="sec" id="sec-yoy">
+    <h2 class="st">📆 Year-over-Year &amp; Quarter-over-Quarter</h2>
+    <p class="ss">YoY and QoQ comparisons tell you whether a metric is growing or declining relative to the same period last year/quarter — controlling for seasonality.</p>
+
+    <div class="card">
+      <div class="ct">📆 Year-over-Year Revenue — LAG with 12-Month Offset</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">WITH</span> monthly <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    <span class="fn">YEAR</span>(payment_date)  <span class="kw">AS</span> yr,
+    <span class="fn">MONTH</span>(payment_date) <span class="kw">AS</span> mo,
+    <span class="fn">SUM</span>(amount)         <span class="kw">AS</span> revenue
+  <span class="kw">FROM</span>   payments
+  <span class="kw">GROUP BY</span> yr, mo
+)
+<span class="kw">SELECT</span>
+  yr, mo, revenue,
+  <span class="fn">LAG</span>(revenue, <span class="num">12</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> yr, mo) <span class="kw">AS</span> same_month_last_year,
+  <span class="fn">ROUND</span>(
+    <span class="num">100.0</span> <span class="op">*</span> (revenue <span class="op">-</span> <span class="fn">LAG</span>(revenue,<span class="num">12</span>) <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> yr, mo))
+    <span class="op">/</span> <span class="fn">NULLIF</span>(<span class="fn">LAG</span>(revenue,<span class="num">12</span>) <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> yr, mo), <span class="num">0</span>),
+  <span class="num">1</span>) <span class="kw">AS</span> yoy_pct
+<span class="kw">FROM</span>   monthly
+<span class="kw">ORDER BY</span> yr, mo;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📊 Quarter-over-Quarter Enrollments</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span>
+  <span class="fn">YEAR</span>(enrolled_on)    <span class="kw">AS</span> yr,
+  <span class="fn">QUARTER</span>(enrolled_on) <span class="kw">AS</span> qtr,
+  <span class="fn">COUNT</span>(<span class="op">*</span>)            <span class="kw">AS</span> new_learners,
+  <span class="fn">LAG</span>(<span class="fn">COUNT</span>(<span class="op">*</span>),<span class="num">1</span>) <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> <span class="fn">YEAR</span>(enrolled_on), <span class="fn">QUARTER</span>(enrolled_on)) <span class="kw">AS</span> prev_quarter,
+  <span class="fn">ROUND</span>(<span class="num">100.0</span> <span class="op">*</span> (<span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">-</span> <span class="fn">LAG</span>(<span class="fn">COUNT</span>(<span class="op">*</span>),<span class="num">1</span>) <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> <span class="fn">YEAR</span>(enrolled_on), <span class="fn">QUARTER</span>(enrolled_on)))
+        <span class="op">/</span> <span class="fn">NULLIF</span>(<span class="fn">LAG</span>(<span class="fn">COUNT</span>(<span class="op">*</span>),<span class="num">1</span>) <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> <span class="fn">YEAR</span>(enrolled_on), <span class="fn">QUARTER</span>(enrolled_on)),<span class="num">0</span>),<span class="num">1</span>) <span class="kw">AS</span> qoq_pct
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">GROUP BY</span> yr, qtr
+<span class="kw">ORDER BY</span> yr, qtr;</pre></div>
+      <table class="dtbl">
+        <thead><tr><th>yr</th><th>qtr</th><th>new_learners</th><th>prev_quarter</th><th>qoq_pct</th></tr></thead>
+        <tbody>
+          <tr><td>2024</td><td>Q1</td><td>315</td><td class="td-muted">NULL</td><td class="td-muted">NULL</td></tr>
+          <tr><td>2024</td><td>Q2</td><td>388</td><td>315</td><td class="td-green">+23.2%</td></tr>
+          <tr><td>2024</td><td>Q3</td><td>362</td><td>388</td><td class="td-rose">-6.7%</td></tr>
+          <tr><td>2024</td><td>Q4</td><td>441</td><td>362</td><td class="td-green">+21.8%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══ PIVOT ══ -->
+  <section class="sec" id="sec-pivot">
+    <h2 class="st">↔️ Pivot Table Using CASE WHEN + GROUP BY</h2>
+    <p class="ss">Pivoting turns row values into columns — transforming long/tall data into wide/summary tables that are much easier to read in reports.</p>
+
+    <div class="card">
+      <div class="ct">🔄 Before &amp; After Pivot — GUVI Monthly Enrollments by City</div>
+      <div class="pivot-demo">
+        <div>
+          <div style="font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">BEFORE (long format)</div>
+          <table class="dtbl">
+            <thead><tr><th>month</th><th>city</th><th>count</th></tr></thead>
+            <tbody>
+              <tr><td>Jan</td><td>Chennai</td><td>42</td></tr>
+              <tr><td>Jan</td><td>Mumbai</td><td>35</td></tr>
+              <tr><td>Feb</td><td>Chennai</td><td>48</td></tr>
+              <tr><td>Feb</td><td>Mumbai</td><td>31</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pivot-arrow">→</div>
+        <div>
+          <div style="font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:var(--rose);margin-bottom:8px">AFTER (wide/pivot format)</div>
+          <table class="dtbl">
+            <thead><tr><th>month</th><th>Chennai</th><th>Mumbai</th></tr></thead>
+            <tbody>
+              <tr><td>Jan</td><td>42</td><td>35</td></tr>
+              <tr><td>Feb</td><td>48</td><td>31</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="cb"><span class="cl">SQL — Pivot with CASE WHEN</span><pre><span class="kw">SELECT</span>
+  <span class="fn">DATE_FORMAT</span>(enrolled_on, <span class="str">'%b'</span>) <span class="kw">AS</span> month,
+  <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> city <span class="op">=</span> <span class="str">'Chennai'</span>   <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> Chennai,
+  <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> city <span class="op">=</span> <span class="str">'Mumbai'</span>    <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> Mumbai,
+  <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> city <span class="op">=</span> <span class="str">'Bangalore'</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> Bangalore,
+  <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> city <span class="op">=</span> <span class="str">'Hyderabad'</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) <span class="kw">AS</span> Hyderabad
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">GROUP BY</span> <span class="fn">DATE_FORMAT</span>(enrolled_on,<span class="str">'%b'</span>), <span class="fn">MONTH</span>(enrolled_on)
+<span class="kw">ORDER BY</span> <span class="fn">MONTH</span>(enrolled_on);</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">↩️ UNPIVOT — Reverse: Wide → Long</div>
+      <p style="margin-bottom:10px;font-size:13.5px">SQL has no native UNPIVOT in MySQL. Use UNION ALL — one SELECT per column being "unpivoted":</p>
+      <div class="cb"><span class="cl">SQL — UNPIVOT using UNION ALL</span><pre><span class="kw">SELECT</span> month, <span class="str">'Chennai'</span>   <span class="kw">AS</span> city, Chennai   <span class="kw">AS</span> enrollments <span class="kw">FROM</span> monthly_pivot
+<span class="kw">UNION ALL</span>
+<span class="kw">SELECT</span> month, <span class="str">'Mumbai'</span>    <span class="kw">AS</span> city, Mumbai    <span class="kw">AS</span> enrollments <span class="kw">FROM</span> monthly_pivot
+<span class="kw">UNION ALL</span>
+<span class="kw">SELECT</span> month, <span class="str">'Bangalore'</span> <span class="kw">AS</span> city, Bangalore <span class="kw">AS</span> enrollments <span class="kw">FROM</span> monthly_pivot
+<span class="kw">ORDER BY</span> month, city;</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ ATTRIBUTION ══ -->
+  <section class="sec" id="sec-attribution">
+    <h2 class="st">🎯 First/Last Touch Attribution</h2>
+    <p class="ss">Attribution answers: "which marketing channel gets credit for a conversion?" First-touch credits the first touchpoint; last-touch credits the final one before conversion.</p>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI — Which Channel Drove Enrollment?</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">WITH</span> touches <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    student_id, channel, touched_at,
+    <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> student_id <span class="kw">ORDER BY</span> touched_at <span class="kw">ASC</span>)  <span class="kw">AS</span> first_touch_rank,
+    <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> student_id <span class="kw">ORDER BY</span> touched_at <span class="kw">DESC</span>) <span class="kw">AS</span> last_touch_rank
+  <span class="kw">FROM</span>   marketing_touches
+  <span class="kw">WHERE</span>  student_id <span class="kw">IN</span> (<span class="kw">SELECT</span> student_id <span class="kw">FROM</span> guvi_learners)  <span class="cm">-- converted users only</span>
+)
+<span class="kw">SELECT</span>
+  <span class="str">'First Touch'</span> <span class="kw">AS</span> model, channel, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> conversions
+<span class="kw">FROM</span>   touches <span class="kw">WHERE</span> first_touch_rank <span class="op">=</span> <span class="num">1</span> <span class="kw">GROUP BY</span> channel
+<span class="kw">UNION ALL</span>
+<span class="kw">SELECT</span>
+  <span class="str">'Last Touch'</span> <span class="kw">AS</span> model, channel, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> conversions
+<span class="kw">FROM</span>   touches <span class="kw">WHERE</span> last_touch_rank <span class="op">=</span> <span class="num">1</span> <span class="kw">GROUP BY</span> channel
+<span class="kw">ORDER BY</span> model, conversions <span class="kw">DESC</span>;</pre></div>
+      <table class="dtbl">
+        <thead><tr><th>model</th><th>channel</th><th>conversions</th></tr></thead>
+        <tbody>
+          <tr><td>First Touch</td><td>Instagram Ad</td><td class="td-green">142</td></tr>
+          <tr><td>First Touch</td><td>Google Search</td><td>98</td></tr>
+          <tr><td>Last Touch</td><td>Email Campaign</td><td class="td-green">167</td></tr>
+          <tr><td>Last Touch</td><td>Instagram Ad</td><td>74</td></tr>
+        </tbody>
+      </table>
+      <div class="co tip"><span class="ci">💡</span><div>Instagram discovers users (best first touch), but Email is what finally converts them (best last touch). This tells marketing: keep Instagram for awareness spend, invest in email nurturing to close.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ FEATURES ══ -->
+  <section class="sec" id="sec-features">
+    <h2 class="st">⚙️ Feature Engineering in SQL</h2>
+    <p class="ss">Feature engineering is computing model-input columns from raw data. SQL is excellent at this — often faster than pandas for large datasets.</p>
+
+    <div class="card">
+      <div class="ct">📐 RFM Features — Recency, Frequency, Monetary</div>
+      <div class="cb"><span class="cl">SQL → ML Feature Table</span><pre><span class="kw">SELECT</span>
+  student_id,
+  <span class="cm">-- RECENCY: days since last activity</span>
+  <span class="fn">DATEDIFF</span>(<span class="fn">CURDATE</span>(), <span class="fn">MAX</span>(activity_date))           <span class="kw">AS</span> recency_days,
+  <span class="cm">-- FREQUENCY: total sessions in last 30 days</span>
+  <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> session_id)                         <span class="kw">AS</span> frequency,
+  <span class="cm">-- MONETARY (for EdTech: total course value completed)</span>
+  <span class="fn">SUM</span>(course_value)                                  <span class="kw">AS</span> monetary,
+  <span class="cm">-- DERIVED FEATURES</span>
+  <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> lesson_id)                          <span class="kw">AS</span> lessons_completed,
+  <span class="fn">ROUND</span>(<span class="fn">AVG</span>(quiz_score),<span class="num">1</span>)                          <span class="kw">AS</span> avg_score,
+  <span class="fn">DATEDIFF</span>(<span class="fn">MAX</span>(activity_date), <span class="fn">MIN</span>(activity_date))  <span class="kw">AS</span> tenure_days,
+  <span class="kw">CASE</span> <span class="kw">WHEN</span> <span class="fn">MAX</span>(quiz_score) <span class="op">>=</span> <span class="num">75</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span> <span class="kw">AS</span> ever_passed  <span class="cm">-- binary flag</span>
+<span class="kw">FROM</span>   guvi_events
+<span class="kw">WHERE</span>  activity_date <span class="op">>=</span> <span class="fn">DATE_SUB</span>(<span class="fn">CURDATE</span>(), <span class="kw">INTERVAL</span> <span class="num">30</span> <span class="kw">DAY</span>)
+<span class="kw">GROUP BY</span> student_id;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📊 NTILE Percentile Bucketing for Classification Labels</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Create a "at-risk" label for churn prediction model</span>
+<span class="kw">WITH</span> features <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> student_id, recency_days, frequency,
+         <span class="fn">NTILE</span>(<span class="num">5</span>) <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> recency_days <span class="kw">DESC</span>) <span class="kw">AS</span> recency_tier,
+         <span class="fn">NTILE</span>(<span class="num">5</span>) <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> frequency <span class="kw">DESC</span>)    <span class="kw">AS</span> freq_tier
+  <span class="kw">FROM</span>   user_features
+)
+<span class="kw">SELECT</span> <span class="op">*</span>,
+  <span class="cm">-- combined score: high recency + low frequency → churn risk</span>
+  <span class="kw">CASE</span> <span class="kw">WHEN</span> recency_tier <span class="op">>=</span> <span class="num">4</span> <span class="kw">AND</span> freq_tier <span class="op">>=</span> <span class="num">4</span> <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span> <span class="kw">AS</span> churn_label
+<span class="kw">FROM</span>   features;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📡 Outlier Detection with STDDEV</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Flag scores more than 2 standard deviations from the batch mean</span>
+<span class="kw">WITH</span> stats <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> batch_id,
+         <span class="fn">AVG</span>(quiz_score)    <span class="kw">AS</span> mean_score,
+         <span class="fn">STDDEV</span>(quiz_score) <span class="kw">AS</span> std_score
+  <span class="kw">FROM</span>   guvi_learners
+  <span class="kw">GROUP BY</span> batch_id
+)
+<span class="kw">SELECT</span>
+  l.student_id, l.name, l.batch_id, l.quiz_score,
+  s.mean_score, s.std_score,
+  <span class="fn">ABS</span>(l.quiz_score <span class="op">-</span> s.mean_score) <span class="op">/</span> <span class="fn">NULLIF</span>(s.std_score,<span class="num">0</span>) <span class="kw">AS</span> z_score,
+  <span class="kw">CASE</span>
+    <span class="kw">WHEN</span> <span class="fn">ABS</span>(l.quiz_score <span class="op">-</span> s.mean_score) <span class="op">></span> <span class="num">2</span> <span class="op">*</span> s.std_score
+    <span class="kw">THEN</span> <span class="str">'⚠️ Outlier'</span>
+    <span class="kw">ELSE</span> <span class="str">'✅ Normal'</span>
+  <span class="kw">END</span> <span class="kw">AS</span> outlier_flag
+<span class="kw">FROM</span>   guvi_learners l
+<span class="kw">JOIN</span>   stats s <span class="kw">ON</span> l.batch_id <span class="op">=</span> s.batch_id
+<span class="kw">ORDER BY</span> z_score <span class="kw">DESC</span>;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🎲 Sampling Strategies — TABLESAMPLE &amp; RAND()</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- RAND() sampling — works in MySQL (no TABLESAMPLE support)</span>
+<span class="cm">-- 10% random sample for quick model prototyping</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_learners
+<span class="kw">WHERE</span>  <span class="fn">RAND</span>() <span class="op"><</span> <span class="num">0.10</span>;
+
+<span class="cm">-- Reproducible sample with a SEED (same rows every run)</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_learners
+<span class="kw">WHERE</span>  (<span class="fn">RAND</span>(42) <span class="op">*</span> <span class="num">1000</span>) <span class="op"><</span> <span class="num">100</span>        <span class="cm">-- ~10% with seed 42</span>
+<span class="kw">LIMIT</span>  <span class="num">1000</span>;
+
+<span class="cm">-- PostgreSQL TABLESAMPLE (native)</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_learners
+<span class="kw">TABLESAMPLE BERNOULLI</span>(<span class="num">10</span>);            <span class="cm">-- 10% of rows, PostgreSQL only</span></pre></div>
+    </div>
+  </section>
+
+  <!-- ══ TIME SERIES ══ -->
+  <section class="sec" id="sec-timeseries">
+    <h2 class="st">📈 Time-Series Gap Filling</h2>
+    <p class="ss">Reports that GROUP BY date skip days with no activity. Gap filling ensures every date appears in the result — crucial for charts that should show flat lines, not missing data points.</p>
+
+    <div class="card">
+      <div class="ct">🔨 Generate a Date Spine + LEFT JOIN</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Step 1: generate every date in range (recursive CTE from Ch 16)</span>
+<span class="kw">WITH RECURSIVE</span> date_spine <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> <span class="fn">CAST</span>(<span class="str">'2024-01-01'</span> <span class="kw">AS DATE</span>) <span class="kw">AS</span> d
+  <span class="kw">UNION ALL</span>
+  <span class="kw">SELECT</span> <span class="fn">DATE_ADD</span>(d, <span class="kw">INTERVAL</span> <span class="num">1</span> <span class="kw">DAY</span>) <span class="kw">FROM</span> date_spine <span class="kw">WHERE</span> d <span class="op"><</span> <span class="str">'2024-03-31'</span>
+),
+
+<span class="cm">-- Step 2: aggregate actual data by date</span>
+daily_enrollments <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> <span class="fn">DATE</span>(enrolled_on) <span class="kw">AS</span> enrollment_date, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> new_learners
+  <span class="kw">FROM</span>   guvi_learners
+  <span class="kw">GROUP BY</span> enrollment_date
+)
+
+<span class="cm">-- Step 3: LEFT JOIN spine to data — gaps show as 0, not missing</span>
+<span class="kw">SELECT</span>
+  ds.d                                            <span class="kw">AS</span> date,
+  <span class="fn">COALESCE</span>(de.new_learners, <span class="num">0</span>)                    <span class="kw">AS</span> new_learners,
+  <span class="fn">SUM</span>(<span class="fn">COALESCE</span>(de.new_learners,<span class="num">0</span>)) <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> ds.d) <span class="kw">AS</span> running_total
+<span class="kw">FROM</span>   date_spine ds
+<span class="kw">LEFT JOIN</span> daily_enrollments de <span class="kw">ON</span> ds.d <span class="op">=</span> de.enrollment_date
+<span class="kw">ORDER BY</span> ds.d;</pre></div>
+      <div class="co success"><span class="ci">✅</span><div>COALESCE(de.new_learners, 0) replaces NULL (no enrolments that day) with 0 — so your matplotlib chart draws a flat zero line rather than a confusing gap or broken line.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ PIPELINE (SIGNATURE) ══ -->
+  <section class="sec" id="sec-pipeline">
+    <h2 class="st">🎮 Build: Full Analytics Pipeline — SQL → pandas → Dashboard</h2>
+    <p class="ss">Step through a complete end-to-end pipeline: SQL extracts features, pandas transforms, matplotlib visualises. This is exactly how a data scientist works daily.</p>
+
+    <div class="pipeline">
+      <div class="pl-head">
+        <div class="pl-title">⚡ Analytics Pipeline Lab — GUVI Learner Insights</div>
+        <div class="pl-sub">Click each stage to see the SQL, the output, and what happens next</div>
+      </div>
+      <div class="pl-stages">
+        <div class="pl-stage-tab active" onclick="setPipeStage(0,this)"><div class="stage-num">1</div>Extract</div>
+        <div class="pl-stage-tab" onclick="setPipeStage(1,this)"><div class="stage-num">2</div>Cohort</div>
+        <div class="pl-stage-tab" onclick="setPipeStage(2,this)"><div class="stage-num">3</div>Funnel</div>
+        <div class="pl-stage-tab" onclick="setPipeStage(3,this)"><div class="stage-num">4</div>Features</div>
+        <div class="pl-stage-tab" onclick="setPipeStage(4,this)"><div class="stage-num">5</div>Python</div>
+        <div class="pl-stage-tab" onclick="setPipeStage(5,this)"><div class="stage-num">6</div>Dashboard</div>
+      </div>
+      <div class="pl-body">
+        <div class="pl-controls">
+          <button class="pl-btn" onclick="pipeNext()">▶ Next Stage</button>
+          <button class="pl-btn sec-btn" onclick="pipeReset()">↺ Reset</button>
+          <span class="pl-progress" id="pl-progress">Stage 1 of 6</span>
+        </div>
+        <div class="pl-layout">
+          <div class="pl-panel">
+            <div class="pl-panel-head pl-sql-head" id="pl-sql-head">📄 SQL Query</div>
+            <div class="pl-sql-body" id="pl-sql-body"></div>
+          </div>
+          <div class="pl-panel">
+            <div class="pl-panel-head pl-out-head" id="pl-out-head">📊 Output</div>
+            <div class="pl-out-body" id="pl-out-body"></div>
+          </div>
+        </div>
+        <div class="pl-explain" id="pl-explain"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📄 The Complete Python Integration Code</div>
+      <div class="cb"><span class="cl">Python — Full Pipeline</span><pre><span class="py">import</span> mysql.connector
+<span class="py">import</span> pandas <span class="py">as</span> pd
+<span class="py">import</span> matplotlib.pyplot <span class="py">as</span> plt
+<span class="py">import</span> matplotlib.gridspec <span class="py">as</span> gridspec
+
+<span class="cm"># ── 1. CONNECT ──────────────────────────────────────────</span>
+conn = mysql.connector.connect(
+    host=<span class="str">'localhost'</span>, database=<span class="str">'guvi_db'</span>,
+    user=<span class="str">'analyst'</span>, password=<span class="str">'****'</span>
+)
+
+<span class="cm"># ── 2. EXTRACT: RFM feature table ───────────────────────</span>
+rfm_sql = <span class="str">"""
+    SELECT student_id,
+           DATEDIFF(CURDATE(), MAX(activity_date)) AS recency,
+           COUNT(DISTINCT session_id)              AS frequency,
+           SUM(course_value)                       AS monetary,
+           AVG(quiz_score)                         AS avg_score,
+           CASE WHEN MAX(quiz_score)>=75 THEN 1 ELSE 0 END AS passed
+    FROM   guvi_events
+    GROUP BY student_id
+"""</span>
+df = pd.read_sql(rfm_sql, conn)
+
+<span class="cm"># ── 3. TRANSFORM in pandas ──────────────────────────────</span>
+df[<span class="str">'recency_tier'</span>] = pd.qcut(df[<span class="str">'recency'</span>], q=<span class="num">5</span>, labels=[<span class="num">5</span>,<span class="num">4</span>,<span class="num">3</span>,<span class="num">2</span>,<span class="num">1</span>])
+df[<span class="str">'freq_tier'</span>]    = pd.qcut(df[<span class="str">'frequency'</span>], q=<span class="num">5</span>, labels=[<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>])
+df[<span class="str">'rfm_score'</span>]   = (df[<span class="str">'recency_tier'</span>].astype(<span class="py">int</span>)
+                    + df[<span class="str">'freq_tier'</span>].astype(<span class="py">int</span>))
+
+<span class="cm"># ── 4. ML: simple churn prediction ──────────────────────</span>
+<span class="py">from</span> sklearn.ensemble <span class="py">import</span> RandomForestClassifier
+<span class="py">from</span> sklearn.model_selection <span class="py">import</span> train_test_split
+
+X = df[[<span class="str">'recency'</span>,<span class="str">'frequency'</span>,<span class="str">'monetary'</span>,<span class="str">'avg_score'</span>]]
+y = (df[<span class="str">'recency'</span>] <span class="op">></span> <span class="num">30</span>).astype(<span class="py">int</span>)   <span class="cm"># 1 = inactive > 30 days</span>
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="num">0.2</span>)
+model = RandomForestClassifier(n_estimators=<span class="num">100</span>, random_state=<span class="num">42</span>)
+model.fit(X_train, y_train)
+df[<span class="str">'churn_prob'</span>] = model.predict_proba(X)[:,<span class="num">1</span>]
+
+<span class="cm"># ── 5. DASHBOARD ────────────────────────────────────────</span>
+fig = plt.figure(figsize=(<span class="num">15</span>, <span class="num">10</span>))
+gs  = gridspec.GridSpec(<span class="num">2</span>, <span class="num">3</span>, figure=fig)
+
+ax1 = fig.add_subplot(gs[<span class="num">0</span>, <span class="num">0</span>])    <span class="cm"># RFM score distribution</span>
+ax2 = fig.add_subplot(gs[<span class="num">0</span>, <span class="num">1</span>])    <span class="cm"># Churn probability histogram</span>
+ax3 = fig.add_subplot(gs[<span class="num">0</span>, <span class="num">2</span>])    <span class="cm"># Recency vs frequency scatter</span>
+ax4 = fig.add_subplot(gs[<span class="num">1</span>, :])    <span class="cm"># Feature importances (full width)</span>
+
+df[<span class="str">'rfm_score'</span>].hist(ax=ax1, color=<span class="str">'#e11d48'</span>, bins=<span class="num">10</span>)
+ax1.set_title(<span class="str">'RFM Score Distribution'</span>)
+
+df[<span class="str">'churn_prob'</span>].hist(ax=ax2, color=<span class="str">'#7c3aed'</span>, bins=<span class="num">20</span>)
+ax2.set_title(<span class="str">'Predicted Churn Probability'</span>)
+
+ax3.scatter(df[<span class="str">'recency'</span>], df[<span class="str">'frequency'</span>], c=df[<span class="str">'churn_prob'</span>],
+            cmap=<span class="str">'RdYlGn_r'</span>, alpha=<span class="num">0.6</span>)
+ax3.set_title(<span class="str">'Recency vs Frequency (colour = churn risk)'</span>)
+
+importances = pd.Series(model.feature_importances_, index=X.columns)
+importances.sort_values().plot(kind=<span class="str">'barh'</span>, ax=ax4, color=<span class="str">'#0284c7'</span>)
+ax4.set_title(<span class="str">'Feature Importances'</span>)
+
+plt.tight_layout()
+plt.savefig(<span class="str">'guvi_analytics_dashboard.png'</span>, dpi=<span class="num">150</span>)
+plt.show()
+conn.close()</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ SANDBOX ══ -->
+  <section class="sec" id="sec-sandbox">
+    <h2 class="st">💻 Practice Sandbox</h2>
+    <p class="ss">Practice advanced analytics patterns. The sandbox recognises expert-level query structures.</p>
+    <div class="sandbox">
+      <div class="sbh2">
+        <div class="sbt"><span>🖥️</span> SQL Sandbox — Advanced Analytics</div>
+        <div class="sbact">
+          <button class="sbbtn clr" onclick="clearSB()">Clear</button>
+          <button class="sbbtn run" onclick="runSB()">▶ Run</button>
+        </div>
+      </div>
+      <textarea class="sbed" id="sbed" spellcheck="false" placeholder="-- Try expert patterns:
+-- Cohort: WITH cohorts AS (SELECT student_id, MIN(enrolled_on) AS cohort...) 
+-- Funnel: SELECT COUNT(CASE WHEN first_login IS NOT NULL THEN 1 END) ...
+-- Sessionisation: LAG(event_time) OVER (PARTITION BY student_id ORDER BY event_time)
+-- YoY: LAG(revenue, 12) OVER (ORDER BY yr, mo)
+-- Pivot: SUM(CASE WHEN city='Chennai' THEN 1 ELSE 0 END) AS Chennai
+-- Outlier: ABS(score - AVG(score)) > 2 * STDDEV(score)
+-- Feature: DATEDIFF(CURDATE(), MAX(activity_date)) AS recency_days
+"></textarea>
+      <div class="sbout" id="sbout"><span style="color:var(--muted);font-size:12px">▶ Output will appear here</span></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📝 Expert Practice Challenges</div>
+      <ul class="steps">
+        <li class="step"><div class="sn">1</div><div class="sb2"><strong>Cohort retention</strong><p>Build the 4-step CTE chain for cohort analysis and compute the M+1 retention rate for each cohort month.</p></div></li>
+        <li class="step"><div class="sn">2</div><div class="sb2"><strong>Funnel with drop-off %</strong><p>Build the GUVI activation funnel and add a column showing the % drop-off between each consecutive stage.</p></div></li>
+        <li class="step"><div class="sn">3</div><div class="sb2"><strong>Sessionise raw events</strong><p>Use LAG() + SUM() OVER to assign session IDs to the guvi_events table with a 30-minute gap threshold.</p></div></li>
+        <li class="step"><div class="sn">4</div><div class="sb2"><strong>Pivot by quarter</strong><p>Pivot monthly enrollment counts into columns for Q1, Q2, Q3, Q4 using CASE WHEN + GROUP BY.</p></div></li>
+        <li class="step"><div class="sn">5</div><div class="sb2"><strong>Full feature table</strong><p>Write a single SQL query that produces recency, frequency, avg_score, and outlier_flag for every learner — ready to feed into a Python ML model.</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ QUIZ ══ -->
+  <section class="sec" id="sec-quiz">
+    <h2 class="st">🧠 Chapter 18 Quiz</h2>
+    <p class="ss">Expert-level questions covering all analytics patterns from this chapter.</p>
+    <div class="qw">
+      <div class="qprog" id="qprog">Question 1 of 8</div>
+      <div class="qq" id="qq"></div>
+      <ul class="qopts" id="qopts"></ul>
+      <div class="qfb" id="qfb"></div>
+      <div class="qnav">
+        <span class="qsc" id="qsc">Score: 0 / 0</span>
+        <button class="qbtn" id="qnext" onclick="nextQ()" style="display:none">Next Question →</button>
+      </div>
+    </div>
+    <div class="done" id="done-card" style="display:none">
+      <div class="trophy">🏆</div>
+      <h3 id="done-title">Expert Unlocked</h3>
+      <p id="done-msg"></p>
+      <button class="donebtn" onclick="doConfetti()">🎉 Celebrate!</button>
+    </div>
+  </section>
+</main>
+
+<script>
+// ── NAV ──
+const SECS=['intro','cohort','funnel','session','yoy','pivot','attribution','features','outliers','timeseries','pipeline','sandbox','quiz'];
+let ci=0;const doneSet=new Set();
+function showS(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  ci=SECS.indexOf(id);window.scrollTo(0,0);
+}
+function nextS(){if(ci<SECS.length-1){markDone(SECS[ci]);const n=SECS[ci+1];showS(n,document.querySelector(`[data-s="${n}"]`));}}
+function prevS(){if(ci>0){const p=SECS[ci-1];showS(p,document.querySelector(`[data-s="${p}"]`));}}
+function markDone(id){
+  doneSet.add(id);
+  const c=document.getElementById('chk-'+id);if(c)c.textContent='✓';
+  const n=document.querySelector(`[data-s="${id}"]`);if(n)n.classList.add('done');
+  const pct=Math.round((doneSet.size/SECS.length)*100);
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('pp').textContent=pct+'%';
+}
+
+// ── FUNNEL ──
+const fStages=[
+  {label:'Registered',count:1840,pct:100,color:'#0284c7'},
+  {label:'Activated (logged in)',count:1343,pct:73,color:'#7c3aed'},
+  {label:'Started Learning',count:982,pct:53,color:'#059669'},
+  {label:'Attempted Quiz',count:721,pct:39,color:'#d97706'},
+  {label:'Certified',count:412,pct:22,color:'#e11d48'},
+];
+const fv=document.getElementById('funnelViz');
+fStages.forEach((s,i)=>{
+  if(i>0){
+    const drop=fStages[i-1].pct-s.pct;
+    const arr=document.createElement('div');
+    arr.className='funnel-arrow';
+    arr.innerHTML=`↓ <span class="dropoff-tag">-${drop}pp drop-off</span>`;
+    fv.appendChild(arr);
+  }
+  const el=document.createElement('div');
+  el.className='funnel-stage';
+  el.style.background=s.color;
+  el.style.width=Math.max(35,s.pct)+'%';
+  el.style.margin='0 auto';
+  el.innerHTML=`<span class="f-label">${s.label}</span><span class="f-count">${s.count.toLocaleString()}</span><span class="f-pct">${s.pct}%</span>`;
+  fv.appendChild(el);
+});
+
+// ── PIPELINE ──
+const PIPE_STAGES=[
+  {
+    label:'Stage 1 of 6',
+    sqlHead:'📄 Stage 1 — Connect & Extract',
+    sql:`<span style="color:#7dd3fc">import</span> mysql.connector, pandas <span style="color:#7dd3fc">as</span> pd
+
+conn = mysql.connector.connect(
+    host=<span style="color:#86efac">'localhost'</span>,
+    database=<span style="color:#86efac">'guvi_db'</span>
+)
+
+<span style="color:#475569"># Extract all learner features</span>
+df = pd.read_sql(<span style="color:#86efac">"""
+  SELECT student_id, name, city,
+         batch_id, quiz_score,
+         enrolled_on, last_login
+  FROM   guvi_learners
+"""</span>, conn)
+<span style="color:#7dd3fc">print</span>(df.shape)`,
+    outHead:'✅ Extraction Result',
+    out:`<div class="py-out">(1840, 7)\n\nDataFrame loaded:\n  student_id  name    city    batch_id  quiz_score\n0      S001   Priya   Chennai    B01       85\n1      S002   Meera   Mumbai     B01       93\n...</div>`,
+    explain:'Python connects to MySQL and uses pd.read_sql() to pull raw data into a DataFrame. The SQL runs on the database server — only the result set travels over the network, not every raw row of every table.'
+  },
+  {
+    label:'Stage 2 of 6',
+    sqlHead:'📄 Stage 2 — Cohort SQL',
+    sql:`<span style="color:#475569">-- Run this inside Python with pd.read_sql()</span>
+<span style="color:#7dd3fc">WITH</span> <span style="color:#f472b6">cohorts</span> <span style="color:#7dd3fc">AS</span> (
+  <span style="color:#7dd3fc">SELECT</span> student_id,
+    DATE_FORMAT(MIN(enrolled_on),<span style="color:#86efac">'%Y-%m'</span>)
+      <span style="color:#7dd3fc">AS</span> cohort_month
+  <span style="color:#7dd3fc">FROM</span> guvi_learners
+  <span style="color:#7dd3fc">GROUP BY</span> student_id
+)
+<span style="color:#7dd3fc">SELECT</span> cohort_month, month_number,
+       ROUND(100.0*retained/cohort_size,1)
+       <span style="color:#7dd3fc">AS</span> retention_pct
+<span style="color:#7dd3fc">FROM</span> <span style="color:#f472b6">cohorts</span> ...`,
+    outHead:'📊 Cohort Table',
+    out:`<table class="mini-tbl"><tr><th>cohort_month</th><th>month_number</th><th>retention_pct</th></tr>
+<tr><td>2024-01</td><td>0</td><td class="hi">100.0%</td></tr>
+<tr><td>2024-01</td><td>1</td><td>72.1%</td></tr>
+<tr><td>2024-01</td><td>2</td><td>55.3%</td></tr>
+<tr><td>2024-02</td><td>0</td><td class="hi">100.0%</td></tr>
+<tr><td>2024-02</td><td>1</td><td>68.4%</td></tr>
+</table>`,
+    explain:'The cohort query runs entirely in SQL — much faster than computing it row-by-row in Python. pd.read_sql() returns a DataFrame ready for the heatmap visualisation in stage 6.'
+  },
+  {
+    label:'Stage 3 of 6',
+    sqlHead:'📄 Stage 3 — Funnel SQL',
+    sql:`<span style="color:#7dd3fc">SELECT</span>
+  COUNT(DISTINCT student_id)   <span style="color:#7dd3fc">AS</span> registered,
+  COUNT(DISTINCT <span style="color:#7dd3fc">CASE WHEN</span>
+    first_login <span style="color:#7dd3fc">IS NOT NULL THEN</span>
+    student_id <span style="color:#7dd3fc">END</span>)            <span style="color:#7dd3fc">AS</span> activated,
+  COUNT(DISTINCT <span style="color:#7dd3fc">CASE WHEN</span>
+    first_lesson <span style="color:#7dd3fc">IS NOT NULL THEN</span>
+    student_id <span style="color:#7dd3fc">END</span>)            <span style="color:#7dd3fc">AS</span> started,
+  COUNT(DISTINCT <span style="color:#7dd3fc">CASE WHEN</span>
+    quiz_score <span style="color:#7dd3fc">IS NOT NULL THEN</span>
+    student_id <span style="color:#7dd3fc">END</span>)            <span style="color:#7dd3fc">AS</span> attempted_quiz,
+  COUNT(DISTINCT <span style="color:#7dd3fc">CASE WHEN</span>
+    certificate=<span style="color:#86efac">'Y' THEN</span>
+    student_id <span style="color:#7dd3fc">END</span>)            <span style="color:#7dd3fc">AS</span> certified
+<span style="color:#7dd3fc">FROM</span> guvi_learners;`,
+    outHead:'🔻 Funnel Output',
+    out:`<table class="mini-tbl"><tr><th>stage</th><th>count</th><th>conversion%</th></tr>
+<tr><td>registered</td><td>1840</td><td class="hi">100%</td></tr>
+<tr><td>activated</td><td>1343</td><td>73.0%</td></tr>
+<tr><td>started</td><td>982</td><td>53.4%</td></tr>
+<tr><td>attempted_quiz</td><td>721</td><td>39.2%</td></tr>
+<tr><td>certified</td><td>412</td><td class="hi">22.4%</td></tr>
+</table>`,
+    explain:'One SQL query, one row of output — pandas pivot() reshapes it into a DataFrame with stage labels and counts ready for the funnel chart.'
+  },
+  {
+    label:'Stage 4 of 6',
+    sqlHead:'📄 Stage 4 — Feature Engineering SQL',
+    sql:`<span style="color:#475569">-- Build ML feature table directly in SQL</span>
+<span style="color:#7dd3fc">SELECT</span>
+  student_id,
+  DATEDIFF(CURDATE(),
+    MAX(activity_date))     <span style="color:#7dd3fc">AS</span> recency,
+  COUNT(DISTINCT session_id) <span style="color:#7dd3fc">AS</span> frequency,
+  SUM(course_value)          <span style="color:#7dd3fc">AS</span> monetary,
+  AVG(quiz_score)            <span style="color:#7dd3fc">AS</span> avg_score,
+  STDDEV(quiz_score)         <span style="color:#7dd3fc">AS</span> score_std,
+  <span style="color:#7dd3fc">NTILE</span>(5) <span style="color:#7dd3fc">OVER</span>(
+    <span style="color:#7dd3fc">ORDER BY</span> AVG(quiz_score) <span style="color:#7dd3fc">DESC</span>
+  )                          <span style="color:#7dd3fc">AS</span> score_tier
+<span style="color:#7dd3fc">FROM</span> guvi_events
+<span style="color:#7dd3fc">GROUP BY</span> student_id;`,
+    outHead:'⚙️ Feature Matrix',
+    out:`<table class="mini-tbl"><tr><th>student_id</th><th>recency</th><th>frequency</th><th>avg_score</th><th>score_tier</th></tr>
+<tr><td>S001</td><td class="hi">3</td><td>12</td><td>85.2</td><td>2</td></tr>
+<tr><td>S002</td><td>45</td><td>2</td><td>61.0</td><td class="hi">5</td></tr>
+<tr><td>S003</td><td>7</td><td>8</td><td>92.1</td><td>1</td></tr>
+<tr><td>S004</td><td class="hi">72</td><td>1</td><td>48.5</td><td class="hi">5</td></tr>
+</table><div style="font-size:11px;color:var(--muted);margin-top:6px">1,840 rows × 7 features — ready for sklearn</div>`,
+    explain:'SQL computes all features server-side — far faster than looping in Python for millions of rows. The feature DataFrame goes directly into sklearn as X (features) and a recency threshold becomes y (churn label).'
+  },
+  {
+    label:'Stage 5 of 6',
+    sqlHead:'🐍 Stage 5 — Python ML',
+    sql:`<span style="color:#7dd3fc">from</span> sklearn.ensemble <span style="color:#7dd3fc">import</span> RandomForestClassifier
+<span style="color:#7dd3fc">from</span> sklearn.model_selection <span style="color:#7dd3fc">import</span> train_test_split
+<span style="color:#7dd3fc">from</span> sklearn.metrics <span style="color:#7dd3fc">import</span> classification_report
+
+X = df[[<span style="color:#86efac">'recency','frequency',
+         'monetary','avg_score'</span>]]
+<span style="color:#475569"># Label: inactive > 30 days = churn risk</span>
+y = (df[<span style="color:#86efac">'recency'</span>] > 30).astype(int)
+
+X_train, X_test, y_train, y_test = (
+  train_test_split(X, y, test_size=0.2)
+)
+model = RandomForestClassifier(
+    n_estimators=100, random_state=42
+)
+model.fit(X_train, y_train)
+<span style="color:#7dd3fc">print</span>(classification_report(y_test,
+      model.predict(X_test)))`,
+    outHead:'🤖 Model Results',
+    out:`<div class="py-out">              precision  recall  f1-score\n\n  Active(0)      0.91     0.88     0.89\n  At-Risk(1)     0.82     0.87     0.84\n\n  accuracy                     0.88 (1840 samples)\n\nTop feature importances:\n  recency_days  → 0.42\n  frequency     → 0.28\n  avg_score     → 0.18\n  monetary      → 0.12</div>`,
+    explain:'88% accuracy on churn prediction — with features engineered entirely in SQL. The model shows recency (days since last activity) is the strongest predictor. Feature importance tells GUVI: "re-engage learners who haven\'t logged in for 15+ days."'
+  },
+  {
+    label:'Stage 6 of 6 ✅',
+    sqlHead:'📊 Stage 6 — Matplotlib Dashboard',
+    sql:`fig, axes = plt.subplots(1, 3,
+    figsize=(15, 4))
+
+<span style="color:#475569"># Panel 1: Cohort heatmap</span>
+cohort_pivot = cohort_df.pivot(
+  <span style="color:#86efac">'cohort_month'</span>,<span style="color:#86efac">'month_number'</span>,
+  <span style="color:#86efac">'retention_pct'</span>
+)
+sns.heatmap(cohort_pivot, ax=axes[0],
+    cmap=<span style="color:#86efac">'YlGn'</span>, annot=True, fmt=<span style="color:#86efac">'.0f'</span>)
+
+<span style="color:#475569"># Panel 2: Funnel bar chart</span>
+axes[1].barh(funnel[<span style="color:#86efac">'stage'</span>],
+    funnel[<span style="color:#86efac">'count'</span>], color=<span style="color:#86efac">'#e11d48'</span>)
+
+<span style="color:#475569"># Panel 3: Feature importance</span>
+importances.sort_values().plot(
+    kind=<span style="color:#86efac">'barh'</span>, ax=axes[2],
+    color=<span style="color:#86efac">'#7c3aed'</span>)
+
+plt.tight_layout()
+plt.savefig(<span style="color:#86efac">'dashboard.png'</span>)`,
+    outHead:'🎨 Dashboard Output',
+    out:`<div class="chart-mock">
+<div style="font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px">GUVI Analytics Dashboard — 3-panel output</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+  <div style="background:#f0fdf4;border-radius:6px;padding:10px;border:1px solid #bbf7d0">
+    <div style="font-size:10px;font-weight:700;color:#166534;margin-bottom:6px">📊 Cohort Heatmap</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;font-size:9px;font-family:'JetBrains Mono',monospace">
+      <div style="background:#14532d;color:#fff;padding:3px;text-align:center">100</div><div style="background:#16a34a;color:#fff;padding:3px;text-align:center">72</div><div style="background:#4ade80;color:#14532d;padding:3px;text-align:center">55</div><div style="background:#bbf7d0;color:#166534;padding:3px;text-align:center">41</div><div style="background:#f0fdf4;color:#166534;padding:3px;text-align:center">33</div>
+    </div>
+  </div>
+  <div style="background:#fff1f2;border-radius:6px;padding:10px;border:1px solid #fda4af">
+    <div style="font-size:10px;font-weight:700;color:#881337;margin-bottom:6px">🔻 Funnel Chart</div>
+    <div class="chart-bars">
+      <div class="chart-bar-wrap"><div class="chart-bar" style="height:100%;background:#0284c7"></div><div class="chart-label">Reg</div></div>
+      <div class="chart-bar-wrap"><div class="chart-bar" style="height:73%;background:#7c3aed"></div><div class="chart-label">Act</div></div>
+      <div class="chart-bar-wrap"><div class="chart-bar" style="height:53%;background:#059669"></div><div class="chart-label">Learn</div></div>
+      <div class="chart-bar-wrap"><div class="chart-bar" style="height:39%;background:#d97706"></div><div class="chart-label">Quiz</div></div>
+      <div class="chart-bar-wrap"><div class="chart-bar" style="height:22%;background:#e11d48"></div><div class="chart-label">Cert</div></div>
+    </div>
+  </div>
+  <div style="background:#f5f3ff;border-radius:6px;padding:10px;border:1px solid #c4b5fd">
+    <div style="font-size:10px;font-weight:700;color:#3b0764;margin-bottom:6px">⚙️ Feature Importance</div>
+    <div style="display:flex;flex-direction:column;gap:4px;font-size:9px;font-family:'JetBrains Mono',monospace">
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:80%;height:8px;background:#e11d48;border-radius:2px"></div><span>recency 42%</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:56%;height:8px;background:#7c3aed;border-radius:2px"></div><span>freq 28%</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:36%;height:8px;background:#0284c7;border-radius:2px"></div><span>score 18%</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:24%;height:8px;background:#059669;border-radius:2px"></div><span>monetary 12%</span></div>
+    </div>
+  </div>
+</div>
+<div style="font-size:10px;color:var(--muted);margin-top:8px;text-align:center">Saved as guvi_analytics_dashboard.png</div>
+</div>`,
+    explain:'🎉 Pipeline complete! SQL extracted and engineered features → sklearn trained a churn model (88% accuracy) → matplotlib rendered a 3-panel dashboard. This is exactly how data scientists work in industry — SQL for the heavy lifting, Python for modelling and visuals.'
+  },
+];
+
+let curPipeStage=0;
+function setPipeStage(i,el){
+  document.querySelectorAll('.pl-stage-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  curPipeStage=i;
+  renderPipeStage();
+}
+function renderPipeStage(){
+  const s=PIPE_STAGES[curPipeStage];
+  document.getElementById('pl-progress').textContent=s.label;
+  document.getElementById('pl-sql-head').textContent=s.sqlHead;
+  document.getElementById('pl-sql-body').innerHTML=s.sql;
+  document.getElementById('pl-out-head').textContent=s.outHead;
+  document.getElementById('pl-out-body').innerHTML=s.out;
+  document.getElementById('pl-explain').innerHTML=`<strong>What's happening:</strong> ${s.explain}`;
+  if(curPipeStage===PIPE_STAGES.length-1) markDone('pipeline');
+}
+function pipeNext(){
+  if(curPipeStage<PIPE_STAGES.length-1){
+    curPipeStage++;
+    document.querySelectorAll('.pl-stage-tab').forEach((t,i)=>{t.classList.toggle('active',i===curPipeStage);});
+    renderPipeStage();
+  }
+}
+function pipeReset(){
+  curPipeStage=0;
+  document.querySelectorAll('.pl-stage-tab').forEach((t,i)=>{t.classList.toggle('active',i===0);});
+  renderPipeStage();
+}
+renderPipeStage();
+
+// ── SANDBOX ──
+const SBP=[
+  {re:/cohort|min\(enrolled/i,res:()=>`<span style="color:var(--emerald)">✓ Cohort query — result set</span>
+<table class="ot"><tr><th>cohort_month</th><th>month_number</th><th>retention_pct</th></tr>
+<tr><td>2024-01</td><td>0</td><td>100.0%</td></tr>
+<tr><td>2024-01</td><td>1</td><td>72.1%</td></tr>
+<tr><td>2024-02</td><td>0</td><td>100.0%</td></tr>
+</table>`},
+  {re:/funnel|first_login/i,res:()=>`<span style="color:var(--emerald)">✓ Funnel query result</span>
+<table class="ot"><tr><th>stage</th><th>count</th><th>pct</th></tr>
+<tr><td>registered</td><td>1840</td><td>100%</td></tr>
+<tr><td>activated</td><td>1343</td><td>73.0%</td></tr>
+<tr><td>started</td><td>982</td><td>53.4%</td></tr>
+</table>`},
+  {re:/session|new_session_flag|timestampdiff.*minute/i,res:()=>`<span style="color:var(--emerald)">✓ Sessionisation output</span>
+<table class="ot"><tr><th>student_id</th><th>event_type</th><th>session_id</th></tr>
+<tr><td>S01</td><td>login</td><td>1</td></tr>
+<tr><td>S01</td><td>page_view</td><td>1</td></tr>
+<tr><td>S01</td><td>login</td><td>2</td></tr>
+</table>`},
+  {re:/lag\(.*12\)|yoy|qoq|quarter/i,res:()=>`<span style="color:var(--emerald)">✓ YoY / QoQ comparison</span>
+<table class="ot"><tr><th>yr</th><th>qtr</th><th>learners</th><th>qoq_pct</th></tr>
+<tr><td>2024</td><td>Q1</td><td>315</td><td>NULL</td></tr>
+<tr><td>2024</td><td>Q2</td><td>388</td><td style="color:var(--emerald)">+23.2%</td></tr>
+<tr><td>2024</td><td>Q3</td><td>362</td><td style="color:var(--red)">-6.7%</td></tr>
+</table>`},
+  {re:/case when.*city|pivot/i,res:()=>`<span style="color:var(--emerald)">✓ Pivot table output</span>
+<table class="ot"><tr><th>month</th><th>Chennai</th><th>Mumbai</th><th>Bangalore</th></tr>
+<tr><td>Jan</td><td>42</td><td>35</td><td>28</td></tr>
+<tr><td>Feb</td><td>48</td><td>31</td><td>33</td></tr>
+</table>`},
+  {re:/stddev|z_score|outlier/i,res:()=>`<span style="color:var(--emerald)">✓ Outlier detection</span>
+<table class="ot"><tr><th>student_id</th><th>quiz_score</th><th>z_score</th><th>flag</th></tr>
+<tr><td>S142</td><td>18</td><td>3.21</td><td>⚠️ Outlier</td></tr>
+<tr><td>S089</td><td>98</td><td>2.18</td><td>⚠️ Outlier</td></tr>
+<tr><td>S001</td><td>85</td><td>0.72</td><td>✅ Normal</td></tr>
+</table>`},
+  {re:/recency|frequency|monetary|rfm|feature/i,res:()=>`<span style="color:var(--emerald)">✓ Feature engineering — ML-ready table</span>
+<table class="ot"><tr><th>student_id</th><th>recency</th><th>frequency</th><th>avg_score</th></tr>
+<tr><td>S001</td><td>3</td><td>12</td><td>85.2</td></tr>
+<tr><td>S002</td><td>45</td><td>2</td><td>61.0</td></tr>
+</table><span style="color:var(--muted);font-size:11px">Ready for pd.read_sql() → sklearn pipeline</span>`},
+];
+function runSB(){
+  const sql=document.getElementById('sbed').value.trim();
+  const out=document.getElementById('sbout');
+  if(!sql){out.innerHTML='<span style="color:var(--muted)">⚠️ Enter a SQL query first.</span>';return;}
+  for(const p of SBP){if(p.re.test(sql)){out.innerHTML=p.res();return;}}
+  out.innerHTML='<span style="color:var(--emerald)">✓ Query OK — try cohort, funnel, sessionisation, pivot, or feature engineering patterns!</span>';
+}
+function clearSB(){
+  document.getElementById('sbed').value='';
+  document.getElementById('sbout').innerHTML='<span style="color:var(--muted);font-size:12px">▶ Output will appear here</span>';
+}
+
+// ── QUIZ ──
+const QS=[
+  {q:"In cohort analysis, what does 'M+2 retention = 55%' mean?",opts:["55% of all learners are still active","55% of learners who started in the same month are still active 2 months after their cohort month","55% of learners scored 55 or above in month 2","55% of the course material was completed by month 2"],ans:1,exp:"Cohort retention percentages are always relative to the original cohort size, measured at a specific offset from the cohort's start month. M+2 = 55% means 55% of that cohort's original members were still active 2 months after enrollment."},
+  {q:"What is the sessionisation technique that uses SUM(new_session_flag) OVER (PARTITION BY user ORDER BY time)?",opts:["It counts total sessions across all users","It sums the gap minutes between events","A running sum of a 'new session started' flag produces an incrementing session ID — simple and elegant","It calculates the average session duration"],ans:2,exp:"The trick: flagging each new session start as 1 (and all other events as 0) then computing a cumulative SUM of that flag within each user's partition produces a perfectly incrementing session ID: 1,1,1,2,2,3,3 etc."},
+  {q:"Why does a pivot query use SUM(CASE WHEN city='Chennai' THEN 1 ELSE 0 END) rather than COUNT(CASE WHEN city='Chennai' THEN city END)?",opts:["SUM is faster than COUNT for large tables","Both are equivalent — it's a style preference","SUM with 0 is safer: if city='Chennai' is NULL or absent, COUNT(NULL) is skipped entirely while SUM(0) correctly contributes 0","CASE WHEN can only be used inside SUM"],ans:2,exp:"COUNT() ignores NULLs — so COUNT(CASE WHEN ... THEN city END) returns NULL when the condition is false, which COUNT then skips. SUM(CASE WHEN ... THEN 1 ELSE 0 END) explicitly returns 0 for non-matching rows, making the total count correct. Both work but SUM is more explicit and robust."},
+  {q:"In a funnel query with a 7-day time constraint, why do we filter EACH step individually using its own timestamp?",opts:["To make the query run faster","Because each stage must be completed within 7 days of enrollment — a user who logged in on day 10 doesn't count as 'activated within 7 days'","SQL requires individual timestamps for CASE WHEN statements","To prevent NULL values in the result"],ans:1,exp:"A strict funnel requires ordered completion within a time window. A user who logged in on day 8 technically 'activated' but violated the 7-day constraint. Checking each step's timestamp independently against enrolled_on + 7 DAYS enforces the ordered, time-bounded funnel correctly."},
+  {q:"What is the difference between First-Touch and Last-Touch attribution?",opts:["First-touch gives credit to the cheapest channel; last-touch gives it to the most expensive","First-touch credits the first marketing touchpoint before conversion; last-touch credits the final touchpoint immediately before conversion","First-touch only works for organic channels; last-touch for paid","They are the same — all attribution models produce the same result"],ans:1,exp:"Attribution determines which marketing channel 'caused' a conversion. First-touch credits the channel that originally discovered the user (good for measuring acquisition). Last-touch credits the channel that closed the deal (good for measuring conversion efficiency). Both are computed using ROW_NUMBER() OVER (PARTITION BY user ORDER BY time ASC/DESC)."},
+  {q:"Why is feature engineering in SQL often preferred over doing it entirely in pandas?",opts:["SQL is always faster than pandas for every operation","Python cannot do aggregations","For large datasets, SQL runs aggregations and JOINs on the database server — only the final summary DataFrame travels to Python. This avoids loading millions of raw rows into memory.","SQL feature engineering is mandatory before using sklearn"],ans:2,exp:"When data is large (millions of rows), pulling raw data into Python just to aggregate it wastes memory and network bandwidth. Computing RFM, percentiles, and engineered features with SQL means the heavy lifting happens server-side — only the compact feature matrix reaches Python."},
+  {q:"In outlier detection using STDDEV, what does a z-score > 2 indicate?",opts:["The value is exactly 2 units above the mean","The value is more than 2 standard deviations from the mean — statistically unusual and worth investigating","The STDDEV function returned an error","The score is in the top 2% of all scores"],ans:1,exp:"The z-score (ABS(value - mean) / STDDEV) measures how many standard deviations a value is from its group's mean. A z-score > 2 means the value is unusually far from the centre of the distribution — the conventional threshold for flagging potential outliers (covering ~95% of normal data)."},
+  {q:"Why must gap-filling in time-series reports use a date SPINE (from a recursive CTE) + LEFT JOIN, rather than just GROUP BY date?",opts:["GROUP BY date is not valid SQL syntax","GROUP BY only returns dates that have actual data — producing gaps in charts. A date spine generates every date in the range, and LEFT JOIN fills missing dates with COALESCE(..., 0) instead of omitting them.","LEFT JOIN is always faster than GROUP BY","COALESCE cannot be used with GROUP BY"],ans:1,exp:"GROUP BY date only produces rows for dates where data exists. If there were zero enrollments on a particular day, that date simply doesn't appear. A recursive date spine guarantees every single date is in the output, and the LEFT JOIN + COALESCE(value, 0) pattern fills the gaps with zeros — essential for clean, unbroken line charts."},
+];
+let qi=0,score=0,answered=false;
+function renderQ(){
+  const q=QS[qi];
+  document.getElementById('qprog').textContent=`Question ${qi+1} of ${QS.length}`;
+  document.getElementById('qq').textContent=q.q;
+  document.getElementById('qopts').innerHTML=q.opts.map((o,i)=>
+    `<li class="qopt" onclick="selQ(${i})" id="qo-${i}"><span class="ok">${String.fromCharCode(65+i)}</span>${o}</li>`).join('');
+  document.getElementById('qfb').className='qfb';
+  document.getElementById('qfb').innerHTML='';
+  document.getElementById('qnext').style.display='none';
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi}`;
+  answered=false;
+}
+function selQ(i){
+  if(answered)return;answered=true;
+  const q=QS[qi];
+  document.querySelectorAll('.qopt').forEach((o,j)=>{
+    if(j===q.ans)o.classList.add('correct');
+    else if(j===i)o.classList.add('wrong');
+  });
+  if(i===q.ans)score++;
+  const fb=document.getElementById('qfb');
+  fb.className=`qfb show ${i===q.ans?'correct':'wrong'}`;
+  fb.innerHTML=`<strong>${i===q.ans?'✅ Correct!':'❌ Not quite.'}</strong> ${q.exp}`;
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi+1}`;
+  const nb=document.getElementById('qnext');
+  nb.style.display='inline-block';
+  nb.textContent=qi<QS.length-1?'Next Question →':'See Results 🎉';
+}
+function nextQ(){qi++;if(qi<QS.length)renderQ();else showResults();}
+function showResults(){
+  document.querySelector('.qw').style.display='none';
+  const dc=document.getElementById('done-card');dc.style.display='block';
+  const pct=Math.round((score/QS.length)*100);
+  document.getElementById('done-title').textContent=pct>=80?'🎉 Expert Analyst!':pct>=60?'👍 Solid Work!':'💪 Keep at it!';
+  document.getElementById('done-msg').textContent=`You scored ${score} out of ${QS.length} (${pct}%). ${pct>=80?'You can now build production analytics pipelines — cohorts, funnels, feature engineering, and SQL→ML handoffs. Chapter 18 complete!':'Review the cohort CTE chain, sessionisation trick, and the gap-filling LEFT JOIN pattern.'}`;
+  markDone('quiz');
+  if(pct>=70)doConfetti();
+}
+renderQ();
+
+function doConfetti(){
+  const cv=document.getElementById('cvc');const ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  const cols=['#e11d48','#7c3aed','#0284c7','#059669','#d97706','#f472b6','#a78bfa'];
+  const pp=Array.from({length:160},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height-cv.height,r:Math.random()*9+4,color:cols[Math.floor(Math.random()*cols.length)],tilt:Math.random()*10-10,spd:Math.random()*3+1.5}));
+  let fr=0;
+  function draw(){ctx.clearRect(0,0,cv.width,cv.height);pp.forEach(p=>{ctx.beginPath();ctx.ellipse(p.x,p.y,p.r,p.r/2,p.tilt,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();p.y+=p.spd;p.x+=Math.sin(fr/18)*1.5;p.tilt+=.08;if(p.y>cv.height){p.y=-10;p.x=Math.random()*cv.width;}});fr++;if(fr<240)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);}
+  draw();
+}
+</script>
+</body>
+</html>

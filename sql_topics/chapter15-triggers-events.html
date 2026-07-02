@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 15 — Triggers & Events | SQL Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --teal:#0d9488;--tl:#ccfbf1;--td:#0f766e;
+  --blue:#2563eb;--bl:#dbeafe;
+  --indigo:#4f46e5;--il:#e0e7ff;
+  --amber:#d97706;--al:#fef3c7;
+  --red:#dc2626;--rl:#fee2e2;
+  --green:#16a34a;--gl:#dcfce7;
+  --purple:#7c3aed;--pl:#ede9fe;
+  --orange:#ea580c;--ol:#ffedd5;
+  --rose:#e11d48;--rosel:#ffe4e6;
+  --bg:#f8fafc;--surface:#fff;
+  --border:#e2e8f0;--text:#0f172a;--muted:#64748b;
+  --sw:272px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+.sidebar{width:var(--sw);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;display:flex;flex-direction:column;}
+.sbh{padding:20px 18px 16px;background:linear-gradient(135deg,#3b0764,#7c2d12);border-bottom:1px solid var(--border);}
+.sbh .badge{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#d8b4fe;margin-bottom:4px;}
+.sbh h2{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;line-height:1.3;}
+.sbh p{font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;}
+.sbp{padding:14px 18px;border-bottom:1px solid var(--border);}
+.pbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;}
+.pb{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+.pf{height:100%;background:linear-gradient(90deg,var(--purple),var(--orange));border-radius:99px;transition:width .4s;}
+.sbn{flex:1;padding:8px 0;}
+.nsl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 18px 4px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;font-size:13px;color:var(--muted);font-weight:500;}
+.ni:hover{background:var(--bg);color:var(--text);}
+.ni.active{border-left-color:var(--purple);background:var(--pl);color:var(--purple);font-weight:600;}
+.ni.done{color:var(--green);}
+.nc{margin-left:auto;font-size:13px;}
+.main{margin-left:var(--sw);flex:1;min-width:0;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.tbl{display:flex;align-items:center;gap:12px;}
+.chp{background:var(--pl);color:var(--purple);font-family:'Sora',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.05em;}
+.topbar h1{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;}
+.nb{display:flex;gap:8px;}
+.nbtn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s;}
+.nbtn.pri{background:var(--purple);color:#fff;border-color:var(--purple);}
+.nbtn:hover{border-color:var(--purple);color:var(--purple);}
+.nbtn.pri:hover{background:#6d28d9;}
+.sec{display:none;padding:36px 44px 64px;max-width:1000px;}
+.sec.active{display:block;}
+.hero{background:linear-gradient(135deg,#3b0764 0%,#7c2d12 100%);border-radius:16px;padding:36px 40px;color:#fff;margin-bottom:32px;position:relative;overflow:hidden;}
+.hero::after{content:'⚡';position:absolute;right:36px;top:50%;transform:translateY(-50%);font-size:96px;opacity:.13;}
+.hero .ey{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#d8b4fe;margin-bottom:8px;}
+.hero h2{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;line-height:1.2;margin-bottom:10px;}
+.hero p{font-size:14px;opacity:.82;line-height:1.65;max-width:560px;}
+.st{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.ss{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:20px;}
+.ct{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.cb{background:#0f172a;border-radius:10px;padding:18px 22px;margin:14px 0;overflow-x:auto;position:relative;}
+.cb pre{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.82;color:#e2e8f0;white-space:pre;}
+.cl{position:absolute;top:10px;right:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+.kw{color:#7dd3fc;}.fn{color:#a5f3fc;}.str{color:#86efac;}.cm{color:#475569;font-style:italic;}.op{color:#f9a8d4;}.num{color:#fcd34d;}.nw{color:#fb923c;font-weight:700;}.od{color:#f472b6;font-weight:700;}
+.co{border-radius:10px;padding:14px 18px;margin:16px 0;display:flex;gap:12px;font-size:13.5px;line-height:1.65;}
+.ci{font-size:18px;flex-shrink:0;margin-top:1px;}
+.co strong{display:block;font-weight:700;margin-bottom:3px;}
+.co.tip{background:var(--tl);border-left:4px solid var(--teal);color:#134e4a;}
+.co.warn{background:var(--al);border-left:4px solid var(--amber);color:#78350f;}
+.co.info{background:var(--bl);border-left:4px solid var(--blue);color:#1e3a5f;}
+.co.danger{background:var(--rl);border-left:4px solid var(--red);color:#7f1d1d;}
+.co.success{background:var(--gl);border-left:4px solid var(--green);color:#14532d;}
+.co.purple{background:var(--pl);border-left:4px solid var(--purple);color:#3b0764;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+.dtbl{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+.dtbl th{background:#0f172a;color:#fff;padding:9px 14px;text-align:left;font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;}
+.dtbl td{padding:9px 14px;border-bottom:1px solid var(--border);color:#334155;}
+.dtbl tr:nth-child(even) td{background:#f8fafc;}
+
+/* TIMING DIAGRAM */
+.timing-diagram{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:24px;margin:20px 0;}
+.timing-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.timing-step{padding:10px 16px;border-radius:8px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;text-align:center;min-width:120px;}
+.ts-before{background:var(--bl);color:var(--blue);border:2px solid var(--blue);}
+.ts-action{background:#1e293b;color:#fff;}
+.ts-after{background:var(--gl);color:var(--green);border:2px solid var(--green);}
+.timing-arrow{font-size:18px;color:var(--muted);}
+
+/* NEW/OLD DEMO */
+.rowdemo{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;margin:16px 0;}
+.rowdemo-box{border-radius:10px;padding:14px 18px;}
+.rowdemo-old{background:var(--rosel);border:2px solid var(--rose);}
+.rowdemo-new{background:var(--gl);border:2px solid var(--green);}
+.rowdemo-label{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;margin-bottom:8px;}
+.rowdemo-old .rowdemo-label{color:var(--rose);}
+.rowdemo-new .rowdemo-label{color:var(--green);}
+.rowdemo-field{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 0;}
+.rowdemo-field.changed{font-weight:700;}
+.rowdemo-old .rowdemo-field.changed{color:var(--rose);}
+.rowdemo-new .rowdemo-field.changed{color:var(--green);}
+.rowdemo-arrow{font-size:24px;color:var(--muted);text-align:center;}
+
+/* ════ SIGNATURE: LIVE TRIGGER SIMULATOR ════ */
+.trigsim{background:var(--surface);border:2px solid var(--purple);border-radius:16px;overflow:hidden;margin:24px 0;}
+.ts-head{background:linear-gradient(90deg,#3b0764,#7c2d12);padding:18px 24px;}
+.ts-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;}
+.ts-sub{font-size:12px;color:#d8b4fe;margin-top:3px;}
+.ts-controls{display:flex;gap:8px;padding:16px 24px;border-bottom:1px solid var(--border);background:#fafafa;flex-wrap:wrap;align-items:center;}
+.action-btn{padding:9px 18px;border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--surface);color:var(--muted);transition:all .18s;font-family:'Sora',sans-serif;}
+.action-btn:hover{border-color:var(--purple);color:var(--purple);}
+.action-btn.update-btn:hover{border-color:var(--blue);color:var(--blue);}
+.action-btn.delete-btn:hover{border-color:var(--red);color:var(--red);}
+.action-btn:disabled{opacity:.5;cursor:default;}
+.ts-reset{margin-left:auto;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;background:#1e293b;color:#94a3b8;font-family:'Sora',sans-serif;}
+.ts-reset:hover{color:#fff;}
+.ts-body{padding:24px;}
+.ts-flow{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:18px;}
+.ts-panel{border-radius:10px;border:2px solid var(--border);overflow:hidden;}
+.ts-panel-head{padding:10px 16px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;}
+.ts-panel.action-panel .ts-panel-head{background:#1e293b;color:#fff;}
+.ts-panel.trigger-panel .ts-panel-head{background:var(--pl);color:var(--purple);}
+.ts-panel-body{padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#334155;min-height:80px;line-height:1.7;background:var(--surface);}
+.ts-panel-body.firing{background:var(--pl);animation:flash-purple 0.6s;}
+@keyframes flash-purple{0%{background:var(--purple);color:#fff}100%{background:var(--pl);color:#334155}}
+.ts-log{background:#0f172a;border-radius:10px;padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#4ade80;min-height:120px;max-height:220px;overflow-y:auto;line-height:1.75;}
+.ts-log-line{opacity:0;animation:fadeIn .4s forwards;}
+@keyframes fadeIn{to{opacity:1}}
+.ts-log-line.sys{color:#64748b;}
+.ts-log-line.action{color:#7dd3fc;}
+.ts-log-line.trigger{color:#fbbf24;}
+.ts-log-line.result{color:#4ade80;}
+.ts-audit-table{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:12px;font-family:'JetBrains Mono',monospace;}
+.ts-audit-table th{background:#0f172a;color:#fff;padding:6px 10px;text-align:left;font-family:'Sora',sans-serif;font-size:10.5px;font-weight:700;}
+.ts-audit-table td{padding:6px 10px;border-bottom:1px solid var(--border);}
+.ts-audit-table tr:nth-child(even) td{background:#f8fafc;}
+.ts-audit-table .new-row{background:var(--gl)!important;animation:fadeIn .5s;}
+
+/* USE CASE GRID */
+.usecase-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;}
+.usecase-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:16px;}
+.usecase-icon{font-size:24px;margin-bottom:8px;}
+.usecase-title{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;margin-bottom:6px;}
+.usecase-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+
+.steps{list-style:none;margin:16px 0;}
+.step{display:flex;gap:14px;margin-bottom:16px;}
+.sn{width:28px;height:28px;background:var(--purple);color:#fff;border-radius:50%;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.sb2{flex:1;}
+.sb2 strong{font-weight:700;font-size:14px;display:block;margin-bottom:3px;}
+.sb2 p{font-size:13.5px;color:#334155;line-height:1.6;}
+
+.sandbox{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+.sbh2{background:#0f172a;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;}
+.sbt{font-family:'JetBrains Mono',monospace;font-size:12px;color:#94a3b8;font-weight:600;display:flex;align-items:center;gap:8px;}
+.sbact{display:flex;gap:8px;}
+.sbbtn{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;transition:all .15s;}
+.sbbtn.run{background:var(--teal);color:#fff;}
+.sbbtn.run:hover{background:var(--td);}
+.sbbtn.clr{background:#1e293b;color:#94a3b8;}
+.sbbtn.clr:hover{color:#fff;}
+.sbed{width:100%;min-height:130px;background:#1e293b;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:13px;padding:16px 18px;border:none;outline:none;resize:vertical;line-height:1.8;}
+.sbout{padding:14px 18px;min-height:60px;font-family:'JetBrains Mono',monospace;font-size:12.5px;border-top:1px solid var(--border);background:#f8fafc;color:#334155;line-height:1.6;}
+.ot{border-collapse:collapse;width:100%;margin-top:8px;font-size:12px;}
+.ot th{background:#0f172a;color:#fff;padding:7px 12px;text-align:left;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;}
+.ot td{padding:7px 12px;border-bottom:1px solid #e2e8f0;}
+.ot tr:nth-child(even) td{background:#f1f5f9;}
+
+.qw{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;}
+.qq{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;line-height:1.4;}
+.qopts{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.qopt{padding:12px 16px;border:2px solid var(--border);border-radius:9px;cursor:pointer;font-size:14px;font-weight:500;transition:all .15s;display:flex;align-items:center;gap:10px;}
+.qopt:hover{border-color:var(--purple);background:var(--pl);}
+.qopt.correct{border-color:var(--green);background:var(--gl);color:var(--green);}
+.qopt.wrong{border-color:var(--red);background:var(--rl);color:var(--red);}
+.ok{width:24px;height:24px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Sora',sans-serif;}
+.qfb{display:none;padding:12px 16px;border-radius:9px;font-size:13.5px;line-height:1.5;margin-bottom:14px;}
+.qfb.show{display:block;}
+.qfb.correct{background:var(--gl);color:#14532d;border-left:4px solid var(--green);}
+.qfb.wrong{background:var(--rl);color:#7f1d1d;border-left:4px solid var(--red);}
+.qnav{display:flex;justify-content:space-between;align-items:center;}
+.qsc{font-family:'Sora',sans-serif;font-size:14px;color:var(--muted);}
+.qbtn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;background:var(--purple);color:#fff;}
+.qbtn:hover{background:#6d28d9;}
+.qprog{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.done{text-align:center;padding:48px 32px;background:linear-gradient(135deg,var(--pl),var(--ol));border-radius:16px;border:1px solid var(--border);margin-top:32px;}
+.done .trophy{font-size:56px;margin-bottom:12px;}
+.done h3{font-family:'Sora',sans-serif;font-size:24px;font-weight:800;margin-bottom:8px;}
+.done p{color:var(--muted);font-size:14px;max-width:440px;margin:0 auto 20px;}
+.donebtn{padding:12px 28px;background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;}
+#cvc{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}.sec{padding:24px 20px 40px}.g2,.g3{grid-template-columns:1fr}.ts-flow{grid-template-columns:1fr}.rowdemo{grid-template-columns:1fr}.usecase-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="cvc"></canvas>
+
+<aside class="sidebar">
+  <div class="sbh">
+    <div class="badge">SQL Mastery Course</div>
+    <h2>Chapter 15: Triggers & Events</h2>
+    <p>Auto-execute on INSERT/UPDATE/DELETE</p>
+  </div>
+  <div class="sbp">
+    <div class="pbl"><span>Progress</span><span id="pp">0%</span></div>
+    <div class="pb"><div class="pf" id="pf" style="width:0%"></div></div>
+  </div>
+  <nav class="sbn">
+    <div class="nsl">Content</div>
+    <div class="ni active" data-s="intro"     onclick="showS('intro',this)">    <span>🏠</span> Introduction              <span class="nc" id="chk-intro"></span></div>
+    <div class="ni" data-s="anatomy"   onclick="showS('anatomy',this)">  <span>🧬</span> Trigger Anatomy            <span class="nc" id="chk-anatomy"></span></div>
+    <div class="ni" data-s="timing"    onclick="showS('timing',this)">   <span>⏱️</span> BEFORE vs AFTER            <span class="nc" id="chk-timing"></span></div>
+    <div class="ni" data-s="newold"    onclick="showS('newold',this)">   <span>🔀</span> NEW & OLD References       <span class="nc" id="chk-newold"></span></div>
+    <div class="ni" data-s="rowlevel"  onclick="showS('rowlevel',this)"> <span>📐</span> FOR EACH ROW                <span class="nc" id="chk-rowlevel"></span></div>
+    <div class="ni" data-s="simulator" onclick="showS('simulator',this)"><span>🎮</span> Live Trigger Simulator ✨ <span class="nc" id="chk-simulator"></span></div>
+    <div class="ni" data-s="usecases"  onclick="showS('usecases',this)"> <span>🛠️</span> Trigger Use Cases          <span class="nc" id="chk-usecases"></span></div>
+    <div class="ni" data-s="auditproj" onclick="showS('auditproj',this)"><span>🏆</span> Build: Audit Trigger        <span class="nc" id="chk-auditproj"></span></div>
+    <div class="ni" data-s="manage"    onclick="showS('manage',this)">   <span>🗂️</span> DROP / SHOW Triggers       <span class="nc" id="chk-manage"></span></div>
+    <div class="ni" data-s="events"    onclick="showS('events',this)">   <span>📅</span> Scheduled Events           <span class="nc" id="chk-events"></span></div>
+    <div class="ni" data-s="sandbox"   onclick="showS('sandbox',this)">  <span>💻</span> Practice Sandbox            <span class="nc" id="chk-sandbox"></span></div>
+    <div class="ni" data-s="quiz"      onclick="showS('quiz',this)">     <span>🧠</span> Chapter Quiz                <span class="nc" id="chk-quiz"></span></div>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="tbl"><span class="chp">Chapter 15</span><h1>Triggers & Events</h1></div>
+    <div class="nb">
+      <button class="nbtn" onclick="prevS()">← Prev</button>
+      <button class="nbtn pri" onclick="nextS()">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══ INTRO ══ -->
+  <section class="sec active" id="sec-intro">
+    <div class="hero">
+      <div class="ey">Chapter 15 · Triggers & Events</div>
+      <h2>SQL That Runs Itself.<br/>Automatic Reactions to Data Changes.</h2>
+      <p>A trigger is a piece of SQL logic that fires automatically whenever data changes — no application code required. Audit logs, timestamp updates, business rule enforcement — all handled silently by the database itself.</p>
+    </div>
+    <h2 class="st">What is a Trigger?</h2>
+    <p class="ss">A trigger is SQL code bound to a table that automatically executes when a specific event happens — INSERT, UPDATE, or DELETE. You never call a trigger directly; it "triggers" itself.</p>
+
+    <div class="g3">
+      <div class="card" style="border-top:4px solid var(--blue);margin-bottom:0">
+        <div class="ct" style="color:var(--blue)">➕ INSERT trigger</div>
+        <p style="font-size:13px">Fires when a new row is added. Great for setting default values, validation, or logging new records.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--amber);margin-bottom:0">
+        <div class="ct" style="color:var(--amber)">✏️ UPDATE trigger</div>
+        <p style="font-size:13px">Fires when an existing row changes. Perfect for audit logs, auto-timestamps, change tracking.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--red);margin-bottom:0">
+        <div class="ct" style="color:var(--red)">🗑️ DELETE trigger</div>
+        <p style="font-size:13px">Fires when a row is removed. Used to archive deleted data, or block deletion of critical records.</p>
+      </div>
+    </div>
+
+    <div class="co info">
+      <span class="ci">🎓</span>
+      <div><strong>Real-world analogy</strong>Think of a trigger like a motion-sensor light. You don't manually turn it on — it activates automatically the instant something happens (someone walks by). A database trigger works the same way: the instant an INSERT/UPDATE/DELETE happens, the trigger "senses" it and fires.</div>
+    </div>
+
+    <div class="co purple">
+      <span class="ci">⚖️</span>
+      <div><strong>Triggers vs Stored Procedures</strong>A stored procedure (Chapter 14) must be explicitly CALLed by someone. A trigger fires automatically and invisibly — you can't call it directly, and you often don't even know it ran unless you check the logs it produces.</div>
+    </div>
+  </section>
+
+  <!-- ══ ANATOMY ══ -->
+  <section class="sec" id="sec-anatomy">
+    <h2 class="st">🧬 CREATE TRIGGER — Syntax & Anatomy</h2>
+    <p class="ss">Every trigger has 5 essential parts: name, timing (BEFORE/AFTER), event (INSERT/UPDATE/DELETE), the table it watches, and the logic that runs.</p>
+
+    <div class="card">
+      <div class="ct">📖 Full Syntax</div>
+      <div class="cb"><span class="cl">MySQL</span><pre><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE TRIGGER</span> trigger_name
+<span class="kw">BEFORE</span> <span class="op">|</span> <span class="kw">AFTER</span>  <span class="cm">← TIMING: before or after the change</span>
+<span class="kw">INSERT</span> <span class="op">|</span> <span class="kw">UPDATE</span> <span class="op">|</span> <span class="kw">DELETE</span>  <span class="cm">← EVENT: which operation triggers it</span>
+<span class="kw">ON</span> table_name             <span class="cm">← TABLE: which table is being watched</span>
+<span class="kw">FOR EACH ROW</span>             <span class="cm">← SCOPE: runs once per affected row</span>
+<span class="kw">BEGIN</span>
+    <span class="cm">-- your SQL logic here</span>
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI Example — Annotated Trigger</div>
+      <div class="cb"><span class="cl">SQL — Annotated</span><pre><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE TRIGGER</span> <span style="color:#fde047">trg_before_student_insert</span>   <span class="cm">← descriptive name</span>
+<span class="kw">BEFORE</span> <span class="kw">INSERT</span>                       <span class="cm">← runs BEFORE the row is saved</span>
+<span class="kw">ON</span> students                       <span class="cm">← watching the students table</span>
+<span class="kw">FOR EACH ROW</span>                      <span class="cm">← once per inserted row</span>
+<span class="kw">BEGIN</span>
+    <span class="cm">-- Auto-set enrollment date if not provided</span>
+    <span class="kw">IF</span> <span class="nw">NEW</span>.enrolled_on <span class="kw">IS NULL</span> <span class="kw">THEN</span>
+        <span class="kw">SET</span> <span class="nw">NEW</span>.enrolled_on <span class="op">=</span> <span class="fn">CURDATE</span>();
+    <span class="kw">END IF</span>;
+
+    <span class="cm">-- Standardise email to lowercase</span>
+    <span class="kw">SET</span> <span class="nw">NEW</span>.email <span class="op">=</span> <span class="fn">LOWER</span>(<span class="fn">TRIM</span>(<span class="nw">NEW</span>.email));
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="cm">-- This now happens AUTOMATICALLY on every insert — no app code needed!</span>
+<span class="kw">INSERT INTO</span> students (name, email) <span class="kw">VALUES</span> (<span class="str">'Kavya Nair'</span>, <span class="str">'  KAVYA@GUVI.IN  '</span>);
+<span class="cm">-- Stored as: email = 'kavya@guvi.in', enrolled_on = today's date</span></pre></div>
+    </div>
+
+    <div class="co success">
+      <span class="ci">✅</span>
+      <div><strong>The power of triggers</strong>Every application that inserts into students — the website, the mobile app, an admin tool, a bulk import script — automatically gets this email cleanup and default date logic. The rule lives in ONE place: the database.</div>
+    </div>
+  </section>
+
+  <!-- ══ TIMING ══ -->
+  <section class="sec" id="sec-timing">
+    <h2 class="st">⏱️ BEFORE vs AFTER Triggers</h2>
+    <p class="ss">Timing determines whether your trigger runs before the change is committed (so you can still modify or block it) or after (so you can react to what already happened).</p>
+
+    <div class="timing-diagram">
+      <h4 style="font-family:'Sora',sans-serif;font-size:14px;font-weight:700;margin-bottom:16px;text-align:center">Execution Order</h4>
+      <div class="timing-row" style="justify-content:center">
+        <div class="timing-step ts-before">BEFORE trigger fires</div>
+        <div class="timing-arrow">→</div>
+        <div class="timing-step ts-action">Row is actually INSERTED/UPDATED/DELETED</div>
+        <div class="timing-arrow">→</div>
+        <div class="timing-step ts-after">AFTER trigger fires</div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card" style="border-left:4px solid var(--blue);margin-bottom:0">
+        <div class="ct" style="color:var(--blue)">⏪ BEFORE Trigger</div>
+        <p style="font-size:13px;margin-bottom:10px">Runs before the change happens. Can MODIFY the incoming data (via NEW) or CANCEL the operation entirely by raising an error.</p>
+        <ul style="font-size:12.5px;color:#334155;line-height:1.7;padding-left:18px">
+          <li>Validate or clean data before saving</li>
+          <li>Set default/computed values</li>
+          <li>Block invalid operations</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:4px solid var(--green);margin-bottom:0">
+        <div class="ct" style="color:var(--green)">⏩ AFTER Trigger</div>
+        <p style="font-size:13px;margin-bottom:10px">Runs after the change is saved. Cannot modify the row that just changed, but can update OTHER tables (logs, audit trails, counters).</p>
+        <ul style="font-size:12.5px;color:#334155;line-height:1.7;padding-left:18px">
+          <li>Write to an audit/history table</li>
+          <li>Update related summary tables</li>
+          <li>Send notifications (via app polling)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🛡️ BEFORE Trigger — Validation & Blocking</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE TRIGGER</span> trg_validate_score
+<span class="kw">BEFORE INSERT</span> <span class="kw">ON</span> guvi_learners
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">IF</span> <span class="nw">NEW</span>.quiz_score <span class="op"><</span> <span class="num">0</span> <span class="kw">OR</span> <span class="nw">NEW</span>.quiz_score <span class="op">></span> <span class="num">100</span> <span class="kw">THEN</span>
+        <span class="cm">-- Block the insert entirely with a custom error</span>
+        <span class="kw">SIGNAL SQLSTATE</span> <span class="str">'45000'</span>
+        <span class="kw">SET</span> MESSAGE_TEXT <span class="op">=</span> <span class="str">'Quiz score must be between 0 and 100'</span>;
+    <span class="kw">END IF</span>;
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="cm">-- This will FAIL with our custom error message:</span>
+<span class="kw">INSERT INTO</span> guvi_learners (name, quiz_score) <span class="kw">VALUES</span> (<span class="str">'Test'</span>, <span class="num">150</span>);
+<span class="cm">-- ERROR 1644 (45000): Quiz score must be between 0 and 100</span></pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📝 AFTER Trigger — Logging to Another Table</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE TRIGGER</span> trg_log_new_student
+<span class="kw">AFTER INSERT</span> <span class="kw">ON</span> students
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+    <span class="cm">-- The row already exists in 'students' — now log it elsewhere</span>
+    <span class="kw">INSERT INTO</span> enrollment_log (student_id, name, action, logged_at)
+    <span class="kw">VALUES</span> (<span class="nw">NEW</span>.student_id, <span class="nw">NEW</span>.name, <span class="str">'NEW_ENROLLMENT'</span>, <span class="fn">NOW</span>());
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ NEW/OLD ══ -->
+  <section class="sec" id="sec-newold">
+    <h2 class="st">🔀 NEW and OLD Row References</h2>
+    <p class="ss">Inside a trigger, you can access the row's data using two special keywords: NEW (the incoming/updated values) and OLD (the previous values before the change).</p>
+
+    <div class="card">
+      <div class="ct">📋 NEW vs OLD Availability by Event Type</div>
+      <table class="dtbl">
+        <thead><tr><th>Event</th><th>OLD available?</th><th>NEW available?</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><strong>INSERT</strong></td><td style="color:var(--red)">❌ No</td><td style="color:var(--green)">✅ Yes</td><td>Row didn't exist before — only NEW data exists</td></tr>
+          <tr><td><strong>UPDATE</strong></td><td style="color:var(--green)">✅ Yes</td><td style="color:var(--green)">✅ Yes</td><td>OLD = before change, NEW = after change</td></tr>
+          <tr><td><strong>DELETE</strong></td><td style="color:var(--green)">✅ Yes</td><td style="color:var(--red)">❌ No</td><td>Row is being removed — only OLD data exists</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔍 Visual — UPDATE Trigger Sees Both OLD and NEW</div>
+      <p style="margin-bottom:8px;font-size:13px;color:var(--muted)">Example: <code>UPDATE guvi_learners SET quiz_score = 92 WHERE student_id = 'S01'</code></p>
+      <div class="rowdemo">
+        <div class="rowdemo-box rowdemo-old">
+          <div class="rowdemo-label">OLD — before the UPDATE</div>
+          <div class="rowdemo-field"><span>student_id</span><span>S01</span></div>
+          <div class="rowdemo-field"><span>name</span><span>Priya Sharma</span></div>
+          <div class="rowdemo-field changed"><span>quiz_score</span><span>85</span></div>
+        </div>
+        <div class="rowdemo-arrow">→</div>
+        <div class="rowdemo-box rowdemo-new">
+          <div class="rowdemo-label">NEW — after the UPDATE</div>
+          <div class="rowdemo-field"><span>student_id</span><span>S01</span></div>
+          <div class="rowdemo-field"><span>name</span><span>Priya Sharma</span></div>
+          <div class="rowdemo-field changed"><span>quiz_score</span><span>92</span></div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);text-align:center">A trigger can compare <code>OLD.quiz_score</code> (85) vs <code>NEW.quiz_score</code> (92) to detect exactly what changed.</p>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI Example — Only Log If Score Actually Changed</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE TRIGGER</span> trg_score_change_log
+<span class="kw">AFTER UPDATE</span> <span class="kw">ON</span> guvi_learners
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+    <span class="cm">-- Only log if the score actually changed (avoid noise from unrelated updates)</span>
+    <span class="kw">IF</span> <span class="od">OLD</span>.quiz_score <span class="op">!=</span> <span class="nw">NEW</span>.quiz_score <span class="kw">OR</span>
+       (<span class="od">OLD</span>.quiz_score <span class="kw">IS NULL</span> <span class="kw">AND</span> <span class="nw">NEW</span>.quiz_score <span class="kw">IS NOT NULL</span>) <span class="kw">THEN</span>
+
+        <span class="kw">INSERT INTO</span> score_change_log
+            (student_id, old_score, new_score, changed_at)
+        <span class="kw">VALUES</span>
+            (<span class="nw">NEW</span>.student_id, <span class="od">OLD</span>.quiz_score, <span class="nw">NEW</span>.quiz_score, <span class="fn">NOW</span>());
+    <span class="kw">END IF</span>;
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;</pre></div>
+      <div class="co tip"><span class="ci">💡</span><div><strong>Important:</strong> in a DELETE trigger, you can only use <code>OLD.column</code> — there is no NEW because the row is being removed. In an INSERT trigger, you can only use <code>NEW.column</code> — there is no OLD because the row didn't exist before.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🚫 Prevent Deletion of Critical Records</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE TRIGGER</span> trg_prevent_admin_delete
+<span class="kw">BEFORE DELETE</span> <span class="kw">ON</span> students
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">IF</span> <span class="od">OLD</span>.role <span class="op">=</span> <span class="str">'admin'</span> <span class="kw">THEN</span>
+        <span class="kw">SIGNAL SQLSTATE</span> <span class="str">'45000'</span>
+        <span class="kw">SET</span> MESSAGE_TEXT <span class="op">=</span> <span class="str">'Cannot delete admin accounts!'</span>;
+    <span class="kw">END IF</span>;
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="cm">-- This will be BLOCKED:</span>
+<span class="kw">DELETE FROM</span> students <span class="kw">WHERE</span> student_id <span class="op">=</span> <span class="str">'ADMIN01'</span>;
+<span class="cm">-- ERROR 1644 (45000): Cannot delete admin accounts!</span></pre></div>
+    </div>
+  </section>
+
+  <!-- ══ FOR EACH ROW ══ -->
+  <section class="sec" id="sec-rowlevel">
+    <h2 class="st">📐 FOR EACH ROW — Row-Level Triggers</h2>
+    <p class="ss">MySQL only supports row-level triggers — meaning the trigger fires once for EVERY row affected, not once per statement. This matters a lot for bulk operations.</p>
+
+    <div class="card">
+      <div class="ct">🔁 What "Once Per Row" Really Means</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- This single UPDATE statement affects 50 rows</span>
+<span class="kw">UPDATE</span> guvi_learners
+<span class="kw">SET</span>    quiz_score <span class="op">=</span> quiz_score <span class="op">+</span> <span class="num">5</span>
+<span class="kw">WHERE</span>  batch_id <span class="op">=</span> <span class="str">'B01'</span>;   <span class="cm">-- 50 students in B01</span>
+
+<span class="cm">-- If a trigger exists: AFTER UPDATE ON guvi_learners FOR EACH ROW
+-- → it fires 50 TIMES, once per affected row
+-- → NOT once for the whole UPDATE statement</span></pre></div>
+      <div class="co warn"><span class="ci">⚠️</span><div><strong>Performance implication!</strong>A trigger that does expensive work (like another INSERT) will run that work 50 times for a 50-row bulk update. For very large bulk operations, this can slow things down significantly — be mindful of what logic you put inside triggers.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔢 Multiple Triggers on the Same Table</div>
+      <p style="margin-bottom:10px">You can have multiple triggers on the same table, even for the same event — MySQL lets you control their execution order.</p>
+      <div class="cb"><span class="cl">SQL — MySQL 5.7.2+</span><pre><span class="cm">-- Trigger 1: runs first</span>
+<span class="kw">CREATE TRIGGER</span> trg_validate_score
+<span class="kw">BEFORE INSERT</span> <span class="kw">ON</span> guvi_learners
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">IF</span> <span class="nw">NEW</span>.quiz_score <span class="op"><</span> <span class="num">0</span> <span class="kw">THEN</span> <span class="kw">SET</span> <span class="nw">NEW</span>.quiz_score <span class="op">=</span> <span class="num">0</span>; <span class="kw">END IF</span>;
+<span class="kw">END</span> //
+
+<span class="cm">-- Trigger 2: explicitly placed AFTER trigger 1</span>
+<span class="kw">CREATE TRIGGER</span> trg_set_grade
+<span class="kw">BEFORE INSERT</span> <span class="kw">ON</span> guvi_learners
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">FOLLOWS</span> trg_validate_score    <span class="cm">← controls ordering!</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">SET</span> <span class="nw">NEW</span>.grade <span class="op">=</span> <span class="kw">CASE</span>
+        <span class="kw">WHEN</span> <span class="nw">NEW</span>.quiz_score <span class="op">>=</span> <span class="num">90</span> <span class="kw">THEN</span> <span class="str">'A'</span>
+        <span class="kw">WHEN</span> <span class="nw">NEW</span>.quiz_score <span class="op">>=</span> <span class="num">75</span> <span class="kw">THEN</span> <span class="str">'B'</span>
+        <span class="kw">ELSE</span> <span class="str">'C'</span>
+    <span class="kw">END</span>;
+<span class="kw">END</span> //</pre></div>
+      <div class="co info"><span class="ci">💡</span><div>Use <code>FOLLOWS trigger_name</code> or <code>PRECEDES trigger_name</code> to control the exact order when multiple triggers fire for the same event on the same table.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ SIMULATOR (SIGNATURE) ══ -->
+  <section class="sec" id="sec-simulator">
+    <h2 class="st">🎮 Live Trigger Simulator</h2>
+    <p class="ss">Perform an INSERT, UPDATE, or DELETE on a simulated guvi_learners table and watch the trigger fire in real time — see exactly what it does and what gets written to the audit log.</p>
+
+    <div class="trigsim">
+      <div class="ts-head">
+        <div class="ts-title">⚡ Trigger Execution Lab — guvi_learners table</div>
+        <div class="ts-sub">An AFTER UPDATE trigger writes every change to learner_audit_log automatically</div>
+      </div>
+      <div class="ts-controls">
+        <button class="action-btn update-btn" id="btn-update" onclick="runTrigger('update')">✏️ Run UPDATE (change score)</button>
+        <button class="action-btn" id="btn-insert" onclick="runTrigger('insert')">➕ Run INSERT (new student)</button>
+        <button class="action-btn delete-btn" id="btn-delete" onclick="runTrigger('delete')">🗑️ Run DELETE (blocked!)</button>
+        <button class="ts-reset" onclick="resetTrigSim()">↺ Reset</button>
+      </div>
+      <div class="ts-body">
+        <div class="ts-flow">
+          <div class="ts-panel action-panel">
+            <div class="ts-panel-head">1️⃣ SQL Statement Executed</div>
+            <div class="ts-panel-body" id="ts-sql">-- Click a button above to run an operation</div>
+          </div>
+          <div class="ts-panel trigger-panel">
+            <div class="ts-panel-head">2️⃣ Trigger Fires Automatically</div>
+            <div class="ts-panel-body" id="ts-trigger">-- Trigger logic will appear here</div>
+          </div>
+        </div>
+        <div class="ts-panel-head" style="background:#0f172a;color:#fff;padding:10px 16px;border-radius:8px 8px 0 0;font-family:'Sora',sans-serif;font-size:12px;font-weight:700">3️⃣ Execution Log</div>
+        <div class="ts-log" id="ts-log" style="border-radius:0 0 8px 8px"></div>
+        <div id="ts-audit-section" style="display:none">
+          <div class="ts-panel-head" style="background:var(--gl);color:var(--green);padding:10px 16px;border-radius:8px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;margin-top:14px">📋 learner_audit_log table (after trigger ran)</div>
+          <table class="ts-audit-table" id="ts-audit-table"></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ USE CASES ══ -->
+  <section class="sec" id="sec-usecases">
+    <h2 class="st">🛠️ Trigger Use Cases</h2>
+    <p class="ss">Six classic real-world patterns where triggers replace application-level logic with database-level automation.</p>
+
+    <div class="usecase-grid">
+      <div class="usecase-card">
+        <div class="usecase-icon">📋</div>
+        <div class="usecase-title">1. Audit Log — Track Every Change</div>
+        <div class="usecase-desc">AFTER UPDATE/DELETE trigger writes old and new values to a history table — a permanent record of who changed what and when.</div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">🕐</div>
+        <div class="usecase-title">2. Auto-Update Timestamp</div>
+        <div class="usecase-desc">BEFORE UPDATE trigger automatically sets updated_at = NOW() — no application needs to remember to do this manually.</div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">⚖️</div>
+        <div class="usecase-title">3. Enforce Business Rules</div>
+        <div class="usecase-desc">BEFORE INSERT/UPDATE trigger validates data (e.g., score 0-100, no negative fees) and blocks invalid changes with SIGNAL.</div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">🔒</div>
+        <div class="usecase-title">4. Prevent Critical Deletes</div>
+        <div class="usecase-desc">BEFORE DELETE trigger blocks deletion of protected records (admin accounts, paid invoices) by raising a custom error.</div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">🔗</div>
+        <div class="usecase-title">5. Cascade Custom Logic</div>
+        <div class="usecase-desc">AFTER DELETE on students could also clean up related rows in tables that don't have a formal foreign key relationship.</div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">📊</div>
+        <div class="usecase-title">6. Maintain Summary Tables</div>
+        <div class="usecase-desc">AFTER INSERT/DELETE trigger keeps a batch_student_count column updated automatically, avoiding expensive COUNT() queries.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🕐 Use Case 2 in Detail — Auto-Update Timestamp</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Table has an updated_at column</span>
+<span class="kw">ALTER TABLE</span> guvi_learners <span class="kw">ADD COLUMN</span> updated_at <span class="kw">TIMESTAMP</span>;
+
+<span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE TRIGGER</span> trg_auto_timestamp
+<span class="kw">BEFORE UPDATE</span> <span class="kw">ON</span> guvi_learners
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">SET</span> <span class="nw">NEW</span>.updated_at <span class="op">=</span> <span class="fn">NOW</span>();
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="cm">-- Every UPDATE — from ANY source — now stamps the time automatically</span>
+<span class="kw">UPDATE</span> guvi_learners <span class="kw">SET</span> quiz_score <span class="op">=</span> <span class="num">90</span> <span class="kw">WHERE</span> student_id <span class="op">=</span> <span class="str">'S01'</span>;
+<span class="cm">-- updated_at is automatically set to the current timestamp</span></pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔗 Use Case 5 in Detail — Cascade Beyond Foreign Keys</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- When a batch is deleted, archive its students instead of relying on FK CASCADE</span>
+<span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE TRIGGER</span> trg_archive_on_batch_delete
+<span class="kw">BEFORE DELETE</span> <span class="kw">ON</span> batches
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+    <span class="cm">-- Move affected students to an archive table BEFORE the batch disappears</span>
+    <span class="kw">INSERT INTO</span> archived_students
+        <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> students <span class="kw">WHERE</span> batch_id <span class="op">=</span> <span class="od">OLD</span>.batch_id;
+
+    <span class="cm">-- Log this significant event</span>
+    <span class="kw">INSERT INTO</span> system_log (event, detail, logged_at)
+    <span class="kw">VALUES</span> (<span class="str">'BATCH_DELETED'</span>, <span class="fn">CONCAT</span>(<span class="str">'Batch '</span>, <span class="od">OLD</span>.batch_name, <span class="str">' removed'</span>), <span class="fn">NOW</span>());
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ AUDIT PROJECT ══ -->
+  <section class="sec" id="sec-auditproj">
+    <h2 class="st">🏆 Build: Audit Trigger on Learner Table</h2>
+    <p class="ss">A complete, production-ready audit trail system — log every UPDATE to guvi_learners into a history table automatically. This is one of the most commonly requested real-world features.</p>
+
+    <div class="co purple">
+      <span class="ci">🎯</span>
+      <div><strong>The Goal</strong>Every time someone updates a row in <code>guvi_learners</code> (score correction, city change, batch transfer), automatically record: which row changed, what the old value was, what the new value is, and exactly when it happened — with zero application code.</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Step 1 — Create the Audit Log Table</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">CREATE TABLE</span> learner_audit_log (
+    log_id        <span class="kw">INT AUTO_INCREMENT PRIMARY KEY</span>,
+    student_id    <span class="kw">VARCHAR</span>(<span class="num">10</span>)     <span class="kw">NOT NULL</span>,
+    field_changed <span class="kw">VARCHAR</span>(<span class="num">50</span>)     <span class="kw">NOT NULL</span>,
+    old_value     <span class="kw">VARCHAR</span>(<span class="num">100</span>),
+    new_value     <span class="kw">VARCHAR</span>(<span class="num">100</span>),
+    changed_by    <span class="kw">VARCHAR</span>(<span class="num">50</span>)     <span class="kw">DEFAULT</span> <span class="fn">CURRENT_USER</span>(),
+    changed_at    <span class="kw">TIMESTAMP</span>      <span class="kw">DEFAULT</span> <span class="fn">CURRENT_TIMESTAMP</span>
+);</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Step 2 — Create the AFTER UPDATE Trigger</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE TRIGGER</span> trg_audit_learner_update
+<span class="kw">AFTER UPDATE</span> <span class="kw">ON</span> guvi_learners
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+    <span class="cm">-- Log score changes</span>
+    <span class="kw">IF</span> <span class="od">OLD</span>.quiz_score <span class="op"><=></span> <span class="nw">NEW</span>.quiz_score <span class="kw">IS</span> <span class="kw">FALSE</span> <span class="kw">THEN</span>
+        <span class="kw">INSERT INTO</span> learner_audit_log
+            (student_id, field_changed, old_value, new_value)
+        <span class="kw">VALUES</span>
+            (<span class="nw">NEW</span>.student_id, <span class="str">'quiz_score'</span>,
+             <span class="fn">CAST</span>(<span class="od">OLD</span>.quiz_score <span class="kw">AS</span> <span class="kw">CHAR</span>), <span class="fn">CAST</span>(<span class="nw">NEW</span>.quiz_score <span class="kw">AS</span> <span class="kw">CHAR</span>));
+    <span class="kw">END IF</span>;
+
+    <span class="cm">-- Log city changes</span>
+    <span class="kw">IF</span> <span class="od">OLD</span>.city <span class="op"><=></span> <span class="nw">NEW</span>.city <span class="kw">IS</span> <span class="kw">FALSE</span> <span class="kw">THEN</span>
+        <span class="kw">INSERT INTO</span> learner_audit_log
+            (student_id, field_changed, old_value, new_value)
+        <span class="kw">VALUES</span>
+            (<span class="nw">NEW</span>.student_id, <span class="str">'city'</span>, <span class="od">OLD</span>.city, <span class="nw">NEW</span>.city);
+    <span class="kw">END IF</span>;
+
+    <span class="cm">-- Log batch transfers</span>
+    <span class="kw">IF</span> <span class="od">OLD</span>.batch_id <span class="op"><=></span> <span class="nw">NEW</span>.batch_id <span class="kw">IS</span> <span class="kw">FALSE</span> <span class="kw">THEN</span>
+        <span class="kw">INSERT INTO</span> learner_audit_log
+            (student_id, field_changed, old_value, new_value)
+        <span class="kw">VALUES</span>
+            (<span class="nw">NEW</span>.student_id, <span class="str">'batch_id'</span>, <span class="od">OLD</span>.batch_id, <span class="nw">NEW</span>.batch_id);
+    <span class="kw">END IF</span>;
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;</pre></div>
+      <div class="co tip"><span class="ci">💡</span><div><strong>Why <code><=></code> (null-safe equals)?</strong>Regular <code>!=</code> returns NULL (not TRUE) when comparing against NULL, so changes involving NULL would be silently skipped. The <code><=></code> operator handles NULL comparisons correctly — essential for robust audit triggers.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Step 3 — Test It</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Make a change</span>
+<span class="kw">UPDATE</span> guvi_learners
+<span class="kw">SET</span>    quiz_score <span class="op">=</span> <span class="num">92</span>, city <span class="op">=</span> <span class="str">'Bangalore'</span>
+<span class="kw">WHERE</span>  student_id <span class="op">=</span> <span class="str">'S01'</span>;
+
+<span class="cm">-- Check the audit trail — TWO rows logged automatically!</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> learner_audit_log
+<span class="kw">WHERE</span>  student_id <span class="op">=</span> <span class="str">'S01'</span>
+<span class="kw">ORDER BY</span> changed_at <span class="kw">DESC</span>;</pre></div>
+      <table class="dtbl">
+        <thead><tr><th>log_id</th><th>student_id</th><th>field_changed</th><th>old_value</th><th>new_value</th><th>changed_at</th></tr></thead>
+        <tbody>
+          <tr><td>102</td><td>S01</td><td>city</td><td>Chennai</td><td>Bangalore</td><td>2024-06-15 14:32:07</td></tr>
+          <tr><td>101</td><td>S01</td><td>quiz_score</td><td>85</td><td>92</td><td>2024-06-15 14:32:07</td></tr>
+        </tbody>
+      </table>
+      <div class="co success" style="margin-top:10px"><span class="ci">✅</span><div>One UPDATE statement, two field changes, automatically logged as two separate audit entries — with zero application-side logging code. This pattern is used in HDFC's transaction systems, GUVI's grade-change tracking, and IRCTC's booking modification logs.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ MANAGE ══ -->
+  <section class="sec" id="sec-manage">
+    <h2 class="st">🗂️ DROP TRIGGER / SHOW TRIGGERS</h2>
+    <p class="ss">Managing the lifecycle of your triggers — viewing what exists, and removing triggers you no longer need.</p>
+
+    <div class="card">
+      <div class="ct">🔍 SHOW TRIGGERS — See What's Active</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- List all triggers in the current database</span>
+<span class="kw">SHOW TRIGGERS</span>;
+
+<span class="cm">-- Filter to a specific table</span>
+<span class="kw">SHOW TRIGGERS</span> <span class="kw">WHERE</span> `Table` <span class="op">=</span> <span class="str">'guvi_learners'</span>;
+
+<span class="cm">-- More detail via information_schema</span>
+<span class="kw">SELECT</span> trigger_name, event_manipulation, event_object_table, action_timing
+<span class="kw">FROM</span>   information_schema.triggers
+<span class="kw">WHERE</span>  trigger_schema <span class="op">=</span> <span class="str">'guvi_db'</span>;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🗑️ DROP TRIGGER</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">DROP TRIGGER IF EXISTS</span> trg_audit_learner_update;
+
+<span class="cm">-- To MODIFY a trigger, you must DROP and recreate it —
+-- there's no ALTER TRIGGER in MySQL</span>
+<span class="kw">DROP TRIGGER IF EXISTS</span> trg_validate_score;
+
+<span class="kw">DELIMITER</span> //
+<span class="kw">CREATE TRIGGER</span> trg_validate_score
+<span class="kw">BEFORE INSERT</span> <span class="kw">ON</span> guvi_learners
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+    <span class="cm">-- updated logic here</span>
+<span class="kw">END</span> //
+<span class="kw">DELIMITER</span> ;</pre></div>
+      <div class="co warn"><span class="ci">⚠️</span><div>MySQL has no <code>ALTER TRIGGER</code> for changing logic. To update a trigger, you must DROP it and CREATE it again with the new logic.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ EVENTS ══ -->
+  <section class="sec" id="sec-events">
+    <h2 class="st">📅 Scheduled Events with CREATE EVENT</h2>
+    <p class="ss">While triggers react to data changes, EVENTS run on a time schedule — like a cron job that lives inside the database itself.</p>
+
+    <div class="co info">
+      <span class="ci">⏰</span>
+      <div><strong>Triggers vs Events</strong><br/>
+        <strong>Trigger</strong> → fires in response to a data change (INSERT/UPDATE/DELETE)<br/>
+        <strong>Event</strong> → fires on a time schedule (every hour, every night at 2 AM, once on a specific date)
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📖 CREATE EVENT Syntax</div>
+      <div class="cb"><span class="cl">MySQL</span><pre><span class="cm">-- First, enable the event scheduler (server-level setting)</span>
+<span class="kw">SET GLOBAL</span> event_scheduler <span class="op">=</span> <span class="kw">ON</span>;
+
+<span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE EVENT</span> event_name
+<span class="kw">ON SCHEDULE</span> <span class="kw">EVERY</span> <span class="num">1</span> <span class="kw">DAY</span>          <span class="cm">-- recurring schedule</span>
+<span class="kw">STARTS</span> <span class="str">'2024-06-15 02:00:00'</span>      <span class="cm">-- when to start</span>
+<span class="kw">DO</span>
+<span class="kw">BEGIN</span>
+    <span class="cm">-- SQL logic to run on schedule</span>
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI Example — Nightly Cleanup & Summary</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE EVENT</span> nightly_learner_summary
+<span class="kw">ON SCHEDULE</span> <span class="kw">EVERY</span> <span class="num">1</span> <span class="kw">DAY</span>
+<span class="kw">STARTS</span> <span class="str">'2024-06-15 02:00:00'</span>
+<span class="kw">DO</span>
+<span class="kw">BEGIN</span>
+    <span class="cm">-- Refresh a daily summary table every night at 2 AM</span>
+    <span class="kw">DELETE FROM</span> daily_batch_summary;
+
+    <span class="kw">INSERT INTO</span> daily_batch_summary (batch_id, learner_count, avg_score, summary_date)
+    <span class="kw">SELECT</span> batch_id, <span class="fn">COUNT</span>(<span class="op">*</span>), <span class="fn">ROUND</span>(<span class="fn">AVG</span>(quiz_score),<span class="num">1</span>), <span class="fn">CURDATE</span>()
+    <span class="kw">FROM</span>   guvi_learners
+    <span class="kw">GROUP BY</span> batch_id;
+
+    <span class="cm">-- Also clean up old session logs (older than 90 days)</span>
+    <span class="kw">DELETE FROM</span> session_logs
+    <span class="kw">WHERE</span>  log_date <span class="op"><</span> <span class="fn">DATE_SUB</span>(<span class="fn">CURDATE</span>(), <span class="kw">INTERVAL</span> <span class="num">90</span> <span class="kw">DAY</span>);
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🗂️ Managing Events</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- List all events</span>
+<span class="kw">SHOW EVENTS</span>;
+
+<span class="cm">-- Disable an event temporarily (without deleting it)</span>
+<span class="kw">ALTER EVENT</span> nightly_learner_summary <span class="kw">DISABLE</span>;
+
+<span class="cm">-- Re-enable it</span>
+<span class="kw">ALTER EVENT</span> nightly_learner_summary <span class="kw">ENABLE</span>;
+
+<span class="cm">-- Delete an event entirely</span>
+<span class="kw">DROP EVENT IF EXISTS</span> nightly_learner_summary;
+
+<span class="cm">-- One-time event (no EVERY clause — runs once and disappears)</span>
+<span class="kw">CREATE EVENT</span> one_time_migration
+<span class="kw">ON SCHEDULE AT</span> <span class="str">'2024-07-01 00:00:00'</span>
+<span class="kw">DO</span>
+  <span class="kw">UPDATE</span> guvi_learners <span class="kw">SET</span> status <span class="op">=</span> <span class="str">'archived'</span> <span class="kw">WHERE</span> enrolled_on <span class="op"><</span> <span class="str">'2023-01-01'</span>;</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ SANDBOX ══ -->
+  <section class="sec" id="sec-sandbox">
+    <h2 class="st">💻 Practice Sandbox</h2>
+    <p class="ss">Practice writing triggers and events. The sandbox recognises patterns and returns realistic output.</p>
+
+    <div class="sandbox">
+      <div class="sbh2">
+        <div class="sbt"><span>🖥️</span> SQL Sandbox — Triggers & Events</div>
+        <div class="sbact">
+          <button class="sbbtn clr" onclick="clearSB()">Clear</button>
+          <button class="sbbtn run" onclick="runSB()">▶ Run</button>
+        </div>
+      </div>
+      <textarea class="sbed" id="sbed" spellcheck="false" placeholder="-- Try these patterns:
+-- CREATE TRIGGER trg_audit AFTER UPDATE ON guvi_learners FOR EACH ROW BEGIN ... END;
+-- SHOW TRIGGERS;
+-- UPDATE guvi_learners SET quiz_score = 95 WHERE student_id = 'S01';
+-- SELECT * FROM learner_audit_log;
+-- DROP TRIGGER trg_audit;
+-- CREATE EVENT nightly_summary ON SCHEDULE EVERY 1 DAY DO ...;
+"></textarea>
+      <div class="sbout" id="sbout"><span style="color:var(--muted);font-size:12px">▶ Output will appear here</span></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📝 Practice Challenges</div>
+      <ul class="steps">
+        <li class="step"><div class="sn">1</div><div class="sb2"><strong>Auto-timestamp trigger</strong><p>Write a BEFORE UPDATE trigger that automatically sets updated_at = NOW() on every guvi_learners update.</p></div></li>
+        <li class="step"><div class="sn">2</div><div class="sb2"><strong>Validation trigger</strong><p>Write a BEFORE INSERT trigger that blocks any quiz_score outside the 0-100 range using SIGNAL.</p></div></li>
+        <li class="step"><div class="sn">3</div><div class="sb2"><strong>Audit trigger</strong><p>Build the full audit trigger from this chapter's project — test it with an UPDATE and check learner_audit_log.</p></div></li>
+        <li class="step"><div class="sn">4</div><div class="sb2"><strong>Protect critical records</strong><p>Write a BEFORE DELETE trigger that blocks deletion of any student with role = 'admin'.</p></div></li>
+        <li class="step"><div class="sn">5</div><div class="sb2"><strong>Nightly event</strong><p>Create a scheduled event that refreshes a batch_summary table every night at 1 AM.</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ QUIZ ══ -->
+  <section class="sec" id="sec-quiz">
+    <h2 class="st">🧠 Chapter 15 Quiz</h2>
+    <p class="ss">Test your understanding of triggers, NEW/OLD, timing, and scheduled events.</p>
+    <div class="qw">
+      <div class="qprog" id="qprog">Question 1 of 8</div>
+      <div class="qq" id="qq"></div>
+      <ul class="qopts" id="qopts"></ul>
+      <div class="qfb" id="qfb"></div>
+      <div class="qnav">
+        <span class="qsc" id="qsc">Score: 0 / 0</span>
+        <button class="qbtn" id="qnext" onclick="nextQ()" style="display:none">Next Question →</button>
+      </div>
+    </div>
+    <div class="done" id="done-card" style="display:none">
+      <div class="trophy">🏆</div>
+      <h3 id="done-title">Chapter Complete!</h3>
+      <p id="done-msg">You've mastered Triggers & Events — your database can now react to itself!</p>
+      <button class="donebtn" onclick="doConfetti()">🎉 Celebrate!</button>
+    </div>
+  </section>
+</main>
+
+<script>
+const SECS=['intro','anatomy','timing','newold','rowlevel','simulator','usecases','auditproj','manage','events','sandbox','quiz'];
+let ci=0;const doneSet=new Set();
+function showS(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  ci=SECS.indexOf(id);window.scrollTo(0,0);
+}
+function nextS(){if(ci<SECS.length-1){markDone(SECS[ci]);const n=SECS[ci+1];showS(n,document.querySelector(`[data-s="${n}"]`));}}
+function prevS(){if(ci>0){const p=SECS[ci-1];showS(p,document.querySelector(`[data-s="${p}"]`));}}
+function markDone(id){
+  doneSet.add(id);
+  const c=document.getElementById('chk-'+id);if(c)c.textContent='✓';
+  const n=document.querySelector(`[data-s="${id}"]`);if(n)n.classList.add('done');
+  const pct=Math.round((doneSet.size/SECS.length)*100);
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('pp').textContent=pct+'%';
+}
+
+// ── TRIGGER SIMULATOR ──
+let auditRows=[];
+let logId=100;
+
+function resetTrigSim(){
+  document.getElementById('ts-sql').textContent='-- Click a button above to run an operation';
+  document.getElementById('ts-trigger').textContent='-- Trigger logic will appear here';
+  document.getElementById('ts-trigger').classList.remove('firing');
+  document.getElementById('ts-log').innerHTML='';
+  document.getElementById('ts-audit-section').style.display='none';
+  auditRows=[];
+  logId=100;
+}
+
+function logLine(container,text,cls,delay){
+  return new Promise(resolve=>{
+    setTimeout(()=>{
+      const line=document.createElement('div');
+      line.className='ts-log-line '+cls;
+      line.textContent=text;
+      container.appendChild(line);
+      container.scrollTop=container.scrollHeight;
+      resolve();
+    },delay);
+  });
+}
+
+async function runTrigger(type){
+  document.getElementById('btn-update').disabled=true;
+  document.getElementById('btn-insert').disabled=true;
+  document.getElementById('btn-delete').disabled=true;
+  const logEl=document.getElementById('ts-log');
+  logEl.innerHTML='';
+
+  if(type==='update'){
+    document.getElementById('ts-sql').innerHTML=`<span style="color:#7dd3fc">UPDATE</span> guvi_learners
+<span style="color:#7dd3fc">SET</span>    quiz_score = <span style="color:#fcd34d">92</span>, city = <span style="color:#86efac">'Bangalore'</span>
+<span style="color:#7dd3fc">WHERE</span>  student_id = <span style="color:#86efac">'S01'</span>;`;
+    document.getElementById('ts-trigger').innerHTML=`<span style="color:#7dd3fc">AFTER UPDATE</span> trg_audit_learner_update
+<span style="color:#fb923c">FOR EACH ROW</span> — comparing OLD vs NEW...`;
+    document.getElementById('ts-trigger').classList.add('firing');
+
+    await logLine(logEl,'▶ Executing UPDATE statement...','sys',100);
+    await logLine(logEl,'✓ Row S01 updated in guvi_learners','action',500);
+    await logLine(logEl,'⚡ Trigger trg_audit_learner_update FIRED','trigger',900);
+    await logLine(logEl,'  → Comparing OLD.quiz_score (85) vs NEW.quiz_score (92)... CHANGED','trigger',1300);
+    await logLine(logEl,'  → Comparing OLD.city (Chennai) vs NEW.city (Bangalore)... CHANGED','trigger',1700);
+    await logLine(logEl,'  → INSERT INTO learner_audit_log (2 rows)','trigger',2100);
+    await logLine(logEl,'✅ Trigger completed — 2 audit entries created','result',2500);
+
+    auditRows=[
+      [logId+2,'S01','city','Chennai','Bangalore','14:32:07'],
+      [logId+1,'S01','quiz_score','85','92','14:32:07'],
+    ];
+    logId+=2;
+    showAuditTable();
+
+  } else if(type==='insert'){
+    document.getElementById('ts-sql').innerHTML=`<span style="color:#7dd3fc">INSERT INTO</span> guvi_learners (student_id, name, city)
+<span style="color:#7dd3fc">VALUES</span> (<span style="color:#86efac">'S99'</span>, <span style="color:#86efac">'Kavya Nair'</span>, <span style="color:#86efac">'Kochi'</span>);`;
+    document.getElementById('ts-trigger').innerHTML=`<span style="color:#7dd3fc">AFTER UPDATE</span> trg_audit_learner_update
+Only fires on <strong>UPDATE</strong> — not INSERT!`;
+    document.getElementById('ts-trigger').classList.add('firing');
+
+    await logLine(logEl,'▶ Executing INSERT statement...','sys',100);
+    await logLine(logEl,'✓ New row S99 added to guvi_learners','action',500);
+    await logLine(logEl,'ℹ️ trg_audit_learner_update does NOT fire (it only watches UPDATE events)','sys',900);
+    await logLine(logEl,'✅ Insert completed — no audit entry needed (this is a new record, not a change)','result',1300);
+
+  } else if(type==='delete'){
+    document.getElementById('ts-sql').innerHTML=`<span style="color:#7dd3fc">DELETE FROM</span> guvi_learners
+<span style="color:#7dd3fc">WHERE</span> student_id = <span style="color:#86efac">'ADMIN01'</span>;`;
+    document.getElementById('ts-trigger').innerHTML=`<span style="color:#7dd3fc">BEFORE DELETE</span> trg_prevent_admin_delete
+Checking <span style="color:#f472b6">OLD</span>.role...`;
+    document.getElementById('ts-trigger').classList.add('firing');
+
+    await logLine(logEl,'▶ Executing DELETE statement...','sys',100);
+    await logLine(logEl,'⚡ Trigger trg_prevent_admin_delete FIRED (BEFORE DELETE)','trigger',500);
+    await logLine(logEl,'  → Checking OLD.role... = \'admin\'','trigger',900);
+    await logLine(logEl,'  → SIGNAL SQLSTATE \'45000\' raised','trigger',1300);
+    await logLine(logEl,'❌ ERROR 1644 (45000): Cannot delete admin accounts!','result',1700);
+    await logLine(logEl,'🛡️ DELETE operation BLOCKED — row was never removed','result',2100);
+  }
+
+  document.getElementById('btn-update').disabled=false;
+  document.getElementById('btn-insert').disabled=false;
+  document.getElementById('btn-delete').disabled=false;
+  markDone('simulator');
+}
+
+function showAuditTable(){
+  const section=document.getElementById('ts-audit-section');
+  section.style.display='block';
+  const tbl=document.getElementById('ts-audit-table');
+  tbl.innerHTML=`<tr><th>log_id</th><th>student_id</th><th>field_changed</th><th>old_value</th><th>new_value</th><th>changed_at</th></tr>`+
+    auditRows.map(r=>`<tr class="new-row">${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('');
+}
+
+// ── SANDBOX ──
+const SBP=[
+  {re:/create trigger/i,res:()=>`<span style="color:var(--green)">✓ Trigger created successfully</span>
+<table class="ot"><tr><th>Trigger</th><th>Table</th><th>Timing</th><th>Event</th></tr>
+<tr><td>trg_audit_learner_update</td><td>guvi_learners</td><td>AFTER</td><td>UPDATE</td></tr>
+</table>`},
+  {re:/show triggers/i,res:()=>`<span style="color:var(--green)">✓ Active triggers</span>
+<table class="ot"><tr><th>Trigger</th><th>Event</th><th>Table</th><th>Timing</th></tr>
+<tr><td>trg_audit_learner_update</td><td>UPDATE</td><td>guvi_learners</td><td>AFTER</td></tr>
+<tr><td>trg_validate_score</td><td>INSERT</td><td>guvi_learners</td><td>BEFORE</td></tr>
+</table>`},
+  {re:/update guvi_learners/i,res:()=>`<span style="color:var(--green)">✓ Query OK, 1 row affected</span>
+<span style="color:var(--muted);font-size:11px;display:block;margin-top:6px">⚡ Trigger fired automatically — check learner_audit_log for the new entry.</span>`},
+  {re:/select.*from.*audit/i,res:()=>`<span style="color:var(--green)">✓ Audit log entries</span>
+<table class="ot"><tr><th>log_id</th><th>student_id</th><th>field_changed</th><th>old_value</th><th>new_value</th></tr>
+<tr><td>101</td><td>S01</td><td>quiz_score</td><td>85</td><td>92</td></tr>
+<tr><td>100</td><td>S03</td><td>city</td><td>Mumbai</td><td>Pune</td></tr>
+</table>`},
+  {re:/drop trigger/i,res:()=>`<span style="color:var(--green)">✓ Trigger dropped successfully</span>`},
+  {re:/create event/i,res:()=>`<span style="color:var(--green)">✓ Event created successfully</span>
+<span style="color:var(--muted);font-size:11px;display:block;margin-top:6px">Will run on the defined schedule automatically.</span>`},
+  {re:/signal sqlstate/i,res:()=>`<span style="color:var(--red)">✗ ERROR 1644 (45000): Custom error raised by trigger</span>`},
+];
+function runSB(){
+  const sql=document.getElementById('sbed').value.trim();
+  const out=document.getElementById('sbout');
+  if(!sql){out.innerHTML='<span style="color:var(--muted)">⚠️ Enter a SQL query first.</span>';return;}
+  for(const p of SBP){if(p.re.test(sql)){out.innerHTML=p.res();return;}}
+  out.innerHTML='<span style="color:var(--green)">✓ Query OK — try CREATE TRIGGER, SHOW TRIGGERS, or CREATE EVENT!</span>';
+}
+function clearSB(){
+  document.getElementById('sbed').value='';
+  document.getElementById('sbout').innerHTML='<span style="color:var(--muted);font-size:12px">▶ Output will appear here</span>';
+}
+
+// ── QUIZ ──
+const QS=[
+  {q:"What is the key difference between a trigger and a stored procedure?",opts:["Triggers are faster than stored procedures","A stored procedure must be explicitly CALLed; a trigger fires automatically when its event occurs","Triggers can only run SELECT statements","Stored procedures cannot use parameters"],ans:1,exp:"A stored procedure requires someone to explicitly CALL it. A trigger fires automatically and invisibly whenever its associated event (INSERT/UPDATE/DELETE) happens on the watched table — no CALL needed."},
+  {q:"In a DELETE trigger, which row reference is available?",opts:["Only NEW","Only OLD — the row being removed","Both NEW and OLD","Neither — DELETE triggers can't access row data"],ans:1,exp:"Since the row is being deleted, there is no 'new' state — only OLD is available, representing the row as it existed right before deletion. INSERT triggers are the opposite: only NEW is available."},
+  {q:"What can a BEFORE trigger do that an AFTER trigger cannot?",opts:["Write to other tables","Modify the incoming row's values (via NEW) before it's saved, or block the operation entirely","Access the OLD row values","Run faster than AFTER triggers"],ans:1,exp:"A BEFORE trigger runs before the change is committed, so it can modify NEW column values (e.g., NEW.email = LOWER(NEW.email)) or cancel the entire operation using SIGNAL. An AFTER trigger can only react to a change that has already happened."},
+  {q:"You run a single UPDATE statement that affects 50 rows on a table with a FOR EACH ROW trigger. How many times does the trigger fire?",opts:["Once, for the whole statement","50 times — once per affected row","Zero times — triggers don't fire on bulk updates","It depends on the database configuration"],ans:1,exp:"MySQL only supports row-level triggers (FOR EACH ROW). The trigger fires once per row affected by the statement — so a 50-row UPDATE fires the trigger 50 separate times, which has performance implications for expensive trigger logic."},
+  {q:"Why is the null-safe equals operator (<=>) preferred over != when comparing OLD and NEW values in an audit trigger?",opts:["<=> is faster to execute","!= returns NULL (not TRUE) when either side is NULL, silently skipping changes involving NULL; <=> handles NULL correctly","<=> only works with numeric columns","!= is deprecated in modern MySQL"],ans:1,exp:"Standard comparison operators like != return NULL when comparing against NULL, which is neither TRUE nor FALSE — so an IF check using != would silently fail to detect a change from NULL to a value. <=> is specifically designed to handle NULL comparisons predictably."},
+  {q:"How do you modify the logic of an existing trigger in MySQL?",opts:["ALTER TRIGGER trigger_name MODIFY ...","You must DROP the trigger and CREATE it again with the new logic — there is no ALTER TRIGGER for logic changes","UPDATE TRIGGER trigger_name SET body = ...","Triggers cannot be modified once created"],ans:1,exp:"MySQL does not support ALTER TRIGGER for changing trigger logic. The standard approach is DROP TRIGGER IF EXISTS trigger_name, followed by CREATE TRIGGER with the updated logic."},
+  {q:"What is the main difference between a TRIGGER and an EVENT?",opts:["Events are faster than triggers","A trigger reacts to a data change (INSERT/UPDATE/DELETE); an event runs on a time-based schedule, independent of any data change","Triggers can only run once; events run repeatedly","Events require application code; triggers don't"],ans:1,exp:"Triggers are reactive — they fire in response to data modifications. Events are scheduled — they run at specific times or intervals (like a cron job), regardless of whether any data has changed. CREATE EVENT ... ON SCHEDULE EVERY 1 DAY is a classic nightly maintenance pattern."},
+  {q:"You want to block deletion of any student row where role = 'admin'. Which approach is correct?",opts:["AFTER DELETE trigger that re-inserts the row","BEFORE DELETE trigger that checks OLD.role and raises SIGNAL SQLSTATE if it equals 'admin'","A CHECK constraint on the role column","GRANT REVOKE DELETE permission to all users"],ans:1,exp:"A BEFORE DELETE trigger runs before the row is actually removed, so it can inspect OLD.role and use SIGNAL SQLSTATE '45000' to raise a custom error that cancels the entire DELETE operation — the row is never removed."},
+];
+let qi=0,score=0,answered=false;
+function renderQ(){
+  const q=QS[qi];
+  document.getElementById('qprog').textContent=`Question ${qi+1} of ${QS.length}`;
+  document.getElementById('qq').textContent=q.q;
+  document.getElementById('qopts').innerHTML=q.opts.map((o,i)=>
+    `<li class="qopt" onclick="selQ(${i})" id="qo-${i}"><span class="ok">${String.fromCharCode(65+i)}</span>${o}</li>`).join('');
+  document.getElementById('qfb').className='qfb';
+  document.getElementById('qfb').innerHTML='';
+  document.getElementById('qnext').style.display='none';
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi}`;
+  answered=false;
+}
+function selQ(i){
+  if(answered)return;answered=true;
+  const q=QS[qi];
+  document.querySelectorAll('.qopt').forEach((o,j)=>{
+    if(j===q.ans)o.classList.add('correct');
+    else if(j===i)o.classList.add('wrong');
+  });
+  if(i===q.ans)score++;
+  const fb=document.getElementById('qfb');
+  fb.className=`qfb show ${i===q.ans?'correct':'wrong'}`;
+  fb.innerHTML=`<strong>${i===q.ans?'✅ Correct!':'❌ Not quite.'}</strong> ${q.exp}`;
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi+1}`;
+  const nb=document.getElementById('qnext');
+  nb.style.display='inline-block';
+  nb.textContent=qi<QS.length-1?'Next Question →':'See Results 🎉';
+}
+function nextQ(){qi++;if(qi<QS.length)renderQ();else showResults();}
+function showResults(){
+  document.querySelector('.qw').style.display='none';
+  const dc=document.getElementById('done-card');dc.style.display='block';
+  const pct=Math.round((score/QS.length)*100);
+  document.getElementById('done-title').textContent=pct>=80?'🎉 Trigger Master!':pct>=60?'👍 Good Work!':'💪 Keep Practising!';
+  document.getElementById('done-msg').textContent=`You scored ${score} out of ${QS.length} (${pct}%). ${pct>=80?'You can now automate audit trails, validation, and business rules at the database level!':'Review BEFORE vs AFTER timing, and NEW/OLD availability per event type!'}`;
+  markDone('quiz');
+  if(pct>=70)doConfetti();
+}
+renderQ();
+
+function doConfetti(){
+  const cv=document.getElementById('cvc');const ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  const cols=['#7c3aed','#ea580c','#0d9488','#2563eb','#d97706','#16a34a','#e11d48'];
+  const pp=Array.from({length:150},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height-cv.height,r:Math.random()*9+4,color:cols[Math.floor(Math.random()*cols.length)],tilt:Math.random()*10-10,spd:Math.random()*3+1.5}));
+  let fr=0;
+  function draw(){ctx.clearRect(0,0,cv.width,cv.height);pp.forEach(p=>{ctx.beginPath();ctx.ellipse(p.x,p.y,p.r,p.r/2,p.tilt,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();p.y+=p.spd;p.x+=Math.sin(fr/18)*1.5;p.tilt+=.08;if(p.y>cv.height){p.y=-10;p.x=Math.random()*cv.width;}});fr++;if(fr<220)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);}
+  draw();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 12 — String, Date & Math Functions | SQL Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --teal:#0d9488;--tl:#ccfbf1;--td:#0f766e;
+  --blue:#2563eb;--bl:#dbeafe;
+  --indigo:#4f46e5;--il:#e0e7ff;
+  --amber:#d97706;--al:#fef3c7;
+  --red:#dc2626;--rl:#fee2e2;
+  --green:#16a34a;--gl:#dcfce7;
+  --purple:#7c3aed;--pl:#ede9fe;
+  --orange:#ea580c;--ol:#ffedd5;
+  --rose:#e11d48;--rosel:#ffe4e6;
+  --bg:#f8fafc;--surface:#fff;
+  --border:#e2e8f0;--text:#0f172a;--muted:#64748b;
+  --sw:272px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sw);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;display:flex;flex-direction:column;}
+.sbh{padding:20px 18px 16px;background:linear-gradient(135deg,#064e3b,#1e3a8a);border-bottom:1px solid var(--border);}
+.sbh .badge{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6ee7b7;margin-bottom:4px;}
+.sbh h2{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;line-height:1.3;}
+.sbh p{font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;}
+.sbp{padding:14px 18px;border-bottom:1px solid var(--border);}
+.pbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;}
+.pb{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+.pf{height:100%;background:linear-gradient(90deg,var(--teal),var(--blue));border-radius:99px;transition:width .4s;}
+.sbn{flex:1;padding:8px 0;}
+.nsl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 18px 4px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;font-size:13px;color:var(--muted);font-weight:500;}
+.ni:hover{background:var(--bg);color:var(--text);}
+.ni.active{border-left-color:var(--teal);background:var(--tl);color:var(--td);font-weight:600;}
+.ni.done{color:var(--green);}
+.nc{margin-left:auto;font-size:13px;}
+
+/* MAIN */
+.main{margin-left:var(--sw);flex:1;min-width:0;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.tbl{display:flex;align-items:center;gap:12px;}
+.chp{background:var(--tl);color:var(--td);font-family:'Sora',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.05em;}
+.topbar h1{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;}
+.nb{display:flex;gap:8px;}
+.nbtn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s;}
+.nbtn.pri{background:var(--teal);color:#fff;border-color:var(--teal);}
+.nbtn:hover{border-color:var(--teal);color:var(--teal);}
+.nbtn.pri:hover{background:var(--td);}
+
+/* SECTIONS */
+.sec{display:none;padding:36px 44px 64px;max-width:1000px;}
+.sec.active{display:block;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#064e3b 0%,#1e3a8a 100%);border-radius:16px;padding:36px 40px;color:#fff;margin-bottom:32px;position:relative;overflow:hidden;}
+.hero::after{content:'ƒ(x)';position:absolute;right:28px;top:50%;transform:translateY(-50%);font-size:80px;opacity:.09;font-family:'JetBrains Mono',monospace;font-weight:700;white-space:nowrap;}
+.hero .ey{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6ee7b7;margin-bottom:8px;}
+.hero h2{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;line-height:1.2;margin-bottom:10px;}
+.hero p{font-size:14px;opacity:.82;line-height:1.65;max-width:560px;}
+
+.st{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.ss{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:20px;}
+.ct{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+
+/* CODE */
+.cb{background:#0f172a;border-radius:10px;padding:18px 22px;margin:14px 0;overflow-x:auto;position:relative;}
+.cb pre{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.82;color:#e2e8f0;white-space:pre;}
+.cl{position:absolute;top:10px;right:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+.kw{color:#7dd3fc;}.fn{color:#a5f3fc;}.str{color:#86efac;}.cm{color:#475569;font-style:italic;}.op{color:#f9a8d4;}.num{color:#fcd34d;}
+
+/* CALLOUTS */
+.co{border-radius:10px;padding:14px 18px;margin:16px 0;display:flex;gap:12px;font-size:13.5px;line-height:1.65;}
+.ci{font-size:18px;flex-shrink:0;margin-top:1px;}
+.co strong{display:block;font-weight:700;margin-bottom:3px;}
+.co.tip{background:var(--tl);border-left:4px solid var(--teal);color:#134e4a;}
+.co.warn{background:var(--al);border-left:4px solid var(--amber);color:#78350f;}
+.co.info{background:var(--bl);border-left:4px solid var(--blue);color:#1e3a5f;}
+.co.danger{background:var(--rl);border-left:4px solid var(--red);color:#7f1d1d;}
+.co.success{background:var(--gl);border-left:4px solid var(--green);color:#14532d;}
+.co.purple{background:var(--pl);border-left:4px solid var(--purple);color:#3b0764;}
+.co.orange{background:var(--ol);border-left:4px solid var(--orange);color:#7c2d12;}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+
+/* FUNCTION REFERENCE TABLE */
+.fn-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+.fn-table th{background:#0f172a;color:#fff;padding:9px 14px;text-align:left;font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;}
+.fn-table td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+.fn-table tr:nth-child(even) td{background:#f8fafc;}
+.fn-table .fn-name{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal);font-weight:700;}
+.fn-table .fn-ex{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#475569;}
+.fn-table .fn-out{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--green);font-weight:700;}
+
+/* ════ SIGNATURE: LIVE FUNCTION PLAYGROUND ════ */
+.playground{background:var(--surface);border:2px solid var(--teal);border-radius:16px;overflow:hidden;margin:24px 0;}
+.pg-head{background:linear-gradient(90deg,#064e3b,#1e3a8a);padding:18px 24px;}
+.pg-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;}
+.pg-sub{font-size:12px;color:#6ee7b7;margin-top:3px;}
+.pg-tabs{display:flex;gap:4px;padding:14px 24px 0;border-bottom:2px solid var(--border);background:#fafafa;flex-wrap:wrap;}
+.pgtab{padding:8px 16px;font-size:12.5px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;color:var(--muted);font-family:'Sora',sans-serif;border-radius:6px 6px 0 0;}
+.pgtab:hover{color:var(--teal);}
+.pgtab.active{border-bottom-color:var(--teal);color:var(--teal);background:#fff;}
+.pg-body{padding:24px;}
+.pg-input-row{display:flex;gap:12px;margin-bottom:16px;align-items:flex-end;flex-wrap:wrap;}
+.pg-input-group{display:flex;flex-direction:column;gap:6px;flex:1;min-width:160px;}
+.pg-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.pg-input{padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:13px;background:var(--bg);color:var(--text);outline:none;transition:border-color .15s;}
+.pg-input:focus{border-color:var(--teal);}
+.pg-run-btn{padding:10px 24px;background:var(--teal);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;transition:background .15s;align-self:flex-end;}
+.pg-run-btn:hover{background:var(--td);}
+.pg-results{display:grid;gap:10px;}
+.pg-result-row{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg);border-radius:9px;border:1px solid var(--border);}
+.pg-fn-name{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal);font-weight:700;min-width:200px;flex-shrink:0;}
+.pg-arrow{color:var(--muted);font-size:16px;}
+.pg-output{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--indigo);font-weight:700;}
+.pg-note{font-size:11px;color:var(--muted);margin-left:auto;}
+
+/* DATE TIMELINE */
+.date-timeline{display:flex;gap:0;margin:20px 0;overflow-x:auto;padding-bottom:8px;}
+.dt-item{display:flex;flex-direction:column;align-items:center;min-width:110px;}
+.dt-fn{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal);font-weight:700;text-align:center;margin-bottom:6px;}
+.dt-box{background:var(--surface);border:2px solid var(--teal);border-radius:8px;padding:8px 12px;text-align:center;font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;}
+.dt-arrow{display:flex;align-items:center;padding-top:22px;color:var(--muted);font-size:18px;margin:0 4px;}
+.dt-eg{font-size:10px;color:var(--muted);text-align:center;margin-top:4px;}
+
+/* FISCAL QUARTER DEMO */
+.fq-demo{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;margin:20px 0;}
+.fq-head{background:#0f172a;padding:12px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#94a3b8;font-weight:600;}
+.fq-body{padding:18px;}
+.fq-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.fq-table th{background:var(--bg);padding:8px 12px;text-align:left;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:var(--muted);border-bottom:2px solid var(--border);}
+.fq-table td{padding:8px 12px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;}
+.fq-q1{background:#dcfce7;color:#166534;font-weight:700;}
+.fq-q2{background:#dbeafe;color:#1d4ed8;font-weight:700;}
+.fq-q3{background:#fef3c7;color:#92400e;font-weight:700;}
+.fq-q4{background:#ede9fe;color:#5b21b6;font-weight:700;}
+
+/* REGEXP DEMO */
+.regex-demo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.regex-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:16px;}
+.regex-title{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;margin-bottom:10px;}
+.regex-pattern{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg);padding:6px 10px;border-radius:6px;margin-bottom:10px;color:var(--purple);}
+.regex-match{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:4px 0;}
+.regex-val{font-family:'JetBrains Mono',monospace;font-size:12px;}
+.rm-yes{color:var(--green);font-weight:700;}
+.rm-no{color:var(--red);}
+
+/* NULL HANDLING */
+.null-demo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.null-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:16px;}
+
+/* STEPS */
+.steps{list-style:none;margin:16px 0;}
+.step{display:flex;gap:14px;margin-bottom:16px;}
+.sn{width:28px;height:28px;background:var(--teal);color:#fff;border-radius:50%;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.sb2{flex:1;}
+.sb2 strong{font-weight:700;font-size:14px;display:block;margin-bottom:3px;}
+.sb2 p{font-size:13.5px;color:#334155;line-height:1.6;}
+
+/* SANDBOX */
+.sandbox{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+.sbh2{background:#0f172a;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;}
+.sbt{font-family:'JetBrains Mono',monospace;font-size:12px;color:#94a3b8;font-weight:600;display:flex;align-items:center;gap:8px;}
+.sbact{display:flex;gap:8px;}
+.sbbtn{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;transition:all .15s;}
+.sbbtn.run{background:var(--teal);color:#fff;}
+.sbbtn.run:hover{background:var(--td);}
+.sbbtn.clr{background:#1e293b;color:#94a3b8;}
+.sbbtn.clr:hover{color:#fff;}
+.sbed{width:100%;min-height:130px;background:#1e293b;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:13px;padding:16px 18px;border:none;outline:none;resize:vertical;line-height:1.8;}
+.sbout{padding:14px 18px;min-height:60px;font-family:'JetBrains Mono',monospace;font-size:12.5px;border-top:1px solid var(--border);background:#f8fafc;color:#334155;line-height:1.6;}
+.ot{border-collapse:collapse;width:100%;margin-top:8px;font-size:12px;}
+.ot th{background:#0f172a;color:#fff;padding:7px 12px;text-align:left;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;}
+.ot td{padding:7px 12px;border-bottom:1px solid #e2e8f0;}
+.ot tr:nth-child(even) td{background:#f1f5f9;}
+
+/* QUIZ */
+.qw{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;}
+.qq{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;line-height:1.4;}
+.qopts{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.qopt{padding:12px 16px;border:2px solid var(--border);border-radius:9px;cursor:pointer;font-size:14px;font-weight:500;transition:all .15s;display:flex;align-items:center;gap:10px;}
+.qopt:hover{border-color:var(--teal);background:var(--tl);}
+.qopt.correct{border-color:var(--green);background:var(--gl);color:var(--green);}
+.qopt.wrong{border-color:var(--red);background:var(--rl);color:var(--red);}
+.ok{width:24px;height:24px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Sora',sans-serif;}
+.qfb{display:none;padding:12px 16px;border-radius:9px;font-size:13.5px;line-height:1.5;margin-bottom:14px;}
+.qfb.show{display:block;}
+.qfb.correct{background:var(--gl);color:#14532d;border-left:4px solid var(--green);}
+.qfb.wrong{background:var(--rl);color:#7f1d1d;border-left:4px solid var(--red);}
+.qnav{display:flex;justify-content:space-between;align-items:center;}
+.qsc{font-family:'Sora',sans-serif;font-size:14px;color:var(--muted);}
+.qbtn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;background:var(--teal);color:#fff;}
+.qbtn:hover{background:var(--td);}
+.qprog{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.done{text-align:center;padding:48px 32px;background:linear-gradient(135deg,var(--tl),var(--il));border-radius:16px;border:1px solid var(--border);margin-top:32px;}
+.done .trophy{font-size:56px;margin-bottom:12px;}
+.done h3{font-family:'Sora',sans-serif;font-size:24px;font-weight:800;margin-bottom:8px;}
+.done p{color:var(--muted);font-size:14px;max-width:420px;margin:0 auto 20px;}
+.donebtn{padding:12px 28px;background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;}
+#cvc{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}.sec{padding:24px 20px 40px}.g2,.g3{grid-template-columns:1fr}.regex-demo,.null-demo{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="cvc"></canvas>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sbh">
+    <div class="badge">SQL Mastery Course</div>
+    <h2>Chapter 12: Built-in Functions</h2>
+    <p>String · Date · Math · NULL</p>
+  </div>
+  <div class="sbp">
+    <div class="pbl"><span>Progress</span><span id="pp">0%</span></div>
+    <div class="pb"><div class="pf" id="pf" style="width:0%"></div></div>
+  </div>
+  <nav class="sbn">
+    <div class="nsl">Content</div>
+    <div class="ni active" data-s="intro"     onclick="showS('intro',this)">    <span>🏠</span> Introduction              <span class="nc" id="chk-intro"></span></div>
+    <div class="ni" data-s="string1"   onclick="showS('string1',this)">  <span>🔤</span> String — Core Functions    <span class="nc" id="chk-string1"></span></div>
+    <div class="ni" data-s="string2"   onclick="showS('string2',this)">  <span>🔍</span> String — Search & Format   <span class="nc" id="chk-string2"></span></div>
+    <div class="ni" data-s="regexp"    onclick="showS('regexp',this)">   <span>🧩</span> REGEXP / RLIKE             <span class="nc" id="chk-regexp"></span></div>
+    <div class="ni" data-s="playground" onclick="showS('playground',this)"><span>🎮</span> Live Function Lab ✨      <span class="nc" id="chk-playground"></span></div>
+    <div class="ni" data-s="date1"     onclick="showS('date1',this)">    <span>📅</span> Date — Core Functions     <span class="nc" id="chk-date1"></span></div>
+    <div class="ni" data-s="date2"     onclick="showS('date2',this)">    <span>⏱️</span> Date — Arithmetic         <span class="nc" id="chk-date2"></span></div>
+    <div class="ni" data-s="math"      onclick="showS('math',this)">     <span>🔢</span> Math Functions            <span class="nc" id="chk-math"></span></div>
+    <div class="ni" data-s="nullfns"   onclick="showS('nullfns',this)">  <span>∅</span> COALESCE & NULLIF         <span class="nc" id="chk-nullfns"></span></div>
+    <div class="ni" data-s="realworld" onclick="showS('realworld',this)"><span>🇮🇳</span> Real-World Recipes        <span class="nc" id="chk-realworld"></span></div>
+    <div class="ni" data-s="sandbox"   onclick="showS('sandbox',this)">  <span>💻</span> Practice Sandbox          <span class="nc" id="chk-sandbox"></span></div>
+    <div class="ni" data-s="quiz"      onclick="showS('quiz',this)">     <span>🧠</span> Chapter Quiz              <span class="nc" id="chk-quiz"></span></div>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="tbl"><span class="chp">Chapter 12</span><h1>String, Date & Math Functions</h1></div>
+    <div class="nb">
+      <button class="nbtn" onclick="prevS()">← Prev</button>
+      <button class="nbtn pri" onclick="nextS()">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══ INTRO ══ -->
+  <section class="sec active" id="sec-intro">
+    <div class="hero">
+      <div class="ey">Chapter 12 · Built-in Functions</div>
+      <h2>SQL's Toolbox.<br/>Transform, Format & Calculate.</h2>
+      <p>Raw data is messy — names have inconsistent casing, dates are stored as strings, phone numbers have dashes. Built-in functions let you clean, transform, and compute directly inside your SQL query, no Python needed.</p>
+    </div>
+    <h2 class="st">What are Built-in Functions?</h2>
+    <p class="ss">SQL comes with hundreds of pre-built functions that operate on data at the row level. Unlike aggregate functions (COUNT, SUM), these work on individual column values — transforming or extracting information from each row.</p>
+    <div class="g3">
+      <div class="card" style="border-top:4px solid var(--teal);margin-bottom:0">
+        <div class="ct" style="color:var(--teal)">🔤 String Functions</div>
+        <p style="font-size:13px">Clean, split, pad, search, and format text. Essential for names, emails, phone numbers, addresses.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--blue);margin-bottom:0">
+        <div class="ct" style="color:var(--blue)">📅 Date Functions</div>
+        <p style="font-size:13px">Parse dates, calculate age, find days between events, extract month/year/quarter.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--orange);margin-bottom:0">
+        <div class="ct" style="color:var(--orange)">🔢 Math Functions</div>
+        <p style="font-size:13px">Round, truncate, compute modulo, handle NULL values in arithmetic calculations.</p>
+      </div>
+    </div>
+    <div class="co info" style="margin-top:20px">
+      <span class="ci">🎓</span>
+      <div><strong>Real-world context</strong>At GUVI, student names come in as "priya SHARMA", "  RAVI kumar  " — inconsistent casing, extra spaces. Date of birth is stored as '15-Aug-2000'. Phone numbers look like '91-9876543210'. Built-in functions fix all of this directly in SQL.</div>
+    </div>
+  </section>
+
+  <!-- ══ STRING 1 ══ -->
+  <section class="sec" id="sec-string1">
+    <h2 class="st">🔤 String Functions — Core</h2>
+    <p class="ss">The most commonly used string functions for cleaning and transforming text data in real-world databases.</p>
+
+    <div class="card">
+      <div class="ct">📋 Quick Reference — Core String Functions</div>
+      <table class="fn-table">
+        <thead><tr><th>Function</th><th>What it does</th><th>Example</th><th>Output</th></tr></thead>
+        <tbody>
+          <tr><td class="fn-name">CONCAT()</td><td>Join strings together</td><td class="fn-ex">CONCAT('Priya',' ','Sharma')</td><td class="fn-out">'Priya Sharma'</td></tr>
+          <tr><td class="fn-name">CONCAT_WS()</td><td>Join with separator</td><td class="fn-ex">CONCAT_WS('-','2024','06','15')</td><td class="fn-out">'2024-06-15'</td></tr>
+          <tr><td class="fn-name">UPPER()</td><td>To uppercase</td><td class="fn-ex">UPPER('priya sharma')</td><td class="fn-out">'PRIYA SHARMA'</td></tr>
+          <tr><td class="fn-name">LOWER()</td><td>To lowercase</td><td class="fn-ex">LOWER('RAVI KUMAR')</td><td class="fn-out">'ravi kumar'</td></tr>
+          <tr><td class="fn-name">TRIM()</td><td>Remove spaces from both sides</td><td class="fn-ex">TRIM('  Sneha  ')</td><td class="fn-out">'Sneha'</td></tr>
+          <tr><td class="fn-name">LTRIM()</td><td>Remove leading spaces</td><td class="fn-ex">LTRIM('  Arjun')</td><td class="fn-out">'Arjun'</td></tr>
+          <tr><td class="fn-name">RTRIM()</td><td>Remove trailing spaces</td><td class="fn-ex">RTRIM('Meera   ')</td><td class="fn-out">'Meera'</td></tr>
+          <tr><td class="fn-name">LENGTH()</td><td>Character count</td><td class="fn-ex">LENGTH('Chennai')</td><td class="fn-out">7</td></tr>
+          <tr><td class="fn-name">SUBSTRING()</td><td>Extract part of string</td><td class="fn-ex">SUBSTRING('AIML-Jun-2024',1,4)</td><td class="fn-out">'AIML'</td></tr>
+          <tr><td class="fn-name">LEFT()</td><td>First N characters</td><td class="fn-ex">LEFT('Chennai',3)</td><td class="fn-out">'Che'</td></tr>
+          <tr><td class="fn-name">RIGHT()</td><td>Last N characters</td><td class="fn-ex">RIGHT('AIML-Jun-2024',4)</td><td class="fn-out">'2024'</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI — Cleaning Student Names</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Raw data: '  priya SHARMA  ' → cleaned: 'Priya Sharma'</span>
+<span class="kw">SELECT</span>
+  name                                    <span class="kw">AS</span> raw_name,
+  <span class="fn">TRIM</span>(name)                              <span class="kw">AS</span> trimmed,
+  <span class="fn">UPPER</span>(<span class="fn">TRIM</span>(name))                       <span class="kw">AS</span> uppercased,
+  <span class="fn">CONCAT</span>(
+    <span class="fn">UPPER</span>(<span class="fn">LEFT</span>(<span class="fn">TRIM</span>(name),<span class="num">1</span>)),
+    <span class="fn">LOWER</span>(<span class="fn">SUBSTRING</span>(<span class="fn">TRIM</span>(name),<span class="num">2</span>))
+  )                                       <span class="kw">AS</span> title_case
+<span class="kw">FROM</span> guvi_students;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔗 CONCAT_WS — Build Formatted Strings</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Build full address from components</span>
+<span class="kw">SELECT</span>
+  <span class="fn">CONCAT_WS</span>(<span class="str">', '</span>, street, city, state, pincode) <span class="kw">AS</span> full_address
+<span class="kw">FROM</span>   students;
+<span class="cm">-- Output: '14 MG Road, Chennai, TN, 600001'</span>
+
+<span class="cm">-- CONCAT_WS skips NULLs automatically! Safe for optional fields</span>
+<span class="kw">SELECT</span> <span class="fn">CONCAT_WS</span>(<span class="str">' '</span>, first_name, middle_name, last_name) <span class="kw">AS</span> full_name
+<span class="kw">FROM</span>   students;
+<span class="cm">-- 'Priya Sharma' (middle_name NULL → skipped, no double space)</span></pre></div>
+      <div class="co tip"><span class="ci">💡</span><div><strong>CONCAT_WS vs CONCAT</strong><code>CONCAT_WS(sep, a, b, c)</code> automatically skips NULL values. <code>CONCAT(a, b, c)</code> returns NULL if any argument is NULL — a nasty surprise in production!</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">✂️ SUBSTRING — Extracting Parts of Strings</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- SUBSTRING(string, start, length)  ← 1-indexed!</span>
+<span class="kw">SELECT</span>
+  batch_name,
+  <span class="fn">SUBSTRING</span>(batch_name, <span class="num">1</span>, <span class="num">4</span>)  <span class="kw">AS</span> course_code,  <span class="cm">-- 'AIML'</span>
+  <span class="fn">RIGHT</span>(batch_name, <span class="num">4</span>)          <span class="kw">AS</span> batch_year,   <span class="cm">-- '2024'</span>
+  <span class="fn">LENGTH</span>(batch_name)             <span class="kw">AS</span> name_length
+<span class="kw">FROM</span>   batches;
+<span class="cm">-- 'AIML-Jun-2024' → course_code: AIML | year: 2024 | len: 13</span></pre></div>
+    </div>
+  </section>
+
+  <!-- ══ STRING 2 ══ -->
+  <section class="sec" id="sec-string2">
+    <h2 class="st">🔍 String — Search, Replace & Format</h2>
+    <p class="ss">Find substrings, replace text, pad values, and format output for display.</p>
+
+    <div class="card">
+      <div class="ct">📋 Quick Reference — Search & Format</div>
+      <table class="fn-table">
+        <thead><tr><th>Function</th><th>What it does</th><th>Example</th><th>Output</th></tr></thead>
+        <tbody>
+          <tr><td class="fn-name">REPLACE()</td><td>Replace all occurrences</td><td class="fn-ex">REPLACE('91-9876-543210','-','')</td><td class="fn-out">'919876543210'</td></tr>
+          <tr><td class="fn-name">INSTR()</td><td>Position of first occurrence</td><td class="fn-ex">INSTR('priya@guvi.in','@')</td><td class="fn-out">6</td></tr>
+          <tr><td class="fn-name">POSITION()</td><td>Same as INSTR (ANSI standard)</td><td class="fn-ex">POSITION('@' IN 'priya@guvi.in')</td><td class="fn-out">6</td></tr>
+          <tr><td class="fn-name">LPAD()</td><td>Pad from the left</td><td class="fn-ex">LPAD('42',5,'0')</td><td class="fn-out">'00042'</td></tr>
+          <tr><td class="fn-name">RPAD()</td><td>Pad from the right</td><td class="fn-ex">RPAD('GUVI',10,'.')</td><td class="fn-out">'GUVI......'</td></tr>
+          <tr><td class="fn-name">FORMAT()</td><td>Format number with commas</td><td class="fn-ex">FORMAT(1234567.89, 2)</td><td class="fn-out">'1,234,567.89'</td></tr>
+          <tr><td class="fn-name">REVERSE()</td><td>Reverse a string</td><td class="fn-ex">REVERSE('GUVI')</td><td class="fn-out">'IVUG'</td></tr>
+          <tr><td class="fn-name">REPEAT()</td><td>Repeat string N times</td><td class="fn-ex">REPEAT('★',5)</td><td class="fn-out">'★★★★★'</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">📞 REPLACE — Cleaning Phone Numbers</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Remove dashes and spaces from phone numbers</span>
+<span class="kw">SELECT</span>
+  phone                                       <span class="kw">AS</span> raw_phone,
+  <span class="fn">REPLACE</span>(<span class="fn">REPLACE</span>(phone, <span class="str">'-'</span>, <span class="str">''</span>), <span class="str">' '</span>, <span class="str">''</span>) <span class="kw">AS</span> clean_phone
+<span class="kw">FROM</span>   students;
+<span class="cm">-- '91-98765-43210'  →  '919876543210'</span>
+
+<span class="cm">-- Standardise email domain</span>
+<span class="kw">SELECT</span> <span class="fn">REPLACE</span>(email, <span class="str">'@gmail.com'</span>, <span class="str">'@guvi.in'</span>) <span class="kw">AS</span> guvi_email
+<span class="kw">FROM</span>   students;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📧 INSTR — Extract Username from Email</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Get username part of email (everything before @)</span>
+<span class="kw">SELECT</span>
+  email,
+  <span class="fn">LEFT</span>(email, <span class="fn">INSTR</span>(email, <span class="str">'@'</span>) <span class="op">-</span> <span class="num">1</span>) <span class="kw">AS</span> username
+<span class="kw">FROM</span>   students;
+<span class="cm">-- 'priya@guvi.in'  →  username: 'priya'</span>
+<span class="cm">-- INSTR returns position 6 of '@', LEFT takes chars 1-5</span></pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔢 LPAD / RPAD — Formatting Student IDs & Reports</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Zero-pad student IDs to 6 digits: 42 → 000042</span>
+<span class="kw">SELECT</span>
+  student_id,
+  <span class="fn">LPAD</span>(student_id, <span class="num">6</span>, <span class="str">'0'</span>) <span class="kw">AS</span> formatted_id
+<span class="kw">FROM</span>   students;
+
+<span class="cm">-- Right-pad course names for aligned display</span>
+<span class="kw">SELECT</span>
+  <span class="fn">RPAD</span>(course_name, <span class="num">30</span>, <span class="str">'.'</span>) <span class="kw">AS</span> course_label,
+  <span class="fn">FORMAT</span>(fee, <span class="num">0</span>)              <span class="kw">AS</span> course_fee
+<span class="kw">FROM</span>   courses;
+<span class="cm">-- 'Machine Learning............  ₹49,999'</span></pre></div>
+    </div>
+  </section>
+
+  <!-- ══ REGEXP ══ -->
+  <section class="sec" id="sec-regexp">
+    <h2 class="st">🧩 REGEXP / RLIKE — Pattern Matching</h2>
+    <p class="ss">REGEXP (or RLIKE in MySQL) lets you match strings against regular expression patterns. Far more powerful than LIKE for complex validation.</p>
+
+    <div class="co info">
+      <span class="ci">🎯</span>
+      <div><strong>LIKE vs REGEXP</strong><br/>
+        <code>LIKE 'priya%'</code> → simple wildcard matching<br/>
+        <code>REGEXP '^[A-Z]'</code> → full regex power — anchors, character classes, quantifiers
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📋 Common REGEXP Patterns</div>
+      <table class="fn-table">
+        <thead><tr><th>Pattern</th><th>Meaning</th><th>Matches</th></tr></thead>
+        <tbody>
+          <tr><td class="fn-name">^A</td><td>Starts with A</td><td class="fn-out">Arjun, Arun, Ananya</td></tr>
+          <tr><td class="fn-name">a$</td><td>Ends with a</td><td class="fn-out">Priya, Sneha, Meera</td></tr>
+          <tr><td class="fn-name">[aeiou]</td><td>Any vowel</td><td class="fn-out">Any string with a vowel</td></tr>
+          <tr><td class="fn-name">^[0-9]{10}$</td><td>Exactly 10 digits</td><td class="fn-out">9876543210</td></tr>
+          <tr><td class="fn-name">@.*\.in$</td><td>Email ending in .in</td><td class="fn-out">priya@guvi.in</td></tr>
+          <tr><td class="fn-name">[^a-zA-Z]</td><td>Contains non-letter</td><td class="fn-out">Ravi123, test!</td></tr>
+          <tr><td class="fn-name">^[A-Z]{2}[0-9]+$</td><td>2 uppercase + digits</td><td class="fn-out">B01, C12, AI999</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI — Validate Emails & Phone Numbers</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Find students with invalid email format (missing @ or .)</span>
+<span class="kw">SELECT</span> name, email
+<span class="kw">FROM</span>   students
+<span class="kw">WHERE</span>  email <span class="kw">NOT REGEXP</span> <span class="str">'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'</span>;
+
+<span class="cm">-- Find students whose names contain only letters and spaces</span>
+<span class="kw">SELECT</span> name
+<span class="kw">FROM</span>   students
+<span class="kw">WHERE</span>  name <span class="kw">REGEXP</span> <span class="str">'^[A-Za-z ]+$'</span>;
+
+<span class="cm">-- Find phone numbers that are NOT 10 digits</span>
+<span class="kw">SELECT</span> name, phone
+<span class="kw">FROM</span>   students
+<span class="kw">WHERE</span>  phone <span class="kw">NOT REGEXP</span> <span class="str">'^[0-9]{10}$'</span>;</pre></div>
+    </div>
+
+    <div class="regex-demo">
+      <div class="regex-card">
+        <div class="regex-title">📧 Email validation: REGEXP '@.*\\.in$'</div>
+        <div class="regex-pattern">'^[a-z]+@[a-z]+\\.in$'</div>
+        <div class="regex-match"><span class="regex-val">priya@guvi.in</span><span class="rm-yes">✅ Match</span></div>
+        <div class="regex-match"><span class="regex-val">ravi@gmail.com</span><span class="rm-no">❌ No match (.com)</span></div>
+        <div class="regex-match"><span class="regex-val">sneha@guvi</span><span class="rm-no">❌ No match (no .in)</span></div>
+        <div class="regex-match"><span class="regex-val">arjun@hcl.in</span><span class="rm-yes">✅ Match</span></div>
+      </div>
+      <div class="regex-card">
+        <div class="regex-title">📱 Phone validation: REGEXP '^[0-9]{10}$'</div>
+        <div class="regex-pattern">'^[0-9]{10}$'</div>
+        <div class="regex-match"><span class="regex-val">9876543210</span><span class="rm-yes">✅ Match</span></div>
+        <div class="regex-match"><span class="regex-val">91-9876543210</span><span class="rm-no">❌ No match (has dashes)</span></div>
+        <div class="regex-match"><span class="regex-val">98765</span><span class="rm-no">❌ No match (5 digits)</span></div>
+        <div class="regex-match"><span class="regex-val">8012345678</span><span class="rm-yes">✅ Match</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PLAYGROUND ══ -->
+  <section class="sec" id="sec-playground">
+    <h2 class="st">🎮 Live Function Lab</h2>
+    <p class="ss">Type real values, select a function group, and see every function applied to your input in real time. No SQL server needed!</p>
+
+    <div class="playground">
+      <div class="pg-head">
+        <div class="pg-title">⚡ Interactive Function Playground</div>
+        <div class="pg-sub">Enter values → see all functions applied instantly</div>
+      </div>
+      <div class="pg-tabs">
+        <div class="pgtab active" onclick="setPGTab('string',this)">🔤 String</div>
+        <div class="pgtab" onclick="setPGTab('date',this)">📅 Date</div>
+        <div class="pgtab" onclick="setPGTab('math',this)">🔢 Math</div>
+      </div>
+      <div class="pg-body">
+        <!-- String inputs -->
+        <div id="pg-string-inputs">
+          <div class="pg-input-row">
+            <div class="pg-input-group">
+              <label class="pg-label">Text value</label>
+              <input class="pg-input" id="pg-str" value="  priya SHARMA  " oninput="runPG()"/>
+            </div>
+            <div class="pg-input-group" style="max-width:200px">
+              <label class="pg-label">Start pos (SUBSTRING)</label>
+              <input class="pg-input" id="pg-pos" type="number" value="3" oninput="runPG()"/>
+            </div>
+            <div class="pg-input-group" style="max-width:200px">
+              <label class="pg-label">Length / N</label>
+              <input class="pg-input" id="pg-len" type="number" value="5" oninput="runPG()"/>
+            </div>
+          </div>
+        </div>
+        <!-- Date inputs -->
+        <div id="pg-date-inputs" style="display:none">
+          <div class="pg-input-row">
+            <div class="pg-input-group">
+              <label class="pg-label">Date value (YYYY-MM-DD)</label>
+              <input class="pg-input" id="pg-date" value="2000-08-15" oninput="runPG()"/>
+            </div>
+            <div class="pg-input-group">
+              <label class="pg-label">Second date (for DATEDIFF)</label>
+              <input class="pg-input" id="pg-date2" value="2024-06-01" oninput="runPG()"/>
+            </div>
+          </div>
+        </div>
+        <!-- Math inputs -->
+        <div id="pg-math-inputs" style="display:none">
+          <div class="pg-input-row">
+            <div class="pg-input-group">
+              <label class="pg-label">Number</label>
+              <input class="pg-input" id="pg-num" value="18764.567" oninput="runPG()"/>
+            </div>
+            <div class="pg-input-group" style="max-width:200px">
+              <label class="pg-label">Decimal places</label>
+              <input class="pg-input" id="pg-dec" type="number" value="2" oninput="runPG()"/>
+            </div>
+            <div class="pg-input-group" style="max-width:200px">
+              <label class="pg-label">Divisor (for MOD)</label>
+              <input class="pg-input" id="pg-div" type="number" value="7" oninput="runPG()"/>
+            </div>
+          </div>
+        </div>
+        <div class="pg-results" id="pg-results"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ DATE 1 ══ -->
+  <section class="sec" id="sec-date1">
+    <h2 class="st">📅 Date Functions — Core</h2>
+    <p class="ss">Date functions are essential for almost every real-world application — calculating age, finding overdue items, filtering by period, formatting timestamps for reports.</p>
+
+    <div class="card">
+      <div class="ct">📋 Quick Reference — Date Functions</div>
+      <table class="fn-table">
+        <thead><tr><th>Function</th><th>What it does</th><th>Example output (today = 2024-06-15)</th></tr></thead>
+        <tbody>
+          <tr><td class="fn-name">NOW()</td><td>Current date and time</td><td class="fn-out">2024-06-15 14:32:07</td></tr>
+          <tr><td class="fn-name">CURDATE()</td><td>Current date only</td><td class="fn-out">2024-06-15</td></tr>
+          <tr><td class="fn-name">CURTIME()</td><td>Current time only</td><td class="fn-out">14:32:07</td></tr>
+          <tr><td class="fn-name">YEAR(date)</td><td>Extract year</td><td class="fn-out">YEAR('2024-06-15') → 2024</td></tr>
+          <tr><td class="fn-name">MONTH(date)</td><td>Extract month (1-12)</td><td class="fn-out">MONTH('2024-06-15') → 6</td></tr>
+          <tr><td class="fn-name">DAY(date)</td><td>Extract day of month</td><td class="fn-out">DAY('2024-06-15') → 15</td></tr>
+          <tr><td class="fn-name">QUARTER(date)</td><td>Extract quarter (1-4)</td><td class="fn-out">QUARTER('2024-06-15') → 2</td></tr>
+          <tr><td class="fn-name">WEEK(date)</td><td>Week number of year</td><td class="fn-out">WEEK('2024-06-15') → 24</td></tr>
+          <tr><td class="fn-name">DAYNAME(date)</td><td>Name of day</td><td class="fn-out">DAYNAME('2024-06-15') → Saturday</td></tr>
+          <tr><td class="fn-name">MONTHNAME(date)</td><td>Name of month</td><td class="fn-out">MONTHNAME('2024-06-15') → June</td></tr>
+          <tr><td class="fn-name">DATE_FORMAT()</td><td>Format date as string</td><td class="fn-out">DATE_FORMAT(d,'%d %M %Y') → 15 June 2024</td></tr>
+          <tr><td class="fn-name">STR_TO_DATE()</td><td>Parse string as date</td><td class="fn-out">STR_TO_DATE('15-Jun-24','%d-%b-%y')</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">🎂 Calculate Age from Date of Birth</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Method 1: Using TIMESTAMPDIFF (most accurate)</span>
+<span class="kw">SELECT</span>
+  name,
+  dob,
+  <span class="fn">TIMESTAMPDIFF</span>(<span class="kw">YEAR</span>, dob, <span class="fn">CURDATE</span>()) <span class="kw">AS</span> age_years
+<span class="kw">FROM</span>   guvi_students;
+<span class="cm">-- dob = '2000-08-15' → age_years = 23 (as of 2024-06-15)</span>
+
+<span class="cm">-- Method 2: Using DATEDIFF and FLOOR</span>
+<span class="kw">SELECT</span>
+  name,
+  <span class="fn">FLOOR</span>(<span class="fn">DATEDIFF</span>(<span class="fn">CURDATE</span>(), dob) <span class="op">/</span> <span class="num">365.25</span>) <span class="kw">AS</span> approx_age
+<span class="kw">FROM</span>   guvi_students;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📋 DATE_FORMAT — Display Dates Beautifully</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Format dates for Indian display style</span>
+<span class="kw">SELECT</span>
+  enrollment_date,
+  <span class="fn">DATE_FORMAT</span>(enrollment_date, <span class="str">'%d/%m/%Y'</span>)      <span class="kw">AS</span> indian_fmt,   <span class="cm">-- 15/06/2024</span>
+  <span class="fn">DATE_FORMAT</span>(enrollment_date, <span class="str">'%d %M %Y'</span>)      <span class="kw">AS</span> long_fmt,     <span class="cm">-- 15 June 2024</span>
+  <span class="fn">DATE_FORMAT</span>(enrollment_date, <span class="str">'%W, %d %b %Y'</span>)  <span class="kw">AS</span> full_fmt      <span class="cm">-- Saturday, 15 Jun 2024</span>
+<span class="kw">FROM</span>   enrollments;
+
+<span class="cm">-- Parse a string date into proper DATE type</span>
+<span class="kw">SELECT</span> <span class="fn">STR_TO_DATE</span>(<span class="str">'15-Aug-2000'</span>, <span class="str">'%d-%b-%Y'</span>) <span class="kw">AS</span> proper_date;
+<span class="cm">-- Output: 2000-08-15</span></pre></div>
+    </div>
+  </section>
+
+  <!-- ══ DATE 2 ══ -->
+  <section class="sec" id="sec-date2">
+    <h2 class="st">⏱️ Date Arithmetic & Fiscal Quarters</h2>
+    <p class="ss">Calculate days between dates, add/subtract time intervals, find days since last login, and label fiscal quarters.</p>
+
+    <div class="card">
+      <div class="ct">⏳ DATEDIFF, DATE_ADD, DATE_SUB</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Days since last login (engagement metric)</span>
+<span class="kw">SELECT</span>
+  name,
+  last_login,
+  <span class="fn">DATEDIFF</span>(<span class="fn">CURDATE</span>(), last_login)  <span class="kw">AS</span> days_since_login,
+  <span class="kw">CASE</span>
+    <span class="kw">WHEN</span> <span class="fn">DATEDIFF</span>(<span class="fn">CURDATE</span>(), last_login) <span class="op"><=</span> <span class="num">7</span>  <span class="kw">THEN</span> <span class="str">'🟢 Active'</span>
+    <span class="kw">WHEN</span> <span class="fn">DATEDIFF</span>(<span class="fn">CURDATE</span>(), last_login) <span class="op"><=</span> <span class="num">30</span> <span class="kw">THEN</span> <span class="str">'🟡 Idle'</span>
+    <span class="kw">ELSE</span> <span class="str">'🔴 Churned'</span>
+  <span class="kw">END</span>                                <span class="kw">AS</span> engagement_status
+<span class="kw">FROM</span>   guvi_students;
+
+<span class="cm">-- DATE_ADD / DATE_SUB</span>
+<span class="kw">SELECT</span>
+  enrollment_date,
+  <span class="fn">DATE_ADD</span>(enrollment_date, <span class="kw">INTERVAL</span> <span class="num">90</span> <span class="kw">DAY</span>)   <span class="kw">AS</span> trial_ends,
+  <span class="fn">DATE_SUB</span>(enrollment_date, <span class="kw">INTERVAL</span> <span class="num">1</span> <span class="kw">MONTH</span>)  <span class="kw">AS</span> one_month_before,
+  <span class="fn">DATE_ADD</span>(enrollment_date, <span class="kw">INTERVAL</span> <span class="num">1</span> <span class="kw">YEAR</span>)   <span class="kw">AS</span> renewal_date
+<span class="kw">FROM</span>   subscriptions;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📊 Date Timeline — What Each Function Extracts</div>
+      <div style="overflow-x:auto;padding:4px 0">
+        <div class="date-timeline">
+          <div class="dt-item"><div class="dt-fn">YEAR()</div><div class="dt-box">2024</div><div class="dt-eg">year number</div></div>
+          <div class="dt-arrow">→</div>
+          <div class="dt-item"><div class="dt-fn">QUARTER()</div><div class="dt-box">Q2</div><div class="dt-eg">quarter 1-4</div></div>
+          <div class="dt-arrow">→</div>
+          <div class="dt-item"><div class="dt-fn">MONTH()</div><div class="dt-box">6</div><div class="dt-eg">month 1-12</div></div>
+          <div class="dt-arrow">→</div>
+          <div class="dt-item"><div class="dt-fn">WEEK()</div><div class="dt-box">24</div><div class="dt-eg">week of year</div></div>
+          <div class="dt-arrow">→</div>
+          <div class="dt-item"><div class="dt-fn">DAY()</div><div class="dt-box">15</div><div class="dt-eg">day of month</div></div>
+          <div class="dt-arrow">→</div>
+          <div class="dt-item"><div class="dt-fn">DAYNAME()</div><div class="dt-box">Saturday</div><div class="dt-eg">day name</div></div>
+          <div class="dt-arrow">→</div>
+          <div class="dt-item"><div class="dt-fn">HOUR()</div><div class="dt-box">14</div><div class="dt-eg">hour 0-23</div></div>
+        </div>
+        <p style="font-size:11px;color:var(--muted);margin-top:4px;text-align:center">All from: <code style="font-family:'JetBrains Mono',monospace">2024-06-15 14:32:07</code></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏦 Fiscal Quarter Labelling — Indian Financial Year</div>
+      <p style="margin-bottom:12px">India's financial year runs April to March. Q1 = Apr–Jun, Q2 = Jul–Sep, Q3 = Oct–Dec, Q4 = Jan–Mar. This is different from the calendar year quarter.</p>
+      <div class="cb"><span class="cl">SQL — Indian Fiscal Quarter</span><pre><span class="cm">-- Indian FY: Q1=Apr-Jun, Q2=Jul-Sep, Q3=Oct-Dec, Q4=Jan-Mar</span>
+<span class="kw">SELECT</span>
+  payment_date,
+  <span class="fn">YEAR</span>(payment_date)  <span class="kw">AS</span> cal_year,
+  <span class="fn">MONTH</span>(payment_date) <span class="kw">AS</span> month,
+  <span class="kw">CASE</span>
+    <span class="kw">WHEN</span> <span class="fn">MONTH</span>(payment_date) <span class="kw">IN</span> (<span class="num">4</span>,<span class="num">5</span>,<span class="num">6</span>)    <span class="kw">THEN</span> <span class="str">'Q1 (Apr-Jun)'</span>
+    <span class="kw">WHEN</span> <span class="fn">MONTH</span>(payment_date) <span class="kw">IN</span> (<span class="num">7</span>,<span class="num">8</span>,<span class="num">9</span>)    <span class="kw">THEN</span> <span class="str">'Q2 (Jul-Sep)'</span>
+    <span class="kw">WHEN</span> <span class="fn">MONTH</span>(payment_date) <span class="kw">IN</span> (<span class="num">10</span>,<span class="num">11</span>,<span class="num">12</span>) <span class="kw">THEN</span> <span class="str">'Q3 (Oct-Dec)'</span>
+    <span class="kw">ELSE</span>                                       <span class="str">'Q4 (Jan-Mar)'</span>
+  <span class="kw">END</span>                 <span class="kw">AS</span> fiscal_quarter,
+  <span class="kw">CASE</span>
+    <span class="kw">WHEN</span> <span class="fn">MONTH</span>(payment_date) <span class="op">>=</span> <span class="num">4</span>
+    <span class="kw">THEN</span> <span class="fn">CONCAT</span>(<span class="str">'FY'</span>, <span class="fn">YEAR</span>(payment_date), <span class="str">'-'</span>, <span class="fn">YEAR</span>(payment_date)<span class="op">+</span><span class="num">1</span>)
+    <span class="kw">ELSE</span> <span class="fn">CONCAT</span>(<span class="str">'FY'</span>, <span class="fn">YEAR</span>(payment_date)<span class="op">-</span><span class="num">1</span>, <span class="str">'-'</span>, <span class="fn">YEAR</span>(payment_date))
+  <span class="kw">END</span>                 <span class="kw">AS</span> fiscal_year
+<span class="kw">FROM</span>   payments
+<span class="kw">ORDER BY</span> payment_date;</pre></div>
+      <div class="fq-demo">
+        <div class="fq-head">📊 Sample output — Fiscal Quarter Labels</div>
+        <div class="fq-body">
+          <table class="fq-table">
+            <thead><tr><th>payment_date</th><th>month</th><th>fiscal_quarter</th><th>fiscal_year</th></tr></thead>
+            <tbody>
+              <tr><td>2024-04-10</td><td>4</td><td class="fq-q1">Q1 (Apr-Jun)</td><td>FY2024-2025</td></tr>
+              <tr><td>2024-06-28</td><td>6</td><td class="fq-q1">Q1 (Apr-Jun)</td><td>FY2024-2025</td></tr>
+              <tr><td>2024-08-15</td><td>8</td><td class="fq-q2">Q2 (Jul-Sep)</td><td>FY2024-2025</td></tr>
+              <tr><td>2024-11-20</td><td>11</td><td class="fq-q3">Q3 (Oct-Dec)</td><td>FY2024-2025</td></tr>
+              <tr><td>2025-02-14</td><td>2</td><td class="fq-q4">Q4 (Jan-Mar)</td><td>FY2024-2025</td></tr>
+              <tr><td>2025-03-31</td><td>3</td><td class="fq-q4">Q4 (Jan-Mar)</td><td>FY2024-2025</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ MATH ══ -->
+  <section class="sec" id="sec-math">
+    <h2 class="st">🔢 Math Functions</h2>
+    <p class="ss">Essential math functions for calculations, rounding, and numeric formatting in SQL.</p>
+
+    <div class="card">
+      <div class="ct">📋 Quick Reference — Math Functions</div>
+      <table class="fn-table">
+        <thead><tr><th>Function</th><th>What it does</th><th>Example</th><th>Output</th></tr></thead>
+        <tbody>
+          <tr><td class="fn-name">ROUND(n, d)</td><td>Round to d decimal places</td><td class="fn-ex">ROUND(18764.567, 2)</td><td class="fn-out">18764.57</td></tr>
+          <tr><td class="fn-name">ROUND(n)</td><td>Round to nearest integer</td><td class="fn-ex">ROUND(18764.567)</td><td class="fn-out">18765</td></tr>
+          <tr><td class="fn-name">CEIL(n)</td><td>Round UP to nearest integer</td><td class="fn-ex">CEIL(4.1)</td><td class="fn-out">5</td></tr>
+          <tr><td class="fn-name">FLOOR(n)</td><td>Round DOWN to nearest integer</td><td class="fn-ex">FLOOR(4.9)</td><td class="fn-out">4</td></tr>
+          <tr><td class="fn-name">ABS(n)</td><td>Absolute value</td><td class="fn-ex">ABS(-150)</td><td class="fn-out">150</td></tr>
+          <tr><td class="fn-name">MOD(n, d)</td><td>Remainder after division</td><td class="fn-ex">MOD(17, 5)</td><td class="fn-out">2</td></tr>
+          <tr><td class="fn-name">POWER(n, p)</td><td>n raised to power p</td><td class="fn-ex">POWER(2, 10)</td><td class="fn-out">1024</td></tr>
+          <tr><td class="fn-name">SQRT(n)</td><td>Square root</td><td class="fn-ex">SQRT(144)</td><td class="fn-out">12</td></tr>
+          <tr><td class="fn-name">TRUNCATE(n, d)</td><td>Truncate (no rounding)</td><td class="fn-ex">TRUNCATE(4.987, 2)</td><td class="fn-out">4.98</td></tr>
+          <tr><td class="fn-name">RAND()</td><td>Random float 0 to 1</td><td class="fn-ex">RAND()</td><td class="fn-out">0.74821...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">💰 Finance at HDFC — Rounding & Calculations</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Calculate EMI and round correctly for bank display</span>
+<span class="kw">SELECT</span>
+  loan_amount,
+  interest_rate,
+  <span class="fn">ROUND</span>(loan_amount <span class="op">*</span> interest_rate <span class="op">/</span> <span class="num">100</span>, <span class="num">2</span>)  <span class="kw">AS</span> interest_rs,
+  <span class="fn">CEIL</span>(loan_amount <span class="op">/</span> <span class="num">12</span>)                       <span class="kw">AS</span> monthly_emi_ceil,
+  <span class="fn">FLOOR</span>(loan_amount <span class="op">/</span> <span class="num">12</span>)                      <span class="kw">AS</span> monthly_emi_floor
+<span class="kw">FROM</span>   hdfc_loans;
+
+<span class="cm">-- MOD: Identify even/odd student IDs for A/B testing</span>
+<span class="kw">SELECT</span>
+  student_id,
+  name,
+  <span class="kw">CASE</span> <span class="kw">WHEN</span> <span class="fn">MOD</span>(student_id, <span class="num">2</span>) <span class="op">=</span> <span class="num">0</span>
+       <span class="kw">THEN</span> <span class="str">'Group A'</span> <span class="kw">ELSE</span> <span class="str">'Group B'</span>
+  <span class="kw">END</span> <span class="kw">AS</span> ab_group
+<span class="kw">FROM</span>   guvi_students;
+
+<span class="cm">-- ROUND vs TRUNCATE — important difference!</span>
+<span class="cm">-- ROUND(4.987, 2) = 4.99  (rounds up because .7 ≥ 5)</span>
+<span class="cm">-- TRUNCATE(4.987, 2) = 4.98  (just cuts off, no rounding)</span></pre></div>
+    </div>
+
+    <div class="co tip">
+      <span class="ci">💡</span>
+      <div><strong>CEIL vs FLOOR — When to use which?</strong><br/>
+        <strong>CEIL</strong> → "round up to be safe" — e.g., pages needed, seats to book, number of buses required<br/>
+        <strong>FLOOR</strong> → "round down conservatively" — e.g., age in years, completed months, installments paid
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ NULL FUNCTIONS ══ -->
+  <section class="sec" id="sec-nullfns">
+    <h2 class="st">∅ COALESCE & NULLIF — Elegant NULL Handling</h2>
+    <p class="ss">Two of the most useful functions in SQL for handling NULL values gracefully in production code.</p>
+
+    <div class="g2">
+      <div class="card" style="border-left:4px solid var(--teal);margin-bottom:0">
+        <div class="ct" style="color:var(--teal)">COALESCE(a, b, c, ...)</div>
+        <p style="font-size:13px">Returns the <strong>first non-NULL value</strong> from the list. Provide a fallback for missing data.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--orange);margin-bottom:0">
+        <div class="ct" style="color:var(--orange)">NULLIF(a, b)</div>
+        <p style="font-size:13px">Returns NULL if a = b, otherwise returns a. Prevents division-by-zero by converting 0 to NULL.</p>
+      </div>
+    </div>
+    <div style="height:20px"></div>
+
+    <div class="card">
+      <div class="ct">COALESCE — Fallback Chain</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Show best available contact: mobile first, then email, then 'No Contact'</span>
+<span class="kw">SELECT</span>
+  name,
+  <span class="fn">COALESCE</span>(mobile, email, whatsapp, <span class="str">'No Contact Available'</span>) <span class="kw">AS</span> best_contact
+<span class="kw">FROM</span>   guvi_students;
+
+<span class="cm">-- Replace NULL scores with 0 for display</span>
+<span class="kw">SELECT</span>
+  name,
+  <span class="fn">COALESCE</span>(quiz_score, <span class="num">0</span>) <span class="kw">AS</span> score_display,
+  <span class="fn">COALESCE</span>(city, <span class="str">'Unknown City'</span>) <span class="kw">AS</span> city
+<span class="kw">FROM</span>   guvi_students;
+
+<span class="cm">-- Show batch name or 'Unassigned' if no batch yet</span>
+<span class="kw">SELECT</span>
+  s.name,
+  <span class="fn">COALESCE</span>(b.batch_name, <span class="str">'Not Yet Assigned'</span>) <span class="kw">AS</span> batch
+<span class="kw">FROM</span>   students s
+<span class="kw">LEFT JOIN</span> batches b <span class="kw">ON</span> s.batch_id <span class="op">=</span> b.batch_id;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">NULLIF — The Division-by-Zero Saviour</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Without NULLIF: division by zero error if attempts = 0!</span>
+<span class="kw">SELECT</span> correct_answers <span class="op">/</span> total_attempts <span class="kw">AS</span> accuracy  <span class="cm">-- ❌ crashes if attempts=0</span>
+
+<span class="cm">-- With NULLIF: returns NULL instead of crashing</span>
+<span class="kw">SELECT</span>
+  name,
+  correct_answers,
+  total_attempts,
+  <span class="fn">ROUND</span>(
+    correct_answers <span class="op">/</span> <span class="fn">NULLIF</span>(total_attempts, <span class="num">0</span>) <span class="op">*</span> <span class="num">100</span>,
+    <span class="num">1</span>
+  ) <span class="kw">AS</span> accuracy_pct    <span class="cm">-- returns NULL if attempts=0 (safe!)</span>
+<span class="kw">FROM</span>   quiz_results;
+
+<span class="cm">-- NULLIF for blank string handling</span>
+<span class="kw">SELECT</span> <span class="fn">COALESCE</span>(<span class="fn">NULLIF</span>(<span class="fn">TRIM</span>(city), <span class="str">''</span>), <span class="str">'Unknown'</span>) <span class="kw">AS</span> city
+<span class="kw">FROM</span>   students;
+<span class="cm">-- TRIM removes spaces, NULLIF converts '' to NULL, COALESCE fills 'Unknown'</span></pre></div>
+      <div class="co success"><span class="ci">✅</span><div><strong>Power combo: COALESCE(NULLIF(TRIM(col), ''), 'default')</strong><br/>This 3-function chain handles three data quality issues in one line: leading/trailing spaces (TRIM), empty string after trim (NULLIF → NULL), and NULL values (COALESCE → default).</div></div>
+    </div>
+
+    <div class="null-demo">
+      <div class="null-card">
+        <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:700;margin-bottom:10px;color:var(--teal)">COALESCE — Fallback chain</div>
+        <table class="fn-table" style="margin:0">
+          <thead><tr><th>Input values</th><th>COALESCE result</th></tr></thead>
+          <tbody>
+            <tr><td class="fn-ex">NULL, NULL, 'priya@guvi.in'</td><td class="fn-out">'priya@guvi.in'</td></tr>
+            <tr><td class="fn-ex">NULL, 'email', NULL</td><td class="fn-out">'email'</td></tr>
+            <tr><td class="fn-ex">'mobile', 'email', 'wa'</td><td class="fn-out">'mobile'</td></tr>
+            <tr><td class="fn-ex">NULL, NULL, NULL</td><td class="fn-out">NULL</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="null-card">
+        <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:700;margin-bottom:10px;color:var(--orange)">NULLIF — Convert value to NULL</div>
+        <table class="fn-table" style="margin:0">
+          <thead><tr><th>NULLIF(a, b)</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td class="fn-ex">NULLIF(5, 0)</td><td class="fn-out">5 (not equal)</td></tr>
+            <tr><td class="fn-ex">NULLIF(0, 0)</td><td class="fn-out">NULL ← converted!</td></tr>
+            <tr><td class="fn-ex">NULLIF('', '')</td><td class="fn-out">NULL ← empty→NULL</td></tr>
+            <tr><td class="fn-ex">NULLIF('a', 'b')</td><td class="fn-out">'a' (not equal)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ REAL WORLD ══ -->
+  <section class="sec" id="sec-realworld">
+    <h2 class="st">🇮🇳 Real-World Recipes</h2>
+    <p class="ss">Four complete, production-ready queries combining multiple functions to solve real business problems at GUVI, IRCTC, Zomato, and HDFC.</p>
+
+    <div class="card">
+      <div class="ct">📊 Recipe 1 — Complete Student Profile Report (GUVI)</div>
+      <div class="cb"><span class="cl">SQL — Combines: CONCAT_WS, TRIM, UPPER, DATE_FORMAT, DATEDIFF, COALESCE, TIMESTAMPDIFF</span><pre><span class="kw">SELECT</span>
+  <span class="cm">-- Clean full name</span>
+  <span class="fn">CONCAT_WS</span>(<span class="str">' '</span>,
+    <span class="fn">UPPER</span>(<span class="fn">LEFT</span>(<span class="fn">TRIM</span>(first_name),<span class="num">1</span>)) || <span class="fn">LOWER</span>(<span class="fn">SUBSTRING</span>(<span class="fn">TRIM</span>(first_name),<span class="num">2</span>)),
+    <span class="fn">UPPER</span>(<span class="fn">LEFT</span>(<span class="fn">TRIM</span>(last_name),<span class="num">1</span>))  || <span class="fn">LOWER</span>(<span class="fn">SUBSTRING</span>(<span class="fn">TRIM</span>(last_name),<span class="num">2</span>))
+  )                                      <span class="kw">AS</span> full_name,
+
+  <span class="cm">-- Age</span>
+  <span class="fn">TIMESTAMPDIFF</span>(<span class="kw">YEAR</span>, dob, <span class="fn">CURDATE</span>())  <span class="kw">AS</span> age,
+
+  <span class="cm">-- Enrollment date formatted</span>
+  <span class="fn">DATE_FORMAT</span>(enrolled_on, <span class="str">'%d %M %Y'</span>)  <span class="kw">AS</span> enrolled_on_fmt,
+
+  <span class="cm">-- Days since joined</span>
+  <span class="fn">DATEDIFF</span>(<span class="fn">CURDATE</span>(), enrolled_on)       <span class="kw">AS</span> days_on_platform,
+
+  <span class="cm">-- Last login status</span>
+  <span class="fn">COALESCE</span>(
+    <span class="fn">CONCAT</span>(<span class="fn">DATEDIFF</span>(<span class="fn">CURDATE</span>(), last_login), <span class="str">' days ago'</span>),
+    <span class="str">'Never logged in'</span>
+  )                                      <span class="kw">AS</span> last_seen,
+
+  <span class="cm">-- Clean phone</span>
+  <span class="fn">REPLACE</span>(<span class="fn">REPLACE</span>(phone, <span class="str">'-'</span>, <span class="str">''</span>), <span class="str">' '</span>, <span class="str">''</span>) <span class="kw">AS</span> clean_phone,
+
+  <span class="cm">-- Score with fallback</span>
+  <span class="fn">COALESCE</span>(<span class="fn">ROUND</span>(quiz_score,<span class="num">1</span>), <span class="num">0</span>)      <span class="kw">AS</span> score
+
+<span class="kw">FROM</span>   guvi_students
+<span class="kw">ORDER BY</span> enrolled_on <span class="kw">DESC</span>;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🚂 Recipe 2 — IRCTC: Days Until Journey & PNR Format</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span>
+  <span class="fn">LPAD</span>(pnr_number, <span class="num">10</span>, <span class="str">'0'</span>)                         <span class="kw">AS</span> formatted_pnr,
+  <span class="fn">UPPER</span>(passenger_name)                             <span class="kw">AS</span> passenger,
+  <span class="fn">DATE_FORMAT</span>(journey_date, <span class="str">'%W, %d %b %Y'</span>)        <span class="kw">AS</span> journey_day,
+  <span class="fn">DATEDIFF</span>(journey_date, <span class="fn">CURDATE</span>())                <span class="kw">AS</span> days_until_journey,
+  <span class="fn">CONCAT</span>(source_city, <span class="str">' → '</span>, destination_city)      <span class="kw">AS</span> route,
+  <span class="fn">FORMAT</span>(ticket_price, <span class="num">0</span>)                           <span class="kw">AS</span> price_inr,
+  <span class="fn">COALESCE</span>(seat_number, <span class="str">'Waitlisted'</span>)              <span class="kw">AS</span> seat
+<span class="kw">FROM</span>   irctc_bookings
+<span class="kw">WHERE</span>  journey_date <span class="op">>=</span> <span class="fn">CURDATE</span>()
+<span class="kw">ORDER BY</span> journey_date;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🍕 Recipe 3 — Zomato: Order Summary with Timestamps</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span>
+  order_id,
+  restaurant_name,
+  <span class="fn">DATE_FORMAT</span>(order_time, <span class="str">'%d/%m/%Y %H:%i'</span>)       <span class="kw">AS</span> ordered_at,
+  <span class="fn">DATE_FORMAT</span>(delivered_time, <span class="str">'%H:%i'</span>)             <span class="kw">AS</span> delivered_at,
+  <span class="fn">TIMESTAMPDIFF</span>(<span class="kw">MINUTE</span>, order_time, delivered_time) <span class="kw">AS</span> delivery_mins,
+  <span class="fn">FORMAT</span>(total_amount, <span class="num">2</span>)                           <span class="kw">AS</span> total,
+  <span class="kw">CASE</span>
+    <span class="kw">WHEN</span> <span class="fn">TIMESTAMPDIFF</span>(<span class="kw">MINUTE</span>, order_time, delivered_time) <span class="op"><=</span> <span class="num">30</span>
+    <span class="kw">THEN</span> <span class="str">'🟢 On Time'</span>
+    <span class="kw">WHEN</span> <span class="fn">TIMESTAMPDIFF</span>(<span class="kw">MINUTE</span>, order_time, delivered_time) <span class="op"><=</span> <span class="num">45</span>
+    <span class="kw">THEN</span> <span class="str">'🟡 Slight Delay'</span>
+    <span class="kw">ELSE</span> <span class="str">'🔴 Late'</span>
+  <span class="kw">END</span>                                               <span class="kw">AS</span> delivery_status
+<span class="kw">FROM</span>   zomato_orders
+<span class="kw">WHERE</span>  <span class="fn">DATE</span>(order_time) <span class="op">=</span> <span class="fn">CURDATE</span>();</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏦 Recipe 4 — HDFC: Loan Age & Safe Division</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span>
+  account_id,
+  <span class="fn">UPPER</span>(customer_name)                                         <span class="kw">AS</span> customer,
+  <span class="fn">FORMAT</span>(loan_amount, <span class="num">0</span>)                                      <span class="kw">AS</span> loan_amt,
+  <span class="fn">TIMESTAMPDIFF</span>(<span class="kw">MONTH</span>, loan_start_date, <span class="fn">CURDATE</span>())           <span class="kw">AS</span> months_active,
+  <span class="fn">ROUND</span>(
+    <span class="fn">COALESCE</span>(amount_paid, <span class="num">0</span>) <span class="op">/</span> <span class="fn">NULLIF</span>(loan_amount, <span class="num">0</span>) <span class="op">*</span> <span class="num">100</span>,
+    <span class="num">1</span>
+  )                                                            <span class="kw">AS</span> pct_repaid,
+  <span class="fn">DATE_FORMAT</span>(
+    <span class="fn">DATE_ADD</span>(loan_start_date, <span class="kw">INTERVAL</span> tenure_months <span class="kw">MONTH</span>),
+    <span class="str">'%d %M %Y'</span>
+  )                                                            <span class="kw">AS</span> maturity_date
+<span class="kw">FROM</span>   hdfc_loans
+<span class="kw">ORDER BY</span> pct_repaid <span class="kw">DESC</span>;</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ SANDBOX ══ -->
+  <section class="sec" id="sec-sandbox">
+    <h2 class="st">💻 Practice Sandbox</h2>
+    <p class="ss">Try built-in functions on the GUVI dataset. The sandbox recognises function patterns and returns realistic output.</p>
+
+    <div class="sandbox">
+      <div class="sbh2">
+        <div class="sbt"><span>🖥️</span> SQL Sandbox — Built-in Functions</div>
+        <div class="sbact">
+          <button class="sbbtn clr" onclick="clearSB()">Clear</button>
+          <button class="sbbtn run" onclick="runSB()">▶ Run</button>
+        </div>
+      </div>
+      <textarea class="sbed" id="sbed" spellcheck="false" placeholder="-- Try these patterns:
+-- SELECT UPPER(name), TRIM(name), LENGTH(name) FROM guvi_students;
+-- SELECT DATE_FORMAT(dob, '%d %M %Y'), TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS age FROM guvi_students;
+-- SELECT DATEDIFF(CURDATE(), last_login) AS days_since, COALESCE(quiz_score, 0) FROM guvi_students;
+-- SELECT ROUND(quiz_score, 1), FLOOR(quiz_score), CEIL(quiz_score) FROM guvi_students;
+-- SELECT REPLACE(phone, '-', ''), CONCAT_WS(' ', first_name, last_name) FROM guvi_students;
+-- SELECT name, quiz_score / NULLIF(total_attempts, 0) AS accuracy FROM quiz_results;
+-- SELECT MONTH(payment_date), QUARTER(payment_date), YEAR(payment_date) FROM payments;
+"></textarea>
+      <div class="sbout" id="sbout"><span style="color:var(--muted);font-size:12px">▶ Output will appear here</span></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📝 Practice Challenges</div>
+      <ul class="steps">
+        <li class="step"><div class="sn">1</div><div class="sb2"><strong>String cleaning</strong><p>Use UPPER, TRIM, and LENGTH on student names. Which name has extra spaces? Which is the longest?</p></div></li>
+        <li class="step"><div class="sn">2</div><div class="sb2"><strong>Age calculation</strong><p>Calculate each student's age from their dob using TIMESTAMPDIFF. Format dob as 'DD Month YYYY'.</p></div></li>
+        <li class="step"><div class="sn">3</div><div class="sb2"><strong>Days since login</strong><p>Find students who haven't logged in for more than 30 days using DATEDIFF and CURDATE().</p></div></li>
+        <li class="step"><div class="sn">4</div><div class="sb2"><strong>Fiscal quarter</strong><p>Label each payment with its Indian fiscal quarter using MONTH() and CASE WHEN.</p></div></li>
+        <li class="step"><div class="sn">5</div><div class="sb2"><strong>Safe division</strong><p>Calculate quiz accuracy (correct / total_attempts * 100) using NULLIF to avoid division by zero.</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ QUIZ ══ -->
+  <section class="sec" id="sec-quiz">
+    <h2 class="st">🧠 Chapter 12 Quiz</h2>
+    <p class="ss">Test your knowledge of string, date, math, and NULL-handling functions.</p>
+    <div class="qw">
+      <div class="qprog" id="qprog">Question 1 of 8</div>
+      <div class="qq" id="qq"></div>
+      <ul class="qopts" id="qopts"></ul>
+      <div class="qfb" id="qfb"></div>
+      <div class="qnav">
+        <span class="qsc" id="qsc">Score: 0 / 0</span>
+        <button class="qbtn" id="qnext" onclick="nextQ()" style="display:none">Next Question →</button>
+      </div>
+    </div>
+    <div class="done" id="done-card" style="display:none">
+      <div class="trophy">🏆</div>
+      <h3 id="done-title">Chapter Complete!</h3>
+      <p id="done-msg">You've mastered SQL's built-in function toolbox!</p>
+      <button class="donebtn" onclick="doConfetti()">🎉 Celebrate!</button>
+    </div>
+  </section>
+</main>
+
+<script>
+// ── NAV ──
+const SECS=['intro','string1','string2','regexp','playground','date1','date2','math','nullfns','realworld','sandbox','quiz'];
+let ci=0;const doneSet=new Set();
+function showS(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  ci=SECS.indexOf(id);window.scrollTo(0,0);
+}
+function nextS(){if(ci<SECS.length-1){markDone(SECS[ci]);const n=SECS[ci+1];showS(n,document.querySelector(`[data-s="${n}"]`));}}
+function prevS(){if(ci>0){const p=SECS[ci-1];showS(p,document.querySelector(`[data-s="${p}"]`));}}
+function markDone(id){
+  doneSet.add(id);
+  const c=document.getElementById('chk-'+id);if(c)c.textContent='✓';
+  const n=document.querySelector(`[data-s="${id}"]`);if(n)n.classList.add('done');
+  const pct=Math.round((doneSet.size/SECS.length)*100);
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('pp').textContent=pct+'%';
+}
+
+// ── LIVE PLAYGROUND ──
+let pgTab='string';
+function setPGTab(tab,el){
+  document.querySelectorAll('.pgtab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pg-string-inputs').style.display=tab==='string'?'':'none';
+  document.getElementById('pg-date-inputs').style.display=tab==='date'?'':'none';
+  document.getElementById('pg-math-inputs').style.display=tab==='math'?'':'none';
+  pgTab=tab;runPG();
+}
+
+function runPG(){
+  const res=document.getElementById('pg-results');
+  if(pgTab==='string'){
+    const s=document.getElementById('pg-str').value;
+    const pos=parseInt(document.getElementById('pg-pos').value)||1;
+    const len=parseInt(document.getElementById('pg-len').value)||3;
+    const rows=[
+      ['TRIM()', s.trim(),'removes leading/trailing spaces'],
+      ['UPPER(TRIM())', s.trim().toUpperCase(),'uppercase after trim'],
+      ['LOWER(TRIM())', s.trim().toLowerCase(),'lowercase after trim'],
+      ['LENGTH(TRIM())', s.trim().length,'character count'],
+      [`LEFT(TRIM(), ${len})`, s.trim().slice(0,len),'first N chars'],
+      [`RIGHT(TRIM(), ${len})`, s.trim().slice(-len),'last N chars'],
+      [`SUBSTRING(TRIM(), ${pos}, ${len})`, s.trim().slice(pos-1,pos-1+len),`chars ${pos} to ${pos+len-1}`],
+      ['REPLACE(…, " ", "_")', s.replace(/ /g,'_'),'spaces→underscores'],
+      [`LPAD(TRIM(), ${Math.max(s.trim().length+2,8)}, "0")`, s.trim().padStart(Math.max(s.trim().length+2,8),'0'),'left pad with 0'],
+      ['CONCAT("Hello, ", TRIM())', 'Hello, '+s.trim(),'concatenation'],
+    ];
+    res.innerHTML=rows.map(r=>`<div class="pg-result-row">
+      <span class="pg-fn-name">${r[0]}</span>
+      <span class="pg-arrow">→</span>
+      <span class="pg-output">'${r[1]}'</span>
+      <span class="pg-note">${r[2]}</span>
+    </div>`).join('');
+  } else if(pgTab==='date'){
+    const d=document.getElementById('pg-date').value||'2000-08-15';
+    const d2=document.getElementById('pg-date2').value||'2024-06-01';
+    const dt=new Date(d),dt2=new Date(d2);
+    const today=new Date();
+    const diffMs=today-dt;
+    const diffDays=Math.floor(diffMs/86400000);
+    const ageYrs=Math.floor(diffDays/365.25);
+    const diffBetween=Math.floor((dt2-dt)/86400000);
+    const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const rows=[
+      ['YEAR(date)', dt.getFullYear(),'extracts year'],
+      ['MONTH(date)', dt.getMonth()+1,'month 1-12'],
+      ['MONTHNAME(date)', months[dt.getMonth()],'month name'],
+      ['DAY(date)', dt.getDate(),'day of month'],
+      ['DAYNAME(date)', days[dt.getDay()],'day name'],
+      ['QUARTER(date)', Math.ceil((dt.getMonth()+1)/3),'calendar quarter'],
+      ['TIMESTAMPDIFF(YEAR,date,CURDATE())', ageYrs,'age in years'],
+      ['DATEDIFF(CURDATE(),date)', diffDays,'days since date'],
+      [`DATEDIFF('${d2}','${d}')`, diffBetween,'days between dates'],
+      [`DATE_FORMAT(date,'%d %M %Y')`, `${String(dt.getDate()).padStart(2,'0')} ${months[dt.getMonth()]} ${dt.getFullYear()}`,'Indian long format'],
+      [`DATE_FORMAT(date,'%d/%m/%Y')`, `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`,'Indian short format'],
+    ];
+    res.innerHTML=rows.map(r=>`<div class="pg-result-row">
+      <span class="pg-fn-name">${r[0]}</span>
+      <span class="pg-arrow">→</span>
+      <span class="pg-output">${r[1]}</span>
+      <span class="pg-note">${r[2]}</span>
+    </div>`).join('');
+  } else {
+    const n=parseFloat(document.getElementById('pg-num').value)||18764.567;
+    const dec=parseInt(document.getElementById('pg-dec').value)||2;
+    const div=parseInt(document.getElementById('pg-div').value)||7;
+    const rows=[
+      [`ROUND(${n}, ${dec})`, Math.round(n*Math.pow(10,dec))/Math.pow(10,dec),'round to '+dec+' decimals'],
+      [`ROUND(${n})`, Math.round(n),'round to integer'],
+      [`CEIL(${n})`, Math.ceil(n),'always round up'],
+      [`FLOOR(${n})`, Math.floor(n),'always round down'],
+      [`ABS(-${n})`, Math.abs(-n),'absolute value'],
+      [`MOD(${Math.round(n)}, ${div})`, Math.round(n)%div,'remainder'],
+      [`SQRT(${Math.round(n)})`, parseFloat(Math.sqrt(Math.round(n)).toFixed(4)),'square root'],
+      [`TRUNCATE(${n}, ${dec})`, Math.trunc(n*Math.pow(10,dec))/Math.pow(10,dec),'cut off (no rounding)'],
+      [`FORMAT(${n}, 2)`, n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}),'comma-formatted'],
+      [`POWER(2, ${dec+3})`, Math.pow(2,dec+3),'2 to the power '+( dec+3)],
+    ];
+    res.innerHTML=rows.map(r=>`<div class="pg-result-row">
+      <span class="pg-fn-name">${r[0]}</span>
+      <span class="pg-arrow">→</span>
+      <span class="pg-output">${r[1]}</span>
+      <span class="pg-note">${r[2]}</span>
+    </div>`).join('');
+  }
+}
+runPG();
+
+// ── SANDBOX ──
+const SBP=[
+  {re:/nullif/i,res:()=>`<span style="color:var(--green)">✓ NULLIF — safe division result</span>
+<table class="ot"><tr><th>name</th><th>correct</th><th>attempts</th><th>accuracy_pct</th></tr>
+<tr><td>Priya</td><td>8</td><td>10</td><td>80.0</td></tr>
+<tr><td>Ravi</td><td>6</td><td>10</td><td>60.0</td></tr>
+<tr><td>Sneha</td><td>0</td><td>0</td><td style="color:var(--muted);font-style:italic">NULL (safe!)</td></tr>
+</table>`},
+  {re:/coalesce/i,res:()=>`<span style="color:var(--green)">✓ COALESCE — NULL replaced with defaults</span>
+<table class="ot"><tr><th>name</th><th>score_display</th><th>city</th></tr>
+<tr><td>Priya</td><td>85</td><td>Chennai</td></tr>
+<tr><td>Ravi</td><td>0</td><td>Mumbai</td></tr>
+<tr><td>Sneha</td><td>91</td><td>Unknown City</td></tr>
+</table>`},
+  {re:/timestampdiff|age/i,res:()=>`<span style="color:var(--green)">✓ Age calculated from DOB</span>
+<table class="ot"><tr><th>name</th><th>dob</th><th>age</th><th>formatted_dob</th></tr>
+<tr><td>Priya</td><td>2000-08-15</td><td>23</td><td>15 August 2000</td></tr>
+<tr><td>Ravi</td><td>1998-03-22</td><td>26</td><td>22 March 1998</td></tr>
+<tr><td>Sneha</td><td>2001-11-10</td><td>22</td><td>10 November 2001</td></tr>
+</table>`},
+  {re:/datediff.*last_login|last_login.*datediff/i,res:()=>`<span style="color:var(--green)">✓ Days since last login</span>
+<table class="ot"><tr><th>name</th><th>last_login</th><th>days_since</th><th>status</th></tr>
+<tr><td>Priya</td><td>2024-06-12</td><td>3</td><td>🟢 Active</td></tr>
+<tr><td>Ravi</td><td>2024-05-20</td><td>26</td><td>🟡 Idle</td></tr>
+<tr><td>Arjun</td><td>2024-04-01</td><td>75</td><td>🔴 Churned</td></tr>
+</table>`},
+  {re:/quarter|fiscal/i,res:()=>`<span style="color:var(--green)">✓ Fiscal quarter labels</span>
+<table class="ot"><tr><th>payment_date</th><th>month</th><th>fiscal_quarter</th><th>fiscal_year</th></tr>
+<tr><td>2024-04-15</td><td>4</td><td>Q1 (Apr-Jun)</td><td>FY2024-25</td></tr>
+<tr><td>2024-08-10</td><td>8</td><td>Q2 (Jul-Sep)</td><td>FY2024-25</td></tr>
+<tr><td>2025-02-20</td><td>2</td><td>Q4 (Jan-Mar)</td><td>FY2024-25</td></tr>
+</table>`},
+  {re:/upper|lower|trim|length/i,res:()=>`<span style="color:var(--green)">✓ String functions applied</span>
+<table class="ot"><tr><th>raw_name</th><th>UPPER(TRIM())</th><th>LOWER(TRIM())</th><th>LENGTH(TRIM())</th></tr>
+<tr><td>'  priya SHARMA  '</td><td>PRIYA SHARMA</td><td>priya sharma</td><td>12</td></tr>
+<tr><td>'RAVI kumar'</td><td>RAVI KUMAR</td><td>ravi kumar</td><td>10</td></tr>
+<tr><td>'  Sneha  '</td><td>SNEHA</td><td>sneha</td><td>5</td></tr>
+</table>`},
+  {re:/replace|concat_ws|lpad/i,res:()=>`<span style="color:var(--green)">✓ String transformation result</span>
+<table class="ot"><tr><th>name</th><th>clean_phone</th><th>formatted_id</th></tr>
+<tr><td>Priya Sharma</td><td>919876543210</td><td>000001</td></tr>
+<tr><td>Ravi Kumar</td><td>918012345678</td><td>000002</td></tr>
+<tr><td>Sneha Nair</td><td>917654321098</td><td>000003</td></tr>
+</table>`},
+  {re:/round|ceil|floor/i,res:()=>`<span style="color:var(--green)">✓ Math functions on quiz scores</span>
+<table class="ot"><tr><th>name</th><th>raw_score</th><th>ROUND(,1)</th><th>FLOOR()</th><th>CEIL()</th></tr>
+<tr><td>Priya</td><td>85.47</td><td>85.5</td><td>85</td><td>86</td></tr>
+<tr><td>Ravi</td><td>68.92</td><td>68.9</td><td>68</td><td>69</td></tr>
+<tr><td>Sneha</td><td>91.01</td><td>91.0</td><td>91</td><td>92</td></tr>
+</table>`},
+];
+function runSB(){
+  const sql=document.getElementById('sbed').value.trim();
+  const out=document.getElementById('sbout');
+  if(!sql){out.innerHTML='<span style="color:var(--muted)">⚠️ Enter a SQL query first.</span>';return;}
+  for(const p of SBP){if(p.re.test(sql)){out.innerHTML=p.res();return;}}
+  out.innerHTML='<span style="color:var(--green)">✓ Query OK — try using UPPER, TRIM, DATE_FORMAT, DATEDIFF, ROUND, COALESCE, or NULLIF!</span>';
+}
+function clearSB(){
+  document.getElementById('sbed').value='';
+  document.getElementById('sbout').innerHTML='<span style="color:var(--muted);font-size:12px">▶ Output will appear here</span>';
+}
+
+// ── QUIZ ──
+const QS=[
+  {q:"What is the key difference between CONCAT() and CONCAT_WS() when any argument is NULL?",opts:["No difference — both behave the same","CONCAT() returns NULL if any argument is NULL; CONCAT_WS() skips NULL arguments","CONCAT_WS() throws an error on NULL; CONCAT() handles it safely","CONCAT() skips NULLs; CONCAT_WS() returns NULL"],ans:1,exp:"CONCAT(a, NULL, b) returns NULL — one NULL ruins the whole result. CONCAT_WS(sep, a, NULL, b) skips the NULL and returns 'a-b'. Always prefer CONCAT_WS for optional fields."},
+  {q:"SUBSTRING('AIML-Jun-2024', 1, 4) returns what?",opts:["'AIML-'","'AIML'","'Jun-'","'2024'"],ans:1,exp:"SUBSTRING(string, start, length) — positions are 1-indexed. Starting at position 1, taking 4 characters: 'A','I','M','L' = 'AIML'."},
+  {q:"Which function correctly converts a phone stored as '91-9876-543210' to '919876543210'?",opts:["TRIM(phone)","REPLACE(phone, '-', '')","LEFT(phone, 12)","SUBSTRING(phone, 3)"],ans:1,exp:"REPLACE(string, find, replacement) replaces all occurrences. REPLACE(phone, '-', '') removes ALL dashes from the string, giving the clean number."},
+  {q:"India's financial year Q1 covers which months?",opts:["January to March","April to June","July to September","October to December"],ans:1,exp:"India's financial year runs April to March. Q1 = April, May, June. This is different from the calendar year quarter (Jan-Mar). Use CASE WHEN MONTH() IN (4,5,6) THEN 'Q1' to label it correctly."},
+  {q:"NULLIF(total_attempts, 0) is used in division to:",opts:["Round the result to zero decimal places","Convert 0 to NULL so division returns NULL instead of an error","Remove NULL values from the column","Replace NULL with 0"],ans:1,exp:"NULLIF(a, b) returns NULL if a equals b. So NULLIF(total_attempts, 0) converts 0 to NULL. Dividing by NULL returns NULL (not an error), preventing the 'division by zero' crash."},
+  {q:"COALESCE(mobile, email, whatsapp, 'No Contact') returns:",opts:["The last non-NULL value in the list","A concatenation of all non-NULL values","The FIRST non-NULL value in the list","NULL if any value is NULL"],ans:2,exp:"COALESCE returns the FIRST non-NULL value it encounters, reading left to right. If mobile is not NULL, it returns mobile immediately without checking the rest of the list."},
+  {q:"What is the difference between ROUND(4.987, 2) and TRUNCATE(4.987, 2)?",opts:["No difference — both return 4.99","ROUND returns 4.99 (rounds up); TRUNCATE returns 4.98 (just cuts off)","ROUND returns 4.98; TRUNCATE returns 5.00","Both return 4.98"],ans:1,exp:"ROUND(4.987, 2) = 4.99 because the third decimal (7) is ≥ 5, so it rounds up. TRUNCATE(4.987, 2) = 4.98 — it simply cuts off the extra digits without any rounding."},
+  {q:"To calculate a student's age accurately from their date of birth in MySQL, which function is best?",opts:["DATEDIFF(CURDATE(), dob) / 365","YEAR(CURDATE()) - YEAR(dob)","TIMESTAMPDIFF(YEAR, dob, CURDATE())","FLOOR(DATEDIFF(CURDATE(), dob) / 30)"],ans:2,exp:"TIMESTAMPDIFF(YEAR, dob, CURDATE()) is the most accurate — it correctly handles birthdays that haven't occurred yet this year. YEAR(CURDATE()) - YEAR(dob) would give the wrong result if the birthday is later in the year. DATEDIFF/365 is approximate."},
+];
+let qi=0,score=0,answered=false;
+function renderQ(){
+  const q=QS[qi];
+  document.getElementById('qprog').textContent=`Question ${qi+1} of ${QS.length}`;
+  document.getElementById('qq').textContent=q.q;
+  document.getElementById('qopts').innerHTML=q.opts.map((o,i)=>
+    `<li class="qopt" onclick="selQ(${i})" id="qo-${i}"><span class="ok">${String.fromCharCode(65+i)}</span>${o}</li>`).join('');
+  document.getElementById('qfb').className='qfb';
+  document.getElementById('qfb').innerHTML='';
+  document.getElementById('qnext').style.display='none';
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi}`;
+  answered=false;
+}
+function selQ(i){
+  if(answered)return;answered=true;
+  const q=QS[qi];
+  document.querySelectorAll('.qopt').forEach((o,j)=>{
+    if(j===q.ans)o.classList.add('correct');
+    else if(j===i)o.classList.add('wrong');
+  });
+  if(i===q.ans)score++;
+  const fb=document.getElementById('qfb');
+  fb.className=`qfb show ${i===q.ans?'correct':'wrong'}`;
+  fb.innerHTML=`<strong>${i===q.ans?'✅ Correct!':'❌ Not quite.'}</strong> ${q.exp}`;
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi+1}`;
+  const nb=document.getElementById('qnext');
+  nb.style.display='inline-block';
+  nb.textContent=qi<QS.length-1?'Next Question →':'See Results 🎉';
+}
+function nextQ(){qi++;if(qi<QS.length)renderQ();else showResults();}
+function showResults(){
+  document.querySelector('.qw').style.display='none';
+  const dc=document.getElementById('done-card');dc.style.display='block';
+  const pct=Math.round((score/QS.length)*100);
+  document.getElementById('done-title').textContent=pct>=80?'🎉 Functions Master!':pct>=60?'👍 Good Work!':'💪 Keep Practising!';
+  document.getElementById('done-msg').textContent=`You scored ${score} out of ${QS.length} (${pct}%). ${pct>=80?'You can clean, transform, and calculate data like a pro!':'Review CONCAT_WS vs CONCAT, NULLIF for safe division, and TIMESTAMPDIFF for age.'}`;
+  markDone('quiz');
+  if(pct>=70)doConfetti();
+}
+renderQ();
+
+// ── CONFETTI ──
+function doConfetti(){
+  const cv=document.getElementById('cvc');const ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  const cols=['#0d9488','#2563eb','#4f46e5','#d97706','#16a34a','#7c3aed','#ea580c'];
+  const pp=Array.from({length:140},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height-cv.height,r:Math.random()*9+4,color:cols[Math.floor(Math.random()*cols.length)],tilt:Math.random()*10-10,spd:Math.random()*3+1.5}));
+  let fr=0;
+  function draw(){ctx.clearRect(0,0,cv.width,cv.height);pp.forEach(p=>{ctx.beginPath();ctx.ellipse(p.x,p.y,p.r,p.r/2,p.tilt,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();p.y+=p.spd;p.x+=Math.sin(fr/18)*1.5;p.tilt+=.08;if(p.y>cv.height){p.y=-10;p.x=Math.random()*cv.width;}});fr++;if(fr<220)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);}
+  draw();
+}
+</script>
+</body>
+</html>

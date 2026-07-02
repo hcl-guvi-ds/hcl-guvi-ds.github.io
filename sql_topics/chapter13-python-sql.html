@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 13 — Python + SQL Integration | SQL Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --py:#3b82f6;--pyl:#dbeafe;--pyd:#1d4ed8;
+  --sql:#10b981;--sqll:#d1fae5;--sqld:#059669;
+  --amber:#d97706;--al:#fef3c7;
+  --red:#dc2626;--rl:#fee2e2;
+  --green:#16a34a;--gl:#dcfce7;
+  --purple:#7c3aed;--pl:#ede9fe;
+  --orange:#ea580c;--ol:#ffedd5;
+  --rose:#e11d48;
+  --bg:#f8fafc;--surface:#fff;
+  --border:#e2e8f0;--text:#0f172a;--muted:#64748b;
+  --sw:272px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sw);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;display:flex;flex-direction:column;}
+.sbh{padding:20px 18px 16px;background:linear-gradient(135deg,#1a2744,#064e3b);border-bottom:1px solid var(--border);}
+.sbh .badge{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6ee7b7;margin-bottom:4px;}
+.sbh h2{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;line-height:1.3;}
+.sbh p{font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;}
+.sbp{padding:14px 18px;border-bottom:1px solid var(--border);}
+.pbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;}
+.pb{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+.pf{height:100%;background:linear-gradient(90deg,var(--py),var(--sql));border-radius:99px;transition:width .4s;}
+.sbn{flex:1;padding:8px 0;}
+.nsl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 18px 4px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;font-size:13px;color:var(--muted);font-weight:500;}
+.ni:hover{background:var(--bg);color:var(--text);}
+.ni.active{border-left-color:var(--py);background:var(--pyl);color:var(--pyd);font-weight:600;}
+.ni.done{color:var(--green);}
+.nc{margin-left:auto;font-size:13px;}
+
+/* MAIN */
+.main{margin-left:var(--sw);flex:1;min-width:0;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.tbl{display:flex;align-items:center;gap:12px;}
+.chp{background:var(--pyl);color:var(--pyd);font-family:'Sora',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.05em;}
+.topbar h1{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;}
+.nb{display:flex;gap:8px;}
+.nbtn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s;}
+.nbtn.pri{background:var(--py);color:#fff;border-color:var(--py);}
+.nbtn:hover{border-color:var(--py);color:var(--py);}
+.nbtn.pri:hover{background:var(--pyd);}
+
+/* SECTIONS */
+.sec{display:none;padding:36px 44px 64px;max-width:1000px;}
+.sec.active{display:block;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#1a2744 0%,#064e3b 100%);border-radius:16px;padding:36px 40px;color:#fff;margin-bottom:32px;position:relative;overflow:hidden;}
+.hero::after{content:'🐍';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-size:90px;opacity:.15;}
+.hero .ey{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6ee7b7;margin-bottom:8px;}
+.hero h2{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;line-height:1.2;margin-bottom:10px;}
+.hero p{font-size:14px;opacity:.82;line-height:1.65;max-width:560px;}
+
+.st{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.ss{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:20px;}
+.ct{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+
+/* CODE — Python */
+.py-cb{background:#0f172a;border-radius:10px;padding:18px 22px;margin:14px 0;overflow-x:auto;position:relative;border-left:4px solid var(--py);}
+.py-cb pre{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.85;color:#e2e8f0;white-space:pre;}
+/* CODE — SQL */
+.sql-cb{background:#0f172a;border-radius:10px;padding:18px 22px;margin:14px 0;overflow-x:auto;position:relative;border-left:4px solid var(--sql);}
+.sql-cb pre{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.85;color:#e2e8f0;white-space:pre;}
+/* CODE — Output */
+.out-cb{background:#0d1117;border-radius:10px;padding:16px 20px;margin:10px 0;overflow-x:auto;border-left:4px solid #374151;}
+.out-cb pre{font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.75;color:#4ade80;white-space:pre;}
+.cl{position:absolute;top:10px;right:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+/* syntax colors */
+.kw{color:#7dd3fc;}.fn{color:#a5f3fc;}.str{color:#86efac;}.cm{color:#475569;font-style:italic;}.op{color:#f9a8d4;}.num{color:#fcd34d;}.cl2{color:#fb923c;}.imp{color:#c4b5fd;}.var{color:#e2e8f0;}.deco{color:#a78bfa;}
+
+/* CALLOUTS */
+.co{border-radius:10px;padding:14px 18px;margin:16px 0;display:flex;gap:12px;font-size:13.5px;line-height:1.65;}
+.ci{font-size:18px;flex-shrink:0;margin-top:1px;}
+.co strong{display:block;font-weight:700;margin-bottom:3px;}
+.co.tip{background:var(--sqll);border-left:4px solid var(--sql);color:#064e3b;}
+.co.warn{background:var(--al);border-left:4px solid var(--amber);color:#78350f;}
+.co.info{background:var(--pyl);border-left:4px solid var(--py);color:#1e3a8a;}
+.co.danger{background:var(--rl);border-left:4px solid var(--red);color:#7f1d1d;}
+.co.success{background:var(--gl);border-left:4px solid var(--green);color:#14532d;}
+.co.purple{background:var(--pl);border-left:4px solid var(--purple);color:#3b0764;}
+
+/* BADGE LABELS */
+.lang-badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:4px;}
+.py-badge{background:var(--pyl);color:var(--pyd);}
+.sql-badge{background:var(--sqll);color:var(--sqld);}
+.out-badge{background:#1f2937;color:#4ade80;}
+.term-badge{background:#1f2937;color:#fbbf24;}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+
+/* FLOW DIAGRAM */
+.flow{display:flex;align-items:center;gap:0;margin:20px 0;overflow-x:auto;flex-wrap:nowrap;}
+.flow-node{background:var(--surface);border:2px solid var(--border);border-radius:10px;padding:12px 16px;text-align:center;min-width:110px;flex-shrink:0;}
+.flow-node .fn-icon{font-size:22px;margin-bottom:4px;}
+.flow-node .fn-label{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:var(--text);}
+.flow-node .fn-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+.flow-node.py-node{border-color:var(--py);background:var(--pyl);}
+.flow-node.sql-node{border-color:var(--sql);background:var(--sqll);}
+.flow-node.data-node{border-color:var(--purple);background:var(--pl);}
+.flow-arrow{font-size:20px;color:var(--muted);padding:0 6px;flex-shrink:0;}
+
+/* ════ SIGNATURE: LIVE PYTHON EXECUTOR SIMULATION ════ */
+.executor{background:var(--surface);border:2px solid var(--py);border-radius:16px;overflow:hidden;margin:24px 0;}
+.exec-head{background:linear-gradient(90deg,#1a2744,#064e3b);padding:18px 24px;}
+.exec-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;}
+.exec-sub{font-size:12px;color:#6ee7b7;margin-top:3px;}
+.exec-tabs{display:flex;gap:4px;padding:12px 20px 0;border-bottom:2px solid var(--border);background:#f9fafb;flex-wrap:wrap;}
+.etab{padding:8px 16px;font-size:12.5px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;color:var(--muted);font-family:'Sora',sans-serif;border-radius:6px 6px 0 0;}
+.etab:hover{color:var(--py);}
+.etab.active{border-bottom-color:var(--py);color:var(--py);background:#fff;}
+.exec-body{padding:24px;}
+.exec-cell{background:#0f172a;border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.cell-header{background:#1e293b;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;}
+.cell-in-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:#64748b;font-weight:600;}
+.cell-run-btn{padding:4px 12px;background:var(--py);color:#fff;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;transition:background .15s;}
+.cell-run-btn:hover{background:var(--pyd);}
+.cell-code{padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#e2e8f0;line-height:1.82;white-space:pre;overflow-x:auto;}
+.cell-output{display:none;border-top:1px solid #334155;padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#4ade80;line-height:1.75;white-space:pre;background:#020617;}
+.cell-output.show{display:block;}
+.cell-df{display:none;border-top:1px solid #334155;background:#020617;padding:14px;}
+.cell-df.show{display:block;overflow-x:auto;}
+.df-table{border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:12px;width:100%;}
+.df-table th{background:#1e293b;color:#7dd3fc;padding:7px 14px;text-align:left;font-weight:700;border-bottom:1px solid #334155;}
+.df-table td{padding:7px 14px;border-bottom:1px solid #1e293b;color:#e2e8f0;}
+.df-table tr:nth-child(even) td{background:#0a0f1a;}
+.df-shape{font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;padding:6px 14px 0;}
+
+/* STEP FLOW */
+.steps{list-style:none;margin:16px 0;}
+.step{display:flex;gap:14px;margin-bottom:16px;}
+.sn{width:28px;height:28px;background:var(--py);color:#fff;border-radius:50%;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.sb2{flex:1;}
+.sb2 strong{font-weight:700;font-size:14px;display:block;margin-bottom:3px;}
+.sb2 p{font-size:13.5px;color:#334155;line-height:1.6;}
+
+/* PROJECT TRACKER */
+.proj-steps{display:flex;flex-direction:column;gap:0;}
+.proj-step{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--border);position:relative;}
+.proj-step:last-child{border-bottom:none;}
+.proj-num{width:36px;height:36px;border-radius:50%;background:var(--py);color:#fff;font-family:'Sora',sans-serif;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.proj-body{flex:1;}
+.proj-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;margin-bottom:4px;}
+.proj-desc{font-size:13.5px;color:var(--muted);line-height:1.6;margin-bottom:8px;}
+
+/* QUIZ */
+.qw{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;}
+.qq{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;line-height:1.4;}
+.qopts{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.qopt{padding:12px 16px;border:2px solid var(--border);border-radius:9px;cursor:pointer;font-size:14px;font-weight:500;transition:all .15s;display:flex;align-items:center;gap:10px;}
+.qopt:hover{border-color:var(--py);background:var(--pyl);}
+.qopt.correct{border-color:var(--green);background:var(--gl);color:var(--green);}
+.qopt.wrong{border-color:var(--red);background:var(--rl);color:var(--red);}
+.ok{width:24px;height:24px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Sora',sans-serif;}
+.qfb{display:none;padding:12px 16px;border-radius:9px;font-size:13.5px;line-height:1.5;margin-bottom:14px;}
+.qfb.show{display:block;}
+.qfb.correct{background:var(--gl);color:#14532d;border-left:4px solid var(--green);}
+.qfb.wrong{background:var(--rl);color:#7f1d1d;border-left:4px solid var(--red);}
+.qnav{display:flex;justify-content:space-between;align-items:center;}
+.qsc{font-family:'Sora',sans-serif;font-size:14px;color:var(--muted);}
+.qbtn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;background:var(--py);color:#fff;}
+.qbtn:hover{background:var(--pyd);}
+.qprog{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.done{text-align:center;padding:48px 32px;background:linear-gradient(135deg,var(--pyl),var(--sqll));border-radius:16px;border:1px solid var(--border);margin-top:32px;}
+.done .trophy{font-size:56px;margin-bottom:12px;}
+.done h3{font-family:'Sora',sans-serif;font-size:24px;font-weight:800;margin-bottom:8px;}
+.done p{color:var(--muted);font-size:14px;max-width:440px;margin:0 auto 20px;}
+.donebtn{padding:12px 28px;background:linear-gradient(135deg,var(--py),var(--sql));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;}
+#cvc{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}.sec{padding:24px 20px 40px}.g2,.g3{grid-template-columns:1fr}.flow{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<canvas id="cvc"></canvas>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sbh">
+    <div class="badge">SQL Mastery Course</div>
+    <h2>Chapter 13: Python + SQL</h2>
+    <p>psycopg2 · SQLAlchemy · Pandas</p>
+  </div>
+  <div class="sbp">
+    <div class="pbl"><span>Progress</span><span id="pp">0%</span></div>
+    <div class="pb"><div class="pf" id="pf" style="width:0%"></div></div>
+  </div>
+  <nav class="sbn">
+    <div class="nsl">Content</div>
+    <div class="ni active" data-s="intro"      onclick="showS('intro',this)">    <span>🏠</span> Introduction               <span class="nc" id="chk-intro"></span></div>
+    <div class="ni" data-s="connect"    onclick="showS('connect',this)">  <span>🔌</span> Connecting Python to DB     <span class="nc" id="chk-connect"></span></div>
+    <div class="ni" data-s="cursor"     onclick="showS('cursor',this)">   <span>🖱️</span> Cursor & execute()          <span class="nc" id="chk-cursor"></span></div>
+    <div class="ni" data-s="fetch"      onclick="showS('fetch',this)">    <span>📥</span> fetch() Methods             <span class="nc" id="chk-fetch"></span></div>
+    <div class="ni" data-s="safety"     onclick="showS('safety',this)">   <span>🛡️</span> Parameterized & Safety      <span class="nc" id="chk-safety"></span></div>
+    <div class="ni" data-s="executor"   onclick="showS('executor',this)"> <span>🎮</span> Live Notebook Simulator ✨  <span class="nc" id="chk-executor"></span></div>
+    <div class="ni" data-s="pandas"     onclick="showS('pandas',this)">   <span>🐼</span> Pandas + SQLAlchemy         <span class="nc" id="chk-pandas"></span></div>
+    <div class="ni" data-s="bulk"       onclick="showS('bulk',this)">     <span>⚡</span> Bulk Inserts & to_sql()     <span class="nc" id="chk-bulk"></span></div>
+    <div class="ni" data-s="viz"        onclick="showS('viz',this)">      <span>📊</span> Visualising SQL Results     <span class="nc" id="chk-viz"></span></div>
+    <div class="ni" data-s="project"    onclick="showS('project',this)">  <span>🏆</span> Mini Project: Auto-Report   <span class="nc" id="chk-project"></span></div>
+    <div class="ni" data-s="quiz"       onclick="showS('quiz',this)">     <span>🧠</span> Chapter Quiz                <span class="nc" id="chk-quiz"></span></div>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="tbl"><span class="chp">Chapter 13</span><h1>Python + SQL Integration</h1></div>
+    <div class="nb">
+      <button class="nbtn" onclick="prevS()">← Prev</button>
+      <button class="nbtn pri" onclick="nextS()">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══ INTRO ══ -->
+  <section class="sec active" id="sec-intro">
+    <div class="hero">
+      <div class="ey">Chapter 13 · Python + SQL Integration</div>
+      <h2>SQL Meets Python.<br/>Query, Analyse, Automate.</h2>
+      <p>SQL fetches the data. Python transforms it, visualises it, and sends it to Excel. Together they form the backbone of every data pipeline in the industry — from GUVI's learner reports to Zomato's daily analytics.</p>
+    </div>
+
+    <h2 class="st">The Python–SQL Stack</h2>
+    <p class="ss">Three layers — connection driver, ORM/engine, and DataFrame library — each serving a different purpose in the pipeline.</p>
+
+    <div class="flow">
+      <div class="flow-node py-node"><div class="fn-icon">🐍</div><div class="fn-label">Python Script</div><div class="fn-sub">logic & orchestration</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node py-node"><div class="fn-icon">🔌</div><div class="fn-label">Driver</div><div class="fn-sub">psycopg2 / mysql-connector</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node sql-node"><div class="fn-icon">🗄️</div><div class="fn-label">Database</div><div class="fn-sub">MySQL / PostgreSQL</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node py-node"><div class="fn-icon">🔧</div><div class="fn-label">SQLAlchemy</div><div class="fn-sub">engine / ORM layer</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node data-node"><div class="fn-icon">🐼</div><div class="fn-label">Pandas</div><div class="fn-sub">DataFrame + analysis</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node data-node"><div class="fn-icon">📊</div><div class="fn-label">Excel / Chart</div><div class="fn-sub">report output</div></div>
+    </div>
+
+    <div class="g3" style="margin-top:20px">
+      <div class="card" style="border-top:4px solid var(--py);margin-bottom:0">
+        <div class="ct" style="color:var(--py)">🔌 mysql-connector / psycopg2</div>
+        <p style="font-size:13px">Low-level drivers. Direct SQL execution, full control, lightweight. Best for scripts and microservices.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--purple);margin-bottom:0">
+        <div class="ct" style="color:var(--purple)">⚙️ SQLAlchemy</div>
+        <p style="font-size:13px">Python ORM + engine layer. Powers pandas, Flask, FastAPI. Abstracts DB differences cleanly.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--sql);margin-bottom:0">
+        <div class="ct" style="color:var(--sql)">🐼 pandas</div>
+        <p style="font-size:13px">SQL → DataFrame in one line. Analyse, visualise, export to Excel/CSV. The data scientist's favourite.</p>
+      </div>
+    </div>
+
+    <div class="co info">
+      <span class="ci">📦</span>
+      <div><strong>Install all three in one go:</strong>
+        <div class="py-cb" style="margin:8px 0 0"><pre><span class="cm"># MySQL</span>
+pip install mysql-connector-python sqlalchemy pandas openpyxl matplotlib
+
+<span class="cm"># PostgreSQL</span>
+pip install psycopg2-binary sqlalchemy pandas openpyxl matplotlib</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CONNECT ══ -->
+  <section class="sec" id="sec-connect">
+    <h2 class="st">🔌 Connecting Python to a Database</h2>
+    <p class="ss">Step zero is always establishing a connection. Both mysql-connector and psycopg2 follow the same pattern: create connection → create cursor → execute → close.</p>
+
+    <div class="card">
+      <div class="ct">🐬 MySQL — mysql-connector-python</div>
+      <div class="lang-badge py-badge">Python</div>
+      <div class="py-cb"><span class="cl">connect_mysql.py</span><pre><span class="imp">import</span> mysql.connector
+
+<span class="cm"># ── Create connection ──────────────────────────────────────</span>
+conn = mysql.connector.<span class="fn">connect</span>(
+    host     = <span class="str">"localhost"</span>,
+    user     = <span class="str">"guvi_user"</span>,
+    password = <span class="str">"SecurePass@2024"</span>,
+    database = <span class="str">"guvi_db"</span>,
+    port     = <span class="num">3306</span>          <span class="cm"># default MySQL port</span>
+)
+
+<span class="cm"># ── Create cursor (the object that runs SQL) ───────────────</span>
+cursor = conn.<span class="fn">cursor</span>()
+
+<span class="cm"># ── Quick test ─────────────────────────────────────────────</span>
+cursor.<span class="fn">execute</span>(<span class="str">"SELECT DATABASE()"</span>)
+result = cursor.<span class="fn">fetchone</span>()
+<span class="fn">print</span>(<span class="str">f"Connected to: {result[0]}"</span>)  <span class="cm"># Connected to: guvi_db</span>
+
+<span class="cm"># ── Always close when done ─────────────────────────────────</span>
+cursor.<span class="fn">close</span>()
+conn.<span class="fn">close</span>()</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🐘 PostgreSQL — psycopg2</div>
+      <div class="lang-badge py-badge">Python</div>
+      <div class="py-cb"><span class="cl">connect_pg.py</span><pre><span class="imp">import</span> psycopg2
+
+conn = psycopg2.<span class="fn">connect</span>(
+    host     = <span class="str">"localhost"</span>,
+    dbname   = <span class="str">"guvi_db"</span>,
+    user     = <span class="str">"guvi_user"</span>,
+    password = <span class="str">"SecurePass@2024"</span>,
+    port     = <span class="num">5432</span>         <span class="cm"># default PostgreSQL port</span>
+)
+
+cursor = conn.<span class="fn">cursor</span>()
+cursor.<span class="fn">execute</span>(<span class="str">"SELECT version();"</span>)
+<span class="fn">print</span>(cursor.<span class="fn">fetchone</span>()[<span class="num">0</span>])</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">✅ Context Manager — The Right Way (with)</div>
+      <div class="co tip" style="margin-top:0;margin-bottom:12px"><span class="ci">💡</span><div>Using <code>with</code> ensures the connection is always closed — even if an error occurs. This prevents connection leaks in production. Always prefer this pattern.</div></div>
+      <div class="lang-badge py-badge">Python</div>
+      <div class="py-cb"><span class="cl">context_manager.py</span><pre><span class="imp">import</span> mysql.connector
+<span class="imp">from</span> contextlib <span class="imp">import</span> contextmanager
+
+<span class="cm"># ── Reusable connection context manager ────────────────────</span>
+<span class="deco">@contextmanager</span>
+<span class="kw">def</span> <span class="fn">get_connection</span>():
+    conn = mysql.connector.<span class="fn">connect</span>(
+        host=<span class="str">"localhost"</span>, user=<span class="str">"guvi_user"</span>,
+        password=<span class="str">"SecurePass@2024"</span>, database=<span class="str">"guvi_db"</span>
+    )
+    <span class="kw">try</span>:
+        <span class="kw">yield</span> conn          <span class="cm"># hand connection to the caller</span>
+    <span class="kw">finally</span>:
+        conn.<span class="fn">close</span>()        <span class="cm"># always runs — even on exception!</span>
+
+<span class="cm"># ── Usage ──────────────────────────────────────────────────</span>
+<span class="kw">with</span> <span class="fn">get_connection</span>() <span class="kw">as</span> conn:
+    cursor = conn.<span class="fn">cursor</span>()
+    cursor.<span class="fn">execute</span>(<span class="str">"SELECT COUNT(*) FROM students"</span>)
+    <span class="fn">print</span>(cursor.<span class="fn">fetchone</span>()[<span class="num">0</span>])
+<span class="cm"># connection automatically closed here ✅</span></pre></div>
+    </div>
+  </section>
+
+  <!-- ══ CURSOR ══ -->
+  <section class="sec" id="sec-cursor">
+    <h2 class="st">🖱️ Cursor & execute()</h2>
+    <p class="ss">The cursor is the object that sends SQL to the database and retrieves results. Think of it as the "pen" that writes SQL on the database.</p>
+
+    <div class="card">
+      <div class="ct">📖 Cursor Types — Dictionary vs Tuple</div>
+      <div class="lang-badge py-badge">Python</div>
+      <div class="py-cb"><span class="cl">cursor_types.py</span><pre><span class="cm"># Default cursor — returns tuples</span>
+cursor = conn.<span class="fn">cursor</span>()
+cursor.<span class="fn">execute</span>(<span class="str">"SELECT student_id, name, score FROM guvi_learners LIMIT 2"</span>)
+row = cursor.<span class="fn">fetchone</span>()
+<span class="fn">print</span>(row)           <span class="cm"># ('S01', 'Priya Sharma', 85)</span>
+<span class="fn">print</span>(row[<span class="num">1</span>])        <span class="cm"># 'Priya Sharma'  — access by index</span>
+
+<span class="cm"># Dictionary cursor — returns dicts (more readable)</span>
+cursor = conn.<span class="fn">cursor</span>(dictionary=<span class="kw">True</span>)   <span class="cm"># mysql-connector</span>
+<span class="cm"># cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)  # psycopg2</span>
+cursor.<span class="fn">execute</span>(<span class="str">"SELECT student_id, name, score FROM guvi_learners LIMIT 2"</span>)
+row = cursor.<span class="fn">fetchone</span>()
+<span class="fn">print</span>(row)           <span class="cm"># {'student_id': 'S01', 'name': 'Priya Sharma', 'score': 85}</span>
+<span class="fn">print</span>(row[<span class="str">'name'</span>])  <span class="cm"># 'Priya Sharma'  — access by key ✅ much clearer</span></pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">⚙️ execute() — SELECT, INSERT, UPDATE, DELETE</div>
+      <div class="lang-badge py-badge">Python</div>
+      <div class="py-cb"><span class="cl">execute_examples.py</span><pre><span class="cm"># SELECT</span>
+cursor.<span class="fn">execute</span>(<span class="str">"SELECT COUNT(*) FROM guvi_learners"</span>)
+<span class="fn">print</span>(cursor.<span class="fn">fetchone</span>())   <span class="cm"># (847,)</span>
+
+<span class="cm"># INSERT — note: requires conn.commit() after!</span>
+cursor.<span class="fn">execute</span>(<span class="str">"""
+    INSERT INTO students (name, email, city)
+    VALUES ('Kavya Nair', 'kavya@guvi.in', 'Kochi')
+"""</span>)
+conn.<span class="fn">commit</span>()            <span class="cm"># persist the change</span>
+<span class="fn">print</span>(<span class="str">f"Inserted row ID: {cursor.lastrowid}"</span>)
+
+<span class="cm"># UPDATE</span>
+cursor.<span class="fn">execute</span>(<span class="str">"""
+    UPDATE guvi_learners
+    SET score = 92 WHERE student_id = 'S01'
+"""</span>)
+conn.<span class="fn">commit</span>()
+<span class="fn">print</span>(<span class="str">f"Rows updated: {cursor.rowcount}"</span>)  <span class="cm"># Rows updated: 1</span>
+
+<span class="cm"># DELETE</span>
+cursor.<span class="fn">execute</span>(<span class="str">"DELETE FROM temp_table WHERE created_at < '2024-01-01'"</span>)
+conn.<span class="fn">commit</span>()
+<span class="fn">print</span>(<span class="str">f"Rows deleted: {cursor.rowcount}"</span>)</pre></div>
+      <div class="co warn"><span class="ci">⚠️</span><div><strong>Never forget conn.commit()</strong>For INSERT / UPDATE / DELETE, changes are in a transaction and won't be saved until you call <code>conn.commit()</code>. If you forget it, changes disappear when the connection closes.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ FETCH ══ -->
+  <section class="sec" id="sec-fetch">
+    <h2 class="st">📥 fetch() Methods</h2>
+    <p class="ss">After execute(), you need to retrieve the results. Python DB-API gives three options depending on how many rows you need.</p>
+
+    <div class="g3">
+      <div class="card" style="border-left:4px solid var(--py);margin-bottom:0">
+        <div class="ct" style="color:var(--py);font-size:14px">fetchone()</div>
+        <p style="font-size:12.5px">Returns ONE row as a tuple/dict. Returns <code>None</code> when no more rows. Best for lookups expecting a single result.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--purple);margin-bottom:0">
+        <div class="ct" style="color:var(--purple);font-size:14px">fetchall()</div>
+        <p style="font-size:12.5px">Returns ALL remaining rows as a list. Loads everything into memory — avoid on huge result sets.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--sql);margin-bottom:0">
+        <div class="ct" style="color:var(--sql);font-size:14px">fetchmany(n)</div>
+        <p style="font-size:12.5px">Returns next N rows. Memory-efficient for large results — process in batches without loading all at once.</p>
+      </div>
+    </div>
+    <div style="height:20px"></div>
+
+    <div class="card">
+      <div class="ct">💡 All Three in Practice — GUVI Learner Query</div>
+      <div class="lang-badge py-badge">Python</div>
+      <div class="py-cb"><span class="cl">fetch_methods.py</span><pre><span class="imp">import</span> mysql.connector
+
+conn   = mysql.connector.<span class="fn">connect</span>(host=<span class="str">"localhost"</span>, database=<span class="str">"guvi_db"</span>,
+                                   user=<span class="str">"guvi_user"</span>, password=<span class="str">"pass"</span>)
+cursor = conn.<span class="fn">cursor</span>(dictionary=<span class="kw">True</span>)
+cursor.<span class="fn">execute</span>(<span class="str">"SELECT name, batch_id, score FROM guvi_learners ORDER BY score DESC"</span>)
+
+<span class="cm"># ── fetchone() — grab just the top scorer ─────────────────</span>
+top = cursor.<span class="fn">fetchone</span>()
+<span class="fn">print</span>(<span class="str">f"Top scorer: {top['name']} — {top['score']}"</span>)
+<span class="cm"># Top scorer: Meera Iyer — 93</span>
+
+<span class="cm"># ── fetchmany(3) — get next 3 rows (batch processing) ─────</span>
+next_three = cursor.<span class="fn">fetchmany</span>(<span class="num">3</span>)
+<span class="kw">for</span> row <span class="kw">in</span> next_three:
+    <span class="fn">print</span>(<span class="str">f"  {row['name']:20s} {row['score']}"</span>)
+
+<span class="cm"># ── fetchall() — get ALL remaining rows ───────────────────</span>
+rest = cursor.<span class="fn">fetchall</span>()
+<span class="fn">print</span>(<span class="str">f"\nRemaining learners: {len(rest)}"</span>)
+
+cursor.<span class="fn">close</span>()
+conn.<span class="fn">close</span>()</pre></div>
+      <div class="lang-badge out-badge">Output</div>
+      <div class="out-cb"><pre>Top scorer: Meera Iyer — 93
+  Priya Sharma         85
+  Sneha Nair           91
+  Arjun Patel          78
+Remaining learners: 843</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔄 Iterating with fetchmany() — Memory-Efficient Pattern</div>
+      <div class="lang-badge py-badge">Python</div>
+      <div class="py-cb"><span class="cl">batch_processing.py</span><pre><span class="cm"># Process 50,000 rows without loading all into memory</span>
+cursor.<span class="fn">execute</span>(<span class="str">"SELECT * FROM zomato_orders WHERE YEAR(order_date) = 2024"</span>)
+
+BATCH_SIZE = <span class="num">500</span>
+total_processed = <span class="num">0</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    rows = cursor.<span class="fn">fetchmany</span>(BATCH_SIZE)
+    <span class="kw">if not</span> rows:
+        <span class="kw">break</span>                    <span class="cm"># no more rows</span>
+    <span class="cm"># process this batch ...</span>
+    total_processed += <span class="fn">len</span>(rows)
+    <span class="fn">print</span>(<span class="str">f"Processed {total_processed} rows..."</span>)
+
+<span class="fn">print</span>(<span class="str">f"✅ Done. Total: {total_processed} rows"</span>)</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ SAFETY ══ -->
+  <section class="sec" id="sec-safety">
+    <h2 class="st">🛡️ Parameterized Queries — SQL Injection Safety</h2>
+    <p class="ss">SQL injection is the #1 database attack. Never build SQL strings with Python f-strings or + concatenation. Always use parameterized queries.</p>
+
+    <div class="card">
+      <div class="ct">☠️ The Dangerous Way — NEVER Do This</div>
+      <div class="co danger"><span class="ci">🚨</span><div><strong>This is SQL Injection-vulnerable code!</strong>If a user types <code>' OR '1'='1</code> as their name, the query becomes: <code>WHERE name = '' OR '1'='1'</code> — which returns ALL rows, bypassing authentication.</div></div>
+      <div class="lang-badge py-badge">Python — ❌ UNSAFE</div>
+      <div class="py-cb"><span class="cl">UNSAFE — never do this!</span><pre><span class="cm"># ❌ WRONG — string formatting opens SQL injection hole</span>
+user_input = <span class="str">"' OR '1'='1"</span>   <span class="cm"># attacker input</span>
+
+query = <span class="str">f"SELECT * FROM students WHERE name = '{user_input}'"</span>
+<span class="cm"># Becomes: SELECT * FROM students WHERE name = '' OR '1'='1'</span>
+<span class="cm"># This returns EVERY row in the table — data breach!</span>
+
+cursor.<span class="fn">execute</span>(query)   <span class="cm"># ☠️ catastrophic</span></pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">✅ The Safe Way — Parameterized Queries</div>
+      <div class="lang-badge py-badge">Python — ✅ SAFE</div>
+      <div class="py-cb"><span class="cl">safe_queries.py</span><pre><span class="cm"># ✅ CORRECT — use %s placeholders (MySQL) or %s/%s (psycopg2)</span>
+<span class="cm"># The driver handles escaping — injection is impossible</span>
+
+<span class="cm"># Single parameter</span>
+cursor.<span class="fn">execute</span>(
+    <span class="str">"SELECT * FROM students WHERE name = %s"</span>,
+    (user_input,)          <span class="cm"># tuple! trailing comma for single value</span>
+)
+
+<span class="cm"># Multiple parameters</span>
+cursor.<span class="fn">execute</span>(
+    <span class="str">"SELECT name, score FROM guvi_learners WHERE batch_id = %s AND score > %s"</span>,
+    (<span class="str">'B01'</span>, <span class="num">75</span>)
+)
+
+<span class="cm"># INSERT with parameters — always use this pattern</span>
+cursor.<span class="fn">execute</span>(
+    <span class="str">"INSERT INTO students (name, email, city) VALUES (%s, %s, %s)"</span>,
+    (<span class="str">'Kavya Nair'</span>, <span class="str">'kavya@guvi.in'</span>, <span class="str">'Kochi'</span>)
+)
+conn.<span class="fn">commit</span>()</pre></div>
+      <div class="co success"><span class="ci">✅</span><div><strong>Why %s is safe</strong>The DB driver sends the query and parameters separately to the database. The DB engine knows they are data — not executable SQL. The attacker's <code>' OR '1'='1</code> is treated as a literal string, not SQL syntax.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔍 Named Parameters — More Readable for Complex Queries</div>
+      <div class="lang-badge py-badge">Python</div>
+      <div class="py-cb"><span class="cl">named_params.py</span><pre><span class="cm"># MySQL — use %(name)s syntax</span>
+cursor.<span class="fn">execute</span>(
+    <span class="str">"""SELECT name, score FROM guvi_learners
+       WHERE batch_id = %(batch)s AND score > %(min_score)s"""</span>,
+    {<span class="str">'batch'</span>: <span class="str">'B01'</span>, <span class="str">'min_score'</span>: <span class="num">75</span>}
+)
+
+<span class="cm"># PostgreSQL — use %(name)s or :name (with SQLAlchemy)</span>
+cursor.<span class="fn">execute</span>(
+    <span class="str">"SELECT name FROM students WHERE city = %(city)s"</span>,
+    {<span class="str">'city'</span>: <span class="str">'Chennai'</span>}
+)</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ EXECUTOR / NOTEBOOK SIM ══ -->
+  <section class="sec" id="sec-executor">
+    <h2 class="st">🎮 Live Notebook Simulator</h2>
+    <p class="ss">Experience Python + SQL exactly as it runs in a Jupyter notebook. Click ▶ Run on each cell to see the output — step by step.</p>
+
+    <div class="executor">
+      <div class="exec-head">
+        <div class="exec-title">📓 guvi_sql_analysis.ipynb — Interactive Notebook</div>
+        <div class="exec-sub">Click ▶ Run on each cell to execute it</div>
+      </div>
+      <div class="exec-tabs">
+        <div class="etab active" onclick="setNBTab('connect',this)">1. Connect</div>
+        <div class="etab" onclick="setNBTab('query',this)">2. Query</div>
+        <div class="etab" onclick="setNBTab('pandas',this)">3. Pandas</div>
+        <div class="etab" onclick="setNBTab('analysis',this)">4. Analysis</div>
+        <div class="etab" onclick="setNBTab('export',this)">5. Export</div>
+      </div>
+      <div class="exec-body" id="nb-body"></div>
+    </div>
+  </section>
+
+  <!-- ══ PANDAS ══ -->
+  <section class="sec" id="sec-pandas">
+    <h2 class="st">🐼 Pandas + SQLAlchemy</h2>
+    <p class="ss">SQLAlchemy creates the engine that connects pandas to your database. One line to read a query into a DataFrame; one line to write a DataFrame to a table.</p>
+
+    <div class="card">
+      <div class="ct">⚙️ SQLAlchemy Engine Setup</div>
+      <div class="lang-badge py-badge">Python</div>
+      <div class="py-cb"><span class="cl">engine_setup.py</span><pre><span class="imp">from</span> sqlalchemy <span class="imp">import</span> create_engine
+<span class="imp">import</span> pandas <span class="imp">as</span> pd
+
+<span class="cm"># ── Connection string format ───────────────────────────────</span>
+<span class="cm"># mysql+mysqlconnector://user:password@host:port/database</span>
+<span class="cm"># postgresql+psycopg2://user:password@host:port/database</span>
+
+<span class="cm"># MySQL engine</span>
+engine = <span class="fn">create_engine</span>(
+    <span class="str">"mysql+mysqlconnector://guvi_user:SecurePass@2024@localhost/guvi_db"</span>,
+    echo=<span class="kw">False</span>   <span class="cm"># echo=True prints all SQL — useful for debugging</span>
+)
+
+<span class="cm"># PostgreSQL engine</span>
+engine = <span class="fn">create_engine</span>(
+    <span class="str">"postgresql+psycopg2://guvi_user:SecurePass@2024@localhost/guvi_db"</span>
+)
+
+<span class="cm"># Test it</span>
+<span class="kw">with</span> engine.<span class="fn">connect</span>() <span class="kw">as</span> conn:
+    result = conn.<span class="fn">execute</span>(text(<span class="str">"SELECT 1"</span>))
+    <span class="fn">print</span>(<span class="str">"✅ Engine connected successfully"</span>)</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📥 pd.read_sql() — SQL Query → DataFrame</div>
+      <div class="lang-badge py-badge">Python</div>
+      <div class="py-cb"><span class="cl">read_sql.py</span><pre><span class="cm"># ── Basic query ───────────────────────────────────────────</span>
+df = pd.<span class="fn">read_sql</span>(
+    <span class="str">"SELECT name, batch_id, score, city FROM guvi_learners"</span>,
+    engine
+)
+<span class="fn">print</span>(df.<span class="fn">head</span>())
+<span class="fn">print</span>(<span class="str">f"Shape: {df.shape}"</span>)  <span class="cm"># (847, 4)</span>
+
+<span class="cm"># ── With parameterized query via SQLAlchemy text() ────────</span>
+<span class="imp">from</span> sqlalchemy <span class="imp">import</span> text
+
+query = text(<span class="str">"""
+    SELECT b.batch_name, c.course_name,
+           COUNT(s.student_id) AS learners,
+           ROUND(AVG(s.score), 1) AS avg_score
+    FROM   students s
+    JOIN   batches  b ON s.batch_id  = b.batch_id
+    JOIN   courses  c ON b.course_id = c.course_id
+    GROUP BY b.batch_name, c.course_name
+    ORDER BY avg_score DESC
+"""</span>)
+
+df_batch = pd.<span class="fn">read_sql</span>(query, engine)
+<span class="fn">print</span>(df_batch)</pre></div>
+      <div class="lang-badge out-badge">Output</div>
+      <div class="out-cb"><pre>   batch_name         course_name  learners  avg_score
+0  AIML-Jun-2024      Machine Learning     42      84.2
+1  DataSci-Jul-2024   Data Science         38      81.6
+2  Python-Aug-2024    Machine Learning     35      78.9
+3  WebDev-Sep-2024    Web Development      29      76.4
+
+Shape: (4, 4)</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ BULK ══ -->
+  <section class="sec" id="sec-bulk">
+    <h2 class="st">⚡ Bulk Inserts & df.to_sql()</h2>
+    <p class="ss">Writing data back to the database is just as important as reading. Bulk operations are dramatically faster than row-by-row inserts.</p>
+
+    <div class="card">
+      <div class="ct">📤 df.to_sql() — DataFrame → Database Table</div>
+      <div class="lang-badge py-badge">Python</div>
+      <div class="py-cb"><span class="cl">to_sql.py</span><pre><span class="imp">import</span> pandas <span class="imp">as</span> pd
+<span class="imp">from</span> sqlalchemy <span class="imp">import</span> create_engine
+
+engine = <span class="fn">create_engine</span>(<span class="str">"mysql+mysqlconnector://user:pass@localhost/guvi_db"</span>)
+
+<span class="cm"># Create a DataFrame</span>
+df_new = pd.<span class="fn">DataFrame</span>({
+    <span class="str">'name'</span>    : [<span class="str">'Kavya Nair'</span>, <span class="str">'Dev Sharma'</span>, <span class="str">'Ananya Rao'</span>],
+    <span class="str">'email'</span>   : [<span class="str">'kavya@guvi.in'</span>, <span class="str">'dev@guvi.in'</span>, <span class="str">'ananya@guvi.in'</span>],
+    <span class="str">'city'</span>    : [<span class="str">'Kochi'</span>, <span class="str">'Jaipur'</span>, <span class="str">'Hyderabad'</span>],
+    <span class="str">'batch_id'</span>: [<span class="str">'B02'</span>, <span class="str">'B03'</span>, <span class="str">'B01'</span>]
+})
+
+<span class="cm"># Write to DB</span>
+df_new.<span class="fn">to_sql</span>(
+    name      = <span class="str">'students'</span>,    <span class="cm"># table name</span>
+    con       = engine,
+    if_exists = <span class="str">'append'</span>,     <span class="cm"># 'replace' | 'append' | 'fail'</span>
+    index     = <span class="kw">False</span>          <span class="cm"># don't write DataFrame index as column</span>
+)
+<span class="fn">print</span>(<span class="str">f"✅ {len(df_new)} rows inserted"</span>)  <span class="cm"># ✅ 3 rows inserted</span></pre></div>
+      <div class="co info"><span class="ci">📋</span><div><strong>if_exists parameter</strong><br/>
+        <code>'fail'</code> → error if table exists (default)<br/>
+        <code>'replace'</code> → drops and recreates table — careful!<br/>
+        <code>'append'</code> → adds rows to existing table ← most common
+      </div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">⚡ executemany() — Bulk Insert with cursor (Fastest)</div>
+      <div class="lang-badge py-badge">Python</div>
+      <div class="py-cb"><span class="cl">bulk_insert.py</span><pre><span class="cm"># executemany() inserts many rows in one optimised DB call</span>
+<span class="cm"># Much faster than looping execute() for each row</span>
+
+new_students = [
+    (<span class="str">'Kavya Nair'</span>,  <span class="str">'kavya@guvi.in'</span>,  <span class="str">'Kochi'</span>),
+    (<span class="str">'Dev Sharma'</span>,  <span class="str">'dev@guvi.in'</span>,    <span class="str">'Jaipur'</span>),
+    (<span class="str">'Ananya Rao'</span>,  <span class="str">'ananya@guvi.in'</span>, <span class="str">'Hyderabad'</span>),
+    <span class="cm"># ... 1000 more rows</span>
+]
+
+cursor.<span class="fn">executemany</span>(
+    <span class="str">"INSERT INTO students (name, email, city) VALUES (%s, %s, %s)"</span>,
+    new_students
+)
+conn.<span class="fn">commit</span>()
+<span class="fn">print</span>(<span class="str">f"✅ Inserted {cursor.rowcount} rows"</span>)
+
+<span class="cm"># Performance tip: 1000 rows with execute() loop = ~2 seconds
+# 1000 rows with executemany() = ~0.05 seconds  (40× faster!)</span></pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📊 Performance Comparison</div>
+      <div class="g3" style="margin:0">
+        <div style="background:var(--rl);border-radius:9px;padding:14px;text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px">execute() loop (1000 rows)</div>
+          <div style="font-size:28px;font-weight:800;color:var(--red)">~2.0s</div>
+          <div style="font-size:11px;color:var(--red)">1000 round trips to DB</div>
+        </div>
+        <div style="background:var(--al);border-radius:9px;padding:14px;text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:6px">to_sql() DataFrame (1000 rows)</div>
+          <div style="font-size:28px;font-weight:800;color:var(--amber)">~0.2s</div>
+          <div style="font-size:11px;color:var(--amber)">chunked batch inserts</div>
+        </div>
+        <div style="background:var(--gl);border-radius:9px;padding:14px;text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:6px">executemany() (1000 rows)</div>
+          <div style="font-size:28px;font-weight:800;color:var(--green)">~0.05s</div>
+          <div style="font-size:11px;color:var(--green)">single optimised call ✅</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ VIZ ══ -->
+  <section class="sec" id="sec-viz">
+    <h2 class="st">📊 Visualising SQL Results in Notebooks</h2>
+    <p class="ss">Once data is in a DataFrame, plotting it takes two lines. Here are the most useful charts for SQL analytics results.</p>
+
+    <div class="card">
+      <div class="ct">📈 Complete Visualisation Pipeline</div>
+      <div class="lang-badge py-badge">Python</div>
+      <div class="py-cb"><span class="cl">visualise.py</span><pre><span class="imp">import</span> pandas <span class="imp">as</span> pd
+<span class="imp">import</span> matplotlib.pyplot <span class="imp">as</span> plt
+<span class="imp">from</span> sqlalchemy <span class="imp">import</span> create_engine
+
+engine = <span class="fn">create_engine</span>(<span class="str">"mysql+mysqlconnector://user:pass@localhost/guvi_db"</span>)
+
+<span class="cm"># ── 1. Query batch performance data ───────────────────────</span>
+df = pd.<span class="fn">read_sql</span>(<span class="str">"""
+    SELECT batch_id,
+           ROUND(AVG(score), 1) AS avg_score,
+           COUNT(*) AS learner_count
+    FROM   guvi_learners
+    GROUP  BY batch_id
+    ORDER  BY avg_score DESC
+"""</span>, engine)
+
+<span class="cm"># ── 2. Bar chart — average score per batch ────────────────</span>
+fig, axes = plt.<span class="fn">subplots</span>(<span class="num">1</span>, <span class="num">2</span>, figsize=(<span class="num">14</span>, <span class="num">5</span>))
+
+df.<span class="fn">plot</span>(kind=<span class="str">'bar'</span>, x=<span class="str">'batch_id'</span>, y=<span class="str">'avg_score'</span>,
+        ax=axes[<span class="num">0</span>], color=<span class="str">'#3b82f6'</span>, legend=<span class="kw">False</span>)
+axes[<span class="num">0</span>].<span class="fn">set_title</span>(<span class="str">'Average Score by Batch'</span>)
+axes[<span class="num">0</span>].<span class="fn">set_xlabel</span>(<span class="str">'Batch'</span>)
+axes[<span class="num">0</span>].<span class="fn">set_ylabel</span>(<span class="str">'Avg Score'</span>)
+axes[<span class="num">0</span>].<span class="fn">axhline</span>(y=<span class="num">75</span>, color=<span class="str">'red'</span>, linestyle=<span class="str">'--'</span>, label=<span class="str">'Target 75'</span>)
+axes[<span class="num">0</span>].<span class="fn">legend</span>()
+
+<span class="cm"># ── 3. Score distribution — histogram ────────────────────</span>
+df_scores = pd.<span class="fn">read_sql</span>(<span class="str">"SELECT score FROM guvi_learners WHERE score IS NOT NULL"</span>, engine)
+df_scores[<span class="str">'score'</span>].<span class="fn">plot</span>(kind=<span class="str">'hist'</span>, bins=<span class="num">20</span>, ax=axes[<span class="num">1</span>], color=<span class="str">'#10b981'</span>)
+axes[<span class="num">1</span>].<span class="fn">set_title</span>(<span class="str">'Score Distribution'</span>)
+axes[<span class="num">1</span>].<span class="fn">set_xlabel</span>(<span class="str">'Score'</span>)
+
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">savefig</span>(<span class="str">'guvi_report.png'</span>, dpi=<span class="num">150</span>, bbox_inches=<span class="str">'tight'</span>)
+plt.<span class="fn">show</span>()
+<span class="fn">print</span>(<span class="str">"✅ Chart saved as guvi_report.png"</span>)</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🗺️ City-wise Heatmap with Seaborn</div>
+      <div class="lang-badge py-badge">Python</div>
+      <div class="py-cb"><span class="cl">heatmap.py</span><pre><span class="imp">import</span> seaborn <span class="imp">as</span> sns
+
+<span class="cm"># Query: city × course performance matrix</span>
+df_pivot = pd.<span class="fn">read_sql</span>(<span class="str">"""
+    SELECT s.city, c.course_name, ROUND(AVG(s.score), 1) AS avg_score
+    FROM   students s
+    JOIN   batches b  ON s.batch_id  = b.batch_id
+    JOIN   courses c  ON b.course_id = c.course_id
+    WHERE  s.score IS NOT NULL
+    GROUP  BY s.city, c.course_name
+"""</span>, engine)
+
+<span class="cm"># Pivot for heatmap</span>
+pivot = df_pivot.<span class="fn">pivot</span>(index=<span class="str">'city'</span>, columns=<span class="str">'course_name'</span>, values=<span class="str">'avg_score'</span>)
+
+plt.<span class="fn">figure</span>(figsize=(<span class="num">10</span>, <span class="num">6</span>))
+sns.<span class="fn">heatmap</span>(pivot, annot=<span class="kw">True</span>, fmt=<span class="str">'.1f'</span>, cmap=<span class="str">'YlGnBu'</span>,
+            linewidths=<span class="num">0.5</span>, cbar_kws={<span class="str">'label'</span>: <span class="str">'Avg Score'</span>})
+plt.<span class="fn">title</span>(<span class="str">'GUVI: Avg Score by City × Course'</span>)
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">show</span>()</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ PROJECT ══ -->
+  <section class="sec" id="sec-project">
+    <h2 class="st">🏆 Mini Project: Learner Performance Auto-Report</h2>
+    <p class="ss">Build a Python script that connects to the GUVI database, queries monthly learner performance, generates analysis, and exports a formatted Excel report — fully automated.</p>
+
+    <div class="co purple">
+      <span class="ci">🎯</span>
+      <div><strong>Project Goal</strong>A single Python script (<code>guvi_monthly_report.py</code>) that:<br/>
+        → Connects to guvi_db<br/>
+        → Fetches learner data for a given month<br/>
+        → Calculates batch-level performance metrics<br/>
+        → Generates bar charts<br/>
+        → Exports a multi-sheet Excel report (.xlsx)<br/>
+        → Can be scheduled (cron / Windows Task Scheduler) to run monthly
+      </div>
+    </div>
+
+    <div class="proj-steps">
+      <div class="proj-step">
+        <div class="proj-num">1</div>
+        <div class="proj-body">
+          <div class="proj-title">Setup & Imports</div>
+          <div class="lang-badge py-badge">Python</div>
+          <div class="py-cb"><span class="cl">guvi_monthly_report.py</span><pre><span class="cm">"""
+GUVI Monthly Learner Performance Report Generator
+Run: python guvi_monthly_report.py --month 2024-06
+"""</span>
+<span class="imp">import</span> argparse
+<span class="imp">import</span> pandas <span class="imp">as</span> pd
+<span class="imp">import</span> matplotlib.pyplot <span class="imp">as</span> plt
+<span class="imp">import</span> matplotlib
+matplotlib.use(<span class="str">'Agg'</span>)           <span class="cm"># non-interactive backend</span>
+<span class="imp">from</span> sqlalchemy <span class="imp">import</span> create_engine, text
+<span class="imp">from</span> datetime <span class="imp">import</span> datetime
+<span class="imp">import</span> os
+
+<span class="cm"># ── Config ─────────────────────────────────────────────────</span>
+DB_URL = <span class="str">"mysql+mysqlconnector://guvi_user:pass@localhost/guvi_db"</span>
+engine = <span class="fn">create_engine</span>(DB_URL)
+
+parser = argparse.<span class="fn">ArgumentParser</span>()
+parser.<span class="fn">add_argument</span>(<span class="str">'--month'</span>, default=datetime.<span class="fn">now</span>().<span class="fn">strftime</span>(<span class="str">'%Y-%m'</span>))
+args = parser.<span class="fn">parse_args</span>()
+MONTH = args.month   <span class="cm"># e.g. '2024-06'</span>
+<span class="fn">print</span>(<span class="str">f"📊 Generating report for: {MONTH}"</span>)</pre></div>
+        </div>
+      </div>
+
+      <div class="proj-step">
+        <div class="proj-num">2</div>
+        <div class="proj-body">
+          <div class="proj-title">Query 1 — Monthly Summary</div>
+          <div class="lang-badge py-badge">Python</div>
+          <div class="py-cb"><pre><span class="kw">def</span> <span class="fn">get_monthly_summary</span>(month_str):
+    y, m = month_str.<span class="fn">split</span>(<span class="str">'-'</span>)
+    df = pd.<span class="fn">read_sql</span>(text(<span class="str">"""
+        SELECT
+          b.batch_name,
+          c.course_name,
+          COUNT(s.student_id)             AS total_learners,
+          COUNT(s.quiz_score)             AS attempted,
+          ROUND(AVG(s.quiz_score), 1)     AS avg_score,
+          MAX(s.quiz_score)               AS top_score,
+          MIN(s.quiz_score)               AS low_score,
+          SUM(CASE WHEN s.quiz_score >= 75 THEN 1 ELSE 0 END) AS passed
+        FROM   students s
+        JOIN   batches  b ON s.batch_id  = b.batch_id
+        JOIN   courses  c ON b.course_id = c.course_id
+        WHERE  YEAR(s.enrolled_on)  = :yr
+          AND  MONTH(s.enrolled_on) = :mo
+        GROUP  BY b.batch_name, c.course_name
+        ORDER  BY avg_score DESC
+    """</span>), engine, params={<span class="str">'yr'</span>: y, <span class="str">'mo'</span>: m})
+    df[<span class="str">'pass_rate_%'</span>] = (df[<span class="str">'passed'</span>] / df[<span class="str">'attempted'</span>] * <span class="num">100</span>).<span class="fn">round</span>(<span class="num">1</span>)
+    <span class="kw">return</span> df
+
+df_summary = <span class="fn">get_monthly_summary</span>(MONTH)
+<span class="fn">print</span>(df_summary.<span class="fn">to_string</span>(index=<span class="kw">False</span>))</pre></div>
+          <div class="lang-badge out-badge">Output</div>
+          <div class="out-cb"><pre>batch_name         course_name       total  attempted  avg_score  top  low  passed  pass_%
+AIML-Jun-2024      Machine Learning     42         40       84.2   96   52      36    90.0
+DataSci-Jul-2024   Data Science         38         35       81.6   94   58      31    88.6
+Python-Aug-2024    Machine Learning     35         33       78.9   91   49      27    81.8</pre></div>
+        </div>
+      </div>
+
+      <div class="proj-step">
+        <div class="proj-num">3</div>
+        <div class="proj-body">
+          <div class="proj-title">Query 2 — City Distribution + Engagement</div>
+          <div class="lang-badge py-badge">Python</div>
+          <div class="py-cb"><pre><span class="kw">def</span> <span class="fn">get_city_stats</span>():
+    <span class="kw">return</span> pd.<span class="fn">read_sql</span>(<span class="str">"""
+        SELECT
+          city,
+          COUNT(*) AS learners,
+          ROUND(AVG(quiz_score), 1) AS avg_score,
+          SUM(CASE WHEN DATEDIFF(CURDATE(), last_login) <= 7
+                   THEN 1 ELSE 0 END) AS active_this_week
+        FROM   students
+        WHERE  quiz_score IS NOT NULL
+        GROUP  BY city
+        ORDER  BY learners DESC
+        LIMIT  10
+    """</span>, engine)
+
+<span class="kw">def</span> <span class="fn">get_top_learners</span>(n=<span class="num">10</span>):
+    <span class="kw">return</span> pd.<span class="fn">read_sql</span>(<span class="str">f"""
+        SELECT name, city, batch_id, quiz_score AS score,
+               DATEDIFF(CURDATE(), last_login) AS days_since_login
+        FROM   students
+        WHERE  quiz_score IS NOT NULL
+        ORDER  BY quiz_score DESC LIMIT {n}
+    """</span>, engine)
+
+df_city = <span class="fn">get_city_stats</span>()
+df_top  = <span class="fn">get_top_learners</span>()</pre></div>
+        </div>
+      </div>
+
+      <div class="proj-step">
+        <div class="proj-num">4</div>
+        <div class="proj-body">
+          <div class="proj-title">Generate Charts</div>
+          <div class="lang-badge py-badge">Python</div>
+          <div class="py-cb"><pre><span class="kw">def</span> <span class="fn">generate_charts</span>(df_summary, df_city, output_dir=<span class="str">'.'</span>):
+    fig, axes = plt.<span class="fn">subplots</span>(<span class="num">1</span>, <span class="num">3</span>, figsize=(<span class="num">18</span>, <span class="num">5</span>))
+
+    <span class="cm"># Chart 1: Avg score per batch</span>
+    axes[<span class="num">0</span>].<span class="fn">bar</span>(df_summary[<span class="str">'batch_name'</span>], df_summary[<span class="str">'avg_score'</span>],
+               color=<span class="str">'#3b82f6'</span>, edgecolor=<span class="str">'white'</span>)
+    axes[<span class="num">0</span>].<span class="fn">axhline</span>(<span class="num">75</span>, color=<span class="str">'red'</span>, ls=<span class="str">'--'</span>, label=<span class="str">'Pass mark'</span>)
+    axes[<span class="num">0</span>].<span class="fn">set_title</span>(<span class="str">f'Avg Score by Batch — {MONTH}'</span>)
+    axes[<span class="num">0</span>].<span class="fn">set_ylabel</span>(<span class="str">'Score'</span>); axes[<span class="num">0</span>].<span class="fn">tick_params</span>(axis=<span class="str">'x'</span>, rotation=<span class="num">30</span>)
+    axes[<span class="num">0</span>].<span class="fn">legend</span>()
+
+    <span class="cm"># Chart 2: Pass rate per batch</span>
+    colors = [<span class="str">'#16a34a'</span> <span class="kw">if</span> x >= <span class="num">80</span> <span class="kw">else</span> <span class="str">'#d97706'</span>
+              <span class="kw">for</span> x <span class="kw">in</span> df_summary[<span class="str">'pass_rate_%'</span>]]
+    axes[<span class="num">1</span>].<span class="fn">bar</span>(df_summary[<span class="str">'batch_name'</span>], df_summary[<span class="str">'pass_rate_%'</span>], color=colors)
+    axes[<span class="num">1</span>].<span class="fn">set_title</span>(<span class="str">'Pass Rate % by Batch'</span>)
+    axes[<span class="num">1</span>].<span class="fn">set_ylim</span>(<span class="num">0</span>, <span class="num">100</span>); axes[<span class="num">1</span>].<span class="fn">tick_params</span>(axis=<span class="str">'x'</span>, rotation=<span class="num">30</span>)
+
+    <span class="cm"># Chart 3: City distribution</span>
+    axes[<span class="num">2</span>].<span class="fn">barh</span>(df_city[<span class="str">'city'</span>], df_city[<span class="str">'learners'</span>], color=<span class="str">'#10b981'</span>)
+    axes[<span class="num">2</span>].<span class="fn">set_title</span>(<span class="str">'Learners by City'</span>); axes[<span class="num">2</span>].<span class="fn">set_xlabel</span>(<span class="str">'Count'</span>)
+
+    plt.<span class="fn">tight_layout</span>()
+    chart_path = <span class="fn">os.path.join</span>(output_dir, <span class="str">f'guvi_charts_{MONTH}.png'</span>)
+    plt.<span class="fn">savefig</span>(chart_path, dpi=<span class="num">150</span>, bbox_inches=<span class="str">'tight'</span>)
+    plt.<span class="fn">close</span>()
+    <span class="fn">print</span>(<span class="str">f"✅ Charts saved: {chart_path}"</span>)
+    <span class="kw">return</span> chart_path
+
+chart_file = <span class="fn">generate_charts</span>(df_summary, df_city)</pre></div>
+        </div>
+      </div>
+
+      <div class="proj-step">
+        <div class="proj-num">5</div>
+        <div class="proj-body">
+          <div class="proj-title">Export to Multi-Sheet Excel</div>
+          <div class="lang-badge py-badge">Python</div>
+          <div class="py-cb"><pre><span class="kw">def</span> <span class="fn">export_excel</span>(df_summary, df_city, df_top, chart_path):
+    filename = <span class="str">f"GUVI_Report_{MONTH}.xlsx"</span>
+
+    <span class="kw">with</span> pd.<span class="fn">ExcelWriter</span>(filename, engine=<span class="str">'openpyxl'</span>) <span class="kw">as</span> writer:
+
+        <span class="cm"># Sheet 1: Monthly summary</span>
+        df_summary.<span class="fn">to_excel</span>(writer, sheet_name=<span class="str">'Batch Summary'</span>, index=<span class="kw">False</span>)
+
+        <span class="cm"># Sheet 2: City stats</span>
+        df_city.<span class="fn">to_excel</span>(writer, sheet_name=<span class="str">'City Stats'</span>, index=<span class="kw">False</span>)
+
+        <span class="cm"># Sheet 3: Top learners</span>
+        df_top.<span class="fn">to_excel</span>(writer, sheet_name=<span class="str">'Top Learners'</span>, index=<span class="kw">False</span>)
+
+        <span class="cm"># Sheet 4: Embed chart image</span>
+        ws_chart = writer.book.<span class="fn">create_sheet</span>(<span class="str">'Charts'</span>)
+        <span class="imp">from</span> openpyxl.drawing.image <span class="imp">import</span> Image <span class="kw">as</span> XLImage
+        img = <span class="fn">XLImage</span>(chart_path)
+        ws_chart.<span class="fn">add_image</span>(img, <span class="str">'A1'</span>)
+
+        <span class="cm"># Style the header rows</span>
+        <span class="imp">from</span> openpyxl.styles <span class="imp">import</span> Font, PatternFill
+        header_fill = <span class="fn">PatternFill</span>(fill_type=<span class="str">'solid'</span>, fgColor=<span class="str">'1a2744'</span>)
+        header_font = <span class="fn">Font</span>(color=<span class="str">'FFFFFF'</span>, bold=<span class="kw">True</span>)
+        <span class="kw">for</span> sheet_name <span class="kw">in</span> [<span class="str">'Batch Summary'</span>, <span class="str">'City Stats'</span>, <span class="str">'Top Learners'</span>]:
+            ws = writer.sheets[sheet_name]
+            <span class="kw">for</span> cell <span class="kw">in</span> ws[<span class="num">1</span>]:
+                cell.fill = header_fill; cell.font = header_font
+
+    <span class="fn">print</span>(<span class="str">f"✅ Report saved: {filename}"</span>)
+    <span class="kw">return</span> filename
+
+<span class="cm"># ── Run everything ─────────────────────────────────────────</span>
+df_summary = <span class="fn">get_monthly_summary</span>(MONTH)
+df_city    = <span class="fn">get_city_stats</span>()
+df_top     = <span class="fn">get_top_learners</span>()
+chart_file = <span class="fn">generate_charts</span>(df_summary, df_city)
+report     = <span class="fn">export_excel</span>(df_summary, df_city, df_top, chart_file)
+<span class="fn">print</span>(<span class="str">f"\n🎉 Monthly report complete: {report}"</span>)</pre></div>
+          <div class="lang-badge out-badge">Output</div>
+          <div class="out-cb"><pre>📊 Generating report for: 2024-06
+✅ Charts saved: guvi_charts_2024-06.png
+✅ Report saved: GUVI_Report_2024-06.xlsx
+
+🎉 Monthly report complete: GUVI_Report_2024-06.xlsx
+
+Sheets created:
+  📋 Batch Summary   — 4 rows × 10 columns
+  🏙️  City Stats      — 10 rows × 4 columns
+  🏆 Top Learners    — 10 rows × 5 columns
+  📊 Charts          — embedded performance charts</pre></div>
+        </div>
+      </div>
+
+      <div class="proj-step">
+        <div class="proj-num">6</div>
+        <div class="proj-body">
+          <div class="proj-title">Schedule Monthly (cron / Task Scheduler)</div>
+          <div class="lang-badge term-badge">Terminal / cron</div>
+          <div class="py-cb" style="border-left-color:#fbbf24"><pre><span class="cm"># Linux/Mac cron — run on 1st of every month at 6 AM</span>
+<span class="cm"># crontab -e</span>
+0 6 1 * * /usr/bin/python3 /home/guvi/guvi_monthly_report.py
+
+<span class="cm"># Pass specific month</span>
+0 6 1 * * /usr/bin/python3 /home/guvi/guvi_monthly_report.py --month $(date +\%Y-\%m)
+
+<span class="cm"># Windows Task Scheduler command</span>
+python C:\guvi\guvi_monthly_report.py --month %date:~0,7%</pre></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ QUIZ ══ -->
+  <section class="sec" id="sec-quiz">
+    <h2 class="st">🧠 Chapter 13 Quiz</h2>
+    <p class="ss">Test your Python + SQL integration knowledge.</p>
+    <div class="qw">
+      <div class="qprog" id="qprog">Question 1 of 8</div>
+      <div class="qq" id="qq"></div>
+      <ul class="qopts" id="qopts"></ul>
+      <div class="qfb" id="qfb"></div>
+      <div class="qnav">
+        <span class="qsc" id="qsc">Score: 0 / 0</span>
+        <button class="qbtn" id="qnext" onclick="nextQ()" style="display:none">Next Question →</button>
+      </div>
+    </div>
+    <div class="done" id="done-card" style="display:none">
+      <div class="trophy">🏆</div>
+      <h3 id="done-title">Chapter Complete!</h3>
+      <p id="done-msg">You've mastered Python + SQL — you can now build full data pipelines!</p>
+      <button class="donebtn" onclick="doConfetti()">🎉 Celebrate!</button>
+    </div>
+  </section>
+</main>
+
+<script>
+// ── NAV ──
+const SECS=['intro','connect','cursor','fetch','safety','executor','pandas','bulk','viz','project','quiz'];
+let ci=0;const doneSet=new Set();
+function showS(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  ci=SECS.indexOf(id);window.scrollTo(0,0);
+}
+function nextS(){if(ci<SECS.length-1){markDone(SECS[ci]);const n=SECS[ci+1];showS(n,document.querySelector(`[data-s="${n}"]`));}}
+function prevS(){if(ci>0){const p=SECS[ci-1];showS(p,document.querySelector(`[data-s="${p}"]`));}}
+function markDone(id){
+  doneSet.add(id);
+  const c=document.getElementById('chk-'+id);if(c)c.textContent='✓';
+  const n=document.querySelector(`[data-s="${id}"]`);if(n)n.classList.add('done');
+  const pct=Math.round((doneSet.size/SECS.length)*100);
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('pp').textContent=pct+'%';
+}
+
+// ── NOTEBOOK SIMULATOR ──
+const NB_CELLS={
+  connect:[{
+    code:`import mysql.connector
+import pandas as pd
+from sqlalchemy import create_engine
+
+# Create SQLAlchemy engine
+engine = create_engine(
+    "mysql+mysqlconnector://guvi_user:pass@localhost/guvi_db"
+)
+
+# Test connection
+with engine.connect() as conn:
+    print("✅ Connected to GUVI database!")
+    print(f"Engine: {engine.dialect.name}")`,
+    outType:'text',
+    out:`✅ Connected to GUVI database!
+Engine: mysql`
+  }],
+  query:[{
+    code:`# Query learner data into a DataFrame
+df = pd.read_sql("""
+    SELECT name, batch_id, city,
+           quiz_score AS score,
+           DATEDIFF(CURDATE(), last_login) AS days_since_login
+    FROM   guvi_learners
+    WHERE  quiz_score IS NOT NULL
+    ORDER  BY quiz_score DESC
+    LIMIT  5
+""", engine)
+
+print(f"Shape: {df.shape}")
+df`,
+    outType:'df',
+    df:{
+      headers:['name','batch_id','city','score','days_since_login'],
+      rows:[
+        ['Meera Iyer','B01','Chennai','93','3'],
+        ['Sneha Nair','B02','Bangalore','91','5'],
+        ['Priya Sharma','B01','Chennai','85','1'],
+        ['Arjun Patel','B03','Delhi','78','12'],
+        ['Dev Sharma','B02','Jaipur','76','8'],
+      ],
+      shape:'(847, 5)'
+    }
+  }],
+  pandas:[{
+    code:`# Aggregate with pandas after SQL fetch
+df_all = pd.read_sql(
+    "SELECT batch_id, quiz_score FROM guvi_learners WHERE quiz_score IS NOT NULL",
+    engine
+)
+
+# Batch-level summary with pandas
+summary = df_all.groupby('batch_id')['quiz_score'].agg(
+    count='count',
+    mean='mean',
+    max='max',
+    min='min'
+).round(1).reset_index()
+
+summary.columns = ['Batch','Count','Avg','Max','Min']
+summary`,
+    outType:'df',
+    df:{
+      headers:['Batch','Count','Avg','Max','Min'],
+      rows:[
+        ['B01','319','82.4','96','49'],
+        ['B02','284','81.6','94','52'],
+        ['B03','244','78.9','91','48'],
+      ],
+      shape:'(3, 5)'
+    }
+  }],
+  analysis:[{
+    code:`import matplotlib.pyplot as plt
+
+# Plot from DataFrame
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+
+# Bar chart: avg score per batch
+summary.plot(kind='bar', x='Batch', y='Avg', ax=ax1,
+             color='#3b82f6', legend=False)
+ax1.set_title('Avg Score by Batch')
+ax1.axhline(75, color='red', ls='--', label='Pass Mark')
+ax1.legend()
+
+# Box: score distribution
+df_all.groupby('batch_id')['quiz_score'].plot(
+    kind='hist', ax=ax2, alpha=0.6, bins=15,
+    label=df_all['batch_id'].unique()
+)
+ax2.set_title('Score Distribution')
+plt.tight_layout()
+plt.savefig('guvi_analysis.png', dpi=120)
+plt.show()
+print("✅ Chart generated and saved!")`,
+    outType:'text',
+    out:`✅ Chart generated and saved!
+[Bar chart: Avg Score by Batch — B01:82.4, B02:81.6, B03:78.9]
+[Histogram: overlapping score distributions for B01, B02, B03]`
+  }],
+  export:[{
+    code:`# Export multi-sheet Excel report
+with pd.ExcelWriter('GUVI_Report_2024-06.xlsx', engine='openpyxl') as writer:
+    summary.to_excel(writer, sheet_name='Batch Summary', index=False)
+    df_all.to_excel(writer, sheet_name='Raw Data', index=False)
+
+print("✅ Excel report exported: GUVI_Report_2024-06.xlsx")
+print(f"  Sheet 1: Batch Summary — {len(summary)} rows")
+print(f"  Sheet 2: Raw Data     — {len(df_all)} rows")`,
+    outType:'text',
+    out:`✅ Excel report exported: GUVI_Report_2024-06.xlsx
+  Sheet 1: Batch Summary — 3 rows
+  Sheet 2: Raw Data     — 847 rows`
+  }]
+};
+
+let nbTab='connect';
+function setNBTab(tab,el){
+  document.querySelectorAll('.etab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  nbTab=tab;renderNB();
+}
+function renderNB(){
+  const cells=NB_CELLS[nbTab];
+  const body=document.getElementById('nb-body');
+  body.innerHTML=cells.map((cell,idx)=>`
+    <div class="exec-cell" id="cell-${idx}">
+      <div class="cell-header">
+        <span class="cell-in-label">In [${idx+1}]:</span>
+        <button class="cell-run-btn" onclick="runCell(${idx})">▶ Run</button>
+      </div>
+      <div class="cell-code">${hlPython(cell.code)}</div>
+      ${cell.outType==='text'?
+        `<div class="cell-output" id="out-${idx}">${cell.out}</div>`:
+        `<div class="cell-df" id="out-${idx}">
+          <table class="df-table">
+            <thead><tr>${cell.df.headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+            <tbody>${cell.df.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+          </table>
+          <div class="df-shape">${cell.df.shape}</div>
+        </div>`
+      }
+    </div>
+  `).join('');
+}
+function runCell(idx){
+  const out=document.getElementById(`out-${idx}`);
+  out.classList.add('show');
+  // brief flash animation
+  out.style.opacity='0';
+  setTimeout(()=>{out.style.transition='opacity .4s';out.style.opacity='1';},50);
+}
+function hlPython(code){
+  return code
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/(#.*)/g,'<span style="color:#475569;font-style:italic">$1</span>')
+    .replace(/\b(import|from|as|def|with|for|in|if|not|return|True|False|while|break|try|finally|yield|and|class)\b/g,'<span style="color:#7dd3fc">$1</span>')
+    .replace(/"((?:[^"\\]|\\.)*)"/g,'<span style="color:#86efac">"$1"</span>')
+    .replace(/'((?:[^'\\]|\\.)*)'/g,"<span style='color:#86efac'>'$1'</span>")
+    .replace(/\b(\d+\.?\d*)\b/g,'<span style="color:#fcd34d">$1</span>');
+}
+setNBTab('connect',document.querySelector('.etab'));
+
+// ── QUIZ ──
+const QS=[
+  {q:"What is the difference between fetchone() and fetchall()?",opts:["fetchone() is for SELECT; fetchall() is for INSERT","fetchone() returns one row; fetchall() returns all remaining rows as a list","fetchone() is faster on all datasets","fetchall() returns only 10 rows by default"],ans:1,exp:"fetchone() returns a single row (or None if no more rows). fetchall() loads ALL remaining rows into a Python list — great for small results, but avoid on very large datasets as it loads everything into memory."},
+  {q:"Why should you NEVER use f-strings to build SQL queries with user input?",opts:["f-strings are slower than parameterized queries","f-strings open SQL injection vulnerabilities — attackers can execute arbitrary SQL","f-strings don't support SQL syntax","f-strings only work with strings, not numbers"],ans:1,exp:"SQL injection is the #1 database attack. If a user types ' OR '1'='1 in a form, an f-string query becomes: WHERE name = '' OR '1'='1' — returning all rows. Parameterized queries send data separately, making injection impossible."},
+  {q:"You run an INSERT with cursor.execute() but the data doesn't appear in the database. What's missing?",opts:["cursor.close()","conn.rollback()","conn.commit()","cursor.reset()"],ans:2,exp:"For INSERT, UPDATE, and DELETE, Python DB-API wraps operations in a transaction. You MUST call conn.commit() to persist the changes. Without it, the transaction is automatically rolled back when the connection closes."},
+  {q:"What is the advantage of using fetchmany(500) instead of fetchall() for a 100,000-row result?",opts:["fetchmany() is always slower","fetchmany() limits to 500 total rows ever","fetchmany() processes in batches without loading all rows into memory — much more memory-efficient","fetchmany() automatically commits transactions"],ans:2,exp:"fetchmany(n) retrieves n rows at a time. You can loop until it returns an empty list, processing chunks without ever holding 100,000 rows in memory simultaneously. Critical for large datasets."},
+  {q:"pd.read_sql('SELECT ...', engine) — what does it return?",opts:["A Python list of tuples","A pandas DataFrame","A cursor object","A dictionary of results"],ans:1,exp:"pd.read_sql() directly returns a pandas DataFrame, with column names taken from the SQL query. This is the most convenient way to get SQL results into pandas for analysis — no manual cursor handling needed."},
+  {q:"df.to_sql(name='students', con=engine, if_exists='append') — what does if_exists='append' do?",opts:["Replaces the entire table with the DataFrame contents","Raises an error if the table already exists","Adds the DataFrame rows to the existing table","Creates a backup before writing"],ans:2,exp:"'append' adds the DataFrame rows to the existing table without deleting existing data. 'replace' drops and recreates the table (dangerous!). 'fail' (default) raises an error if the table already exists."},
+  {q:"Which is fastest for inserting 1,000 rows into a database from Python?",opts:["A for loop calling cursor.execute() once per row","cursor.executemany() with a list of tuples","df.to_sql() with chunksize=1","pd.read_sql() in reverse"],ans:1,exp:"cursor.executemany() sends all rows in one optimised database round trip, making it ~40x faster than a loop of individual execute() calls. For DataFrames, to_sql() also batches but executemany() with raw tuples is typically fastest."},
+  {q:"What is the purpose of using a context manager (with statement) for database connections?",opts:["It automatically commits all transactions","It ensures the connection is always closed, even if an error occurs — preventing connection leaks","It makes queries run faster","It automatically parameterizes queries"],ans:1,exp:"The with statement guarantees that the connection's __exit__ method runs regardless of whether an exception occurs. Without it, an error in the middle of your code would leave the connection open — a resource leak that can crash your database server under load."},
+];
+let qi=0,score=0,answered=false;
+function renderQ(){
+  const q=QS[qi];
+  document.getElementById('qprog').textContent=`Question ${qi+1} of ${QS.length}`;
+  document.getElementById('qq').textContent=q.q;
+  document.getElementById('qopts').innerHTML=q.opts.map((o,i)=>
+    `<li class="qopt" onclick="selQ(${i})" id="qo-${i}"><span class="ok">${String.fromCharCode(65+i)}</span>${o}</li>`).join('');
+  document.getElementById('qfb').className='qfb';
+  document.getElementById('qfb').innerHTML='';
+  document.getElementById('qnext').style.display='none';
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi}`;
+  answered=false;
+}
+function selQ(i){
+  if(answered)return;answered=true;
+  const q=QS[qi];
+  document.querySelectorAll('.qopt').forEach((o,j)=>{
+    if(j===q.ans)o.classList.add('correct');
+    else if(j===i)o.classList.add('wrong');
+  });
+  if(i===q.ans)score++;
+  const fb=document.getElementById('qfb');
+  fb.className=`qfb show ${i===q.ans?'correct':'wrong'}`;
+  fb.innerHTML=`<strong>${i===q.ans?'✅ Correct!':'❌ Not quite.'}</strong> ${q.exp}`;
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi+1}`;
+  const nb=document.getElementById('qnext');
+  nb.style.display='inline-block';
+  nb.textContent=qi<QS.length-1?'Next Question →':'See Results 🎉';
+}
+function nextQ(){qi++;if(qi<QS.length)renderQ();else showResults();}
+function showResults(){
+  document.querySelector('.qw').style.display='none';
+  const dc=document.getElementById('done-card');dc.style.display='block';
+  const pct=Math.round((score/QS.length)*100);
+  document.getElementById('done-title').textContent=pct>=80?'🎉 Data Engineer Certified!':pct>=60?'👍 Good Work!':'💪 Keep Practising!';
+  document.getElementById('done-msg').textContent=`You scored ${score} out of ${QS.length} (${pct}%). ${pct>=80?'You can build full Python–SQL data pipelines with confidence!':'Review parameterized queries, conn.commit(), and fetchmany() for memory efficiency.'}`;
+  markDone('quiz');
+  if(pct>=70)doConfetti();
+}
+renderQ();
+
+// ── CONFETTI ──
+function doConfetti(){
+  const cv=document.getElementById('cvc');const ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  const cols=['#3b82f6','#10b981','#f59e0b','#7c3aed','#ef4444','#06b6d4'];
+  const pp=Array.from({length:150},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height-cv.height,r:Math.random()*9+4,color:cols[Math.floor(Math.random()*cols.length)],tilt:Math.random()*10-10,spd:Math.random()*3+1.5}));
+  let fr=0;
+  function draw(){ctx.clearRect(0,0,cv.width,cv.height);pp.forEach(p=>{ctx.beginPath();ctx.ellipse(p.x,p.y,p.r,p.r/2,p.tilt,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();p.y+=p.spd;p.x+=Math.sin(fr/18)*1.5;p.tilt+=.08;if(p.y>cv.height){p.y=-10;p.x=Math.random()*cv.width;}});fr++;if(fr<220)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);}
+  draw();
+}
+</script>
+</body>
+</html>

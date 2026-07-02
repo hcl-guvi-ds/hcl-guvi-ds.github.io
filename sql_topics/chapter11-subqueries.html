@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 11 — Subqueries & Correlated Queries | SQL Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --teal:#0d9488;--tl:#ccfbf1;--td:#0f766e;
+  --blue:#2563eb;--bl:#dbeafe;
+  --indigo:#4f46e5;--il:#e0e7ff;
+  --amber:#d97706;--al:#fef3c7;
+  --red:#dc2626;--rl:#fee2e2;
+  --green:#16a34a;--gl:#dcfce7;
+  --purple:#7c3aed;--pl:#ede9fe;
+  --orange:#ea580c;--ol:#ffedd5;
+  --bg:#f8fafc;--surface:#fff;
+  --border:#e2e8f0;--text:#0f172a;--muted:#64748b;
+  --sw:272px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sw);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;display:flex;flex-direction:column;}
+.sbh{padding:20px 18px 16px;background:linear-gradient(135deg,#1a1040,#0c3358);border-bottom:1px solid var(--border);}
+.sbh .badge{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#c4b5fd;margin-bottom:4px;}
+.sbh h2{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;line-height:1.3;}
+.sbh p{font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;}
+.sbp{padding:14px 18px;border-bottom:1px solid var(--border);}
+.pbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;}
+.pb{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+.pf{height:100%;background:linear-gradient(90deg,var(--purple),var(--blue));border-radius:99px;transition:width .4s;}
+.sbn{flex:1;padding:8px 0;}
+.nsl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 18px 4px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;font-size:13px;color:var(--muted);font-weight:500;}
+.ni:hover{background:var(--bg);color:var(--text);}
+.ni.active{border-left-color:var(--purple);background:var(--pl);color:var(--purple);font-weight:600;}
+.ni.done{color:var(--green);}
+.nc{margin-left:auto;font-size:13px;}
+
+/* MAIN */
+.main{margin-left:var(--sw);flex:1;min-width:0;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.tbl{display:flex;align-items:center;gap:12px;}
+.chp{background:var(--pl);color:var(--purple);font-family:'Sora',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.05em;}
+.topbar h1{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;}
+.nb{display:flex;gap:8px;}
+.nbtn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s;}
+.nbtn.pri{background:var(--purple);color:#fff;border-color:var(--purple);}
+.nbtn:hover{border-color:var(--purple);color:var(--purple);}
+.nbtn.pri:hover{background:#6d28d9;}
+
+/* SECTIONS */
+.sec{display:none;padding:36px 44px 64px;max-width:1000px;}
+.sec.active{display:block;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#1a1040 0%,#0c3358 100%);border-radius:16px;padding:36px 40px;color:#fff;margin-bottom:32px;position:relative;overflow:hidden;}
+.hero::after{content:'{ }';position:absolute;right:32px;top:50%;transform:translateY(-50%);font-size:96px;opacity:.07;font-family:'JetBrains Mono',monospace;font-weight:700;line-height:1;}
+.hero .ey{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#c4b5fd;margin-bottom:8px;}
+.hero h2{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;line-height:1.2;margin-bottom:10px;}
+.hero p{font-size:14px;opacity:.82;line-height:1.65;max-width:560px;}
+
+.st{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.ss{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:20px;}
+.ct{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.card p{font-size:14px;line-height:1.7;color:#334155;}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+
+/* CODE */
+.cb{background:#0f172a;border-radius:10px;padding:18px 22px;margin:14px 0;overflow-x:auto;position:relative;}
+.cb pre{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.82;color:#e2e8f0;white-space:pre;}
+.cl{position:absolute;top:10px;right:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+.kw{color:#7dd3fc;}.fn{color:#a5f3fc;}.str{color:#86efac;}.cm{color:#475569;font-style:italic;}.op{color:#f9a8d4;}.num{color:#fcd34d;}.sq{color:#fb923c;}.sq2{color:#fed7aa;}
+
+/* layer highlights for nested subquery */
+.layer-outer{color:#7dd3fc;}
+.layer-mid{color:#a5f3fc;}
+.layer-inner{color:#86efac;}
+
+/* CALLOUTS */
+.co{border-radius:10px;padding:14px 18px;margin:16px 0;display:flex;gap:12px;font-size:13.5px;line-height:1.65;}
+.ci{font-size:18px;flex-shrink:0;margin-top:1px;}
+.co strong{display:block;font-weight:700;margin-bottom:3px;}
+.co.tip{background:var(--tl);border-left:4px solid var(--teal);color:#134e4a;}
+.co.warn{background:var(--al);border-left:4px solid var(--amber);color:#78350f;}
+.co.info{background:var(--bl);border-left:4px solid var(--blue);color:#1e3a5f;}
+.co.danger{background:var(--rl);border-left:4px solid var(--red);color:#7f1d1d;}
+.co.success{background:var(--gl);border-left:4px solid var(--green);color:#14532d;}
+.co.purple{background:var(--pl);border-left:4px solid var(--purple);color:#3b0764;}
+
+/* DATA TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+.dt th{background:#0f172a;color:#fff;padding:9px 14px;text-align:left;font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;}
+.dt td{padding:9px 14px;border-bottom:1px solid var(--border);color:#334155;}
+.dt tr:nth-child(even) td{background:#f8fafc;}
+.hl td{background:#e0e7ff!important;font-weight:600;color:#3730a3;}
+.hl2 td{background:var(--gl)!important;font-weight:600;color:#166534;}
+.hl3 td{background:var(--rl)!important;color:#991b1b;}
+.nc2{color:#94a3b8;font-style:italic;font-size:12px;}
+
+/* ════ SIGNATURE: SUBQUERY EXECUTION ANIMATOR ════ */
+.animator{background:var(--surface);border:2px solid var(--purple);border-radius:16px;overflow:hidden;margin:24px 0;}
+.anim-head{background:linear-gradient(90deg,#1a1040,#0c3358);padding:18px 24px;}
+.anim-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;}
+.anim-sub{font-size:12px;color:#c4b5fd;margin-top:3px;}
+.anim-controls{display:flex;gap:10px;padding:16px 24px;border-bottom:1px solid var(--border);background:#fafafa;align-items:center;flex-wrap:wrap;}
+.anim-type-btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--surface);color:var(--muted);transition:all .18s;font-family:'Sora',sans-serif;}
+.anim-type-btn:hover{border-color:var(--purple);color:var(--purple);}
+.anim-type-btn.active{background:var(--purple);color:#fff;border-color:var(--purple);}
+.step-controls{display:flex;gap:8px;margin-left:auto;}
+.step-btn{padding:7px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;background:var(--purple);color:#fff;transition:background .15s;}
+.step-btn:hover{background:#6d28d9;}
+.step-btn:disabled{background:var(--border);color:var(--muted);cursor:default;}
+.anim-body{padding:22px 24px;}
+.anim-stages{display:flex;gap:16px;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;}
+.stage{flex:1;min-width:200px;}
+.stage-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.stage-box{border-radius:9px;padding:14px 16px;border:2px solid transparent;transition:all .3s;min-height:80px;}
+.stage-box.active-stage{border-color:var(--purple);background:var(--pl);box-shadow:0 0 0 3px rgba(124,58,237,.12);}
+.stage-box.done-stage{border-color:var(--green);background:var(--gl);}
+.stage-box.idle-stage{border-color:var(--border);background:#f8fafc;}
+.stage-code{font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.65;color:#334155;white-space:pre-wrap;}
+.stage-result{margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:12px;background:#0f172a;color:#86efac;padding:8px 12px;border-radius:6px;display:none;}
+.stage-result.show{display:block;}
+.anim-arrow{font-size:22px;color:var(--purple);padding-top:36px;flex-shrink:0;}
+.anim-explain{background:#f8fafc;border-radius:10px;padding:14px 18px;font-size:13px;color:#334155;line-height:1.65;border-left:4px solid var(--purple);margin-top:4px;}
+.step-indicator{font-size:12px;color:var(--muted);margin-left:8px;}
+
+/* COMPARISON TABLE */
+.comp-table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0;}
+.comp-table th{padding:10px 14px;text-align:left;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;border-bottom:2px solid var(--border);}
+.comp-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+.comp-table tr:nth-child(even) td{background:#f8fafc;}
+.win{color:var(--green);font-weight:700;}
+.lose{color:var(--red);}
+.neutral{color:var(--amber);}
+
+/* PLACEMENT TABS */
+.place-tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:2px solid var(--border);padding-bottom:0;}
+.ptab{padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;color:var(--muted);font-family:'Sora',sans-serif;}
+.ptab:hover{color:var(--purple);}
+.ptab.active{border-bottom-color:var(--purple);color:var(--purple);}
+.place-content{display:none;}
+.place-content.active{display:block;}
+
+/* CORRELATED HIGHLIGHT */
+.corr-outer{color:#7dd3fc;}
+.corr-ref{color:#fcd34d;font-weight:700;}
+.corr-inner{color:#86efac;}
+
+/* DECISION TREE */
+.dtree{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin:20px 0;}
+.dtree-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;margin-bottom:16px;text-align:center;}
+.dtree-row{display:flex;justify-content:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+.dtree-node{border-radius:10px;padding:12px 16px;font-size:12.5px;font-weight:600;text-align:center;min-width:140px;}
+.dtree-q{background:var(--bl);color:var(--blue);border:1.5px solid var(--blue);}
+.dtree-a-join{background:var(--gl);color:var(--green);border:1.5px solid var(--green);}
+.dtree-a-sub{background:var(--pl);color:var(--purple);border:1.5px solid var(--purple);}
+.dtree-a-cte{background:var(--al);color:var(--amber);border:1.5px solid var(--amber);}
+.dtree-arrow{text-align:center;font-size:18px;color:var(--muted);margin:4px 0;}
+
+/* STEPS */
+.steps{list-style:none;margin:16px 0;}
+.step{display:flex;gap:14px;margin-bottom:16px;}
+.sn{width:28px;height:28px;background:var(--purple);color:#fff;border-radius:50%;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.sb2{flex:1;}
+.sb2 strong{font-weight:700;font-size:14px;display:block;margin-bottom:3px;}
+.sb2 p{font-size:13.5px;color:#334155;line-height:1.6;}
+
+/* SANDBOX */
+.sandbox{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+.sbh2{background:#0f172a;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;}
+.sbt{font-family:'JetBrains Mono',monospace;font-size:12px;color:#94a3b8;font-weight:600;display:flex;align-items:center;gap:8px;}
+.sbact{display:flex;gap:8px;}
+.sbbtn{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;transition:all .15s;}
+.sbbtn.run{background:var(--teal);color:#fff;}
+.sbbtn.run:hover{background:var(--td);}
+.sbbtn.clr{background:#1e293b;color:#94a3b8;}
+.sbbtn.clr:hover{color:#fff;}
+.sbed{width:100%;min-height:130px;background:#1e293b;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:13px;padding:16px 18px;border:none;outline:none;resize:vertical;line-height:1.8;}
+.sbout{padding:14px 18px;min-height:60px;font-family:'JetBrains Mono',monospace;font-size:12.5px;border-top:1px solid var(--border);background:#f8fafc;color:#334155;line-height:1.6;}
+.ot{border-collapse:collapse;width:100%;margin-top:8px;font-size:12px;}
+.ot th{background:#0f172a;color:#fff;padding:7px 12px;text-align:left;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;}
+.ot td{padding:7px 12px;border-bottom:1px solid #e2e8f0;}
+.ot tr:nth-child(even) td{background:#f1f5f9;}
+.ot .hl-row td{background:#e0e7ff!important;font-weight:600;}
+
+/* QUIZ */
+.qw{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;}
+.qq{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;line-height:1.4;}
+.qopts{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.qopt{padding:12px 16px;border:2px solid var(--border);border-radius:9px;cursor:pointer;font-size:14px;font-weight:500;transition:all .15s;display:flex;align-items:center;gap:10px;}
+.qopt:hover{border-color:var(--purple);background:var(--pl);}
+.qopt.correct{border-color:var(--green);background:var(--gl);color:var(--green);}
+.qopt.wrong{border-color:var(--red);background:var(--rl);color:var(--red);}
+.ok{width:24px;height:24px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Sora',sans-serif;}
+.qfb{display:none;padding:12px 16px;border-radius:9px;font-size:13.5px;line-height:1.5;margin-bottom:14px;}
+.qfb.show{display:block;}
+.qfb.correct{background:var(--gl);color:#14532d;border-left:4px solid var(--green);}
+.qfb.wrong{background:var(--rl);color:#7f1d1d;border-left:4px solid var(--red);}
+.qnav{display:flex;justify-content:space-between;align-items:center;}
+.qsc{font-family:'Sora',sans-serif;font-size:14px;color:var(--muted);}
+.qbtn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;background:var(--purple);color:#fff;}
+.qbtn:hover{background:#6d28d9;}
+.qprog{font-size:12px;color:var(--muted);margin-bottom:16px;}
+
+.done{text-align:center;padding:48px 32px;background:linear-gradient(135deg,var(--pl),var(--bl));border-radius:16px;border:1px solid var(--border);margin-top:32px;}
+.done .trophy{font-size:56px;margin-bottom:12px;}
+.done h3{font-family:'Sora',sans-serif;font-size:24px;font-weight:800;margin-bottom:8px;}
+.done p{color:var(--muted);font-size:14px;max-width:420px;margin:0 auto 20px;}
+.donebtn{padding:12px 28px;background:linear-gradient(135deg,var(--purple),var(--blue));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;}
+
+#cvc{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}.sec{padding:24px 20px 40px}.g2,.g3{grid-template-columns:1fr}.anim-stages{flex-direction:column}.place-tabs{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<canvas id="cvc"></canvas>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sbh">
+    <div class="badge">SQL Mastery Course</div>
+    <h2>Chapter 11: Subqueries</h2>
+    <p>Nested SQL · EXISTS · Correlated</p>
+  </div>
+  <div class="sbp">
+    <div class="pbl"><span>Progress</span><span id="pp">0%</span></div>
+    <div class="pb"><div class="pf" id="pf" style="width:0%"></div></div>
+  </div>
+  <nav class="sbn">
+    <div class="nsl">Content</div>
+    <div class="ni active" data-s="intro"      onclick="showS('intro',this)">    <span>🏠</span> Introduction               <span class="nc" id="chk-intro"></span></div>
+    <div class="ni" data-s="types"      onclick="showS('types',this)">    <span>📦</span> Subquery Types              <span class="nc" id="chk-types"></span></div>
+    <div class="ni" data-s="animator"   onclick="showS('animator',this)"> <span>🎬</span> Execution Animator ✨       <span class="nc" id="chk-animator"></span></div>
+    <div class="ni" data-s="placement"  onclick="showS('placement',this)"><span>📍</span> Subquery Placement          <span class="nc" id="chk-placement"></span></div>
+    <div class="ni" data-s="correlated" onclick="showS('correlated',this)"><span>🔗</span> Correlated Subqueries       <span class="nc" id="chk-correlated"></span></div>
+    <div class="ni" data-s="exists"     onclick="showS('exists',this)">   <span>✅</span> EXISTS & NOT EXISTS         <span class="nc" id="chk-exists"></span></div>
+    <div class="ni" data-s="invsexists" onclick="showS('invsexists',this)"><span>⚡</span> IN vs EXISTS Performance    <span class="nc" id="chk-invsexists"></span></div>
+    <div class="ni" data-s="classic"    onclick="showS('classic',this)">  <span>🏆</span> Classic: Above-Avg Query    <span class="nc" id="chk-classic"></span></div>
+    <div class="ni" data-s="decision"   onclick="showS('decision',this)"> <span>🧭</span> Sub vs JOIN vs CTE          <span class="nc" id="chk-decision"></span></div>
+    <div class="ni" data-s="sandbox"    onclick="showS('sandbox',this)">  <span>💻</span> Practice Sandbox            <span class="nc" id="chk-sandbox"></span></div>
+    <div class="ni" data-s="quiz"       onclick="showS('quiz',this)">     <span>🧠</span> Chapter Quiz                <span class="nc" id="chk-quiz"></span></div>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="tbl">
+      <span class="chp">Chapter 11</span>
+      <h1>Subqueries & Correlated Queries</h1>
+    </div>
+    <div class="nb">
+      <button class="nbtn" onclick="prevS()">← Prev</button>
+      <button class="nbtn pri" onclick="nextS()">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══ INTRO ══ -->
+  <section class="sec active" id="sec-intro">
+    <div class="hero">
+      <div class="ey">Chapter 11 · Subqueries & Correlated Queries</div>
+      <h2>A Query Inside a Query.<br/>The Power of Nested SQL.</h2>
+      <p>Subqueries let you use the result of one SELECT as the input to another. They're the building blocks of complex business logic — from "find learners above the class average" to "check if a record exists before inserting".</p>
+    </div>
+
+    <h2 class="st">What is a Subquery?</h2>
+    <p class="ss">A subquery (also called an <strong>inner query</strong> or <strong>nested query</strong>) is a SELECT statement placed inside another SQL statement — inside WHERE, FROM, SELECT, or HAVING.</p>
+
+    <div class="card">
+      <div class="ct">🔍 Your First Subquery — Intuition</div>
+      <p style="margin-bottom:14px">Imagine you want to find GUVI learners who scored above the class average. You can't write <code>WHERE score > AVG(score)</code> directly — that's invalid. But you <em>can</em> compute the average first as a subquery:</p>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- ❌ This is INVALID — can't use aggregate in WHERE</span>
+<span class="kw">SELECT</span> name <span class="kw">FROM</span> students <span class="kw">WHERE</span> score <span class="op">></span> <span class="fn">AVG</span>(score);
+
+<span class="cm">-- ✅ This works — compute AVG first in a subquery</span>
+<span class="kw">SELECT</span> name <span class="kw">FROM</span> students
+<span class="kw">WHERE</span>  score <span class="op">></span> (<span class="kw">SELECT</span> <span class="fn">AVG</span>(score) <span class="kw">FROM</span> students);</pre></div>
+    </div>
+
+    <div class="g3">
+      <div class="card" style="border-left:4px solid var(--purple);margin-bottom:0">
+        <div class="ct" style="color:var(--purple)">📦 Scalar</div>
+        <p style="font-size:13px">Returns <strong>one value</strong>. Used in SELECT, WHERE, HAVING.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--blue);margin-bottom:0">
+        <div class="ct" style="color:var(--blue)">📋 Table</div>
+        <p style="font-size:13px">Returns a <strong>virtual table</strong>. Used in FROM clause.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--orange);margin-bottom:0">
+        <div class="ct" style="color:var(--orange)">🔗 Correlated</div>
+        <p style="font-size:13px">References the <strong>outer query</strong>. Runs once per outer row.</p>
+      </div>
+    </div>
+
+    <div class="co info" style="margin-top:20px">
+      <span class="ci">🎓</span>
+      <div><strong>Terminology</strong><br/>
+        <strong>Outer query</strong> — the main SELECT that contains the subquery.<br/>
+        <strong>Inner query</strong> — the nested SELECT inside parentheses.<br/>
+        SQL always evaluates the <em>inner query first</em>, then passes its result to the outer query (except correlated subqueries — those work differently!).
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TYPES ══ -->
+  <section class="sec" id="sec-types">
+    <h2 class="st">📦 Subquery Types</h2>
+    <p class="ss">There are four types of subqueries, classified by what they return and how they're used. Understanding this distinction is key to choosing the right one.</p>
+
+    <div class="card">
+      <div class="ct" style="color:var(--purple)">1️⃣ Scalar Subquery — Returns ONE Value</div>
+      <p style="margin-bottom:12px">Returns exactly one row, one column. Can be used anywhere a single value is expected — in SELECT, WHERE, HAVING, or even SET.</p>
+      <div class="cb"><span class="cl">SQL — Scalar Subquery</span><pre><span class="cm">-- In WHERE: find learners scoring above the overall average</span>
+<span class="kw">SELECT</span> name, score
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">WHERE</span>  score <span class="op">></span> (<span class="kw">SELECT</span> <span class="fn">AVG</span>(score) <span class="kw">FROM</span> guvi_learners);
+
+<span class="cm">-- In SELECT: show each learner's score vs the average</span>
+<span class="kw">SELECT</span>
+  name,
+  score,
+  (<span class="kw">SELECT</span> <span class="fn">ROUND</span>(<span class="fn">AVG</span>(score),<span class="num">1</span>) <span class="kw">FROM</span> guvi_learners) <span class="kw">AS</span> class_avg,
+  score <span class="op">-</span> (<span class="kw">SELECT</span> <span class="fn">AVG</span>(score) <span class="kw">FROM</span> guvi_learners) <span class="kw">AS</span> diff_from_avg
+<span class="kw">FROM</span>   guvi_learners;</pre></div>
+      <div class="co warn"><span class="ci">⚠️</span><div>If a scalar subquery returns MORE than one row, SQL throws an error. Always make sure it returns exactly 1 value, or use LIMIT 1.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct" style="color:var(--blue)">2️⃣ Row Subquery — Returns ONE Row</div>
+      <p style="margin-bottom:12px">Returns one complete row (multiple columns). Useful for comparing a row against another row's values.</p>
+      <div class="cb"><span class="cl">SQL — Row Subquery</span><pre><span class="cm">-- Find the student with the exact same score+city as student S01</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_learners
+<span class="kw">WHERE</span> (score, city) <span class="op">=</span>
+  (<span class="kw">SELECT</span> score, city <span class="kw">FROM</span> guvi_learners <span class="kw">WHERE</span> student_id <span class="op">=</span> <span class="str">'S01'</span>)
+<span class="kw">AND</span>   student_id <span class="op">!=</span> <span class="str">'S01'</span>;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct" style="color:var(--teal)">3️⃣ Table Subquery (Derived Table) — Returns a Virtual Table</div>
+      <p style="margin-bottom:12px">Returns multiple rows and columns. Used in the FROM clause — the result becomes a temporary table you can query from.</p>
+      <div class="cb"><span class="cl">SQL — Derived Table in FROM</span><pre><span class="cm">-- Find batches where the average score is above 75</span>
+<span class="kw">SELECT</span> batch_id, avg_score
+<span class="kw">FROM</span>  (
+        <span class="kw">SELECT</span> batch_id, <span class="fn">AVG</span>(score) <span class="kw">AS</span> avg_score
+        <span class="kw">FROM</span>   guvi_learners
+        <span class="kw">GROUP BY</span> batch_id
+      ) <span class="kw">AS</span> batch_summary        <span class="cm">-- alias is REQUIRED for derived tables</span>
+<span class="kw">WHERE</span> avg_score <span class="op">></span> <span class="num">75</span>;</pre></div>
+      <div class="co tip"><span class="ci">💡</span><div>The derived table <strong>must have an alias</strong> (AS batch_summary). Without it, MySQL/PostgreSQL will throw an error. This is a common beginner mistake.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct" style="color:var(--orange)">4️⃣ Correlated Subquery — References the Outer Query</div>
+      <p style="margin-bottom:12px">The inner query references a column from the outer query — so it runs once for every row of the outer query. More powerful but slower on large datasets.</p>
+      <div class="cb"><span class="cl">SQL — Correlated Subquery</span><pre><span class="cm">-- Find learners scoring above their OWN BATCH's average</span>
+<span class="kw">SELECT</span> outer_q.name, outer_q.batch_id, outer_q.score
+<span class="kw">FROM</span>   guvi_learners outer_q
+<span class="kw">WHERE</span>  outer_q.score <span class="op">></span> (
+         <span class="kw">SELECT</span> <span class="fn">AVG</span>(inner_q.score)
+         <span class="kw">FROM</span>   guvi_learners inner_q
+         <span class="kw">WHERE</span>  inner_q.batch_id <span class="op">=</span> outer_q.batch_id  <span class="cm">← references outer!</span>
+       );</pre></div>
+      <div class="co purple"><span class="ci">🔗</span><div>The line <code>WHERE inner_q.batch_id = outer_q.batch_id</code> is what makes it correlated. For each row in outer_q, the subquery re-runs using that row's batch_id. Without this reference, it would be a plain non-correlated subquery.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ ANIMATOR ══ -->
+  <section class="sec" id="sec-animator">
+    <h2 class="st">🎬 Subquery Execution Animator</h2>
+    <p class="ss">Select a subquery type and step through how SQL actually executes it — stage by stage. See the inner query run first, then its result passed to the outer query.</p>
+
+    <div class="animator">
+      <div class="anim-head">
+        <div class="anim-title">⚙️ Step-Through Execution Engine</div>
+        <div class="anim-sub">Watch how SQL evaluates each subquery type internally</div>
+      </div>
+      <div class="anim-controls">
+        <button class="anim-type-btn active" onclick="setAnimType('scalar',this)">Scalar</button>
+        <button class="anim-type-btn" onclick="setAnimType('derived',this)">Derived Table</button>
+        <button class="anim-type-btn" onclick="setAnimType('correlated',this)">Correlated</button>
+        <button class="anim-type-btn" onclick="setAnimType('exists',this)">EXISTS</button>
+        <div class="step-controls">
+          <button class="step-btn" id="prev-step" onclick="prevStep()" disabled>← Back</button>
+          <span class="step-indicator" id="step-ind">Step 1 of 3</span>
+          <button class="step-btn" id="next-step" onclick="nextStep()">Next →</button>
+        </div>
+      </div>
+      <div class="anim-body">
+        <div class="anim-stages" id="anim-stages"></div>
+        <div class="anim-explain" id="anim-explain"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PLACEMENT ══ -->
+  <section class="sec" id="sec-placement">
+    <h2 class="st">📍 Subquery Placement</h2>
+    <p class="ss">A subquery can appear in four different positions inside a SQL statement. Each placement has a specific use case and different rules.</p>
+
+    <div class="place-tabs">
+      <div class="ptab active" onclick="showPlace('where',this)">WHERE clause</div>
+      <div class="ptab" onclick="showPlace('select',this)">SELECT clause</div>
+      <div class="ptab" onclick="showPlace('from',this)">FROM clause</div>
+      <div class="ptab" onclick="showPlace('having',this)">HAVING clause</div>
+    </div>
+
+    <!-- WHERE -->
+    <div class="place-content active" id="pl-where">
+      <div class="co purple"><span class="ci">📍</span><div><strong>WHERE clause subquery</strong> — Most common placement. Filter rows based on a value or set returned by the inner query.</div></div>
+      <div class="card">
+        <div class="ct">🎯 Single value (scalar) in WHERE</div>
+        <div class="cb"><pre><span class="cm">-- Learners who scored above the overall class average</span>
+<span class="kw">SELECT</span> name, score
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">WHERE</span>  score <span class="op">></span> (<span class="kw">SELECT</span> <span class="fn">AVG</span>(score) <span class="kw">FROM</span> guvi_learners);</pre></div>
+      </div>
+      <div class="card">
+        <div class="ct">🎯 List of values (IN) in WHERE</div>
+        <div class="cb"><pre><span class="cm">-- Students enrolled in Python or ML courses</span>
+<span class="kw">SELECT</span> name, batch_id
+<span class="kw">FROM</span>   students
+<span class="kw">WHERE</span>  batch_id <span class="kw">IN</span> (
+         <span class="kw">SELECT</span> batch_id <span class="kw">FROM</span> batches
+         <span class="kw">WHERE</span>  course_id <span class="kw">IN</span> (<span class="str">'C01'</span>, <span class="str">'C02'</span>)
+       );</pre></div>
+      </div>
+      <div class="card">
+        <div class="ct">🎯 Most recent record in WHERE</div>
+        <div class="cb"><pre><span class="cm">-- Find the student with the highest score (scalar + MAX)</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_learners
+<span class="kw">WHERE</span>  score <span class="op">=</span> (<span class="kw">SELECT</span> <span class="fn">MAX</span>(score) <span class="kw">FROM</span> guvi_learners);</pre></div>
+      </div>
+    </div>
+
+    <!-- SELECT -->
+    <div class="place-content" id="pl-select">
+      <div class="co purple"><span class="ci">📍</span><div><strong>SELECT clause subquery</strong> — Adds a computed column to each row. Must return exactly one value (scalar). Often used to show comparisons inline.</div></div>
+      <div class="card">
+        <div class="ct">🎯 Show score vs class average per learner</div>
+        <div class="cb"><pre><span class="cm">-- Compare each learner's score against the class average</span>
+<span class="kw">SELECT</span>
+  name,
+  score,
+  (<span class="kw">SELECT</span> <span class="fn">ROUND</span>(<span class="fn">AVG</span>(score),<span class="num">1</span>) <span class="kw">FROM</span> guvi_learners) <span class="kw">AS</span> class_avg,
+  score <span class="op">-</span> (<span class="kw">SELECT</span> <span class="fn">AVG</span>(score) <span class="kw">FROM</span> guvi_learners)    <span class="kw">AS</span> gap
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">ORDER BY</span> gap <span class="kw">DESC</span>;</pre></div>
+        <div class="co warn"><span class="ci">⚠️</span><div>Scalar subqueries in SELECT run once per row of the outer query — fine for small datasets, but can be slow on large tables. Use a JOIN or CTE instead for better performance.</div></div>
+      </div>
+      <div class="card">
+        <div class="ct">🎯 Correlated scalar in SELECT — batch-level average</div>
+        <div class="cb"><pre><span class="cm">-- Show each student's score alongside their batch's average</span>
+<span class="kw">SELECT</span>
+  name, batch_id, score,
+  (<span class="kw">SELECT</span> <span class="fn">ROUND</span>(<span class="fn">AVG</span>(score),<span class="num">1</span>)
+   <span class="kw">FROM</span>   guvi_learners inner_q
+   <span class="kw">WHERE</span>  inner_q.batch_id <span class="op">=</span> outer_q.batch_id) <span class="kw">AS</span> batch_avg
+<span class="kw">FROM</span>   guvi_learners outer_q;</pre></div>
+      </div>
+    </div>
+
+    <!-- FROM -->
+    <div class="place-content" id="pl-from">
+      <div class="co purple"><span class="ci">📍</span><div><strong>FROM clause subquery (Derived Table)</strong> — The subquery returns a temporary table that you query as if it were a real table. Must always have an alias.</div></div>
+      <div class="card">
+        <div class="ct">🎯 Aggregate then filter with a derived table</div>
+        <div class="cb"><pre><span class="cm">-- Two-step aggregation: first calculate per-batch stats,
+-- then filter to batches performing above threshold</span>
+<span class="kw">SELECT</span>
+  bs.batch_id,
+  bs.avg_score,
+  bs.top_score,
+  bs.learner_count
+<span class="kw">FROM</span> (
+  <span class="kw">SELECT</span>
+    batch_id,
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(score),<span class="num">2</span>) <span class="kw">AS</span> avg_score,
+    <span class="fn">MAX</span>(score)           <span class="kw">AS</span> top_score,
+    <span class="fn">COUNT</span>(<span class="op">*</span>)            <span class="kw">AS</span> learner_count
+  <span class="kw">FROM</span>   guvi_learners
+  <span class="kw">GROUP BY</span> batch_id
+) <span class="kw">AS</span> bs                  <span class="cm">-- alias is mandatory!</span>
+<span class="kw">WHERE</span>  bs.avg_score <span class="op">></span> <span class="num">75</span>
+<span class="kw">ORDER BY</span> bs.avg_score <span class="kw">DESC</span>;</pre></div>
+      </div>
+      <div class="card">
+        <div class="ct">🎯 Rank and paginate with a derived table</div>
+        <div class="cb"><pre><span class="cm">-- Get top 3 per city using a derived table with ranking</span>
+<span class="kw">SELECT</span> city, name, score, city_rank
+<span class="kw">FROM</span> (
+  <span class="kw">SELECT</span>
+    city, name, score,
+    <span class="fn">RANK</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> city <span class="kw">ORDER BY</span> score <span class="kw">DESC</span>) <span class="kw">AS</span> city_rank
+  <span class="kw">FROM</span> guvi_learners
+) <span class="kw">AS</span> ranked
+<span class="kw">WHERE</span> city_rank <span class="op"><=</span> <span class="num">3</span>;</pre></div>
+      </div>
+    </div>
+
+    <!-- HAVING -->
+    <div class="place-content" id="pl-having">
+      <div class="co purple"><span class="ci">📍</span><div><strong>HAVING clause subquery</strong> — Filter aggregated groups based on a subquery result. Useful when the filter value itself requires a separate aggregation.</div></div>
+      <div class="card">
+        <div class="ct">🎯 Batches performing above the overall average</div>
+        <div class="cb"><pre><span class="cm">-- Find batches whose average score exceeds the overall average
+-- (nested aggregation — can't do this with just HAVING)</span>
+<span class="kw">SELECT</span>
+  batch_id,
+  <span class="fn">ROUND</span>(<span class="fn">AVG</span>(score), <span class="num">2</span>) <span class="kw">AS</span> batch_avg
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">GROUP BY</span> batch_id
+<span class="kw">HAVING</span> <span class="fn">AVG</span>(score) <span class="op">></span> (
+  <span class="kw">SELECT</span> <span class="fn">AVG</span>(score)      <span class="cm">-- overall class average</span>
+  <span class="kw">FROM</span>   guvi_learners
+)
+<span class="kw">ORDER BY</span> batch_avg <span class="kw">DESC</span>;</pre></div>
+      </div>
+      <div class="card">
+        <div class="ct">🎯 Cities with more students than the average city size</div>
+        <div class="cb"><pre><span class="cm">-- Find cities where learner count is above average city count</span>
+<span class="kw">SELECT</span> city, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> learners
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">GROUP BY</span> city
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">></span> (
+  <span class="kw">SELECT</span> <span class="fn">AVG</span>(city_count)
+  <span class="kw">FROM</span> (
+    <span class="kw">SELECT</span> city, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> city_count
+    <span class="kw">FROM</span>   guvi_learners
+    <span class="kw">GROUP BY</span> city
+  ) <span class="kw">AS</span> city_sizes
+);</pre></div>
+        <div class="co tip"><span class="ci">💡</span><div>Notice this is a <strong>nested subquery</strong> — a subquery inside a subquery! Readable today, but consider converting to a CTE when queries get this deep.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CORRELATED ══ -->
+  <section class="sec" id="sec-correlated">
+    <h2 class="st">🔗 Correlated Subqueries — The Inner Query Knows the Outer Row</h2>
+    <p class="ss">A correlated subquery is one where the inner query references a column from the outer query. This means it <strong>cannot run independently</strong> — it re-executes for every row the outer query processes.</p>
+
+    <div class="co purple">
+      <span class="ci">🧠</span>
+      <div><strong>How it works</strong><br/>
+        Non-correlated: Inner query runs ONCE → result used by outer query.<br/>
+        Correlated: For each row outer processes → inner query runs AGAIN with that row's data.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔬 Anatomy of a Correlated Subquery</div>
+      <div class="cb"><span class="cl">SQL — Annotated</span><pre><span class="cm">-- Outer query iterates over each learner one by one</span>
+<span class="kw">SELECT</span> <span class="corr-outer">o.name, o.batch_id, o.score</span>   <span class="cm">← outer columns</span>
+<span class="kw">FROM</span>   <span class="corr-outer">guvi_learners o</span>               <span class="cm">← outer table alias: o</span>
+<span class="kw">WHERE</span>  <span class="corr-outer">o.score</span> <span class="op">></span> (
+         <span class="kw">SELECT</span> <span class="fn">AVG</span>(<span class="corr-inner">i.score</span>)            <span class="cm">← inner aggregate</span>
+         <span class="kw">FROM</span>   <span class="corr-inner">guvi_learners i</span>          <span class="cm">← inner table alias: i</span>
+         <span class="kw">WHERE</span>  <span class="corr-inner">i.batch_id</span> <span class="op">=</span> <span class="corr-ref">o.batch_id</span>  <span class="cm">← 🔑 THE LINK</span>
+       );                                  <span class="cm">↑ inner references OUTER</span></pre></div>
+      <div class="co success" style="margin-top:10px"><span class="ci">🔑</span><div>The key line is <code>i.batch_id = <strong>o.batch_id</strong></code>. The outer alias <code>o</code> inside the inner query is what makes it correlated. The inner query runs once per row of <code>o</code>, each time using that row's <code>batch_id</code> to compute a batch-specific average.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📊 Execution Trace — What Happens Row by Row</div>
+      <table class="dt">
+        <thead><tr><th>outer row (o)</th><th>o.batch_id</th><th>o.score</th><th>inner runs: AVG for batch</th><th>o.score > avg?</th><th>included?</th></tr></thead>
+        <tbody>
+          <tr><td>Priya</td><td>B01</td><td>85</td><td>AVG(B01 scores) = 79.0</td><td>85 > 79 ✅</td><td class="hl2 nc2" style="background:var(--gl)!important;font-weight:700;color:var(--green)!important">YES</td></tr>
+          <tr><td>Ravi</td><td>B01</td><td>68</td><td>AVG(B01 scores) = 79.0</td><td>68 > 79 ❌</td><td style="color:var(--red)">NO</td></tr>
+          <tr><td>Sneha</td><td>B02</td><td>91</td><td>AVG(B02 scores) = 84.5</td><td>91 > 84.5 ✅</td><td class="hl2 nc2" style="background:var(--gl)!important;font-weight:700;color:var(--green)!important">YES</td></tr>
+          <tr><td>Arjun</td><td>B02</td><td>78</td><td>AVG(B02 scores) = 84.5</td><td>78 > 84.5 ❌</td><td style="color:var(--red)">NO</td></tr>
+          <tr><td>Meera</td><td>B01</td><td>93</td><td>AVG(B01 scores) = 79.0</td><td>93 > 79 ✅</td><td class="hl2 nc2" style="background:var(--gl)!important;font-weight:700;color:var(--green)!important">YES</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">⚡ Performance Note</div>
+      <div class="co warn" style="margin:0"><span class="ci">⚠️</span><div><strong>Correlated subqueries can be slow!</strong>If the outer table has 10,000 rows, the inner query runs 10,000 times. For large tables, consider rewriting with a JOIN + derived table, or a CTE — they compute the batch average once and join it in.</div></div>
+      <div class="cb" style="margin-top:14px"><span class="cl">Equivalent JOIN (faster)</span><pre><span class="cm">-- Same result, but batch_avg computed ONCE via GROUP BY</span>
+<span class="kw">SELECT</span> l.name, l.batch_id, l.score
+<span class="kw">FROM</span>   guvi_learners l
+<span class="kw">INNER JOIN</span> (
+  <span class="kw">SELECT</span> batch_id, <span class="fn">AVG</span>(score) <span class="kw">AS</span> avg_score
+  <span class="kw">FROM</span>   guvi_learners
+  <span class="kw">GROUP BY</span> batch_id
+) <span class="kw">AS</span> ba <span class="kw">ON</span> l.batch_id <span class="op">=</span> ba.batch_id
+<span class="kw">WHERE</span>  l.score <span class="op">></span> ba.avg_score;</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ EXISTS ══ -->
+  <section class="sec" id="sec-exists">
+    <h2 class="st">✅ EXISTS & NOT EXISTS</h2>
+    <p class="ss">EXISTS tests whether the inner query returns any rows at all — it doesn't care about the actual values, just whether a match exists. This makes it very efficient.</p>
+
+    <div class="g2">
+      <div class="card" style="border-left:4px solid var(--green);margin-bottom:0">
+        <div class="ct" style="color:var(--green)">✅ EXISTS</div>
+        <p style="font-size:13px">Returns TRUE if the subquery returns at least one row. Use when asking "does this relationship exist?"</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--red);margin-bottom:0">
+        <div class="ct" style="color:var(--red)">🚫 NOT EXISTS</div>
+        <p style="font-size:13px">Returns TRUE if the subquery returns NO rows. Use when asking "is anything missing?"</p>
+      </div>
+    </div>
+    <div style="height:20px"></div>
+
+    <div class="card">
+      <div class="ct">📖 EXISTS Syntax</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span> columns
+<span class="kw">FROM</span>   outer_table o
+<span class="kw">WHERE</span>  <span class="kw">EXISTS</span> (
+         <span class="kw">SELECT</span> <span class="num">1</span>           <span class="cm">-- SELECT 1 is conventional — value doesn't matter</span>
+         <span class="kw">FROM</span>   inner_table i
+         <span class="kw">WHERE</span>  i.key <span class="op">=</span> o.key  <span class="cm">-- correlation condition</span>
+       );</pre></div>
+      <div class="co tip"><span class="ci">💡</span><div><strong>Why SELECT 1?</strong>EXISTS only checks if any row is returned — it doesn't care what columns you select. Writing <code>SELECT 1</code> instead of <code>SELECT *</code> is a convention that makes the intent explicit and slightly more efficient.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI Example — Find Students Who Have Made a Payment</div>
+      <div class="cb"><span class="cl">SQL — EXISTS</span><pre><span class="cm">-- Students who HAVE made at least one payment</span>
+<span class="kw">SELECT</span> s.name, s.email, s.city
+<span class="kw">FROM</span>   students s
+<span class="kw">WHERE</span>  <span class="kw">EXISTS</span> (
+         <span class="kw">SELECT</span> <span class="num">1</span>
+         <span class="kw">FROM</span>   payments p
+         <span class="kw">WHERE</span>  p.student_id <span class="op">=</span> s.student_id
+       );</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🚫 NOT EXISTS — Find Students with NO Payment</div>
+      <div class="cb"><span class="cl">SQL — NOT EXISTS</span><pre><span class="cm">-- Students who have NOT made any payment yet — fee defaulters!</span>
+<span class="kw">SELECT</span> s.name, s.email, s.city
+<span class="kw">FROM</span>   students s
+<span class="kw">WHERE NOT EXISTS</span> (
+         <span class="kw">SELECT</span> <span class="num">1</span>
+         <span class="kw">FROM</span>   payments p
+         <span class="kw">WHERE</span>  p.student_id <span class="op">=</span> s.student_id
+       );</pre></div>
+      <div class="co success" style="margin-top:10px"><span class="ci">✅</span><div>This is the safest way to find "missing" records. Unlike <code>NOT IN</code>, NOT EXISTS handles NULLs correctly and doesn't return wrong results when the subquery contains NULL values.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🛒 Zomato Example — Restaurants with No Orders This Month</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Restaurants that received zero orders in June 2024</span>
+<span class="kw">SELECT</span> r.restaurant_name, r.city
+<span class="kw">FROM</span>   restaurants r
+<span class="kw">WHERE NOT EXISTS</span> (
+  <span class="kw">SELECT</span> <span class="num">1</span>
+  <span class="kw">FROM</span>   orders o
+  <span class="kw">WHERE</span>  o.restaurant_id <span class="op">=</span> r.restaurant_id
+  <span class="kw">AND</span>    o.order_date <span class="kw">BETWEEN</span> <span class="str">'2024-06-01'</span> <span class="kw">AND</span> <span class="str">'2024-06-30'</span>
+);</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ IN VS EXISTS ══ -->
+  <section class="sec" id="sec-invsexists">
+    <h2 class="st">⚡ IN vs EXISTS — Performance & Behaviour</h2>
+    <p class="ss">Both IN and EXISTS can solve the same problems, but they behave differently under the hood. Knowing when to use which is an important interview and production skill.</p>
+
+    <div class="card">
+      <div class="ct">🔄 Same Problem — Two Solutions</div>
+      <div class="cb"><span class="cl">SQL — Using IN</span><pre><span class="cm">-- Find students enrolled in AIML courses — using IN</span>
+<span class="kw">SELECT</span> name <span class="kw">FROM</span> students
+<span class="kw">WHERE</span>  batch_id <span class="kw">IN</span> (
+  <span class="kw">SELECT</span> batch_id <span class="kw">FROM</span> batches <span class="kw">WHERE</span> course_id <span class="op">=</span> <span class="str">'C01'</span>
+);</pre></div>
+      <div class="cb"><span class="cl">SQL — Using EXISTS</span><pre><span class="cm">-- Same result — using EXISTS</span>
+<span class="kw">SELECT</span> s.name <span class="kw">FROM</span> students s
+<span class="kw">WHERE EXISTS</span> (
+  <span class="kw">SELECT</span> <span class="num">1</span> <span class="kw">FROM</span> batches b
+  <span class="kw">WHERE</span>  b.batch_id   <span class="op">=</span> s.batch_id
+  <span class="kw">AND</span>    b.course_id  <span class="op">=</span> <span class="str">'C01'</span>
+);</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📊 IN vs EXISTS — Full Comparison</div>
+      <table class="comp-table">
+        <thead><tr><th>Factor</th><th>IN</th><th>EXISTS</th></tr></thead>
+        <tbody>
+          <tr><td><strong>What it does</strong></td><td>Checks if value is in a list</td><td>Checks if any row is returned</td></tr>
+          <tr><td><strong>NULL handling</strong></td><td class="lose">❌ Dangerous — if subquery returns NULL, IN may return no rows at all</td><td class="win">✅ Safe — NULLs in subquery don't affect result</td></tr>
+          <tr><td><strong>Small subquery</strong></td><td class="win">✅ Fast — computes once, uses a list</td><td class="neutral">≈ Similar performance</td></tr>
+          <tr><td><strong>Large subquery</strong></td><td class="lose">❌ Slower — loads entire result set into memory</td><td class="win">✅ Faster — stops as soon as first match is found</td></tr>
+          <tr><td><strong>Correlated?</strong></td><td class="neutral">Usually non-correlated</td><td class="win">Naturally correlated — references outer row</td></tr>
+          <tr><td><strong>Best use</strong></td><td>Static list of known values: <code>IN ('A','B','C')</code></td><td>Checking existence in related tables</td></tr>
+          <tr><td><strong>NOT version</strong></td><td class="lose">NOT IN — avoid if NULLs possible</td><td class="win">NOT EXISTS — always safe</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">☠️ The NULL Trap with NOT IN</div>
+      <div class="cb"><span class="cl">SQL — The Dangerous Case</span><pre><span class="cm">-- Suppose payments table has student_id: S01, S02, NULL
+-- NOT IN with a NULL in the list ALWAYS returns FALSE!</span>
+
+<span class="cm">-- This returns 0 rows even if many students have no payment:</span>
+<span class="kw">SELECT</span> name <span class="kw">FROM</span> students
+<span class="kw">WHERE</span>  student_id <span class="kw">NOT IN</span> (
+  <span class="kw">SELECT</span> student_id <span class="kw">FROM</span> payments  <span class="cm">-- if this returns ANY NULL...</span>
+);                                  <span class="cm">-- ...the whole query returns nothing!</span>
+
+<span class="cm">-- Safe alternative: filter NULLs explicitly</span>
+<span class="kw">WHERE</span>  student_id <span class="kw">NOT IN</span> (
+  <span class="kw">SELECT</span> student_id <span class="kw">FROM</span> payments <span class="kw">WHERE</span> student_id <span class="kw">IS NOT NULL</span>
+);
+
+<span class="cm">-- Or better — use NOT EXISTS</span></pre></div>
+      <div class="co danger"><span class="ci">🚨</span><div><strong>Rule: Never use NOT IN when the subquery might return NULLs.</strong>Always use NOT EXISTS, or add <code>WHERE col IS NOT NULL</code> to the subquery. This is one of the most common silent bugs in SQL production code.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ CLASSIC ══ -->
+  <section class="sec" id="sec-classic">
+    <h2 class="st">🏆 Classic: Learners Scoring Above Their Batch Average</h2>
+    <p class="ss">This is the most famous correlated subquery example — a favourite in interviews, assessments, and real analytics. Let's build it three different ways and understand the trade-offs.</p>
+
+    <div class="co purple">
+      <span class="ci">🎯</span>
+      <div><strong>The Problem</strong>Find all GUVI learners who scored above the average score of their own batch — not the overall class average, but their specific batch's average. Each batch's average is different.</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Method 1 — Correlated Subquery (Classic)</div>
+      <div class="cb"><span class="cl">SQL — Correlated</span><pre><span class="cm">-- For each learner, compute their batch's average on the fly</span>
+<span class="kw">SELECT</span>
+  o.name,
+  o.batch_id,
+  o.score,
+  <span class="fn">ROUND</span>((<span class="kw">SELECT</span> <span class="fn">AVG</span>(i.score)
+          <span class="kw">FROM</span>   guvi_learners i
+          <span class="kw">WHERE</span>  i.batch_id <span class="op">=</span> o.batch_id), <span class="num">1</span>) <span class="kw">AS</span> batch_avg
+<span class="kw">FROM</span>   guvi_learners o
+<span class="kw">WHERE</span>  o.score <span class="op">></span> (
+         <span class="kw">SELECT</span> <span class="fn">AVG</span>(i.score)
+         <span class="kw">FROM</span>   guvi_learners i
+         <span class="kw">WHERE</span>  i.batch_id <span class="op">=</span> o.batch_id
+       )
+<span class="kw">ORDER BY</span> o.batch_id, o.score <span class="kw">DESC</span>;</pre></div>
+      <div class="co warn" style="margin-top:6px"><span class="ci">⚠️</span><div>Elegant but slow on large tables. Inner query runs once per learner row.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Method 2 — JOIN with Derived Table (Faster ⚡)</div>
+      <div class="cb"><span class="cl">SQL — JOIN</span><pre><span class="cm">-- Compute batch averages ONCE, then join — more efficient</span>
+<span class="kw">SELECT</span>
+  l.name,
+  l.batch_id,
+  l.score,
+  ba.avg_score <span class="kw">AS</span> batch_avg
+<span class="kw">FROM</span>   guvi_learners l
+<span class="kw">INNER JOIN</span> (
+  <span class="kw">SELECT</span> batch_id, <span class="fn">ROUND</span>(<span class="fn">AVG</span>(score),<span class="num">1</span>) <span class="kw">AS</span> avg_score
+  <span class="kw">FROM</span>   guvi_learners
+  <span class="kw">GROUP BY</span> batch_id
+) <span class="kw">AS</span> ba <span class="kw">ON</span> l.batch_id <span class="op">=</span> ba.batch_id
+<span class="kw">WHERE</span>  l.score <span class="op">></span> ba.avg_score
+<span class="kw">ORDER BY</span> l.batch_id, l.score <span class="kw">DESC</span>;</pre></div>
+      <div class="co success" style="margin-top:6px"><span class="ci">✅</span><div>Batch averages computed only once. Much faster for large datasets.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Method 3 — CTE (Most Readable 📖)</div>
+      <div class="cb"><span class="cl">SQL — CTE</span><pre><span class="cm">-- Same logic, but CTE makes it self-documenting</span>
+<span class="kw">WITH</span> batch_avgs <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> batch_id, <span class="fn">ROUND</span>(<span class="fn">AVG</span>(score),<span class="num">1</span>) <span class="kw">AS</span> avg_score
+  <span class="kw">FROM</span>   guvi_learners
+  <span class="kw">GROUP BY</span> batch_id
+)
+<span class="kw">SELECT</span>
+  l.name, l.batch_id, l.score,
+  ba.avg_score <span class="kw">AS</span> batch_avg,
+  l.score <span class="op">-</span> ba.avg_score <span class="kw">AS</span> above_by
+<span class="kw">FROM</span>   guvi_learners l
+<span class="kw">JOIN</span>   batch_avgs    ba <span class="kw">ON</span> l.batch_id <span class="op">=</span> ba.batch_id
+<span class="kw">WHERE</span>  l.score <span class="op">></span> ba.avg_score
+<span class="kw">ORDER BY</span> above_by <span class="kw">DESC</span>;</pre></div>
+      <div class="co tip" style="margin-top:6px"><span class="ci">💡</span><div>CTE = clearest intention, easiest to debug, same performance as derived table. This is the production-preferred pattern.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📊 Sample Result</div>
+      <table class="dt">
+        <thead><tr><th>name</th><th>batch_id</th><th>score</th><th>batch_avg</th><th>above_by</th></tr></thead>
+        <tbody>
+          <tr class="hl2"><td>Meera Iyer</td><td>B01</td><td>93</td><td>79.0</td><td>+14.0</td></tr>
+          <tr class="hl2"><td>Priya Sharma</td><td>B01</td><td>85</td><td>79.0</td><td>+6.0</td></tr>
+          <tr class="hl2"><td>Sneha Nair</td><td>B02</td><td>91</td><td>84.5</td><td>+6.5</td></tr>
+          <tr style="color:var(--muted);font-style:italic"><td>Ravi Kumar</td><td>B01</td><td>68</td><td>79.0</td><td>-11.0 (excluded)</td></tr>
+          <tr style="color:var(--muted);font-style:italic"><td>Arjun Patel</td><td>B02</td><td>78</td><td>84.5</td><td>-6.5 (excluded)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══ DECISION ══ -->
+  <section class="sec" id="sec-decision">
+    <h2 class="st">🧭 Subquery vs JOIN vs CTE — When to Use Which?</h2>
+    <p class="ss">These three tools often solve the same problem. The right choice depends on readability, performance, and reuse needs.</p>
+
+    <div class="dtree">
+      <div class="dtree-title">🗺️ Decision Guide</div>
+      <div class="dtree-row"><div class="dtree-node dtree-q">Do you need the intermediate result <strong>more than once</strong>?</div></div>
+      <div class="dtree-arrow">↙ YES &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NO ↘</div>
+      <div class="dtree-row">
+        <div class="dtree-node dtree-a-cte">→ Use <strong>CTE</strong><br/><span style="font-size:11px;font-weight:400">Define once, use many times. Best for readable complex logic.</span></div>
+        <div class="dtree-node dtree-q">Is it a simple existence check?</div>
+      </div>
+      <div class="dtree-arrow" style="margin-left:60%">↙ YES &nbsp;&nbsp;&nbsp;&nbsp; NO ↘</div>
+      <div class="dtree-row" style="justify-content:flex-end;gap:80px;padding-right:20px;">
+        <div class="dtree-node dtree-a-sub">→ Use <strong>EXISTS</strong><br/><span style="font-size:11px;font-weight:400">Fastest for "does a match exist?"</span></div>
+        <div class="dtree-node dtree-a-join">→ Use <strong>JOIN</strong><br/><span style="font-size:11px;font-weight:400">Best for combining columns from multiple tables.</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📋 Full Comparison Table</div>
+      <table class="comp-table">
+        <thead><tr><th>Criterion</th><th>Subquery</th><th>JOIN</th><th>CTE</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Readability</strong></td><td class="neutral">Medium (when nested)</td><td class="neutral">Medium (many JOINs)</td><td class="win">✅ Excellent (named blocks)</td></tr>
+          <tr><td><strong>Performance</strong></td><td class="neutral">Correlated = slow; scalar = fine</td><td class="win">✅ Usually fastest</td><td class="win">✅ Same as derived table</td></tr>
+          <tr><td><strong>Reuse result</strong></td><td class="lose">❌ Cannot reuse</td><td class="lose">❌ Cannot reuse</td><td class="win">✅ Can reference CTE multiple times</td></tr>
+          <tr><td><strong>Existence check</strong></td><td class="win">✅ EXISTS/NOT EXISTS is ideal</td><td class="neutral">Use anti-join pattern</td><td class="neutral">Can, but overkill</td></tr>
+          <tr><td><strong>Debuggability</strong></td><td class="lose">❌ Hard to debug nested queries</td><td class="neutral">Medium</td><td class="win">✅ Easy — test each CTE in isolation</td></tr>
+          <tr><td><strong>Best for</strong></td><td>Quick one-off filters, EXISTS checks</td><td>Combining data from multiple tables</td><td>Complex multi-step logic, named results</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">📝 The Readability Trap — Nested Subqueries</div>
+      <div class="co danger"><span class="ci">🚨</span><div><strong>Warning: Nested subqueries become unreadable fast!</strong>When you see more than 2 levels of nesting, it's a strong signal to refactor into a CTE.</div></div>
+      <div class="cb"><span class="cl">Hard to read — 3 levels of nesting</span><pre><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> students
+<span class="kw">WHERE</span> batch_id <span class="kw">IN</span> (
+  <span class="kw">SELECT</span> batch_id <span class="kw">FROM</span> batches
+  <span class="kw">WHERE</span> course_id <span class="kw">IN</span> (
+    <span class="kw">SELECT</span> course_id <span class="kw">FROM</span> courses
+    <span class="kw">WHERE</span> fee <span class="op">></span> (<span class="kw">SELECT</span> <span class="fn">AVG</span>(fee) <span class="kw">FROM</span> courses)
+  )
+);</pre></div>
+      <div class="cb"><span class="cl">Same logic — clean with CTEs</span><pre><span class="kw">WITH</span> above_avg_courses <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> course_id <span class="kw">FROM</span> courses
+  <span class="kw">WHERE</span>  fee <span class="op">></span> (<span class="kw">SELECT</span> <span class="fn">AVG</span>(fee) <span class="kw">FROM</span> courses)
+),
+premium_batches <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> batch_id <span class="kw">FROM</span> batches
+  <span class="kw">WHERE</span>  course_id <span class="kw">IN</span> (<span class="kw">SELECT</span> course_id <span class="kw">FROM</span> above_avg_courses)
+)
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> students
+<span class="kw">WHERE</span>  batch_id <span class="kw">IN</span> (<span class="kw">SELECT</span> batch_id <span class="kw">FROM</span> premium_batches);</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ SANDBOX ══ -->
+  <section class="sec" id="sec-sandbox">
+    <h2 class="st">💻 Practice Sandbox</h2>
+    <p class="ss">Write subqueries on the GUVI schema. The sandbox recognises common patterns and returns realistic output.</p>
+
+    <div class="sandbox">
+      <div class="sbh2">
+        <div class="sbt"><span>🖥️</span> SQL Sandbox — GUVI Schema (guvi_learners, students, batches, courses, payments)</div>
+        <div class="sbact">
+          <button class="sbbtn clr" onclick="clearSB()">Clear</button>
+          <button class="sbbtn run" onclick="runSB()">▶ Run</button>
+        </div>
+      </div>
+      <textarea class="sbed" id="sbed" spellcheck="false" placeholder="-- Try subquery patterns here!
+-- 1. Scalar: students scoring above class average
+-- SELECT name, score FROM guvi_learners WHERE score > (SELECT AVG(score) FROM guvi_learners);
+-- 2. Derived table: batch summary
+-- SELECT * FROM (SELECT batch_id, AVG(score) AS avg FROM guvi_learners GROUP BY batch_id) AS bs WHERE avg > 75;
+-- 3. Correlated: above batch average
+-- SELECT name, batch_id, score FROM guvi_learners o WHERE score > (SELECT AVG(score) FROM guvi_learners i WHERE i.batch_id = o.batch_id);
+-- 4. EXISTS: students with payments
+-- SELECT name FROM students s WHERE EXISTS (SELECT 1 FROM payments p WHERE p.student_id = s.student_id);
+-- 5. NOT EXISTS: students with no payment
+-- SELECT name FROM students s WHERE NOT EXISTS (SELECT 1 FROM payments p WHERE p.student_id = s.student_id);
+"></textarea>
+      <div class="sbout" id="sbout"><span style="color:var(--muted);font-size:12px">▶ Output will appear here</span></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📝 Practice Challenges</div>
+      <ul class="steps">
+        <li class="step"><div class="sn">1</div><div class="sb2"><strong>Scalar subquery</strong><p>Find learners whose score is above the overall class average. Show their name, score, and the class average.</p></div></li>
+        <li class="step"><div class="sn">2</div><div class="sb2"><strong>IN with subquery</strong><p>Find students who are in a batch that teaches course C01 (Machine Learning). Use a subquery with IN.</p></div></li>
+        <li class="step"><div class="sn">3</div><div class="sb2"><strong>Derived table</strong><p>Create a derived table of batch averages, then filter to show only batches where average score > 75.</p></div></li>
+        <li class="step"><div class="sn">4</div><div class="sb2"><strong>Correlated subquery</strong><p>Find learners who scored above their own batch's average (not the overall average). This is the classic!</p></div></li>
+        <li class="step"><div class="sn">5</div><div class="sb2"><strong>NOT EXISTS</strong><p>Find all students who have not made any payment yet. Use NOT EXISTS (safer than NOT IN).</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ QUIZ ══ -->
+  <section class="sec" id="sec-quiz">
+    <h2 class="st">🧠 Chapter 11 Quiz</h2>
+    <p class="ss">Test your mastery of subquery types, correlated queries, EXISTS, and when to use each approach.</p>
+
+    <div class="qw">
+      <div class="qprog" id="qprog">Question 1 of 8</div>
+      <div class="qq" id="qq"></div>
+      <ul class="qopts" id="qopts"></ul>
+      <div class="qfb" id="qfb"></div>
+      <div class="qnav">
+        <span class="qsc" id="qsc">Score: 0 / 0</span>
+        <button class="qbtn" id="qnext" onclick="nextQ()" style="display:none">Next Question →</button>
+      </div>
+    </div>
+
+    <div class="done" id="done-card" style="display:none">
+      <div class="trophy">🏆</div>
+      <h3 id="done-title">Chapter Complete!</h3>
+      <p id="done-msg">You've mastered subqueries — one of the most powerful tools in SQL!</p>
+      <button class="donebtn" onclick="doConfetti()">🎉 Celebrate!</button>
+    </div>
+  </section>
+</main>
+
+<script>
+// ── NAV ──
+const SECS=['intro','types','animator','placement','correlated','exists','invsexists','classic','decision','sandbox','quiz'];
+let ci=0;const doneSet=new Set();
+function showS(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  ci=SECS.indexOf(id);window.scrollTo(0,0);
+}
+function nextS(){if(ci<SECS.length-1){markDone(SECS[ci]);const n=SECS[ci+1];showS(n,document.querySelector(`[data-s="${n}"]`));}}
+function prevS(){if(ci>0){const p=SECS[ci-1];showS(p,document.querySelector(`[data-s="${p}"]`));}}
+function markDone(id){
+  doneSet.add(id);
+  const c=document.getElementById('chk-'+id);if(c)c.textContent='✓';
+  const n=document.querySelector(`[data-s="${id}"]`);if(n)n.classList.add('done');
+  const pct=Math.round((doneSet.size/SECS.length)*100);
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('pp').textContent=pct+'%';
+}
+
+// ── PLACEMENT TABS ──
+function showPlace(id,el){
+  document.querySelectorAll('.place-content').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('pl-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── EXECUTION ANIMATOR ──
+const ANIM_DATA={
+  scalar:{
+    label:'Scalar Subquery — returns one value',
+    steps:[
+      {title:'Step 1: Inner query executes FIRST',code:'SELECT AVG(score)\nFROM guvi_learners\n-- Runs once, returns one value',result:'→ Result: 81.4',explain:'SQL evaluates the inner query in isolation first. It computes the average score across ALL learners and returns a single number: 81.4.',active:[0],done:[]},
+      {title:'Step 2: Result replaces the subquery',code:'WHERE score > (81.4)\n-- The subquery is replaced\n-- by its returned value',result:'→ Condition: score > 81.4',explain:'The value 81.4 is now substituted in place of the subquery. The outer query\'s WHERE clause now reads: WHERE score > 81.4.',active:[1],done:[0]},
+      {title:'Step 3: Outer query filters using the value',code:'SELECT name, score\nFROM guvi_learners\nWHERE score > 81.4',result:'→ 3 rows: Meera(93), Sneha(91), Priya(85)',explain:'The outer query runs with the computed threshold. Only learners with score above 81.4 are returned. Done!',active:[2],done:[0,1]},
+    ]
+  },
+  derived:{
+    label:'Derived Table — subquery in FROM',
+    steps:[
+      {title:'Step 1: Inner query runs, creates a virtual table',code:'SELECT batch_id, AVG(score) AS avg\nFROM guvi_learners\nGROUP BY batch_id',result:'→ B01:79.0  B02:84.5  B03:76.2',explain:'The derived table subquery runs first and produces a temporary result set — a virtual table with batch_id and avg_score for each batch.',active:[0],done:[]},
+      {title:'Step 2: Virtual table gets an alias',code:'FROM (\n  ...\n) AS batch_summary\n-- Now treated as a real table',result:'→ "batch_summary" is now queryable',explain:'The result of the inner query is given the alias "batch_summary". From this point, the outer query treats it exactly like a regular table.',active:[1],done:[0]},
+      {title:'Step 3: Outer query filters the virtual table',code:'SELECT batch_id, avg\nFROM batch_summary\nWHERE avg > 75',result:'→ B01:79.0  B02:84.5 (B03 excluded)',explain:'The outer query applies a WHERE filter on the derived table. Only batches with average above 75 appear. B03 (avg 76.2) is above 75, so all 3 appear here.',active:[2],done:[0,1]},
+    ]
+  },
+  correlated:{
+    label:'Correlated Subquery — runs once per outer row',
+    steps:[
+      {title:'Step 1: Outer query picks first row — Priya (B01, 85)',code:'Outer row: Priya | batch_id=B01 | score=85\n-- Inner query will use B01',result:'→ Processing: Priya',explain:'The outer query starts iterating. For the first row (Priya, batch B01, score 85), the engine is about to run the inner query using B01.',active:[0],done:[]},
+      {title:'Step 2: Inner query runs using Priya\'s batch_id',code:'SELECT AVG(score)\nFROM guvi_learners\nWHERE batch_id = \'B01\'  ← outer reference',result:'→ B01 avg = 79.0',explain:'The inner query computes the average score specifically for batch B01 (Priya\'s batch). It references o.batch_id from the outer row — this is the correlation.',active:[1],done:[0]},
+      {title:'Step 3: Comparison decides if Priya is included',code:'85 > 79.0  → TRUE\n-- Priya is included in results\n\nNext: Ravi (68 > 79.0 → FALSE)',result:'→ Priya: included ✅ | Ravi: excluded ❌',explain:'85 > 79.0 is TRUE, so Priya is included. The outer query then moves to the next row (Ravi, score 68), and the entire process repeats. The inner query runs AGAIN for Ravi.',active:[2],done:[0,1]},
+    ]
+  },
+  exists:{
+    label:'EXISTS — stops at first match found',
+    steps:[
+      {title:'Step 1: Outer query picks first student — Priya (S01)',code:'Outer row: Priya | student_id=S01\n-- EXISTS will check payments table',result:'→ Checking: Priya S01',explain:'The outer query starts with Priya. The EXISTS clause will now check whether any row exists in the payments table for student S01.',active:[0],done:[]},
+      {title:'Step 2: Inner query searches for any matching row',code:'SELECT 1 FROM payments\nWHERE student_id = \'S01\'\n-- Found 1 row → EXISTS = TRUE',result:'→ Found payment! Stops immediately.',explain:'EXISTS finds the very first matching row in payments for S01 and immediately returns TRUE — it does NOT scan all payment records. This early-exit behaviour makes EXISTS fast.',active:[1],done:[0]},
+      {title:'Step 3: Priya included; process repeats for next student',code:'EXISTS = TRUE → Priya included\n\nNext: Ravi (S02)\nNo payment found → EXISTS = FALSE → excluded',result:'→ Priya: ✅ included | Ravi: ❌ excluded',explain:'Because a payment was found, EXISTS returns TRUE and Priya appears in results. For Ravi (no payment), EXISTS returns FALSE. The key advantage: EXISTS short-circuits — it never loads the full payment list into memory.',active:[2],done:[0,1]},
+    ]
+  }
+};
+
+let animType='scalar',animStep=0;
+function setAnimType(type,el){
+  document.querySelectorAll('.anim-type-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  animType=type;animStep=0;renderAnim();
+}
+function renderAnim(){
+  const d=ANIM_DATA[animType];
+  const step=d.steps[animStep];
+  const total=d.steps.length;
+  document.getElementById('step-ind').textContent=`Step ${animStep+1} of ${total}`;
+  document.getElementById('prev-step').disabled=animStep===0;
+  document.getElementById('next-step').disabled=animStep===total-1;
+  const stagesHtml=step.active.concat(step.done).sort((a,b)=>a-b).length>0?
+    [0,1,2].filter(i=>i<total).map(i=>{
+      const isActive=step.active.includes(i);
+      const isDone=step.done.includes(i);
+      const cls=isActive?'active-stage':isDone?'done-stage':'idle-stage';
+      const s=d.steps[i];
+      return `<div class="stage">
+        <div class="stage-label">${isActive?'🔄 Running':isDone?'✅ Done':'⏳ Waiting'}</div>
+        <div class="stage-box ${cls}">
+          <div class="stage-code">${s.code}</div>
+          ${isActive||isDone?`<div class="stage-result show">${s.result}</div>`:''}
+        </div>
+      </div>${i<total-1?'<div class="anim-arrow">→</div>':''}`;
+    }).join(''):'';
+  document.getElementById('anim-stages').innerHTML=stagesHtml;
+  document.getElementById('anim-explain').textContent=step.explain;
+}
+function nextStep(){if(animStep<ANIM_DATA[animType].steps.length-1){animStep++;renderAnim();}}
+function prevStep(){if(animStep>0){animStep--;renderAnim();}}
+renderAnim();
+
+// ── SANDBOX ──
+const SBP=[
+  {re:/not exists/i,res:()=>`<span style="color:var(--green)">✓ NOT EXISTS — students with no payment</span>
+<table class="ot"><tr><th>name</th><th>email</th><th>city</th></tr>
+<tr class="hl-row"><td>Meera Iyer</td><td>meera@email.com</td><td>Chennai</td></tr>
+<tr class="hl-row"><td>Arjun Patel</td><td>arjun@email.com</td><td>Delhi</td></tr>
+</table>`},
+  {re:/exists/i,res:()=>`<span style="color:var(--green)">✓ EXISTS — students with payments found</span>
+<table class="ot"><tr><th>name</th><th>email</th><th>city</th></tr>
+<tr><td>Priya Sharma</td><td>priya@email.com</td><td>Chennai</td></tr>
+<tr><td>Ravi Kumar</td><td>ravi@email.com</td><td>Mumbai</td></tr>
+<tr><td>Sneha Nair</td><td>sneha@email.com</td><td>Bangalore</td></tr>
+</table>`},
+  {re:/batch_id\s*=\s*o\.batch_id|i\.batch_id/i,res:()=>`<span style="color:var(--green)">✓ Correlated subquery — above batch average</span>
+<table class="ot"><tr><th>name</th><th>batch_id</th><th>score</th><th>batch_avg</th></tr>
+<tr class="hl-row"><td>Meera Iyer</td><td>B01</td><td>93</td><td>79.0</td></tr>
+<tr class="hl-row"><td>Priya Sharma</td><td>B01</td><td>85</td><td>79.0</td></tr>
+<tr class="hl-row"><td>Sneha Nair</td><td>B02</td><td>91</td><td>84.5</td></tr>
+</table>`},
+  {re:/from\s*\(.*group by/is,res:()=>`<span style="color:var(--green)">✓ Derived table — batch summaries above threshold</span>
+<table class="ot"><tr><th>batch_id</th><th>avg_score</th><th>top_score</th></tr>
+<tr><td>B01</td><td>79.0</td><td>93</td></tr>
+<tr><td>B02</td><td>84.5</td><td>91</td></tr>
+<tr><td>B03</td><td>76.2</td><td>88</td></tr>
+</table>`},
+  {re:/where\s+score\s*>\s*\(\s*select\s+avg/i,res:()=>`<span style="color:var(--green)">✓ Scalar subquery — above class average (81.4)</span>
+<table class="ot"><tr><th>name</th><th>score</th><th>vs average</th></tr>
+<tr class="hl-row"><td>Meera Iyer</td><td>93</td><td>+11.6</td></tr>
+<tr class="hl-row"><td>Sneha Nair</td><td>91</td><td>+9.6</td></tr>
+<tr class="hl-row"><td>Priya Sharma</td><td>85</td><td>+3.6</td></tr>
+</table>`},
+  {re:/where.*batch_id\s+in\s*\(/i,res:()=>`<span style="color:var(--green)">✓ IN subquery — students in matching batches</span>
+<table class="ot"><tr><th>name</th><th>batch_id</th></tr>
+<tr><td>Priya Sharma</td><td>B01</td></tr>
+<tr><td>Ravi Kumar</td><td>B01</td></tr>
+<tr><td>Arjun Patel</td><td>B03</td></tr>
+</table>`},
+];
+function runSB(){
+  const sql=document.getElementById('sbed').value.trim();
+  const out=document.getElementById('sbout');
+  if(!sql){out.innerHTML='<span style="color:var(--muted)">⚠️ Enter a SQL query first.</span>';return;}
+  for(const p of SBP){if(p.re.test(sql)){out.innerHTML=p.res();return;}}
+  out.innerHTML='<span style="color:var(--green)">✓ Query OK — try a pattern with SELECT AVG in WHERE, FROM (...) AS alias, EXISTS, or NOT EXISTS!</span>';
+}
+function clearSB(){
+  document.getElementById('sbed').value='';
+  document.getElementById('sbout').innerHTML='<span style="color:var(--muted);font-size:12px">▶ Output will appear here</span>';
+}
+
+// ── QUIZ ──
+const QS=[
+  {q:"What makes a subquery 'correlated'?",opts:["It returns more than one value","It references a column from the outer query inside the inner query","It runs before the outer query","It uses a JOIN instead of a WHERE clause"],ans:1,exp:"A correlated subquery references a column from the outer query (e.g., WHERE i.batch_id = o.batch_id). This means it cannot run independently — it re-executes for every row of the outer query."},
+  {q:"A scalar subquery returns how many rows/columns?",opts:["Many rows, one column","One row, many columns","Exactly one row and one column (one value)","Zero or more rows"],ans:2,exp:"A scalar subquery returns exactly one value (one row, one column). If it returns more than one row, SQL throws an error. Use LIMIT 1 or aggregate functions to guarantee a single value."},
+  {q:"You put a subquery in the FROM clause. What must you always add?",opts:["A WHERE condition","An alias (AS name)","An ORDER BY clause","A LIMIT statement"],ans:1,exp:"A derived table (subquery in FROM) MUST have an alias. Without it, MySQL and PostgreSQL throw an error because the result set needs a name to be referenced. Example: FROM (...) AS my_alias."},
+  {q:"Which of these correctly describes NOT EXISTS vs NOT IN?",opts:["They are identical in all cases","NOT EXISTS is safer — it handles NULLs correctly; NOT IN fails silently when NULLs are present in the subquery","NOT IN is always faster than NOT EXISTS","NOT EXISTS only works in correlated subqueries"],ans:1,exp:"NOT EXISTS is always safer. If a NOT IN subquery returns even one NULL, the entire NOT IN condition returns FALSE for all rows — a silent bug. NOT EXISTS handles NULLs correctly and is the recommended approach."},
+  {q:"Why does EXISTS use SELECT 1 instead of SELECT *?",opts:["SELECT 1 is required syntax for EXISTS","EXISTS only checks if any row is returned — the column values don't matter, so SELECT 1 is a convention that signals intent","SELECT * would cause a syntax error inside EXISTS","SELECT 1 is faster because it returns a number"],ans:1,exp:"EXISTS only tests for the presence of at least one row — it doesn't care what values are returned. Using SELECT 1 is a convention that makes this intent clear. Some databases optimise both the same way, but SELECT 1 communicates 'I only care that a row exists.'"},
+  {q:"You want to find GUVI learners scoring above their own batch's average — not the overall average. What type of subquery is best?",opts:["Scalar subquery in SELECT","Correlated subquery in WHERE that references the outer batch_id","Derived table in FROM","IN subquery with a list of batch IDs"],ans:1,exp:"This is the classic correlated subquery use case. The inner query must reference o.batch_id from the outer query to compute each batch's specific average. A non-correlated scalar would give the overall average, not the batch average."},
+  {q:"When is a derived table (subquery in FROM) better than a correlated subquery?",opts:["Never — correlated subqueries are always better","When you need to aggregate first, then filter — the aggregate is computed once instead of once per row","When you need to check existence","When you use EXISTS"],ans:1,exp:"A derived table computes the aggregation ONCE for all groups and stores the result in a virtual table. A correlated subquery recomputes for each outer row. For batch averages across 10,000 learners, the derived table approach is dramatically faster."},
+  {q:"Three levels of nested subqueries are getting hard to read. What should you refactor to?",opts:["Add more comments to the subqueries","Convert to a CTE (WITH clause) — name each step clearly","Use a FULL OUTER JOIN instead","Use GROUP BY more aggressively"],ans:1,exp:"CTEs (Common Table Expressions, using WITH) are the cure for deeply nested subqueries. Each logical step gets a name, can be tested in isolation, and the final query reads like plain English. Deeply nested subqueries should almost always be refactored to CTEs in production code."},
+];
+let qi=0,score=0,answered=false;
+function renderQ(){
+  const q=QS[qi];
+  document.getElementById('qprog').textContent=`Question ${qi+1} of ${QS.length}`;
+  document.getElementById('qq').textContent=q.q;
+  document.getElementById('qopts').innerHTML=q.opts.map((o,i)=>
+    `<li class="qopt" onclick="selQ(${i})" id="qo-${i}"><span class="ok">${String.fromCharCode(65+i)}</span>${o}</li>`).join('');
+  document.getElementById('qfb').className='qfb';
+  document.getElementById('qfb').innerHTML='';
+  document.getElementById('qnext').style.display='none';
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi}`;
+  answered=false;
+}
+function selQ(i){
+  if(answered)return;answered=true;
+  const q=QS[qi];
+  document.querySelectorAll('.qopt').forEach((o,j)=>{
+    if(j===q.ans)o.classList.add('correct');
+    else if(j===i)o.classList.add('wrong');
+  });
+  if(i===q.ans)score++;
+  const fb=document.getElementById('qfb');
+  fb.className=`qfb show ${i===q.ans?'correct':'wrong'}`;
+  fb.innerHTML=`<strong>${i===q.ans?'✅ Correct!':'❌ Not quite.'}</strong> ${q.exp}`;
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi+1}`;
+  const nb=document.getElementById('qnext');
+  nb.style.display='inline-block';
+  nb.textContent=qi<QS.length-1?'Next Question →':'See Results 🎉';
+}
+function nextQ(){qi++;if(qi<QS.length)renderQ();else showResults();}
+function showResults(){
+  document.querySelector('.qw').style.display='none';
+  const dc=document.getElementById('done-card');dc.style.display='block';
+  const pct=Math.round((score/QS.length)*100);
+  document.getElementById('done-title').textContent=pct>=80?'🎉 Subquery Master!':pct>=60?'👍 Good Work!':'💪 Keep Practising!';
+  document.getElementById('done-msg').textContent=`You scored ${score} out of ${QS.length} (${pct}%). ${pct>=80?'You can write correlated subqueries, EXISTS checks, and know when to switch to CTEs!':'Focus on correlated vs non-correlated, and the NOT IN NULL trap — those are the key interview questions!'}`;
+  markDone('quiz');
+  if(pct>=70)doConfetti();
+}
+renderQ();
+
+// ── CONFETTI ──
+function doConfetti(){
+  const cv=document.getElementById('cvc');
+  const ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  const cols=['#7c3aed','#0d9488','#2563eb','#d97706','#16a34a','#ea580c','#e11d48'];
+  const pp=Array.from({length:140},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height-cv.height,r:Math.random()*9+4,color:cols[Math.floor(Math.random()*cols.length)],tilt:Math.random()*10-10,spd:Math.random()*3+1.5}));
+  let fr=0;
+  function draw(){ctx.clearRect(0,0,cv.width,cv.height);pp.forEach(p=>{ctx.beginPath();ctx.ellipse(p.x,p.y,p.r,p.r/2,p.tilt,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();p.y+=p.spd;p.x+=Math.sin(fr/18)*1.5;p.tilt+=.08;if(p.y>cv.height){p.y=-10;p.x=Math.random()*cv.width;}});fr++;if(fr<220)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);}
+  draw();
+}
+</script>
+</body>
+</html>

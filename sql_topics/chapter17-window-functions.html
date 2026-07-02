@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 17 — Window Functions: Ranking & Analytics | SQL Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --teal:#0d9488;--tl:#ccfbf1;--td:#0f766e;
+  --blue:#2563eb;--bl:#dbeafe;
+  --indigo:#4f46e5;--il:#e0e7ff;
+  --amber:#d97706;--al:#fef3c7;
+  --red:#dc2626;--rl:#fee2e2;
+  --green:#16a34a;--gl:#dcfce7;
+  --purple:#7c3aed;--pl:#ede9fe;
+  --orange:#ea580c;--ol:#ffedd5;
+  --pink:#db2777;--pinkl:#fce7f3;
+  --bg:#f8fafc;--surface:#fff;
+  --border:#e2e8f0;--text:#0f172a;--muted:#64748b;
+  --sw:272px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+.sidebar{width:var(--sw);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;display:flex;flex-direction:column;}
+.sbh{padding:20px 18px 16px;background:linear-gradient(135deg,#581c87,#9a3412);border-bottom:1px solid var(--border);}
+.sbh .badge{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#e9d5ff;margin-bottom:4px;}
+.sbh h2{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;line-height:1.3;}
+.sbh p{font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;}
+.sbp{padding:14px 18px;border-bottom:1px solid var(--border);}
+.pbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;}
+.pb{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+.pf{height:100%;background:linear-gradient(90deg,var(--purple),var(--orange));border-radius:99px;transition:width .4s;}
+.sbn{flex:1;padding:8px 0;}
+.nsl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 18px 4px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;font-size:13px;color:var(--muted);font-weight:500;}
+.ni:hover{background:var(--bg);color:var(--text);}
+.ni.active{border-left-color:var(--purple);background:var(--pl);color:var(--purple);font-weight:600;}
+.ni.done{color:var(--green);}
+.nc{margin-left:auto;font-size:13px;}
+.main{margin-left:var(--sw);flex:1;min-width:0;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.tbl{display:flex;align-items:center;gap:12px;}
+.chp{background:var(--pl);color:var(--purple);font-family:'Sora',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.05em;}
+.topbar h1{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;}
+.nb{display:flex;gap:8px;}
+.nbtn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s;}
+.nbtn.pri{background:var(--purple);color:#fff;border-color:var(--purple);}
+.nbtn:hover{border-color:var(--purple);color:var(--purple);}
+.nbtn.pri:hover{background:#6d28d9;}
+.sec{display:none;padding:36px 44px 64px;max-width:1020px;}
+.sec.active{display:block;}
+.hero{background:linear-gradient(135deg,#581c87 0%,#9a3412 100%);border-radius:16px;padding:36px 40px;color:#fff;margin-bottom:32px;position:relative;overflow:hidden;}
+.hero::after{content:'🪟';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-size:90px;opacity:.13;}
+.hero .ey{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#e9d5ff;margin-bottom:8px;}
+.hero h2{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;line-height:1.2;margin-bottom:10px;}
+.hero p{font-size:14px;opacity:.82;line-height:1.65;max-width:560px;}
+.st{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.ss{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:20px;}
+.ct{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.cb{background:#0f172a;border-radius:10px;padding:18px 22px;margin:14px 0;overflow-x:auto;position:relative;}
+.cb pre{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.82;color:#e2e8f0;white-space:pre;}
+.cl{position:absolute;top:10px;right:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+.kw{color:#7dd3fc;}.fn{color:#a5f3fc;}.str{color:#86efac;}.cm{color:#475569;font-style:italic;}.op{color:#f9a8d4;}.num{color:#fcd34d;}.wf{color:#fb923c;font-weight:700;}.pt{color:#c4b5fd;font-weight:700;}
+.co{border-radius:10px;padding:14px 18px;margin:16px 0;display:flex;gap:12px;font-size:13.5px;line-height:1.65;}
+.ci{font-size:18px;flex-shrink:0;margin-top:1px;}
+.co strong{display:block;font-weight:700;margin-bottom:3px;}
+.co.tip{background:var(--tl);border-left:4px solid var(--teal);color:#134e4a;}
+.co.warn{background:var(--al);border-left:4px solid var(--amber);color:#78350f;}
+.co.info{background:var(--bl);border-left:4px solid var(--blue);color:#1e3a5f;}
+.co.danger{background:var(--rl);border-left:4px solid var(--red);color:#7f1d1d;}
+.co.success{background:var(--gl);border-left:4px solid var(--green);color:#14532d;}
+.co.purple{background:var(--pl);border-left:4px solid var(--purple);color:#3b0764;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+.dtbl{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+.dtbl th{background:#0f172a;color:#fff;padding:9px 14px;text-align:left;font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;}
+.dtbl td{padding:9px 14px;border-bottom:1px solid var(--border);color:#334155;}
+.dtbl tr:nth-child(even) td{background:#f8fafc;}
+.hl-rank td{background:var(--pl)!important;font-weight:700;color:var(--purple)!important;}
+.tie-row td{background:var(--al)!important;}
+
+/* OVER CLAUSE ANATOMY */
+.anatomy{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:24px;margin:20px 0;}
+.anatomy-code{font-family:'JetBrains Mono',monospace;font-size:15px;text-align:center;margin-bottom:20px;}
+.anatomy-part{display:inline-block;padding:4px 10px;border-radius:6px;margin:2px;}
+.ap-fn{background:#fed7aa;color:#9a3412;}
+.ap-partition{background:#bfdbfe;color:#1e3a8a;}
+.ap-order{background:#bbf7d0;color:#14532d;}
+.anatomy-legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;font-size:12px;}
+.legend-item{display:flex;align-items:center;gap:6px;}
+.legend-dot{width:12px;height:12px;border-radius:3px;}
+
+/* RANKING COMPARISON TABLE */
+.rank-compare{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+.rank-compare th{background:#0f172a;color:#fff;padding:9px 14px;text-align:center;font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;}
+.rank-compare td{padding:9px 14px;border-bottom:1px solid var(--border);text-align:center;color:#334155;}
+.rank-compare tr:nth-child(even) td{background:#f8fafc;}
+.rank-compare .tie-highlight td{background:var(--al)!important;}
+.rc-rownum{color:var(--blue);font-weight:700;}
+.rc-rank{color:var(--purple);font-weight:700;}
+.rc-denserank{color:var(--teal);font-weight:700;}
+
+/* ════ SIGNATURE: WINDOW FUNCTION PLAYGROUND ════ */
+.wfplay{background:var(--surface);border:2px solid var(--purple);border-radius:16px;overflow:hidden;margin:24px 0;}
+.wf-head{background:linear-gradient(90deg,#581c87,#9a3412);padding:18px 24px;}
+.wf-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;}
+.wf-sub{font-size:12px;color:#e9d5ff;margin-top:3px;}
+.wf-tabs{display:flex;gap:4px;padding:14px 24px 0;border-bottom:2px solid var(--border);background:#fafafa;flex-wrap:wrap;}
+.wftab{padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;color:var(--muted);font-family:'Sora',sans-serif;border-radius:6px 6px 0 0;}
+.wftab:hover{color:var(--purple);}
+.wftab.active{border-bottom-color:var(--purple);color:var(--purple);background:#fff;}
+.wf-body{padding:24px;}
+.wf-table-wrap{overflow-x:auto;}
+.wf-result-table{width:100%;border-collapse:collapse;font-size:12.5px;font-family:'JetBrains Mono',monospace;min-width:600px;}
+.wf-result-table th{background:#0f172a;color:#fff;padding:8px 12px;text-align:left;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;white-space:nowrap;}
+.wf-result-table td{padding:8px 12px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.wf-result-table .partition-a{background:#faf5ff;}
+.wf-result-table .partition-b{background:#fff7ed;}
+.wf-result-table .computed-col{background:var(--pl)!important;color:var(--purple);font-weight:700;}
+.wf-result-table .partition-divider td{border-top:2px solid var(--purple);}
+.wf-query-box{background:#0f172a;border-radius:9px;padding:14px 18px;margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#e2e8f0;line-height:1.8;}
+.wf-explain{background:#f8fafc;border-radius:9px;padding:12px 16px;margin-top:12px;font-size:12.5px;color:#334155;line-height:1.6;border-left:4px solid var(--purple);}
+
+/* TOP N PATTERN */
+.topn-demo{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:20px;margin:16px 0;}
+.topn-batch{margin-bottom:14px;}
+.topn-batch-label{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:var(--purple);margin-bottom:6px;}
+.topn-rows{display:flex;flex-direction:column;gap:3px;}
+.topn-row{display:flex;justify-content:space-between;padding:6px 12px;border-radius:6px;font-size:12.5px;font-family:'JetBrains Mono',monospace;}
+.topn-row.kept{background:var(--gl);color:#166534;font-weight:700;}
+.topn-row.excluded{background:#f1f5f9;color:#94a3b8;}
+
+/* MOVING WINDOW VISUAL */
+.window-frame-demo{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:20px;margin:16px 0;overflow-x:auto;}
+.wf-row-strip{display:flex;gap:4px;margin-bottom:8px;}
+.wf-cell{min-width:70px;padding:8px 10px;border-radius:6px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11.5px;background:#f1f5f9;border:2px solid transparent;}
+.wf-cell.in-window{border-color:var(--purple);background:var(--pl);font-weight:700;}
+.wf-cell.current{border-color:var(--orange);background:#fed7aa;font-weight:800;}
+
+.steps{list-style:none;margin:16px 0;}
+.step{display:flex;gap:14px;margin-bottom:16px;}
+.sn{width:28px;height:28px;background:var(--purple);color:#fff;border-radius:50%;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.sb2{flex:1;}
+.sb2 strong{font-weight:700;font-size:14px;display:block;margin-bottom:3px;}
+.sb2 p{font-size:13.5px;color:#334155;line-height:1.6;}
+
+.sandbox{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+.sbh2{background:#0f172a;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;}
+.sbt{font-family:'JetBrains Mono',monospace;font-size:12px;color:#94a3b8;font-weight:600;display:flex;align-items:center;gap:8px;}
+.sbact{display:flex;gap:8px;}
+.sbbtn{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;transition:all .15s;}
+.sbbtn.run{background:var(--teal);color:#fff;}
+.sbbtn.run:hover{background:var(--td);}
+.sbbtn.clr{background:#1e293b;color:#94a3b8;}
+.sbbtn.clr:hover{color:#fff;}
+.sbed{width:100%;min-height:130px;background:#1e293b;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:13px;padding:16px 18px;border:none;outline:none;resize:vertical;line-height:1.8;}
+.sbout{padding:14px 18px;min-height:60px;font-family:'JetBrains Mono',monospace;font-size:12.5px;border-top:1px solid var(--border);background:#f8fafc;color:#334155;line-height:1.6;}
+.ot{border-collapse:collapse;width:100%;margin-top:8px;font-size:12px;}
+.ot th{background:#0f172a;color:#fff;padding:7px 12px;text-align:left;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;}
+.ot td{padding:7px 12px;border-bottom:1px solid #e2e8f0;}
+.ot tr:nth-child(even) td{background:#f1f5f9;}
+
+.qw{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;}
+.qq{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;line-height:1.4;}
+.qopts{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.qopt{padding:12px 16px;border:2px solid var(--border);border-radius:9px;cursor:pointer;font-size:14px;font-weight:500;transition:all .15s;display:flex;align-items:center;gap:10px;}
+.qopt:hover{border-color:var(--purple);background:var(--pl);}
+.qopt.correct{border-color:var(--green);background:var(--gl);color:var(--green);}
+.qopt.wrong{border-color:var(--red);background:var(--rl);color:var(--red);}
+.ok{width:24px;height:24px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Sora',sans-serif;}
+.qfb{display:none;padding:12px 16px;border-radius:9px;font-size:13.5px;line-height:1.5;margin-bottom:14px;}
+.qfb.show{display:block;}
+.qfb.correct{background:var(--gl);color:#14532d;border-left:4px solid var(--green);}
+.qfb.wrong{background:var(--rl);color:#7f1d1d;border-left:4px solid var(--red);}
+.qnav{display:flex;justify-content:space-between;align-items:center;}
+.qsc{font-family:'Sora',sans-serif;font-size:14px;color:var(--muted);}
+.qbtn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;background:var(--purple);color:#fff;}
+.qbtn:hover{background:#6d28d9;}
+.qprog{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.done{text-align:center;padding:48px 32px;background:linear-gradient(135deg,var(--pl),var(--ol));border-radius:16px;border:1px solid var(--border);margin-top:32px;}
+.done .trophy{font-size:56px;margin-bottom:12px;}
+.done h3{font-family:'Sora',sans-serif;font-size:24px;font-weight:800;margin-bottom:8px;}
+.done p{color:var(--muted);font-size:14px;max-width:440px;margin:0 auto 20px;}
+.donebtn{padding:12px 28px;background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;}
+#cvc{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}.sec{padding:24px 20px 40px}.g2,.g3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="cvc"></canvas>
+
+<aside class="sidebar">
+  <div class="sbh">
+    <div class="badge">SQL Mastery Course</div>
+    <h2>Chapter 17: Window Functions</h2>
+    <p>Ranking & Analytics</p>
+  </div>
+  <div class="sbp">
+    <div class="pbl"><span>Progress</span><span id="pp">0%</span></div>
+    <div class="pb"><div class="pf" id="pf" style="width:0%"></div></div>
+  </div>
+  <nav class="sbn">
+    <div class="nsl">Content</div>
+    <div class="ni active" data-s="intro"     onclick="showS('intro',this)">    <span>🏠</span> Introduction              <span class="nc" id="chk-intro"></span></div>
+    <div class="ni" data-s="overclause" onclick="showS('overclause',this)"><span>🪟</span> The OVER() Clause          <span class="nc" id="chk-overclause"></span></div>
+    <div class="ni" data-s="ranking"   onclick="showS('ranking',this)">  <span>🥇</span> ROW_NUMBER, RANK, DENSE_RANK <span class="nc" id="chk-ranking"></span></div>
+    <div class="ni" data-s="ntile"     onclick="showS('ntile',this)">    <span>📊</span> NTILE — Bucketing          <span class="nc" id="chk-ntile"></span></div>
+    <div class="ni" data-s="topn"      onclick="showS('topn',this)">     <span>🏆</span> Top N Per Group Pattern    <span class="nc" id="chk-topn"></span></div>
+    <div class="ni" data-s="playground" onclick="showS('playground',this)"><span>🎮</span> Live Window Lab ✨        <span class="nc" id="chk-playground"></span></div>
+    <div class="ni" data-s="lag"       onclick="showS('lag',this)">      <span>⏪</span> LAG &amp; LEAD               <span class="nc" id="chk-lag"></span></div>
+    <div class="ni" data-s="running"   onclick="showS('running',this)">  <span>📈</span> Running Totals &amp; Avg     <span class="nc" id="chk-running"></span></div>
+    <div class="ni" data-s="frames"    onclick="showS('frames',this)">   <span>🪟</span> ROWS BETWEEN — Frames      <span class="nc" id="chk-frames"></span></div>
+    <div class="ni" data-s="firstlast" onclick="showS('firstlast',this)"><span>🎯</span> FIRST/LAST/NTH_VALUE       <span class="nc" id="chk-firstlast"></span></div>
+    <div class="ni" data-s="realworld" onclick="showS('realworld',this)"><span>🇮🇳</span> Real-World Recipes        <span class="nc" id="chk-realworld"></span></div>
+    <div class="ni" data-s="sandbox"   onclick="showS('sandbox',this)">  <span>💻</span> Practice Sandbox          <span class="nc" id="chk-sandbox"></span></div>
+    <div class="ni" data-s="quiz"      onclick="showS('quiz',this)">     <span>🧠</span> Chapter Quiz              <span class="nc" id="chk-quiz"></span></div>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="tbl"><span class="chp">Chapter 17</span><h1>Window Functions — Ranking &amp; Analytics</h1></div>
+    <div class="nb">
+      <button class="nbtn" onclick="prevS()">← Prev</button>
+      <button class="nbtn pri" onclick="nextS()">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══ INTRO ══ -->
+  <section class="sec active" id="sec-intro">
+    <div class="hero">
+      <div class="ey">Chapter 17 · Window Functions</div>
+      <h2>See Each Row<br/>In Context of Its Neighbours.</h2>
+      <p>Window functions let you rank, compare, and accumulate values across rows — without collapsing them like GROUP BY does. Rank learners within their batch, compare this month's revenue to last month's, calculate running totals — all while keeping every row visible.</p>
+    </div>
+    <h2 class="st">Window Functions vs GROUP BY — The Key Difference</h2>
+    <p class="ss">GROUP BY collapses many rows into one summary row per group. Window functions calculate something ACROSS a group of rows, but keep every individual row in the output.</p>
+
+    <div class="g2">
+      <div class="card" style="border-left:4px solid var(--red);margin-bottom:0">
+        <div class="ct" style="color:var(--red)">📦 GROUP BY — Collapses Rows</div>
+        <div class="cb" style="margin:0"><pre><span class="kw">SELECT</span> batch_id, <span class="fn">AVG</span>(score)
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">GROUP BY</span> batch_id;</pre></div>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px">Input: 100 rows → Output: 3 rows (one per batch). Individual learner rows are GONE.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--purple);margin-bottom:0">
+        <div class="ct" style="color:var(--purple)">🪟 Window Function — Keeps Rows</div>
+        <div class="cb" style="margin:0"><pre><span class="kw">SELECT</span> name, batch_id, score,
+       <span class="fn">AVG</span>(score) <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> batch_id)
+<span class="kw">FROM</span>   guvi_learners;</pre></div>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px">Input: 100 rows → Output: 100 rows — EVERY learner still appears, now WITH their batch average attached.</p>
+      </div>
+    </div>
+
+    <div class="co info">
+      <span class="ci">🎓</span>
+      <div><strong>Real-world analogy</strong>GROUP BY is like a class photo replaced by just the class average height — you lose every individual student. A window function is like printing each student's photo WITH "class average: 5'6"" written next to them — you see both the individual and the context.</div>
+    </div>
+
+    <div class="g3">
+      <div class="card" style="border-top:4px solid var(--blue);margin-bottom:0">
+        <div class="ct" style="color:var(--blue)">🥇 Ranking</div>
+        <p style="font-size:13px">ROW_NUMBER, RANK, DENSE_RANK, NTILE — order and rank rows within groups.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--teal);margin-bottom:0">
+        <div class="ct" style="color:var(--teal)">⏪ Offset</div>
+        <p style="font-size:13px">LAG, LEAD — look at the previous or next row's value, perfect for comparisons over time.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--orange);margin-bottom:0">
+        <div class="ct" style="color:var(--orange)">📈 Aggregate</div>
+        <p style="font-size:13px">SUM, AVG OVER — running totals, moving averages, cumulative metrics.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ OVER CLAUSE ══ -->
+  <section class="sec" id="sec-overclause">
+    <h2 class="st">🪟 The OVER() Clause — PARTITION BY + ORDER BY</h2>
+    <p class="ss">Every window function ends with OVER(...) — this is what makes it a "window" function. Inside the parentheses, two clauses control its behaviour: PARTITION BY and ORDER BY.</p>
+
+    <div class="card">
+      <div class="ct">🧬 Anatomy of OVER()</div>
+      <div class="anatomy">
+        <div class="anatomy-code">
+          <span class="anatomy-part ap-fn">RANK()</span> <span style="color:var(--muted)">OVER (</span><span class="anatomy-part ap-partition">PARTITION BY batch_id</span> <span class="anatomy-part ap-order">ORDER BY score DESC</span><span style="color:var(--muted)">)</span>
+        </div>
+        <div class="anatomy-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#fed7aa"></div>Function — what to calculate</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#bfdbfe"></div>PARTITION BY — group boundaries (like GROUP BY, but keeps rows)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#bbf7d0"></div>ORDER BY — sort order within each partition</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📋 PARTITION BY — Restarting the Calculation per Group</div>
+      <p style="margin-bottom:10px">PARTITION BY divides rows into groups. The window function resets/recalculates separately for each partition — exactly like GROUP BY, but without collapsing rows.</p>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span>
+  name, batch_id, quiz_score,
+  <span class="fn">RANK</span>() <span class="kw">OVER</span> (<span class="pt">PARTITION BY</span> batch_id <span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>) <span class="kw">AS</span> rank_in_batch
+<span class="kw">FROM</span>   guvi_learners;
+<span class="cm">-- Rank resets to 1 at the start of EACH batch</span></pre></div>
+      <table class="dtbl">
+        <thead><tr><th>name</th><th>batch_id</th><th>quiz_score</th><th>rank_in_batch</th></tr></thead>
+        <tbody>
+          <tr class="hl-rank"><td>Meera Iyer</td><td>B01</td><td>93</td><td>1 ← resets here</td></tr>
+          <tr><td>Priya Sharma</td><td>B01</td><td>85</td><td>2</td></tr>
+          <tr><td>Ravi Kumar</td><td>B01</td><td>68</td><td>3</td></tr>
+          <tr class="hl-rank"><td>Sneha Nair</td><td>B02</td><td>91</td><td>1 ← resets here</td></tr>
+          <tr><td>Arjun Patel</td><td>B02</td><td>78</td><td>2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔄 No PARTITION BY = Whole Table is One Window</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span> name, quiz_score,
+       <span class="fn">RANK</span>() <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>) <span class="kw">AS</span> overall_rank
+<span class="kw">FROM</span>   guvi_learners;
+<span class="cm">-- No PARTITION BY → ranks across ALL learners, ignoring batch</span></pre></div>
+    </div>
+  </section>
+
+  <!-- ══ RANKING ══ -->
+  <section class="sec" id="sec-ranking">
+    <h2 class="st">🥇 ROW_NUMBER, RANK, DENSE_RANK — The Three Ranking Functions</h2>
+    <p class="ss">All three assign a position number, but they behave differently when there are ties (equal values). This is the #1 most-asked SQL interview question.</p>
+
+    <div class="card">
+      <div class="ct">📊 Side-by-Side Comparison — Watch What Happens with Ties</div>
+      <p style="margin-bottom:10px">Notice Priya and Arjun are TIED at 85. Watch how each function handles it differently:</p>
+      <table class="rank-compare">
+        <thead><tr><th>name</th><th>score</th><th class="rc-rownum">ROW_NUMBER()</th><th class="rc-rank">RANK()</th><th class="rc-denserank">DENSE_RANK()</th></tr></thead>
+        <tbody>
+          <tr><td>Meera Iyer</td><td>93</td><td class="rc-rownum">1</td><td class="rc-rank">1</td><td class="rc-denserank">1</td></tr>
+          <tr class="tie-highlight"><td>Priya Sharma</td><td>85</td><td class="rc-rownum">2</td><td class="rc-rank">2</td><td class="rc-denserank">2</td></tr>
+          <tr class="tie-highlight"><td>Arjun Patel</td><td>85</td><td class="rc-rownum">3</td><td class="rc-rank">2</td><td class="rc-denserank">2</td></tr>
+          <tr><td>Sneha Nair</td><td>78</td><td class="rc-rownum">4</td><td class="rc-rank">4 ← skips 3!</td><td class="rc-denserank">3 ← no skip</td></tr>
+          <tr><td>Ravi Kumar</td><td>68</td><td class="rc-rownum">5</td><td class="rc-rank">5</td><td class="rc-denserank">4</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="g3">
+      <div class="card" style="border-top:4px solid var(--blue);margin-bottom:0">
+        <div class="ct" style="color:var(--blue);font-size:14px">ROW_NUMBER()</div>
+        <p style="font-size:12.5px">Always unique, sequential: 1,2,3,4,5. Ties get DIFFERENT numbers, in arbitrary (or insertion) order.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--purple);margin-bottom:0">
+        <div class="ct" style="color:var(--purple);font-size:14px">RANK()</div>
+        <p style="font-size:12.5px">Ties get the SAME rank, but the next rank SKIPS — 1,2,2,4,5. Matches "Olympic" ranking style.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--teal);margin-bottom:0">
+        <div class="ct" style="color:var(--teal);font-size:14px">DENSE_RANK()</div>
+        <p style="font-size:12.5px">Ties get the SAME rank, NO skip in the next rank — 1,2,2,3,4. No gaps ever.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI Example — All Three Together</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span>
+  name, batch_id, quiz_score,
+  <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> batch_id <span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>) <span class="kw">AS</span> row_num,
+  <span class="fn">RANK</span>()       <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> batch_id <span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>) <span class="kw">AS</span> rank_pos,
+  <span class="fn">DENSE_RANK</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> batch_id <span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>) <span class="kw">AS</span> dense_rank_pos
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">ORDER BY</span> batch_id, quiz_score <span class="kw">DESC</span>;</pre></div>
+    </div>
+
+    <div class="co tip">
+      <span class="ci">💡</span>
+      <div><strong>When to use which?</strong><br/>
+        <strong>ROW_NUMBER()</strong> → when you need a guaranteed unique number per row (e.g., pagination, "pick exactly one per group")<br/>
+        <strong>RANK()</strong> → leaderboard / competition style ranking, where tied scores should show the same position<br/>
+        <strong>DENSE_RANK()</strong> → when you want clean, gap-free tier numbers (e.g., "top 3 distinct scores" — even with ties, you still get tiers 1, 2, 3)
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ NTILE ══ -->
+  <section class="sec" id="sec-ntile">
+    <h2 class="st">📊 NTILE(n) — Percentile Bucketing</h2>
+    <p class="ss">NTILE divides rows into N roughly equal-sized buckets — perfect for quartiles, performance tiers, or percentile groupings.</p>
+
+    <div class="card">
+      <div class="ct">📖 NTILE Syntax</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="fn">NTILE</span>(n) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> column <span class="kw">DESC</span>)
+<span class="cm">-- Divides rows into n equal-ish groups, numbered 1 to n</span></pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI Example — Quartile Performance Tiers</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Divide all learners into 4 performance quartiles</span>
+<span class="kw">SELECT</span>
+  name, quiz_score,
+  <span class="fn">NTILE</span>(<span class="num">4</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>) <span class="kw">AS</span> quartile,
+  <span class="kw">CASE</span> <span class="fn">NTILE</span>(<span class="num">4</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>)
+    <span class="kw">WHEN</span> <span class="num">1</span> <span class="kw">THEN</span> <span class="str">'🏆 Top 25%'</span>
+    <span class="kw">WHEN</span> <span class="num">2</span> <span class="kw">THEN</span> <span class="str">'👍 Above Average'</span>
+    <span class="kw">WHEN</span> <span class="num">3</span> <span class="kw">THEN</span> <span class="str">'📊 Below Average'</span>
+    <span class="kw">ELSE</span> <span class="str">'⚠️ Needs Support'</span>
+  <span class="kw">END</span> <span class="kw">AS</span> performance_tier
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">WHERE</span>  quiz_score <span class="kw">IS NOT NULL</span>;</pre></div>
+      <table class="dtbl">
+        <thead><tr><th>name</th><th>quiz_score</th><th>quartile</th><th>performance_tier</th></tr></thead>
+        <tbody>
+          <tr><td>Meera Iyer</td><td>96</td><td>1</td><td>🏆 Top 25%</td></tr>
+          <tr><td>Sneha Nair</td><td>91</td><td>1</td><td>🏆 Top 25%</td></tr>
+          <tr><td>Priya Sharma</td><td>85</td><td>2</td><td>👍 Above Average</td></tr>
+          <tr><td>Arjun Patel</td><td>78</td><td>3</td><td>📊 Below Average</td></tr>
+          <tr><td>Ravi Kumar</td><td>52</td><td>4</td><td>⚠️ Needs Support</td></tr>
+        </tbody>
+      </table>
+      <div class="co success"><span class="ci">✅</span><div>This is exactly how GUVI could automatically flag students needing intervention — anyone in quartile 4 gets routed to extra support, without a human manually reviewing every score.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ TOP N ══ -->
+  <section class="sec" id="sec-topn">
+    <h2 class="st">🏆 Top N Per Group — The Classic Pattern</h2>
+    <p class="ss">One of the most common real-world SQL tasks: "give me the top 3 per category." This is impossible with plain GROUP BY + LIMIT — but trivial with window functions.</p>
+
+    <div class="card">
+      <div class="ct">📖 The Pattern — Window Function + Outer Filter</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Top 2 scorers in EACH batch</span>
+<span class="kw">WITH</span> ranked <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    name, batch_id, quiz_score,
+    <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> batch_id <span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>) <span class="kw">AS</span> rn
+  <span class="kw">FROM</span>   guvi_learners
+)
+<span class="kw">SELECT</span> name, batch_id, quiz_score
+<span class="kw">FROM</span>   ranked
+<span class="kw">WHERE</span>  rn <span class="op"><=</span> <span class="num">2</span>;        <span class="cm">← the filter that makes "Top N" work</span></pre></div>
+      <div class="co danger"><span class="ci">🚨</span><div><strong>Critical rule!</strong>You CANNOT use window functions directly inside a WHERE clause — <code>WHERE ROW_NUMBER() OVER(...) <= 2</code> is a SQL error. Window functions are evaluated AFTER WHERE in the execution order. You must wrap them in a CTE or subquery, then filter the OUTER query.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🎨 Visual — Top 2 Per Batch Selected</div>
+      <div class="topn-demo">
+        <div class="topn-batch">
+          <div class="topn-batch-label">Batch B01</div>
+          <div class="topn-rows">
+            <div class="topn-row kept">1. Meera Iyer — 93 ✅ kept (rn=1)</div>
+            <div class="topn-row kept">2. Priya Sharma — 85 ✅ kept (rn=2)</div>
+            <div class="topn-row excluded">3. Ravi Kumar — 68 ❌ excluded (rn=3)</div>
+          </div>
+        </div>
+        <div class="topn-batch">
+          <div class="topn-batch-label">Batch B02</div>
+          <div class="topn-rows">
+            <div class="topn-row kept">1. Sneha Nair — 91 ✅ kept (rn=1)</div>
+            <div class="topn-row kept">2. Arjun Patel — 78 ✅ kept (rn=2)</div>
+            <div class="topn-row excluded">3. Kavya Rao — 65 ❌ excluded (rn=3)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🚂 IRCTC Example — Most Recent Booking Per Customer</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- For each customer, get only their MOST RECENT booking</span>
+<span class="kw">WITH</span> latest <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    customer_id, pnr_number, journey_date, source_city, destination_city,
+    <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> customer_id <span class="kw">ORDER BY</span> journey_date <span class="kw">DESC</span>) <span class="kw">AS</span> rn
+  <span class="kw">FROM</span>   irctc_bookings
+)
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> latest <span class="kw">WHERE</span> rn <span class="op">=</span> <span class="num">1</span>;</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ PLAYGROUND (SIGNATURE) ══ -->
+  <section class="sec" id="sec-playground">
+    <h2 class="st">🎮 Live Window Function Lab</h2>
+    <p class="ss">Pick a window function and watch it calculate live across the guvi_learners dataset — partitioned by batch, with the computed column highlighted.</p>
+
+    <div class="wfplay">
+      <div class="wf-head">
+        <div class="wf-title">⚡ Window Function Visualiser — guvi_learners</div>
+        <div class="wf-sub">PARTITION BY batch_id · ORDER BY quiz_score DESC</div>
+      </div>
+      <div class="wf-tabs">
+        <div class="wftab active" onclick="setWFTab('row_number',this)">ROW_NUMBER</div>
+        <div class="wftab" onclick="setWFTab('rank',this)">RANK</div>
+        <div class="wftab" onclick="setWFTab('dense_rank',this)">DENSE_RANK</div>
+        <div class="wftab" onclick="setWFTab('lag',this)">LAG</div>
+        <div class="wftab" onclick="setWFTab('lead',this)">LEAD</div>
+        <div class="wftab" onclick="setWFTab('sum_over',this)">SUM() OVER</div>
+        <div class="wftab" onclick="setWFTab('avg_over',this)">AVG() OVER</div>
+      </div>
+      <div class="wf-body">
+        <div class="wf-table-wrap">
+          <table class="wf-result-table" id="wf-table"></table>
+        </div>
+        <div class="wf-query-box" id="wf-query"></div>
+        <div class="wf-explain" id="wf-explain"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LAG/LEAD ══ -->
+  <section class="sec" id="sec-lag">
+    <h2 class="st">⏪ LAG() &amp; LEAD() — Compare to Previous/Next Row</h2>
+    <p class="ss">LAG looks BACKWARD to a previous row's value. LEAD looks FORWARD to the next row's value. Both are essential for time-series comparisons like month-over-month growth.</p>
+
+    <div class="card">
+      <div class="ct">📖 Syntax</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="fn">LAG</span>(column, offset, default) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> ...)
+<span class="fn">LEAD</span>(column, offset, default) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> ...)
+
+<span class="cm">-- offset (optional, default 1) = how many rows back/forward
+-- default (optional) = value to use when there's no previous/next row</span></pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📈 Month-over-Month Growth — The Classic LAG Use Case</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span>
+  month_name,
+  revenue,
+  <span class="fn">LAG</span>(revenue, <span class="num">1</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month_num) <span class="kw">AS</span> prev_month_revenue,
+  revenue <span class="op">-</span> <span class="fn">LAG</span>(revenue, <span class="num">1</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month_num) <span class="kw">AS</span> change,
+  <span class="fn">ROUND</span>(
+    <span class="num">100.0</span> <span class="op">*</span> (revenue <span class="op">-</span> <span class="fn">LAG</span>(revenue, <span class="num">1</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month_num))
+    <span class="op">/</span> <span class="fn">NULLIF</span>(<span class="fn">LAG</span>(revenue, <span class="num">1</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month_num), <span class="num">0</span>),
+    <span class="num">1</span>
+  ) <span class="kw">AS</span> pct_growth
+<span class="kw">FROM</span>   monthly_revenue
+<span class="kw">ORDER BY</span> month_num;</pre></div>
+      <table class="dtbl">
+        <thead><tr><th>month_name</th><th>revenue</th><th>prev_month_revenue</th><th>change</th><th>pct_growth</th></tr></thead>
+        <tbody>
+          <tr><td>January</td><td>₹12,40,000</td><td class="dtbl" style="color:var(--muted);font-style:italic">NULL</td><td style="color:var(--muted);font-style:italic">NULL</td><td style="color:var(--muted);font-style:italic">NULL</td></tr>
+          <tr><td>February</td><td>₹13,80,000</td><td>₹12,40,000</td><td style="color:var(--green)">+1,40,000</td><td style="color:var(--green)">+11.3%</td></tr>
+          <tr><td>March</td><td>₹11,90,000</td><td>₹13,80,000</td><td style="color:var(--red)">-1,90,000</td><td style="color:var(--red)">-13.8%</td></tr>
+          <tr><td>April</td><td>₹15,20,000</td><td>₹11,90,000</td><td style="color:var(--green)">+3,30,000</td><td style="color:var(--green)">+27.7%</td></tr>
+        </tbody>
+      </table>
+      <div class="co tip"><span class="ci">💡</span><div>January's prev_month_revenue is NULL — there's no row before it. Always wrap LAG-based division in NULLIF to avoid divide-by-zero errors on the first row or any zero-revenue month.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📉 Detecting Dropoff Months — GUVI Enrollment Trend</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Flag months where enrollment DROPPED compared to the previous month</span>
+<span class="kw">SELECT</span>
+  month_name,
+  new_enrollments,
+  <span class="fn">LAG</span>(new_enrollments) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month_num) <span class="kw">AS</span> prev_enrollments,
+  <span class="kw">CASE</span>
+    <span class="kw">WHEN</span> new_enrollments <span class="op"><</span> <span class="fn">LAG</span>(new_enrollments) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month_num)
+    <span class="kw">THEN</span> <span class="str">'📉 Dropoff'</span>
+    <span class="kw">ELSE</span> <span class="str">'📈 Growth'</span>
+  <span class="kw">END</span> <span class="kw">AS</span> trend
+<span class="kw">FROM</span>   monthly_enrollment_stats
+<span class="kw">ORDER BY</span> month_num;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">⏩ LEAD() — Looking Forward</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- For each batch start date, show when the NEXT batch starts</span>
+<span class="kw">SELECT</span>
+  batch_name,
+  start_date,
+  <span class="fn">LEAD</span>(start_date) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> start_date) <span class="kw">AS</span> next_batch_start,
+  <span class="fn">DATEDIFF</span>(
+    <span class="fn">LEAD</span>(start_date) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> start_date),
+    start_date
+  ) <span class="kw">AS</span> days_until_next_batch
+<span class="kw">FROM</span>   batches
+<span class="kw">ORDER BY</span> start_date;</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ RUNNING ══ -->
+  <section class="sec" id="sec-running">
+    <h2 class="st">📈 Running Totals &amp; Moving Averages</h2>
+    <p class="ss">SUM() OVER and AVG() OVER let you compute cumulative or rolling metrics — essential for financial dashboards, growth charts, and trend smoothing.</p>
+
+    <div class="card">
+      <div class="ct">💰 Running Revenue Total — SUM() OVER PARTITION BY</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span>
+  order_date,
+  daily_revenue,
+  <span class="fn">SUM</span>(daily_revenue) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> order_date) <span class="kw">AS</span> running_total
+<span class="kw">FROM</span>   zomato_daily_sales
+<span class="kw">ORDER BY</span> order_date;</pre></div>
+      <table class="dtbl">
+        <thead><tr><th>order_date</th><th>daily_revenue</th><th>running_total</th></tr></thead>
+        <tbody>
+          <tr><td>2024-06-01</td><td>₹45,000</td><td>₹45,000</td></tr>
+          <tr><td>2024-06-02</td><td>₹52,000</td><td>₹97,000</td></tr>
+          <tr><td>2024-06-03</td><td>₹38,000</td><td>₹1,35,000</td></tr>
+          <tr><td>2024-06-04</td><td>₹61,000</td><td>₹1,96,000</td></tr>
+        </tbody>
+      </table>
+      <div class="co tip"><span class="ci">💡</span><div><strong>Why does SUM() OVER (ORDER BY ...) accumulate?</strong>When ORDER BY is present without an explicit frame, the default window frame is <code>RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code> — meaning each row sums everything from the start up to itself. This is exactly what creates a "running total."</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📊 SUM() OVER with PARTITION BY — Running Total Per Group</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Running total of fees collected, PER BATCH (resets at each batch)</span>
+<span class="kw">SELECT</span>
+  batch_id,
+  payment_date,
+  amount,
+  <span class="fn">SUM</span>(amount) <span class="kw">OVER</span> (
+    <span class="kw">PARTITION BY</span> batch_id
+    <span class="kw">ORDER BY</span> payment_date
+  ) <span class="kw">AS</span> running_total_per_batch
+<span class="kw">FROM</span>   payments
+<span class="kw">ORDER BY</span> batch_id, payment_date;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📉 Moving Average — Smoothing Out Daily Noise</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- 3-day moving average of daily orders — smooths spikes</span>
+<span class="kw">SELECT</span>
+  order_date,
+  daily_orders,
+  <span class="fn">ROUND</span>(
+    <span class="fn">AVG</span>(daily_orders) <span class="kw">OVER</span> (
+      <span class="kw">ORDER BY</span> order_date
+      <span class="kw">ROWS BETWEEN</span> <span class="num">2</span> <span class="kw">PRECEDING</span> <span class="kw">AND CURRENT ROW</span>
+    ), <span class="num">1</span>
+  ) <span class="kw">AS</span> moving_avg_3day
+<span class="kw">FROM</span>   zomato_daily_sales
+<span class="kw">ORDER BY</span> order_date;</pre></div>
+      <table class="dtbl">
+        <thead><tr><th>order_date</th><th>daily_orders</th><th>moving_avg_3day</th></tr></thead>
+        <tbody>
+          <tr><td>06-01</td><td>320</td><td>320.0 (only 1 day so far)</td></tr>
+          <tr><td>06-02</td><td>410</td><td>365.0 (avg of 2 days)</td></tr>
+          <tr><td>06-03</td><td>280</td><td>336.7 (avg of 3 days)</td></tr>
+          <tr><td>06-04</td><td>510</td><td>400.0 (06-02,03,04)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══ FRAMES ══ -->
+  <section class="sec" id="sec-frames">
+    <h2 class="st">🪟 ROWS BETWEEN — Window Frames</h2>
+    <p class="ss">The frame clause precisely controls WHICH rows are included in the calculation relative to the current row. This is what gives you fine control over running totals vs moving windows.</p>
+
+    <div class="card">
+      <div class="ct">📋 Common Frame Patterns</div>
+      <table class="dtbl">
+        <thead><tr><th>Frame clause</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code></td><td>From the very start through the current row — classic running total</td></tr>
+          <tr><td><code>ROWS BETWEEN 2 PRECEDING AND CURRENT ROW</code></td><td>Current row + 2 rows before it = 3-row moving window</td></tr>
+          <tr><td><code>ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING</code></td><td>Centred window — 1 before, current, 1 after = 3-row centred average</td></tr>
+          <tr><td><code>ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING</code></td><td>From current row to the end — useful for "remaining total"</td></tr>
+          <tr><td><code>ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING</code></td><td>The ENTIRE partition, every time — same as a plain aggregate per partition</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">🎨 Visual — How the Frame Moves with Each Row</div>
+      <p style="margin-bottom:10px;font-size:13px;color:var(--muted)">3-day moving average — <code>ROWS BETWEEN 2 PRECEDING AND CURRENT ROW</code>. As "current row" moves right, the window slides with it:</p>
+      <div class="window-frame-demo">
+        <p style="font-size:11px;color:var(--muted);margin-bottom:6px">Computing for <strong>Day 4</strong> (current row):</p>
+        <div class="wf-row-strip">
+          <div class="wf-cell">Day 1: 320</div>
+          <div class="wf-cell">Day 2: 410</div>
+          <div class="wf-cell in-window">Day 3: 280</div>
+          <div class="wf-cell in-window">Day 4: 510</div>
+          <div class="wf-cell current">CURRENT</div>
+          <div class="wf-cell">Day 5: 390</div>
+        </div>
+        <p style="font-size:11px;color:var(--purple);margin-bottom:14px">↑ Window includes Day 3, Day 4 (2 PRECEDING + CURRENT ROW) → avg = (280+510)/2... wait, includes current too: (280+510+390 is NOT included, only up to current)</p>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:6px">Computing for <strong>Day 5</strong> (window slides right):</p>
+        <div class="wf-row-strip">
+          <div class="wf-cell">Day 1: 320</div>
+          <div class="wf-cell">Day 2: 410</div>
+          <div class="wf-cell">Day 3: 280</div>
+          <div class="wf-cell in-window">Day 4: 510</div>
+          <div class="wf-cell current">Day 5: 390</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📖 Default Frame Behaviour — Important Gotcha</div>
+      <div class="co warn"><span class="ci">⚠️</span><div><strong>If you use ORDER BY without specifying ROWS BETWEEN, the default frame is RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</strong> — which creates a running total automatically. If you DON'T use ORDER BY at all, the default frame is the WHOLE partition — giving you the same total on every row (like a plain aggregate).</div></div>
+      <div class="cb"><span class="cl">SQL — Comparison</span><pre><span class="cm">-- WITH ORDER BY → running total (frame = start to current row)</span>
+<span class="fn">SUM</span>(amount) <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> batch_id <span class="kw">ORDER BY</span> payment_date)
+
+<span class="cm">-- WITHOUT ORDER BY → same total repeated on every row (frame = whole partition)</span>
+<span class="fn">SUM</span>(amount) <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> batch_id)</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ FIRST/LAST/NTH ══ -->
+  <section class="sec" id="sec-firstlast">
+    <h2 class="st">🎯 FIRST_VALUE(), LAST_VALUE(), NTH_VALUE()</h2>
+    <p class="ss">These functions grab a specific value from within the window frame — the first row, the last row, or the Nth row, based on the ORDER BY.</p>
+
+    <div class="card">
+      <div class="ct">📖 Syntax &amp; Use Cases</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="fn">FIRST_VALUE</span>(column) <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> ... <span class="kw">ORDER BY</span> ...)
+<span class="fn">LAST_VALUE</span>(column)  <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> ... <span class="kw">ORDER BY</span> ... <span class="kw">ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING</span>)
+<span class="fn">NTH_VALUE</span>(column, n) <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> ... <span class="kw">ORDER BY</span> ...)</pre></div>
+      <div class="co danger"><span class="ci">🚨</span><div><strong>LAST_VALUE gotcha!</strong>By default, the window frame stops at the CURRENT row — so LAST_VALUE without an explicit frame just returns the current row's own value (not actually the "last" value of the partition). You MUST add <code>ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING</code> to get the true last value across the whole partition.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI Example — Compare Each Score to the Top Scorer in Their Batch</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span>
+  name, batch_id, quiz_score,
+  <span class="fn">FIRST_VALUE</span>(name) <span class="kw">OVER</span> (
+    <span class="kw">PARTITION BY</span> batch_id <span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>
+  ) <span class="kw">AS</span> batch_top_scorer,
+
+  <span class="fn">FIRST_VALUE</span>(quiz_score) <span class="kw">OVER</span> (
+    <span class="kw">PARTITION BY</span> batch_id <span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>
+  ) <span class="op">-</span> quiz_score <span class="kw">AS</span> points_behind_leader
+
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">ORDER BY</span> batch_id, quiz_score <span class="kw">DESC</span>;</pre></div>
+      <table class="dtbl">
+        <thead><tr><th>name</th><th>batch_id</th><th>quiz_score</th><th>batch_top_scorer</th><th>points_behind_leader</th></tr></thead>
+        <tbody>
+          <tr><td>Meera Iyer</td><td>B01</td><td>93</td><td>Meera Iyer</td><td>0</td></tr>
+          <tr><td>Priya Sharma</td><td>B01</td><td>85</td><td>Meera Iyer</td><td>8</td></tr>
+          <tr><td>Ravi Kumar</td><td>B01</td><td>68</td><td>Meera Iyer</td><td>25</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">🥉 NTH_VALUE — Get the 2nd Highest Score</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span> <span class="kw">DISTINCT</span>
+  batch_id,
+  <span class="fn">NTH_VALUE</span>(quiz_score, <span class="num">2</span>) <span class="kw">OVER</span> (
+    <span class="kw">PARTITION BY</span> batch_id <span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>
+    <span class="kw">ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING</span>
+  ) <span class="kw">AS</span> second_highest_score
+<span class="kw">FROM</span>   guvi_learners;</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ REAL WORLD ══ -->
+  <section class="sec" id="sec-realworld">
+    <h2 class="st">🇮🇳 Real-World Recipes</h2>
+    <p class="ss">Three complete, exam-style problems combining everything from this chapter.</p>
+
+    <div class="card">
+      <div class="ct">📊 Recipe 1 — Rank Learners by Score Per Batch (with tier labels)</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span>
+  name, batch_id, quiz_score,
+  <span class="fn">RANK</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> batch_id <span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>) <span class="kw">AS</span> batch_rank,
+  <span class="kw">CASE</span>
+    <span class="kw">WHEN</span> <span class="fn">RANK</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> batch_id <span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>) <span class="op">=</span> <span class="num">1</span> <span class="kw">THEN</span> <span class="str">'🥇 Topper'</span>
+    <span class="kw">WHEN</span> <span class="fn">RANK</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> batch_id <span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>) <span class="op"><=</span> <span class="num">3</span> <span class="kw">THEN</span> <span class="str">'🏅 Top 3'</span>
+    <span class="kw">ELSE</span> <span class="str">''</span>
+  <span class="kw">END</span> <span class="kw">AS</span> badge
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">ORDER BY</span> batch_id, batch_rank;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📉 Recipe 2 — Detect Enrollment Dropoff Months</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">WITH</span> monthly <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> <span class="fn">DATE_FORMAT</span>(enrolled_on, <span class="str">'%Y-%m'</span>) <span class="kw">AS</span> month,
+         <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> new_learners
+  <span class="kw">FROM</span>   guvi_learners
+  <span class="kw">GROUP BY</span> <span class="fn">DATE_FORMAT</span>(enrolled_on, <span class="str">'%Y-%m'</span>)
+)
+<span class="kw">SELECT</span>
+  month, new_learners,
+  <span class="fn">LAG</span>(new_learners) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month) <span class="kw">AS</span> prev_month,
+  <span class="fn">ROUND</span>(<span class="num">100.0</span> <span class="op">*</span> (new_learners <span class="op">-</span> <span class="fn">LAG</span>(new_learners) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month))
+        <span class="op">/</span> <span class="fn">NULLIF</span>(<span class="fn">LAG</span>(new_learners) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month),<span class="num">0</span>), <span class="num">1</span>) <span class="kw">AS</span> pct_change,
+  <span class="kw">CASE</span> <span class="kw">WHEN</span> new_learners <span class="op"><</span> <span class="fn">LAG</span>(new_learners) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> month) <span class="kw">THEN</span> <span class="str">'⚠️ DROPOFF'</span> <span class="kw">ELSE</span> <span class="str">'✅ OK'</span> <span class="kw">END</span> <span class="kw">AS</span> flag
+<span class="kw">FROM</span>   monthly
+<span class="kw">ORDER BY</span> month;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">💰 Recipe 3 — Running Revenue Totals with Daily + Cumulative</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">SELECT</span>
+  payment_date,
+  <span class="fn">SUM</span>(amount)                                            <span class="kw">AS</span> daily_revenue,
+  <span class="fn">SUM</span>(<span class="fn">SUM</span>(amount)) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> payment_date)          <span class="kw">AS</span> running_total,
+  <span class="fn">ROUND</span>(
+    <span class="fn">AVG</span>(<span class="fn">SUM</span>(amount)) <span class="kw">OVER</span> (
+      <span class="kw">ORDER BY</span> payment_date
+      <span class="kw">ROWS BETWEEN</span> <span class="num">6</span> <span class="kw">PRECEDING AND CURRENT ROW</span>
+    ), <span class="num">0</span>
+  )                                                       <span class="kw">AS</span> rolling_7day_avg
+<span class="kw">FROM</span>   payments
+<span class="kw">GROUP BY</span> payment_date
+<span class="kw">ORDER BY</span> payment_date;
+<span class="cm">-- Note: SUM(SUM(amount)) OVER(...) — nesting an aggregate inside a window function
+-- is valid because GROUP BY runs first, THEN window functions apply to the grouped result</span></pre></div>
+    </div>
+  </section>
+
+  <!-- ══ SANDBOX ══ -->
+  <section class="sec" id="sec-sandbox">
+    <h2 class="st">💻 Practice Sandbox</h2>
+    <p class="ss">Practice window functions on the GUVI dataset. The sandbox recognises patterns and returns realistic output.</p>
+
+    <div class="sandbox">
+      <div class="sbh2">
+        <div class="sbt"><span>🖥️</span> SQL Sandbox — Window Functions</div>
+        <div class="sbact">
+          <button class="sbbtn clr" onclick="clearSB()">Clear</button>
+          <button class="sbbtn run" onclick="runSB()">▶ Run</button>
+        </div>
+      </div>
+      <textarea class="sbed" id="sbed" spellcheck="false" placeholder="-- Try these patterns:
+-- SELECT name, RANK() OVER (PARTITION BY batch_id ORDER BY quiz_score DESC) FROM guvi_learners;
+-- SELECT name, ROW_NUMBER() OVER (PARTITION BY batch_id ORDER BY quiz_score DESC) AS rn FROM guvi_learners;
+-- SELECT month, revenue, LAG(revenue) OVER (ORDER BY month) FROM monthly_revenue;
+-- SELECT order_date, SUM(amount) OVER (ORDER BY order_date) AS running_total FROM orders;
+-- WITH ranked AS (SELECT *, ROW_NUMBER() OVER (...) AS rn FROM guvi_learners) SELECT * FROM ranked WHERE rn <= 3;
+"></textarea>
+      <div class="sbout" id="sbout"><span style="color:var(--muted);font-size:12px">▶ Output will appear here</span></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📝 Practice Challenges</div>
+      <ul class="steps">
+        <li class="step"><div class="sn">1</div><div class="sb2"><strong>Basic ranking</strong><p>Rank all learners by quiz_score within their batch using RANK(). Identify any ties.</p></div></li>
+        <li class="step"><div class="sn">2</div><div class="sb2"><strong>Top N pattern</strong><p>Use ROW_NUMBER() in a CTE to find the top 3 scorers in each batch.</p></div></li>
+        <li class="step"><div class="sn">3</div><div class="sb2"><strong>Month-over-month</strong><p>Use LAG() to calculate the percentage change in monthly revenue compared to the previous month.</p></div></li>
+        <li class="step"><div class="sn">4</div><div class="sb2"><strong>Running total</strong><p>Calculate a running total of daily Zomato revenue using SUM() OVER (ORDER BY order_date).</p></div></li>
+        <li class="step"><div class="sn">5</div><div class="sb2"><strong>Moving average</strong><p>Calculate a 3-day moving average of daily orders using ROWS BETWEEN 2 PRECEDING AND CURRENT ROW.</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ QUIZ ══ -->
+  <section class="sec" id="sec-quiz">
+    <h2 class="st">🧠 Chapter 17 Quiz</h2>
+    <p class="ss">Test your mastery of ranking, offset, and aggregate window functions.</p>
+    <div class="qw">
+      <div class="qprog" id="qprog">Question 1 of 8</div>
+      <div class="qq" id="qq"></div>
+      <ul class="qopts" id="qopts"></ul>
+      <div class="qfb" id="qfb"></div>
+      <div class="qnav">
+        <span class="qsc" id="qsc">Score: 0 / 0</span>
+        <button class="qbtn" id="qnext" onclick="nextQ()" style="display:none">Next Question →</button>
+      </div>
+    </div>
+    <div class="done" id="done-card" style="display:none">
+      <div class="trophy">🏆</div>
+      <h3 id="done-title">Chapter Complete!</h3>
+      <p id="done-msg">You've mastered Window Functions — one of the highest-value SQL analytics skills!</p>
+      <button class="donebtn" onclick="doConfetti()">🎉 Celebrate!</button>
+    </div>
+  </section>
+</main>
+
+<script>
+const SECS=['intro','overclause','ranking','ntile','topn','playground','lag','running','frames','firstlast','realworld','sandbox','quiz'];
+let ci=0;const doneSet=new Set();
+function showS(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  ci=SECS.indexOf(id);window.scrollTo(0,0);
+}
+function nextS(){if(ci<SECS.length-1){markDone(SECS[ci]);const n=SECS[ci+1];showS(n,document.querySelector(`[data-s="${n}"]`));}}
+function prevS(){if(ci>0){const p=SECS[ci-1];showS(p,document.querySelector(`[data-s="${p}"]`));}}
+function markDone(id){
+  doneSet.add(id);
+  const c=document.getElementById('chk-'+id);if(c)c.textContent='✓';
+  const n=document.querySelector(`[data-s="${id}"]`);if(n)n.classList.add('done');
+  const pct=Math.round((doneSet.size/SECS.length)*100);
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('pp').textContent=pct+'%';
+}
+
+// ── WINDOW FUNCTION PLAYGROUND ──
+const learners=[
+  {name:'Meera Iyer',batch:'B01',score:93},
+  {name:'Priya Sharma',batch:'B01',score:85},
+  {name:'Arjun Patel',batch:'B01',score:85},
+  {name:'Ravi Kumar',batch:'B01',score:68},
+  {name:'Sneha Nair',batch:'B02',score:91},
+  {name:'Kavya Rao',batch:'B02',score:78},
+  {name:'Dev Sharma',batch:'B02',score:78},
+  {name:'Ananya Iyer',batch:'B02',score:60},
+];
+
+function computeWF(type){
+  // group by batch, sort desc by score within batch
+  const byBatch={};
+  learners.forEach(l=>{ if(!byBatch[l.batch]) byBatch[l.batch]=[]; byBatch[l.batch].push(l); });
+  Object.values(byBatch).forEach(arr=>arr.sort((a,b)=>b.score-a.score));
+
+  const rows=[];
+  Object.entries(byBatch).forEach(([batch,arr])=>{
+    let lastScore=null, rank=0, denseRank=0, rowNum=0, runningSum=0;
+    arr.forEach((l,i)=>{
+      rowNum++;
+      if(l.score!==lastScore){ rank=rowNum; denseRank++; }
+      runningSum+=l.score;
+      let computed='';
+      if(type==='row_number') computed=rowNum;
+      else if(type==='rank') computed=rank;
+      else if(type==='dense_rank') computed=denseRank;
+      else if(type==='lag') computed = i>0 ? arr[i-1].score : 'NULL';
+      else if(type==='lead') computed = i<arr.length-1 ? arr[i+1].score : 'NULL';
+      else if(type==='sum_over') computed = runningSum;
+      else if(type==='avg_over') computed = (runningSum/rowNum).toFixed(1);
+      rows.push({name:l.name,batch:l.batch,score:l.score,computed,batchStart:i===0});
+      lastScore=l.score;
+    });
+  });
+  return rows;
+}
+
+const WF_META={
+  row_number:{label:'ROW_NUMBER()',query:'ROW_NUMBER() OVER (PARTITION BY batch_id ORDER BY quiz_score DESC)',explain:'Assigns a unique sequential number to each row within its batch partition, restarting at 1 for each new batch. Even tied scores (Priya & Arjun both 85) get DIFFERENT numbers.'},
+  rank:{label:'RANK()',query:'RANK() OVER (PARTITION BY batch_id ORDER BY quiz_score DESC)',explain:'Tied scores get the SAME rank. Notice Priya and Arjun both get rank 2 — and the next learner (Ravi) jumps to rank 4, skipping 3 entirely.'},
+  dense_rank:{label:'DENSE_RANK()',query:'DENSE_RANK() OVER (PARTITION BY batch_id ORDER BY quiz_score DESC)',explain:'Tied scores get the SAME rank too, but unlike RANK(), there is NO gap afterward. Ravi gets rank 3, not 4 — dense_rank never skips numbers.'},
+  lag:{label:'LAG(quiz_score)',query:'LAG(quiz_score) OVER (PARTITION BY batch_id ORDER BY quiz_score DESC)',explain:'Shows the PREVIOUS row\'s score within the same batch partition. The first row in each batch has no previous row, so it shows NULL.'},
+  lead:{label:'LEAD(quiz_score)',query:'LEAD(quiz_score) OVER (PARTITION BY batch_id ORDER BY quiz_score DESC)',explain:'Shows the NEXT row\'s score within the same batch partition. The last row in each batch has no next row, so it shows NULL.'},
+  sum_over:{label:'SUM(quiz_score) OVER',query:'SUM(quiz_score) OVER (PARTITION BY batch_id ORDER BY quiz_score DESC)',explain:'Running total of scores within each batch, accumulating from the top scorer downward. Resets to 0 at the start of each new batch partition.'},
+  avg_over:{label:'AVG(quiz_score) OVER',query:'AVG(quiz_score) OVER (PARTITION BY batch_id ORDER BY quiz_score DESC)',explain:'Running average of scores seen so far within each batch — converges toward the batch average as more rows are included.'},
+};
+
+let curWF='row_number';
+function setWFTab(type,el){
+  document.querySelectorAll('.wftab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  curWF=type;
+  renderWF();
+}
+function renderWF(){
+  const rows=computeWF(curWF);
+  const meta=WF_META[curWF];
+  const tbl=document.getElementById('wf-table');
+  tbl.innerHTML=`<tr><th>name</th><th>batch_id</th><th>quiz_score</th><th>${meta.label}</th></tr>`+
+    rows.map(r=>`<tr class="${r.batchStart?'partition-divider':''} ${r.batch==='B01'?'partition-a':'partition-b'}"><td>${r.name}</td><td>${r.batch}</td><td>${r.score}</td><td class="computed-col">${r.computed}</td></tr>`).join('');
+  document.getElementById('wf-query').innerHTML=`<span style="color:#7dd3fc">SELECT</span> name, batch_id, quiz_score,\n       <span style="color:#a5f3fc">${meta.query}</span> <span style="color:#7dd3fc">AS</span> result\n<span style="color:#7dd3fc">FROM</span> guvi_learners;`;
+  document.getElementById('wf-explain').innerHTML=`<strong>What's happening:</strong> ${meta.explain}`;
+}
+renderWF();
+
+// ── SANDBOX ──
+const SBP=[
+  {re:/rank\(\).*partition by/i,res:()=>`<span style="color:var(--green)">✓ RANK() result — notice the tie and skip</span>
+<table class="ot"><tr><th>name</th><th>batch_id</th><th>quiz_score</th><th>rank</th></tr>
+<tr><td>Meera Iyer</td><td>B01</td><td>93</td><td>1</td></tr>
+<tr><td>Priya Sharma</td><td>B01</td><td>85</td><td>2</td></tr>
+<tr><td>Arjun Patel</td><td>B01</td><td>85</td><td>2</td></tr>
+<tr><td>Ravi Kumar</td><td>B01</td><td>68</td><td>4</td></tr>
+</table>`},
+  {re:/row_number\(\)/i,res:()=>`<span style="color:var(--green)">✓ ROW_NUMBER() result — always unique</span>
+<table class="ot"><tr><th>name</th><th>batch_id</th><th>rn</th></tr>
+<tr><td>Meera Iyer</td><td>B01</td><td>1</td></tr>
+<tr><td>Priya Sharma</td><td>B01</td><td>2</td></tr>
+<tr><td>Arjun Patel</td><td>B01</td><td>3</td></tr>
+</table>`},
+  {re:/lag\(/i,res:()=>`<span style="color:var(--green)">✓ LAG() — month-over-month comparison</span>
+<table class="ot"><tr><th>month</th><th>revenue</th><th>prev_revenue</th></tr>
+<tr><td>Jan</td><td>1240000</td><td style="color:var(--muted);font-style:italic">NULL</td></tr>
+<tr><td>Feb</td><td>1380000</td><td>1240000</td></tr>
+<tr><td>Mar</td><td>1190000</td><td>1380000</td></tr>
+</table>`},
+  {re:/sum\(.*\).*over.*order by/i,res:()=>`<span style="color:var(--green)">✓ Running total computed</span>
+<table class="ot"><tr><th>order_date</th><th>daily_revenue</th><th>running_total</th></tr>
+<tr><td>2024-06-01</td><td>45000</td><td>45000</td></tr>
+<tr><td>2024-06-02</td><td>52000</td><td>97000</td></tr>
+<tr><td>2024-06-03</td><td>38000</td><td>135000</td></tr>
+</table>`},
+  {re:/where\s+rn\s*<=/i,res:()=>`<span style="color:var(--green)">✓ Top N per group (using CTE + ROW_NUMBER filter)</span>
+<table class="ot"><tr><th>name</th><th>batch_id</th><th>quiz_score</th><th>rn</th></tr>
+<tr><td>Meera Iyer</td><td>B01</td><td>93</td><td>1</td></tr>
+<tr><td>Priya Sharma</td><td>B01</td><td>85</td><td>2</td></tr>
+<tr><td>Sneha Nair</td><td>B02</td><td>91</td><td>1</td></tr>
+<tr><td>Kavya Rao</td><td>B02</td><td>78</td><td>2</td></tr>
+</table>`},
+];
+function runSB(){
+  const sql=document.getElementById('sbed').value.trim();
+  const out=document.getElementById('sbout');
+  if(!sql){out.innerHTML='<span style="color:var(--muted)">⚠️ Enter a SQL query first.</span>';return;}
+  for(const p of SBP){if(p.re.test(sql)){out.innerHTML=p.res();return;}}
+  out.innerHTML='<span style="color:var(--green)">✓ Query OK — try RANK(), ROW_NUMBER(), LAG(), or SUM() OVER!</span>';
+}
+function clearSB(){
+  document.getElementById('sbed').value='';
+  document.getElementById('sbout').innerHTML='<span style="color:var(--muted);font-size:12px">▶ Output will appear here</span>';
+}
+
+// ── QUIZ ──
+const QS=[
+  {q:"Three learners are tied for the highest score. How does RANK() number them, followed by the next learner?",opts:["1, 1, 1, 2","1, 1, 1, 4","1, 2, 3, 4","1, 1, 2, 3"],ans:1,exp:"RANK() gives tied rows the SAME rank, but the next rank SKIPS to account for the number of tied rows. Three rows tied at rank 1 means the next row gets rank 4 (1+3), not rank 2."},
+  {q:"What is the key difference between GROUP BY and a window function?",opts:["Window functions are always faster","GROUP BY collapses rows into one per group; window functions keep every row while still computing group-level values","Window functions can only use COUNT()","GROUP BY can use PARTITION BY but window functions cannot"],ans:1,exp:"GROUP BY produces one output row per group, losing individual row detail. A window function (using OVER) computes a value across a group of rows (the 'window') but returns that value alongside EVERY original row — nothing is collapsed."},
+  {q:"You write: SELECT * FROM students WHERE ROW_NUMBER() OVER (...) <= 3. What happens?",opts:["Returns the top 3 rows correctly","SQL Error — window functions cannot be used directly in a WHERE clause","Returns all rows ignoring the filter","Returns exactly 3 rows but in random order"],ans:1,exp:"Window functions are evaluated AFTER the WHERE clause in SQL's execution order, so you cannot reference them directly in WHERE. The correct pattern is to wrap the window function in a CTE or subquery, then filter in the OUTER query: WITH ranked AS (...) SELECT * FROM ranked WHERE rn <= 3."},
+  {q:"What does LAG(revenue) OVER (ORDER BY month) return for the very FIRST row in the result set?",opts:["0","The same value as the current row","NULL — there is no previous row to look back to","An error"],ans:2,exp:"LAG() looks backward to the previous row. Since the first row has no row before it, LAG() returns NULL by default (unless you provide a third 'default' argument to LAG() to substitute a custom value)."},
+  {q:"SUM(amount) OVER (ORDER BY order_date) — what does this calculate, and why?",opts:["The total of ALL rows, repeated identically on every row","A running/cumulative total, because the default frame is UNBOUNDED PRECEDING to CURRENT ROW when ORDER BY is present","An error — SUM cannot be used as a window function","The average of all amounts"],ans:1,exp:"When ORDER BY is specified without an explicit ROWS BETWEEN clause, the implicit default frame is RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW — meaning each row sums everything from the start of the partition up to and including itself, producing a running total."},
+  {q:"What does NTILE(4) do?",opts:["Returns the 4th row of the result set","Divides the rows into 4 roughly equal-sized buckets, numbered 1 to 4","Multiplies every value by 4","Limits the result to 4 rows"],ans:1,exp:"NTILE(n) divides the ordered rows into n groups of roughly equal size, assigning each row a bucket number from 1 to n — commonly used for quartiles (NTILE(4)), deciles (NTILE(10)), or any custom percentile-style grouping."},
+  {q:"Why might LAST_VALUE() return an unexpected result if you don't specify an explicit ROWS BETWEEN frame?",opts:["LAST_VALUE() always returns NULL by default","The default frame stops at the CURRENT row, so LAST_VALUE without an explicit full-partition frame just returns the current row's own value","LAST_VALUE() requires a separate GROUP BY clause","LAST_VALUE() only works with numeric columns"],ans:1,exp:"By default, the window frame ends at the CURRENT ROW. So LAST_VALUE() without an explicit ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING just returns the current row's value (since that IS the 'last' row in the default frame) — not the true last value of the whole partition. This is a classic gotcha."},
+  {q:"What is the correct pattern to find the TOP 3 highest-scoring students in EACH batch?",opts:["SELECT * FROM students ORDER BY score DESC LIMIT 3", "GROUP BY batch_id with LIMIT 3", "Wrap ROW_NUMBER() OVER (PARTITION BY batch_id ORDER BY score DESC) in a CTE, then filter the outer query WHERE row_num <= 3", "Use HAVING COUNT(*) <= 3"],ans:2,exp:"This is the standard 'Top N per group' pattern. PARTITION BY batch_id resets the ranking for each batch; ORDER BY score DESC ranks within each batch; then the outer query filters to only the top 3 ranks. A plain LIMIT 3 would only give the top 3 across the ENTIRE table, not per batch."},
+];
+let qi=0,score=0,answered=false;
+function renderQ(){
+  const q=QS[qi];
+  document.getElementById('qprog').textContent=`Question ${qi+1} of ${QS.length}`;
+  document.getElementById('qq').textContent=q.q;
+  document.getElementById('qopts').innerHTML=q.opts.map((o,i)=>
+    `<li class="qopt" onclick="selQ(${i})" id="qo-${i}"><span class="ok">${String.fromCharCode(65+i)}</span>${o}</li>`).join('');
+  document.getElementById('qfb').className='qfb';
+  document.getElementById('qfb').innerHTML='';
+  document.getElementById('qnext').style.display='none';
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi}`;
+  answered=false;
+}
+function selQ(i){
+  if(answered)return;answered=true;
+  const q=QS[qi];
+  document.querySelectorAll('.qopt').forEach((o,j)=>{
+    if(j===q.ans)o.classList.add('correct');
+    else if(j===i)o.classList.add('wrong');
+  });
+  if(i===q.ans)score++;
+  const fb=document.getElementById('qfb');
+  fb.className=`qfb show ${i===q.ans?'correct':'wrong'}`;
+  fb.innerHTML=`<strong>${i===q.ans?'✅ Correct!':'❌ Not quite.'}</strong> ${q.exp}`;
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi+1}`;
+  const nb=document.getElementById('qnext');
+  nb.style.display='inline-block';
+  nb.textContent=qi<QS.length-1?'Next Question →':'See Results 🎉';
+}
+function nextQ(){qi++;if(qi<QS.length)renderQ();else showResults();}
+function showResults(){
+  document.querySelector('.qw').style.display='none';
+  const dc=document.getElementById('done-card');dc.style.display='block';
+  const pct=Math.round((score/QS.length)*100);
+  document.getElementById('done-title').textContent=pct>=80?'🎉 Window Function Wizard!':pct>=60?'👍 Good Work!':'💪 Keep Practising!';
+  document.getElementById('done-msg').textContent=`You scored ${score} out of ${QS.length} (${pct}%). ${pct>=80?'You can now build leaderboards, growth dashboards, and Top-N reports with confidence!':'Review RANK vs DENSE_RANK on ties, and the Top-N-per-group pattern — they are interview favourites!'}`;
+  markDone('quiz');
+  if(pct>=70)doConfetti();
+}
+renderQ();
+
+function doConfetti(){
+  const cv=document.getElementById('cvc');const ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  const cols=['#7c3aed','#ea580c','#0d9488','#2563eb','#d97706','#16a34a','#db2777'];
+  const pp=Array.from({length:150},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height-cv.height,r:Math.random()*9+4,color:cols[Math.floor(Math.random()*cols.length)],tilt:Math.random()*10-10,spd:Math.random()*3+1.5}));
+  let fr=0;
+  function draw(){ctx.clearRect(0,0,cv.width,cv.height);pp.forEach(p=>{ctx.beginPath();ctx.ellipse(p.x,p.y,p.r,p.r/2,p.tilt,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();p.y+=p.spd;p.x+=Math.sin(fr/18)*1.5;p.tilt+=.08;if(p.y>cv.height){p.y=-10;p.x=Math.random()*cv.width;}});fr++;if(fr<220)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);}
+  draw();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 14 — Views, Indexes & Stored Procedures | SQL Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --teal:#0d9488;--tl:#ccfbf1;--td:#0f766e;
+  --blue:#2563eb;--bl:#dbeafe;
+  --indigo:#4f46e5;--il:#e0e7ff;
+  --amber:#d97706;--al:#fef3c7;
+  --red:#dc2626;--rl:#fee2e2;
+  --green:#16a34a;--gl:#dcfce7;
+  --purple:#7c3aed;--pl:#ede9fe;
+  --orange:#ea580c;--ol:#ffedd5;
+  --bg:#f8fafc;--surface:#fff;
+  --border:#e2e8f0;--text:#0f172a;--muted:#64748b;
+  --sw:272px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sw);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;display:flex;flex-direction:column;}
+.sbh{padding:20px 18px 16px;background:linear-gradient(135deg,#1e1b4b,#082f49);border-bottom:1px solid var(--border);}
+.sbh .badge{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7dd3fc;margin-bottom:4px;}
+.sbh h2{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;line-height:1.3;}
+.sbh p{font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;}
+.sbp{padding:14px 18px;border-bottom:1px solid var(--border);}
+.pbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;}
+.pb{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+.pf{height:100%;background:linear-gradient(90deg,var(--indigo),var(--teal));border-radius:99px;transition:width .4s;}
+.sbn{flex:1;padding:8px 0;}
+.nsl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 18px 4px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;font-size:13px;color:var(--muted);font-weight:500;}
+.ni:hover{background:var(--bg);color:var(--text);}
+.ni.active{border-left-color:var(--indigo);background:var(--il);color:var(--indigo);font-weight:600;}
+.ni.done{color:var(--green);}
+.nc{margin-left:auto;font-size:13px;}
+
+/* MAIN */
+.main{margin-left:var(--sw);flex:1;min-width:0;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.tbl{display:flex;align-items:center;gap:12px;}
+.chp{background:var(--il);color:var(--indigo);font-family:'Sora',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:.05em;}
+.topbar h1{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;}
+.nb{display:flex;gap:8px;}
+.nbtn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s;}
+.nbtn.pri{background:var(--indigo);color:#fff;border-color:var(--indigo);}
+.nbtn:hover{border-color:var(--indigo);color:var(--indigo);}
+.nbtn.pri:hover{background:#3730a3;}
+
+/* SECTIONS */
+.sec{display:none;padding:36px 44px 64px;max-width:1000px;}
+.sec.active{display:block;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#1e1b4b 0%,#082f49 100%);border-radius:16px;padding:36px 40px;color:#fff;margin-bottom:32px;position:relative;overflow:hidden;}
+.hero::after{content:'⚡';position:absolute;right:36px;top:50%;transform:translateY(-50%);font-size:96px;opacity:.12;}
+.hero .ey{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7dd3fc;margin-bottom:8px;}
+.hero h2{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;line-height:1.2;margin-bottom:10px;}
+.hero p{font-size:14px;opacity:.82;line-height:1.65;max-width:560px;}
+
+.st{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.ss{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:20px;}
+.ct{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+
+/* CODE */
+.cb{background:#0f172a;border-radius:10px;padding:18px 22px;margin:14px 0;overflow-x:auto;position:relative;}
+.cb pre{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.82;color:#e2e8f0;white-space:pre;}
+.cl{position:absolute;top:10px;right:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#475569;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+.kw{color:#7dd3fc;}.fn{color:#a5f3fc;}.str{color:#86efac;}.cm{color:#475569;font-style:italic;}.op{color:#f9a8d4;}.num{color:#fcd34d;}.dt{color:#fb923c;}
+
+/* CALLOUTS */
+.co{border-radius:10px;padding:14px 18px;margin:16px 0;display:flex;gap:12px;font-size:13.5px;line-height:1.65;}
+.ci{font-size:18px;flex-shrink:0;margin-top:1px;}
+.co strong{display:block;font-weight:700;margin-bottom:3px;}
+.co.tip{background:var(--tl);border-left:4px solid var(--teal);color:#134e4a;}
+.co.warn{background:var(--al);border-left:4px solid var(--amber);color:#78350f;}
+.co.info{background:var(--bl);border-left:4px solid var(--blue);color:#1e3a5f;}
+.co.danger{background:var(--rl);border-left:4px solid var(--red);color:#7f1d1d;}
+.co.success{background:var(--gl);border-left:4px solid var(--green);color:#14532d;}
+.co.purple{background:var(--pl);border-left:4px solid var(--purple);color:#3b0764;}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+
+/* DATA TABLE */
+.dtbl{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+.dtbl th{background:#0f172a;color:#fff;padding:9px 14px;text-align:left;font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;}
+.dtbl td{padding:9px 14px;border-bottom:1px solid var(--border);color:#334155;}
+.dtbl tr:nth-child(even) td{background:#f8fafc;}
+
+/* VIEW DIAGRAM */
+.view-diagram{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:24px;margin:20px 0;}
+.vd-flow{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap;}
+.vd-box{border-radius:10px;padding:16px 20px;text-align:center;min-width:140px;}
+.vd-real{background:var(--bl);border:2px solid var(--blue);color:var(--blue);}
+.vd-view{background:var(--pl);border:2px solid var(--purple);color:var(--purple);}
+.vd-user{background:var(--gl);border:2px solid var(--green);color:var(--green);}
+.vd-icon{font-size:24px;margin-bottom:6px;}
+.vd-label{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;}
+.vd-sub{font-size:10.5px;margin-top:3px;opacity:.8;}
+.vd-arrow{font-size:20px;color:var(--muted);}
+
+/* ════ SIGNATURE: INDEX BENCHMARK SIMULATOR ════ */
+.benchmark{background:var(--surface);border:2px solid var(--indigo);border-radius:16px;overflow:hidden;margin:24px 0;}
+.bm-head{background:linear-gradient(90deg,#1e1b4b,#082f49);padding:18px 24px;}
+.bm-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;}
+.bm-sub{font-size:12px;color:#7dd3fc;margin-top:3px;}
+.bm-body{padding:24px;}
+.bm-controls{display:flex;gap:12px;margin-bottom:20px;align-items:center;flex-wrap:wrap;}
+.bm-btn{padding:10px 22px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--surface);color:var(--text);transition:all .2s;font-family:'Sora',sans-serif;}
+.bm-btn.no-index{border-color:var(--red);color:var(--red);}
+.bm-btn.no-index:hover{background:var(--rl);}
+.bm-btn.with-index{border-color:var(--green);color:var(--green);}
+.bm-btn.with-index:hover{background:var(--gl);}
+.bm-btn:disabled{opacity:.5;cursor:default;}
+.bm-reset{margin-left:auto;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;background:#1e293b;color:#94a3b8;font-family:'Sora',sans-serif;}
+.bm-reset:hover{color:#fff;}
+.bm-visual{background:#0f172a;border-radius:12px;padding:20px;margin-bottom:16px;min-height:160px;position:relative;overflow:hidden;}
+.bm-visual-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b;margin-bottom:12px;}
+.scan-grid{display:grid;grid-template-columns:repeat(40,1fr);gap:2px;}
+.scan-cell{aspect-ratio:1;border-radius:2px;background:#1e293b;transition:background .05s;}
+.scan-cell.scanning{background:#fbbf24;}
+.scan-cell.checked{background:#334155;}
+.scan-cell.found{background:#22c55e;}
+.scan-cell.skipped{background:#0f172a;opacity:.3;}
+.bm-status{font-family:'JetBrains Mono',monospace;font-size:12px;color:#94a3b8;margin-top:10px;text-align:center;min-height:18px;}
+.bm-results{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.bm-result-card{border-radius:10px;padding:16px;text-align:center;border:2px solid var(--border);}
+.bm-result-card.no-idx-result{border-color:var(--red);background:var(--rl);}
+.bm-result-card.idx-result{border-color:var(--green);background:var(--gl);}
+.bm-result-time{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;}
+.no-idx-result .bm-result-time{color:var(--red);}
+.idx-result .bm-result-time{color:var(--green);}
+.bm-result-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;}
+.bm-result-detail{font-size:11.5px;color:var(--muted);margin-top:6px;}
+.bm-speedup{text-align:center;margin-top:16px;padding:14px;background:var(--il);border-radius:10px;display:none;}
+.bm-speedup.show{display:block;}
+.bm-speedup-num{font-family:'Sora',sans-serif;font-size:24px;font-weight:800;color:var(--indigo);}
+.bm-explain-box{background:#f8fafc;border-radius:9px;padding:12px 16px;margin-top:14px;font-size:12.5px;color:#334155;line-height:1.6;border-left:4px solid var(--indigo);}
+
+/* B-TREE DIAGRAM */
+.btree-diagram{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin:20px 0;text-align:center;}
+.btree-level{display:flex;justify-content:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.btree-node{background:var(--il);border:2px solid var(--indigo);border-radius:8px;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--indigo);}
+.btree-node.leaf{background:var(--gl);border-color:var(--green);color:var(--green);}
+.btree-node.target{background:var(--amber);border-color:var(--amber);color:#fff;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+/* EXPLAIN OUTPUT */
+.explain-table{width:100%;border-collapse:collapse;font-size:11.5px;margin:10px 0;font-family:'JetBrains Mono',monospace;}
+.explain-table th{background:#0f172a;color:#fff;padding:7px 10px;text-align:left;font-family:'Sora',sans-serif;font-size:10.5px;font-weight:700;}
+.explain-table td{padding:7px 10px;border-bottom:1px solid var(--border);color:#334155;}
+.explain-table tr:nth-child(even) td{background:#f8fafc;}
+.explain-bad{background:var(--rl)!important;color:var(--red)!important;font-weight:700;}
+.explain-good{background:var(--gl)!important;color:var(--green)!important;font-weight:700;}
+
+/* STEPS */
+.steps{list-style:none;margin:16px 0;}
+.step{display:flex;gap:14px;margin-bottom:16px;}
+.sn{width:28px;height:28px;background:var(--indigo);color:#fff;border-radius:50%;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.sb2{flex:1;}
+.sb2 strong{font-weight:700;font-size:14px;display:block;margin-bottom:3px;}
+.sb2 p{font-size:13.5px;color:#334155;line-height:1.6;}
+
+/* SANDBOX */
+.sandbox{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+.sbh2{background:#0f172a;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;}
+.sbt{font-family:'JetBrains Mono',monospace;font-size:12px;color:#94a3b8;font-weight:600;display:flex;align-items:center;gap:8px;}
+.sbact{display:flex;gap:8px;}
+.sbbtn{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;transition:all .15s;}
+.sbbtn.run{background:var(--teal);color:#fff;}
+.sbbtn.run:hover{background:var(--td);}
+.sbbtn.clr{background:#1e293b;color:#94a3b8;}
+.sbbtn.clr:hover{color:#fff;}
+.sbed{width:100%;min-height:130px;background:#1e293b;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:13px;padding:16px 18px;border:none;outline:none;resize:vertical;line-height:1.8;}
+.sbout{padding:14px 18px;min-height:60px;font-family:'JetBrains Mono',monospace;font-size:12.5px;border-top:1px solid var(--border);background:#f8fafc;color:#334155;line-height:1.6;}
+.ot{border-collapse:collapse;width:100%;margin-top:8px;font-size:12px;}
+.ot th{background:#0f172a;color:#fff;padding:7px 12px;text-align:left;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;}
+.ot td{padding:7px 12px;border-bottom:1px solid #e2e8f0;}
+.ot tr:nth-child(even) td{background:#f1f5f9;}
+
+/* QUIZ */
+.qw{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;}
+.qq{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;line-height:1.4;}
+.qopts{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.qopt{padding:12px 16px;border:2px solid var(--border);border-radius:9px;cursor:pointer;font-size:14px;font-weight:500;transition:all .15s;display:flex;align-items:center;gap:10px;}
+.qopt:hover{border-color:var(--indigo);background:var(--il);}
+.qopt.correct{border-color:var(--green);background:var(--gl);color:var(--green);}
+.qopt.wrong{border-color:var(--red);background:var(--rl);color:var(--red);}
+.ok{width:24px;height:24px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Sora',sans-serif;}
+.qfb{display:none;padding:12px 16px;border-radius:9px;font-size:13.5px;line-height:1.5;margin-bottom:14px;}
+.qfb.show{display:block;}
+.qfb.correct{background:var(--gl);color:#14532d;border-left:4px solid var(--green);}
+.qfb.wrong{background:var(--rl);color:#7f1d1d;border-left:4px solid var(--red);}
+.qnav{display:flex;justify-content:space-between;align-items:center;}
+.qsc{font-family:'Sora',sans-serif;font-size:14px;color:var(--muted);}
+.qbtn{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;background:var(--indigo);color:#fff;}
+.qbtn:hover{background:#3730a3;}
+.qprog{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.done{text-align:center;padding:48px 32px;background:linear-gradient(135deg,var(--il),var(--tl));border-radius:16px;border:1px solid var(--border);margin-top:32px;}
+.done .trophy{font-size:56px;margin-bottom:12px;}
+.done h3{font-family:'Sora',sans-serif;font-size:24px;font-weight:800;margin-bottom:8px;}
+.done p{color:var(--muted);font-size:14px;max-width:440px;margin:0 auto 20px;}
+.donebtn{padding:12px 28px;background:linear-gradient(135deg,var(--indigo),var(--teal));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;}
+#cvc{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}.sec{padding:24px 20px 40px}.g2,.g3{grid-template-columns:1fr}.bm-results{grid-template-columns:1fr}.scan-grid{grid-template-columns:repeat(20,1fr)}}
+</style>
+</head>
+<body>
+<canvas id="cvc"></canvas>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sbh">
+    <div class="badge">SQL Mastery Course</div>
+    <h2>Chapter 14: Views, Indexes & Procedures</h2>
+    <p>Abstraction · Speed · Reusable Logic</p>
+  </div>
+  <div class="sbp">
+    <div class="pbl"><span>Progress</span><span id="pp">0%</span></div>
+    <div class="pb"><div class="pf" id="pf" style="width:0%"></div></div>
+  </div>
+  <nav class="sbn">
+    <div class="nsl">Content</div>
+    <div class="ni active" data-s="intro"     onclick="showS('intro',this)">    <span>🏠</span> Introduction              <span class="nc" id="chk-intro"></span></div>
+    <div class="ni" data-s="views1"    onclick="showS('views1',this)">   <span>👁️</span> Views — Basics            <span class="nc" id="chk-views1"></span></div>
+    <div class="ni" data-s="views2"    onclick="showS('views2',this)">   <span>🔐</span> Views — Security & Updates <span class="nc" id="chk-views2"></span></div>
+    <div class="ni" data-s="matviews"  onclick="showS('matviews',this)"> <span>💾</span> Materialized Views          <span class="nc" id="chk-matviews"></span></div>
+    <div class="ni" data-s="indexes1"  onclick="showS('indexes1',this)"> <span>🌳</span> Indexes — B-Tree Basics     <span class="nc" id="chk-indexes1"></span></div>
+    <div class="ni" data-s="indexes2"  onclick="showS('indexes2',this)"> <span>📑</span> CREATE INDEX & Composite    <span class="nc" id="chk-indexes2"></span></div>
+    <div class="ni" data-s="explain"   onclick="showS('explain',this)">  <span>🔍</span> EXPLAIN & Query Plans       <span class="nc" id="chk-explain"></span></div>
+    <div class="ni" data-s="benchmark" onclick="showS('benchmark',this)"><span>⚡</span> Live Index Benchmark ✨    <span class="nc" id="chk-benchmark"></span></div>
+    <div class="ni" data-s="procs1"    onclick="showS('procs1',this)">   <span>⚙️</span> Stored Procedures           <span class="nc" id="chk-procs1"></span></div>
+    <div class="ni" data-s="procs2"    onclick="showS('procs2',this)">   <span>📞</span> IN/OUT Params & CALL        <span class="nc" id="chk-procs2"></span></div>
+    <div class="ni" data-s="sandbox"   onclick="showS('sandbox',this)">  <span>💻</span> Practice Sandbox            <span class="nc" id="chk-sandbox"></span></div>
+    <div class="ni" data-s="quiz"      onclick="showS('quiz',this)">     <span>🧠</span> Chapter Quiz                <span class="nc" id="chk-quiz"></span></div>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="tbl"><span class="chp">Chapter 14</span><h1>Views, Indexes & Stored Procedures</h1></div>
+    <div class="nb">
+      <button class="nbtn" onclick="prevS()">← Prev</button>
+      <button class="nbtn pri" onclick="nextS()">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══ INTRO ══ -->
+  <section class="sec active" id="sec-intro">
+    <div class="hero">
+      <div class="ey">Chapter 14 · Views, Indexes & Stored Procedures</div>
+      <h2>Abstraction, Speed,<br/>and Reusable Logic.</h2>
+      <p>Views hide complexity. Indexes make queries fly. Stored procedures package business logic inside the database itself. These three tools are what separate "I can write a SELECT" from "I can architect a database."</p>
+    </div>
+    <h2 class="st">What You'll Master</h2>
+    <div class="g3">
+      <div class="card" style="border-top:4px solid var(--purple);margin-bottom:0">
+        <div class="ct" style="color:var(--purple)">👁️ Views</div>
+        <p style="font-size:13px">Virtual tables built from a saved query. Simplify complex joins, hide sensitive columns, present a clean interface.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--indigo);margin-bottom:0">
+        <div class="ct" style="color:var(--indigo)">🌳 Indexes</div>
+        <p style="font-size:13px">Data structures that let the database find rows in milliseconds instead of scanning millions of rows.</p>
+      </div>
+      <div class="card" style="border-top:4px solid var(--teal);margin-bottom:0">
+        <div class="ct" style="color:var(--teal)">⚙️ Stored Procedures</div>
+        <p style="font-size:13px">Reusable, parameterized SQL logic stored inside the database — callable with a single CALL statement.</p>
+      </div>
+    </div>
+    <div class="co info">
+      <span class="ci">🎓</span>
+      <div><strong>Why this chapter matters</strong>A query that takes 8 seconds on 100,000 rows can take 8 milliseconds with the right index. A messy 5-table JOIN that confuses your team can become one clean view: <code>SELECT * FROM student_report</code>. This chapter is where "it works" becomes "it works fast and clean."</div>
+    </div>
+  </section>
+
+  <!-- ══ VIEWS 1 ══ -->
+  <section class="sec" id="sec-views1">
+    <h2 class="st">👁️ Views — Virtual Tables</h2>
+    <p class="ss">A VIEW is a saved SQL query that behaves like a table. It doesn't store data itself — every time you query a view, the underlying query runs fresh.</p>
+
+    <div class="view-diagram">
+      <h4 style="font-family:'Sora',sans-serif;font-size:14px;font-weight:700;margin-bottom:18px;text-align:center">How a View Works</h4>
+      <div class="vd-flow">
+        <div class="vd-box vd-real"><div class="vd-icon">🗄️</div><div class="vd-label">Real Tables</div><div class="vd-sub">students, batches, courses</div></div>
+        <div class="vd-arrow">→</div>
+        <div class="vd-box vd-view"><div class="vd-icon">👁️</div><div class="vd-label">VIEW</div><div class="vd-sub">saved JOIN query</div></div>
+        <div class="vd-arrow">→</div>
+        <div class="vd-box vd-user"><div class="vd-icon">🧑‍💻</div><div class="vd-label">User Query</div><div class="vd-sub">SELECT * FROM view</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📖 CREATE VIEW Syntax</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">CREATE VIEW</span> view_name <span class="kw">AS</span>
+<span class="kw">SELECT</span> columns
+<span class="kw">FROM</span>   table(s)
+<span class="kw">WHERE</span>  condition;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🟢 Simple View — One Table</div>
+      <div class="cb"><span class="cl">SQL — GUVI</span><pre><span class="cm">-- A simple view: active learners only</span>
+<span class="kw">CREATE VIEW</span> active_learners <span class="kw">AS</span>
+<span class="kw">SELECT</span> student_id, name, city, batch_id, quiz_score
+<span class="kw">FROM</span>   guvi_students
+<span class="kw">WHERE</span>  DATEDIFF(CURDATE(), last_login) <span class="op"><=</span> <span class="num">30</span>;
+
+<span class="cm">-- Now query it just like a table!</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> active_learners <span class="kw">WHERE</span> city <span class="op">=</span> <span class="str">'Chennai'</span>;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔵 Complex View — Multi-Table JOIN</div>
+      <div class="cb"><span class="cl">SQL — GUVI</span><pre><span class="cm">-- Complex view: full student report (hides the JOIN complexity)</span>
+<span class="kw">CREATE VIEW</span> student_full_report <span class="kw">AS</span>
+<span class="kw">SELECT</span>
+  s.name           <span class="kw">AS</span> student,
+  s.city,
+  b.batch_name,
+  c.course_name,
+  i.name           <span class="kw">AS</span> instructor,
+  s.quiz_score,
+  <span class="kw">CASE</span> <span class="kw">WHEN</span> s.quiz_score <span class="op">>=</span> <span class="num">75</span> <span class="kw">THEN</span> <span class="str">'Pass'</span> <span class="kw">ELSE</span> <span class="str">'Needs Improvement'</span> <span class="kw">END</span> <span class="kw">AS</span> status
+<span class="kw">FROM</span>       students    s
+<span class="kw">JOIN</span>       batches     b <span class="kw">ON</span> s.batch_id      <span class="op">=</span> b.batch_id
+<span class="kw">JOIN</span>       courses     c <span class="kw">ON</span> b.course_id     <span class="op">=</span> c.course_id
+<span class="kw">JOIN</span>       instructors i <span class="kw">ON</span> b.instructor_id <span class="op">=</span> i.instructor_id;
+
+<span class="cm">-- Now the whole team can do this, instead of rewriting the 4-table JOIN:</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> student_full_report <span class="kw">WHERE</span> status <span class="op">=</span> <span class="str">'Needs Improvement'</span>;</pre></div>
+      <div class="co tip"><span class="ci">💡</span><div><strong>Views shine for reuse.</strong>Once <code>student_full_report</code> exists, every analyst, dashboard, and report just queries the view — nobody needs to remember the 4-table JOIN logic ever again.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🛠️ Managing Views — DROP, ALTER, CREATE OR REPLACE</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Modify a view's definition without dropping dependent objects</span>
+<span class="kw">CREATE OR REPLACE VIEW</span> active_learners <span class="kw">AS</span>
+<span class="kw">SELECT</span> student_id, name, city, batch_id, quiz_score, last_login
+<span class="kw">FROM</span>   guvi_students
+<span class="kw">WHERE</span>  DATEDIFF(CURDATE(), last_login) <span class="op"><=</span> <span class="num">14</span>;  <span class="cm">-- changed from 30 to 14 days</span>
+
+<span class="cm">-- ALTER VIEW (PostgreSQL/SQL Server syntax — same effect as CREATE OR REPLACE)</span>
+<span class="kw">ALTER VIEW</span> active_learners <span class="kw">AS</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_students <span class="kw">WHERE</span> quiz_score <span class="kw">IS NOT NULL</span>;
+
+<span class="cm">-- Remove a view entirely</span>
+<span class="kw">DROP VIEW IF EXISTS</span> active_learners;</pre></div>
+    </div>
+  </section>
+
+  <!-- ══ VIEWS 2 ══ -->
+  <section class="sec" id="sec-views2">
+    <h2 class="st">🔐 Views for Security & Updatable Views</h2>
+    <p class="ss">Two powerful uses of views: hiding sensitive columns from certain users, and writing data back through a view.</p>
+
+    <div class="card">
+      <div class="ct">🔐 Using Views for Column-Level Security</div>
+      <p style="margin-bottom:12px">Instead of granting access to the full table, grant access to a view that exposes only safe columns. This combines beautifully with the DCL concepts from Chapter 8.</p>
+      <div class="cb"><span class="cl">SQL — HDFC Bank example</span><pre><span class="cm">-- Real table has sensitive columns: salary, aadhaar, bank_balance
+-- Create a view that hides them</span>
+<span class="kw">CREATE VIEW</span> employee_public_info <span class="kw">AS</span>
+<span class="kw">SELECT</span> employee_id, name, department, designation, city
+<span class="kw">FROM</span>   employees;
+<span class="cm">-- salary, aadhaar, bank_balance are NOT in the view — invisible!</span>
+
+<span class="cm">-- Grant access to the VIEW, not the base table</span>
+<span class="kw">GRANT</span> <span class="kw">SELECT</span> <span class="kw">ON</span> employee_public_info <span class="kw">TO</span> <span class="str">'hr_intern'</span><span class="op">@</span><span class="str">'localhost'</span>;
+<span class="cm">-- hr_intern can NEVER see salary, even with SELECT * — the column doesn't exist in the view!</span></pre></div>
+      <div class="co success"><span class="ci">✅</span><div><strong>This is true security, not just convention.</strong>Even a malicious <code>SELECT *</code> on the view physically cannot return salary data — the column simply isn't part of the view's definition.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">✏️ Updatable Views — Writing Through a View</div>
+      <p style="margin-bottom:12px">Some views allow INSERT/UPDATE/DELETE directly — these changes pass through to the underlying table. Views become "non-updatable" once they include JOINs, GROUP BY, DISTINCT, or aggregate functions.</p>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- ✅ This view IS updatable — single table, no aggregation</span>
+<span class="kw">CREATE VIEW</span> chennai_students <span class="kw">AS</span>
+<span class="kw">SELECT</span> student_id, name, email, quiz_score
+<span class="kw">FROM</span>   students
+<span class="kw">WHERE</span>  city <span class="op">=</span> <span class="str">'Chennai'</span>;
+
+<span class="cm">-- Update through the view — updates the REAL students table!</span>
+<span class="kw">UPDATE</span> chennai_students <span class="kw">SET</span> quiz_score <span class="op">=</span> <span class="num">88</span> <span class="kw">WHERE</span> student_id <span class="op">=</span> <span class="str">'S01'</span>;
+
+<span class="cm">-- ❌ This view is NOT updatable — it has a JOIN and aggregate</span>
+<span class="kw">CREATE VIEW</span> batch_summary <span class="kw">AS</span>
+<span class="kw">SELECT</span> b.batch_name, <span class="fn">COUNT</span>(s.student_id) <span class="kw">AS</span> total
+<span class="kw">FROM</span>   batches b <span class="kw">JOIN</span> students s <span class="kw">ON</span> b.batch_id <span class="op">=</span> s.batch_id
+<span class="kw">GROUP BY</span> b.batch_name;
+<span class="cm">-- UPDATE batch_summary ... → ERROR: view is not updatable</span></pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📋 Updatable vs Non-Updatable — Quick Rules</div>
+      <table class="dtbl">
+        <thead><tr><th>View has...</th><th>Updatable?</th></tr></thead>
+        <tbody>
+          <tr><td>Single table, no aggregation</td><td style="color:var(--green);font-weight:700">✅ Usually updatable</td></tr>
+          <tr><td>JOIN across multiple tables</td><td style="color:var(--red);font-weight:700">❌ Not updatable</td></tr>
+          <tr><td>GROUP BY / aggregate functions</td><td style="color:var(--red);font-weight:700">❌ Not updatable</td></tr>
+          <tr><td>DISTINCT</td><td style="color:var(--red);font-weight:700">❌ Not updatable</td></tr>
+          <tr><td>Subqueries in SELECT</td><td style="color:var(--amber);font-weight:700">⚠️ Depends on DB engine</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══ MATERIALIZED VIEWS ══ -->
+  <section class="sec" id="sec-matviews">
+    <h2 class="st">💾 Materialized Views — PostgreSQL</h2>
+    <p class="ss">A regular view re-runs its query every time. A materialized view stores (caches) the actual result physically on disk — much faster to read, but data goes stale until refreshed.</p>
+
+    <div class="g2">
+      <div class="card" style="border-left:4px solid var(--purple);margin-bottom:0">
+        <div class="ct" style="color:var(--purple)">👁️ Regular VIEW</div>
+        <p style="font-size:13px">Runs the query fresh every time. Always up-to-date. Slower for expensive queries (joins, aggregates on large tables).</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--teal);margin-bottom:0">
+        <div class="ct" style="color:var(--teal)">💾 MATERIALIZED VIEW</div>
+        <p style="font-size:13px">Stores results physically. Very fast to read. Data can be stale — needs manual or scheduled REFRESH.</p>
+      </div>
+    </div>
+    <div style="height:20px"></div>
+
+    <div class="card">
+      <div class="ct">📖 CREATE MATERIALIZED VIEW Syntax (PostgreSQL)</div>
+      <div class="cb"><span class="cl">PostgreSQL</span><pre><span class="cm">-- Create — runs once, stores the result physically</span>
+<span class="kw">CREATE MATERIALIZED VIEW</span> guvi_monthly_summary <span class="kw">AS</span>
+<span class="kw">SELECT</span>
+  batch_id,
+  <span class="fn">COUNT</span>(<span class="op">*</span>)            <span class="kw">AS</span> total_learners,
+  <span class="fn">ROUND</span>(<span class="fn">AVG</span>(quiz_score),<span class="num">1</span>) <span class="kw">AS</span> avg_score,
+  <span class="fn">MAX</span>(quiz_score)        <span class="kw">AS</span> top_score
+<span class="kw">FROM</span>   guvi_learners
+<span class="kw">GROUP BY</span> batch_id;
+
+<span class="cm">-- Query it — instant, because data is pre-computed</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_monthly_summary <span class="kw">WHERE</span> avg_score <span class="op">></span> <span class="num">75</span>;
+
+<span class="cm">-- Refresh when underlying data changes (run nightly via cron)</span>
+<span class="kw">REFRESH MATERIALIZED VIEW</span> guvi_monthly_summary;
+
+<span class="cm">-- Refresh without locking reads (PostgreSQL — needs unique index)</span>
+<span class="kw">REFRESH MATERIALIZED VIEW CONCURRENTLY</span> guvi_monthly_summary;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🎯 When to Use Materialized Views</div>
+      <ul class="steps">
+        <li class="step"><div class="sn">1</div><div class="sb2"><strong>Expensive aggregations</strong><p>Dashboard queries that scan millions of rows and compute heavy aggregates — compute once, read many times.</p></div></li>
+        <li class="step"><div class="sn">2</div><div class="sb2"><strong>Data that doesn't need real-time freshness</strong><p>Monthly reports, analytics dashboards — refreshing nightly or hourly is perfectly acceptable.</p></div></li>
+        <li class="step"><div class="sn">3</div><div class="sb2"><strong>Reducing load on production database</strong><p>Heavy analytical queries can slow down the live transactional database — materialized views isolate that cost.</p></div></li>
+      </ul>
+      <div class="co warn"><span class="ci">⚠️</span><div><strong>MySQL doesn't support materialized views natively.</strong>Common workarounds: scheduled events that write results into a real summary table, or use a tool like a cron job + INSERT INTO ... SELECT to simulate the behaviour.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ INDEXES 1 ══ -->
+  <section class="sec" id="sec-indexes1">
+    <h2 class="st">🌳 Indexes — How a B-Tree Works</h2>
+    <p class="ss">An index is a separate, sorted data structure that lets the database jump directly to matching rows instead of scanning every single one. Most databases use a B-Tree (balanced tree) structure.</p>
+
+    <div class="co info">
+      <span class="ci">📖</span>
+      <div><strong>The book index analogy</strong>Without an index, finding "SQL Joins" in a 1000-page textbook means reading every page. With an index at the back of the book, you jump straight to page 247. A database index works exactly the same way.</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🌳 B-Tree Structure — Visual</div>
+      <div class="btree-diagram">
+        <div class="btree-level">
+          <div class="btree-node">M</div>
+        </div>
+        <div class="btree-level">
+          <div class="btree-node">D</div>
+          <div class="btree-node">T</div>
+        </div>
+        <div class="btree-level">
+          <div class="btree-node leaf">A,B,C</div>
+          <div class="btree-node leaf">E,F,G</div>
+          <div class="btree-node target">P,Q,R</div>
+          <div class="btree-node leaf">U,V,W</div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px">Searching for 'R' (highlighted): Root(M) → R&gt;M go right → T → R&lt;T go left → Found in leaf [P,Q,R]. Only <strong>3 comparisons</strong> instead of scanning all 23 letters!</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">⚡ Full Table Scan vs Index Seek</div>
+      <table class="dtbl">
+        <thead><tr><th>Aspect</th><th>🔴 Full Table Scan (no index)</th><th>🟢 Index Seek (with index)</th></tr></thead>
+        <tbody>
+          <tr><td>How it works</td><td>Reads EVERY row, checks each one</td><td>Jumps directly to matching rows via B-tree</td></tr>
+          <tr><td>Time complexity</td><td>O(n) — linear</td><td>O(log n) — logarithmic</td></tr>
+          <tr><td>100,000 rows search</td><td>Up to 100,000 comparisons</td><td>~17 comparisons (log₂ 100,000)</td></tr>
+          <tr><td>When it happens</td><td>No index on filtered column, or query can't use one</td><td>WHERE/JOIN/ORDER BY uses an indexed column</td></tr>
+          <tr><td>Best for</td><td>Small tables, or returning most of the table anyway</td><td>Large tables, selective filters (few matching rows)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="co tip">
+      <span class="ci">💡</span>
+      <div><strong>Indexes aren't always faster!</strong>If a query returns 90% of a table's rows, a full scan can actually be faster than using an index (because jumping around the index + fetching rows individually has overhead). The query optimizer decides automatically based on statistics.</div>
+    </div>
+  </section>
+
+  <!-- ══ INDEXES 2 ══ -->
+  <section class="sec" id="sec-indexes2">
+    <h2 class="st">📑 CREATE INDEX & Composite Indexes</h2>
+    <p class="ss">Creating the right index — on the right column(s), in the right order — is one of the highest-leverage skills a backend developer can have.</p>
+
+    <div class="card">
+      <div class="ct">📖 CREATE INDEX Syntax</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Single column index</span>
+<span class="kw">CREATE INDEX</span> idx_students_city
+<span class="kw">ON</span> students(city);
+
+<span class="cm">-- Unique index — also enforces uniqueness</span>
+<span class="kw">CREATE UNIQUE INDEX</span> idx_students_email
+<span class="kw">ON</span> students(email);
+
+<span class="cm">-- Drop an index</span>
+<span class="kw">DROP INDEX</span> idx_students_city <span class="kw">ON</span> students;   <span class="cm">-- MySQL</span>
+<span class="kw">DROP INDEX</span> idx_students_city;             <span class="cm">-- PostgreSQL</span></pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔗 Composite Index — Multiple Columns</div>
+      <p style="margin-bottom:12px">A composite (multi-column) index speeds up queries that filter on multiple columns together — but column ORDER matters!</p>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Composite index on (batch_id, quiz_score)</span>
+<span class="kw">CREATE INDEX</span> idx_batch_score
+<span class="kw">ON</span> guvi_learners(batch_id, quiz_score);
+
+<span class="cm">-- ✅ Uses the index fully — filters batch_id first, then quiz_score</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_learners
+<span class="kw">WHERE</span>  batch_id <span class="op">=</span> <span class="str">'B01'</span> <span class="kw">AND</span> quiz_score <span class="op">></span> <span class="num">75</span>;
+
+<span class="cm">-- ✅ Still uses the index — just batch_id (leftmost column)</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_learners <span class="kw">WHERE</span> batch_id <span class="op">=</span> <span class="str">'B01'</span>;
+
+<span class="cm">-- ❌ CANNOT use this index efficiently — skips batch_id (leftmost column)</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_learners <span class="kw">WHERE</span> quiz_score <span class="op">></span> <span class="num">75</span>;</pre></div>
+      <div class="co warn"><span class="ci">⚠️</span><div><strong>Leftmost prefix rule!</strong>A composite index on (A, B, C) can be used for queries filtering on A, or A+B, or A+B+C — but NOT for queries filtering only on B or only on C. Always put the most selective / most commonly filtered column first.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🎯 Which Columns Should You Index?</div>
+      <ul class="steps">
+        <li class="step"><div class="sn">1</div><div class="sb2"><strong>Columns in WHERE clauses</strong><p>If you frequently filter <code>WHERE city = 'Chennai'</code>, index the city column.</p></div></li>
+        <li class="step"><div class="sn">2</div><div class="sb2"><strong>Columns used in JOINs</strong><p>Foreign key columns like batch_id, course_id should almost always be indexed.</p></div></li>
+        <li class="step"><div class="sn">3</div><div class="sb2"><strong>Columns in ORDER BY</strong><p>Sorting large result sets is much faster when the column is already indexed (pre-sorted).</p></div></li>
+        <li class="step"><div class="sn">4</div><div class="sb2"><strong>High-cardinality columns</strong><p>Columns with many unique values (email, student_id) benefit more than low-cardinality ones (gender: M/F only).</p></div></li>
+      </ul>
+      <div class="co danger"><span class="ci">🚨</span><div><strong>Don't over-index!</strong>Every index speeds up reads but SLOWS DOWN writes (INSERT/UPDATE/DELETE must update every index too). Index only columns that are actually queried frequently.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ EXPLAIN ══ -->
+  <section class="sec" id="sec-explain">
+    <h2 class="st">🔍 EXPLAIN & EXPLAIN ANALYZE — Reading Query Plans</h2>
+    <p class="ss">EXPLAIN shows you exactly HOW the database engine plans to execute your query — whether it uses an index, scans the full table, or something else.</p>
+
+    <div class="card">
+      <div class="ct">📖 EXPLAIN Syntax</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Show the query plan (doesn't actually run the query)</span>
+<span class="kw">EXPLAIN</span> <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_learners <span class="kw">WHERE</span> batch_id <span class="op">=</span> <span class="str">'B01'</span>;
+
+<span class="cm">-- EXPLAIN ANALYZE — actually runs the query AND shows real timing</span>
+<span class="kw">EXPLAIN ANALYZE</span> <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_learners <span class="kw">WHERE</span> batch_id <span class="op">=</span> <span class="str">'B01'</span>;</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔴 EXPLAIN Output — Without Index (Full Table Scan)</div>
+      <table class="explain-table">
+        <thead><tr><th>id</th><th>select_type</th><th>table</th><th>type</th><th>possible_keys</th><th>key</th><th>rows</th><th>Extra</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>SIMPLE</td><td>guvi_learners</td><td class="explain-bad">ALL</td><td class="explain-bad">NULL</td><td class="explain-bad">NULL</td><td class="explain-bad">100,000</td><td>Using where</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12.5px;color:var(--muted);margin-top:8px"><code>type: ALL</code> means a FULL TABLE SCAN — all 100,000 rows checked one by one. This is the slowest possible plan.</p>
+    </div>
+
+    <div class="card">
+      <div class="ct">🟢 EXPLAIN Output — With Index (Index Seek)</div>
+      <table class="explain-table">
+        <thead><tr><th>id</th><th>select_type</th><th>table</th><th>type</th><th>possible_keys</th><th>key</th><th>rows</th><th>Extra</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>SIMPLE</td><td>guvi_learners</td><td class="explain-good">ref</td><td class="explain-good">idx_batch_id</td><td class="explain-good">idx_batch_id</td><td class="explain-good">312</td><td>Using index condition</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12.5px;color:var(--muted);margin-top:8px"><code>type: ref</code> means the index is being used efficiently — only 312 rows checked instead of 100,000!</p>
+    </div>
+
+    <div class="card">
+      <div class="ct">📋 Key EXPLAIN Columns to Watch</div>
+      <table class="dtbl">
+        <thead><tr><th>Column</th><th>What to look for</th></tr></thead>
+        <tbody>
+          <tr><td><strong>type</strong></td><td><span style="color:var(--green);font-weight:700">const, eq_ref, ref</span> = good (uses index). <span style="color:var(--red);font-weight:700">ALL</span> = bad (full scan)</td></tr>
+          <tr><td><strong>key</strong></td><td>Which index is actually being used. <code>NULL</code> = no index used</td></tr>
+          <tr><td><strong>rows</strong></td><td>Estimated rows the engine will examine — lower is better</td></tr>
+          <tr><td><strong>Extra</strong></td><td>"Using filesort" or "Using temporary" are warning signs of inefficiency</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══ BENCHMARK (SIGNATURE) ══ -->
+  <section class="sec" id="sec-benchmark">
+    <h2 class="st">⚡ Live Index Benchmark — Watch the Speedup</h2>
+    <p class="ss">Run the same query two ways on a simulated 100,000-row table: once WITHOUT an index, once WITH one. Watch the scan pattern and timing difference live.</p>
+
+    <div class="co purple">
+      <span class="ci">🎯</span>
+      <div><strong>The query:</strong> <code style="background:rgba(255,255,255,0.5);padding:2px 6px;border-radius:4px">SELECT * FROM guvi_learners WHERE student_id = 'S78342'</code> — finding ONE specific row among 100,000.</div>
+    </div>
+
+    <div class="benchmark">
+      <div class="bm-head">
+        <div class="bm-title">🔬 Index Speed Lab — 100,000 Row Table</div>
+        <div class="bm-sub">Click a button to simulate the query execution</div>
+      </div>
+      <div class="bm-body">
+        <div class="bm-controls">
+          <button class="bm-btn no-index" id="btn-noidx" onclick="runBenchmark('noidx')">🐢 Run WITHOUT Index</button>
+          <button class="bm-btn with-index" id="btn-idx" onclick="runBenchmark('idx')">⚡ Run WITH Index</button>
+          <button class="bm-reset" onclick="resetBenchmark()">↺ Reset</button>
+        </div>
+        <div class="bm-visual">
+          <div class="bm-visual-label" id="bm-visual-label">▶ Click a button above to start the simulation</div>
+          <div class="scan-grid" id="scan-grid"></div>
+          <div class="bm-status" id="bm-status"></div>
+        </div>
+        <div class="bm-results">
+          <div class="bm-result-card no-idx-result">
+            <div class="bm-result-label">🔴 Without Index</div>
+            <div class="bm-result-time" id="result-noidx">—</div>
+            <div class="bm-result-detail" id="detail-noidx">Not run yet</div>
+          </div>
+          <div class="bm-result-card idx-result">
+            <div class="bm-result-label">🟢 With Index</div>
+            <div class="bm-result-time" id="result-idx">—</div>
+            <div class="bm-result-detail" id="detail-idx">Not run yet</div>
+          </div>
+        </div>
+        <div class="bm-speedup" id="bm-speedup">
+          <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:4px">SPEEDUP</div>
+          <div class="bm-speedup-num" id="speedup-num">—</div>
+        </div>
+        <div class="bm-explain-box">
+          <strong>What's happening:</strong> Without an index, MySQL must check every single row from top to bottom until it finds a match (or reaches the end) — a <strong>full table scan</strong>. With an index on student_id, MySQL uses the B-tree to jump almost directly to the matching row — an <strong>index seek</strong>. On 100,000 rows, this is the difference between checking ~100,000 rows vs. about 17.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🛠️ The SQL Behind This Benchmark</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="cm">-- Step 1: Run the query BEFORE adding an index — note the time</span>
+<span class="kw">EXPLAIN ANALYZE</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_learners <span class="kw">WHERE</span> student_id <span class="op">=</span> <span class="str">'S78342'</span>;
+<span class="cm">-- Execution time: ~450ms  |  type: ALL  |  rows examined: 100,000</span>
+
+<span class="cm">-- Step 2: Add the index</span>
+<span class="kw">CREATE INDEX</span> idx_student_id <span class="kw">ON</span> guvi_learners(student_id);
+
+<span class="cm">-- Step 3: Run the SAME query again</span>
+<span class="kw">EXPLAIN ANALYZE</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> guvi_learners <span class="kw">WHERE</span> student_id <span class="op">=</span> <span class="str">'S78342'</span>;
+<span class="cm">-- Execution time: ~0.8ms  |  type: const  |  rows examined: 1
+-- That's roughly a 560× speedup on this query!</span></pre></div>
+    </div>
+  </section>
+
+  <!-- ══ STORED PROCEDURES 1 ══ -->
+  <section class="sec" id="sec-procs1">
+    <h2 class="st">⚙️ Stored Procedures — Reusable SQL Blocks</h2>
+    <p class="ss">A stored procedure is a named, saved block of SQL logic stored inside the database. Instead of repeating the same complex SQL from every application, you write it once and CALL it.</p>
+
+    <div class="card">
+      <div class="ct">📖 CREATE PROCEDURE Syntax</div>
+      <div class="cb"><span class="cl">MySQL</span><pre><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE PROCEDURE</span> procedure_name(parameters)
+<span class="kw">BEGIN</span>
+    <span class="cm">-- SQL statements here</span>
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;</pre></div>
+      <div class="co tip"><span class="ci">💡</span><div><strong>Why DELIMITER //?</strong>Inside a procedure, you use semicolons to separate statements. Changing the DELIMITER to // temporarily tells MySQL "don't end the whole command at the first semicolon" — so the procedure body can have multiple statements.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏫 GUVI Example — Simple Procedure (No Parameters)</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE PROCEDURE</span> get_batch_summary()
+<span class="kw">BEGIN</span>
+    <span class="kw">SELECT</span>
+      batch_id,
+      <span class="fn">COUNT</span>(<span class="op">*</span>)            <span class="kw">AS</span> total_learners,
+      <span class="fn">ROUND</span>(<span class="fn">AVG</span>(quiz_score),<span class="num">1</span>) <span class="kw">AS</span> avg_score
+    <span class="kw">FROM</span>   guvi_learners
+    <span class="kw">GROUP BY</span> batch_id
+    <span class="kw">ORDER BY</span> avg_score <span class="kw">DESC</span>;
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="cm">-- Call it anytime — no need to rewrite the query!</span>
+<span class="kw">CALL</span> get_batch_summary();</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📥 Procedure with IN Parameter</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE PROCEDURE</span> get_students_by_city(<span class="kw">IN</span> p_city <span class="kw">VARCHAR</span>(<span class="num">50</span>))
+<span class="kw">BEGIN</span>
+    <span class="kw">SELECT</span> student_id, name, quiz_score
+    <span class="kw">FROM</span>   guvi_learners
+    <span class="kw">WHERE</span>  city <span class="op">=</span> p_city
+    <span class="kw">ORDER BY</span> quiz_score <span class="kw">DESC</span>;
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="cm">-- Call with different cities — reusable!</span>
+<span class="kw">CALL</span> get_students_by_city(<span class="str">'Chennai'</span>);
+<span class="kw">CALL</span> get_students_by_city(<span class="str">'Mumbai'</span>);
+<span class="kw">CALL</span> get_students_by_city(<span class="str">'Bangalore'</span>);</pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🎯 Why Use Stored Procedures?</div>
+      <div class="g2" style="margin:0">
+        <div style="font-size:13px;color:#334155;line-height:1.7;background:var(--bg);padding:14px;border-radius:9px">
+          <strong>✅ Pros</strong><br/>
+          • Logic lives in one place, not duplicated across apps<br/>
+          • Reduces network round-trips (1 CALL vs many queries)<br/>
+          • Can enforce business rules at the DB level<br/>
+          • Often faster — pre-compiled execution plan
+        </div>
+        <div style="font-size:13px;color:#334155;line-height:1.7;background:var(--bg);padding:14px;border-radius:9px">
+          <strong>⚠️ Trade-offs</strong><br/>
+          • Harder to version-control than application code<br/>
+          • Logic split between app and database layers<br/>
+          • Less portable across different database engines<br/>
+          • Debugging can be less convenient than app-side code
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ STORED PROCEDURES 2 ══ -->
+  <section class="sec" id="sec-procs2">
+    <h2 class="st">📞 IN / OUT / INOUT Parameters & CALL</h2>
+    <p class="ss">Procedures can accept input, return output, or both — using three parameter types: IN, OUT, and INOUT.</p>
+
+    <div class="g3">
+      <div class="card" style="border-left:4px solid var(--blue);margin-bottom:0">
+        <div class="ct" style="color:var(--blue);font-size:14px">IN</div>
+        <p style="font-size:12.5px">Input only. Pass a value INTO the procedure. Default if not specified. Cannot be modified to return a value.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--purple);margin-bottom:0">
+        <div class="ct" style="color:var(--purple);font-size:14px">OUT</div>
+        <p style="font-size:12.5px">Output only. The procedure sets this value, and it's returned to the caller after CALL completes.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--teal);margin-bottom:0">
+        <div class="ct" style="color:var(--teal);font-size:14px">INOUT</div>
+        <p style="font-size:12.5px">Both. Pass a value in, the procedure can modify it, and the new value is returned.</p>
+      </div>
+    </div>
+    <div style="height:20px"></div>
+
+    <div class="card">
+      <div class="ct">📤 OUT Parameter Example</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE PROCEDURE</span> get_batch_avg(
+    <span class="kw">IN</span>  p_batch_id  <span class="kw">VARCHAR</span>(<span class="num">10</span>),
+    <span class="kw">OUT</span> p_avg_score <span class="kw">DECIMAL</span>(<span class="num">5</span>,<span class="num">2</span>)
+)
+<span class="kw">BEGIN</span>
+    <span class="kw">SELECT</span> <span class="fn">AVG</span>(quiz_score) <span class="kw">INTO</span> p_avg_score
+    <span class="kw">FROM</span>   guvi_learners
+    <span class="kw">WHERE</span>  batch_id <span class="op">=</span> p_batch_id;
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="cm">-- Call and capture the OUT value into a session variable</span>
+<span class="kw">CALL</span> get_batch_avg(<span class="str">'B01'</span>, <span class="op">@</span>result);
+<span class="kw">SELECT</span> <span class="op">@</span>result <span class="kw">AS</span> batch_average;
+<span class="cm">-- batch_average: 79.40</span></pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔄 INOUT Parameter Example</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE PROCEDURE</span> apply_bonus_marks(<span class="kw">INOUT</span> p_score <span class="kw">INT</span>)
+<span class="kw">BEGIN</span>
+    <span class="kw">SET</span> p_score <span class="op">=</span> p_score <span class="op">+</span> <span class="num">5</span>;       <span class="cm">-- add 5 bonus marks</span>
+    <span class="kw">IF</span> p_score <span class="op">></span> <span class="num">100</span> <span class="kw">THEN</span>
+        <span class="kw">SET</span> p_score <span class="op">=</span> <span class="num">100</span>;            <span class="cm">-- cap at 100</span>
+    <span class="kw">END IF</span>;
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="cm">-- Set initial value, call, see the modified result</span>
+<span class="kw">SET</span> <span class="op">@</span>score <span class="op">=</span> <span class="num">97</span>;
+<span class="kw">CALL</span> apply_bonus_marks(<span class="op">@</span>score);
+<span class="kw">SELECT</span> <span class="op">@</span>score;   <span class="cm">-- 100 (97+5=102, capped at 100)</span></pre></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🏢 Real-World GUVI Procedure — Enroll Student with Validation</div>
+      <div class="cb"><span class="cl">SQL</span><pre><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE PROCEDURE</span> enroll_student(
+    <span class="kw">IN</span>  p_name      <span class="kw">VARCHAR</span>(<span class="num">100</span>),
+    <span class="kw">IN</span>  p_email     <span class="kw">VARCHAR</span>(<span class="num">100</span>),
+    <span class="kw">IN</span>  p_batch_id  <span class="kw">VARCHAR</span>(<span class="num">10</span>),
+    <span class="kw">OUT</span> p_status    <span class="kw">VARCHAR</span>(<span class="num">50</span>)
+)
+<span class="kw">BEGIN</span>
+    <span class="kw">DECLARE</span> batch_exists <span class="kw">INT</span> <span class="kw">DEFAULT</span> <span class="num">0</span>;
+    <span class="kw">DECLARE</span> seat_count   <span class="kw">INT</span> <span class="kw">DEFAULT</span> <span class="num">0</span>;
+
+    <span class="cm">-- Check if batch exists</span>
+    <span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">INTO</span> batch_exists <span class="kw">FROM</span> batches <span class="kw">WHERE</span> batch_id <span class="op">=</span> p_batch_id;
+
+    <span class="kw">IF</span> batch_exists <span class="op">=</span> <span class="num">0</span> <span class="kw">THEN</span>
+        <span class="kw">SET</span> p_status <span class="op">=</span> <span class="str">'ERROR: Batch does not exist'</span>;
+    <span class="kw">ELSE</span>
+        <span class="cm">-- Check seat capacity</span>
+        <span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">INTO</span> seat_count <span class="kw">FROM</span> students <span class="kw">WHERE</span> batch_id <span class="op">=</span> p_batch_id;
+
+        <span class="kw">IF</span> seat_count <span class="op">>=</span> <span class="num">50</span> <span class="kw">THEN</span>
+            <span class="kw">SET</span> p_status <span class="op">=</span> <span class="str">'ERROR: Batch is full'</span>;
+        <span class="kw">ELSE</span>
+            <span class="kw">INSERT INTO</span> students (name, email, batch_id)
+            <span class="kw">VALUES</span> (p_name, p_email, p_batch_id);
+            <span class="kw">SET</span> p_status <span class="op">=</span> <span class="str">'SUCCESS: Student enrolled'</span>;
+        <span class="kw">END IF</span>;
+    <span class="kw">END IF</span>;
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="kw">CALL</span> enroll_student(<span class="str">'Kavya Nair'</span>, <span class="str">'kavya@guvi.in'</span>, <span class="str">'B01'</span>, <span class="op">@</span>status);
+<span class="kw">SELECT</span> <span class="op">@</span>status;  <span class="cm">-- 'SUCCESS: Student enrolled'</span></pre></div>
+      <div class="co success"><span class="ci">✅</span><div>This procedure encapsulates validation logic (batch exists? seats available?) directly in the database — any application calling <code>enroll_student()</code> automatically gets this protection, without duplicating the logic in every app.</div></div>
+    </div>
+  </section>
+
+  <!-- ══ SANDBOX ══ -->
+  <section class="sec" id="sec-sandbox">
+    <h2 class="st">💻 Practice Sandbox</h2>
+    <p class="ss">Try writing views, indexes, and stored procedures. The sandbox recognises patterns and returns realistic output.</p>
+
+    <div class="sandbox">
+      <div class="sbh2">
+        <div class="sbt"><span>🖥️</span> SQL Sandbox — Views, Indexes & Procedures</div>
+        <div class="sbact">
+          <button class="sbbtn clr" onclick="clearSB()">Clear</button>
+          <button class="sbbtn run" onclick="runSB()">▶ Run</button>
+        </div>
+      </div>
+      <textarea class="sbed" id="sbed" spellcheck="false" placeholder="-- Try these patterns:
+-- CREATE VIEW active_learners AS SELECT * FROM guvi_students WHERE quiz_score IS NOT NULL;
+-- SELECT * FROM active_learners WHERE city = 'Chennai';
+-- CREATE INDEX idx_batch_id ON guvi_learners(batch_id);
+-- EXPLAIN SELECT * FROM guvi_learners WHERE batch_id = 'B01';
+-- CALL get_batch_summary();
+-- DROP VIEW active_learners;
+"></textarea>
+      <div class="sbout" id="sbout"><span style="color:var(--muted);font-size:12px">▶ Output will appear here</span></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">📝 Practice Challenges</div>
+      <ul class="steps">
+        <li class="step"><div class="sn">1</div><div class="sb2"><strong>Create a view</strong><p>Build a view called "top_performers" showing only students with quiz_score > 85.</p></div></li>
+        <li class="step"><div class="sn">2</div><div class="sb2"><strong>Security view</strong><p>Create a view that exposes student name and city, but NOT email or phone — for public dashboards.</p></div></li>
+        <li class="step"><div class="sn">3</div><div class="sb2"><strong>Create an index</strong><p>Add an index on the city column of guvi_learners, then run EXPLAIN to confirm it's being used.</p></div></li>
+        <li class="step"><div class="sn">4</div><div class="sb2"><strong>Composite index</strong><p>Create a composite index on (batch_id, quiz_score) and test a query that uses both columns.</p></div></li>
+        <li class="step"><div class="sn">5</div><div class="sb2"><strong>Stored procedure</strong><p>Write a procedure get_top_scorer(IN batch VARCHAR(10)) that returns the highest scorer in that batch.</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ QUIZ ══ -->
+  <section class="sec" id="sec-quiz">
+    <h2 class="st">🧠 Chapter 14 Quiz</h2>
+    <p class="ss">Test your understanding of views, indexes, query plans, and stored procedures.</p>
+    <div class="qw">
+      <div class="qprog" id="qprog">Question 1 of 8</div>
+      <div class="qq" id="qq"></div>
+      <ul class="qopts" id="qopts"></ul>
+      <div class="qfb" id="qfb"></div>
+      <div class="qnav">
+        <span class="qsc" id="qsc">Score: 0 / 0</span>
+        <button class="qbtn" id="qnext" onclick="nextQ()" style="display:none">Next Question →</button>
+      </div>
+    </div>
+    <div class="done" id="done-card" style="display:none">
+      <div class="trophy">🏆</div>
+      <h3 id="done-title">Chapter Complete!</h3>
+      <p id="done-msg">You've mastered Views, Indexes, and Stored Procedures!</p>
+      <button class="donebtn" onclick="doConfetti()">🎉 Celebrate!</button>
+    </div>
+  </section>
+</main>
+
+<script>
+// ── NAV ──
+const SECS=['intro','views1','views2','matviews','indexes1','indexes2','explain','benchmark','procs1','procs2','sandbox','quiz'];
+let ci=0;const doneSet=new Set();
+function showS(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  ci=SECS.indexOf(id);window.scrollTo(0,0);
+}
+function nextS(){if(ci<SECS.length-1){markDone(SECS[ci]);const n=SECS[ci+1];showS(n,document.querySelector(`[data-s="${n}"]`));}}
+function prevS(){if(ci>0){const p=SECS[ci-1];showS(p,document.querySelector(`[data-s="${p}"]`));}}
+function markDone(id){
+  doneSet.add(id);
+  const c=document.getElementById('chk-'+id);if(c)c.textContent='✓';
+  const n=document.querySelector(`[data-s="${id}"]`);if(n)n.classList.add('done');
+  const pct=Math.round((doneSet.size/SECS.length)*100);
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('pp').textContent=pct+'%';
+}
+
+// ── INDEX BENCHMARK SIMULATOR ──
+const TOTAL_CELLS=400; // 40x10 grid
+let benchmarkRunning=false;
+let noIdxDone=false, idxDone=false;
+
+function initGrid(){
+  const grid=document.getElementById('scan-grid');
+  grid.innerHTML='';
+  for(let i=0;i<TOTAL_CELLS;i++){
+    const cell=document.createElement('div');
+    cell.className='scan-cell';
+    cell.id='cell-'+i;
+    grid.appendChild(cell);
+  }
+}
+initGrid();
+
+function resetBenchmark(){
+  initGrid();
+  document.getElementById('bm-visual-label').textContent='▶ Click a button above to start the simulation';
+  document.getElementById('bm-status').textContent='';
+  document.getElementById('result-noidx').textContent='—';
+  document.getElementById('detail-noidx').textContent='Not run yet';
+  document.getElementById('result-idx').textContent='—';
+  document.getElementById('detail-idx').textContent='Not run yet';
+  document.getElementById('bm-speedup').classList.remove('show');
+  document.getElementById('btn-noidx').disabled=false;
+  document.getElementById('btn-idx').disabled=false;
+  noIdxDone=false;idxDone=false;benchmarkRunning=false;
+}
+
+function runBenchmark(mode){
+  if(benchmarkRunning)return;
+  benchmarkRunning=true;
+  document.getElementById('btn-noidx').disabled=true;
+  document.getElementById('btn-idx').disabled=true;
+  initGrid();
+
+  const targetIdx=Math.floor(TOTAL_CELLS*0.83); // simulate target near the end
+
+  if(mode==='noidx'){
+    document.getElementById('bm-visual-label').textContent='🔴 FULL TABLE SCAN — checking every row sequentially...';
+    let i=0;
+    const startTime=performance.now();
+    function step(){
+      if(i<=targetIdx){
+        if(i>0)document.getElementById('cell-'+(i-1)).className='scan-cell checked';
+        document.getElementById('cell-'+i).className='scan-cell scanning';
+        document.getElementById('bm-status').textContent=`Checking row ${(i/TOTAL_CELLS*100000).toFixed(0).padStart(6,'0')} of 100,000...`;
+        i++;
+        requestAnimationFrame(()=>setTimeout(step,4));
+      } else {
+        document.getElementById('cell-'+targetIdx).className='scan-cell found';
+        for(let j=targetIdx+1;j<TOTAL_CELLS;j++)document.getElementById('cell-'+j).className='scan-cell skipped';
+        const elapsed=(450+Math.random()*60).toFixed(1);
+        document.getElementById('bm-status').textContent=`✅ Found! Examined ${Math.round(targetIdx/TOTAL_CELLS*100000).toLocaleString()} rows.`;
+        document.getElementById('result-noidx').textContent=elapsed+'ms';
+        document.getElementById('detail-noidx').textContent=`type: ALL — ${Math.round(targetIdx/TOTAL_CELLS*100000).toLocaleString()} rows scanned`;
+        noIdxDone=true;
+        finishRun();
+      }
+    }
+    step();
+  } else {
+    document.getElementById('bm-visual-label').textContent='🟢 INDEX SEEK — jumping directly via B-tree...';
+    const hops=[0,200,300,333,338,339];
+    let h=0;
+    function step(){
+      if(h<hops.length){
+        if(h>0)document.getElementById('cell-'+hops[h-1]).className='scan-cell checked';
+        document.getElementById('cell-'+hops[h]).className='scan-cell scanning';
+        document.getElementById('bm-status').textContent=`B-tree hop ${h+1} of ${hops.length}...`;
+        h++;
+        setTimeout(step,180);
+      } else {
+        document.getElementById('cell-'+hops[hops.length-1]).className='scan-cell found';
+        for(let j=0;j<TOTAL_CELLS;j++){
+          const c=document.getElementById('cell-'+j);
+          if(!c.className.includes('found'))c.className='scan-cell skipped';
+        }
+        const elapsed=(0.6+Math.random()*0.4).toFixed(2);
+        document.getElementById('bm-status').textContent=`✅ Found! Examined only 17 rows via B-tree index.`;
+        document.getElementById('result-idx').textContent=elapsed+'ms';
+        document.getElementById('detail-idx').textContent='type: const — 17 rows examined (B-tree)';
+        idxDone=true;
+        finishRun();
+      }
+    }
+    step();
+  }
+}
+
+function finishRun(){
+  benchmarkRunning=false;
+  document.getElementById('btn-noidx').disabled=false;
+  document.getElementById('btn-idx').disabled=false;
+  if(noIdxDone && idxDone){
+    const t1=parseFloat(document.getElementById('result-noidx').textContent);
+    const t2=parseFloat(document.getElementById('result-idx').textContent);
+    const speedup=Math.round(t1/t2);
+    document.getElementById('speedup-num').textContent=`${speedup}× FASTER with the index! 🚀`;
+    document.getElementById('bm-speedup').classList.add('show');
+    markDone('benchmark');
+  }
+}
+
+// ── SANDBOX ──
+const SBP=[
+  {re:/create view/i,res:()=>`<span style="color:var(--green)">✓ View created successfully</span>
+<table class="ot"><tr><th>View name</th><th>Status</th></tr>
+<tr><td>active_learners</td><td>✅ Created — query will run live each time</td></tr>
+</table>`},
+  {re:/select.*from active_learners|select.*from.*view/i,res:()=>`<span style="color:var(--green)">✓ Queried view (executes underlying SELECT)</span>
+<table class="ot"><tr><th>student_id</th><th>name</th><th>city</th><th>quiz_score</th></tr>
+<tr><td>S01</td><td>Priya Sharma</td><td>Chennai</td><td>85</td></tr>
+<tr><td>S05</td><td>Meera Iyer</td><td>Chennai</td><td>93</td></tr>
+</table>`},
+  {re:/create index/i,res:()=>`<span style="color:var(--green)">✓ Index created — Query OK</span>
+<table class="ot"><tr><th>Index name</th><th>Table</th><th>Column(s)</th></tr>
+<tr><td>idx_batch_id</td><td>guvi_learners</td><td>batch_id</td></tr>
+</table>
+<span style="color:var(--muted);font-size:11px">Future queries filtering on batch_id will use this index automatically.</span>`},
+  {re:/explain/i,res:()=>`<span style="color:var(--green)">✓ EXPLAIN output</span>
+<table class="ot"><tr><th>table</th><th>type</th><th>key</th><th>rows</th></tr>
+<tr style="background:#dcfce7"><td>guvi_learners</td><td>ref</td><td>idx_batch_id</td><td>312</td></tr>
+</table>
+<span style="color:var(--green);font-size:11px">✅ Using index — efficient!</span>`},
+  {re:/call/i,res:()=>`<span style="color:var(--green)">✓ Procedure executed</span>
+<table class="ot"><tr><th>batch_id</th><th>total_learners</th><th>avg_score</th></tr>
+<tr><td>B01</td><td>42</td><td>84.2</td></tr>
+<tr><td>B02</td><td>38</td><td>81.6</td></tr>
+<tr><td>B03</td><td>35</td><td>78.9</td></tr>
+</table>`},
+  {re:/create procedure/i,res:()=>`<span style="color:var(--green)">✓ Procedure created successfully</span>
+<span style="color:var(--muted);font-size:11px;display:block;margin-top:6px">Use CALL procedure_name() to execute it.</span>`},
+  {re:/drop view/i,res:()=>`<span style="color:var(--green)">✓ View dropped successfully</span>`},
+];
+function runSB(){
+  const sql=document.getElementById('sbed').value.trim();
+  const out=document.getElementById('sbout');
+  if(!sql){out.innerHTML='<span style="color:var(--muted)">⚠️ Enter a SQL query first.</span>';return;}
+  for(const p of SBP){if(p.re.test(sql)){out.innerHTML=p.res();return;}}
+  out.innerHTML='<span style="color:var(--green)">✓ Query OK — try CREATE VIEW, CREATE INDEX, EXPLAIN, or CALL!</span>';
+}
+function clearSB(){
+  document.getElementById('sbed').value='';
+  document.getElementById('sbout').innerHTML='<span style="color:var(--muted);font-size:12px">▶ Output will appear here</span>';
+}
+
+// ── QUIZ ──
+const QS=[
+  {q:"What does a VIEW actually store?",opts:["A physical copy of the data","Nothing — it stores only the SQL query definition, and runs it fresh each time","An index of the underlying table","A backup of the original table"],ans:1,exp:"A regular VIEW stores only the query definition. Every time you SELECT from it, the database re-runs the underlying query against the live tables. (Materialized views are the exception — they DO store data physically.)"},
+  {q:"Why is a view useful for security?",opts:["Views are automatically encrypted","You can grant access to a view that exposes only safe columns, hiding sensitive ones entirely from the user","Views require a password to query","Views log every access attempt"],ans:1,exp:"If a view's SELECT statement doesn't include salary or aadhaar columns, a user querying that view can NEVER see those columns — even with SELECT * — because the columns simply don't exist in the view's result set."},
+  {q:"Which of these makes a view NON-updatable?",opts:["Selecting from a single table","Using a WHERE clause","Including a GROUP BY or aggregate function like COUNT()","Using a simple column alias"],ans:2,exp:"Views with JOINs, GROUP BY, aggregate functions, or DISTINCT cannot be directly updated — the database can't determine which underlying row(s) to modify. Simple single-table views without aggregation are usually updatable."},
+  {q:"What is the key difference between a regular VIEW and a MATERIALIZED VIEW?",opts:["Materialized views are faster to create","A materialized view physically stores the query results and must be refreshed; a regular view always runs live","Regular views can only be used in PostgreSQL","Materialized views can't be queried with SELECT"],ans:1,exp:"A materialized view caches (stores) the actual result set on disk, making reads very fast — but the data becomes stale until you run REFRESH MATERIALIZED VIEW. A regular view always reflects live data because it re-runs the query every time."},
+  {q:"In EXPLAIN output, what does type: ALL indicate?",opts:["The query is using all available indexes","A full table scan — every row is being checked","The query returned all columns","An error in the query"],ans:1,exp:"type: ALL means MySQL is doing a full table scan — examining every single row. This is the least efficient access type and is a strong signal that an index could help, if the column is frequently filtered."},
+  {q:"You have a composite index ON (batch_id, quiz_score). Which query CANNOT use this index efficiently?",opts:["WHERE batch_id = 'B01'","WHERE batch_id = 'B01' AND quiz_score > 75","WHERE quiz_score > 75 (without batch_id)","WHERE batch_id = 'B01' ORDER BY quiz_score"],ans:2,exp:"This is the 'leftmost prefix rule.' A composite index on (A, B) can be used for queries on A alone, or A+B together — but NOT for queries that only filter on B while skipping A. Filtering only on quiz_score skips the leftmost column (batch_id), so the index can't be used efficiently."},
+  {q:"What is the main trade-off of adding more indexes to a table?",opts:["Indexes make SELECT queries slower","Indexes speed up reads (SELECT) but slow down writes (INSERT/UPDATE/DELETE), since every index must also be updated","Indexes use no extra disk space","Indexes only work with primary keys"],ans:1,exp:"Every index must be updated whenever a row is inserted, updated, or deleted — adding overhead to write operations. This is why you shouldn't index every column 'just in case' — only index columns that are actually queried frequently."},
+  {q:"In a stored procedure, what is the purpose of an OUT parameter?",opts:["It restricts who can call the procedure","It passes a value INTO the procedure that cannot be changed","The procedure sets this value internally, and it's returned to the caller after CALL completes","It automatically logs the procedure's execution"],ans:2,exp:"OUT parameters work in the opposite direction of IN parameters — the procedure computes a value and assigns it to the OUT parameter, which becomes available to the caller after CALL finishes (e.g., CALL get_avg('B01', @result); SELECT @result;)."},
+];
+let qi=0,score=0,answered=false;
+function renderQ(){
+  const q=QS[qi];
+  document.getElementById('qprog').textContent=`Question ${qi+1} of ${QS.length}`;
+  document.getElementById('qq').textContent=q.q;
+  document.getElementById('qopts').innerHTML=q.opts.map((o,i)=>
+    `<li class="qopt" onclick="selQ(${i})" id="qo-${i}"><span class="ok">${String.fromCharCode(65+i)}</span>${o}</li>`).join('');
+  document.getElementById('qfb').className='qfb';
+  document.getElementById('qfb').innerHTML='';
+  document.getElementById('qnext').style.display='none';
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi}`;
+  answered=false;
+}
+function selQ(i){
+  if(answered)return;answered=true;
+  const q=QS[qi];
+  document.querySelectorAll('.qopt').forEach((o,j)=>{
+    if(j===q.ans)o.classList.add('correct');
+    else if(j===i)o.classList.add('wrong');
+  });
+  if(i===q.ans)score++;
+  const fb=document.getElementById('qfb');
+  fb.className=`qfb show ${i===q.ans?'correct':'wrong'}`;
+  fb.innerHTML=`<strong>${i===q.ans?'✅ Correct!':'❌ Not quite.'}</strong> ${q.exp}`;
+  document.getElementById('qsc').textContent=`Score: ${score} / ${qi+1}`;
+  const nb=document.getElementById('qnext');
+  nb.style.display='inline-block';
+  nb.textContent=qi<QS.length-1?'Next Question →':'See Results 🎉';
+}
+function nextQ(){qi++;if(qi<QS.length)renderQ();else showResults();}
+function showResults(){
+  document.querySelector('.qw').style.display='none';
+  const dc=document.getElementById('done-card');dc.style.display='block';
+  const pct=Math.round((score/QS.length)*100);
+  document.getElementById('done-title').textContent=pct>=80?'🎉 Database Architect!':pct>=60?'👍 Good Work!':'💪 Keep Practising!';
+  document.getElementById('done-msg').textContent=`You scored ${score} out of ${QS.length} (${pct}%). ${pct>=80?'You can now design efficient, secure, and maintainable database structures!':'Review the leftmost prefix rule and view updatability — they trip up most learners!'}`;
+  markDone('quiz');
+  if(pct>=70)doConfetti();
+}
+renderQ();
+
+// ── CONFETTI ──
+function doConfetti(){
+  const cv=document.getElementById('cvc');const ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  const cols=['#4f46e5','#0d9488','#2563eb','#d97706','#16a34a','#7c3aed','#ea580c'];
+  const pp=Array.from({length:150},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height-cv.height,r:Math.random()*9+4,color:cols[Math.floor(Math.random()*cols.length)],tilt:Math.random()*10-10,spd:Math.random()*3+1.5}));
+  let fr=0;
+  function draw(){ctx.clearRect(0,0,cv.width,cv.height);pp.forEach(p=>{ctx.beginPath();ctx.ellipse(p.x,p.y,p.r,p.r/2,p.tilt,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();p.y+=p.spd;p.x+=Math.sin(fr/18)*1.5;p.tilt+=.08;if(p.y>cv.height){p.y=-10;p.x=Math.random()*cv.width;}});fr++;if(fr<220)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);}
+  draw();
+}
+</script>
+</body>
+</html>

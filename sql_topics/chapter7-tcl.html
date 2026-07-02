@@ -1,0 +1,1768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 7 — TCL: Transaction Control Language | SQL Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#0F6E56;--teal-mid:#1D9E75;--teal-light:#E1F5EE;--teal-soft:#f0faf6;
+  --blue:#185FA5;--blue-light:#E6F1FB;--indigo:#534AB7;--indigo-light:#EEEDFE;
+  --amber:#BA7517;--amber-light:#FAEEDA;--coral:#993C1D;--coral-light:#FAECE7;
+  --green:#16A34A;--green-light:#DCFCE7;--red:#DC2626;--red-light:#FEE2E2;
+  --purple:#7C3AED;--purple-light:#EDE9FE;--orange:#C2410C;--orange-light:#FFEDD5;
+  --gray900:#1a1a1a;--gray700:#3d3d3d;--gray500:#6b6b6b;--gray300:#c8c8c8;
+  --gray100:#f4f4f4;--gray50:#fafafa;--white:#fff;--border:#e8e8e8;
+  --radius:10px;--radius-lg:16px;--shadow:0 2px 12px rgba(0,0,0,.07);
+  --font:'Inter',sans-serif;--mono:'Fira Code',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:#f7f8fa;color:var(--gray900);font-size:15px;line-height:1.7}
+.shell{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:260px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.brand-tag{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--teal);text-transform:uppercase;margin-bottom:4px}
+.brand-title{font-size:15px;font-weight:700;color:var(--gray900)}
+.brand-sub{font-size:11px;color:var(--gray500);margin-top:2px}
+.sidebar-progress{padding:12px 20px;border-bottom:1px solid var(--border)}
+.prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--gray500);margin-bottom:6px}
+.prog-bar{height:4px;background:var(--gray100);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal-mid),var(--blue));border-radius:4px;transition:width .5s}
+.sidebar-nav{padding:12px 0;flex:1}
+.nav-section{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--gray300);text-transform:uppercase;padding:8px 20px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 20px;font-size:13px;color:var(--gray500);cursor:pointer;border-left:3px solid transparent;transition:all .15s;text-decoration:none}
+.nav-item:hover{color:var(--teal);background:var(--teal-soft)}
+.nav-item.active{color:var(--teal);background:var(--teal-light);border-left-color:var(--teal-mid);font-weight:500}
+.nav-num{width:20px;height:20px;border-radius:50%;background:var(--gray100);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;color:var(--gray500)}
+.nav-item.active .nav-num{background:var(--teal-light);color:var(--teal)}
+
+/* MAIN */
+.main{margin-left:260px;flex:1}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-breadcrumb{font-size:12px;color:var(--gray500)}
+.topbar-breadcrumb span{color:var(--gray900);font-weight:500}
+.topbar-actions{display:flex;gap:10px}
+.meta-chip{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray500);background:var(--gray50);border:1px solid var(--border);padding:5px 12px;border-radius:20px}
+
+/* HERO */
+.chapter-hero{background:var(--white);border-bottom:1px solid var(--border);padding:48px 40px 36px}
+.hero-phase{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--teal);text-transform:uppercase;margin-bottom:10px}
+.hero-title{font-size:32px;font-weight:700;color:var(--gray900);line-height:1.25;margin-bottom:12px}
+.hero-title span{color:var(--teal-mid)}
+.hero-desc{font-size:15px;color:var(--gray500);max-width:640px;line-height:1.7;margin-bottom:24px}
+.hero-meta{display:flex;gap:12px;flex-wrap:wrap}
+
+/* CONTENT */
+.content{padding:40px 40px 80px;max-width:920px}
+.section{margin-bottom:60px;scroll-margin-top:80px}
+.section-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:14px;border-bottom:2px solid var(--teal-light)}
+.section-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.section-num{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.section-title{font-size:22px;font-weight:700;color:var(--gray900)}
+
+/* CALLOUTS */
+.callout{border-radius:var(--radius);padding:16px 20px;margin:20px 0;display:flex;gap:14px;align-items:flex-start}
+.callout-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.callout-body{flex:1}
+.callout-title{font-weight:600;font-size:14px;margin-bottom:4px}
+.callout-text{font-size:13px;line-height:1.6}
+.callout.tip{background:var(--teal-light);color:var(--teal);border-left:3px solid var(--teal-mid)}
+.callout.info{background:var(--blue-light);color:var(--blue);border-left:3px solid var(--blue)}
+.callout.warning{background:var(--amber-light);color:var(--amber);border-left:3px solid var(--amber)}
+.callout.danger{background:var(--red-light);color:var(--red);border-left:3px solid var(--red)}
+.callout.good{background:var(--green-light);color:var(--green);border-left:3px solid var(--green)}
+.callout.example{background:var(--indigo-light);color:var(--indigo);border-left:3px solid var(--indigo)}
+.callout.purple{background:var(--purple-light);color:var(--purple);border-left:3px solid var(--purple)}
+
+/* REAL WORLD */
+.real-world{background:var(--white);border:1px solid var(--border);border-left:4px solid var(--teal-mid);border-radius:var(--radius);padding:20px 24px;margin:20px 0}
+.rw-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:8px}
+.rw-title{font-size:16px;font-weight:700;color:var(--gray900);margin-bottom:8px}
+.rw-body{font-size:13px;color:var(--gray700);line-height:1.7}
+
+/* CODE BLOCKS */
+.code-block{background:#1e2030;border-radius:var(--radius);overflow:hidden;margin:16px 0;font-family:var(--mono);font-size:13px}
+.code-header{background:#272a3f;padding:9px 16px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#7a8ba8;font-family:var(--font)}
+.code-lang{background:rgba(255,255,255,.08);padding:2px 8px;border-radius:4px;font-weight:500}
+.code-body{padding:16px;color:#cdd6f4;line-height:1.75;overflow-x:auto;white-space:pre}
+.kw{color:#89b4fa}.str{color:#a6e3a1}.cm{color:#6c7086;font-style:italic}.fn{color:#f38ba8}.nm{color:#fab387}.op{color:#89dceb}.tbl{color:#cba6f7}
+
+/* TRY IT */
+.try-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:20px 0}
+.try-header{background:linear-gradient(135deg,#1e2030,#272a3f);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;color:white;flex-wrap:wrap;gap:8px}
+.try-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.try-badge{font-size:10px;background:var(--teal-mid);color:white;padding:2px 8px;border-radius:4px;font-weight:600}
+.try-editor{min-height:110px;background:#1e2030;padding:14px 16px;font-family:var(--mono);font-size:13px;color:#cdd6f4;border:none;outline:none;resize:vertical;width:100%;line-height:1.75}
+.try-footer{background:var(--gray50);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.try-hint{font-size:12px;color:var(--gray500)}
+.try-btns{display:flex;gap:8px}
+.run-btn{background:var(--teal-mid);color:white;border:none;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:background .15s}
+.run-btn:hover{background:var(--teal)}
+.reset-btn{background:transparent;color:var(--gray500);border:1px solid var(--border);padding:8px 14px;border-radius:7px;font-size:13px;cursor:pointer;font-family:var(--font)}
+.reset-btn:hover{background:var(--gray100)}
+.try-output{border-top:1px solid var(--border);background:var(--white);padding:16px 18px;display:none}
+.try-output.visible{display:block}
+.output-label{font-size:11px;font-weight:600;color:var(--gray500);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.result-msg{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;margin-bottom:6px;line-height:1.5}
+.result-msg.success{background:var(--teal-light);color:var(--teal)}
+.result-msg.info{background:var(--blue-light);color:var(--blue)}
+.result-msg.warn{background:var(--amber-light);color:var(--amber)}
+.result-msg.danger{background:var(--red-light);color:var(--red)}
+.result-msg.good{background:var(--green-light);color:var(--green)}
+
+/* BANK TRANSFER SIMULATOR */
+.bank-sim{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:20px 0}
+.bank-header{background:linear-gradient(135deg,#1e2030,#272a3f);padding:14px 20px;color:white;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.bank-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.bank-body{padding:20px}
+.accounts{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-bottom:20px}
+.account-card{background:var(--gray50);border:2px solid var(--border);border-radius:12px;padding:16px;text-align:center;transition:all .3s}
+.account-card.active{border-color:var(--teal-mid);background:var(--teal-soft)}
+.account-card.error{border-color:var(--red);background:var(--red-light)}
+.acc-name{font-size:12px;font-weight:600;color:var(--gray500);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.acc-balance{font-size:26px;font-weight:700;color:var(--gray900)}
+.acc-bank{font-size:11px;color:var(--gray500)}
+.transfer-arrow{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:24px;color:var(--teal-mid)}
+.transfer-amount{font-size:12px;font-weight:700;color:var(--teal)}
+.bank-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.bank-input{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);width:140px}
+.bank-btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);border:none;transition:all .15s}
+.bank-transfer{background:var(--teal-mid);color:white}
+.bank-transfer:hover{background:var(--teal)}
+.bank-commit{background:var(--green);color:white}
+.bank-commit:hover{background:var(--green)}
+.bank-rollback{background:var(--coral);color:white}
+.bank-rollback:hover{background:var(--red)}
+.bank-log{background:#1e2030;border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:12px;min-height:80px;max-height:200px;overflow-y:auto;color:#cdd6f4}
+.log-entry{padding:2px 0;line-height:1.6}
+.log-entry.success{color:#a6e3a1}
+.log-entry.error{color:#f38ba8}
+.log-entry.info{color:#89b4fa}
+.log-entry.warn{color:#fab387}
+
+/* ACID CARDS */
+.acid-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:16px 0}
+.acid-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:transform .2s}
+.acid-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.acid-head{padding:14px 16px;font-size:22px;font-weight:900;text-align:center}
+.acid-body{padding:14px 16px}
+.acid-letter{font-size:28px;font-weight:900;margin-bottom:4px}
+.acid-name{font-size:14px;font-weight:700;color:var(--gray900);margin-bottom:6px}
+.acid-def{font-size:12px;color:var(--gray700);line-height:1.6}
+.acid-example{font-size:11px;font-style:italic;color:var(--gray500);margin-top:6px;padding:6px 8px;background:var(--gray50);border-radius:6px}
+
+/* ISOLATION LEVELS TABLE */
+.iso-table{width:100%;border-collapse:collapse;font-size:12px;margin:16px 0;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.iso-table th{padding:10px 14px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.iso-table td{padding:9px 14px;border-bottom:1px solid var(--gray100);vertical-align:middle}
+.iso-table tr:last-child td{border-bottom:none}
+.iso-table tr:hover td{background:var(--gray50)}
+.iso-check{color:var(--red);font-weight:700;font-size:14px}
+.iso-cross{color:var(--teal);font-weight:700;font-size:14px}
+.iso-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:12px}
+
+/* TIMELINE VISUAL */
+.timeline{margin:20px 0;position:relative}
+.tl-row{display:flex;gap:0;margin-bottom:8px;align-items:stretch;font-size:12px}
+.tl-label{width:100px;flex-shrink:0;font-weight:600;color:var(--gray700);padding:8px 12px 8px 0;display:flex;align-items:center}
+.tl-slots{display:flex;gap:4px;flex:1}
+.tl-slot{min-width:80px;padding:7px 10px;border-radius:6px;text-align:center;font-size:11px;font-weight:500;line-height:1.3;flex:1}
+.tl-t{background:var(--teal-light);color:var(--teal);border:1px solid var(--teal-mid)}
+.tl-w{background:var(--amber-light);color:var(--amber);border:1px solid var(--amber)}
+.tl-e{background:var(--red-light);color:var(--red);border:1px solid var(--red)}
+.tl-g{background:var(--green-light);color:var(--green);border:1px solid var(--green)}
+.tl-b{background:var(--blue-light);color:var(--blue);border:1px solid var(--blue)}
+.tl-empty{background:transparent;border:1px dashed var(--border)}
+.tl-header{display:flex;gap:4px;margin-bottom:4px;margin-left:100px}
+.tl-hcell{flex:1;text-align:center;font-size:10px;font-weight:700;color:var(--gray500);text-transform:uppercase;padding:4px}
+
+/* DEADLOCK VISUAL */
+.deadlock-box{background:var(--white);border:2px solid var(--red);border-radius:var(--radius-lg);padding:20px;margin:16px 0}
+.dl-title{font-size:14px;font-weight:700;color:var(--red);margin-bottom:14px}
+.dl-diagram{display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;padding:16px;background:var(--gray50);border-radius:8px;margin-bottom:14px}
+.dl-session{background:var(--white);border:2px solid var(--border);border-radius:10px;padding:12px 16px;text-align:center;min-width:130px}
+.dl-session.locked{border-color:var(--red);background:var(--red-light)}
+.dl-sess-title{font-size:12px;font-weight:700;color:var(--gray900);margin-bottom:6px}
+.dl-holds{font-size:11px;color:var(--green);font-weight:600}
+.dl-wants{font-size:11px;color:var(--red);font-weight:600}
+.dl-arrows{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--red);font-size:20px}
+
+/* LOCKING COMPARE */
+.lock-compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.lock-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.lock-head{padding:12px 16px;font-weight:700;font-size:14px}
+.lock-body{padding:12px 16px;font-size:13px;color:var(--gray700);line-height:1.6}
+.lock-code{font-family:var(--mono);font-size:11px;background:var(--gray50);padding:8px 10px;border-radius:6px;margin-top:8px;white-space:pre;overflow-x:auto}
+
+/* PYTHON CODE */
+.python-block{background:#1a1a2e;border-radius:var(--radius);overflow:hidden;margin:16px 0;font-family:var(--mono);font-size:13px}
+.python-header{background:#16213e;padding:9px 16px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#7a8ba8;font-family:var(--font)}
+.python-body{padding:16px;color:#e0e0ff;line-height:1.75;overflow-x:auto;white-space:pre}
+.py-kw{color:#ff79c6}.py-str{color:#f1fa8c}.py-cm{color:#6272a4;font-style:italic}.py-fn{color:#50fa7b}.py-var{color:#8be9fd}.py-num{color:#bd93f9}
+
+/* COMPARE TABLE */
+.cmp-table{width:100%;border-collapse:collapse;font-size:13px;background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin:16px 0}
+.cmp-table th{padding:11px 16px;text-align:left;font-weight:600;font-size:12px}
+.cmp-table td{padding:10px 16px;border-bottom:1px solid var(--gray100);color:var(--gray700);vertical-align:top;line-height:1.5}
+.cmp-table tr:last-child td{border-bottom:none}
+.cmp-table tr:hover td{background:var(--gray50)}
+.cmp-table td:first-child{font-family:var(--mono);font-weight:700;font-size:12px;color:var(--teal)}
+
+/* QUIZ */
+.quiz-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:24px 0}
+.quiz-header{background:var(--indigo-light);padding:14px 20px;display:flex;align-items:center;gap:10px}
+.quiz-title{font-size:14px;font-weight:600;color:var(--indigo)}
+.quiz-count{font-size:12px;color:var(--indigo);opacity:.7;margin-left:auto}
+.quiz-body{padding:20px}
+.quiz-q{font-size:14px;font-weight:500;color:var(--gray900);margin-bottom:14px;line-height:1.6}
+.quiz-options{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.quiz-opt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--gray700);transition:all .15s;background:var(--white);text-align:left;font-family:var(--font);line-height:1.5;width:100%}
+.quiz-opt:hover{border-color:var(--indigo);color:var(--indigo);background:var(--indigo-light)}
+.quiz-opt.correct{border-color:var(--teal-mid);background:var(--teal-light);color:var(--teal)}
+.quiz-opt.wrong{border-color:var(--coral);background:var(--coral-light);color:var(--coral)}
+.opt-letter{width:22px;height:22px;border-radius:50%;background:var(--gray100);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:var(--gray500)}
+.quiz-opt.correct .opt-letter{background:var(--teal-mid);color:white}
+.quiz-opt.wrong .opt-letter{background:var(--coral);color:white}
+.quiz-feedback{display:none;padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.5;margin-top:4px}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:var(--teal-light);color:var(--teal)}
+.quiz-feedback.wrong{background:var(--coral-light);color:var(--coral)}
+.quiz-nav{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-top:1px solid var(--border);background:var(--gray50)}
+.quiz-progress-dots{display:flex;gap:6px}
+.q-dot{width:8px;height:8px;border-radius:50%;background:var(--gray300);transition:all .2s}
+.q-dot.active{background:var(--indigo);transform:scale(1.3)}
+.q-dot.done-c{background:var(--teal-mid)}
+.q-dot.done-w{background:var(--coral)}
+.btn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--gray700);font-family:var(--font);transition:all .15s}
+.btn:hover{background:var(--gray100)}
+.btn-primary{background:var(--teal-mid);color:white;border-color:var(--teal-mid)}
+.btn-primary:hover{background:var(--teal)}
+
+/* CHEATSHEET */
+.cheatsheet{background:var(--gray900);border-radius:var(--radius-lg);padding:24px 28px;margin:20px 0}
+.cs-title{font-size:14px;font-weight:600;color:white;margin-bottom:16px}
+.cs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.cs-item{background:rgba(255,255,255,.05);border-radius:8px;padding:12px 14px}
+.cs-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#7a8ba8;margin-bottom:6px}
+.cs-code{font-family:var(--mono);font-size:12px;line-height:1.8;color:#cdd6f4;white-space:pre}
+.cs-code .kw{color:#89b4fa;font-weight:700}
+.cs-code .ph{color:#fab387}
+.cs-code .str{color:#a6e3a1}
+.cs-code .cm{color:#6c7086}
+
+/* SUMMARY */
+.summary-box{background:linear-gradient(135deg,var(--teal-soft),var(--blue-light));border:1px solid var(--teal-light);border-radius:var(--radius-lg);padding:24px 28px;margin:32px 0 0}
+.summary-title{font-size:16px;font-weight:700;color:var(--gray900);margin-bottom:16px}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.summary-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--gray700);line-height:1.5}
+.summary-check{width:20px;height:20px;border-radius:50%;background:var(--teal-mid);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px}
+
+/* CHAPTER NAV */
+.chapter-nav{background:var(--white);border-top:1px solid var(--border);padding:24px 40px;display:flex;justify-content:space-between;align-items:center}
+.nav-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;font-size:13px;color:var(--gray700);transition:all .15s;min-width:200px}
+.nav-card:hover{border-color:var(--teal-mid);color:var(--teal)}
+.nav-card-dir{font-size:11px;color:var(--gray300);margin-bottom:2px}
+.nav-card-name{font-weight:600}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .main{margin-left:0}
+  .content{padding:24px 20px 60px}
+  .chapter-hero{padding:32px 20px 24px}
+  .topbar{padding:12px 20px}
+  .hero-title{font-size:24px}
+  .lock-compare{grid-template-columns:1fr}
+  .accounts{grid-template-columns:1fr auto 1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-tag">HCL GUVI · SQL Mastery · Phase 2</div>
+    <div class="brand-title">Chapter 7</div>
+    <div class="brand-sub">TCL — Transaction Control Language</div>
+  </div>
+  <div class="sidebar-progress">
+    <div class="prog-label"><span>Progress</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Topics</div>
+    <a class="nav-item active" href="#sec1"><div class="nav-num">1</div>TCL Overview</a>
+    <a class="nav-item" href="#sec2"><div class="nav-num">2</div>BEGIN / COMMIT / ROLLBACK</a>
+    <a class="nav-item" href="#sec3"><div class="nav-num">3</div>SAVEPOINT</a>
+    <a class="nav-item" href="#sec4"><div class="nav-num">4</div>Bank Transfer Simulator</a>
+    <a class="nav-item" href="#sec5"><div class="nav-num">5</div>ACID Properties</div></a>
+    <a class="nav-item" href="#sec6"><div class="nav-num">6</div>Isolation Levels</a>
+    <a class="nav-item" href="#sec7"><div class="nav-num">7</div>Read Anomalies</a>
+    <a class="nav-item" href="#sec8"><div class="nav-num">8</div>Deadlocks</a>
+    <a class="nav-item" href="#sec9"><div class="nav-num">9</div>Optimistic vs Pessimistic</a>
+    <a class="nav-item" href="#sec10"><div class="nav-num">10</div>Python Transactions</a>
+    <a class="nav-item" href="#sec11"><div class="nav-num">11</div>Cheatsheet & Quiz</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-breadcrumb">SQL Mastery › Phase 2 › <span>Chapter 7 — TCL</span></div>
+    <div class="topbar-actions">
+      <div class="meta-chip"><span style="width:6px;height:6px;border-radius:50%;background:#185FA5;display:inline-block"></span>Intermediate</div>
+      <div class="meta-chip">⏱ ~65 min</div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="chapter-hero">
+    <div class="hero-phase">Phase 2 · Chapter 7 of 22</div>
+    <h1 class="hero-title">TCL — <span>Transaction Control Language</span></h1>
+    <p class="hero-desc">When ₹50,000 moves from one bank account to another, what happens if the power cuts out halfway? Does the money vanish? TCL prevents disasters like this. Transactions, ACID properties, and isolation levels are the foundation of every reliable database system — from HDFC to Flipkart to IRCTC. Understand them deeply here.</p>
+    <div class="hero-meta">
+      <div class="meta-chip">📚 11 Topics</div>
+      <div class="meta-chip">🏦 Bank Simulator</div>
+      <div class="meta-chip">⚡ ACID Deep Dive</div>
+      <div class="meta-chip">🐍 Python Integration</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- ── SECTION 1: TCL OVERVIEW ── -->
+  <div class="section" id="sec1">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--teal-light)">🔐</div>
+      <div><div class="section-num">Topic 1</div><h2 class="section-title">TCL Overview — Controlling Data Changes</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <strong>TCL (Transaction Control Language)</strong> manages the <em>execution of transactions</em> — groups of SQL statements that should either all succeed or all fail together. TCL gives you control over when changes become permanent and the power to undo them if something goes wrong.
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:20px 0">
+      <div style="background:var(--white);border:2px solid var(--teal-mid);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">🚀</div>
+        <div style="font-weight:700;font-size:13px;color:var(--teal);font-family:var(--mono)">BEGIN</div>
+        <div style="font-size:11px;color:var(--gray500);margin-top:4px">Start a transaction</div>
+      </div>
+      <div style="background:var(--white);border:2px solid var(--green);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">✅</div>
+        <div style="font-weight:700;font-size:13px;color:var(--green);font-family:var(--mono)">COMMIT</div>
+        <div style="font-size:11px;color:var(--gray500);margin-top:4px">Save changes permanently</div>
+      </div>
+      <div style="background:var(--white);border:2px solid var(--coral);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">↩️</div>
+        <div style="font-weight:700;font-size:13px;color:var(--coral);font-family:var(--mono)">ROLLBACK</div>
+        <div style="font-size:11px;color:var(--gray500);margin-top:4px">Undo all changes</div>
+      </div>
+      <div style="background:var(--white);border:2px solid var(--blue);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">📍</div>
+        <div style="font-weight:700;font-size:13px;color:var(--blue);font-family:var(--mono)">SAVEPOINT</div>
+        <div style="font-size:11px;color:var(--gray500);margin-top:4px">Create a checkpoint</div>
+      </div>
+      <div style="background:var(--white);border:2px solid var(--amber);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">🗂️</div>
+        <div style="font-weight:700;font-size:13px;color:var(--amber);font-family:var(--mono)">RELEASE</div>
+        <div style="font-size:11px;color:var(--gray500);margin-top:4px">Remove a savepoint</div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">Auto-commit mode — MySQL's default behaviour</div>
+        <div class="callout-text">By default in MySQL, every single DML statement (INSERT/UPDATE/DELETE) is automatically committed immediately — you don't need to type COMMIT. This is <strong>autocommit mode</strong>.<br><br>
+        To use explicit transactions, either:<br>
+        • Start with <code>START TRANSACTION;</code> (disables autocommit for that block)<br>
+        • Or set globally: <code>SET autocommit = 0;</code> (then EVERY statement needs COMMIT)</div>
+      </div>
+    </div>
+
+    <div class="real-world">
+      <div class="rw-label">🇮🇳 Why Transactions Matter — Real Indian Examples</div>
+      <div class="rw-title">Scenarios where transactions are non-negotiable</div>
+      <div class="rw-body">
+        🏦 <strong>HDFC Net Banking transfer:</strong> Debit ₹50,000 from sender + Credit ₹50,000 to receiver = must happen together or not at all<br>
+        🎫 <strong>IRCTC ticket booking:</strong> Reduce available seats + charge payment + send confirmation — all or nothing<br>
+        📦 <strong>Flipkart order placement:</strong> Reduce stock quantity + create order + deduct wallet balance — atomic<br>
+        🎓 <strong>GUVI batch enrollment:</strong> Create enrollment record + send welcome email trigger + update batch count — together
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2: BEGIN / COMMIT / ROLLBACK ── -->
+  <div class="section" id="sec2">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--green-light)">🔄</div>
+      <div><div class="section-num">Topic 2</div><h2 class="section-title">BEGIN, COMMIT & ROLLBACK</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      These three commands form the core lifecycle of every transaction. Think of them as <strong>Start, Save, and Undo</strong>.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header"><span>Transaction Lifecycle — Complete Syntax</span><span class="code-lang">MySQL / PostgreSQL</span></div>
+      <div class="code-body"><span class="cm">── Starting a transaction ─────────────────────────────────</span>
+<span class="kw">START TRANSACTION</span>;   <span class="cm">-- MySQL preferred</span>
+<span class="kw">BEGIN</span>;               <span class="cm">-- PostgreSQL / works in MySQL too</span>
+<span class="kw">BEGIN WORK</span>;          <span class="cm">-- SQL standard form</span>
+
+<span class="cm">── Inside the transaction ─────────────────────────────────</span>
+<span class="kw">UPDATE</span> <span class="tbl">accounts</span> <span class="kw">SET</span> balance = balance - <span class="nm">50000</span> <span class="kw">WHERE</span> account_id = <span class="nm">101</span>;
+<span class="kw">UPDATE</span> <span class="tbl">accounts</span> <span class="kw">SET</span> balance = balance + <span class="nm">50000</span> <span class="kw">WHERE</span> account_id = <span class="nm">202</span>;
+<span class="kw">INSERT INTO</span> <span class="tbl">transactions_log</span> (from_acc, to_acc, amount, txn_date)
+    <span class="kw">VALUES</span> (<span class="nm">101</span>, <span class="nm">202</span>, <span class="nm">50000</span>, <span class="fn">NOW</span>());
+
+<span class="cm">── Path 1: Everything went well → COMMIT ──────────────────</span>
+<span class="kw">COMMIT</span>;              <span class="cm">-- All 3 statements now permanent, visible to all</span>
+<span class="kw">COMMIT WORK</span>;         <span class="cm">-- SQL standard form</span>
+
+<span class="cm">── Path 2: Something went wrong → ROLLBACK ────────────────</span>
+<span class="kw">ROLLBACK</span>;            <span class="cm">-- All 3 statements undone, DB back to original state</span>
+<span class="kw">ROLLBACK WORK</span>;       <span class="cm">-- SQL standard form</span>
+
+<span class="cm">── Check autocommit status ────────────────────────────────</span>
+<span class="kw">SHOW VARIABLES LIKE</span> <span class="str">'autocommit'</span>;
+<span class="kw">SET</span> autocommit = <span class="nm">0</span>;  <span class="cm">-- disable autocommit (manual COMMIT needed)</span>
+<span class="kw">SET</span> autocommit = <span class="nm">1</span>;  <span class="cm">-- re-enable autocommit (default)</span></div>
+    </div>
+
+    <div class="try-box">
+      <div class="try-header"><div class="try-title">✏️ Try It — Commit vs Rollback Paths <span class="try-badge">Exercise 1</span></div></div>
+      <textarea class="try-editor" id="e1" spellcheck="false">-- Scenario: Grade all students from a batch
+
+START TRANSACTION;
+
+-- Step 1: Archive current scores
+INSERT INTO scores_archive (student_id, score, archived_at)
+SELECT student_id, score, NOW()
+FROM students
+WHERE batch = 'B2024';
+
+-- Step 2: Update scores with curve (add 5 to everyone)
+UPDATE students
+SET score = LEAST(score + 5, 100)   -- LEAST ensures max 100
+WHERE batch = 'B2024';
+
+-- Step 3: Verify the changes
+SELECT student_id, name, score FROM students WHERE batch = 'B2024';
+
+-- Step 4a: If results look good → COMMIT
+COMMIT;
+
+-- Step 4b: If something went wrong → ROLLBACK (undo EVERYTHING above)
+-- ROLLBACK;
+
+-- After ROLLBACK: Both the INSERT and UPDATE are reversed.
+-- The database is exactly as it was before START TRANSACTION.</textarea>
+      <div class="try-footer">
+        <div class="try-hint">💡 A ROLLBACK undoes EVERYTHING since the last START TRANSACTION — even multiple statements across multiple tables</div>
+        <div class="try-btns">
+          <button class="reset-btn" onclick="resetE('e1',0)">Reset</button>
+          <button class="run-btn" onclick="showOut('o1')">▶ See Flow</button>
+        </div>
+      </div>
+      <div class="try-output" id="o1">
+        <div class="output-label">Transaction Flow</div>
+        <div class="result-msg info">🚀 START TRANSACTION — autocommit suspended</div>
+        <div class="result-msg success">✅ INSERT INTO scores_archive — rows staged (not yet committed)</div>
+        <div class="result-msg success">✅ UPDATE students — scores bumped by 5 (not yet committed)</div>
+        <div class="result-msg info">📋 SELECT verifies: all B2024 scores increased by 5</div>
+        <div class="result-msg good">✅ COMMIT — both INSERT and UPDATE are now permanent and visible to all connections</div>
+        <div class="result-msg warn">↩️ OR: ROLLBACK — both operations are reversed; DB returns to pre-transaction state</div>
+      </div>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <div class="callout-title">What automatically causes a ROLLBACK?</div>
+        <div class="callout-text">
+          If a session disconnects unexpectedly (crash, timeout, kill), MySQL automatically rolls back any open uncommitted transaction — protecting data integrity.<br><br>
+          DDL statements (CREATE/ALTER/DROP/TRUNCATE) in MySQL cause an <strong>implicit COMMIT</strong> — they commit all pending DML before executing. This is why you should never mix DDL inside a DML transaction in MySQL.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3: SAVEPOINT ── -->
+  <div class="section" id="sec3">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--blue-light)">📍</div>
+      <div><div class="section-num">Topic 3</div><h2 class="section-title">SAVEPOINT — Partial Rollback Checkpoints</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      A <strong>SAVEPOINT</strong> creates a named checkpoint <em>inside</em> a transaction. You can then <code>ROLLBACK TO</code> that checkpoint, undoing only the operations after it — while keeping earlier changes. Think of it as a video game's "save progress" point.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header"><span>SAVEPOINT — Full Syntax & Usage</span><span class="code-lang">MySQL</span></div>
+      <div class="code-body"><span class="kw">START TRANSACTION</span>;
+
+<span class="cm">-- Step 1: Insert basic student record</span>
+<span class="kw">INSERT INTO</span> <span class="tbl">students</span> (name, city, course, score, fee_paid)
+<span class="kw">VALUES</span> (<span class="str">'Arjun Mehta'</span>, <span class="str">'Pune'</span>, <span class="str">'SQL'</span>, <span class="nm">85</span>, <span class="nm">12000</span>);
+
+<span class="kw">SAVEPOINT</span> <span class="tbl">after_student_insert</span>;  <span class="cm">-- checkpoint 1: student row exists</span>
+
+<span class="cm">-- Step 2: Try to create enrollment</span>
+<span class="kw">INSERT INTO</span> <span class="tbl">enrollments</span> (student_id, course_id, fee_paid)
+<span class="kw">VALUES</span> (<span class="fn">LAST_INSERT_ID</span>(), <span class="nm">1</span>, <span class="nm">12000</span>);
+
+<span class="kw">SAVEPOINT</span> <span class="tbl">after_enrollment</span>;       <span class="cm">-- checkpoint 2: enrollment also exists</span>
+
+<span class="cm">-- Step 3: Try to process payment (this fails!)</span>
+<span class="kw">UPDATE</span> <span class="tbl">payments</span> <span class="kw">SET</span> status = <span class="str">'confirmed'</span>
+<span class="kw">WHERE</span> student_id = <span class="fn">LAST_INSERT_ID</span>() <span class="kw">AND</span> amount = <span class="nm">12000</span>;
+
+<span class="cm">-- Oops! Payment record doesn't exist yet. Roll back only the payment step.</span>
+<span class="kw">ROLLBACK TO SAVEPOINT</span> <span class="tbl">after_enrollment</span>;
+<span class="cm">-- Now: student row ✅ | enrollment ✅ | payment ❌ (rolled back)</span>
+
+<span class="cm">-- Re-try payment with correct data</span>
+<span class="kw">INSERT INTO</span> <span class="tbl">payments</span> (student_id, amount, status, created_at)
+<span class="kw">VALUES</span> (<span class="fn">LAST_INSERT_ID</span>(), <span class="nm">12000</span>, <span class="str">'pending'</span>, <span class="fn">NOW</span>());
+
+<span class="cm">-- All good now → COMMIT everything</span>
+<span class="kw">COMMIT</span>;
+
+<span class="cm">── Cleanup savepoints ──────────────────────────────────────</span>
+<span class="cm">-- RELEASE SAVEPOINT removes a savepoint (frees memory)</span>
+<span class="cm">-- No data is committed or rolled back</span>
+<span class="kw">RELEASE SAVEPOINT</span> <span class="tbl">after_student_insert</span>; <span class="cm">-- optional cleanup</span></div>
+    </div>
+
+    <div class="try-box">
+      <div class="try-header"><div class="try-title">✏️ Try It — SAVEPOINT Multi-step ETL <span class="try-badge">Exercise 2</span></div></div>
+      <textarea class="try-editor" id="e2" spellcheck="false">-- Multi-step ETL with SAVEPOINTs for granular rollback control
+
+START TRANSACTION;
+
+-- Phase 1: Load raw data
+INSERT INTO staging_students SELECT * FROM csv_import WHERE is_valid = TRUE;
+SAVEPOINT sp_after_staging;
+-- If Phase 1 fails: ROLLBACK; (no staging data created)
+
+-- Phase 2: Clean and transform
+UPDATE staging_students
+SET city = TRIM(UPPER(LEFT(city, 1)) || LOWER(SUBSTRING(city, 2)));
+SAVEPOINT sp_after_cleaning;
+-- If Phase 2 fails: ROLLBACK TO SAVEPOINT sp_after_staging;
+-- This undoes the UPDATE but keeps the INSERT
+
+-- Phase 3: Move to production
+INSERT INTO students
+SELECT student_id, name, city, course, score, fee_paid
+FROM staging_students;
+SAVEPOINT sp_after_production;
+
+-- Phase 4: Archive staging
+DELETE FROM staging_students;
+
+-- Verify all counts match
+SELECT COUNT(*) FROM students;   -- should match expected
+
+-- If all good:
+COMMIT;
+
+-- If Phase 4 had an issue (wrong count):
+-- ROLLBACK TO SAVEPOINT sp_after_production;
+-- Fix the issue, then try Phase 4 again</textarea>
+      <div class="try-footer">
+        <div class="try-hint">💡 SAVEPOINTs let you recover from intermediate failures without restarting the entire multi-step process</div>
+        <div class="try-btns">
+          <button class="reset-btn" onclick="resetE('e2',1)">Reset</button>
+          <button class="run-btn" onclick="showOut('o2')">▶ See Savepoint Flow</button>
+        </div>
+      </div>
+      <div class="try-output" id="o2">
+        <div class="output-label">SAVEPOINT Flow Visualized</div>
+        <div class="result-msg info">🚀 START TRANSACTION — begin</div>
+        <div class="result-msg success">✅ Phase 1: INSERT staging data → SAVEPOINT sp_after_staging created</div>
+        <div class="result-msg success">✅ Phase 2: CLEAN/TRANSFORM → SAVEPOINT sp_after_cleaning created</div>
+        <div class="result-msg success">✅ Phase 3: MOVE TO PRODUCTION → SAVEPOINT sp_after_production created</div>
+        <div class="result-msg success">✅ Phase 4: DELETE staging → verified counts match</div>
+        <div class="result-msg good">✅ COMMIT — all 4 phases permanent. All SAVEPOINTs automatically released.</div>
+        <div class="result-msg info">💡 If Phase 3 failed: ROLLBACK TO sp_after_cleaning → Phases 1+2 preserved, Phase 3 reversed. Fix, retry Phase 3, COMMIT.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4: BANK TRANSFER SIMULATOR ── -->
+  <div class="section" id="sec4">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--amber-light)">🏦</div>
+      <div><div class="section-num">Topic 4</div><h2 class="section-title">Bank Transfer Simulator — Transactions in Action</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      The classic example that makes transactions click. A bank transfer between two accounts must be <strong>atomic</strong> — both the debit and credit happen, or neither does. Try transferring money below and simulate failures.
+    </p>
+
+    <div class="bank-sim">
+      <div class="bank-header">
+        <div class="bank-title">🏦 HDFC Bank Transfer Simulator</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5)">Live transaction demonstration</div>
+      </div>
+      <div class="bank-body">
+        <div class="accounts">
+          <div class="account-card" id="acc-priya">
+            <div class="acc-name">Priya Sharma</div>
+            <div class="acc-balance" id="bal-priya">₹1,00,000</div>
+            <div class="acc-bank">HDFC · Acc: ****1001</div>
+          </div>
+          <div class="transfer-arrow">
+            <span>⟶</span>
+            <span class="transfer-amount" id="transfer-label">₹ ?</span>
+          </div>
+          <div class="account-card" id="acc-rahul">
+            <div class="acc-name">Rahul Verma</div>
+            <div class="acc-balance" id="bal-rahul">₹50,000</div>
+            <div class="acc-bank">HDFC · Acc: ****2002</div>
+          </div>
+        </div>
+        <div class="bank-controls">
+          <input type="number" class="bank-input" id="txn-amount" placeholder="Amount (₹)" value="25000" min="1" max="200000">
+          <button class="bank-btn bank-transfer" onclick="doTransfer()">Transfer →</button>
+          <button class="bank-btn bank-commit" onclick="doCommit()" id="btn-commit" disabled>✅ COMMIT</button>
+          <button class="bank-btn bank-rollback" onclick="doRollback()" id="btn-rollback" disabled>↩️ ROLLBACK</button>
+          <button class="bank-btn" style="background:var(--gray100);color:var(--gray700)" onclick="resetBank()">Reset</button>
+        </div>
+        <div class="bank-log" id="bank-log">
+          <div class="log-entry info">-- Bank Transfer Transaction Log --</div>
+          <div class="log-entry info">-- Enter amount and click Transfer to begin</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>What the Simulator is Doing Behind the Scenes</span><span class="code-lang">MySQL</span></div>
+      <div class="code-body"><span class="kw">START TRANSACTION</span>;
+
+<span class="cm">-- Step 1: Check sufficient balance</span>
+<span class="kw">SELECT</span> balance <span class="kw">FROM</span> <span class="tbl">accounts</span>
+<span class="kw">WHERE</span> account_id = <span class="nm">1001</span> <span class="kw">FOR UPDATE</span>;  <span class="cm">-- lock this row</span>
+
+<span class="cm">-- Step 2: Debit sender (only if balance sufficient)</span>
+<span class="kw">UPDATE</span> <span class="tbl">accounts</span>
+<span class="kw">SET</span> balance = balance - <span class="nm">25000</span>
+<span class="kw">WHERE</span> account_id = <span class="nm">1001</span>
+  <span class="kw">AND</span> balance >= <span class="nm">25000</span>;   <span class="cm">-- double-check in WHERE</span>
+
+<span class="cm">-- Step 3: If debit failed (0 rows affected) → ROLLBACK</span>
+<span class="cm">-- IF ROW_COUNT() = 0 THEN ROLLBACK; END IF;</span>
+
+<span class="cm">-- Step 4: Credit receiver</span>
+<span class="kw">UPDATE</span> <span class="tbl">accounts</span>
+<span class="kw">SET</span> balance = balance + <span class="nm">25000</span>
+<span class="kw">WHERE</span> account_id = <span class="nm">2002</span>;
+
+<span class="cm">-- Step 5: Log the transaction</span>
+<span class="kw">INSERT INTO</span> <span class="tbl">transaction_log</span>
+    (from_acc, to_acc, amount, status, created_at)
+<span class="kw">VALUES</span> (<span class="nm">1001</span>, <span class="nm">2002</span>, <span class="nm">25000</span>, <span class="str">'success'</span>, <span class="fn">NOW</span>());
+
+<span class="cm">-- Step 6: All good → permanent</span>
+<span class="kw">COMMIT</span>;</div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 5: ACID ── -->
+  <div class="section" id="sec5">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--indigo-light)">⚗️</div>
+      <div><div class="section-num">Topic 5</div><h2 class="section-title">ACID Properties — The 4 Pillars of Reliable Databases</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      <strong>ACID</strong> is the set of properties that guarantee database transactions are processed reliably. Every production database system (MySQL, PostgreSQL, Oracle) follows ACID. These properties are why you can trust your bank balance, your flight booking, and your exam score.
+    </p>
+
+    <div class="acid-grid">
+      <div class="acid-card">
+        <div class="acid-head" style="background:var(--teal-light)">⚛️</div>
+        <div class="acid-body">
+          <div class="acid-letter" style="color:var(--teal)">A</div>
+          <div class="acid-name">Atomicity</div>
+          <div class="acid-def">A transaction is an <strong>all-or-nothing</strong> unit. Either ALL statements succeed and commit, or NONE of them apply. There is no "half-done" state.</div>
+          <div class="acid-example">Bank transfer: Debit succeeds but credit fails → Atomicity rolls back the debit too. Money never disappears.</div>
+        </div>
+      </div>
+      <div class="acid-card">
+        <div class="acid-head" style="background:var(--blue-light)">🎯</div>
+        <div class="acid-body">
+          <div class="acid-letter" style="color:var(--blue)">C</div>
+          <div class="acid-name">Consistency</div>
+          <div class="acid-def">A transaction takes the database from one <strong>valid state to another valid state</strong>. All constraints, rules, and triggers are enforced throughout.</div>
+          <div class="acid-example">Enrolling 1 student reduces available_seats by 1 AND updates enrollment count — total never inconsistent.</div>
+        </div>
+      </div>
+      <div class="acid-card">
+        <div class="acid-head" style="background:var(--indigo-light)">🔒</div>
+        <div class="acid-body">
+          <div class="acid-letter" style="color:var(--indigo)">I</div>
+          <div class="acid-name">Isolation</div>
+          <div class="acid-def">Concurrent transactions are <strong>isolated from each other</strong>. While a transaction is in progress, other transactions cannot see its uncommitted changes.</div>
+          <div class="acid-example">Two people book the last seat simultaneously — only one succeeds; the other sees the seat as taken.</div>
+        </div>
+      </div>
+      <div class="acid-card">
+        <div class="acid-head" style="background:var(--amber-light)">🏔️</div>
+        <div class="acid-body">
+          <div class="acid-letter" style="color:var(--amber)">D</div>
+          <div class="acid-name">Durability</div>
+          <div class="acid-def">Once committed, a transaction <strong>survives permanently</strong> — even if the system crashes, loses power, or has hardware failure.</div>
+          <div class="acid-example">After you see "Payment Successful" on IRCTC, a power cut cannot un-book your ticket. It's on disk forever.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="try-box">
+      <div class="try-header"><div class="try-title">✏️ Try It — ACID in Code: Seat Booking <span class="try-badge">Exercise 3</span></div></div>
+      <textarea class="try-editor" id="e3" spellcheck="false">-- ACID demonstration: IRCTC-style seat booking
+-- Atomicity: all steps succeed or all fail
+-- Consistency: seat count always accurate
+-- Isolation: concurrent bookings can't both get last seat
+-- Durability: committed booking survives crashes
+
+START TRANSACTION;
+
+-- Atomicity: Check seat availability and LOCK the row
+SELECT available_seats FROM trains
+WHERE train_id = 12658 AND journey_date = '2024-12-25'
+FOR UPDATE;          -- exclusive lock prevents concurrent booking
+-- ↑ If available_seats = 0 → ROLLBACK
+
+-- Consistency: Decrement seat count
+UPDATE trains
+SET available_seats = available_seats - 1
+WHERE train_id = 12658
+  AND journey_date = '2024-12-25'
+  AND available_seats > 0;   -- double safety check
+
+-- Atomicity: Check update succeeded
+-- IF ROW_COUNT() = 0 THEN ROLLBACK; END IF;
+
+-- Consistency: Create ticket record
+INSERT INTO tickets (passenger_name, train_id, journey_date, seat_no, status)
+VALUES ('Priya Sharma', 12658, '2024-12-25', 'B2-34', 'confirmed');
+
+-- Consistency: Deduct from wallet
+UPDATE wallets
+SET balance = balance - 1250.00
+WHERE user_id = 101 AND balance >= 1250.00;
+
+-- Durability: COMMIT writes to persistent storage (WAL/redo log)
+COMMIT;
+-- After this: power cut, crash, restart → ticket still exists</textarea>
+      <div class="try-footer">
+        <div class="try-hint">💡 FOR UPDATE creates an exclusive lock — prevents two people from booking the same last seat simultaneously</div>
+        <div class="try-btns">
+          <button class="reset-btn" onclick="resetE('e3',2)">Reset</button>
+          <button class="run-btn" onclick="showOut('o3')">▶ Run ACID Demo</button>
+        </div>
+      </div>
+      <div class="try-output" id="o3">
+        <div class="output-label">ACID Properties in Action</div>
+        <div class="result-msg info">⚛️ ATOMICITY: All 4 operations (check, update seats, insert ticket, deduct wallet) form one atomic unit</div>
+        <div class="result-msg success">🎯 CONSISTENCY: Before = 1 seat available. After = 0 seats available + 1 confirmed ticket. Sum is preserved.</div>
+        <div class="result-msg good">🔒 ISOLATION: FOR UPDATE lock prevents Session B from seeing 1 available seat while Session A is booking it</div>
+        <div class="result-msg success">🏔️ DURABILITY: COMMIT writes to WAL (Write-Ahead Log) — survives power failure, server restart, or crash</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 6: ISOLATION LEVELS ── -->
+  <div class="section" id="sec6">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--purple-light)">🔭</div>
+      <div><div class="section-num">Topic 6</div><h2 class="section-title">Isolation Levels — Controlling Concurrent Access</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      Perfect isolation (every transaction sees a completely private copy of the database) would eliminate all concurrency issues — but it would be incredibly slow. <strong>Isolation levels</strong> let you choose a balance between safety and performance.
+    </p>
+
+    <table class="iso-table">
+      <thead>
+        <tr style="background:var(--gray900);color:white">
+          <th>Isolation Level</th>
+          <th>Dirty Read</th>
+          <th>Non-Repeatable Read</th>
+          <th>Phantom Read</th>
+          <th>Performance</th>
+          <th>Use Case</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background:#fff8f8">
+          <td><span class="iso-badge" style="background:var(--red-light);color:var(--red)">LOWEST</span> READ UNCOMMITTED</td>
+          <td><span class="iso-check">✗ Possible</span></td>
+          <td><span class="iso-check">✗ Possible</span></td>
+          <td><span class="iso-check">✗ Possible</span></td>
+          <td>⚡⚡⚡ Fastest</td>
+          <td>Real-time analytics where approximate data is OK</td>
+        </tr>
+        <tr style="background:var(--amber-light)">
+          <td><span class="iso-badge" style="background:var(--amber-light);color:var(--amber)">DEFAULT</span> READ COMMITTED</td>
+          <td><span class="iso-cross">✓ Protected</span></td>
+          <td><span class="iso-check">✗ Possible</span></td>
+          <td><span class="iso-check">✗ Possible</span></td>
+          <td>⚡⚡ Fast</td>
+          <td>Most web applications, PostgreSQL default</td>
+        </tr>
+        <tr style="background:var(--teal-light)">
+          <td><span class="iso-badge" style="background:var(--teal-light);color:var(--teal)">MySQL DEFAULT</span> REPEATABLE READ</td>
+          <td><span class="iso-cross">✓ Protected</span></td>
+          <td><span class="iso-cross">✓ Protected</span></td>
+          <td><span class="iso-check">✗ Possible*</span></td>
+          <td>⚡ Moderate</td>
+          <td>Banking, e-commerce, inventory management</td>
+        </tr>
+        <tr style="background:var(--green-light)">
+          <td><span class="iso-badge" style="background:var(--green-light);color:var(--green)">STRICTEST</span> SERIALIZABLE</td>
+          <td><span class="iso-cross">✓ Protected</span></td>
+          <td><span class="iso-cross">✓ Protected</span></td>
+          <td><span class="iso-cross">✓ Protected</span></td>
+          <td>🐢 Slowest</td>
+          <td>Financial settlements, regulatory reporting</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:12px;color:var(--gray500);margin-top:-8px">* MySQL's InnoDB prevents phantom reads in REPEATABLE READ using gap locks — making it effectively similar to SERIALIZABLE in many cases</p>
+
+    <div class="code-block">
+      <div class="code-header"><span>Setting Isolation Level</span><span class="code-lang">MySQL</span></div>
+      <div class="code-body"><span class="cm">-- Set for the current session only</span>
+<span class="kw">SET SESSION TRANSACTION ISOLATION LEVEL</span> READ COMMITTED;
+<span class="kw">SET SESSION TRANSACTION ISOLATION LEVEL</span> REPEATABLE READ;
+<span class="kw">SET SESSION TRANSACTION ISOLATION LEVEL</span> SERIALIZABLE;
+<span class="kw">SET SESSION TRANSACTION ISOLATION LEVEL</span> READ UNCOMMITTED;
+
+<span class="cm">-- Set globally (affects all new connections)</span>
+<span class="kw">SET GLOBAL TRANSACTION ISOLATION LEVEL</span> REPEATABLE READ;
+
+<span class="cm">-- Set for just the next transaction</span>
+<span class="kw">SET TRANSACTION ISOLATION LEVEL</span> SERIALIZABLE;
+<span class="kw">START TRANSACTION</span>;  <span class="cm">-- this transaction runs with SERIALIZABLE</span>
+
+<span class="cm">-- Check current isolation level</span>
+<span class="kw">SELECT</span> @@transaction_isolation;          <span class="cm">-- MySQL 8+</span>
+<span class="kw">SELECT</span> @@tx_isolation;                   <span class="cm">-- MySQL 5.7</span>
+<span class="kw">SHOW VARIABLES LIKE</span> <span class="str">'transaction_isolation'</span>;</div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">Which isolation level should you use?</div>
+        <div class="callout-text">
+          <strong>Most applications:</strong> READ COMMITTED (PostgreSQL default) or REPEATABLE READ (MySQL default) — good balance<br>
+          <strong>Financial transactions:</strong> SERIALIZABLE — maximum safety, accept the performance cost<br>
+          <strong>Analytics / reporting:</strong> READ UNCOMMITTED — fastest, approximate data is acceptable<br>
+          <strong>Never change</strong> MySQL's default (REPEATABLE READ) without understanding the implications first
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 7: READ ANOMALIES ── -->
+  <div class="section" id="sec7">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--red-light)">👻</div>
+      <div><div class="section-num">Topic 7</div><h2 class="section-title">Read Anomalies — Dirty, Phantom & Non-Repeatable</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      These three phenomena describe what can go wrong when multiple transactions run concurrently without proper isolation. Understanding them is essential for interview questions and for choosing the right isolation level.
+    </p>
+
+    <!-- DIRTY READ -->
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px">
+      <div style="padding:14px 18px;background:var(--red-light);border-bottom:1px solid rgba(220,38,38,.2)">
+        <div style="font-size:15px;font-weight:700;color:var(--red);margin-bottom:4px">🚨 Dirty Read</div>
+        <div style="font-size:13px;color:var(--red)">Transaction B reads data that Transaction A has changed but NOT YET committed. If A rolls back, B has read "phantom" data that never officially existed.</div>
+      </div>
+      <div style="padding:16px 18px">
+        <div class="tl-header">
+          <div class="tl-hcell">Time 1</div>
+          <div class="tl-hcell">Time 2</div>
+          <div class="tl-hcell">Time 3</div>
+          <div class="tl-hcell">Time 4</div>
+        </div>
+        <div class="timeline">
+          <div class="tl-row">
+            <div class="tl-label">Session A</div>
+            <div class="tl-slots">
+              <div class="tl-slot tl-t">BEGIN<br>UPDATE balance=₹0</div>
+              <div class="tl-slot tl-empty"></div>
+              <div class="tl-slot tl-e">ROLLBACK<br>(balance restored)</div>
+              <div class="tl-slot tl-empty"></div>
+            </div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-label">Session B</div>
+            <div class="tl-slots">
+              <div class="tl-slot tl-empty"></div>
+              <div class="tl-slot tl-e">READ balance<br>= ₹0 ← DIRTY!</div>
+              <div class="tl-slot tl-empty"></div>
+              <div class="tl-slot tl-e">Uses ₹0<br>❌ Wrong data!</div>
+            </div>
+          </div>
+        </div>
+        <div class="callout good" style="margin:10px 0 0">
+          <div class="callout-icon">🛡️</div>
+          <div class="callout-body"><div class="callout-title">Prevention</div><div class="callout-text">Use isolation level ≥ <strong>READ COMMITTED</strong>. Session B only reads committed data.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NON-REPEATABLE READ -->
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px">
+      <div style="padding:14px 18px;background:var(--amber-light);border-bottom:1px solid rgba(186,117,23,.2)">
+        <div style="font-size:15px;font-weight:700;color:var(--amber);margin-bottom:4px">🔄 Non-Repeatable Read</div>
+        <div style="font-size:13px;color:var(--amber)">Transaction B reads the same row twice within the same transaction and gets different values — because Transaction A committed a change in between.</div>
+      </div>
+      <div style="padding:16px 18px">
+        <div class="tl-header">
+          <div class="tl-hcell">Time 1</div>
+          <div class="tl-hcell">Time 2</div>
+          <div class="tl-hcell">Time 3</div>
+          <div class="tl-hcell">Time 4</div>
+        </div>
+        <div class="timeline">
+          <div class="tl-row">
+            <div class="tl-label">Session A</div>
+            <div class="tl-slots">
+              <div class="tl-slot tl-empty"></div>
+              <div class="tl-slot tl-t">UPDATE price<br>₹100 → ₹150<br>COMMIT</div>
+              <div class="tl-slot tl-empty"></div>
+              <div class="tl-slot tl-empty"></div>
+            </div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-label">Session B</div>
+            <div class="tl-slots">
+              <div class="tl-slot tl-b">BEGIN<br>READ price=₹100</div>
+              <div class="tl-slot tl-empty"></div>
+              <div class="tl-slot tl-e">READ price again<br>= ₹150 ← DIFFERENT!</div>
+              <div class="tl-slot tl-e">Inconsistent<br>within same txn</div>
+            </div>
+          </div>
+        </div>
+        <div class="callout good" style="margin:10px 0 0">
+          <div class="callout-icon">🛡️</div>
+          <div class="callout-body"><div class="callout-title">Prevention</div><div class="callout-text">Use isolation level ≥ <strong>REPEATABLE READ</strong>. Session B sees the same price for the whole transaction.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHANTOM READ -->
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden">
+      <div style="padding:14px 18px;background:var(--purple-light);border-bottom:1px solid rgba(124,58,237,.2)">
+        <div style="font-size:15px;font-weight:700;color:var(--purple);margin-bottom:4px">👻 Phantom Read</div>
+        <div style="font-size:13px;color:var(--purple)">Transaction B runs the same query twice and gets a DIFFERENT SET of rows — because Transaction A inserted or deleted rows that match the query condition.</div>
+      </div>
+      <div style="padding:16px 18px">
+        <div class="tl-header">
+          <div class="tl-hcell">Time 1</div>
+          <div class="tl-hcell">Time 2</div>
+          <div class="tl-hcell">Time 3</div>
+          <div class="tl-hcell">Time 4</div>
+        </div>
+        <div class="timeline">
+          <div class="tl-row">
+            <div class="tl-label">Session A</div>
+            <div class="tl-slots">
+              <div class="tl-slot tl-empty"></div>
+              <div class="tl-slot tl-t">INSERT new student<br>score=95<br>COMMIT</div>
+              <div class="tl-slot tl-empty"></div>
+              <div class="tl-slot tl-empty"></div>
+            </div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-label">Session B</div>
+            <div class="tl-slots">
+              <div class="tl-slot tl-b">SELECT COUNT(*)<br>score>90 → 5 rows</div>
+              <div class="tl-slot tl-empty"></div>
+              <div class="tl-slot tl-e">SELECT COUNT(*)<br>score>90 → 6 rows<br>👻 Phantom!</div>
+              <div class="tl-slot tl-e">Report uses<br>inconsistent count</div>
+            </div>
+          </div>
+        </div>
+        <div class="callout good" style="margin:10px 0 0">
+          <div class="callout-icon">🛡️</div>
+          <div class="callout-body"><div class="callout-title">Prevention</div><div class="callout-text">Use isolation level <strong>SERIALIZABLE</strong> (or MySQL's REPEATABLE READ which uses gap locks to prevent phantom rows).</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 8: DEADLOCKS ── -->
+  <div class="section" id="sec8">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--red-light)">🔐</div>
+      <div><div class="section-num">Topic 8</div><h2 class="section-title">Deadlocks — When Transactions Block Each Other</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      A <strong>deadlock</strong> occurs when two or more transactions are each waiting for the other to release a lock — creating a circular dependency that no one can break. MySQL detects deadlocks automatically and kills one transaction (the "victim") to break the cycle.
+    </p>
+
+    <div class="deadlock-box">
+      <div class="dl-title">💀 Classic Deadlock Scenario</div>
+      <div class="dl-diagram">
+        <div class="dl-session locked">
+          <div class="dl-sess-title">Session A</div>
+          <div class="dl-holds">🔒 HOLDS lock on Row 1</div>
+          <div class="dl-wants">⏳ WANTS lock on Row 2</div>
+        </div>
+        <div class="dl-arrows">
+          <span title="A wants Row 2 which B holds">→</span>
+          <span style="font-size:12px;color:var(--red)">Deadlock!</span>
+          <span title="B wants Row 1 which A holds">←</span>
+        </div>
+        <div class="dl-session locked">
+          <div class="dl-sess-title">Session B</div>
+          <div class="dl-holds">🔒 HOLDS lock on Row 2</div>
+          <div class="dl-wants">⏳ WANTS lock on Row 1</div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--red);line-height:1.7;margin-bottom:12px">
+        Session A holds Row 1 and waits for Row 2. Session B holds Row 2 and waits for Row 1. Neither can proceed. MySQL's deadlock detector breaks this by rolling back the transaction with the least "work" done (the victim). The victim gets an error: <code>ERROR 1213: Deadlock found when trying to get lock</code>.
+      </p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>Deadlock Example — Bank Transfers Gone Wrong</span><span class="code-lang">MySQL</span></div>
+      <div class="code-body"><span class="cm">── Session A ──────────────────────────────────────────────</span>
+<span class="kw">START TRANSACTION</span>;
+<span class="kw">UPDATE</span> accounts <span class="kw">SET</span> balance = balance - <span class="nm">100</span>
+<span class="kw">WHERE</span> account_id = <span class="nm">1</span>;     <span class="cm">-- LOCKS row 1</span>
+<span class="cm">-- (waiting for row 2...)</span>
+<span class="kw">UPDATE</span> accounts <span class="kw">SET</span> balance = balance + <span class="nm">100</span>
+<span class="kw">WHERE</span> account_id = <span class="nm">2</span>;     <span class="cm">-- WAITS — B has row 2 locked!</span>
+
+<span class="cm">── Session B (concurrent) ─────────────────────────────────</span>
+<span class="kw">START TRANSACTION</span>;
+<span class="kw">UPDATE</span> accounts <span class="kw">SET</span> balance = balance - <span class="nm">200</span>
+<span class="kw">WHERE</span> account_id = <span class="nm">2</span>;     <span class="cm">-- LOCKS row 2</span>
+<span class="cm">-- (waiting for row 1...)</span>
+<span class="kw">UPDATE</span> accounts <span class="kw">SET</span> balance = balance + <span class="nm">200</span>
+<span class="kw">WHERE</span> account_id = <span class="nm">1</span>;     <span class="cm">-- WAITS — A has row 1 locked! DEADLOCK!</span>
+
+<span class="cm">── MySQL detects after innodb_lock_wait_timeout (~50 sec) ─</span>
+<span class="cm">── Kills one session: ERROR 1213 Deadlock found</span>
+<span class="cm">── The other session proceeds normally</span>
+
+<span class="cm">── ✅ Prevention: Always acquire locks in the SAME order! ──</span>
+<span class="cm">-- Both sessions: lock row 1 FIRST, then row 2</span>
+<span class="cm">-- This ensures they never create circular dependency</span>
+
+<span class="cm">-- Check deadlock info:</span>
+<span class="kw">SHOW ENGINE</span> InnoDB <span class="kw">STATUS</span>\G</div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">🛡️</div>
+      <div class="callout-body">
+        <div class="callout-title">5 Strategies to Prevent Deadlocks</div>
+        <div class="callout-text">
+          1. <strong>Consistent lock ordering</strong> — Always acquire locks in the same order (e.g., always lock lower account_id first)<br>
+          2. <strong>Keep transactions short</strong> — Long transactions hold locks longer, increasing collision chance<br>
+          3. <strong>Index your WHERE columns</strong> — Full table scans lock too many rows; indexes narrow the lock scope<br>
+          4. <strong>Use SELECT FOR UPDATE only when needed</strong> — Reduce the number of rows you lock<br>
+          5. <strong>Retry on deadlock</strong> — Catch ERROR 1213 in application code and retry the transaction
+        </div>
+      </div>
+    </div>
+
+    <div class="try-box">
+      <div class="try-header"><div class="try-title">✏️ Try It — Deadlock-Safe Transfer Pattern <span class="try-badge">Exercise 4</span></div></div>
+      <textarea class="try-editor" id="e4" spellcheck="false">-- ✅ Deadlock-safe bank transfer
+-- Key: Always lock accounts in ascending account_id order
+
+DELIMITER //
+CREATE PROCEDURE safe_transfer(
+    IN from_acc INT,
+    IN to_acc INT,
+    IN amount DECIMAL(10,2)
+)
+BEGIN
+    DECLARE smaller_id INT;
+    DECLARE larger_id INT;
+
+    -- Determine lock order (always lock smaller ID first)
+    SET smaller_id = LEAST(from_acc, to_acc);
+    SET larger_id = GREATEST(from_acc, to_acc);
+
+    START TRANSACTION;
+
+    -- Lock in consistent order (prevents deadlock)
+    SELECT balance FROM accounts WHERE account_id = smaller_id FOR UPDATE;
+    SELECT balance FROM accounts WHERE account_id = larger_id FOR UPDATE;
+
+    -- Now safely perform transfer
+    UPDATE accounts SET balance = balance - amount WHERE account_id = from_acc;
+    UPDATE accounts SET balance = balance + amount WHERE account_id = to_acc;
+
+    -- Log it
+    INSERT INTO transfer_log (from_acc, to_acc, amount, created_at)
+    VALUES (from_acc, to_acc, amount, NOW());
+
+    COMMIT;
+END //
+DELIMITER ;
+
+-- Call the safe transfer:
+CALL safe_transfer(1001, 2002, 25000.00);
+CALL safe_transfer(2002, 1001, 10000.00);  -- This won't deadlock!
+-- Both acquire locks in order: 1001 then 2002</textarea>
+      <div class="try-footer">
+        <div class="try-hint">💡 Consistent lock ordering is the single most effective deadlock prevention technique</div>
+        <div class="try-btns">
+          <button class="reset-btn" onclick="resetE('e4',3)">Reset</button>
+          <button class="run-btn" onclick="showOut('o4')">▶ See Pattern</button>
+        </div>
+      </div>
+      <div class="try-output" id="o4">
+        <div class="output-label">Deadlock-Safe Pattern Analysis</div>
+        <div class="result-msg success">✅ Transfer A→B: Locks 1001 first, then 2002. Executes, commits.</div>
+        <div class="result-msg success">✅ Transfer B→A: Also locks 1001 first, then 2002. Waits if A is in progress, then executes.</div>
+        <div class="result-msg good">🛡️ No deadlock possible! Both sessions acquire locks in the SAME ORDER — no circular dependency can form.</div>
+        <div class="result-msg info">💡 Without consistent ordering: Session A (1001→2002) concurrent with Session B (2002→1001) = deadlock!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 9: OPTIMISTIC vs PESSIMISTIC ── -->
+  <div class="section" id="sec9">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--indigo-light)">⚔️</div>
+      <div><div class="section-num">Topic 9</div><h2 class="section-title">Optimistic vs Pessimistic Locking</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      When multiple users may try to modify the same data, you need a strategy. <strong>Pessimistic locking</strong> assumes conflicts will happen and locks data upfront. <strong>Optimistic locking</strong> assumes they won't and checks at the end.
+    </p>
+
+    <div class="lock-compare">
+      <div class="lock-card">
+        <div class="lock-head" style="background:var(--amber-light);color:var(--amber)">🔒 Pessimistic Locking</div>
+        <div class="lock-body">
+          <p style="margin-bottom:8px">Lock the row as soon as you read it. No one else can modify it until you release. Uses <code>SELECT ... FOR UPDATE</code>.</p>
+          <p style="margin-bottom:8px"><strong>✅ When to use:</strong> High conflict scenarios — inventory management, seat booking, bank transfers. Conflicts are expected and costly.</p>
+          <p style="color:var(--red);font-size:12px;margin-bottom:8px"><strong>❌ Downside:</strong> Locks rows for the duration of the transaction — others must wait. Reduces concurrency. Risk of deadlocks.</p>
+          <div class="lock-code">START TRANSACTION;
+
+-- LOCK the row immediately on read
+SELECT * FROM seats
+WHERE seat_id = 'B2-34'
+FOR UPDATE;         -- exclusive lock
+
+-- Modify it (you're safe — locked)
+UPDATE seats
+SET is_booked = TRUE
+WHERE seat_id = 'B2-34';
+
+COMMIT;             -- lock released</div>
+        </div>
+      </div>
+      <div class="lock-card">
+        <div class="lock-head" style="background:var(--teal-light);color:var(--teal)">🤝 Optimistic Locking</div>
+        <div class="lock-body">
+          <p style="margin-bottom:8px">Read without locking. Add a <code>version</code> column. On update, check the version matches what you read. If someone else changed it, abort and retry.</p>
+          <p style="margin-bottom:8px"><strong>✅ When to use:</strong> Low conflict scenarios — product reviews, user profiles, blog posts. Conflicts are rare. High concurrency is needed.</p>
+          <p style="color:var(--teal);font-size:12px;margin-bottom:8px"><strong>✅ Benefit:</strong> No locks during read. Much higher concurrency. No deadlocks possible.</p>
+          <div class="lock-code">-- Step 1: Read with version
+SELECT id, name, stock, version
+FROM products WHERE id = 101;
+-- Gets: stock=10, version=5
+
+-- Step 2: Update ONLY if version matches
+UPDATE products
+SET stock = stock - 1,
+    version = version + 1
+WHERE id = 101
+  AND version = 5;   -- optimistic check!
+
+-- Step 3: Check rows affected
+-- IF ROW_COUNT() = 0:
+--   Someone else updated it!
+--   RETRY the whole operation</div>
+        </div>
+      </div>
+    </div>
+
+    <table class="cmp-table" style="margin-top:16px">
+      <thead><tr style="background:var(--gray900);color:white"><th>Aspect</th><th style="color:#fab387">Pessimistic</th><th style="color:#a6e3a1">Optimistic</th></tr></thead>
+      <tbody>
+        <tr><td>Lock timing</td><td>At READ time (SELECT FOR UPDATE)</td><td>At WRITE time (check version)</td></tr>
+        <tr><td>Concurrency</td><td>Low (others wait for lock)</td><td>High (no waiting during read)</td></tr>
+        <tr><td>Deadlock risk</td><td>Yes (if locking order inconsistent)</td><td>None (no database locks)</td></tr>
+        <tr><td>Retry needed?</td><td>No (lock prevents conflict)</td><td>Yes (if version mismatch)</td></tr>
+        <tr><td>Best for</td><td>High contention, critical data</td><td>Low contention, read-heavy</td></tr>
+        <tr><td>Examples</td><td>Bank transfer, seat booking, flash sale</td><td>User profile update, blog post edit</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── SECTION 10: PYTHON TRANSACTIONS ── -->
+  <div class="section" id="sec10">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--green-light)">🐍</div>
+      <div><div class="section-num">Topic 10</div><h2 class="section-title">Transaction Safety in Python</h2></div>
+    </div>
+
+    <p style="color:var(--gray700);line-height:1.8;margin-bottom:16px">
+      As a data scientist, you'll often run DML from Python scripts — for ETL pipelines, ML data prep, or automation. Proper transaction handling in Python is critical for production reliability.
+    </p>
+
+    <div class="python-block">
+      <div class="python-header"><span>mysql-connector-python — Transaction Pattern</span><span class="code-lang" style="background:rgba(255,255,255,.08)">Python 3</span></div>
+      <div class="python-body"><span class="py-kw">import</span> <span class="py-var">mysql.connector</span>
+<span class="py-kw">from</span> <span class="py-var">mysql.connector</span> <span class="py-kw">import</span> <span class="py-var">Error</span>
+
+<span class="py-kw">def</span> <span class="py-fn">bank_transfer</span>(<span class="py-var">from_acc</span>, <span class="py-var">to_acc</span>, <span class="py-var">amount</span>):
+    <span class="py-var">conn</span> = <span class="py-fn">None</span>
+    <span class="py-kw">try</span>:
+        <span class="py-var">conn</span> = <span class="py-var">mysql.connector</span>.<span class="py-fn">connect</span>(
+            <span class="py-var">host</span>=<span class="py-str">'localhost'</span>,
+            <span class="py-var">database</span>=<span class="py-str">'hdfc_bank'</span>,
+            <span class="py-var">user</span>=<span class="py-str">'app_user'</span>,
+            <span class="py-var">password</span>=<span class="py-str">'***'</span>,
+            <span class="py-var">autocommit</span>=<span class="py-fn">False</span>   <span class="py-cm"># Disable autocommit — we control commits!</span>
+        )
+        <span class="py-var">cursor</span> = <span class="py-var">conn</span>.<span class="py-fn">cursor</span>(<span class="py-var">dictionary</span>=<span class="py-fn">True</span>)
+
+        <span class="py-cm"># Step 1: Lock and check sender balance</span>
+        <span class="py-var">cursor</span>.<span class="py-fn">execute</span>(
+            <span class="py-str">"SELECT balance FROM accounts WHERE account_id = %s FOR UPDATE"</span>,
+            (<span class="py-var">from_acc</span>,)
+        )
+        <span class="py-var">sender</span> = <span class="py-var">cursor</span>.<span class="py-fn">fetchone</span>()
+
+        <span class="py-kw">if</span> <span class="py-fn">not</span> <span class="py-var">sender</span> <span class="py-kw">or</span> <span class="py-var">sender</span>[<span class="py-str">'balance'</span>] &lt; <span class="py-var">amount</span>:
+            <span class="py-kw">raise</span> <span class="py-fn">ValueError</span>(<span class="py-str">f"Insufficient balance. Available: {sender['balance']}"</span>)
+
+        <span class="py-cm"># Step 2: Debit sender</span>
+        <span class="py-var">cursor</span>.<span class="py-fn">execute</span>(
+            <span class="py-str">"UPDATE accounts SET balance = balance - %s WHERE account_id = %s"</span>,
+            (<span class="py-var">amount</span>, <span class="py-var">from_acc</span>)
+        )
+
+        <span class="py-cm"># Step 3: Credit receiver</span>
+        <span class="py-var">cursor</span>.<span class="py-fn">execute</span>(
+            <span class="py-str">"UPDATE accounts SET balance = balance + %s WHERE account_id = %s"</span>,
+            (<span class="py-var">amount</span>, <span class="py-var">to_acc</span>)
+        )
+
+        <span class="py-cm"># Step 4: Log transaction</span>
+        <span class="py-var">cursor</span>.<span class="py-fn">execute</span>(
+            <span class="py-str">"""INSERT INTO transfer_log (from_acc, to_acc, amount, status)
+               VALUES (%s, %s, %s, 'success')"""</span>,
+            (<span class="py-var">from_acc</span>, <span class="py-var">to_acc</span>, <span class="py-var">amount</span>)
+        )
+
+        <span class="py-cm"># All steps succeeded → commit permanently</span>
+        <span class="py-var">conn</span>.<span class="py-fn">commit</span>()
+        <span class="py-fn">print</span>(<span class="py-str">f"✅ Transfer of ₹{amount} from {from_acc} to {to_acc} successful"</span>)
+        <span class="py-kw">return</span> <span class="py-fn">True</span>
+
+    <span class="py-kw">except</span> (<span class="py-var">Error</span>, <span class="py-fn">ValueError</span>) <span class="py-kw">as</span> <span class="py-var">e</span>:
+        <span class="py-kw">if</span> <span class="py-var">conn</span>:
+            <span class="py-var">conn</span>.<span class="py-fn">rollback</span>()  <span class="py-cm"># Undo everything — atomicity preserved</span>
+        <span class="py-fn">print</span>(<span class="py-str">f"❌ Transfer failed, rolled back: {e}"</span>)
+        <span class="py-kw">return</span> <span class="py-fn">False</span>
+
+    <span class="py-kw">finally</span>:
+        <span class="py-kw">if</span> <span class="py-var">conn</span> <span class="py-kw">and</span> <span class="py-var">conn</span>.<span class="py-fn">is_connected</span>():
+            <span class="py-var">cursor</span>.<span class="py-fn">close</span>()
+            <span class="py-var">conn</span>.<span class="py-fn">close</span>()   <span class="py-cm"># Always close connection!</span>
+
+
+<span class="py-cm"># Usage</span>
+<span class="py-fn">bank_transfer</span>(<span class="py-num">1001</span>, <span class="py-num">2002</span>, <span class="py-num">25000</span>)
+<span class="py-fn">bank_transfer</span>(<span class="py-num">9999</span>, <span class="py-num">2002</span>, <span class="py-num">99999999</span>)  <span class="py-cm"># will rollback (insufficient)</span></div>
+    </div>
+
+    <div class="python-block">
+      <div class="python-header"><span>SQLAlchemy — Context Manager Pattern (Recommended)</span><span class="code-lang" style="background:rgba(255,255,255,.08)">Python 3 + SQLAlchemy</span></div>
+      <div class="python-body"><span class="py-kw">from</span> <span class="py-var">sqlalchemy</span> <span class="py-kw">import</span> <span class="py-fn">create_engine</span>, <span class="py-fn">text</span>
+<span class="py-kw">from</span> <span class="py-var">sqlalchemy.orm</span> <span class="py-kw">import</span> <span class="py-fn">sessionmaker</span>
+
+<span class="py-var">engine</span> = <span class="py-fn">create_engine</span>(<span class="py-str">"mysql+mysqlconnector://user:pass@localhost/guvi_lms"</span>)
+<span class="py-var">Session</span> = <span class="py-fn">sessionmaker</span>(<span class="py-var">bind</span>=<span class="py-var">engine</span>)
+
+<span class="py-cm"># Method 1: with statement — CLEANEST pattern</span>
+<span class="py-kw">with</span> <span class="py-fn">Session</span>() <span class="py-kw">as</span> <span class="py-var">session</span>:
+    <span class="py-kw">with</span> <span class="py-var">session</span>.<span class="py-fn">begin</span>():   <span class="py-cm"># auto-commits on exit, rollbacks on exception</span>
+        <span class="py-var">session</span>.<span class="py-fn">execute</span>(<span class="py-fn">text</span>(
+            <span class="py-str">"UPDATE students SET score = score + 5 WHERE batch = :batch"</span>
+        ), {<span class="py-str">"batch"</span>: <span class="py-str">"B2024"</span>})
+
+        <span class="py-var">session</span>.<span class="py-fn">execute</span>(<span class="py-fn">text</span>(
+            <span class="py-str">"INSERT INTO audit_log (action, table_name) VALUES (:a, :t)"</span>
+        ), {<span class="py-str">"a"</span>: <span class="py-str">"score_update"</span>, <span class="py-str">"t"</span>: <span class="py-str">"students"</span>})
+    <span class="py-cm"># ↑ Automatically COMMITs here (or ROLLBACKs if exception)</span>
+
+<span class="py-cm"># Method 2: pandas with transaction</span>
+<span class="py-kw">import</span> <span class="py-var">pandas</span> <span class="py-kw">as</span> <span class="py-var">pd</span>
+
+<span class="py-kw">with</span> <span class="py-var">engine</span>.<span class="py-fn">begin</span>() <span class="py-kw">as</span> <span class="py-var">conn</span>:  <span class="py-cm"># auto-commit on success, rollback on error</span>
+    <span class="py-var">df</span> = <span class="py-var">pd</span>.<span class="py-fn">read_sql</span>(<span class="py-str">"SELECT * FROM students WHERE batch='B2024'"</span>, <span class="py-var">conn</span>)
+    <span class="py-var">df</span>[<span class="py-str">'grade'</span>] = <span class="py-var">df</span>[<span class="py-str">'score'</span>].<span class="py-fn">apply</span>(<span class="py-kw">lambda</span> <span class="py-var">x</span>: <span class="py-str">'A'</span> <span class="py-kw">if</span> <span class="py-var">x</span>>=<span class="py-num">90</span> <span class="py-kw">else</span> <span class="py-str">'B'</span>)
+    <span class="py-var">df</span>[[<span class="py-str">'student_id'</span>, <span class="py-str">'grade'</span>]].<span class="py-fn">to_sql</span>(
+        <span class="py-str">'student_grades'</span>, <span class="py-var">conn</span>,
+        <span class="py-var">if_exists</span>=<span class="py-str">'replace'</span>, <span class="py-var">index</span>=<span class="py-fn">False</span>
+    )</div>
+    </div>
+
+    <div class="try-box">
+      <div class="try-header"><div class="try-title">✏️ Try It — Bulk ETL with Transaction Safety <span class="try-badge">Exercise 5</span></div></div>
+      <textarea class="try-editor" id="e5" spellcheck="false">-- Production ETL pattern: Load batch data with full transaction safety
+-- This is the kind of script you'll write for data pipelines
+
+START TRANSACTION;
+
+-- Step 1: Validate source data quality
+SELECT COUNT(*) INTO @total_rows FROM csv_import;
+SELECT COUNT(*) INTO @valid_rows FROM csv_import WHERE student_id IS NOT NULL AND score BETWEEN 0 AND 100;
+
+-- Step 2: Abort if data quality is poor (< 95% valid)
+IF @valid_rows / @total_rows < 0.95 THEN
+    ROLLBACK;
+    SELECT 'ETL ABORTED: Data quality check failed' AS error_message;
+END IF;
+
+-- Step 3: Backup existing data
+INSERT INTO students_backup SELECT *, NOW() AS backup_at FROM students;
+SAVEPOINT after_backup;
+
+-- Step 4: Load new data
+INSERT INTO students (student_id, name, city, course, score, fee_paid)
+SELECT student_id, TRIM(name), city, course, score, fee_paid
+FROM csv_import
+WHERE student_id IS NOT NULL
+ON DUPLICATE KEY UPDATE
+    score = VALUES(score),
+    city  = VALUES(city);
+
+SAVEPOINT after_load;
+
+-- Step 5: Verify loaded row count
+SELECT COUNT(*) INTO @loaded FROM students;
+-- Expect @loaded to increase by @valid_rows
+
+-- Step 6: Commit only if verification passes
+IF @loaded >= @total_rows THEN
+    COMMIT;
+    SELECT CONCAT('✅ ETL SUCCESS: ', @loaded, ' students loaded') AS result;
+ELSE
+    ROLLBACK TO SAVEPOINT after_backup;
+    SELECT 'ETL ROLLED BACK: Count mismatch' AS error_message;
+END IF;</textarea>
+      <div class="try-footer">
+        <div class="try-hint">💡 Production ETL always validates BEFORE committing. A bad data load can corrupt millions of records.</div>
+        <div class="try-btns">
+          <button class="reset-btn" onclick="resetE('e5',4)">Reset</button>
+          <button class="run-btn" onclick="showOut('o5')">▶ See ETL Pattern</button>
+        </div>
+      </div>
+      <div class="try-output" id="o5">
+        <div class="output-label">ETL Transaction Flow</div>
+        <div class="result-msg info">🔍 Step 1: Data quality check → 19/20 valid rows = 95% ✅</div>
+        <div class="result-msg success">✅ Step 2: Quality threshold met — proceeding</div>
+        <div class="result-msg success">✅ Step 3: Backup created → SAVEPOINT after_backup</div>
+        <div class="result-msg success">✅ Step 4: Data loaded → SAVEPOINT after_load</div>
+        <div class="result-msg success">✅ Step 5: Count verified — expected ≥ actual loaded</div>
+        <div class="result-msg good">✅ COMMIT: ETL SUCCESS — 19 valid rows permanently loaded</div>
+        <div class="result-msg info">💡 If any step fails: ROLLBACK TO after_backup → only the backup INSERT is preserved, all loaded data rolled back</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 11: CHEATSHEET & QUIZ ── -->
+  <div class="section" id="sec11">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--indigo-light)">📋</div>
+      <div><div class="section-num">Topic 11</div><h2 class="section-title">TCL Cheatsheet & Quiz</h2></div>
+    </div>
+
+    <div class="cheatsheet">
+      <div class="cs-title">📋 TCL Quick Reference</div>
+      <div class="cs-grid">
+        <div class="cs-item">
+          <div class="cs-label">Core Transaction</div>
+          <div class="cs-code"><span class="kw">START TRANSACTION</span>;
+<span class="cm">-- DML statements</span>
+<span class="kw">SELECT</span> * ... <span class="cm">-- verify</span>
+<span class="kw">COMMIT</span>;   <span class="cm">-- save permanently</span>
+<span class="cm">-- OR:</span>
+<span class="kw">ROLLBACK</span>; <span class="cm">-- undo all</span></div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">SAVEPOINTs</div>
+          <div class="cs-code"><span class="kw">SAVEPOINT</span> <span class="ph">sp1</span>;
+<span class="cm">-- more DML...</span>
+<span class="kw">SAVEPOINT</span> <span class="ph">sp2</span>;
+<span class="cm">-- if step 2 fails:</span>
+<span class="kw">ROLLBACK TO SAVEPOINT</span> <span class="ph">sp1</span>;
+<span class="kw">RELEASE SAVEPOINT</span> <span class="ph">sp1</span>;</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">Isolation Level</div>
+          <div class="cs-code"><span class="kw">SET SESSION TRANSACTION</span>
+  <span class="kw">ISOLATION LEVEL</span>
+  READ UNCOMMITTED;
+  READ COMMITTED;
+  REPEATABLE READ;  <span class="cm">← MySQL default</span>
+  SERIALIZABLE;</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">Locking</div>
+          <div class="cs-code"><span class="cm">-- Pessimistic: lock on read</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="ph">t</span>
+<span class="kw">WHERE</span> <span class="ph">id</span>=<span class="ph">1</span> <span class="kw">FOR UPDATE</span>;
+
+<span class="cm">-- Optimistic: version check</span>
+<span class="kw">UPDATE</span> <span class="ph">t SET</span> <span class="ph">col=val</span>,
+  version=version+<span class="ph">1</span>
+<span class="kw">WHERE</span> <span class="ph">id</span>=<span class="ph">1</span>
+  <span class="kw">AND</span> version=<span class="ph">5</span>;</div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">ACID</div>
+          <div class="cs-code"><span class="cm">A: All or nothing</span>
+<span class="cm">C: Valid state → valid state</span>
+<span class="cm">I: Concurrent txns isolated</span>
+<span class="cm">D: Committed = permanent</span></div>
+        </div>
+        <div class="cs-item">
+          <div class="cs-label">Read Anomalies</div>
+          <div class="cs-code"><span class="cm">Dirty Read: reads uncommitted</span>
+<span class="cm">→ Fix: READ COMMITTED</span>
+
+<span class="cm">Non-Repeatable: same row</span>
+<span class="cm">   changes mid-transaction</span>
+<span class="cm">→ Fix: REPEATABLE READ</span>
+
+<span class="cm">Phantom: new rows appear</span>
+<span class="cm">→ Fix: SERIALIZABLE</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="quiz-box">
+      <div class="quiz-header">
+        <div style="font-size:18px">🧠</div>
+        <div class="quiz-title">Chapter 7 — TCL Knowledge Check</div>
+        <div class="quiz-count" id="q-count">Question 1 of 12</div>
+      </div>
+      <div class="quiz-body" id="quiz-body"></div>
+      <div class="quiz-nav">
+        <div class="quiz-progress-dots" id="q-dots"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn" id="prev-btn" onclick="prevQ()" style="display:none">← Prev</button>
+          <button class="btn btn-primary" id="next-btn" onclick="nextQ()" style="display:none">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-box">
+      <div class="summary-title">✅ Chapter 7 — What You've Mastered</div>
+      <div class="summary-grid">
+        <div class="summary-item"><div class="summary-check">✓</div>BEGIN / START TRANSACTION — opening a transaction</div>
+        <div class="summary-item"><div class="summary-check">✓</div>COMMIT — making changes permanent</div>
+        <div class="summary-item"><div class="summary-check">✓</div>ROLLBACK — undoing all uncommitted changes</div>
+        <div class="summary-item"><div class="summary-check">✓</div>SAVEPOINT — partial rollback checkpoints</div>
+        <div class="summary-item"><div class="summary-check">✓</div>ROLLBACK TO SAVEPOINT & RELEASE SAVEPOINT</div>
+        <div class="summary-item"><div class="summary-check">✓</div>ACID — Atomicity, Consistency, Isolation, Durability</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Isolation levels — READ UNCOMMITTED → SERIALIZABLE</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Dirty read, Non-repeatable read, Phantom read</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Deadlocks — detection, prevention, consistent ordering</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Optimistic vs Pessimistic locking</div>
+        <div class="summary-item"><div class="summary-check">✓</div>Python transaction patterns — mysql-connector & SQLAlchemy</div>
+      </div>
+    </div>
+  </div>
+  </div><!-- /content -->
+
+  <div class="chapter-nav">
+    <div class="nav-card" onclick="window.location='chapter6-dml.html'">
+      ‹ <div><div class="nav-card-dir">← Previous</div><div class="nav-card-name">Chapter 6: DML</div></div>
+    </div>
+    <div class="nav-card" onclick="alert('Chapter 8: DCL — Data Control Language coming next!')">
+      <div><div class="nav-card-dir">Next →</div><div class="nav-card-name">Chapter 8: DCL — Data Control Language</div></div> ›
+    </div>
+  </div>
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ── SCROLL SPY ──────────────────────────────────
+const sids=['sec1','sec2','sec3','sec4','sec5','sec6','sec7','sec8','sec9','sec10','sec11'];
+window.addEventListener('scroll',()=>{
+  let cur=sids[0];
+  sids.forEach(id=>{const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<120)cur=id;});
+  document.querySelectorAll('.nav-item').forEach(n=>{n.classList.remove('active');if(n.getAttribute('href')==='#'+cur)n.classList.add('active');});
+});
+
+// ── BANK TRANSFER SIMULATOR ──────────────────────
+let priyaBal = 100000, rahulBal = 50000;
+let pendingDebit = 0, pendingCredit = 0;
+let txnActive = false;
+
+function fmt(n){ return '₹' + n.toLocaleString('en-IN'); }
+
+function addLog(msg, type='info'){
+  const log = document.getElementById('bank-log');
+  const entry = document.createElement('div');
+  entry.className = 'log-entry ' + type;
+  entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  log.appendChild(entry);
+  log.scrollTop = log.scrollHeight;
+}
+
+function updateBalances(){
+  document.getElementById('bal-priya').textContent = fmt(priyaBal);
+  document.getElementById('bal-rahul').textContent = fmt(rahulBal);
+  document.getElementById('acc-priya').className = 'account-card' + (txnActive ? ' active' : '');
+  document.getElementById('acc-rahul').className = 'account-card' + (txnActive ? ' active' : '');
+}
+
+function doTransfer(){
+  const amount = parseInt(document.getElementById('txn-amount').value) || 0;
+  if(amount <= 0){ addLog('❌ Invalid amount', 'error'); return; }
+  if(amount > priyaBal){ addLog(`❌ Insufficient balance. Priya has ${fmt(priyaBal)}, transfer is ${fmt(amount)}`, 'error'); return; }
+  if(txnActive){ addLog('⚠️ Transaction already in progress — COMMIT or ROLLBACK first', 'warn'); return; }
+
+  txnActive = true;
+  pendingDebit = amount;
+  pendingCredit = amount;
+  document.getElementById('transfer-label').textContent = fmt(amount);
+  document.getElementById('btn-commit').disabled = false;
+  document.getElementById('btn-rollback').disabled = false;
+
+  addLog(`START TRANSACTION`, 'info');
+  addLog(`UPDATE accounts SET balance = balance - ${amount} WHERE account_id = 1001`, 'warn');
+  addLog(`⏳ Priya debited ${fmt(amount)} (PENDING — not committed yet)`, 'warn');
+  addLog(`UPDATE accounts SET balance = balance + ${amount} WHERE account_id = 2002`, 'warn');
+  addLog(`⏳ Rahul credited ${fmt(amount)} (PENDING — not committed yet)`, 'warn');
+  addLog(`👉 Now click COMMIT to save or ROLLBACK to undo`, 'info');
+
+  // Show pending state visually
+  document.getElementById('bal-priya').textContent = fmt(priyaBal - amount) + ' (pending)';
+  document.getElementById('bal-rahul').textContent = fmt(rahulBal + amount) + ' (pending)';
+  document.getElementById('acc-priya').className = 'account-card active';
+  document.getElementById('acc-rahul').className = 'account-card active';
+  updateProgress();
+}
+
+function doCommit(){
+  if(!txnActive) return;
+  priyaBal -= pendingDebit;
+  rahulBal += pendingCredit;
+  txnActive = false;
+  pendingDebit = 0; pendingCredit = 0;
+  document.getElementById('btn-commit').disabled = true;
+  document.getElementById('btn-rollback').disabled = true;
+  document.getElementById('acc-priya').className = 'account-card';
+  document.getElementById('acc-rahul').className = 'account-card';
+  document.getElementById('transfer-label').textContent = '₹ ?';
+  addLog(`✅ COMMIT — Transfer permanent! Priya: ${fmt(priyaBal)}, Rahul: ${fmt(rahulBal)}`, 'success');
+  updateBalances();
+  updateProgress();
+}
+
+function doRollback(){
+  if(!txnActive) return;
+  txnActive = false;
+  pendingDebit = 0; pendingCredit = 0;
+  document.getElementById('btn-commit').disabled = true;
+  document.getElementById('btn-rollback').disabled = true;
+  document.getElementById('acc-priya').className = 'account-card';
+  document.getElementById('acc-rahul').className = 'account-card';
+  document.getElementById('transfer-label').textContent = '₹ ?';
+  addLog(`↩️ ROLLBACK — Transfer cancelled! Balances unchanged: Priya: ${fmt(priyaBal)}, Rahul: ${fmt(rahulBal)}`, 'warn');
+  updateBalances();
+  updateProgress();
+}
+
+function resetBank(){
+  priyaBal = 100000; rahulBal = 50000;
+  txnActive = false; pendingDebit = 0; pendingCredit = 0;
+  document.getElementById('btn-commit').disabled = true;
+  document.getElementById('btn-rollback').disabled = true;
+  document.getElementById('transfer-label').textContent = '₹ ?';
+  document.getElementById('bank-log').innerHTML = '<div class="log-entry info">-- Bank Transfer Transaction Log --</div><div class="log-entry info">-- Reset complete. Enter amount and click Transfer.</div>';
+  document.getElementById('acc-priya').className = 'account-card';
+  document.getElementById('acc-rahul').className = 'account-card';
+  updateBalances();
+}
+
+// ── TRY IT BOXES ─────────────────────────────────
+const defaults=[
+`-- Scenario: Grade all students from a batch
+START TRANSACTION;
+
+INSERT INTO scores_archive (student_id, score, archived_at)
+SELECT student_id, score, NOW()
+FROM students
+WHERE batch = 'B2024';
+
+UPDATE students
+SET score = LEAST(score + 5, 100)
+WHERE batch = 'B2024';
+
+SELECT student_id, name, score FROM students WHERE batch = 'B2024';
+
+COMMIT;
+-- OR: ROLLBACK;`,
+
+`-- Multi-step ETL with SAVEPOINTs
+START TRANSACTION;
+
+INSERT INTO staging_students SELECT * FROM csv_import WHERE is_valid = TRUE;
+SAVEPOINT sp_after_staging;
+
+UPDATE staging_students
+SET city = TRIM(city);
+SAVEPOINT sp_after_cleaning;
+
+INSERT INTO students
+SELECT student_id, name, city, course, score, fee_paid
+FROM staging_students;
+SAVEPOINT sp_after_production;
+
+DELETE FROM staging_students;
+
+COMMIT;`,
+
+`-- ACID: IRCTC-style seat booking
+START TRANSACTION;
+
+SELECT available_seats FROM trains
+WHERE train_id = 12658 AND journey_date = '2024-12-25'
+FOR UPDATE;
+
+UPDATE trains
+SET available_seats = available_seats - 1
+WHERE train_id = 12658
+  AND journey_date = '2024-12-25'
+  AND available_seats > 0;
+
+INSERT INTO tickets (passenger_name, train_id, journey_date, seat_no, status)
+VALUES ('Priya Sharma', 12658, '2024-12-25', 'B2-34', 'confirmed');
+
+UPDATE wallets SET balance = balance - 1250.00
+WHERE user_id = 101 AND balance >= 1250.00;
+
+COMMIT;`,
+
+`-- Deadlock-safe bank transfer procedure
+DELIMITER //
+CREATE PROCEDURE safe_transfer(
+    IN from_acc INT, IN to_acc INT, IN amount DECIMAL(10,2)
+)
+BEGIN
+    DECLARE smaller_id INT;
+    DECLARE larger_id INT;
+    SET smaller_id = LEAST(from_acc, to_acc);
+    SET larger_id = GREATEST(from_acc, to_acc);
+    START TRANSACTION;
+    SELECT balance FROM accounts WHERE account_id = smaller_id FOR UPDATE;
+    SELECT balance FROM accounts WHERE account_id = larger_id FOR UPDATE;
+    UPDATE accounts SET balance = balance - amount WHERE account_id = from_acc;
+    UPDATE accounts SET balance = balance + amount WHERE account_id = to_acc;
+    COMMIT;
+END //
+DELIMITER ;`,
+
+`-- Production ETL with transaction safety
+START TRANSACTION;
+
+SELECT COUNT(*) INTO @total_rows FROM csv_import;
+SELECT COUNT(*) INTO @valid_rows FROM csv_import
+WHERE student_id IS NOT NULL AND score BETWEEN 0 AND 100;
+
+INSERT INTO students_backup SELECT *, NOW() AS backup_at FROM students;
+SAVEPOINT after_backup;
+
+INSERT INTO students (student_id, name, city, course, score, fee_paid)
+SELECT student_id, TRIM(name), city, course, score, fee_paid
+FROM csv_import WHERE student_id IS NOT NULL
+ON DUPLICATE KEY UPDATE score = VALUES(score), city = VALUES(city);
+
+SAVEPOINT after_load;
+
+COMMIT;`
+];
+
+function resetE(id,idx){ document.getElementById(id).value = defaults[idx]; }
+function showOut(id){
+  document.getElementById(id).classList.add('visible');
+  document.getElementById(id).scrollIntoView({behavior:'smooth',block:'nearest'});
+  updateProgress();
+}
+
+// ── PROGRESS ─────────────────────────────────────
+function updateProgress(){
+  const outs = document.querySelectorAll('.try-output.visible').length;
+  const answered = qAns.filter(a=>a!==null).length;
+  const bankDone = (!document.getElementById('btn-commit').disabled || priyaBal !== 100000) ? 1 : 0;
+  const pct = Math.min(100, Math.round((outs+answered+bankDone)/(5+12+1)*100));
+  document.getElementById('prog-pct').textContent = pct+'%';
+  document.getElementById('prog-fill').style.width = pct+'%';
+}
+
+// ── QUIZ ─────────────────────────────────────────
+const qList=[
+  {q:'What does START TRANSACTION do in MySQL when autocommit is enabled?',opts:['It enables autocommit for this session','It suspends autocommit for the duration of this transaction — changes are not saved until COMMIT','It creates a new database automatically','It logs all SQL statements for audit purposes'],correct:1,exp:'✅ START TRANSACTION temporarily suspends autocommit for the transaction block. All DML executed after it is "provisional" — visible only to this session. Changes only become permanent after COMMIT. If the session disconnects without COMMIT, MySQL automatically ROLLBACKs the transaction.'},
+  {q:'What is the difference between ROLLBACK and ROLLBACK TO SAVEPOINT?',opts:['There is no difference — both undo all changes','ROLLBACK undoes ALL changes since START TRANSACTION; ROLLBACK TO SAVEPOINT undoes only changes since the named savepoint, preserving earlier changes','ROLLBACK TO SAVEPOINT ends the transaction; ROLLBACK does not','SAVEPOINT ROLLBACK is faster than regular ROLLBACK'],correct:1,exp:'✅ ROLLBACK (full): Undoes ALL changes since START TRANSACTION and ends the transaction. ROLLBACK TO SAVEPOINT sp1: Only undoes changes made AFTER sp1 was created. Changes before sp1 are preserved. The transaction remains OPEN — you can continue with more DML and eventually COMMIT or do a full ROLLBACK.'},
+  {q:'Which ACID property ensures that a bank transfer either fully completes or is fully cancelled — with no in-between state?',opts:['Consistency — all constraints are maintained','Isolation — other transactions cannot interfere','Atomicity — all operations succeed or all fail as one unit','Durability — committed changes survive failures'],correct:2,exp:'✅ ATOMICITY: The "all or nothing" property. A bank transfer (debit + credit) is one atomic unit. If the credit fails after the debit, Atomicity ensures the debit is also rolled back. Money never disappears. This is implemented via transaction logs (Write-Ahead Log) that allow complete rollback to the pre-transaction state.'},
+  {q:'Which isolation level does MySQL use by default?',opts:['READ UNCOMMITTED','READ COMMITTED','REPEATABLE READ','SERIALIZABLE'],correct:2,exp:'✅ MySQL\'s InnoDB default is REPEATABLE READ. This prevents dirty reads and non-repeatable reads. InnoDB also uses gap locks in this level to prevent many phantom reads, making it nearly as safe as SERIALIZABLE for most applications while maintaining much better performance. PostgreSQL defaults to READ COMMITTED.'},
+  {q:'What is a "dirty read"?',opts:['Reading data from a dirty (corrupted) database','Reading data that another transaction has modified but not yet committed — data that may be rolled back','Reading data from a read-only table','Reading data without the proper permissions'],correct:1,exp:'✅ A dirty read occurs when Transaction B reads data that Transaction A has changed but not yet committed. If Transaction A then ROLLBACK, Transaction B has read "ghost" data that never officially existed. Example: A debits an account (but doesn\'t commit), B reads the low balance and denies a withdrawal, A then rollbacks — B made a wrong decision based on uncommitted data. Prevented by READ COMMITTED and above.'},
+  {q:'What is a deadlock?',opts:['When a transaction takes too long to complete','When two transactions each hold a lock that the other needs, creating a circular dependency where neither can proceed','When the database runs out of memory during a transaction','When a ROLLBACK fails to undo changes'],correct:1,exp:'✅ Deadlock: Session A holds Row 1 lock and waits for Row 2. Session B holds Row 2 lock and waits for Row 1. Neither can proceed — circular dependency. MySQL detects this automatically (usually within seconds) and kills the transaction with the least "work" done (the victim), returning ERROR 1213. The victim\'s application should catch this and retry the transaction.'},
+  {q:'What is the most effective way to prevent deadlocks?',opts:['Use SERIALIZABLE isolation level','Always acquire locks in the same consistent order across all transactions','Use optimistic locking everywhere','Increase innodb_lock_wait_timeout to a very high value'],correct:1,exp:'✅ Consistent lock ordering: If all transactions always acquire locks in the same order (e.g., always lock the lower account_id first), circular dependencies cannot form. Example: both "A→B transfer" and "B→A transfer" first lock the smaller account_id, then the larger one. They may queue, but never deadlock.'},
+  {q:'What does SELECT ... FOR UPDATE do?',opts:['Makes the SELECT return only updatable columns','Immediately updates the selected rows','Acquires an exclusive row-level lock on the selected rows until the transaction ends (Pessimistic locking)','Makes other transactions unable to read these rows'],correct:2,exp:'✅ SELECT ... FOR UPDATE acquires an exclusive lock on the matching rows. Other transactions that try to SELECT FOR UPDATE or UPDATE those same rows will WAIT until your transaction commits or rolls back. This is pessimistic locking — preventing anyone else from modifying the rows while you\'re working with them. Use it when you read to immediately modify.'},
+  {q:'What is optimistic locking and how does it work?',opts:['Using high transaction isolation levels to optimistically assume good performance','Read rows without locking, track a version/timestamp column, and on update check that the version matches what you read — retry if another transaction changed it first','Assuming transactions will always succeed and skipping error handling','Locking tables optimistically at the start of each day'],correct:1,exp:'✅ Optimistic locking: (1) Read row with its version number — no lock taken. (2) Perform business logic. (3) Update with WHERE version = original_version. (4) If 0 rows updated, someone else changed it — retry from step 1. No database locks are held, so concurrency is high. If conflicts are rare, this is much faster than pessimistic locking. Used in product catalogs, user profiles, etc.'},
+  {q:'A transaction commits successfully. Then the server loses power. When it restarts, what happens to the committed data?',opts:['The data is lost — it was only in memory','The data is fully restored — this is the Durability guarantee','The data is partially restored depending on the crash timing','A manual recovery process is needed'],correct:1,exp:'✅ DURABILITY: Once COMMIT completes successfully, the data is guaranteed to survive any failure — power loss, crash, hardware failure. MySQL (InnoDB) achieves this through Write-Ahead Logging (WAL) / redo logs. The redo log is flushed to disk before COMMIT returns to the application. On restart, InnoDB replays the redo log to recover all committed transactions.'},
+  {q:'Which Python pattern automatically commits on success and rolls back on exception?',opts:['Using cursor.commit() in a try block','Using conn.autocommit = True','Using "with engine.begin() as conn:" — commits on exit, rollbacks on exception','Using try/except/finally with manual commit'],correct:2,exp:'✅ The context manager pattern "with engine.begin() as conn:" (SQLAlchemy) automatically: COMMITs when the with block exits normally, ROLLBACKs when any exception is raised. This is the cleanest, most Pythonic transaction pattern. With mysql-connector: set autocommit=False, use try/except to call conn.commit() or conn.rollback() manually.'},
+  {q:'What is RELEASE SAVEPOINT?',opts:['Immediately commits the transaction up to that savepoint','Undoes changes back to the savepoint','Removes the savepoint from memory without rolling back or committing — frees the savepoint name for reuse','Ends the transaction permanently'],correct:2,exp:'✅ RELEASE SAVEPOINT removes the named savepoint from memory. It does NOT roll back or commit anything. Changes made after the savepoint are still pending. It simply frees the savepoint name so you can reuse it, and tells MySQL it no longer needs to maintain rollback data to that point (small memory optimization). After RELEASE, you cannot ROLLBACK TO that savepoint anymore.'},
+];
+let cQ=0; const qAns=new Array(qList.length).fill(null);
+function renderQuiz(){
+  const q=qList[cQ];
+  document.getElementById('q-count').textContent=`Question ${cQ+1} of ${qList.length}`;
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="quiz-q">${cQ+1}. ${q.q}</div>
+    <div class="quiz-options">${q.opts.map((o,i)=>`
+      <button class="quiz-opt ${qAns[cQ]===i?(i===q.correct?'correct':'wrong'):''}"
+              onclick="ansQ(${i})" ${qAns[cQ]!==null?'disabled':''}>
+        <div class="opt-letter">${['A','B','C','D'][i]}</div>${o}
+      </button>`).join('')}</div>
+    <div class="quiz-feedback ${qAns[cQ]!==null?'show':''} ${qAns[cQ]===q.correct?'correct':'wrong'}">
+      ${qAns[cQ]!==null?q.exp:''}
+    </div>`;
+  document.getElementById('q-dots').innerHTML=qList.map((_,i)=>`<div class="q-dot ${i===cQ?'active':qAns[i]===null?'':(qAns[i]===qList[i].correct?'done-c':'done-w')}"></div>`).join('');
+  document.getElementById('prev-btn').style.display=cQ>0?'block':'none';
+  document.getElementById('next-btn').style.display=qAns[cQ]!==null&&cQ<qList.length-1?'block':'none';
+}
+function ansQ(i){if(qAns[cQ]!==null)return;qAns[cQ]=i;updateProgress();renderQuiz();}
+function nextQ(){if(cQ<qList.length-1){cQ++;renderQuiz();}}
+function prevQ(){if(cQ>0){cQ--;renderQuiz();}}
+renderQuiz();
+</script>
+</body>
+</html>
